@@ -2831,48 +2831,62 @@ sub select_gff_format{
 # We modify the attributes: group=gene_id "e_gw1.5.2.1" protein_id 335805 exonNumber 1
 # in order to get : gene_id=e_gw1.5.2.1;protein_id=335805;exonNumber=1
 sub _gff1_corrector{
-	my ($feat)=@_;
+	my ($feat, $verbose)=@_;
 
-	#print "_gff1_corrector ".$feat->gff_string."\n";# if ($verbose >=2);
 	if($feat->has_tag('group')){
+
 		my @attribs = $feat->get_tag_values('group');
 		my $attribs = join ' ', @attribs;
 		my @parsed;
 		my $flag = 0; # this could be changed to a bit and just be twiddled
 
 	    # run through each character one at a time and check it
-	    # NOTE: changed to foreach loop which is more efficient in perl
-	    # --jasons
 	    my $previousChar=undef;
 	    my $string="";
-	    for my $a ( split //, $attribs ) {
-	    	$string.=$a;
-	        # flag up on entering quoted text, down on leaving it
-	        if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 } #active deactive the flag
-	        if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
+	    foreach my $a ( split //, $attribs ) {
+          $string.=$a;
+
+          # flag up on entering quoted text, down on leaving it
+	        if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 ;} #active deactive the flag
+
+          if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
 	        	chop $string;
 	        	chop $string;
 	        	$string = reverse($string);
-    			chop($string);
-    			$string= reverse($string);
+    			  chop($string);
+            $string= reverse($string);
 	        	push @parsed, $string;
 	        	$string="";
 	        }
-	        elsif( $a eq " " and $flag == 0){
+	        elsif( ( $a eq " " and $flag == 0) and !($string =~ /^ *$/) ){
 	        	chop $string;
 	        	push @parsed, $string;
 	        	$string="";
 	        }
 	        $previousChar = $a;
 	    }
+      # ---- Check now last string ----
+      # If it was quoted
+      if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
+        chop $string;
+        $string = reverse($string);
+        chop($string);
+        $string= reverse($string);
+        push @parsed, $string;
+      }# If it not empty or not only space and not quoted
+	    elsif( ($string ne "") and !($string =~ /^ *$/)  ){
+        if($previousChar eq " "){
+          chop $string;
+        }
+        push @parsed, $string;
+      }
 
-	    if($string ne ""){ if($previousChar eq " "){chop $string;} push @parsed, $string;}
-	    while (@parsed){
+      while (@parsed){
 	    	my $value = pop @parsed;
 	    	my $tag = pop @parsed;
 	    	$feat->add_tag_value($tag, $value);
 	    }
-	    #remove it
+	  #remove old group attribute
 		$feat->remove_tag('group');
     }
 }
