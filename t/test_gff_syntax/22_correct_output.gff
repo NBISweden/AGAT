@@ -1,0 +1,9 @@
+##gff-version 3
+unitig_0|quiver	maker	gene	2098663	2104039	1000	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0;Name=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0;cov=15.156588;fPKM=3.157668;gene_id=4_160615_BC9HJBANXX_P3969_201.1307;tPM=4.228132;transcript_id=4_160615_BC9HJBANXX_P3969_201.1307.2
+unitig_0|quiver	maker	mRNA	2098663	2104039	1000	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0;Name=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1;_AED=0.00;_QI=22|1|1|1|0|0|2|2676|698;_eAED=0.00
+unitig_0|quiver	maker	exon	2098663	2102863	.	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:exon:84;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1
+unitig_0|quiver	maker	exon	2103446	2104039	.	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:exon:85;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1
+unitig_0|quiver	maker	CDS	2098685	2100781	.	+	0	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:cds;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1
+unitig_0|quiver	maker	five_prime_UTR	2098663	2098684	.	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:five_prime_utr;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1
+unitig_0|quiver	maker	three_prime_UTR	2100782	2102863	.	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:three_prime_utr;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1
+unitig_0|quiver	maker	three_prime_UTR	2103446	2104039	.	+	.	ID=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1:three_prime_utr;Parent=maker-unitig_0|quiver-est_gff_StringTie-gene-21.0-mRNA-1

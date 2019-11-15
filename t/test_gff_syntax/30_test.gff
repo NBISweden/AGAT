@@ -1,0 +1,6 @@
+000000F|arrow	StringTie	transcript	898	1804	1000	+	.	gene_id "P12103_109_S2_L002.1"; transcript_id "P12103_109_S2_L002.1.1";
+000000F|arrow	StringTie	exon	898	1804	1000	+	.	gene_id "P12103_109_S2_L002.1"; transcript_id "P12103_109_S2_L002.1.1";
+000000F|arrow	StringTie	pseudogene	1147	3802	1000	-	.	gene_id "P12103_109_S2_L002.2"; transcript_id "P12103_109_S2_L002.2.1";
+000000F|arrow	StringTie	exon	1147	3802	1000	-	.	gene_id "P12103_109_S2_L002.2"; transcript_id "P12103_109_S2_L002.2.1";
+000000F|arrow	StringTie	transcript	6990	7449	1000	-	.	gene_id "P12103_109_S2_L002.4"; transcript_id "P12103_109_S2_L002.4.1";
+000000F|arrow	StringTie	exon	6990	7449	1000	-	.	gene_id "P12103_109_S2_L002.4"; transcript_id "P12103_109_S2_L002.4.1";

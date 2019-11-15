@@ -1,0 +1,30 @@
+##gff-version 3
+Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	1018	1191	.	-	0	ID=Tob1_00002;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00002;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	1175	1591	.	-	0	ID=Tob1_00003;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00003;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	1617	2186	.	-	0	ID=Tob1_00004;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00004;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	2318	3862	.	-	0	ID=Tob1_00005;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00005;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	3983	4375	.	-	0	ID=Tob1_00006;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00006;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	4465	5121	.	-	0	ID=Tob1_00007;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00007;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	5303	6295	.	-	0	ID=Tob1_00008;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00008;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	6413	20059	.	-	0	ID=Tob1_00009;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00009;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	20337	21584	.	-	0	ID=Tob1_00010;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00010;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	21644	23791	.	-	0	ID=Tob1_00011;gene=apxIB_1;inference=ab initio prediction:Prodigal:2.60,similar to AA sequence:UniProtKB:P26760;locus_tag=Tob1_00011
+Tob1_contig1	Prodigal:2.60	CDS	23788	24972	.	-	0	ID=Tob1_00012;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00012;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	25114	25416	.	-	0	ID=Tob1_00013;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00013;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	25781	25876	.	-	0	ID=Tob1_00014;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00014;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	25961	26089	.	+	0	ID=Tob1_00015;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00015;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	26156	26260	.	+	0	ID=Tob1_00016;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00016;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	26257	26694	.	+	0	ID=Tob1_00017;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00017;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	26694	27134	.	+	0	ID=Tob1_00018;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00018;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	27145	27324	.	-	0	ID=Tob1_00019;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00019;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	27935	29050	.	+	0	ID=Tob1_00020;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00020;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	29190	32849	.	+	0	ID=Tob1_00021;eC_number=3.6.3.-;inference=ab initio prediction:Prodigal:2.60,similar to AA sequence:UniProtKB:Q99T13;locus_tag=Tob1_00021
+Tob1_contig1	Prodigal:2.60	CDS	32953	33366	.	+	0	ID=Tob1_00022;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00022;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	33411	34181	.	+	0	ID=Tob1_00023;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00023;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;inference=ab initio prediction:Prodigal:2.60;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
+Tob1_contig1	Prodigal:2.60	CDS	35267	37444	.	-	0	ID=Tob1_00025;locus_tag=Tob1_00025;
+Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 25;product=putative signal peptide
+Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;inference=ab initio prediction:Prodigal:2.60,similar to AA sequence:uniprot.escherichia_coli_k12_newNames.fasta:sp|P00887|AROH_ECOLI;locus_tag=Tob1_00026;
+

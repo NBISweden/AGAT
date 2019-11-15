@@ -1,0 +1,16 @@
+{  "_comment": "level3 features have parents, but no child. ( cds => exon mean that cds is included into an exon)",
+  "cds":"exon",
+  "exon":"1",
+  "five_prime_utr":"exon",
+  "intron":"1",
+  "non_canonical_five_prime_splice_site":"1",
+  "non_canonical_three_prime_splice_site":"1",
+  "selenocysteine":"1",
+  "sig_peptide":"exon",
+  "start_codon":"exon",
+  "stop_codon":"exon",
+  "stop_codon_read_through":"exon",
+  "three_prime_utr":"exon",
+  "tss":"exon",
+  "tts":"exon"
+}

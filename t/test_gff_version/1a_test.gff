@@ -1,0 +1,9 @@
+# GFF1 only one value as attribute
+scaffold_5	JGI	exon	442603	443344	.	+	.	geneA
+scaffold_5	JGI	CDS	442603	443344	.	+	0	geneA
+scaffold_5	JGI	start_codon	442603	442605	.	+	0	geneA
+scaffold_5	JGI	exon	443530	443531	.	+	.	geneA
+scaffold_5	JGI	CDS	443530	443531	.	+	2	geneA
+scaffold_5	JGI	exon	443569	445653	.	+	.	geneA
+scaffold_5	JGI	CDS	443569	445653	.	+	0	geneA
+scaffold_5	JGI	stop_codon	445651	445653	.	+	0	geneA

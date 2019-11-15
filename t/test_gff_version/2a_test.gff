@@ -1,0 +1,9 @@
+#GFF2 as we see often with space before semicolon
+scaffold_5	JGI	exon	442603	443344	.	+	.	gene_id "e_gw1.5.2.1" ; transcript_id 335995
+scaffold_5	JGI	CDS	442603	443344	.	+	0	gene_id "e_gw1.5.2.1" ; protein_id 335805; exonNumber 1
+scaffold_5	JGI	start_codon	442603	442605	.	+	0	gene_id "e_gw1.5.2.1"
+scaffold_5	JGI	exon	443530	443531	.	+	.	gene_id "e_gw1.5.2.1" ; transcript_id 335995
+scaffold_5	JGI	CDS	443530	443531	.	+	2	gene_id "e_gw1.5.2.1" ; protein_id 335805; exonNumber 2
+scaffold_5	JGI	exon	443569	445653	.	+	.	gene_id "e_gw1.5.2.1" ; transcript_id 335995
+scaffold_5	JGI	CDS	443569	445653	.	+	0	gene_id "e_gw1.5.2.1" ; protein_id 335805; exonNumber 3
+scaffold_5	JGI	stop_codon	445651	445653	.	+	0	gene_id "e_gw1.5.2.1"

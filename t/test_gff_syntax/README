@@ -1,0 +1,48 @@
+This is an explanations of the different test files used to check the GFF3 parser.
+Launch the tester.sh script to check the parser and all these files.
+
+
+00: Correct gff3 => Must stay as it is.
+01: 4 Exon duplicated + 4 exon missing
+02: No Parent attribute, but sorted correctly
+03: Same as 2 but with common tag
+04: Same as 3 but but 2 features with common tag spread within the file (locus AAAA). Actually the 2 features occurs too early in the file.
+05: Same as 3 but but 2 features with common tag spread within the file (locus BBBB). Actually the 2 features occurs too late in the file.
+06: Same as 3 but some common tag are missing
+07: Same as 3 but some have also parent feature
+08: Prokka output => only CDS defined, and locus_tag is defined
+09: Refseq1: Level1 and level3 linked by ID/Parent ... but level2 missing ... and two UTRs missing
+10: Refseq2: level2 missing, the whole is linked by a common attribute (here locus_tag); No ID attribute ... and 3 UTRs missing
+11: Two isoforms of the same locus are not defined one after each other (so, spread...), and the level1 and level2 of those are missing. The two isoforms have to be linked to the same gene
+12: Ensembl peculiarities case
+13: same as 11 but isoforms are identical (one has to be removed). Two mRNA identical in locus tag mode.
+14: 6 UTRs missing
+15: Match / Match_part case (alignment GFF). Clean case.
+16: One UTR is wrong
+17: One exon is badly defined (UTR show that one is a bit longer)
+18: features spread
+19: some have locus tag, some have Parent
+20: 4 Exon are missing
+21: Two exon badly defined, they are overlapping. One has to have its location modified and the other one ahas to be completely removed
+22: case where UTR both side of an exon... nothing to do, just the check has to not perform anything...
+23: Multi-parent for the exon feature
+24: Not correct SOFA feature type => It's normal that there is no correct output to check against.
+25: No L1 feature. L2 and l3 feature without common locus tag. Has to be handle strictly sequential. (/!\ if there are isoforms of the same gene they cannot be gather under the same L1. There is no way to do the assumption)
+26: No L1 feature, No L2 feature, No Locus tag. => It's normal that there is no correct output to check against.
+27: One L2 is an identical isoform but not same ID. It has to be removed.
+28: Mitos output. Only one line by record, no ID, no locus tag. We have to use the option '-c Name' to specify that we will use the Name attribute as a locus_tag as they are uniq identifiers.
+29: Gnomom output. Two isoforms do not have CDS described but only exons. (was raising error at some point. See issue #9, fixed now)
+30: Level1 and level3 linked by common tag ... but level2 missing ...
+31: interleaved feature with parent( here transcript_id) and other with locus only Level3 features. (locus shared with feature having parent attribute)
+32: Same as 31 except, the first feature of a record do not have parent attribute (it will be saved into the sequential before to be fish out and put with the features in omniscient sharing the same locus tag) 
+
+/!\ If only level3 features are defined, and no locus tag present (see test 26), the tool cannot deal with it. I will create by default one umbrella level1, or if you on attribute as uniq locus ID, It will create a l1 for each feature => If only exon or only CDS features so the result will be fine, but if there are two different features that has to be linked together (two CDS or a CDS and a signal peptide as in the test case 26) , the tool will not perform properly.
+
+The philosophy of the parser is to
+- Parse by Parent/child ELSE
+- Parse by common_tag  ELSE
+- Parse sequentially
+
+Definitions:
+feature = 1 line
+record = bench of features linked together to describe a genomic element (i.e gebe feature + mRNA feature + exon feature + CDS feature + UTR feature)

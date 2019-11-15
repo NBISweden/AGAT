@@ -1,0 +1,7 @@
+#specificities 9th column
+gff1 - 1a: Only one value per line (to group feature together)
+gff1 - 1b: Only spaces between tag value and beetween attributes (quoted when space in the value)
+gff2 - 2: space + semicolom between attributes, space between tag and value
+gff2.5 - 2.5: space + semicolom between attributes, space between tag and value, semicolon end of line
+gff3 - 3:  = between tag and value
+gff3 - 4 : ; between attributes and  = between tag and value

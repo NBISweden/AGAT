@@ -1,0 +1,10 @@
+##gff-version 3
+000000F|arrow	StringTie	gene	898	1804	1000	+	.	ID=P12103_109_S2_L002.1;gene_id=P12103_109_S2_L002.1;transcript_id=P12103_109_S2_L002.1.1
+000000F|arrow	StringTie	transcript	898	1804	1000	+	.	ID=P12103_109_S2_L002.1.1;Parent=P12103_109_S2_L002.1;gene_id=P12103_109_S2_L002.1;transcript_id=P12103_109_S2_L002.1.1
+000000F|arrow	StringTie	exon	898	1804	1000	+	.	ID=exon-1;Parent=P12103_109_S2_L002.1.1;gene_id=P12103_109_S2_L002.1;transcript_id=P12103_109_S2_L002.1.1
+000000F|arrow	StringTie	gene	6990	7449	1000	-	.	ID=P12103_109_S2_L002.4;gene_id=P12103_109_S2_L002.4;transcript_id=P12103_109_S2_L002.4.1
+000000F|arrow	StringTie	transcript	6990	7449	1000	-	.	ID=P12103_109_S2_L002.4.1;Parent=P12103_109_S2_L002.4;gene_id=P12103_109_S2_L002.4;transcript_id=P12103_109_S2_L002.4.1
+000000F|arrow	StringTie	exon	6990	7449	1000	-	.	ID=exon-3;Parent=P12103_109_S2_L002.4.1;gene_id=P12103_109_S2_L002.4;transcript_id=P12103_109_S2_L002.4.1
+000000F|arrow	StringTie	pseudogene	1147	3802	1000	-	.	ID=nbis_NEW-pseudogene-1;gene_id=P12103_109_S2_L002.2;transcript_id=P12103_109_S2_L002.2.1
+000000F|arrow	StringTie	RNA	1147	3802	1000	-	.	ID=p12103_109_s2_l002.2.1;Parent=nbis_NEW-pseudogene-1;gene_id=P12103_109_S2_L002.2;transcript_id=P12103_109_S2_L002.2.1
+000000F|arrow	StringTie	exon	1147	3802	1000	-	.	ID=exon-2;Parent=P12103_109_S2_L002.2.1;gene_id=P12103_109_S2_L002.2;transcript_id=P12103_109_S2_L002.2.1

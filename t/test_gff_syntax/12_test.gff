@@ -1,0 +1,138 @@
+##gff-version   3
+##sequence-region   1 1 249250621
+##sequence-region   10 1 135534747
+##sequence-region   11 1 135006516
+##sequence-region   12 1 133851895
+##sequence-region   13 1 115169878
+##sequence-region   14 1 107349540
+##sequence-region   15 1 102531392
+##sequence-region   16 1 90354753
+##sequence-region   17 1 81195210
+##sequence-region   18 1 78077248
+##sequence-region   19 1 59128983
+##sequence-region   2 1 243199373
+##sequence-region   20 1 63025520
+##sequence-region   21 1 48129895
+##sequence-region   22 1 51304566
+##sequence-region   3 1 198022430
+##sequence-region   4 1 191154276
+##sequence-region   5 1 180915260
+##sequence-region   6 1 171115067
+##sequence-region   7 1 159138663
+##sequence-region   8 1 146364022
+##sequence-region   9 1 141213431
+##sequence-region   GL000191.1 1 106433
+##sequence-region   GL000192.1 1 547496
+##sequence-region   GL000193.1 1 189789
+##sequence-region   GL000194.1 1 191469
+##sequence-region   GL000195.1 1 182896
+##sequence-region   GL000196.1 1 38914
+##sequence-region   GL000197.1 1 37175
+##sequence-region   GL000198.1 1 90085
+##sequence-region   GL000199.1 1 169874
+##sequence-region   GL000200.1 1 187035
+##sequence-region   GL000201.1 1 36148
+##sequence-region   GL000202.1 1 40103
+##sequence-region   GL000203.1 1 37498
+##sequence-region   GL000204.1 1 81310
+##sequence-region   GL000205.1 1 174588
+##sequence-region   GL000206.1 1 41001
+##sequence-region   GL000207.1 1 4262
+##sequence-region   GL000208.1 1 92689
+##sequence-region   GL000209.1 1 159169
+##sequence-region   GL000210.1 1 27682
+##sequence-region   GL000211.1 1 166566
+##sequence-region   GL000212.1 1 186858
+##sequence-region   GL000213.1 1 164239
+##sequence-region   GL000214.1 1 137718
+##sequence-region   GL000215.1 1 172545
+##sequence-region   GL000216.1 1 172294
+##sequence-region   GL000217.1 1 172149
+##sequence-region   GL000218.1 1 161147
+##sequence-region   GL000219.1 1 179198
+##sequence-region   GL000220.1 1 161802
+##sequence-region   GL000221.1 1 155397
+##sequence-region   GL000222.1 1 186861
+##sequence-region   GL000223.1 1 180455
+##sequence-region   GL000224.1 1 179693
+##sequence-region   GL000225.1 1 211173
+##sequence-region   GL000226.1 1 15008
+##sequence-region   GL000227.1 1 128374
+##sequence-region   GL000228.1 1 129120
+##sequence-region   GL000229.1 1 19913
+##sequence-region   GL000230.1 1 43691
+##sequence-region   GL000231.1 1 27386
+##sequence-region   GL000232.1 1 40652
+##sequence-region   GL000233.1 1 45941
+##sequence-region   GL000234.1 1 40531
+##sequence-region   GL000235.1 1 34474
+##sequence-region   GL000236.1 1 41934
+##sequence-region   GL000237.1 1 45867
+##sequence-region   GL000238.1 1 39939
+##sequence-region   GL000239.1 1 33824
+##sequence-region   GL000240.1 1 41933
+##sequence-region   GL000241.1 1 42152
+##sequence-region   GL000242.1 1 43523
+##sequence-region   GL000243.1 1 43341
+##sequence-region   GL000244.1 1 39929
+##sequence-region   GL000245.1 1 36651
+##sequence-region   GL000246.1 1 38154
+##sequence-region   GL000247.1 1 36422
+##sequence-region   GL000248.1 1 39786
+##sequence-region   GL000249.1 1 38502
+##sequence-region   MT 1 16569
+##sequence-region   X 1 155270560
+##sequence-region   Y 2649521 59034049
+#!genome-build  GRCh37.p13
+#!genome-version GRCh37
+#!genome-date 2009-02
+#!genome-build-accession NCBI:GCA_000001405.14
+#!genebuild-last-updated 2013-09
+1	GRCh37	chromosome	1	249250621	.	.	.	ID=chromosome:1;Alias=CM000663.1,NC_000001.10
+###
+1	ensembl_havana	pseudogene	11869	14412	.	+	.	ID=gene:ENSG00000223972;Name=DDX11L1;biotype=pseudogene;description=DEAD/H (Asp-Glu-Ala-Asp/His) box helicase 11 like 1 [Source:HGNC Symbol%3BAcc:37102];gene_id=ENSG00000223972;logic_name=ensembl_havana_gene;version=4
+1	ensembl_havana	processed_transcript	11869	14409	.	+	.	ID=transcript:ENST00000456328;Parent=gene:ENSG00000223972;Name=DDX11L1-002;biotype=processed_transcript;havana_transcript=OTTHUMT00000362751;havana_version=1;tag=basic;transcript_id=ENST00000456328;version=2
+1	havana	exon	11869	12227	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00002234944;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002234944;rank=1;version=1
+1	havana	exon	12613	12721	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00003582793;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00003582793;rank=2;version=1
+1	havana	exon	13221	14409	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00002312635;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002312635;rank=3;version=1
+1	ensembl_havana	pseudogenic_transcript	11872	14412	.	+	.	ID=transcript:ENST00000515242;Parent=gene:ENSG00000223972;Name=DDX11L1-201;biotype=transcribed_unprocessed_pseudogene;transcript_id=ENST00000515242;version=2
+1	ensembl	exon	11872	12227	.	+	.	Parent=transcript:ENST00000515242;Name=ENSE00002234632;constitutive=0;ensembl_end_phase=2;ensembl_phase=-1;exon_id=ENSE00002234632;rank=1;version=1
+1	ensembl	exon	12613	12721	.	+	.	Parent=transcript:ENST00000515242;Name=ENSE00003608237;constitutive=0;ensembl_end_phase=0;ensembl_phase=2;exon_id=ENSE00003608237;rank=2;version=1
+1	ensembl	exon	13225	14412	.	+	.	Parent=transcript:ENST00000515242;Name=ENSE00002306041;constitutive=0;ensembl_end_phase=-1;ensembl_phase=0;exon_id=ENSE00002306041;rank=3;version=1
+1	ensembl_havana	pseudogenic_transcript	11874	14409	.	+	.	ID=transcript:ENST00000518655;Parent=gene:ENSG00000223972;Name=DDX11L1-202;biotype=transcribed_unprocessed_pseudogene;transcript_id=ENST00000518655;version=2
+1	ensembl	exon	11874	12227	.	+	.	Parent=transcript:ENST00000518655;Name=ENSE00002269724;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002269724;rank=1;version=1
+1	ensembl	exon	12595	12721	.	+	.	Parent=transcript:ENST00000518655;Name=ENSE00002270865;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002270865;rank=2;version=1
+1	ensembl	exon	13403	13655	.	+	.	Parent=transcript:ENST00000518655;Name=ENSE00002216795;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=ENSE00002216795;rank=3;version=1
+1	ensembl	exon	13661	14409	.	+	.	Parent=transcript:ENST00000518655;Name=ENSE00002303382;constitutive=0;ensembl_end_phase=0;ensembl_phase=0;exon_id=ENSE00002303382;rank=4;version=1
+1	ensembl_havana	pseudogenic_transcript	12010	13670	.	+	.	ID=transcript:ENST00000450305;Parent=gene:ENSG00000223972;Name=DDX11L1-001;biotype=transcribed_unprocessed_pseudogene;havana_transcript=OTTHUMT00000002844;havana_version=2;transcript_id=ENST00000450305;version=2
+1	havana	exon	12010	12057	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001948541;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001948541;rank=1;version=1
+1	havana	exon	12179	12227	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001671638;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001671638;rank=2;version=2
+1	havana	exon	12613	12697	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001758273;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001758273;rank=3;version=2
+1	havana	exon	12975	13052	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001799933;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001799933;rank=4;version=2
+1	havana	exon	13221	13374	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001746346;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001746346;rank=5;version=2
+1	havana	exon	13453	13670	.	+	.	Parent=transcript:ENST00000450305;Name=ENSE00001863096;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001863096;rank=6;version=1
+###
+1	havana	pseudogene	176241619	176242538	.	+	.	ID=gene:ENSG00000227815;Name=RP11-195C7.3;biotype=pseudogene;gene_id=ENSG00000227815;logic_name=havana;version=2
+1	havana	pseudogene	176241619	176242538	.	+	.	ID=transcript:ENST00000440296;Parent=gene:ENSG00000227815;Name=RP11-195C7.3-001;biotype=unprocessed_pseudogene;havana_transcript=OTTHUMT00000084685;havana_version=2;tag=basic;transcript_id=ENST00000440296;version=2
+1	havana	exon	176241619	176241675	.	+	.	Parent=transcript:ENST00000440296;Name=ENSE00001660785;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001660785;rank=1;version=2
+1	havana	exon	176241743	176242168	.	+	.	Parent=transcript:ENST00000440296;Name=ENSE00001739151;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001739151;rank=2;version=2
+1	havana	exon	176242227	176242538	.	+	.	Parent=transcript:ENST00000440296;Name=ENSE00001773509;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001773509;rank=3;version=2
+###
+1	havana	pseudogene	13411551	13414482	.	+	.	ID=gene:ENSG00000237700;Name=RP11-219C24.6;biotype=pseudogene;gene_id=ENSG00000237700;logic_name=havana;version=1
+1	havana	pseudogene	13411551	13414482	.	+	.	ID=transcript:ENST00000437300;Parent=gene:ENSG00000237700;Name=RP11-219C24.6-001;biotype=unitary_pseudogene;havana_transcript=OTTHUMT00000022042;havana_version=1;tag=basic;transcript_id=ENST00000437300;version=1
+1	havana	exon	13411551	13411837	.	+	.	Parent=transcript:ENST00000437300;Name=ENSE00001677077;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001677077;rank=1;version=1
+1	havana	exon	13412234	13412812	.	+	.	Parent=transcript:ENST00000437300;Name=ENSE00001715540;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001715540;rank=2;version=1
+1	havana	exon	13413924	13414482	.	+	.	Parent=transcript:ENST00000437300;Name=ENSE00001784031;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001784031;rank=3;version=1
+###
+1	ensembl_havana	pseudogene	11869	14412	.	+	.	ID=gene:ENSG00000223972;Name=DDX11L1;biotype=pseudogene;description=DEAD/H (Asp-Glu-Ala-Asp/His) box helicase 11 like 1 [Source:HGNC Symbol%3BAcc:37102];gene_id=ENSG00000223972;logic_name=ensembl_havana_gene;version=4
+1	ensembl_havana	processed_transcript	11869	14409	.	+	.	ID=transcript:ENST00000456328;Parent=gene:ENSG00000223972;Name=DDX11L1-002;biotype=processed_transcript;havana_transcript=OTTHUMT00000362751;havana_version=1;tag=basic;transcript_id=ENST00000456328;version=2
+1	havana	exon	11869	12227	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00002234944;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002234944;rank=1;version=1
+1	havana	exon	12613	12721	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00003582793;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00003582793;rank=2;version=1
+1	havana	exon	13221	14409	.	+	.	Parent=transcript:ENST00000456328;Name=ENSE00002312635;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002312635;rank=3;version=1
+1	ensembl_havana	pseudogenic_transcript	11872	14412	.	+	.	ID=transcript:ENST00000515242;Parent=gene:ENSG00000223972;Name=DDX11L1-201;biotype=transcribed_unprocessed_pseudogene;transcript_id=ENST00000515242;version=2
+1	ensembl	exon	11872	12227	.	+	.	Parent=transcript:ENST00000515242;Name=ENSE00002234632;constitutive=0;ensembl_end_phase=2;ensembl_phase=-1;exon_id=ENSE00002234632;rank=1;version=1
+###
+1	ensembl	RNA	1340841	1341132	.	-	.	ID=gene:ENSG00000264293;Name=RN7SL657P;biotype=misc_RNA;description=RNA%2C 7SL%2C cytoplasmic 657%2C pseudogene [Source:HGNC Symbol%3BAcc:46673];gene_id=ENSG00000264293;logic_name=ncrna;version=1
+1	ensembl	transcript	1340841	1341132	.	-	.	ID=transcript:ENST00000582431;Parent=gene:ENSG00000264293;Name=RN7SL657P-201;biotype=misc_RNA;tag=basic;transcript_id=ENST00000582431;version=1
+1	ensembl	exon	1340841	1341132	.	-	.	Parent=transcript:ENST00000582431;Name=ENSE00002720632;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002720632;rank=1;version=1
+###

@@ -1,0 +1,5 @@
+Tob1_contig1	Prodigal:2.60	CDS	29190	32849	.	+	0	ID=Tob1_00021;eC_number=3.6.3.-;inference=ab initio prediction:Prodigal:2.60,similar to AA sequence:UniProtKB:Q99T13
+Tob1_contig1	Prodigal:2.60	CDS	32953	33366	.	+	0	ID=Tob1_00022;inference=ab initio prediction:Prodigal:2.60;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	33411	34181	.	+	0	ID=Tob1_00023;inference=ab initio prediction:Prodigal:2.60;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;inference=ab initio prediction:Prodigal:2.60;product=hypothetical protein
+Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
