@@ -1,4 +1,5 @@
-{  "_comment": "level1 are features without parent",
+{  "_comment": "level1 are features without parent, when having standalone value they do not expect children too",
+  "chromosome":"standalone",
   "EST_match":"1",
   "cDNA_match":"2",
   "gene":"3",
@@ -16,6 +17,7 @@
   "sirna_gene":"15",
   "snorna_gene":"16",
   "snrna_gene":"17",
+  "source":"standalone",
   "sts":"18",
   "translated_nucleotide_match":"19"
 }

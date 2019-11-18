@@ -39,7 +39,7 @@ sub import {
     Full format means, we expand exon having several parents, we add ID everywhere (even if level3 ID is not mandatory), and Parent everywhere.
     Omniscient is a hash to save gff3 data in a specific 3 levels way: eg Level1: gene, Level2: mRNA, Level3:exon,cds,utr.
     Parser phylosophy: Parse by Parent/child relationship
-    						        ELSE Parse by a comon tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter)
+    						        ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter)
                          ELSE Parse by sequential (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a comon tag at each new L1 feature)
 
     /!\ Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent.
@@ -55,9 +55,9 @@ sub import {
     From Level3 to level 1 it's already possible.
        example: $mRNAGeneLink->{lc($id)}=$parent;
 
-=head1 CONTACT
+=head1 AUTHOR
 
-    jacques.dainat@nbis.se (Jacques Dainat)
+   Jacques Dainat - jacques.dainat@nbis.se
 
 =cut
 
@@ -227,12 +227,14 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
+    # take care of headers
+    my $header = get_header_lines($file, $verbose);
+    $omniscient{'header'}=$header if $header;
 
 		#GFF format used for parser
 		my $format;
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file);}
-
 		print "   GFF version parser used: $format\n" if ($verbose > 0) ;
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
@@ -433,7 +435,19 @@ sub manage_one_feature{
 #	+----------------------------------------------------------------------------+
 	  if( get_level($feature) eq 'level1' ) {
 
-  	    ##########
+        ##########
+        # Deal with standalone top features that do not expect children, and occur
+        # at the top of each sequence
+        if ($LEVEL1->{$primary_tag} eq 'standalone'){
+          $id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
+          if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+            $omniscient->{"level1"}{$primary_tag}{$id}=$feature;
+            return $id, $last_l1_f, $last_l2_f, $last_l3_f, $last_l1_f, $lastL1_new;
+            print "::::::::::0Push-L1-omniscient level1 || $primary_tag || $id = ".$feature->gff_string()."\n" if ($verbose > 1);
+          }
+        }
+
+        ##########
   			# get ID #
 	    	$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
         _save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level1');
@@ -1204,7 +1218,9 @@ sub _remove_orphan_l1{
 
  	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
  	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
- 		    my $neverfound="yes";
+        if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan" if ($verbose > 1); next;};
+
+        my $neverfound="yes";
  		    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
  		        if ( exists_keys ( $hash_omniscient,('level2',$tag_l2,$id_l1) ) ){
  		          $neverfound=undef;last
@@ -1213,7 +1229,7 @@ sub _remove_orphan_l1{
  		    if($neverfound){
  		    	$resume_case++;
  		    	print "removing ".$hash_omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n" if ($verbose >= 3);
-  			    delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the thin has been cloned and modified, it is why we nevertheless remove it
+  			  delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the thin has been cloned and modified, it is why we nevertheless remove it
 		    }
  	 	}
  	}
@@ -1840,7 +1856,7 @@ sub _manage_location{
 	my @new_location_list; #new location list that will be returned once filled
 
 	_printSurrounded("Enter",25,"+","\n\n") if ($verbose >= 4);
-	print "Enter Ref: ".Dumper($locationRefList)."\nEnter Target: ".Dumper($locationTargetList) if ($verbose >= 4);
+	#print "Enter Ref: ".Dumper($locationRefList)."\nEnter Target: ".Dumper($locationTargetList) if ($verbose >= 4);
 
 	if ($locationTargetList and @$locationTargetList >= 1){ #check number of location -> List not empty
 
@@ -2761,6 +2777,33 @@ sub _printSurrounded{
 	print $result;
 }
 
+# Method to store all headers (before the first feature)
+# Input: filename
+# Output: string (header lines)
+sub get_header_lines{
+  my ($file, $verbose) = @_;
+
+  #HANDLE format
+  my $headers=undef;
+
+  open(my $fh, '<', $file) or die "cannot open file $file";
+  {
+    while(<$fh>){
+      if($_ =~ /^#/){
+        if($_ =~ /##gff-version/){next;}# we do not keep the version line because we will write it ourself
+        $headers.=$_;
+        print "catch header line: $_" if ($verbose >1);
+      } #if it is a commented line starting by # we skip it.
+      else{
+        close($fh);
+        return $headers;
+      }
+    }
+  }
+  close($fh);
+  return $headers;
+}
+
 #GFF format guess
 # Input: filename
 # Output: Integer (1,2 or 3)
@@ -2775,33 +2818,33 @@ sub select_gff_format{
 
     open(my $fh, '<', $file) or die "cannot open file $file";
     {
-        while(<$fh>){
+      while(<$fh>){
 
-        	if($_ =~ /^#/){next;} #if it is a commented line starting by # we skip it.
+      	if($_ =~ /^#/){next;} #if it is a commented line starting by # we skip it.
 
-            $cpt++;
-            if($cpt > $nbLineChecked){
-                    last;
-            }
-            if($_ =~ /^.*\t.*\t.*\t.*\t.*\t.*\t.*\t.*\t(.*)/){
-                if(length($1) < 1){next;}
-
-                my $Ninethcolum = $1;
-                if($Ninethcolum =~ /=/  and $Ninethcolum =~ /;/ ){ $format{3}++;};
-
-                if($Ninethcolum !~ /=/  and $Ninethcolum !~ /;/ ){
-                         $format{1}++;
-                }
-                elsif($Ninethcolum !~ /=/  and $Ninethcolum =~ /;/ ){
-                                 $format{2}++;
-                }
-                my $c = () = $Ninethcolum =~ /=/g;
-                my $d = () = $Ninethcolum =~ /\ /g;
-                if($c > 1 and $d > 1  and $Ninethcolum !~ /;/ ){
-                       $problem3=1;
-                }
-     	   }
+        $cpt++;
+        if($cpt > $nbLineChecked){
+                last;
         }
+        if($_ =~ /^.*\t.*\t.*\t.*\t.*\t.*\t.*\t.*\t(.*)/){
+          if(length($1) < 1){next;}
+
+          my $Ninethcolum = $1;
+          if($Ninethcolum =~ /=/  and $Ninethcolum =~ /;/ ){ $format{3}++;};
+
+          if($Ninethcolum !~ /=/  and $Ninethcolum !~ /;/ ){
+                   $format{1}++;
+          }
+          elsif($Ninethcolum !~ /=/  and $Ninethcolum =~ /;/ ){
+                           $format{2}++;
+          }
+          my $c = () = $Ninethcolum =~ /=/g;
+          my $d = () = $Ninethcolum =~ /\ /g;
+          if($c > 1 and $d > 1  and $Ninethcolum !~ /;/ ){
+                 $problem3=1;
+          }
+   	    }
+      }
     }
     close($fh);
 
@@ -3113,6 +3156,8 @@ sub _handle_globalWARNS{
 # @Remark: none
 sub load_levels{
   my ($expose_feature_levels, $verbose) = @_ ;
+
+  $verbose = 0 if(!$verbose);
 
   #set run directory
   my $run_dir = cwd;

@@ -27,9 +27,9 @@ sub import {
 
     Omniscient packages are non-OO packages use to handle any kind of gtf/gff data.
 
-=head1 CONTACT
+=head1 AUTHOR
 
-    jacques.dainat@nbis.se (Jacques Dainat)
+    Jacques Dainat - jacques.dainat@nbis.se
 
 =cut
 

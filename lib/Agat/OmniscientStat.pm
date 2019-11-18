@@ -32,9 +32,9 @@ This is the code to perform statisctis of data store in Omniscient.
 	'level' can be level1, level2 or level accordingly, allow to go all over the data for printing by driving the data form level1 to level3.
 	'flag' correspond to the type of information that has been saved in 'value'
 
-=head1 CONTACT
+=head1 AUTHOR
 
-    jacques.dainat@nbis.se (Jacques Dainat)
+   Jacques Dainat - jacques.dainat@nbis.se
 
 
 =cut

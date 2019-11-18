@@ -1,0 +1,19 @@
+##gff-version 3
+Tob1_contig1	Prodigal:2.60	gene	476	670	.	-	0	ID=nbis_NEW-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	mRNA	476	670	.	-	0	ID=nbis_nol2id-cds-1;Parent=nbis_NEW-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	exon	476	670	.	-	.	ID=nbis_NEW-exon-1;Parent=nbis_nol2id-cds-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;Parent=nbis_nol2id-cds-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	gene	34266	35222	.	+	0	ID=nbis_NEW-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	mRNA	34266	35222	.	+	0	ID=nbis_nol2id-cds-2;Parent=nbis_NEW-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	exon	34266	35222	.	+	.	ID=nbis_NEW-exon-2;Parent=nbis_nol2id-cds-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;Parent=nbis_nol2id-cds-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	ID=sig_peptide-1;Parent=nbis_nol2id-cds-2;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
+Tob1_contig1	Prodigal:2.60	gene	35267	37444	.	-	0	ID=nbis_NEW-gene-3;locus_tag=Tob1_00025
+Tob1_contig1	Prodigal:2.60	mRNA	35267	37444	.	-	0	ID=nbis_nol2id-cds-3;Parent=nbis_NEW-gene-3;locus_tag=Tob1_00025
+Tob1_contig1	Prodigal:2.60	exon	35267	37444	.	-	.	ID=nbis_NEW-exon-3;Parent=nbis_nol2id-cds-3;locus_tag=Tob1_00025
+Tob1_contig1	Prodigal:2.60	CDS	35267	37444	.	-	0	ID=Tob1_00025;Parent=nbis_nol2id-cds-3;locus_tag=Tob1_00025
+Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	ID=sig_peptide-2;Parent=nbis_nol2id-cds-3;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 25;product=putative signal peptide
+Tob1_contig1	Prodigal:2.60	gene	38304	39338	.	-	0	ID=nbis_NEW-gene-4;locus_tag=Tob1_00026
+Tob1_contig1	Prodigal:2.60	mRNA	38304	39338	.	-	0	ID=nbis_nol2id-cds-4;Parent=nbis_NEW-gene-4;locus_tag=Tob1_00026
+Tob1_contig1	Prodigal:2.60	exon	38304	39338	.	-	.	ID=nbis_NEW-exon-4;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
+Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026

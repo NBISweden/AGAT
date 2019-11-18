@@ -25,9 +25,9 @@ This is the code to handle data store in Omniscient.
 
  Bench of funciton to fill, modify, create, etc... omniscient data structure.
 
-=head1 CONTACT
+=head1 AUTHOR
 
-  jacques.dainat@nbis.se (Jacques Dainat)
+  Jacques Dainat - jacques.dainat@nbis.se
 
 =cut
 
