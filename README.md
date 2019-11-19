@@ -62,74 +62,75 @@ Some example what can be performed using AGAT:
     => ...
 
 ## Prerequisites
+  * R
+  * Perl
+    Perl >= 5.8, and a list of perl modules that can be installed using cpan, cpanm or conda:
 
-Perl >= 5.8, and a list of perl modules that can be installed using cpan, cpanm or conda:
+    * Install perl modules with cpanm
+    ```
+    cpanm bioperl
+    cpanm Clone
+    cpanm Moose
+    cpanm Graph::Directed
+    cpanm LWP::UserAgent
+    cpanm Statistics::R
+    cpanm JSON
+    cpanm Sort::Naturally
+    cpanm Bio::DB::EUtilities
+    ```
+    * Install perl modules with conda
 
-   * Install perl modules with cpanm
-  ```
-  cpanm bioperl
-  cpanm Clone
-  cpanm Moose
-  cpanm Graph::Directed
-  cpanm LWP::UserAgent
-  cpanm Statistics::R
-  cpanm JSON
-  cpanm Sort::Naturally
-  cpanm Bio::DB::EUtilities
-  ```
-  * Install perl modules with conda
-
-  ```
-  conda env create -f agat_environment.yml
-  conda activate agat
-  ```
+    ```
+    conda env create -f agat_environment.yml
+    conda activate agat
+    ```
 
 
 ## Installation
 
-    ```
-    git clone https://github.com/NBISweden/AGAT.git # Clone AGAT
-    cd AGAT                                         # move into AGAT folder
-    perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
-    make                                            # Compile
-    make test                                       # Test
-    make install                                    # Install
-    ```
+  ```
+  git clone https://github.com/NBISweden/AGAT.git # Clone AGAT
+  cd AGAT                                         # move into AGAT folder
+  perl Makefile.PL                                # Check all the dependencies*
+  make                                            # Compile
+  make test                                       # Test
+  make install                                    # Install
+  ```
 
-<sup>1</sup>If dependencies are missing you can install them using cpan/cpanm or use conda and load the environment agat_environment.yml
+<sup>*</sup>If dependencies are missing you can install them using cpan/cpanm or use conda and load the environment agat_environment.yml
 
 **Remark**: On MS Windows, instead of make you'd probably have to use dmake or nmake depending the toolchain you have.
 
 ## Update  
 From the folder where the repository is located.
 
-    ```
-    git pull                                        # Update to last AGAT
-    cd AGAT                                         # move into AGAT folder
-    perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
-    make                                            # Compile
-    make test                                       # Test
-    make install                                    # Install
-    ```
+  ```
+  git pull                                        # Update to last AGAT
+  cd AGAT                                         # move into AGAT folder
+  perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
+  make                                            # Compile
+  make test                                       # Test
+  make install                                    # Install
+  ```
 
 ## Change to a specific conversion
 From the folder where the repository is located.  
 
-    ```
-    git pull                                        # Update the code
-    git checkout v0.1                               # use version v0.1 (See releases tab for a list of available versions)
-    cd AGAT                                         # move into AGAT folder
-    perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
-    make                                            # Compile
-    make test                                       # Test
-    make install                                    # Install
-    ```
+  ```
+  git pull                                        # Update the code
+  git checkout v0.1                               # use version v0.1 (See releases tab for a list of available versions)
+  cd AGAT                                         # move into AGAT folder
+  perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
+  make                                            # Compile
+  make test                                       # Test
+  make install                                    # Install
+  ```
 
 ## UnInstall
 
-    ```
-    perl uninstall_AGAT
-    ```
+  ```
+  perl uninstall_AGAT
+  ```
 
 ## Usage
 
