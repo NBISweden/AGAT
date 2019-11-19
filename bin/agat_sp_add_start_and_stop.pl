@@ -419,4 +419,30 @@ Display this helpful text.
 
 =back
 
+=head1 FEEDBACK
+
+=head2 Did you find a bug?
+
+Do not hesitate to report bugs to help us keep track of the bugs and their
+resolution. Please use the GitHub issue tracking system available at this
+address:
+
+            https://github.com/NBISweden/AGAT/issues
+
+ Ensure that the bug was not already reported by searching under Issues.
+ If you're unable to find an (open) issue addressing the problem, open a new one.
+ Try as much as possible to include in the issue when relevant:
+ - a clear description,
+ - as much relevant information as possible,
+ - the command used,
+ - a data sample,
+ - an explanation of the expected behaviour that is not occurring.
+
+=head2 Do you want to contribute?
+
+You are very welcome, visit this address for the Contributing guidelines:
+https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+
 =cut
+
+AUTHOR - Jacques Dainat

@@ -562,7 +562,34 @@ Display this helpful text.
 
 =back
 
+=head1 FEEDBACK
+
+=head2 Did you find a bug?
+
+Do not hesitate to report bugs to help us keep track of the bugs and their
+resolution. Please use the GitHub issue tracking system available at this
+address:
+
+            https://github.com/NBISweden/AGAT/issues
+
+ Ensure that the bug was not already reported by searching under Issues.
+ If you're unable to find an (open) issue addressing the problem, open a new one.
+ Try as much as possible to include in the issue when relevant:
+ - a clear description,
+ - as much relevant information as possible,
+ - the command used,
+ - a data sample,
+ - an explanation of the expected behaviour that is not occurring.
+
+=head2 Do you want to contribute?
+
+You are very welcome, visit this address for the Contributing guidelines:
+https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+
 =cut
+
+AUTHOR - Jacques Dainat
+
 Test case for first part:
 @001900F|arrow|arrow  maker gene  5082  6945  . + . ID=ACAOBTG00000034334;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0
 @001900F|arrow|arrow  maker mRNA  5082  6945  5456  + . ID=ACAOBTM00000062562;Parent=ACAOBTG00000034334;_AED=0.22;_QI=61|1|1|1|0|0|2|575|165;_eAED=0.22;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1;product=hypothetical protein
