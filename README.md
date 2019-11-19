@@ -15,9 +15,9 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [Prerequisites](#prerequisites)
       * [Installation](#installation)
       * [Update](#update)
-      * [Uninstall](#unisntall)
+      * [Uninstall](#uninstall)
       * [Usage](#usage)
-      * [List of tools](#list-of-scripts)
+      * [List of tools](#list-of-tools)
       * [More about the tools](more-about-the-tools)
       * [Omniscient - Standardisation for a full GFF3 compliant to any tool](omniscient-standardisation-for-a-full-gff3-compliant-to-any-tool)
          * [Omniscient data structure](omniscient-data-structure)
@@ -48,17 +48,17 @@ Some example what can be performed using AGAT:
   
   * perform different tasks (used the different AGAT tools).  
     => check, fix, pad missing information into sorted and standardised gff3 (`agat_sp_gxf_to_gff3.pl`).  
-    => make statistics (`agat_sp_statistics.pl`).  
-    => extract any type of sequence (`agat_sp_extract_sequences.pl`).  
-    => complement annotations (`agat_sp_complement_annotations.pl`).  
-    => merge annotations (`agat_sp_merge_annotations.pl`).  
-    => filter gene models by ORF size (`agat_sp_filter_by_ORF_size.pl`).  
-    => filter to keep only longest isoforms (`agat_sp_keep_longest_isoform.pl`).  
-    => create introns features (`agat_sp_add_introns.pl`).  
-    => fix cds frames (`agat_sp_fix_cds_frame.pl`).  
-    => extract attributes (`agat_sp_extract_attributes.pl`).  
-    => manage IDs (`agat_sp_manage_IDs.pl`).  
-    => convert into tabulated format (`agat_sp_to_tabulated.pl`).  
+    => make statistics: `agat_sp_statistics.pl`  
+    => extract any type of sequence: `agat_sp_extract_sequences.pl`  
+    => complement annotations: `agat_sp_complement_annotations.pl`  
+    => merge annotations: `agat_sp_merge_annotations.pl`  
+    => filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
+    => filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
+    => create introns features: `agat_sp_add_introns.pl`  
+    => fix cds frames: `agat_sp_fix_cds_frame.pl`  
+    => extract attributes: `agat_sp_extract_attributes.pl`  
+    => manage IDs: `agat_sp_manage_IDs.pl`  
+    => convert into tabulated format: `agat_sp_to_tabulated.pl`  
     => ...
 
 ## Prerequisites
