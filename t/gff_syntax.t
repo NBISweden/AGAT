@@ -12,7 +12,7 @@ Test to verify the parser deals properly with the different flavor / bugged gff 
 =cut
 
 # script to call to check the parser
-my $handler_script = "agat_sp_gxf_to_gff3.pl";
+my $handler_script = "bin/agat_sp_gxf_to_gff3.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
 my $dir = "t/gff_syntax"; # folder where the test files are
@@ -29,14 +29,14 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     # peculiar case
     if ($file =~ m/^8_/){
-        system("$handler_script --gff t/gff_syntax/$file -o $pathtmp &> /dev/null");
+        system("$handler_script --gff t/gff_syntax/$file -o $pathtmp ");
     }
     elsif($file =~ m/^28_/){
-        system("$handler_script --gff t/gff_syntax/$file -c Name -o $pathtmp &> /dev/null");
+        system("$handler_script --gff t/gff_syntax/$file -c Name -o $pathtmp ");
     }
     # standard cases
     else{
-      system("$handler_script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp &> /dev/null");
+      system("$handler_script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp ");
     }
 
     my @splitname = split /_/, $file;
@@ -49,14 +49,14 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
      # peculiar case
      if ($file =~ m/^8_/){
-         system("$handler_script --gff $pathtmp -o $pathtmp2 &> /dev/null");
+         system("$handler_script --gff $pathtmp -o $pathtmp2 ");
      }
      elsif($file =~ m/^28_/){
-         system("$handler_script --gff $pathtmp -c Name -o $pathtmp2 &> /dev/null");
+         system("$handler_script --gff $pathtmp -c Name -o $pathtmp2 ");
      }
      # standard cases
      else{
-       system("$handler_script --gff $pathtmp --merge_loci -o $pathtmp2 &> /dev/null");
+       system("$handler_script --gff $pathtmp --merge_loci -o $pathtmp2 ");
      }
 
      #run test
