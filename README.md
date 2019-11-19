@@ -34,31 +34,31 @@ The GTF/GFF formats are 9-column text formats used to describe and represent gen
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.
 
-Some example what can be performed using AGAT:
-  * standardised any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix)
-    => add missing parent features (e.g. gene and mRNA if only CDS/exon exist)
-    => add missing features (e.g. exon and UTR)
-    => add missing mandatory attributes (i.e. ID, Parent)
-    => fix identifier to be uniq
-    => fix feature location
-    => remove duplicated features
-    => group related features (if spread in different places in the file)
-    => sort features
-    => merge overlapping loci into one single locus (only if option activated)
+Some example what can be performed using AGAT:  
+  * standardised any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix). 
+    => add missing parent features (e.g. gene and mRNA if only CDS/exon exist). 
+    => add missing features (e.g. exon and UTR). 
+    => add missing mandatory attributes (i.e. ID, Parent). 
+    => fix identifier to be uniq. 
+    => fix feature location. 
+    => remove duplicated features. 
+    => group related features (if spread in different places in the file). 
+    => sort features. 
+    => merge overlapping loci into one single locus (only if option activated). 
 
-  * perform different tasks (used the different AGAT tools)
-    => check, fix, pad missing information into sorted and standardised gff3 (agat_sp_gxf_to_gff3.pl)
-    => make statistics (agat_sp_statistics.pl)
-    => extract any type of sequence (agat_sp_extract_sequences.pl)
-    => complement annotations (agat_sp_complement_annotations.pl)
-    => merge annotations (agat_sp_merge_annotations.pl)
-    => filter gene models by ORF size (agat_sp_filter_by_ORF_size.pl)
-    => filter to keep only longest isoforms (agat_sp_keep_longest_isoform.pl)
-    => create introns features (agat_sp_add_introns.pl)
-    => fix cds frames (agat_sp_fix_cds_frame.pl)
-    => extract attributes (agat_sp_extract_attributes.pl)
-    => manage IDs (agat_sp_manage_IDs.pl)
-    => convert into tabulated format (agat_sp_to_tabulated.pl)
+  * perform different tasks (used the different AGAT tools). 
+    => check, fix, pad missing information into sorted and standardised gff3 (`agat_sp_gxf_to_gff3.pl). 
+    => make statistics (`agat_sp_statistics.pl`). 
+    => extract any type of sequence (`agat_sp_extract_sequences.pl`). 
+    => complement annotations (`agat_sp_complement_annotations.pl`). 
+    => merge annotations (`agat_sp_merge_annotations.pl`). 
+    => filter gene models by ORF size (`agat_sp_filter_by_ORF_size.pl`). 
+    => filter to keep only longest isoforms (`agat_sp_keep_longest_isoform.pl`). 
+    => create introns features (`agat_sp_add_introns.pl`). 
+    => fix cds frames (`agat_sp_fix_cds_frame.pl`). 
+    => extract attributes (`agat_sp_extract_attributes.pl`). 
+    => manage IDs (`agat_sp_manage_IDs.pl`). 
+    => convert into tabulated format (`agat_sp_to_tabulated.pl`). 
     => ...
 
 ## Prerequisites
