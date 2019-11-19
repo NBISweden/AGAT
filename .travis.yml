@@ -4,6 +4,11 @@ perl:
   - "5.28"
   - "5.26"
   - "5.18"
-os:
-  - linux
-  - osx
+
+os: linux
+    before_install:
+    sudo apt-get -y install libdb
+    
+os: osx
+    before_install:
+    brew install berkeley-db
