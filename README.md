@@ -201,8 +201,9 @@ The parser may used only one or a mix of these approaches according of the pecul
 AGAT has been tested on 32 different peculiar GTF/GFF formats being different flavours or/and containing errors.
 Below few are listed but you can find the full list of them into the `t/gff_syntax` directory.
 
-example 8 - only CDS defined:
+example 8 - only CDS defined:  
 ```
+##gff-version 3
 Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;locus_tag=Tob1_00001;product=hypothetical protein
 Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;locus_tag=Tob1_00024;product=hypothetical protein
 Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
@@ -211,7 +212,7 @@ Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	inference=ab initio predi
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;locus_tag=Tob1_00026;
 ```
 
-`agat_sp_gxf_to_gff3.pl --gff 8_test.gff`:
+`agat_sp_gxf_to_gff3.pl --gff 8_test.gff`:  
 
 ```
 ##gff-version 3
@@ -233,9 +234,62 @@ Tob1_contig1	Prodigal:2.60	gene	38304	39338	.	-	0	ID=nbis_NEW-gene-4;locus_tag=T
 Tob1_contig1	Prodigal:2.60	mRNA	38304	39338	.	-	0	ID=nbis_nol2id-cds-4;Parent=nbis_NEW-gene-4;locus_tag=Tob1_00026
 Tob1_contig1	Prodigal:2.60	exon	38304	39338	.	-	.	ID=nbis_NEW-exon-4;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
+
 ```
 
-example 18 - related features spread within the file:
+example 9 - level2 feature missing (mRNA) and level3 features missing (UTRs):  
+```
+##gff-version 3
+#!gff-spec-version 1.14
+#!source-version NCBI C++ formatter 0.2
+##Type DNA NC_003070.9
+NC_003070.9	RefSeq	source	1	30427671	.	+	.	organism=Arabidopsis thaliana;mol_type=genomic DNA;db_xref=taxon:3702;chromosome=1;ecotype=Columbia
+NC_003070.9	RefSeq	gene	3631	5899	.	+	.	ID=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	3631	3913	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	3996	4276	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	4486	4605	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	4706	5095	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	5174	5326	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	exon	5439	5899	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	3760	3913	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	3996	4276	.	+	2	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	4486	4605	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	4706	5095	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	5174	5326	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	CDS	5439	5627	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
+```
+
+`agat_sp_gxf_to_gff3.pl --gff 8_test.gff`:  
+
+```
+##gff-version 3
+#!gff-spec-version 1.14
+#!source-version NCBI C++ formatter 0.2
+##Type DNA NC_003070.9
+NC_003070.9	RefSeq	source	1	30427671	.	+	.	ID=source-1;chromosome=1;db_xref=taxon:3702;ecotype=Columbia;mol_type=genomic DNA;organism=Arabidopsis thaliana
+NC_003070.9	RefSeq	gene	3631	5899	.	+	.	ID=nbis_NEW-gene-1;locus_tag=AT1G01010
+NC_003070.9	RefSeq	mRNA	3631	5899	.	+	.	ID=NC_003070.9:NAC001;Parent=nbis_NEW-gene-1;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	3631	3913	.	+	.	ID=NM_099983.2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	3996	4276	.	+	.	ID=nbis_NEW-exon-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	4486	4605	.	+	.	ID=nbis_NEW-exon-2;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	4706	5095	.	+	.	ID=nbis_NEW-exon-3;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	5174	5326	.	+	.	ID=nbis_NEW-exon-4;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	exon	5439	5899	.	+	.	ID=nbis_NEW-exon-5;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	3760	3913	.	+	0	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	3996	4276	.	+	2	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	4486	4605	.	+	0	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	4706	5095	.	+	0	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	5174	5326	.	+	0	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	5439	5627	.	+	0	ID=nbis_NEW-cds-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	five_prime_UTR	3631	3759	.	+	.	ID=nbis_NEW-five_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=nbis_NEW-start_codon-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=nbis_NEW-stop_codon-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	three_prime_UTR	5628	5899	.	+	.	ID=nbis_NEW-three_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+```
+
+example 18 - related features spread within the file:  
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
@@ -275,7 +329,7 @@ scaffold789	maker	five_prime_UTR	558184	558190	.	+	.	ID=CLUHART00000006147:five_
 scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:three_prime_utr;Parent=CLUHART00000006147
 ```
 
-`agat_sp_gxf_to_gff3.pl --gff 18_test.gff`:
+`agat_sp_gxf_to_gff3.pl --gff 18_test.gff`:  
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
