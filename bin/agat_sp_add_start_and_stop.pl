@@ -7,7 +7,7 @@ use List::MoreUtils  qw(natatime);;
 use Carp;
 use Getopt::Long;
 use Pod::Usage;
-use Bio::DB::FASTA;
+use Bio::DB::Fasta;
 use Bio::Tools::CodonTable;
 use Clone 'clone';
 use Agat::Omniscient;

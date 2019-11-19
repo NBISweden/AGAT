@@ -188,7 +188,8 @@ sub tag_from_list{
         my $out = IO::File->new();
         if ($outfile) {
           $outfile=~ s/.gff//g;
-          open($out, '>', $outfile."_".$att.".txt") or die "Could not open file '$outfile'_'$att.txt' $!";
+          my $file_name =  $outfile."_".$att.".txt";
+          open($out, '>', $file_name) or die "Could not open file $file_name $!";
         }
         else{
           $out->fdopen( fileno(STDOUT), 'w' );

@@ -12,7 +12,7 @@ Test to verify the parser deals properly with the different flavor / bugged gff 
 =cut
 
 # script to call to check the parser
-my $handler_script = "bin/agat_sp_gxf_to_gff3.pl";
+my $handler_script = "agat_sp_gxf_to_gff3.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
 my $dir = "t/gff_syntax"; # folder where the test files are

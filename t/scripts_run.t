@@ -36,6 +36,6 @@ while (my $file = readdir(DIR)) {
    next if ($file =~ m/^\./);
 
    #run test - check the script can run calling the help.
-   ok( system("bin/$file -h 1>/dev/null") == 0, "test $file")
+   ok( system("$file -h 1>/dev/null") == 0, "test $file")
 }
 closedir(DIR);

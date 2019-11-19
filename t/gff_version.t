@@ -12,11 +12,6 @@ Test to verify the method detecting the gff parser version to use with bioperl.
 
 =cut
 
-# script to call to check the parser
-my $handler_script = "bin/agat_sp_gxf_to_gff3.pl";
-my $pathtmp= "tmp.gff"; # path file where to save temporary output
-my $pathtmp2= "tmp2.gff"; # path file where to save temporary output
-
 opendir (DIR, "t/gff_version") or die $!;
 while (my $file = readdir(DIR)) {
 
