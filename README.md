@@ -140,18 +140,19 @@ From the folder where the repository is located.
 ## List of tools
 
 As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_sp_gxf_to_gff3.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
-All the installed scripts have the `agat_` prefix. Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
+All the installed scripts have the `agat_` prefix.  
+Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
 
 ### More about the tools
 
-#### with) \_sp\_ prefix => Means SLURP
+#### with \_sp\_ prefix => Means SLURP
 
 The gff file will be charged in memory Omniscient data structure that is way to facilitate access to desired features at any time.
 It has a memory cost but make life smoother. Indeed, it allows to perform complicated tasks in a more time efficient way.
 Moreover, it allows to fix all potential errors in the limit of the possibilities given by the format itself.
 See the Omniscient section for more information about it.  
 
-#### with) \_sq\_ prefix => Means SEQUENTIAL
+#### with \_sq\_ prefix => Means SEQUENTIAL
 
 The gff file is read and processed from its top to the end line by line without sanity check. This is memory efficient.
 
@@ -163,7 +164,7 @@ and the parsing approach used.
 
 #### Omniscient data structure
 
-The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure :
+The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
 
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
 $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureList is a list to be able to manage isoform cases.  
@@ -172,27 +173,26 @@ $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3
 #### How Omniscient parser works
 
 The Omniscient parser phylosophy:
-  * 1) Parse by Parent/child relationship
-  * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter)
-  * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature)
+  * 1) Parse by Parent/child relationship  
+  * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter).  
+  * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature).  
 
-/!\ Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent.
-    To create a parent per feature or group of feature, a common tag must be used to group them correctly. We use )
+/!\ Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of feature, a common tag must be used to group them correctly. We use `gene_id` and `locus_tag` by default but you can set up the one of your choice)
 
-To resume by priority of way to parse: Parent/child relationship > locus_tag > sequential.
+To resume by priority of way to parse: **Parent/child relationship > locus_tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 
 #### What the Omniscient parser can do for you
 
-=> It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s))  
-=> It creates missing mandatory attributes (ID and/or Parent)
-=> It fixes identifier to be uniq  
+=> It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s)).    
+=> It creates missing mandatory attributes (ID and/or Parent).  
+=> It fixes identifier to be uniq.  
 => It removes duplicated features (same position, same ID, same Parent).  
 => It expands level3 features sharing multiple parents (e.g  if one exon has list of multiple parent mRNA in its Parent attribute, one exon per parent with uniq ID will be created.  
-=> It fixes feature location errors (e.g an mRNA spanning over its gene location, we fix the gene location).
-=> It adds UTR if possible (CDS and exon present)
-=> It add exon if possible (CDS has to be present)
-=> It group features together (if related features are spread at different place in the file)
+=> It fixes feature location errors (e.g an mRNA spanning over its gene location, we fix the gene location).  
+=> It adds UTR if possible (CDS and exon present).  
+=> It add exon if possible (CDS has to be present).  
+=> It group features together (if related features are spread at different place in the file).  
 
 
 
