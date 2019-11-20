@@ -18,12 +18,12 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [Uninstall](#uninstall)
       * [Usage](#usage)
       * [List of tools](#list-of-tools)
-      * [More about the tools](more-about-the-tools)
-      * [Omniscient - Standardisation for a full GFF3 compliant to any tool](omniscient-standardisation-for-a-full-gff3-compliant-to-any-tool)
-         * [Omniscient data structure](omniscient-data-structure)
-         * [How Omniscient parser works](how-omniscient-parser-works)
-         * [What the Omniscient parser can do for you](what-the-omniscient-parser-can-do-for-you)
-         * [examples](examples)
+      * [More about the tools](#more-about-the-tools)
+      * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient-standardisation-for-a-full-gff3-compliant-to-any-tool)
+         * [Omniscient data structure](#omniscient-data-structure)
+         * [How Omniscient parser works](#how-omniscient-parser-works)
+         * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
+         * [examples](#examples)
 
 ---------------------------
 
