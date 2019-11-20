@@ -45,7 +45,7 @@ Some example what can be performed using AGAT:
     * group related features (if spread in different places in the file).  
     * sort features.  
     * merge overlapping loci into one single locus (only if option activated).  
-  
+
   * perform different tasks (used the different AGAT tools).  
     * check, fix, pad missing information into sorted and standardised gff3 (`agat_sp_gxf_to_gff3.pl`).  
     * make statistics: `agat_sp_statistics.pl`  
@@ -81,7 +81,7 @@ Some example what can be performed using AGAT:
     * Install perl modules with conda
 
     ```
-    conda env create -f agat_environment.yml
+    conda env create -f conda_environment_AGAT.yml
     conda activate agat
     ```
 
@@ -97,7 +97,7 @@ Some example what can be performed using AGAT:
   make install                                    # Install
   ```
 
-<sup>*</sup>If dependencies are missing you can install them using cpan/cpanm or use conda and load the environment agat_environment.yml
+<sup>*</sup>If dependencies are missing you can install them using cpan/cpanm or use conda and load the environment conda_environment_AGAT.yml
 
 **Remark**: On MS Windows, instead of make you'd probably have to use dmake or nmake depending the toolchain you have.
 
