@@ -6,12 +6,15 @@ channels:
   - defaults
 
 dependencies:
+  - perl
   - perl-bioperl
   - perl-clone
-  - perl-moose
   - perl-graph
   - perl-lwp-simple
   - perl-statistics-r
   - perl-json
   - perl-sort-naturally
-  - perl-data-dumper
+  - perl-file-share
+  - perl-file-sharedir-install
+  - r-base
+  - libdb

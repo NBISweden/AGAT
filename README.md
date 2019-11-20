@@ -70,13 +70,13 @@ Some example **what AGAT can do**:
     ```
     cpanm bioperl
     cpanm Clone
-    cpanm Moose
     cpanm Graph::Directed
     cpanm LWP::UserAgent
     cpanm Statistics::R
     cpanm JSON
     cpanm Sort::Naturally
-    cpanm Bio::DB::EUtilities
+    cpanm File::Share
+    cpanm File::ShareDir::Install
     ```
     * Install perl modules with conda
 
