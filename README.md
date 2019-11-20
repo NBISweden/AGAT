@@ -19,7 +19,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [Usage](#usage)
       * [List of tools](#list-of-tools)
       * [More about the tools](#more-about-the-tools)
-      * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient-standardisation-for-a-full-gff3-compliant-to-any-tool)
+      * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient---standardisation-for-a-full-gff3-compliant-to-any-tool)
          * [Omniscient data structure](#omniscient-data-structure)
          * [How Omniscient parser works](#how-omniscient-parser-works)
          * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
@@ -32,10 +32,10 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 It has the power to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
-This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.
+This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs. For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
 
-Some example what can be performed using AGAT:  
-  * standardised any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix).  
+Some example **what AGAT can do**:  
+  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix).  
     * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
     * add missing features (e.g. exon and UTR).  
     * add missing mandatory attributes (i.e. ID, Parent).  
@@ -46,8 +46,8 @@ Some example what can be performed using AGAT:
     * sort features.  
     * merge overlapping loci into one single locus (only if option activated).  
 
-  * perform different tasks (used the different AGAT tools).  
-    * check, fix, pad missing information into sorted and standardised gff3 (`agat_sp_gxf_to_gff3.pl`).  
+  * perform different tasks (using different AGAT's tools).  
+    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`.  
     * make statistics: `agat_sp_statistics.pl`  
     * extract any type of sequence: `agat_sp_extract_sequences.pl`  
     * complement annotations: `agat_sp_complement_annotations.pl`  
