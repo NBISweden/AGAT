@@ -57,6 +57,9 @@ lib/AGAT/OmniscientI.pm
 lib/AGAT/OmniscientStat.pm
 lib/AGAT/OmniscientO.pm
 lib/AGAT/PlotR.pm
+t/gff_syntax.t
+t/gff_version.t
+t/scripts_run.t
 t/gff_version/3_test.gff
 t/gff_version/2_test.gff
 t/gff_version/2a_test.gff
