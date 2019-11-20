@@ -20,8 +20,8 @@ use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use Agat::Omniscient;
-use Agat::PlotR;
+use AGAT::Omniscient;
+use AGAT::PlotR;
 
 my $SIZE_OPT=21;
 

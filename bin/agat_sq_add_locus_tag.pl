@@ -7,7 +7,7 @@ use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $start_run = time();
 my $header = get_agat_header();

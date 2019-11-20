@@ -12,7 +12,7 @@ use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $outfile = undef;

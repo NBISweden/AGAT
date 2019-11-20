@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package Agat::OmniscientI;
+package AGAT::OmniscientI;
 
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ use LWP::UserAgent;
 use Bio::OntologyIO::obo;
 use Clone 'clone';
 use Exporter;
-use Agat::OmniscientTool;
+use AGAT::OmniscientTool;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format check_mrna_positions
@@ -24,8 +24,8 @@ our @EXPORT = qw(get_level select_gff_format check_mrna_positions
               slurp_gff3_file_JD _check_all_level1_positions _check_all_level2_positions
               load_levels);
 sub import {
-  Agat::OmniscientI->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  Agat::OmniscientI->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
+  AGAT::OmniscientI->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::OmniscientI->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
 =head1 SYNOPSIS
@@ -3075,8 +3075,8 @@ sub _handle_ontology{
 	if($internalO){ #No URI provided for the feature-ontology(file case), or doesn't exist (hash / table case) let's use the interal one
     print "      No ontology accessible from gff file header\n" if ( $verbose > 0);
 		try{
-      my $sofa_file_path = dist_file('Agat', 'sofa_2_5_3.obo');
-		  print "      We will use the SOFA ontology distributed with Agat: $sofa_file_path\n" if ( $verbose > 0);
+      my $sofa_file_path = dist_file('AGAT', 'sofa_2_5_3.obo');
+		  print "      We will use the SOFA ontology distributed with AGAT: $sofa_file_path\n" if ( $verbose > 0);
 
 			#parse the ontology
 			my $parser = Bio::OntologyIO->new(-format => "obo",
@@ -3166,7 +3166,7 @@ sub load_levels{
   my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
   my @paths;
   foreach my $file ( @files ){
-    my $path = dist_file('Agat', $file);
+    my $path = dist_file('AGAT', $file);
     push @paths, $path;
   }
 

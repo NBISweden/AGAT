@@ -8,7 +8,7 @@ use Carp;
 use Getopt::Long;
 use IO::File;
 use Pod::Usage;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();

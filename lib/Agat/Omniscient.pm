@@ -1,22 +1,22 @@
 #!/usr/bin/perl -w
 
-package Agat::Omniscient;
+package AGAT::Omniscient;
 
 use strict;
 use warnings;
 use Exporter;
 
-use Agat::OmniscientI;
-use Agat::OmniscientO;
-use Agat::OmniscientTool;
-use Agat::OmniscientStat;
-use Agat::PlotR;
+use AGAT::OmniscientI;
+use AGAT::OmniscientO;
+use AGAT::OmniscientTool;
+use AGAT::OmniscientStat;
+use AGAT::PlotR;
 
 our $VERSION     = "0.0.1";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header);
 sub import {
-  Agat::Omniscient->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::Omniscient->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
 }
 
 =head1 SYNOPSIS
@@ -40,7 +40,7 @@ sub get_agat_header{
 
   my $header = qq{
  ------------------------------------------------------------------------------
-|   Another GFF Analysis Toolkit (AGAT) - Version: $VERSION                        |
+|   Another GFF Analysis Toolkit (AGAT) - Version: $VERSION                       |
 |   https://github.com/NBISweden/AGAT                                          |
 |   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
  ------------------------------------------------------------------------------

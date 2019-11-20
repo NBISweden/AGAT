@@ -8,7 +8,7 @@ use Bio::SeqIO ;
 use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use File::Basename;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $start_run = time();

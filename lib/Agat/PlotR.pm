@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package Agat::PlotR;
+package AGAT::PlotR;
 
 use strict;
 use warnings;
@@ -11,8 +11,8 @@ use Statistics::R;
 our @ISA         = qw(Exporter);
 our @EXPORT   = qw(execute_R_command rcc_density_one_row_per_file rcc_plot_from_list);
 sub import {
-  Agat::PlotR->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  Agat::PlotR->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
+  AGAT::PlotR->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::PlotR->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
 =head1 SYNOPSIS

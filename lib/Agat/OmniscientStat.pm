@@ -1,19 +1,19 @@
 #!/usr/bin/perl -w
 
-package Agat::OmniscientStat;
+package AGAT::OmniscientStat;
 
 use strict;
 use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;;
-use Agat::OmniscientTool;
+use AGAT::OmniscientTool;
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( gff3_statistics );
 
 sub import {
-  Agat::OmniscientStat->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  Agat::OmniscientStat->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
+  AGAT::OmniscientStat->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::OmniscientStat->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
 =head1 SYNOPSIS

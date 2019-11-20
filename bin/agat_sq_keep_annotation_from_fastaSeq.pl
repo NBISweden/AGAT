@@ -8,7 +8,7 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use IO::File ;
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $start_run = time();

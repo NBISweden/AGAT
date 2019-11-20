@@ -10,8 +10,8 @@ use IO::File;
 use Pod::Usage;
 use Statistics::R;
 use Bio::Tools::GFF;
-use Agat::PlotR;
-use Agat::Omniscient;
+use AGAT::PlotR;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my @opt_files;

@@ -8,7 +8,7 @@ use IO::File;
 use Pod::Usage;
 use Getopt::Long qw(:config no_auto_abbrev);
 use Statistics::R;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();

@@ -8,8 +8,8 @@ use Statistics::R;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
-use Agat::Omniscient;
-use Agat::PlotR;
+use AGAT::Omniscient;
+use AGAT::PlotR;
 
 my $header = get_agat_header();
 my $gff = undef;

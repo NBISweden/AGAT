@@ -6,7 +6,7 @@ use Pod::Usage;
 use Getopt::Long;
 use Bio::Tools::GFF;
 use Bio::DB::Fasta;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 
 my $header = get_agat_header();

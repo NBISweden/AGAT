@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 use Test::Simple tests => 6; # half of file to test but each tested twice
 

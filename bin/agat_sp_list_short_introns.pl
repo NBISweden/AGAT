@@ -9,7 +9,7 @@ use Getopt::Long;
 use Pod::Usage;
 use Clone 'clone';
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $opt_file;

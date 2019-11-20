@@ -10,7 +10,7 @@ use Pod::Usage;
 use Bio::DB::Fasta;
 use Bio::Tools::CodonTable;
 use Clone 'clone';
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $start_id = 1;

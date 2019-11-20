@@ -9,7 +9,7 @@ use Scalar::Util qw(openhandle);
 use Time::Piece;
 use Time::Seconds;
 use URI::Escape;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $outfile = undef;

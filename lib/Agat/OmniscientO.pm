@@ -1,21 +1,21 @@
 #!/usr/bin/perl -w
 
-package Agat::OmniscientO;
+package AGAT::OmniscientO;
 
 use strict;
 use warnings;
 use Sort::Naturally;
 use Bio::Tools::GFF;
 use URI::Escape;
-use Agat::OmniscientTool;
-use Agat::OmniscientI;
+use AGAT::OmniscientTool;
+use AGAT::OmniscientI;
 use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match print_omniscient_from_level1_id_list webapollo_compliant embl_compliant convert_omniscient_to_ensembl_style );
 sub import {
-  Agat::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  Agat::OmniscientO->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
+  AGAT::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::OmniscientO->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
 =head1 SYNOPSIS

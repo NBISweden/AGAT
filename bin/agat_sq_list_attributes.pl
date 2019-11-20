@@ -9,7 +9,7 @@ use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $start_run = time();

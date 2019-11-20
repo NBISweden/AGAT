@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();

@@ -9,7 +9,7 @@ use Sort::Naturally;
 use Bio::SeqIO;
 use Bio::DB::Fasta;
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $DONOTREVCOMP = undef;

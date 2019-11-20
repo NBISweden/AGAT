@@ -7,7 +7,7 @@ use POSIX qw(strftime);
 use Getopt::Long;
 use Pod::Usage;
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $start_run = time();
 my $header = get_agat_header();

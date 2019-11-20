@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package Agat::OmniscientTool;
+package AGAT::OmniscientTool;
 
 use strict;
 use warnings;
@@ -13,8 +13,8 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions remove_l2_related_feature l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame exists_keys remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
 sub import {
-  Agat::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  Agat::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
+  AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
 =head1 SYNOPSIS

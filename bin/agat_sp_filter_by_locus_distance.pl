@@ -8,7 +8,7 @@ use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $outfile = undef;

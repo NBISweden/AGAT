@@ -67,9 +67,9 @@ my %prereq_hash = ( "Bio::DB::Fasta" => 0,
 # will be used to create the WriteMakefile object
 
 my %WriteMakefileArgs = (
-  NAME            => 'Agat',
+  NAME            => 'AGAT',
   AUTHOR          => 'Jacques Dainat <jacques.dainat@nbis.se>',
-  VERSION_FROM    => 'lib/Agat/Omniscient.pm',
+  VERSION_FROM    => 'lib/AGAT/Omniscient.pm',
   ABSTRACT        => 'Module to deal comprehensively with GFF and GTF format',
   LICENSE         => 'gpl_3',
   PREREQ_PM       => \%prereq_hash, # give a ref to the hash
@@ -92,7 +92,7 @@ my %WriteMakefileArgs = (
       },
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-  clean => { FILES => 'Agat-*' },
+  clean => { FILES => 'AGAT-*' },
 );
 
 my %FallbackPrereqs = %prereq_hash;

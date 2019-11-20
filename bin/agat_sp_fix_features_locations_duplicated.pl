@@ -8,7 +8,7 @@ use POSIX qw(strftime);
 use Pod::Usage;
 use File::Basename;
 use List::MoreUtils qw(uniq);
-use Agat::Omniscient;
+use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $outfile = undef;
