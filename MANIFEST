@@ -26,7 +26,6 @@ bin/agat_sp_fix_overlaping_genes.pl
 bin/agat_sp_fix_small_exon_from_extremities.pl
 bin/agat_sp_flag_short_introns.pl
 bin/agat_sp_functional_statistics.pl
-bin/agat_sp_infer_function_colocalisation.pl
 bin/agat_sp_keep_longest_isoform.pl
 bin/agat_sp_list_short_introns.pl
 bin/agat_sp_load_function_from_protein_align.pl
@@ -61,7 +60,6 @@ lib/AGAT/PlotR.pm
 t/gff_version/3_test.gff
 t/gff_version/2_test.gff
 t/gff_version/2a_test.gff
-t/gff_version/x_test.gff
 t/gff_version/README
 t/gff_version/1_test.gff
 t/gff_version/2b_test.gff
