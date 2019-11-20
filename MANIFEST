@@ -1,6 +1,8 @@
 LICENSE
 README.md
+CONTRIBUTING.md
 Makefile.PL
+agat_environment.yml
 MANIFEST
 uninstall_AGAT
 bin/agat_sp_Prokka_inferNameFromAttributes.pl
