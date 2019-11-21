@@ -200,7 +200,17 @@ sub slurp_gff3_file_JD {
 	elsif(ref($file) eq 'HASH'){
 
 		foreach my $level (keys %{$file}){
-			if ( ref($file->{$level}) eq 'HASH'){ #level1,level2,#level3
+      # save header if any
+      if ($level eq 'header'){
+        if(! exists_keys(\%omniscient,('header') ) ) {
+          $omniscient{'header'} = $file->{$level};
+        }
+        else{
+          $omniscient{'header'} = $omniscient{'header'}.$file->{$level};
+        }
+        next;
+      }
+      if ( ref($file->{$level}) eq 'HASH'){ #Header,level1,level2,#level3
 				foreach my $tag (keys %{$file->{$level}}){
 					foreach my $id (keys %{$file->{$level}{$tag}}){
 						if ( ref($file->{$level}{$tag}{$id}) eq 'ARRAY'){ #level2,#level3

@@ -318,6 +318,18 @@ sub merge_omniscients {
 	my %hash_miscCount;
 	my $miscCount = \%hash_miscCount;
 
+
+  #################
+  # ==  HEADER == #
+  #################
+  if ( exists_keys($hash_omniscient2,('header') ) ){
+    if(! exists_keys($hash_omniscient1,('header') ) ) {
+      $hash_omniscient1->{'header'} = $hash_omniscient2->{'header'}; # add new header
+    }
+    else{
+      $hash_omniscient1->{'header'} = $hash_omniscient1->{'header'}.$hash_omniscient2->{'header'}; # append header
+    }
+  }
 	#################
 	# == LEVEL 1 == #
 	#################
@@ -1100,7 +1112,7 @@ sub info_omniscient {
 	}
 
 	foreach my $level (keys %{$hash_omniscient}){
-  		if ($level ne 'level1'){
+  		if ($level ne 'level1' and $level ne 'header'){
     			foreach my $tag (keys %{$hash_omniscient->{$level}}){
       				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
         				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
