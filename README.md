@@ -1,5 +1,6 @@
 
 AGAT [![Build Status](https://travis-ci.org/NBISweden/AGAT.svg?branch=master)](https://travis-ci.org/NBISweden/AGAT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3549547.svg)](https://doi.org/10.5281/zenodo.3549547)
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
