@@ -318,7 +318,7 @@ $script = $script_prefix."bin/agat_sq_list_attributes.pl";
 $result = "$output_folder/agat_sq_list_attributes_1.txt";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # --------check agat_sq_manage_ID.pl-------------
