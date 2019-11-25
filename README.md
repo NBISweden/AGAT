@@ -74,12 +74,12 @@ Some example **what AGAT can do**:
 
 ## Installation
 
-### Using bioconda
+### Using conda
 
 #### Install
 
   ```
-  conda install agat
+  conda install -c bioconda agat
   ```
   
 #### Update
