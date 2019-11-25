@@ -7,16 +7,7 @@ perl:
 before_install:
   - sudo apt-get -y install libdb-dev
   - sudo apt-get -y install r-base
-  - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
-  - source ~/travis-perl-helpers/init --auto
-  
-install:  
-  - cpanm --quiet --installdeps --notest .
-  - cpanm --quiet --notest Devel::Cover
-  - cpanm --quiet --notest Devel::Cover::Report::Coveralls
-
-script:
-  - cover -delete && cover -test
+  - cpanm --notest Devel::Cover::Report::Coveralls
 
 after_success:
-  - cover -report coveralls
+  - cover -test -report coveralls
