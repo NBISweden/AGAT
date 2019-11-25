@@ -1,0 +1,11 @@
+.git
+.DS_Store
+.travis.yml
+t/scripts_output/1.fa.*
+AGAT-v*
+blib*
+cover_db*
+Makefile.old
+MANIFEST.bak
+MYMETA*
+pm_to_blib
