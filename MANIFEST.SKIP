@@ -1,11 +1,49 @@
-.git
-.DS_Store
-.travis.yml
-t/scripts_output/1.fa.*
-AGAT-v*
-blib*
-cover_db*
-Makefile.old
-MANIFEST.bak
-MYMETA*
-pm_to_blib
+# Avoid version control files
+\B.git\b
+\B.gitignore$
+\bRCS\b
+\bCVS\b
+,v$
+\B.svn\b
+\B.cvsignore$
+
+# Avoid Module::Build generated and utility files
+\bBuild$
+\bBuild.bat$
+\b_build
+
+# Avoid Makemaker generated and utility files
+\bMakefile$
+\bblib
+\bMakeMaker - \d
+\bpm_to_blib$
+\bblibdirs$
+^MANIFEST\.SKIP$
+
+# Avoid Devel::Cover generated files
+\bcover_db
+
+# Avoid temp and backup files
+~$
+\.tmp$
+\.old$
+\.bak$
+\#$
+\.#
+\.rej$
+\.index$
+
+# Avoid OS-specific files/dirs
+#      Mac OSX metadata
+\B.DS_Store
+#      Mac OSX SMB mount metadata files
+\B\._
+
+# Avoid archives of this distribution
+\bAGAT-v[\d\.\_]+
+^MYMETA.yml
+^MYMETA.json
+
+# other
+\B.travis.yml$
+^tmp
