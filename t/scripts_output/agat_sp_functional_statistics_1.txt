@@ -1,0 +1,104 @@
+Number of genes                              2
+Number of mrnas                              2
+Number of mrnas with utr both sides          1
+Number of mrnas with at least one utr        2
+Number of cdss                               2
+Number of exons                              10
+Number of five_prime_utrs                    1
+Number of start_codons                       2
+Number of stop_codons                        2
+Number of three_prime_utrs                   2
+Number of exon in cds                        9
+Number of exon in five_prime_utr             2
+Number of exon in three_prime_utr            2
+Number of intron in cds                      7
+Number of intron in exon                     8
+Number of intron in five_prime_utr           1
+mean mrnas per gene                          1.0
+mean cdss per mrna                           1.0
+mean exons per mrna                          5.0
+mean five_prime_utrs per mrna                0.5
+mean start_codons per mrna                   1.0
+mean stop_codons per mrna                    1.0
+mean three_prime_utrs per mrna               1.0
+mean exons per cds                           4.5
+mean exons per five_prime_utr                2.0
+mean exons per three_prime_utr               1.0
+mean introns in cdss per mrna                3.5
+mean introns in exons per mrna               4.0
+mean introns in five_prime_utrs per mrna     0.5
+Total gene length                            3773
+Total mrna length                            3773
+Total cds length                             2676
+Total exon length                            2908
+Total five_prime_utr length                  147
+Total start_codon length                     6
+Total stop_codon length                      6
+Total three_prime_utr length                 85
+Total intron length per cds                  666
+Total intron length per exon                 873
+Total intron length per five_prime_utr       207
+mean gene length                             1886
+mean mrna length                             1886
+mean cds length                              1338
+mean exon length                             290
+mean five_prime_utr length                   147
+mean start_codon length                      3
+mean stop_codon length                       3
+mean three_prime_utr length                  42
+mean cds piece length                        297
+mean five_prime_utr piece length             73
+mean three_prime_utr piece length            42
+mean intron in cds length                    95
+mean intron in exon length                   109
+mean intron in five_prime_utr length         207
+Longest genes                                2717
+Longest mrnas                                2717
+Longest cdss                                 1992
+Longest exons                                1713
+Longest five_prime_utrs                      147
+Longest start_codons                         3
+Longest stop_codons                          3
+Longest three_prime_utrs                     82
+Longest cds piece                            1652
+Longest five_prime_utr piece                 86
+Longest three_prime_utr piece                82
+Longest intron into cds part                 143
+Longest intron into exon part                207
+Longest intron into five_prime_utr part      207
+Shortest genes                               1056
+Shortest mrnas                               1056
+Shortest cdss                                684
+Shortest exons                               29
+Shortest five_prime_utrs                     147
+Shortest start_codons                        3
+Shortest stop_codons                         3
+Shortest three_prime_utrs                    3
+Shortest cds piece                           29
+Shortest five_prime_utr piece                61
+Shortest three_prime_utr piece               3
+Shortest intron into cds part                56
+Shortest intron into exon part               56
+Shortest intron into five_prime_utr part     207
+
+ _______________________________________________________________________________________________________
+|                         |  Nb term linked to mRNA |    Nb mRNA with term    |    Nb gene with term    |
+|_______________________________________________________________________________________________________|
+|            GI           |            2            |            2            |            2            |
+|_______________________________________________________________________________________________________|
+|          GeneID         |            2            |            2            |            2            |
+|_______________________________________________________________________________________________________|
+|           TAIR          |            2            |            2            |            2            |
+|_______________________________________________________________________________________________________|
+
+nb mRNA without Functional annotation (GI,GeneID,TAIR) = 0 (remind: total mRNA = 2)
+nb mRNA with Functional annotation (GI,GeneID,TAIR) = 2 (remind: total mRNA = 2)
+nb gene without Functional annotation (GI,GeneID,TAIR) = 0 (remind: total gene = 2)
+nb gene with Functional annotation (GI,GeneID,TAIR) = 2 (remind: total gene = 2)
+
+No gene with <Name> attribute found.
+No mRNA with <Name> attribute found.
+No gene with <description> attribute found.
+No mRNA with <description> attribute found.
+We found 2 genes with <product> attribute.
+We have 2 mRNAs with <product> attribute.

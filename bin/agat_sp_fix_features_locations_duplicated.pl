@@ -86,6 +86,7 @@ print ("$ref file parsed\n");
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_location_by_seq_id_and_strand($omniscient);
+my $topfeatures = $omniscient->{'other'}{'level'}{'topfeature'};
 
 #find overlap
 my %checked_l1;
@@ -93,6 +94,9 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
   if( exists_keys($hash_sortBySeq,($seqid ) ) ){
     foreach my $tag (keys %{$hash_sortBySeq->{$seqid}}){
+
+      #skip top features
+      if(exists_keys($topfeatures,($tag))){ next; }
 
       foreach my $location ( @{$hash_sortBySeq->{$seqid}{$tag}}){
         my $gene_feature_id = lc($location->[0]);

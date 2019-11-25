@@ -45,7 +45,7 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if (! defined($opt_gfffile) ){
+if (! defined($opt_gfffile) and ! defined($opt_expose_feature_levels)){
     pod2usage( {
            -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (-g).\n\n".
            "Ouptut is optional. Look at the help documentation to know more.\n",
@@ -186,7 +186,7 @@ In eukaryote, loci rarely overlap. Overlaps could be due to error in the file, m
 
 =item B<-v>
 
-Verbose option. To modify vefbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
+Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
 
 =item B<--nc> or B<--no_check>
 

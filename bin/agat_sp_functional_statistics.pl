@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Getopt::Long;
+use File::Basename;
 use Pod::Usage;
 use Statistics::R;
 use IO::File;
@@ -45,6 +46,10 @@ if ( ! (defined($gff)) ){
 #### IN / OUT
 my $out;
 if ($opt_output) {
+  
+  # remove prefix
+  my ($path,$ext);
+  ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
   if (-f $opt_output){
       print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
@@ -216,6 +221,15 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $l2_has_function=1;
             }
           }
+          elsif($level2_feature->has_tag('db_xref') ){
+            my @values = $level2_feature->get_tag_values('db_xref');
+            foreach my $tuple (@values){
+              my ($type,$value) = split /:/,$tuple;
+              push @{$DB_omni_mrna{$type}{$id_mrna}}, $value;
+              $DB_omni_gene{$type}{$id_gene}++;
+              $l2_has_function=1;
+            }
+          }
 
           if($l2_has_function){
             $nbmRNAwithFunction++;
@@ -261,7 +275,7 @@ my $nbmRNAwithoutFunction= $total_nb_l2 - $nbmRNAwithFunction;
 my $nbGeneWithoutFunction= $total_nb_l1 - $nbGeneWithFunction;
 my $nbGeneWithoutProduct= $total_nb_l1 - $nbGeneWithProduct;
 
-my $listOfFunction;
+my $listOfFunction="";
 foreach my $funct (sort keys %DB_omni_mrna){
   $listOfFunction.="$funct,";
 }

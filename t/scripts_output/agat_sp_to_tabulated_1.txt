@@ -1,0 +1,880 @@
+seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	description	gene_id	logic_name	Parent	transcript_id	protein_id	Name	constitutive	ensembl_end_phase	ensembl_phase	exon_id	rank
+1	RAP-DB	chromosome	1	43270923	.	0	.	Chr1, AP014957.1, NC_029256.1	chromosome:1
+1	irgsp	gene	2983	10815	.	1	.	gene:Os01g0100100	protein_coding	RabGAP/TBC domain containing protein. (Os01t0100100-01)	Os01g0100100	irgspv1.0-20170804-genes
+1	irgsp	mRNA	2983	10815	.	1	.	transcript:Os01t0100100-01	protein_coding	gene:Os01g0100100	Os01t0100100-01
+1	irgsp	CDS	3449	3616	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	4357	4455	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	5457	5560	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	7136	7944	.	1	1	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	8028	8150	.	1	2	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	8232	8320	.	1	2	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	8408	8608	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	9210	9615	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	10102	10187	.	1	2	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	CDS	10274	10297	.	1	0	CDS:Os01t0100100-01	transcript:Os01t0100100-01	Os01t0100100-01
+1	irgsp	exon	2983	3268	.	1	.	Os01t0100100-01.exon1	transcript:Os01t0100100-01	Os01t0100100-01.exon1	1	-1	-1	Os01t0100100-01.exon1	1
+1	irgsp	exon	3354	3616	.	1	.	Os01t0100100-01.exon2	transcript:Os01t0100100-01	Os01t0100100-01.exon2	1	0	-1	Os01t0100100-01.exon2	2
+1	irgsp	exon	4357	4455	.	1	.	Os01t0100100-01.exon3	transcript:Os01t0100100-01	Os01t0100100-01.exon3	1	0	0	Os01t0100100-01.exon3	3
+1	irgsp	exon	5457	5560	.	1	.	Os01t0100100-01.exon4	transcript:Os01t0100100-01	Os01t0100100-01.exon4	1	2	0	Os01t0100100-01.exon4	4
+1	irgsp	exon	7136	7944	.	1	.	Os01t0100100-01.exon5	transcript:Os01t0100100-01	Os01t0100100-01.exon5	1	1	2	Os01t0100100-01.exon5	5
+1	irgsp	exon	8028	8150	.	1	.	Os01t0100100-01.exon6	transcript:Os01t0100100-01	Os01t0100100-01.exon6	1	1	1	Os01t0100100-01.exon6	6
+1	irgsp	exon	8232	8320	.	1	.	Os01t0100100-01.exon7	transcript:Os01t0100100-01	Os01t0100100-01.exon7	1	0	1	Os01t0100100-01.exon7	7
+1	irgsp	exon	8408	8608	.	1	.	Os01t0100100-01.exon8	transcript:Os01t0100100-01	Os01t0100100-01.exon8	1	0	0	Os01t0100100-01.exon8	8
+1	irgsp	exon	9210	9615	.	1	.	Os01t0100100-01.exon9	transcript:Os01t0100100-01	Os01t0100100-01.exon9	1	1	0	Os01t0100100-01.exon9	9
+1	irgsp	exon	10102	10187	.	1	.	Os01t0100100-01.exon10	transcript:Os01t0100100-01	Os01t0100100-01.exon10	1	0	1	Os01t0100100-01.exon10	10
+1	irgsp	exon	10274	10430	.	1	.	Os01t0100100-01.exon11	transcript:Os01t0100100-01	Os01t0100100-01.exon11	1	-1	0	Os01t0100100-01.exon11	11
+1	irgsp	exon	10504	10815	.	1	.	Os01t0100100-01.exon12	transcript:Os01t0100100-01	Os01t0100100-01.exon12	1	-1	-1	Os01t0100100-01.exon12	12
+1	irgsp	five_prime_UTR	2983	3268	.	1	.	five_prime_utr-1	transcript:Os01t0100100-01
+1	irgsp	five_prime_UTR	3354	3448	.	1	.	five_prime_utr-2	transcript:Os01t0100100-01
+1	irgsp	three_prime_UTR	10298	10430	.	1	.	three_prime_utr-1	transcript:Os01t0100100-01
+1	irgsp	three_prime_UTR	10504	10815	.	1	.	three_prime_utr-2	transcript:Os01t0100100-01
+1	irgsp	gene	11218	12435	.	1	.	gene:Os01g0100200	protein_coding	Conserved hypothetical protein. (Os01t0100200-01)	Os01g0100200	irgspv1.0-20170804-genes
+1	irgsp	mRNA	11218	12435	.	1	.	transcript:Os01t0100200-01	protein_coding	gene:Os01g0100200	Os01t0100200-01
+1	irgsp	CDS	11798	12060	.	1	0	CDS:Os01t0100200-01	transcript:Os01t0100200-01	Os01t0100200-01
+1	irgsp	CDS	12152	12317	.	1	1	CDS:Os01t0100200-01	transcript:Os01t0100200-01	Os01t0100200-01
+1	irgsp	exon	11218	12060	.	1	.	Os01t0100200-01.exon1	transcript:Os01t0100200-01	Os01t0100200-01.exon1	1	2	-1	Os01t0100200-01.exon1	1
+1	irgsp	exon	12152	12435	.	1	.	Os01t0100200-01.exon2	transcript:Os01t0100200-01	Os01t0100200-01.exon2	1	-1	2	Os01t0100200-01.exon2	2
+1	irgsp	five_prime_UTR	11218	11797	.	1	.	five_prime_utr-3	transcript:Os01t0100200-01
+1	irgsp	three_prime_UTR	12318	12435	.	1	.	three_prime_utr-3	transcript:Os01t0100200-01
+1	irgsp	gene	11372	12284	.	-1	.	gene:Os01g0100300	protein_coding	Cytochrome P450 domain containing protein. (Os01t0100300-00)	Os01g0100300	irgspv1.0-20170804-genes
+1	irgsp	mRNA	11372	12284	.	-1	.	transcript:Os01t0100300-00	protein_coding	gene:Os01g0100300	Os01t0100300-00
+1	irgsp	CDS	11372	12042	.	-1	2	CDS:Os01t0100300-00	transcript:Os01t0100300-00	Os01t0100300-00
+1	irgsp	CDS	12146	12284	.	-1	0	CDS:Os01t0100300-00	transcript:Os01t0100300-00	Os01t0100300-00
+1	irgsp	exon	11372	12042	.	-1	.	Os01t0100300-00.exon2	transcript:Os01t0100300-00	Os01t0100300-00.exon2	1	0	1	Os01t0100300-00.exon2	2
+1	irgsp	exon	12146	12284	.	-1	.	Os01t0100300-00.exon1	transcript:Os01t0100300-00	Os01t0100300-00.exon1	1	1	0	Os01t0100300-00.exon1	1
+1	irgsp	gene	12721	15685	.	1	.	gene:Os01g0100400	protein_coding	Similar to Pectinesterase-like protein. (Os01t0100400-01)	Os01g0100400	irgspv1.0-20170804-genes
+1	irgsp	mRNA	12721	15685	.	1	.	transcript:Os01t0100400-01	protein_coding	gene:Os01g0100400	Os01t0100400-01
+1	irgsp	CDS	12774	13813	.	1	0	CDS:Os01t0100400-01	transcript:Os01t0100400-01	Os01t0100400-01
+1	irgsp	CDS	13906	14271	.	1	1	CDS:Os01t0100400-01	transcript:Os01t0100400-01	Os01t0100400-01
+1	irgsp	CDS	14359	14437	.	1	1	CDS:Os01t0100400-01	transcript:Os01t0100400-01	Os01t0100400-01
+1	irgsp	CDS	14969	15171	.	1	0	CDS:Os01t0100400-01	transcript:Os01t0100400-01	Os01t0100400-01
+1	irgsp	CDS	15266	15359	.	1	1	CDS:Os01t0100400-01	transcript:Os01t0100400-01	Os01t0100400-01
+1	irgsp	exon	12721	13813	.	1	.	Os01t0100400-01.exon1	transcript:Os01t0100400-01	Os01t0100400-01.exon1	1	2	-1	Os01t0100400-01.exon1	1
+1	irgsp	exon	13906	14271	.	1	.	Os01t0100400-01.exon2	transcript:Os01t0100400-01	Os01t0100400-01.exon2	1	2	2	Os01t0100400-01.exon2	2
+1	irgsp	exon	14359	14437	.	1	.	Os01t0100400-01.exon3	transcript:Os01t0100400-01	Os01t0100400-01.exon3	1	0	2	Os01t0100400-01.exon3	3
+1	irgsp	exon	14969	15171	.	1	.	Os01t0100400-01.exon4	transcript:Os01t0100400-01	Os01t0100400-01.exon4	1	2	0	Os01t0100400-01.exon4	4
+1	irgsp	exon	15266	15685	.	1	.	Os01t0100400-01.exon5	transcript:Os01t0100400-01	Os01t0100400-01.exon5	1	-1	2	Os01t0100400-01.exon5	5
+1	irgsp	five_prime_UTR	12721	12773	.	1	.	five_prime_utr-4	transcript:Os01t0100400-01
+1	irgsp	three_prime_UTR	15360	15685	.	1	.	three_prime_utr-4	transcript:Os01t0100400-01
+1	irgsp	gene	12808	13978	.	-1	.	gene:Os01g0100466	protein_coding	Hypothetical protein. (Os01t0100466-00)	Os01g0100466	irgspv1.0-20170804-genes
+1	irgsp	mRNA	12808	13978	.	-1	.	transcript:Os01t0100466-00	protein_coding	gene:Os01g0100466	Os01t0100466-00
+1	irgsp	CDS	12869	13102	.	-1	0	CDS:Os01t0100466-00	transcript:Os01t0100466-00	Os01t0100466-00
+1	irgsp	exon	12808	13782	.	-1	.	Os01t0100466-00.exon2	transcript:Os01t0100466-00	Os01t0100466-00.exon2	1	-1	-1	Os01t0100466-00.exon2	2
+1	irgsp	exon	13880	13978	.	-1	.	Os01t0100466-00.exon1	transcript:Os01t0100466-00	Os01t0100466-00.exon1	1	-1	-1	Os01t0100466-00.exon1	1
+1	irgsp	five_prime_UTR	13103	13782	.	-1	.	five_prime_utr-5	transcript:Os01t0100466-00
+1	irgsp	five_prime_UTR	13880	13978	.	-1	.	five_prime_utr-6	transcript:Os01t0100466-00
+1	irgsp	three_prime_UTR	12808	12868	.	-1	.	three_prime_utr-5	transcript:Os01t0100466-00
+1	irgsp	gene	16399	20144	.	1	.	gene:Os01g0100500	protein_coding	Immunoglobulin-like domain containing protein. (Os01t0100500-01)	Os01g0100500	irgspv1.0-20170804-genes
+1	irgsp	mRNA	16399	20144	.	1	.	transcript:Os01t0100500-01	protein_coding	gene:Os01g0100500	Os01t0100500-01
+1	irgsp	CDS	16599	16976	.	1	0	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	17383	17474	.	1	0	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	17558	18258	.	1	1	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	18501	18571	.	1	2	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	18968	19057	.	1	0	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	19142	19321	.	1	0	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	CDS	19531	19593	.	1	0	CDS:Os01t0100500-01	transcript:Os01t0100500-01	Os01t0100500-01
+1	irgsp	exon	16399	16976	.	1	.	Os01t0100500-01.exon1	transcript:Os01t0100500-01	Os01t0100500-01.exon1	1	0	-1	Os01t0100500-01.exon1	1
+1	irgsp	exon	17383	17474	.	1	.	Os01t0100500-01.exon2	transcript:Os01t0100500-01	Os01t0100500-01.exon2	1	2	0	Os01t0100500-01.exon2	2
+1	irgsp	exon	17558	18258	.	1	.	Os01t0100500-01.exon3	transcript:Os01t0100500-01	Os01t0100500-01.exon3	1	1	2	Os01t0100500-01.exon3	3
+1	irgsp	exon	18501	18571	.	1	.	Os01t0100500-01.exon4	transcript:Os01t0100500-01	Os01t0100500-01.exon4	1	0	1	Os01t0100500-01.exon4	4
+1	irgsp	exon	18968	19057	.	1	.	Os01t0100500-01.exon5	transcript:Os01t0100500-01	Os01t0100500-01.exon5	1	0	0	Os01t0100500-01.exon5	5
+1	irgsp	exon	19142	19321	.	1	.	Os01t0100500-01.exon6	transcript:Os01t0100500-01	Os01t0100500-01.exon6	1	0	0	Os01t0100500-01.exon6	6
+1	irgsp	exon	19531	19629	.	1	.	Os01t0100500-01.exon7	transcript:Os01t0100500-01	Os01t0100500-01.exon7	1	-1	0	Os01t0100500-01.exon7	7
+1	irgsp	exon	19734	20144	.	1	.	Os01t0100500-01.exon8	transcript:Os01t0100500-01	Os01t0100500-01.exon8	1	-1	-1	Os01t0100500-01.exon8	8
+1	irgsp	five_prime_UTR	16399	16598	.	1	.	five_prime_utr-7	transcript:Os01t0100500-01
+1	irgsp	three_prime_UTR	19594	19629	.	1	.	three_prime_utr-6	transcript:Os01t0100500-01
+1	irgsp	three_prime_UTR	19734	20144	.	1	.	three_prime_utr-7	transcript:Os01t0100500-01
+1	irgsp	gene	22841	26892	.	1	.	gene:Os01g0100600	protein_coding	Single-stranded nucleic acid binding R3H domain containing protein. (Os01t0100600-01)	Os01g0100600	irgspv1.0-20170804-genes
+1	irgsp	mRNA	22841	26892	.	1	.	transcript:Os01t0100600-01	protein_coding	gene:Os01g0100600	Os01t0100600-01
+1	irgsp	CDS	23232	23281	.	1	0	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	CDS	23572	23847	.	1	1	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	CDS	23962	24033	.	1	1	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	CDS	24492	24577	.	1	1	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	CDS	25445	25519	.	1	2	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	CDS	25883	26391	.	1	2	CDS:Os01t0100600-01	transcript:Os01t0100600-01	Os01t0100600-01
+1	irgsp	exon	22841	23281	.	1	.	Os01t0100600-01.exon1	transcript:Os01t0100600-01	Os01t0100600-01.exon1	1	2	-1	Os01t0100600-01.exon1	1
+1	irgsp	exon	23572	23847	.	1	.	Os01t0100600-01.exon2	transcript:Os01t0100600-01	Os01t0100600-01.exon2	1	2	2	Os01t0100600-01.exon2	2
+1	irgsp	exon	23962	24033	.	1	.	Os01t0100600-01.exon3	transcript:Os01t0100600-01	Os01t0100600-01.exon3	1	2	2	Os01t0100600-01.exon3	3
+1	irgsp	exon	24492	24577	.	1	.	Os01t0100600-01.exon4	transcript:Os01t0100600-01	Os01t0100600-01.exon4	1	1	2	Os01t0100600-01.exon4	4
+1	irgsp	exon	25445	25519	.	1	.	Os01t0100600-01.exon5	transcript:Os01t0100600-01	Os01t0100600-01.exon5	1	1	1	Os01t0100600-01.exon5	5
+1	irgsp	exon	25883	26892	.	1	.	Os01t0100600-01.exon6	transcript:Os01t0100600-01	Os01t0100600-01.exon6	1	-1	1	Os01t0100600-01.exon6	6
+1	irgsp	five_prime_UTR	22841	23231	.	1	.	five_prime_utr-8	transcript:Os01t0100600-01
+1	irgsp	three_prime_UTR	26392	26892	.	1	.	three_prime_utr-8	transcript:Os01t0100600-01
+1	irgsp	gene	25861	26424	.	-1	.	gene:Os01g0100650	protein_coding	Hypothetical gene. (Os01t0100650-00)	Os01g0100650	irgspv1.0-20170804-genes
+1	irgsp	mRNA	25861	26424	.	-1	.	transcript:Os01t0100650-00	protein_coding	gene:Os01g0100650	Os01t0100650-00
+1	irgsp	CDS	26040	26423	.	-1	0	CDS:Os01t0100650-00	transcript:Os01t0100650-00	Os01t0100650-00
+1	irgsp	exon	25861	26424	.	-1	.	Os01t0100650-00.exon1	transcript:Os01t0100650-00	Os01t0100650-00.exon1	1	-1	-1	Os01t0100650-00.exon1	1
+1	irgsp	five_prime_UTR	26424	26424	.	-1	.	five_prime_utr-9	transcript:Os01t0100650-00
+1	irgsp	three_prime_UTR	25861	26039	.	-1	.	three_prime_utr-9	transcript:Os01t0100650-00
+1	irgsp	gene	27143	28644	.	1	.	gene:Os01g0100700	protein_coding	Similar to 40S ribosomal protein S5-1. (Os01t0100700-01)	Os01g0100700	irgspv1.0-20170804-genes
+1	irgsp	mRNA	27143	28644	.	1	.	transcript:Os01t0100700-01	protein_coding	gene:Os01g0100700	Os01t0100700-01
+1	irgsp	CDS	27221	27292	.	1	0	CDS:Os01t0100700-01	transcript:Os01t0100700-01	Os01t0100700-01
+1	irgsp	CDS	27370	27641	.	1	0	CDS:Os01t0100700-01	transcript:Os01t0100700-01	Os01t0100700-01
+1	irgsp	CDS	28090	28293	.	1	1	CDS:Os01t0100700-01	transcript:Os01t0100700-01	Os01t0100700-01
+1	irgsp	CDS	28365	28419	.	1	1	CDS:Os01t0100700-01	transcript:Os01t0100700-01	Os01t0100700-01
+1	irgsp	exon	27143	27292	.	1	.	Os01t0100700-01.exon1	transcript:Os01t0100700-01	Os01t0100700-01.exon1	1	0	-1	Os01t0100700-01.exon1	1
+1	irgsp	exon	27370	27641	.	1	.	Os01t0100700-01.exon2	transcript:Os01t0100700-01	Os01t0100700-01.exon2	1	2	0	Os01t0100700-01.exon2	2
+1	irgsp	exon	28090	28293	.	1	.	Os01t0100700-01.exon3	transcript:Os01t0100700-01	Os01t0100700-01.exon3	1	2	2	Os01t0100700-01.exon3	3
+1	irgsp	exon	28365	28644	.	1	.	Os01t0100700-01.exon4	transcript:Os01t0100700-01	Os01t0100700-01.exon4	1	-1	2	Os01t0100700-01.exon4	4
+1	irgsp	five_prime_UTR	27143	27220	.	1	.	five_prime_utr-10	transcript:Os01t0100700-01
+1	irgsp	three_prime_UTR	28420	28644	.	1	.	three_prime_utr-10	transcript:Os01t0100700-01
+1	irgsp	gene	29818	34453	.	1	.	gene:Os01g0100800	protein_coding	Protein of unknown function DUF1664 family protein. (Os01t0100800-01)	Os01g0100800	irgspv1.0-20170804-genes
+1	irgsp	mRNA	29818	34453	.	1	.	transcript:Os01t0100800-01	protein_coding	gene:Os01g0100800	Os01t0100800-01
+1	irgsp	CDS	29940	29976	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	30146	30228	.	1	2	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	30735	30806	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	30885	30963	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	31258	31325	.	1	2	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	31505	31606	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	32377	32466	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	32542	32616	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	32712	32744	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	32828	32905	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	33274	33330	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	33400	33471	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	33543	33617	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	CDS	33975	34124	.	1	0	CDS:Os01t0100800-01	transcript:Os01t0100800-01	Os01t0100800-01
+1	irgsp	exon	29818	29976	.	1	.	Os01t0100800-01.exon1	transcript:Os01t0100800-01	Os01t0100800-01.exon1	1	1	-1	Os01t0100800-01.exon1	1
+1	irgsp	exon	30146	30228	.	1	.	Os01t0100800-01.exon2	transcript:Os01t0100800-01	Os01t0100800-01.exon2	1	0	1	Os01t0100800-01.exon2	2
+1	irgsp	exon	30735	30806	.	1	.	Os01t0100800-01.exon3	transcript:Os01t0100800-01	Os01t0100800-01.exon3	1	0	0	Os01t0100800-01.exon3	3
+1	irgsp	exon	30885	30963	.	1	.	Os01t0100800-01.exon4	transcript:Os01t0100800-01	Os01t0100800-01.exon4	1	1	0	Os01t0100800-01.exon4	4
+1	irgsp	exon	31258	31325	.	1	.	Os01t0100800-01.exon5	transcript:Os01t0100800-01	Os01t0100800-01.exon5	1	0	1	Os01t0100800-01.exon5	5
+1	irgsp	exon	31505	31606	.	1	.	Os01t0100800-01.exon6	transcript:Os01t0100800-01	Os01t0100800-01.exon6	1	0	0	Os01t0100800-01.exon6	6
+1	irgsp	exon	32377	32466	.	1	.	Os01t0100800-01.exon7	transcript:Os01t0100800-01	Os01t0100800-01.exon7	1	0	0	Os01t0100800-01.exon7	7
+1	irgsp	exon	32542	32616	.	1	.	Os01t0100800-01.exon8	transcript:Os01t0100800-01	Os01t0100800-01.exon8	1	0	0	Os01t0100800-01.exon8	8
+1	irgsp	exon	32712	32744	.	1	.	Os01t0100800-01.exon9	transcript:Os01t0100800-01	Os01t0100800-01.exon9	1	0	0	Os01t0100800-01.exon9	9
+1	irgsp	exon	32828	32905	.	1	.	Os01t0100800-01.exon10	transcript:Os01t0100800-01	Os01t0100800-01.exon10	1	0	0	Os01t0100800-01.exon10	10
+1	irgsp	exon	33274	33330	.	1	.	Os01t0100800-01.exon11	transcript:Os01t0100800-01	Os01t0100800-01.exon11	1	0	0	Os01t0100800-01.exon11	11
+1	irgsp	exon	33400	33471	.	1	.	Os01t0100800-01.exon12	transcript:Os01t0100800-01	Os01t0100800-01.exon12	1	0	0	Os01t0100800-01.exon12	12
+1	irgsp	exon	33543	33617	.	1	.	Os01t0100800-01.exon13	transcript:Os01t0100800-01	Os01t0100800-01.exon13	1	0	0	Os01t0100800-01.exon13	13
+1	irgsp	exon	33975	34453	.	1	.	Os01t0100800-01.exon14	transcript:Os01t0100800-01	Os01t0100800-01.exon14	1	-1	0	Os01t0100800-01.exon14	14
+1	irgsp	five_prime_UTR	29818	29939	.	1	.	five_prime_utr-11	transcript:Os01t0100800-01
+1	irgsp	three_prime_UTR	34125	34453	.	1	.	three_prime_utr-11	transcript:Os01t0100800-01
+1	irgsp	gene	35623	41136	.	1	.	gene:Os01g0100900	protein_coding	Sphingosine-1-phosphate lyase, Disease resistance response (Os01t0100900-01)	Os01g0100900	irgspv1.0-20170804-genes	SPHINGOSINE-1-PHOSPHATE LYASE 1, Sphingosine-1-Phoshpate Lyase 1
+1	irgsp	mRNA	35623	41136	.	1	.	transcript:Os01t0100900-01	protein_coding	gene:Os01g0100900	Os01t0100900-01
+1	irgsp	CDS	35743	35939	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	36027	36072	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	36517	36668	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	36818	36877	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	37594	37818	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	37892	38033	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	38276	38326	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	38434	38525	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	39319	39445	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	39553	39568	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	39939	40046	.	1	2	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	40135	40189	.	1	2	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	40456	40602	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	40703	40781	.	1	1	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	CDS	40885	41007	.	1	0	CDS:Os01t0100900-01	transcript:Os01t0100900-01	Os01t0100900-01
+1	irgsp	exon	35623	35939	.	1	.	Os01t0100900-01.exon1	transcript:Os01t0100900-01	Os01t0100900-01.exon1	1	2	-1	Os01t0100900-01.exon1	1
+1	irgsp	exon	36027	36072	.	1	.	Os01t0100900-01.exon2	transcript:Os01t0100900-01	Os01t0100900-01.exon2	1	0	2	Os01t0100900-01.exon2	2
+1	irgsp	exon	36517	36668	.	1	.	Os01t0100900-01.exon3	transcript:Os01t0100900-01	Os01t0100900-01.exon3	1	2	0	Os01t0100900-01.exon3	3
+1	irgsp	exon	36818	36877	.	1	.	Os01t0100900-01.exon4	transcript:Os01t0100900-01	Os01t0100900-01.exon4	1	2	2	Os01t0100900-01.exon4	4
+1	irgsp	exon	37594	37818	.	1	.	Os01t0100900-01.exon5	transcript:Os01t0100900-01	Os01t0100900-01.exon5	1	2	2	Os01t0100900-01.exon5	5
+1	irgsp	exon	37892	38033	.	1	.	Os01t0100900-01.exon6	transcript:Os01t0100900-01	Os01t0100900-01.exon6	1	0	2	Os01t0100900-01.exon6	6
+1	irgsp	exon	38276	38326	.	1	.	Os01t0100900-01.exon7	transcript:Os01t0100900-01	Os01t0100900-01.exon7	1	0	0	Os01t0100900-01.exon7	7
+1	irgsp	exon	38434	38525	.	1	.	Os01t0100900-01.exon8	transcript:Os01t0100900-01	Os01t0100900-01.exon8	1	2	0	Os01t0100900-01.exon8	8
+1	irgsp	exon	39319	39445	.	1	.	Os01t0100900-01.exon9	transcript:Os01t0100900-01	Os01t0100900-01.exon9	1	0	2	Os01t0100900-01.exon9	9
+1	irgsp	exon	39553	39568	.	1	.	Os01t0100900-01.exon10	transcript:Os01t0100900-01	Os01t0100900-01.exon10	1	1	0	Os01t0100900-01.exon10	10
+1	irgsp	exon	39939	40046	.	1	.	Os01t0100900-01.exon11	transcript:Os01t0100900-01	Os01t0100900-01.exon11	1	1	1	Os01t0100900-01.exon11	11
+1	irgsp	exon	40135	40189	.	1	.	Os01t0100900-01.exon12	transcript:Os01t0100900-01	Os01t0100900-01.exon12	1	2	1	Os01t0100900-01.exon12	12
+1	irgsp	exon	40456	40602	.	1	.	Os01t0100900-01.exon13	transcript:Os01t0100900-01	Os01t0100900-01.exon13	1	2	2	Os01t0100900-01.exon13	13
+1	irgsp	exon	40703	40781	.	1	.	Os01t0100900-01.exon14	transcript:Os01t0100900-01	Os01t0100900-01.exon14	1	0	2	Os01t0100900-01.exon14	14
+1	irgsp	exon	40885	41136	.	1	.	Os01t0100900-01.exon15	transcript:Os01t0100900-01	Os01t0100900-01.exon15	1	-1	0	Os01t0100900-01.exon15	15
+1	irgsp	five_prime_UTR	35623	35742	.	1	.	five_prime_utr-12	transcript:Os01t0100900-01
+1	irgsp	three_prime_UTR	41008	41136	.	1	.	three_prime_utr-12	transcript:Os01t0100900-01
+1	irgsp	gene	58658	61090	.	1	.	gene:Os01g0101150	protein_coding	Hypothetical conserved gene. (Os01t0101150-00)	Os01g0101150	irgspv1.0-20170804-genes
+1	irgsp	mRNA	58658	61090	.	1	.	transcript:Os01t0101150-00	protein_coding	gene:Os01g0101150	Os01t0101150-00
+1	irgsp	CDS	58658	61090	.	1	0	CDS:Os01t0101150-00	transcript:Os01t0101150-00	Os01t0101150-00
+1	irgsp	exon	58658	61090	.	1	.	Os01t0101150-00.exon1	transcript:Os01t0101150-00	Os01t0101150-00.exon1	1	0	0	Os01t0101150-00.exon1	1
+1	irgsp	gene	62060	65537	.	1	.	gene:Os01g0101200	protein_coding	2,3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01);2,3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02)	Os01g0101200	irgspv1.0-20170804-genes
+1	irgsp	mRNA	62060	63576	.	1	.	transcript:Os01t0101200-01	protein_coding	gene:Os01g0101200	Os01t0101200-01
+1	irgsp	CDS	62104	62295	.	1	0	CDS:Os01t0101200-01	transcript:Os01t0101200-01	Os01t0101200-01
+1	irgsp	CDS	62385	62905	.	1	0	CDS:Os01t0101200-01	transcript:Os01t0101200-01	Os01t0101200-01
+1	irgsp	CDS	62996	63114	.	1	1	CDS:Os01t0101200-01	transcript:Os01t0101200-01	Os01t0101200-01
+1	irgsp	CDS	63248	63345	.	1	2	CDS:Os01t0101200-01	transcript:Os01t0101200-01	Os01t0101200-01
+1	irgsp	exon	62060	62295	.	1	.	Os01t0101200-01.exon1	transcript:Os01t0101200-01	Os01t0101200-01.exon1	0	0	-1	Os01t0101200-01.exon1	1
+1	irgsp	exon	62385	62905	.	1	.	Os01t0101200-02.exon2	transcript:Os01t0101200-01	Os01t0101200-02.exon2	1	2	0	Os01t0101200-02.exon2	2
+1	irgsp	exon	62996	63114	.	1	.	Os01t0101200-02.exon3	transcript:Os01t0101200-01	Os01t0101200-02.exon3	1	1	2	Os01t0101200-02.exon3	3
+1	irgsp	exon	63248	63576	.	1	.	Os01t0101200-01.exon4	transcript:Os01t0101200-01	Os01t0101200-01.exon4	0	-1	1	Os01t0101200-01.exon4	4
+1	irgsp	five_prime_UTR	62060	62103	.	1	.	five_prime_utr-13	transcript:Os01t0101200-01
+1	irgsp	three_prime_UTR	63346	63576	.	1	.	three_prime_utr-13	transcript:Os01t0101200-01
+1	irgsp	mRNA	62112	65537	.	1	.	transcript:Os01t0101200-02	protein_coding	gene:Os01g0101200	Os01t0101200-02
+1	irgsp	CDS	62113	62295	.	1	0	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
+1	irgsp	CDS	62385	62905	.	1	0	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
+1	irgsp	CDS	62996	63114	.	1	1	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
+1	irgsp	CDS	63248	63345	.	1	2	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
+1	irgsp	exon	62112	62295	.	1	.	Os01t0101200-02.exon1	transcript:Os01t0101200-02	Os01t0101200-02.exon1	0	0	-1	Os01t0101200-02.exon1	1
+1	irgsp	exon	62385	62905	.	1	.	nbis_NEW-exon-1	transcript:Os01t0101200-02	Os01t0101200-02.exon2	1	2	0	Os01t0101200-02.exon2	2
+1	irgsp	exon	62996	63114	.	1	.	nbis_NEW-exon-2	transcript:Os01t0101200-02	Os01t0101200-02.exon3	1	1	2	Os01t0101200-02.exon3	3
+1	irgsp	exon	63248	65537	.	1	.	Os01t0101200-02.exon4	transcript:Os01t0101200-02	Os01t0101200-02.exon4	0	-1	1	Os01t0101200-02.exon4	4
+1	irgsp	five_prime_UTR	62112	62112	.	1	.	five_prime_utr-14	transcript:Os01t0101200-02
+1	irgsp	three_prime_UTR	63346	65537	.	1	.	three_prime_utr-14	transcript:Os01t0101200-02
+1	irgsp	gene	63350	66302	.	-1	.	gene:Os01g0101300	protein_coding	Similar to MRNA, partial cds, clone: RAFL22-26-L17. (Fragment). (Os01t0101300-01)	Os01g0101300	irgspv1.0-20170804-genes
+1	irgsp	mRNA	63350	66302	.	-1	.	transcript:Os01t0101300-01	protein_coding	gene:Os01g0101300	Os01t0101300-01
+1	irgsp	CDS	63670	63783	.	-1	0	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	63877	64020	.	-1	0	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	64339	64431	.	-1	0	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	64665	64779	.	-1	1	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	64902	65152	.	-1	0	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	65248	65431	.	-1	1	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	CDS	65628	65950	.	-1	0	CDS:Os01t0101300-01	transcript:Os01t0101300-01	Os01t0101300-01
+1	irgsp	exon	63350	63783	.	-1	.	Os01t0101300-01.exon7	transcript:Os01t0101300-01	Os01t0101300-01.exon7	1	-1	0	Os01t0101300-01.exon7	7
+1	irgsp	exon	63877	64020	.	-1	.	Os01t0101300-01.exon6	transcript:Os01t0101300-01	Os01t0101300-01.exon6	1	0	0	Os01t0101300-01.exon6	6
+1	irgsp	exon	64339	64431	.	-1	.	Os01t0101300-01.exon5	transcript:Os01t0101300-01	Os01t0101300-01.exon5	1	0	0	Os01t0101300-01.exon5	5
+1	irgsp	exon	64665	64779	.	-1	.	Os01t0101300-01.exon4	transcript:Os01t0101300-01	Os01t0101300-01.exon4	1	0	2	Os01t0101300-01.exon4	4
+1	irgsp	exon	64902	65152	.	-1	.	Os01t0101300-01.exon3	transcript:Os01t0101300-01	Os01t0101300-01.exon3	1	2	0	Os01t0101300-01.exon3	3
+1	irgsp	exon	65248	65431	.	-1	.	Os01t0101300-01.exon2	transcript:Os01t0101300-01	Os01t0101300-01.exon2	1	0	2	Os01t0101300-01.exon2	2
+1	irgsp	exon	65628	66302	.	-1	.	Os01t0101300-01.exon1	transcript:Os01t0101300-01	Os01t0101300-01.exon1	1	2	-1	Os01t0101300-01.exon1	1
+1	irgsp	five_prime_UTR	65951	66302	.	-1	.	five_prime_utr-15	transcript:Os01t0101300-01
+1	irgsp	three_prime_UTR	63350	63669	.	-1	.	three_prime_utr-15	transcript:Os01t0101300-01
+1	irgsp	gene	72816	78349	.	1	.	gene:Os01g0101600	protein_coding	Immunoglobulin-like fold domain containing protein. (Os01t0101600-01);Immunoglobulin-like fold domain containing protein. (Os01t0101600-02);Hypothetical conserved gene. (Os01t0101600-03)	Os01g0101600	irgspv1.0-20170804-genes
+1	irgsp	mRNA	72816	78349	.	1	.	transcript:Os01t0101600-01	protein_coding	gene:Os01g0101600	Os01t0101600-01
+1	irgsp	CDS	72903	73935	.	1	0	CDS:Os01t0101600-01	transcript:Os01t0101600-01	Os01t0101600-01
+1	irgsp	CDS	74468	74981	.	1	2	CDS:Os01t0101600-01	transcript:Os01t0101600-01	Os01t0101600-01
+1	irgsp	CDS	75619	77008	.	1	1	CDS:Os01t0101600-01	transcript:Os01t0101600-01	Os01t0101600-01
+1	irgsp	exon	72816	73935	.	1	.	Os01t0101600-01.exon1	transcript:Os01t0101600-01	Os01t0101600-01.exon1	0	1	-1	Os01t0101600-01.exon1	1
+1	irgsp	exon	74468	74981	.	1	.	Os01t0101600-02.exon2	transcript:Os01t0101600-01	Os01t0101600-02.exon2	0	2	1	Os01t0101600-02.exon2	2
+1	irgsp	exon	75619	77205	.	1	.	Os01t0101600-01.exon3	transcript:Os01t0101600-01	Os01t0101600-01.exon3	0	-1	2	Os01t0101600-01.exon3	3
+1	irgsp	exon	77333	78349	.	1	.	Os01t0101600-01.exon4	transcript:Os01t0101600-01	Os01t0101600-01.exon4	0	-1	-1	Os01t0101600-01.exon4	4
+1	irgsp	five_prime_UTR	72816	72902	.	1	.	five_prime_utr-16	transcript:Os01t0101600-01
+1	irgsp	three_prime_UTR	77009	77205	.	1	.	three_prime_utr-16	transcript:Os01t0101600-01
+1	irgsp	three_prime_UTR	77333	78349	.	1	.	three_prime_utr-17	transcript:Os01t0101600-01
+1	irgsp	mRNA	72823	77699	.	1	.	transcript:Os01t0101600-02	protein_coding	gene:Os01g0101600	Os01t0101600-02
+1	irgsp	CDS	72903	73935	.	1	0	CDS:Os01t0101600-02	transcript:Os01t0101600-02	Os01t0101600-02
+1	irgsp	CDS	74468	74981	.	1	2	CDS:Os01t0101600-02	transcript:Os01t0101600-02	Os01t0101600-02
+1	irgsp	CDS	75619	77008	.	1	1	CDS:Os01t0101600-02	transcript:Os01t0101600-02	Os01t0101600-02
+1	irgsp	exon	72823	73935	.	1	.	Os01t0101600-02.exon1	transcript:Os01t0101600-02	Os01t0101600-02.exon1	0	1	-1	Os01t0101600-02.exon1	1
+1	irgsp	exon	74468	74981	.	1	.	nbis_NEW-exon-3	transcript:Os01t0101600-02	Os01t0101600-02.exon2	0	2	1	Os01t0101600-02.exon2	2
+1	irgsp	exon	75619	77699	.	1	.	Os01t0101600-02.exon3	transcript:Os01t0101600-02	Os01t0101600-02.exon3	0	-1	2	Os01t0101600-02.exon3	3
+1	irgsp	five_prime_UTR	72823	72902	.	1	.	five_prime_utr-17	transcript:Os01t0101600-02
+1	irgsp	three_prime_UTR	77009	77699	.	1	.	three_prime_utr-18	transcript:Os01t0101600-02
+1	irgsp	mRNA	75942	77699	.	1	.	transcript:Os01t0101600-03	protein_coding	gene:Os01g0101600	Os01t0101600-03
+1	irgsp	CDS	75944	77008	.	1	0	CDS:Os01t0101600-03	transcript:Os01t0101600-03	Os01t0101600-03
+1	irgsp	exon	75942	77699	.	1	.	Os01t0101600-03.exon1	transcript:Os01t0101600-03	Os01t0101600-03.exon1	0	-1	-1	Os01t0101600-03.exon1	1
+1	irgsp	five_prime_UTR	75942	75943	.	1	.	five_prime_utr-18	transcript:Os01t0101600-03
+1	irgsp	three_prime_UTR	77009	77699	.	1	.	three_prime_utr-19	transcript:Os01t0101600-03
+1	irgsp	gene	82426	84095	.	1	.	gene:Os01g0101700	protein_coding	Similar to chaperone protein dnaJ 20. (Os01t0101700-00)	Os01g0101700	irgspv1.0-20170804-genes	DnaJ domain protein C1, rice DJC26 homolog
+1	irgsp	mRNA	82426	84095	.	1	.	transcript:Os01t0101700-00	protein_coding	gene:Os01g0101700	Os01t0101700-00
+1	irgsp	CDS	82507	82932	.	1	0	CDS:Os01t0101700-00	transcript:Os01t0101700-00	Os01t0101700-00
+1	irgsp	CDS	83724	83864	.	1	0	CDS:Os01t0101700-00	transcript:Os01t0101700-00	Os01t0101700-00
+1	irgsp	exon	82426	82932	.	1	.	Os01t0101700-00.exon1	transcript:Os01t0101700-00	Os01t0101700-00.exon1	1	0	-1	Os01t0101700-00.exon1	1
+1	irgsp	exon	83724	84095	.	1	.	Os01t0101700-00.exon2	transcript:Os01t0101700-00	Os01t0101700-00.exon2	1	-1	0	Os01t0101700-00.exon2	2
+1	irgsp	five_prime_UTR	82426	82506	.	1	.	five_prime_utr-19	transcript:Os01t0101700-00
+1	irgsp	three_prime_UTR	83865	84095	.	1	.	three_prime_utr-20	transcript:Os01t0101700-00
+1	irgsp	gene	85337	88844	.	1	.	gene:Os01g0101800	protein_coding	Conserved hypothetical protein. (Os01t0101800-01)	Os01g0101800	irgspv1.0-20170804-genes
+1	irgsp	mRNA	85337	88844	.	1	.	transcript:Os01t0101800-01	protein_coding	gene:Os01g0101800	Os01t0101800-01
+1	irgsp	CDS	85379	85600	.	1	0	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	85737	85830	.	1	0	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	85935	86086	.	1	2	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	86212	86299	.	1	0	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	86399	87681	.	1	2	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	88291	88398	.	1	0	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	CDS	88500	88583	.	1	0	CDS:Os01t0101800-01	transcript:Os01t0101800-01	Os01t0101800-01
+1	irgsp	exon	85337	85600	.	1	.	Os01t0101800-01.exon1	transcript:Os01t0101800-01	Os01t0101800-01.exon1	1	0	-1	Os01t0101800-01.exon1	1
+1	irgsp	exon	85737	85830	.	1	.	Os01t0101800-01.exon2	transcript:Os01t0101800-01	Os01t0101800-01.exon2	1	1	0	Os01t0101800-01.exon2	2
+1	irgsp	exon	85935	86086	.	1	.	Os01t0101800-01.exon3	transcript:Os01t0101800-01	Os01t0101800-01.exon3	1	0	1	Os01t0101800-01.exon3	3
+1	irgsp	exon	86212	86299	.	1	.	Os01t0101800-01.exon4	transcript:Os01t0101800-01	Os01t0101800-01.exon4	1	1	0	Os01t0101800-01.exon4	4
+1	irgsp	exon	86399	87681	.	1	.	Os01t0101800-01.exon5	transcript:Os01t0101800-01	Os01t0101800-01.exon5	1	0	1	Os01t0101800-01.exon5	5
+1	irgsp	exon	88291	88398	.	1	.	Os01t0101800-01.exon6	transcript:Os01t0101800-01	Os01t0101800-01.exon6	1	0	0	Os01t0101800-01.exon6	6
+1	irgsp	exon	88500	88844	.	1	.	Os01t0101800-01.exon7	transcript:Os01t0101800-01	Os01t0101800-01.exon7	1	-1	0	Os01t0101800-01.exon7	7
+1	irgsp	five_prime_UTR	85337	85378	.	1	.	five_prime_utr-20	transcript:Os01t0101800-01
+1	irgsp	three_prime_UTR	88584	88844	.	1	.	three_prime_utr-21	transcript:Os01t0101800-01
+1	irgsp	gene	86211	88583	.	-1	.	gene:Os01g0101850	protein_coding	Hypothetical protein. (Os01t0101850-00)	Os01g0101850	irgspv1.0-20170804-genes
+1	irgsp	mRNA	86211	88583	.	-1	.	transcript:Os01t0101850-00	protein_coding	gene:Os01g0101850	Os01t0101850-00
+1	irgsp	CDS	87327	87662	.	-1	0	CDS:Os01t0101850-00	transcript:Os01t0101850-00	Os01t0101850-00
+1	irgsp	exon	86211	86277	.	-1	.	Os01t0101850-00.exon4	transcript:Os01t0101850-00	Os01t0101850-00.exon4	1	-1	-1	Os01t0101850-00.exon4	4
+1	irgsp	exon	86384	87694	.	-1	.	Os01t0101850-00.exon3	transcript:Os01t0101850-00	Os01t0101850-00.exon3	1	-1	-1	Os01t0101850-00.exon3	3
+1	irgsp	exon	88308	88396	.	-1	.	Os01t0101850-00.exon2	transcript:Os01t0101850-00	Os01t0101850-00.exon2	1	-1	-1	Os01t0101850-00.exon2	2
+1	irgsp	exon	88496	88583	.	-1	.	Os01t0101850-00.exon1	transcript:Os01t0101850-00	Os01t0101850-00.exon1	1	-1	-1	Os01t0101850-00.exon1	1
+1	irgsp	five_prime_UTR	87663	87694	.	-1	.	five_prime_utr-21	transcript:Os01t0101850-00
+1	irgsp	five_prime_UTR	88308	88396	.	-1	.	five_prime_utr-22	transcript:Os01t0101850-00
+1	irgsp	five_prime_UTR	88496	88583	.	-1	.	five_prime_utr-23	transcript:Os01t0101850-00
+1	irgsp	three_prime_UTR	86211	86277	.	-1	.	three_prime_utr-22	transcript:Os01t0101850-00
+1	irgsp	three_prime_UTR	86384	87326	.	-1	.	three_prime_utr-23	transcript:Os01t0101850-00
+1	irgsp	gene	88883	89228	.	-1	.	gene:Os01g0101900	protein_coding	Similar to OSIGBa0075F02.3 protein. (Os01t0101900-00)	Os01g0101900	irgspv1.0-20170804-genes
+1	irgsp	mRNA	88883	89228	.	-1	.	transcript:Os01t0101900-00	protein_coding	gene:Os01g0101900	Os01t0101900-00
+1	irgsp	CDS	88986	89204	.	-1	0	CDS:Os01t0101900-00	transcript:Os01t0101900-00	Os01t0101900-00
+1	irgsp	exon	88883	89228	.	-1	.	Os01t0101900-00.exon1	transcript:Os01t0101900-00	Os01t0101900-00.exon1	1	-1	-1	Os01t0101900-00.exon1	1
+1	irgsp	five_prime_UTR	89205	89228	.	-1	.	five_prime_utr-24	transcript:Os01t0101900-00
+1	irgsp	three_prime_UTR	88883	88985	.	-1	.	three_prime_utr-24	transcript:Os01t0101900-00
+1	irgsp	gene	89763	91465	.	-1	.	gene:Os01g0102000	protein_coding	Phosphoesterase family protein. (Os01t0102000-01)	Os01g0102000	irgspv1.0-20170804-genes	NON-SPECIFIC PHOSPHOLIPASE C5
+1	irgsp	mRNA	89763	91465	.	-1	.	transcript:Os01t0102000-01	protein_coding	gene:Os01g0102000	Os01t0102000-01
+1	irgsp	CDS	89825	91411	.	-1	0	CDS:Os01t0102000-01	transcript:Os01t0102000-01	Os01t0102000-01
+1	irgsp	exon	89763	91465	.	-1	.	Os01t0102000-01.exon1	transcript:Os01t0102000-01	Os01t0102000-01.exon1	1	-1	-1	Os01t0102000-01.exon1	1
+1	irgsp	five_prime_UTR	91412	91465	.	-1	.	five_prime_utr-25	transcript:Os01t0102000-01
+1	irgsp	three_prime_UTR	89763	89824	.	-1	.	three_prime_utr-25	transcript:Os01t0102000-01
+1	irgsp	gene	134300	135439	.	1	.	gene:Os01g0102300	protein_coding	Thylakoid lumen protein, Photosynthesis and chloroplast development (Os01t0102300-01)	Os01g0102300	irgspv1.0-20170804-genes	OsTLP27
+1	irgsp	mRNA	134300	135439	.	1	.	transcript:Os01t0102300-01	protein_coding	gene:Os01g0102300	Os01t0102300-01
+1	irgsp	CDS	134311	134615	.	1	0	CDS:Os01t0102300-01	transcript:Os01t0102300-01	Os01t0102300-01
+1	irgsp	CDS	134698	134824	.	1	1	CDS:Os01t0102300-01	transcript:Os01t0102300-01	Os01t0102300-01
+1	irgsp	CDS	134912	135253	.	1	0	CDS:Os01t0102300-01	transcript:Os01t0102300-01	Os01t0102300-01
+1	irgsp	exon	134300	134615	.	1	.	Os01t0102300-01.exon1	transcript:Os01t0102300-01	Os01t0102300-01.exon1	1	2	-1	Os01t0102300-01.exon1	1
+1	irgsp	exon	134698	134824	.	1	.	Os01t0102300-01.exon2	transcript:Os01t0102300-01	Os01t0102300-01.exon2	1	0	2	Os01t0102300-01.exon2	2
+1	irgsp	exon	134912	135439	.	1	.	Os01t0102300-01.exon3	transcript:Os01t0102300-01	Os01t0102300-01.exon3	1	-1	0	Os01t0102300-01.exon3	3
+1	irgsp	five_prime_UTR	134300	134310	.	1	.	five_prime_utr-26	transcript:Os01t0102300-01
+1	irgsp	three_prime_UTR	135254	135439	.	1	.	three_prime_utr-26	transcript:Os01t0102300-01
+1	irgsp	gene	139826	141555	.	1	.	gene:Os01g0102400	protein_coding	Histone-fold domain containing protein. (Os01t0102400-01)	Os01g0102400	irgspv1.0-20170804-genes	HAP5H SUBUNIT OF CCAAT-BOX BINDING COMPLEX
+1	irgsp	mRNA	139826	141555	.	1	.	transcript:Os01t0102400-01	protein_coding	gene:Os01g0102400	Os01t0102400-01
+1	irgsp	CDS	140150	141415	.	1	0	CDS:Os01t0102400-01	transcript:Os01t0102400-01	Os01t0102400-01
+1	irgsp	exon	139826	139906	.	1	.	Os01t0102400-01.exon1	transcript:Os01t0102400-01	Os01t0102400-01.exon1	1	-1	-1	Os01t0102400-01.exon1	1
+1	irgsp	exon	140120	141555	.	1	.	Os01t0102400-01.exon2	transcript:Os01t0102400-01	Os01t0102400-01.exon2	1	-1	-1	Os01t0102400-01.exon2	2
+1	irgsp	five_prime_UTR	139826	139906	.	1	.	five_prime_utr-27	transcript:Os01t0102400-01
+1	irgsp	five_prime_UTR	140120	140149	.	1	.	five_prime_utr-28	transcript:Os01t0102400-01
+1	irgsp	three_prime_UTR	141416	141555	.	1	.	three_prime_utr-27	transcript:Os01t0102400-01
+1	irgsp	gene	141959	144554	.	1	.	gene:Os01g0102500	protein_coding	Conserved hypothetical protein. (Os01t0102500-01)	Os01g0102500	irgspv1.0-20170804-genes
+1	irgsp	mRNA	141959	144554	.	1	.	transcript:Os01t0102500-01	protein_coding	gene:Os01g0102500	Os01t0102500-01
+1	irgsp	CDS	142084	142631	.	1	0	CDS:Os01t0102500-01	transcript:Os01t0102500-01	Os01t0102500-01
+1	irgsp	CDS	143191	143431	.	1	1	CDS:Os01t0102500-01	transcript:Os01t0102500-01	Os01t0102500-01
+1	irgsp	CDS	143563	143680	.	1	0	CDS:Os01t0102500-01	transcript:Os01t0102500-01	Os01t0102500-01
+1	irgsp	CDS	143817	143908	.	1	2	CDS:Os01t0102500-01	transcript:Os01t0102500-01	Os01t0102500-01
+1	irgsp	exon	141959	142631	.	1	.	Os01t0102500-01.exon1	transcript:Os01t0102500-01	Os01t0102500-01.exon1	1	2	-1	Os01t0102500-01.exon1	1
+1	irgsp	exon	143191	143431	.	1	.	Os01t0102500-01.exon2	transcript:Os01t0102500-01	Os01t0102500-01.exon2	1	0	2	Os01t0102500-01.exon2	2
+1	irgsp	exon	143563	143680	.	1	.	Os01t0102500-01.exon3	transcript:Os01t0102500-01	Os01t0102500-01.exon3	1	1	0	Os01t0102500-01.exon3	3
+1	irgsp	exon	143817	144554	.	1	.	Os01t0102500-01.exon4	transcript:Os01t0102500-01	Os01t0102500-01.exon4	1	-1	1	Os01t0102500-01.exon4	4
+1	irgsp	five_prime_UTR	141959	142083	.	1	.	five_prime_utr-29	transcript:Os01t0102500-01
+1	irgsp	three_prime_UTR	143909	144554	.	1	.	three_prime_utr-28	transcript:Os01t0102500-01
+1	irgsp	gene	145603	147847	.	1	.	gene:Os01g0102600	protein_coding	Shikimate kinase domain containing protein. (Os01t0102600-01);Similar to shikimate kinase family protein. (Os01t0102600-02)	Os01g0102600	irgspv1.0-20170804-genes	Shikimate kinase 4
+1	irgsp	mRNA	145603	147847	.	1	.	transcript:Os01t0102600-01	protein_coding	gene:Os01g0102600	Os01t0102600-01
+1	irgsp	CDS	145645	145786	.	1	0	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	145905	145951	.	1	2	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	146028	146082	.	1	0	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	146179	146339	.	1	2	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	146450	146532	.	1	0	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	146611	146719	.	1	1	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	147106	147184	.	1	0	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	147311	147375	.	1	2	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	CDS	147507	147575	.	1	0	CDS:Os01t0102600-01	transcript:Os01t0102600-01	Os01t0102600-01
+1	irgsp	exon	145603	145786	.	1	.	Os01t0102600-01.exon1	transcript:Os01t0102600-01	Os01t0102600-01.exon1	0	1	-1	Os01t0102600-01.exon1	1
+1	irgsp	exon	145905	145951	.	1	.	Os01t0102600-01.exon2	transcript:Os01t0102600-01	Os01t0102600-01.exon2	0	0	1	Os01t0102600-01.exon2	2
+1	irgsp	exon	146028	146082	.	1	.	Os01t0102600-01.exon3	transcript:Os01t0102600-01	Os01t0102600-01.exon3	0	1	0	Os01t0102600-01.exon3	3
+1	irgsp	exon	146179	146339	.	1	.	Os01t0102600-01.exon4	transcript:Os01t0102600-01	Os01t0102600-01.exon4	0	0	1	Os01t0102600-01.exon4	4
+1	irgsp	exon	146450	146532	.	1	.	Os01t0102600-01.exon5	transcript:Os01t0102600-01	Os01t0102600-01.exon5	0	2	0	Os01t0102600-01.exon5	5
+1	irgsp	exon	146611	146719	.	1	.	Os01t0102600-01.exon6	transcript:Os01t0102600-01	Os01t0102600-01.exon6	0	0	2	Os01t0102600-01.exon6	6
+1	irgsp	exon	147106	147184	.	1	.	Os01t0102600-01.exon7	transcript:Os01t0102600-01	Os01t0102600-01.exon7	0	1	0	Os01t0102600-01.exon7	7
+1	irgsp	exon	147311	147375	.	1	.	Os01t0102600-02.exon2	transcript:Os01t0102600-01	Os01t0102600-02.exon2	1	0	1	Os01t0102600-02.exon2	8
+1	irgsp	exon	147507	147847	.	1	.	Os01t0102600-01.exon9	transcript:Os01t0102600-01	Os01t0102600-01.exon9	0	-1	0	Os01t0102600-01.exon9	9
+1	irgsp	five_prime_UTR	145603	145644	.	1	.	five_prime_utr-30	transcript:Os01t0102600-01
+1	irgsp	three_prime_UTR	147576	147847	.	1	.	three_prime_utr-29	transcript:Os01t0102600-01
+1	irgsp	mRNA	147104	147805	.	1	.	transcript:Os01t0102600-02	protein_coding	gene:Os01g0102600	Os01t0102600-02
+1	irgsp	CDS	147106	147184	.	1	0	CDS:Os01t0102600-02	transcript:Os01t0102600-02	Os01t0102600-02
+1	irgsp	CDS	147311	147375	.	1	2	CDS:Os01t0102600-02	transcript:Os01t0102600-02	Os01t0102600-02
+1	irgsp	CDS	147507	147575	.	1	0	CDS:Os01t0102600-02	transcript:Os01t0102600-02	Os01t0102600-02
+1	irgsp	exon	147104	147184	.	1	.	Os01t0102600-02.exon1	transcript:Os01t0102600-02	Os01t0102600-02.exon1	0	1	-1	Os01t0102600-02.exon1	1
+1	irgsp	exon	147311	147375	.	1	.	nbis_NEW-exon-4	transcript:Os01t0102600-02	Os01t0102600-02.exon2	1	0	1	Os01t0102600-02.exon2	2
+1	irgsp	exon	147507	147805	.	1	.	Os01t0102600-02.exon3	transcript:Os01t0102600-02	Os01t0102600-02.exon3	0	-1	0	Os01t0102600-02.exon3	3
+1	irgsp	five_prime_UTR	147104	147105	.	1	.	five_prime_utr-31	transcript:Os01t0102600-02
+1	irgsp	three_prime_UTR	147576	147805	.	1	.	three_prime_utr-30	transcript:Os01t0102600-02
+1	irgsp	gene	148085	150568	.	1	.	gene:Os01g0102700	protein_coding	Translocon-associated beta family protein. (Os01t0102700-01)	Os01g0102700	irgspv1.0-20170804-genes
+1	irgsp	mRNA	148085	150568	.	1	.	transcript:Os01t0102700-01	protein_coding	gene:Os01g0102700	Os01t0102700-01
+1	irgsp	CDS	148147	148313	.	1	0	CDS:Os01t0102700-01	transcript:Os01t0102700-01	Os01t0102700-01
+1	irgsp	CDS	149450	149548	.	1	1	CDS:Os01t0102700-01	transcript:Os01t0102700-01	Os01t0102700-01
+1	irgsp	CDS	149634	149742	.	1	1	CDS:Os01t0102700-01	transcript:Os01t0102700-01	Os01t0102700-01
+1	irgsp	CDS	149856	149931	.	1	0	CDS:Os01t0102700-01	transcript:Os01t0102700-01	Os01t0102700-01
+1	irgsp	CDS	150152	150318	.	1	2	CDS:Os01t0102700-01	transcript:Os01t0102700-01	Os01t0102700-01
+1	irgsp	exon	148085	148313	.	1	.	Os01t0102700-01.exon1	transcript:Os01t0102700-01	Os01t0102700-01.exon1	1	2	-1	Os01t0102700-01.exon1	1
+1	irgsp	exon	149450	149548	.	1	.	Os01t0102700-01.exon2	transcript:Os01t0102700-01	Os01t0102700-01.exon2	1	2	2	Os01t0102700-01.exon2	2
+1	irgsp	exon	149634	149742	.	1	.	Os01t0102700-01.exon3	transcript:Os01t0102700-01	Os01t0102700-01.exon3	1	0	2	Os01t0102700-01.exon3	3
+1	irgsp	exon	149856	149931	.	1	.	Os01t0102700-01.exon4	transcript:Os01t0102700-01	Os01t0102700-01.exon4	1	1	0	Os01t0102700-01.exon4	4
+1	irgsp	exon	150152	150568	.	1	.	Os01t0102700-01.exon5	transcript:Os01t0102700-01	Os01t0102700-01.exon5	1	-1	1	Os01t0102700-01.exon5	5
+1	irgsp	five_prime_UTR	148085	148146	.	1	.	five_prime_utr-32	transcript:Os01t0102700-01
+1	irgsp	three_prime_UTR	150319	150568	.	1	.	three_prime_utr-31	transcript:Os01t0102700-01
+1	irgsp	gene	152853	156449	.	1	.	gene:Os01g0102800	protein_coding	Similar to chromatin remodeling complex subunit. (Os01t0102800-01)	Os01g0102800	irgspv1.0-20170804-genes	Cockayne syndrome WD-repeat protein
+1	irgsp	mRNA	152853	156449	.	1	.	transcript:Os01t0102800-01	protein_coding	gene:Os01g0102800	Os01t0102800-01
+1	irgsp	CDS	152854	153025	.	1	0	CDS:Os01t0102800-01	transcript:Os01t0102800-01	Os01t0102800-01
+1	irgsp	CDS	153178	154646	.	1	2	CDS:Os01t0102800-01	transcript:Os01t0102800-01	Os01t0102800-01
+1	irgsp	CDS	155010	155450	.	1	0	CDS:Os01t0102800-01	transcript:Os01t0102800-01	Os01t0102800-01
+1	irgsp	CDS	155543	156214	.	1	0	CDS:Os01t0102800-01	transcript:Os01t0102800-01	Os01t0102800-01
+1	irgsp	exon	152853	153025	.	1	.	Os01t0102800-01.exon1	transcript:Os01t0102800-01	Os01t0102800-01.exon1	1	1	-1	Os01t0102800-01.exon1	1
+1	irgsp	exon	153178	154646	.	1	.	Os01t0102800-01.exon2	transcript:Os01t0102800-01	Os01t0102800-01.exon2	1	0	1	Os01t0102800-01.exon2	2
+1	irgsp	exon	155010	155450	.	1	.	Os01t0102800-01.exon3	transcript:Os01t0102800-01	Os01t0102800-01.exon3	1	0	0	Os01t0102800-01.exon3	3
+1	irgsp	exon	155543	156449	.	1	.	Os01t0102800-01.exon4	transcript:Os01t0102800-01	Os01t0102800-01.exon4	1	-1	0	Os01t0102800-01.exon4	4
+1	irgsp	five_prime_UTR	152853	152853	.	1	.	five_prime_utr-33	transcript:Os01t0102800-01
+1	irgsp	three_prime_UTR	156215	156449	.	1	.	three_prime_utr-32	transcript:Os01t0102800-01
+1	irgsp	gene	164577	168921	.	1	.	gene:Os01g0102850	protein_coding	Similar to nitrilase 2. (Os01t0102850-00)	Os01g0102850	irgspv1.0-20170804-genes
+1	irgsp	mRNA	164577	168921	.	1	.	transcript:Os01t0102850-00	protein_coding	gene:Os01g0102850	Os01t0102850-00
+1	irgsp	CDS	168805	168921	.	1	0	CDS:Os01t0102850-00	transcript:Os01t0102850-00	Os01t0102850-00
+1	irgsp	exon	164577	164905	.	1	.	Os01t0102850-00.exon1	transcript:Os01t0102850-00	Os01t0102850-00.exon1	1	-1	-1	Os01t0102850-00.exon1	1
+1	irgsp	exon	168499	168921	.	1	.	Os01t0102850-00.exon2	transcript:Os01t0102850-00	Os01t0102850-00.exon2	1	0	-1	Os01t0102850-00.exon2	2
+1	irgsp	five_prime_UTR	164577	164905	.	1	.	five_prime_utr-34	transcript:Os01t0102850-00
+1	irgsp	five_prime_UTR	168499	168804	.	1	.	five_prime_utr-35	transcript:Os01t0102850-00
+1	irgsp	gene	169390	170316	.	-1	.	gene:Os01g0102900	protein_coding	Light-regulated protein, Regulation of light-dependent attachment of LEAF-TYPE FERREDOXIN-NADP+ OXIDOREDUCTASE (LFNR) to the thylakoid membrane (Os01t0102900-01)	Os01g0102900	irgspv1.0-20170804-genes	LIGHT-REGULATED GENE 1
+1	irgsp	mRNA	169390	170316	.	-1	.	transcript:Os01t0102900-01	protein_coding	gene:Os01g0102900	Os01t0102900-01
+1	irgsp	CDS	169599	169656	.	-1	1	CDS:Os01t0102900-01	transcript:Os01t0102900-01	Os01t0102900-01
+1	irgsp	CDS	169751	169909	.	-1	1	CDS:Os01t0102900-01	transcript:Os01t0102900-01	Os01t0102900-01
+1	irgsp	CDS	170091	170260	.	-1	0	CDS:Os01t0102900-01	transcript:Os01t0102900-01	Os01t0102900-01
+1	irgsp	exon	169390	169656	.	-1	.	Os01t0102900-01.exon3	transcript:Os01t0102900-01	Os01t0102900-01.exon3	1	-1	2	Os01t0102900-01.exon3	3
+1	irgsp	exon	169751	169909	.	-1	.	Os01t0102900-01.exon2	transcript:Os01t0102900-01	Os01t0102900-01.exon2	1	2	2	Os01t0102900-01.exon2	2
+1	irgsp	exon	170091	170316	.	-1	.	Os01t0102900-01.exon1	transcript:Os01t0102900-01	Os01t0102900-01.exon1	1	2	-1	Os01t0102900-01.exon1	1
+1	irgsp	five_prime_UTR	170261	170316	.	-1	.	five_prime_utr-36	transcript:Os01t0102900-01
+1	irgsp	three_prime_UTR	169390	169598	.	-1	.	three_prime_utr-33	transcript:Os01t0102900-01
+1	irgsp	gene	170798	173144	.	-1	.	gene:Os01g0103000	protein_coding	Snf7 family protein. (Os01t0103000-01)	Os01g0103000	irgspv1.0-20170804-genes
+1	irgsp	mRNA	170798	173144	.	-1	.	transcript:Os01t0103000-01	protein_coding	gene:Os01g0103000	Os01t0103000-01
+1	irgsp	CDS	171045	171095	.	-1	0	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	171406	171554	.	-1	2	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	171764	171875	.	-1	0	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	172398	172469	.	-1	0	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	172578	172671	.	-1	1	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	172770	172921	.	-1	0	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	CDS	173004	173072	.	-1	0	CDS:Os01t0103000-01	transcript:Os01t0103000-01	Os01t0103000-01
+1	irgsp	exon	170798	171095	.	-1	.	Os01t0103000-01.exon7	transcript:Os01t0103000-01	Os01t0103000-01.exon7	1	-1	0	Os01t0103000-01.exon7	7
+1	irgsp	exon	171406	171554	.	-1	.	Os01t0103000-01.exon6	transcript:Os01t0103000-01	Os01t0103000-01.exon6	1	0	1	Os01t0103000-01.exon6	6
+1	irgsp	exon	171764	171875	.	-1	.	Os01t0103000-01.exon5	transcript:Os01t0103000-01	Os01t0103000-01.exon5	1	1	0	Os01t0103000-01.exon5	5
+1	irgsp	exon	172398	172469	.	-1	.	Os01t0103000-01.exon4	transcript:Os01t0103000-01	Os01t0103000-01.exon4	1	0	0	Os01t0103000-01.exon4	4
+1	irgsp	exon	172578	172671	.	-1	.	Os01t0103000-01.exon3	transcript:Os01t0103000-01	Os01t0103000-01.exon3	1	0	2	Os01t0103000-01.exon3	3
+1	irgsp	exon	172770	172921	.	-1	.	Os01t0103000-01.exon2	transcript:Os01t0103000-01	Os01t0103000-01.exon2	1	2	0	Os01t0103000-01.exon2	2
+1	irgsp	exon	173004	173144	.	-1	.	Os01t0103000-01.exon1	transcript:Os01t0103000-01	Os01t0103000-01.exon1	1	0	-1	Os01t0103000-01.exon1	1
+1	irgsp	five_prime_UTR	173073	173144	.	-1	.	five_prime_utr-37	transcript:Os01t0103000-01
+1	irgsp	three_prime_UTR	170798	171044	.	-1	.	three_prime_utr-34	transcript:Os01t0103000-01
+1	irgsp	gene	178815	180433	.	-1	.	gene:Os01g0103075	protein_coding	Hypothetical protein. (Os01t0103075-00)	Os01g0103075	irgspv1.0-20170804-genes
+1	irgsp	mRNA	178815	180433	.	-1	.	transcript:Os01t0103075-00	protein_coding	gene:Os01g0103075	Os01t0103075-00
+1	irgsp	CDS	179512	180054	.	-1	0	CDS:Os01t0103075-00	transcript:Os01t0103075-00	Os01t0103075-00
+1	irgsp	exon	178815	180433	.	-1	.	Os01t0103075-00.exon1	transcript:Os01t0103075-00	Os01t0103075-00.exon1	1	-1	-1	Os01t0103075-00.exon1	1
+1	irgsp	five_prime_UTR	180055	180433	.	-1	.	five_prime_utr-40	transcript:Os01t0103075-00
+1	irgsp	three_prime_UTR	178815	179511	.	-1	.	three_prime_utr-37	transcript:Os01t0103075-00
+1	irgsp	gene	178607	180575	.	1	.	gene:Os01g0103100	protein_coding	TGF-beta receptor, type I/II extracellular region family protein. (Os01t0103100-01);Similar to predicted protein. (Os01t0103100-02)	Os01g0103100	irgspv1.0-20170804-genes
+1	irgsp	mRNA	178607	180548	.	1	.	transcript:Os01t0103100-01	protein_coding	gene:Os01g0103100	Os01t0103100-01
+1	irgsp	CDS	178642	180462	.	1	0	CDS:Os01t0103100-01	transcript:Os01t0103100-01	Os01t0103100-01
+1	irgsp	exon	178607	180548	.	1	.	Os01t0103100-01.exon1	transcript:Os01t0103100-01	Os01t0103100-01.exon1	0	-1	-1	Os01t0103100-01.exon1	1
+1	irgsp	five_prime_UTR	178607	178641	.	1	.	five_prime_utr-38	transcript:Os01t0103100-01
+1	irgsp	three_prime_UTR	180463	180548	.	1	.	three_prime_utr-35	transcript:Os01t0103100-01
+1	irgsp	mRNA	178652	180575	.	1	.	transcript:Os01t0103100-02	protein_coding	gene:Os01g0103100	Os01t0103100-02
+1	irgsp	CDS	178678	180462	.	1	0	CDS:Os01t0103100-02	transcript:Os01t0103100-02	Os01t0103100-02
+1	irgsp	exon	178652	180575	.	1	.	Os01t0103100-02.exon1	transcript:Os01t0103100-02	Os01t0103100-02.exon1	0	-1	-1	Os01t0103100-02.exon1	1
+1	irgsp	five_prime_UTR	178652	178677	.	1	.	five_prime_utr-39	transcript:Os01t0103100-02
+1	irgsp	three_prime_UTR	180463	180575	.	1	.	three_prime_utr-36	transcript:Os01t0103100-02
+1	irgsp	gene	185189	185828	.	-1	.	gene:Os01g0103400	protein_coding	Hypothetical gene. (Os01t0103400-01)	Os01g0103400	irgspv1.0-20170804-genes
+1	irgsp	mRNA	185189	185828	.	-1	.	transcript:Os01t0103400-01	protein_coding	gene:Os01g0103400	Os01t0103400-01
+1	irgsp	CDS	185435	185827	.	-1	0	CDS:Os01t0103400-01	transcript:Os01t0103400-01	Os01t0103400-01
+1	irgsp	exon	185189	185828	.	-1	.	Os01t0103400-01.exon1	transcript:Os01t0103400-01	Os01t0103400-01.exon1	1	-1	-1	Os01t0103400-01.exon1	1
+1	irgsp	five_prime_UTR	185828	185828	.	-1	.	five_prime_utr-41	transcript:Os01t0103400-01
+1	irgsp	three_prime_UTR	185189	185434	.	-1	.	three_prime_utr-38	transcript:Os01t0103400-01
+1	irgsp	gene	186250	190904	.	-1	.	gene:Os01g0103600	protein_coding	Similar to sterol-8,7-isomerase. (Os01t0103600-01);Emopamil-binding family protein. (Os01t0103600-02)	Os01g0103600	irgspv1.0-20170804-genes
+1	irgsp	mRNA	186250	190262	.	-1	.	transcript:Os01t0103600-02	protein_coding	gene:Os01g0103600	Os01t0103600-02
+1	irgsp	CDS	186516	186771	.	-1	1	CDS:Os01t0103600-02	transcript:Os01t0103600-02	Os01t0103600-02
+1	irgsp	CDS	189607	189715	.	-1	2	CDS:Os01t0103600-02	transcript:Os01t0103600-02	Os01t0103600-02
+1	irgsp	CDS	189841	189990	.	-1	2	CDS:Os01t0103600-02	transcript:Os01t0103600-02	Os01t0103600-02
+1	irgsp	CDS	190087	190231	.	-1	0	CDS:Os01t0103600-02	transcript:Os01t0103600-02	Os01t0103600-02
+1	irgsp	exon	186250	186771	.	-1	.	Os01t0103600-02.exon4	transcript:Os01t0103600-02	Os01t0103600-02.exon4	0	-1	2	Os01t0103600-02.exon4	4
+1	irgsp	exon	189607	189715	.	-1	.	Os01t0103600-02.exon3	transcript:Os01t0103600-02	Os01t0103600-02.exon3	0	2	1	Os01t0103600-02.exon3	3
+1	irgsp	exon	189841	189990	.	-1	.	Os01t0103600-02.exon2	transcript:Os01t0103600-02	Os01t0103600-02.exon2	1	1	1	Os01t0103600-02.exon2	2
+1	irgsp	exon	190087	190262	.	-1	.	Os01t0103600-02.exon1	transcript:Os01t0103600-02	Os01t0103600-02.exon1	0	1	-1	Os01t0103600-02.exon1	1
+1	irgsp	five_prime_UTR	190232	190262	.	-1	.	five_prime_utr-42	transcript:Os01t0103600-02
+1	irgsp	three_prime_UTR	186250	186515	.	-1	.	three_prime_utr-39	transcript:Os01t0103600-02
+1	irgsp	mRNA	187345	190904	.	-1	.	transcript:Os01t0103600-01	protein_coding	gene:Os01g0103600	Os01t0103600-01
+1	irgsp	CDS	189396	189715	.	-1	2	CDS:Os01t0103600-01	transcript:Os01t0103600-01	Os01t0103600-01
+1	irgsp	CDS	189841	189990	.	-1	2	CDS:Os01t0103600-01	transcript:Os01t0103600-01	Os01t0103600-01
+1	irgsp	CDS	190087	190231	.	-1	0	CDS:Os01t0103600-01	transcript:Os01t0103600-01	Os01t0103600-01
+1	irgsp	exon	187345	189715	.	-1	.	Os01t0103600-01.exon3	transcript:Os01t0103600-01	Os01t0103600-01.exon3	0	-1	1	Os01t0103600-01.exon3	3
+1	irgsp	exon	189841	189990	.	-1	.	nbis_NEW-exon-5	transcript:Os01t0103600-01	Os01t0103600-02.exon2	1	1	1	Os01t0103600-02.exon2	2
+1	irgsp	exon	190087	190904	.	-1	.	Os01t0103600-01.exon1	transcript:Os01t0103600-01	Os01t0103600-01.exon1	0	1	-1	Os01t0103600-01.exon1	1
+1	irgsp	five_prime_UTR	190232	190904	.	-1	.	five_prime_utr-43	transcript:Os01t0103600-01
+1	irgsp	three_prime_UTR	187345	189395	.	-1	.	three_prime_utr-40	transcript:Os01t0103600-01
+1	irgsp	gene	187545	188586	.	1	.	gene:Os01g0103650	protein_coding	Hypothetical gene. (Os01t0103650-00)	Os01g0103650	irgspv1.0-20170804-genes
+1	irgsp	mRNA	187545	188586	.	1	.	transcript:Os01t0103650-00	protein_coding	gene:Os01g0103650	Os01t0103650-00
+1	irgsp	CDS	187547	187768	.	1	0	CDS:Os01t0103650-00	transcript:Os01t0103650-00	Os01t0103650-00
+1	irgsp	exon	187545	188020	.	1	.	Os01t0103650-00.exon1	transcript:Os01t0103650-00	Os01t0103650-00.exon1	1	-1	-1	Os01t0103650-00.exon1	1
+1	irgsp	exon	188060	188385	.	1	.	Os01t0103650-00.exon2	transcript:Os01t0103650-00	Os01t0103650-00.exon2	1	-1	-1	Os01t0103650-00.exon2	2
+1	irgsp	exon	188455	188586	.	1	.	Os01t0103650-00.exon3	transcript:Os01t0103650-00	Os01t0103650-00.exon3	1	-1	-1	Os01t0103650-00.exon3	3
+1	irgsp	five_prime_UTR	187545	187546	.	1	.	five_prime_utr-44	transcript:Os01t0103650-00
+1	irgsp	three_prime_UTR	187769	188020	.	1	.	three_prime_utr-41	transcript:Os01t0103650-00
+1	irgsp	three_prime_UTR	188060	188385	.	1	.	three_prime_utr-42	transcript:Os01t0103650-00
+1	irgsp	three_prime_UTR	188455	188586	.	1	.	three_prime_utr-43	transcript:Os01t0103650-00
+1	irgsp	gene	191037	196287	.	1	.	gene:Os01g0103700	protein_coding	Conserved hypothetical protein. (Os01t0103700-01)	Os01g0103700	irgspv1.0-20170804-genes
+1	irgsp	mRNA	191037	196287	.	1	.	transcript:Os01t0103700-01	protein_coding	gene:Os01g0103700	Os01t0103700-01
+1	irgsp	CDS	191694	191705	.	1	0	CDS:Os01t0103700-01	transcript:Os01t0103700-01	Os01t0103700-01
+1	irgsp	CDS	192399	192506	.	1	0	CDS:Os01t0103700-01	transcript:Os01t0103700-01	Os01t0103700-01
+1	irgsp	CDS	192958	193161	.	1	0	CDS:Os01t0103700-01	transcript:Os01t0103700-01	Os01t0103700-01
+1	irgsp	CDS	193248	193356	.	1	0	CDS:Os01t0103700-01	transcript:Os01t0103700-01	Os01t0103700-01
+1	irgsp	CDS	193434	193507	.	1	2	CDS:Os01t0103700-01	transcript:Os01t0103700-01	Os01t0103700-01
+1	irgsp	exon	191037	191161	.	1	.	Os01t0103700-01.exon1	transcript:Os01t0103700-01	Os01t0103700-01.exon1	1	-1	-1	Os01t0103700-01.exon1	1
+1	irgsp	exon	191625	191705	.	1	.	Os01t0103700-01.exon2	transcript:Os01t0103700-01	Os01t0103700-01.exon2	1	0	-1	Os01t0103700-01.exon2	2
+1	irgsp	exon	192399	192506	.	1	.	Os01t0103700-01.exon3	transcript:Os01t0103700-01	Os01t0103700-01.exon3	1	0	0	Os01t0103700-01.exon3	3
+1	irgsp	exon	192958	193161	.	1	.	Os01t0103700-01.exon4	transcript:Os01t0103700-01	Os01t0103700-01.exon4	1	0	0	Os01t0103700-01.exon4	4
+1	irgsp	exon	193248	193356	.	1	.	Os01t0103700-01.exon5	transcript:Os01t0103700-01	Os01t0103700-01.exon5	1	1	0	Os01t0103700-01.exon5	5
+1	irgsp	exon	193434	196287	.	1	.	Os01t0103700-01.exon6	transcript:Os01t0103700-01	Os01t0103700-01.exon6	1	-1	1	Os01t0103700-01.exon6	6
+1	irgsp	five_prime_UTR	191037	191161	.	1	.	five_prime_utr-45	transcript:Os01t0103700-01
+1	irgsp	five_prime_UTR	191625	191693	.	1	.	five_prime_utr-46	transcript:Os01t0103700-01
+1	irgsp	three_prime_UTR	193508	196287	.	1	.	three_prime_utr-44	transcript:Os01t0103700-01
+1	irgsp	gene	197647	200803	.	1	.	gene:Os01g0103800	protein_coding	Conserved hypothetical protein. (Os01t0103800-01)	Os01g0103800	irgspv1.0-20170804-genes	OsDW1-01g
+1	irgsp	mRNA	197647	200803	.	1	.	transcript:Os01t0103800-01	protein_coding	gene:Os01g0103800	Os01t0103800-01
+1	irgsp	CDS	198130	198225	.	1	0	CDS:Os01t0103800-01	transcript:Os01t0103800-01	Os01t0103800-01
+1	irgsp	CDS	198830	200036	.	1	0	CDS:Os01t0103800-01	transcript:Os01t0103800-01	Os01t0103800-01
+1	irgsp	CDS	200253	200479	.	1	2	CDS:Os01t0103800-01	transcript:Os01t0103800-01	Os01t0103800-01
+1	irgsp	exon	197647	197838	.	1	.	Os01t0103800-01.exon1	transcript:Os01t0103800-01	Os01t0103800-01.exon1	1	-1	-1	Os01t0103800-01.exon1	1
+1	irgsp	exon	198034	198225	.	1	.	Os01t0103800-01.exon2	transcript:Os01t0103800-01	Os01t0103800-01.exon2	1	0	-1	Os01t0103800-01.exon2	2
+1	irgsp	exon	198830	200036	.	1	.	Os01t0103800-01.exon3	transcript:Os01t0103800-01	Os01t0103800-01.exon3	1	1	0	Os01t0103800-01.exon3	3
+1	irgsp	exon	200253	200803	.	1	.	Os01t0103800-01.exon4	transcript:Os01t0103800-01	Os01t0103800-01.exon4	1	-1	1	Os01t0103800-01.exon4	4
+1	irgsp	five_prime_UTR	197647	197838	.	1	.	five_prime_utr-47	transcript:Os01t0103800-01
+1	irgsp	five_prime_UTR	198034	198129	.	1	.	five_prime_utr-48	transcript:Os01t0103800-01
+1	irgsp	three_prime_UTR	200480	200803	.	1	.	three_prime_utr-45	transcript:Os01t0103800-01
+1	irgsp	gene	201944	206202	.	1	.	gene:Os01g0103900	protein_coding	Polynucleotidyl transferase, Ribonuclease H fold domain containing protein. (Os01t0103900-01)	Os01g0103900	irgspv1.0-20170804-genes
+1	irgsp	mRNA	201944	206202	.	1	.	transcript:Os01t0103900-01	protein_coding	gene:Os01g0103900	Os01t0103900-01
+1	irgsp	CDS	202042	202110	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	202252	202359	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	203007	203127	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	203302	203429	.	1	2	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	203511	203658	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	203760	203938	.	1	2	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	204203	204440	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	204543	204635	.	1	2	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	204730	204875	.	1	2	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	205042	205149	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	205290	205378	.	1	0	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	CDS	205534	205543	.	1	1	CDS:Os01t0103900-01	transcript:Os01t0103900-01	Os01t0103900-01
+1	irgsp	exon	201944	202110	.	1	.	Os01t0103900-01.exon1	transcript:Os01t0103900-01	Os01t0103900-01.exon1	1	0	-1	Os01t0103900-01.exon1	1
+1	irgsp	exon	202252	202359	.	1	.	Os01t0103900-01.exon2	transcript:Os01t0103900-01	Os01t0103900-01.exon2	1	0	0	Os01t0103900-01.exon2	2
+1	irgsp	exon	203007	203127	.	1	.	Os01t0103900-01.exon3	transcript:Os01t0103900-01	Os01t0103900-01.exon3	1	1	0	Os01t0103900-01.exon3	3
+1	irgsp	exon	203302	203429	.	1	.	Os01t0103900-01.exon4	transcript:Os01t0103900-01	Os01t0103900-01.exon4	1	0	1	Os01t0103900-01.exon4	4
+1	irgsp	exon	203511	203658	.	1	.	Os01t0103900-01.exon5	transcript:Os01t0103900-01	Os01t0103900-01.exon5	1	1	0	Os01t0103900-01.exon5	5
+1	irgsp	exon	203760	203938	.	1	.	Os01t0103900-01.exon6	transcript:Os01t0103900-01	Os01t0103900-01.exon6	1	0	1	Os01t0103900-01.exon6	6
+1	irgsp	exon	204203	204440	.	1	.	Os01t0103900-01.exon7	transcript:Os01t0103900-01	Os01t0103900-01.exon7	1	1	0	Os01t0103900-01.exon7	7
+1	irgsp	exon	204543	204635	.	1	.	Os01t0103900-01.exon8	transcript:Os01t0103900-01	Os01t0103900-01.exon8	1	1	1	Os01t0103900-01.exon8	8
+1	irgsp	exon	204730	204875	.	1	.	Os01t0103900-01.exon9	transcript:Os01t0103900-01	Os01t0103900-01.exon9	1	0	1	Os01t0103900-01.exon9	9
+1	irgsp	exon	205042	205149	.	1	.	Os01t0103900-01.exon10	transcript:Os01t0103900-01	Os01t0103900-01.exon10	1	0	0	Os01t0103900-01.exon10	10
+1	irgsp	exon	205290	205378	.	1	.	Os01t0103900-01.exon11	transcript:Os01t0103900-01	Os01t0103900-01.exon11	1	2	0	Os01t0103900-01.exon11	11
+1	irgsp	exon	205534	206202	.	1	.	Os01t0103900-01.exon12	transcript:Os01t0103900-01	Os01t0103900-01.exon12	1	-1	2	Os01t0103900-01.exon12	12
+1	irgsp	five_prime_UTR	201944	202041	.	1	.	five_prime_utr-49	transcript:Os01t0103900-01
+1	irgsp	three_prime_UTR	205544	206202	.	1	.	three_prime_utr-46	transcript:Os01t0103900-01
+1	irgsp	gene	206131	209606	.	-1	.	gene:Os01g0104000	protein_coding	C-type lectin domain containing protein. (Os01t0104000-01);Similar to predicted protein. (Os01t0104000-02)	Os01g0104000	irgspv1.0-20170804-genes
+1	irgsp	mRNA	206131	209581	.	-1	.	transcript:Os01t0104000-02	protein_coding	gene:Os01g0104000	Os01t0104000-02
+1	irgsp	CDS	206450	207029	.	-1	1	CDS:Os01t0104000-02	transcript:Os01t0104000-02	Os01t0104000-02
+1	irgsp	CDS	207706	208273	.	-1	2	CDS:Os01t0104000-02	transcript:Os01t0104000-02	Os01t0104000-02
+1	irgsp	CDS	208408	208836	.	-1	2	CDS:Os01t0104000-02	transcript:Os01t0104000-02	Os01t0104000-02
+1	irgsp	CDS	209438	209525	.	-1	0	CDS:Os01t0104000-02	transcript:Os01t0104000-02	Os01t0104000-02
+1	irgsp	exon	206131	207029	.	-1	.	Os01t0104000-02.exon4	transcript:Os01t0104000-02	Os01t0104000-02.exon4	0	-1	2	Os01t0104000-02.exon4	4
+1	irgsp	exon	207706	208273	.	-1	.	Os01t0104000-02.exon3	transcript:Os01t0104000-02	Os01t0104000-02.exon3	0	2	1	Os01t0104000-02.exon3	3
+1	irgsp	exon	208408	208836	.	-1	.	Os01t0104000-01.exon2	transcript:Os01t0104000-02	Os01t0104000-01.exon2	1	1	1	Os01t0104000-01.exon2	2
+1	irgsp	exon	209438	209581	.	-1	.	Os01t0104000-02.exon1	transcript:Os01t0104000-02	Os01t0104000-02.exon1	0	1	-1	Os01t0104000-02.exon1	1
+1	irgsp	five_prime_UTR	209526	209581	.	-1	.	five_prime_utr-50	transcript:Os01t0104000-02
+1	irgsp	three_prime_UTR	206131	206449	.	-1	.	three_prime_utr-47	transcript:Os01t0104000-02
+1	irgsp	mRNA	206134	209606	.	-1	.	transcript:Os01t0104000-01	protein_coding	gene:Os01g0104000	Os01t0104000-01
+1	irgsp	CDS	206450	207029	.	-1	1	CDS:Os01t0104000-01	transcript:Os01t0104000-01	Os01t0104000-01
+1	irgsp	CDS	207706	208276	.	-1	2	CDS:Os01t0104000-01	transcript:Os01t0104000-01	Os01t0104000-01
+1	irgsp	CDS	208408	208836	.	-1	2	CDS:Os01t0104000-01	transcript:Os01t0104000-01	Os01t0104000-01
+1	irgsp	CDS	209438	209525	.	-1	0	CDS:Os01t0104000-01	transcript:Os01t0104000-01	Os01t0104000-01
+1	irgsp	exon	206134	207029	.	-1	.	Os01t0104000-01.exon4	transcript:Os01t0104000-01	Os01t0104000-01.exon4	0	-1	2	Os01t0104000-01.exon4	4
+1	irgsp	exon	207706	208276	.	-1	.	Os01t0104000-01.exon3	transcript:Os01t0104000-01	Os01t0104000-01.exon3	0	2	1	Os01t0104000-01.exon3	3
+1	irgsp	exon	208408	208836	.	-1	.	nbis_NEW-exon-6	transcript:Os01t0104000-01	Os01t0104000-01.exon2	1	1	1	Os01t0104000-01.exon2	2
+1	irgsp	exon	209438	209606	.	-1	.	Os01t0104000-01.exon1	transcript:Os01t0104000-01	Os01t0104000-01.exon1	0	1	-1	Os01t0104000-01.exon1	1
+1	irgsp	five_prime_UTR	209526	209606	.	-1	.	five_prime_utr-51	transcript:Os01t0104000-01
+1	irgsp	three_prime_UTR	206134	206449	.	-1	.	three_prime_utr-48	transcript:Os01t0104000-01
+1	irgsp	gene	209771	214173	.	1	.	gene:Os01g0104100	protein_coding	Similar to protein binding / zinc ion binding. (Os01t0104100-01);Similar to protein binding / zinc ion binding. (Os01t0104100-02)	Os01g0104100	irgspv1.0-20170804-genes	cold-inducible, cold-inducible zinc finger protein
+1	irgsp	mRNA	209771	214173	.	1	.	transcript:Os01t0104100-01	protein_coding	gene:Os01g0104100	Os01t0104100-01
+1	irgsp	CDS	209771	209896	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	210244	210563	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	210659	210890	.	1	1	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	211015	211160	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	212265	212352	.	1	1	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	212433	212579	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	213490	213639	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	CDS	213741	213788	.	1	0	CDS:Os01t0104100-01	transcript:Os01t0104100-01	Os01t0104100-01
+1	irgsp	exon	209771	209896	.	1	.	Os01t0104100-01.exon1	transcript:Os01t0104100-01	Os01t0104100-01.exon1	0	0	0	Os01t0104100-01.exon1	1
+1	irgsp	exon	210244	210563	.	1	.	Os01t0104100-01.exon2	transcript:Os01t0104100-01	Os01t0104100-01.exon2	1	2	0	Os01t0104100-01.exon2	2
+1	irgsp	exon	210659	210890	.	1	.	Os01t0104100-01.exon3	transcript:Os01t0104100-01	Os01t0104100-01.exon3	1	0	2	Os01t0104100-01.exon3	3
+1	irgsp	exon	211015	211160	.	1	.	Os01t0104100-01.exon4	transcript:Os01t0104100-01	Os01t0104100-01.exon4	1	2	0	Os01t0104100-01.exon4	4
+1	irgsp	exon	212265	212352	.	1	.	Os01t0104100-01.exon5	transcript:Os01t0104100-01	Os01t0104100-01.exon5	1	0	2	Os01t0104100-01.exon5	5
+1	irgsp	exon	212433	212579	.	1	.	Os01t0104100-01.exon6	transcript:Os01t0104100-01	Os01t0104100-01.exon6	1	0	0	Os01t0104100-01.exon6	6
+1	irgsp	exon	213490	213639	.	1	.	Os01t0104100-01.exon7	transcript:Os01t0104100-01	Os01t0104100-01.exon7	1	0	0	Os01t0104100-01.exon7	7
+1	irgsp	exon	213741	214173	.	1	.	Os01t0104100-01.exon8	transcript:Os01t0104100-01	Os01t0104100-01.exon8	0	-1	0	Os01t0104100-01.exon8	8
+1	irgsp	three_prime_UTR	213789	214173	.	1	.	three_prime_utr-49	transcript:Os01t0104100-01
+1	irgsp	mRNA	209794	214147	.	1	.	transcript:Os01t0104100-02	protein_coding	gene:Os01g0104100	Os01t0104100-02
+1	irgsp	CDS	209795	209896	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	210244	210563	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	210659	210890	.	1	1	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	211015	211160	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	212265	212352	.	1	1	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	212433	212579	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	213490	213639	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	CDS	213741	213788	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
+1	irgsp	exon	209794	209896	.	1	.	Os01t0104100-02.exon1	transcript:Os01t0104100-02	Os01t0104100-02.exon1	0	0	-1	Os01t0104100-02.exon1	1
+1	irgsp	exon	210244	210563	.	1	.	nbis_NEW-exon-7	transcript:Os01t0104100-02	Os01t0104100-01.exon2	1	2	0	Os01t0104100-01.exon2	2
+1	irgsp	exon	210659	210890	.	1	.	nbis_NEW-exon-8	transcript:Os01t0104100-02	Os01t0104100-01.exon3	1	0	2	Os01t0104100-01.exon3	3
+1	irgsp	exon	211015	211160	.	1	.	nbis_NEW-exon-9	transcript:Os01t0104100-02	Os01t0104100-01.exon4	1	2	0	Os01t0104100-01.exon4	4
+1	irgsp	exon	212265	212352	.	1	.	nbis_NEW-exon-10	transcript:Os01t0104100-02	Os01t0104100-01.exon5	1	0	2	Os01t0104100-01.exon5	5
+1	irgsp	exon	212433	212579	.	1	.	nbis_NEW-exon-11	transcript:Os01t0104100-02	Os01t0104100-01.exon6	1	0	0	Os01t0104100-01.exon6	6
+1	irgsp	exon	213490	213639	.	1	.	nbis_NEW-exon-12	transcript:Os01t0104100-02	Os01t0104100-01.exon7	1	0	0	Os01t0104100-01.exon7	7
+1	irgsp	exon	213741	214147	.	1	.	Os01t0104100-02.exon8	transcript:Os01t0104100-02	Os01t0104100-02.exon8	0	-1	0	Os01t0104100-02.exon8	8
+1	irgsp	five_prime_UTR	209794	209794	.	1	.	five_prime_utr-52	transcript:Os01t0104100-02
+1	irgsp	three_prime_UTR	213789	214147	.	1	.	three_prime_utr-50	transcript:Os01t0104100-02
+1	irgsp	gene	216212	217345	.	1	.	gene:Os01g0104200	protein_coding	No apical meristem (NAM) protein domain containing protein. (Os01t0104200-00)	Os01g0104200	irgspv1.0-20170804-genes	NAC DOMAIN-CONTAINING PROTEIN 16
+1	irgsp	mRNA	216212	217345	.	1	.	transcript:Os01t0104200-00	protein_coding	gene:Os01g0104200	Os01t0104200-00
+1	irgsp	CDS	216212	216769	.	1	0	CDS:Os01t0104200-00	transcript:Os01t0104200-00	Os01t0104200-00
+1	irgsp	CDS	216884	217345	.	1	0	CDS:Os01t0104200-00	transcript:Os01t0104200-00	Os01t0104200-00
+1	irgsp	exon	216212	216769	.	1	.	Os01t0104200-00.exon1	transcript:Os01t0104200-00	Os01t0104200-00.exon1	1	0	0	Os01t0104200-00.exon1	1
+1	irgsp	exon	216884	217345	.	1	.	Os01t0104200-00.exon2	transcript:Os01t0104200-00	Os01t0104200-00.exon2	1	0	0	Os01t0104200-00.exon2	2
+1	irgsp	gene	226897	229301	.	1	.	gene:Os01g0104400	protein_coding	Ricin B-related lectin domain containing protein. (Os01t0104400-01);Ricin B-related lectin domain containing protein. (Os01t0104400-02);Ricin B-related lectin domain containing protein. (Os01t0104400-03)	Os01g0104400	irgspv1.0-20170804-genes
+1	irgsp	mRNA	226897	229229	.	1	.	transcript:Os01t0104400-01	protein_coding	gene:Os01g0104400	Os01t0104400-01
+1	irgsp	CDS	227182	227634	.	1	0	CDS:Os01t0104400-01	transcript:Os01t0104400-01	Os01t0104400-01
+1	irgsp	CDS	227742	227864	.	1	0	CDS:Os01t0104400-01	transcript:Os01t0104400-01	Os01t0104400-01
+1	irgsp	CDS	228557	228785	.	1	0	CDS:Os01t0104400-01	transcript:Os01t0104400-01	Os01t0104400-01
+1	irgsp	CDS	228930	228931	.	1	2	CDS:Os01t0104400-01	transcript:Os01t0104400-01	Os01t0104400-01
+1	irgsp	exon	226897	227634	.	1	.	Os01t0104400-01.exon1	transcript:Os01t0104400-01	Os01t0104400-01.exon1	0	0	-1	Os01t0104400-01.exon1	1
+1	irgsp	exon	227742	227864	.	1	.	Os01t0104400-03.exon2	transcript:Os01t0104400-01	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
+1	irgsp	exon	228557	228785	.	1	.	Os01t0104400-03.exon3	transcript:Os01t0104400-01	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
+1	irgsp	exon	228930	229229	.	1	.	Os01t0104400-01.exon4	transcript:Os01t0104400-01	Os01t0104400-01.exon4	0	-1	1	Os01t0104400-01.exon4	4
+1	irgsp	five_prime_UTR	226897	227181	.	1	.	five_prime_utr-53	transcript:Os01t0104400-01
+1	irgsp	three_prime_UTR	228932	229229	.	1	.	three_prime_utr-51	transcript:Os01t0104400-01
+1	irgsp	mRNA	227139	229301	.	1	.	transcript:Os01t0104400-02	protein_coding	gene:Os01g0104400	Os01t0104400-02
+1	irgsp	CDS	227182	227634	.	1	0	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
+1	irgsp	CDS	227742	227864	.	1	0	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
+1	irgsp	CDS	228557	228785	.	1	0	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
+1	irgsp	CDS	228930	228931	.	1	2	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
+1	irgsp	exon	227139	227634	.	1	.	Os01t0104400-02.exon1	transcript:Os01t0104400-02	Os01t0104400-02.exon1	0	0	-1	Os01t0104400-02.exon1	1
+1	irgsp	exon	227742	227864	.	1	.	nbis_NEW-exon-13	transcript:Os01t0104400-02	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
+1	irgsp	exon	228557	228785	.	1	.	nbis_NEW-exon-14	transcript:Os01t0104400-02	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
+1	irgsp	exon	228930	229301	.	1	.	Os01t0104400-02.exon4	transcript:Os01t0104400-02	Os01t0104400-02.exon4	0	-1	1	Os01t0104400-02.exon4	4
+1	irgsp	five_prime_UTR	227139	227181	.	1	.	five_prime_utr-54	transcript:Os01t0104400-02
+1	irgsp	three_prime_UTR	228932	229301	.	1	.	three_prime_utr-52	transcript:Os01t0104400-02
+1	irgsp	mRNA	227179	229214	.	1	.	transcript:Os01t0104400-03	protein_coding	gene:Os01g0104400	Os01t0104400-03
+1	irgsp	CDS	227182	227634	.	1	0	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
+1	irgsp	CDS	227742	227864	.	1	0	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
+1	irgsp	CDS	228557	228785	.	1	0	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
+1	irgsp	CDS	228930	228931	.	1	2	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
+1	irgsp	exon	227179	227634	.	1	.	Os01t0104400-03.exon1	transcript:Os01t0104400-03	Os01t0104400-03.exon1	0	0	-1	Os01t0104400-03.exon1	1
+1	irgsp	exon	227742	227864	.	1	.	nbis_NEW-exon-15	transcript:Os01t0104400-03	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
+1	irgsp	exon	228557	228785	.	1	.	nbis_NEW-exon-16	transcript:Os01t0104400-03	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
+1	irgsp	exon	228930	229214	.	1	.	Os01t0104400-03.exon4	transcript:Os01t0104400-03	Os01t0104400-03.exon4	0	-1	1	Os01t0104400-03.exon4	4
+1	irgsp	five_prime_UTR	227179	227181	.	1	.	five_prime_utr-55	transcript:Os01t0104400-03
+1	irgsp	three_prime_UTR	228932	229214	.	1	.	three_prime_utr-53	transcript:Os01t0104400-03
+1	irgsp	gene	241680	243440	.	1	.	gene:Os01g0104500	protein_coding	No apical meristem (NAM) protein domain containing protein. (Os01t0104500-01)	Os01g0104500	irgspv1.0-20170804-genes	NAC DOMAIN-CONTAINING PROTEIN 20
+1	irgsp	mRNA	241680	243440	.	1	.	transcript:Os01t0104500-01	protein_coding	gene:Os01g0104500	Os01t0104500-01
+1	irgsp	CDS	241908	242091	.	1	0	CDS:Os01t0104500-01	transcript:Os01t0104500-01	Os01t0104500-01
+1	irgsp	CDS	242199	242977	.	1	2	CDS:Os01t0104500-01	transcript:Os01t0104500-01	Os01t0104500-01
+1	irgsp	exon	241680	241702	.	1	.	Os01t0104500-01.exon1	transcript:Os01t0104500-01	Os01t0104500-01.exon1	1	-1	-1	Os01t0104500-01.exon1	1
+1	irgsp	exon	241866	242091	.	1	.	Os01t0104500-01.exon2	transcript:Os01t0104500-01	Os01t0104500-01.exon2	1	1	-1	Os01t0104500-01.exon2	2
+1	irgsp	exon	242199	243440	.	1	.	Os01t0104500-01.exon3	transcript:Os01t0104500-01	Os01t0104500-01.exon3	1	-1	1	Os01t0104500-01.exon3	3
+1	irgsp	five_prime_UTR	241680	241702	.	1	.	five_prime_utr-56	transcript:Os01t0104500-01
+1	irgsp	five_prime_UTR	241866	241907	.	1	.	five_prime_utr-57	transcript:Os01t0104500-01
+1	irgsp	three_prime_UTR	242978	243440	.	1	.	three_prime_utr-54	transcript:Os01t0104500-01
+1	irgsp	gene	248828	256872	.	-1	.	gene:Os01g0104600	protein_coding	Homolog of Arabidopsis DE-ETIOLATED1 (DET1), Modulation of the ABA signaling pathway and ABA biosynthesis, Regulation of chlorophyll content (Os01t0104600-01);Similar to Light-mediated development protein DET1 (Deetiolated1 homolog) (tDET1) (High pigmentation protein 2) (Protein dark green). (Os01t0104600-02)	Os01g0104600	irgspv1.0-20170804-genes	DE-ETIOLATED1
+1	irgsp	mRNA	248828	256571	.	-1	.	transcript:Os01t0104600-02	protein_coding	gene:Os01g0104600	Os01t0104600-02
+1	irgsp	CDS	248971	249107	.	-1	2	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	249369	249468	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	249861	249956	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	250617	250781	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	250860	250940	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	251026	251082	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	251316	251384	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	251695	251790	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	255325	255553	.	-1	1	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	255674	256098	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	CDS	256361	256441	.	-1	0	CDS:Os01t0104600-02	transcript:Os01t0104600-02	Os01t0104600-02
+1	irgsp	exon	248828	249107	.	-1	.	Os01t0104600-01.exon11	transcript:Os01t0104600-02	Os01t0104600-01.exon11	1	-1	1	Os01t0104600-01.exon11	11
+1	irgsp	exon	249369	249468	.	-1	.	Os01t0104600-01.exon10	transcript:Os01t0104600-02	Os01t0104600-01.exon10	1	1	0	Os01t0104600-01.exon10	10
+1	irgsp	exon	249861	249956	.	-1	.	Os01t0104600-01.exon9	transcript:Os01t0104600-02	Os01t0104600-01.exon9	1	0	0	Os01t0104600-01.exon9	9
+1	irgsp	exon	250617	250781	.	-1	.	Os01t0104600-01.exon8	transcript:Os01t0104600-02	Os01t0104600-01.exon8	1	0	0	Os01t0104600-01.exon8	8
+1	irgsp	exon	250860	250940	.	-1	.	Os01t0104600-01.exon7	transcript:Os01t0104600-02	Os01t0104600-01.exon7	1	0	0	Os01t0104600-01.exon7	7
+1	irgsp	exon	251026	251082	.	-1	.	Os01t0104600-01.exon6	transcript:Os01t0104600-02	Os01t0104600-01.exon6	1	0	0	Os01t0104600-01.exon6	6
+1	irgsp	exon	251316	251384	.	-1	.	Os01t0104600-01.exon5	transcript:Os01t0104600-02	Os01t0104600-01.exon5	1	0	0	Os01t0104600-01.exon5	5
+1	irgsp	exon	251695	251790	.	-1	.	Os01t0104600-01.exon4	transcript:Os01t0104600-02	Os01t0104600-01.exon4	1	0	0	Os01t0104600-01.exon4	4
+1	irgsp	exon	255325	255553	.	-1	.	Os01t0104600-01.exon3	transcript:Os01t0104600-02	Os01t0104600-01.exon3	1	0	2	Os01t0104600-01.exon3	3
+1	irgsp	exon	255674	256098	.	-1	.	Os01t0104600-01.exon2	transcript:Os01t0104600-02	Os01t0104600-01.exon2	1	2	0	Os01t0104600-01.exon2	2
+1	irgsp	exon	256361	256571	.	-1	.	Os01t0104600-02.exon1	transcript:Os01t0104600-02	Os01t0104600-02.exon1	0	0	-1	Os01t0104600-02.exon1	1
+1	irgsp	five_prime_UTR	256442	256571	.	-1	.	five_prime_utr-58	transcript:Os01t0104600-02
+1	irgsp	three_prime_UTR	248828	248970	.	-1	.	three_prime_utr-55	transcript:Os01t0104600-02
+1	irgsp	mRNA	248828	256872	.	-1	.	transcript:Os01t0104600-01	protein_coding	gene:Os01g0104600	Os01t0104600-01
+1	irgsp	CDS	248971	249107	.	-1	2	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	249369	249468	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	249861	249956	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	250617	250781	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	250860	250940	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	251026	251082	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	251316	251384	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	251695	251790	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	255325	255553	.	-1	1	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	255674	256098	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	CDS	256361	256441	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
+1	irgsp	exon	248828	249107	.	-1	.	nbis_NEW-exon-17	transcript:Os01t0104600-01	Os01t0104600-01.exon11	1	-1	1	Os01t0104600-01.exon11	11
+1	irgsp	exon	249369	249468	.	-1	.	nbis_NEW-exon-18	transcript:Os01t0104600-01	Os01t0104600-01.exon10	1	1	0	Os01t0104600-01.exon10	10
+1	irgsp	exon	249861	249956	.	-1	.	nbis_NEW-exon-19	transcript:Os01t0104600-01	Os01t0104600-01.exon9	1	0	0	Os01t0104600-01.exon9	9
+1	irgsp	exon	250617	250781	.	-1	.	nbis_NEW-exon-20	transcript:Os01t0104600-01	Os01t0104600-01.exon8	1	0	0	Os01t0104600-01.exon8	8
+1	irgsp	exon	250860	250940	.	-1	.	nbis_NEW-exon-21	transcript:Os01t0104600-01	Os01t0104600-01.exon7	1	0	0	Os01t0104600-01.exon7	7
+1	irgsp	exon	251026	251082	.	-1	.	nbis_NEW-exon-22	transcript:Os01t0104600-01	Os01t0104600-01.exon6	1	0	0	Os01t0104600-01.exon6	6
+1	irgsp	exon	251316	251384	.	-1	.	nbis_NEW-exon-23	transcript:Os01t0104600-01	Os01t0104600-01.exon5	1	0	0	Os01t0104600-01.exon5	5
+1	irgsp	exon	251695	251790	.	-1	.	nbis_NEW-exon-24	transcript:Os01t0104600-01	Os01t0104600-01.exon4	1	0	0	Os01t0104600-01.exon4	4
+1	irgsp	exon	255325	255553	.	-1	.	nbis_NEW-exon-25	transcript:Os01t0104600-01	Os01t0104600-01.exon3	1	0	2	Os01t0104600-01.exon3	3
+1	irgsp	exon	255674	256098	.	-1	.	nbis_NEW-exon-26	transcript:Os01t0104600-01	Os01t0104600-01.exon2	1	2	0	Os01t0104600-01.exon2	2
+1	irgsp	exon	256361	256872	.	-1	.	Os01t0104600-01.exon1	transcript:Os01t0104600-01	Os01t0104600-01.exon1	0	0	-1	Os01t0104600-01.exon1	1
+1	irgsp	five_prime_UTR	256442	256872	.	-1	.	five_prime_utr-59	transcript:Os01t0104600-01
+1	irgsp	three_prime_UTR	248828	248970	.	-1	.	three_prime_utr-56	transcript:Os01t0104600-01
+1	irgsp	gene	261530	268145	.	1	.	gene:Os01g0104800	protein_coding	Sas10/Utp3 family protein. (Os01t0104800-01);Hypothetical conserved gene. (Os01t0104800-02)	Os01g0104800	irgspv1.0-20170804-genes
+1	irgsp	mRNA	261530	268145	.	1	.	transcript:Os01t0104800-01	protein_coding	gene:Os01g0104800	Os01t0104800-01
+1	irgsp	CDS	261562	261661	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	261767	261805	.	1	2	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	261895	261941	.	1	2	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	262582	262681	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	262925	263181	.	1	2	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	263525	263640	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	264014	264098	.	1	1	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	265236	265415	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	265506	265649	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	265740	265817	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	265909	266045	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	266138	266246	.	1	1	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	267237	267514	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	267591	267657	.	1	1	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	267734	267802	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	CDS	267880	268011	.	1	0	CDS:Os01t0104800-01	transcript:Os01t0104800-01	Os01t0104800-01
+1	irgsp	exon	261530	261661	.	1	.	Os01t0104800-01.exon1	transcript:Os01t0104800-01	Os01t0104800-01.exon1	0	1	-1	Os01t0104800-01.exon1	1
+1	irgsp	exon	261767	261805	.	1	.	Os01t0104800-01.exon2	transcript:Os01t0104800-01	Os01t0104800-01.exon2	0	1	1	Os01t0104800-01.exon2	2
+1	irgsp	exon	261895	261941	.	1	.	Os01t0104800-01.exon3	transcript:Os01t0104800-01	Os01t0104800-01.exon3	0	0	1	Os01t0104800-01.exon3	3
+1	irgsp	exon	262582	262681	.	1	.	Os01t0104800-01.exon4	transcript:Os01t0104800-01	Os01t0104800-01.exon4	0	1	0	Os01t0104800-01.exon4	4
+1	irgsp	exon	262925	263181	.	1	.	Os01t0104800-01.exon5	transcript:Os01t0104800-01	Os01t0104800-01.exon5	0	0	1	Os01t0104800-01.exon5	5
+1	irgsp	exon	263525	263640	.	1	.	Os01t0104800-01.exon6	transcript:Os01t0104800-01	Os01t0104800-01.exon6	0	2	0	Os01t0104800-01.exon6	6
+1	irgsp	exon	264014	264098	.	1	.	Os01t0104800-01.exon7	transcript:Os01t0104800-01	Os01t0104800-01.exon7	1	0	2	Os01t0104800-01.exon7	7
+1	irgsp	exon	265236	265415	.	1	.	Os01t0104800-01.exon8	transcript:Os01t0104800-01	Os01t0104800-01.exon8	1	0	0	Os01t0104800-01.exon8	8
+1	irgsp	exon	265506	265649	.	1	.	Os01t0104800-01.exon9	transcript:Os01t0104800-01	Os01t0104800-01.exon9	1	0	0	Os01t0104800-01.exon9	9
+1	irgsp	exon	265740	265817	.	1	.	Os01t0104800-01.exon10	transcript:Os01t0104800-01	Os01t0104800-01.exon10	1	0	0	Os01t0104800-01.exon10	10
+1	irgsp	exon	265909	266045	.	1	.	Os01t0104800-01.exon11	transcript:Os01t0104800-01	Os01t0104800-01.exon11	1	2	0	Os01t0104800-01.exon11	11
+1	irgsp	exon	266138	266246	.	1	.	Os01t0104800-01.exon12	transcript:Os01t0104800-01	Os01t0104800-01.exon12	1	0	2	Os01t0104800-01.exon12	12
+1	irgsp	exon	267237	267514	.	1	.	Os01t0104800-01.exon13	transcript:Os01t0104800-01	Os01t0104800-01.exon13	1	2	0	Os01t0104800-01.exon13	13
+1	irgsp	exon	267591	267657	.	1	.	Os01t0104800-01.exon14	transcript:Os01t0104800-01	Os01t0104800-01.exon14	1	0	2	Os01t0104800-01.exon14	14
+1	irgsp	exon	267734	267802	.	1	.	Os01t0104800-01.exon15	transcript:Os01t0104800-01	Os01t0104800-01.exon15	1	0	0	Os01t0104800-01.exon15	15
+1	irgsp	exon	267880	268145	.	1	.	Os01t0104800-01.exon16	transcript:Os01t0104800-01	Os01t0104800-01.exon16	0	-1	0	Os01t0104800-01.exon16	16
+1	irgsp	five_prime_UTR	261530	261561	.	1	.	five_prime_utr-60	transcript:Os01t0104800-01
+1	irgsp	three_prime_UTR	268012	268145	.	1	.	three_prime_utr-57	transcript:Os01t0104800-01
+1	irgsp	mRNA	263523	268120	.	1	.	transcript:Os01t0104800-02	protein_coding	gene:Os01g0104800	Os01t0104800-02
+1	irgsp	CDS	263525	263640	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	264014	264098	.	1	1	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	265236	265415	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	265506	265649	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	265740	265817	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	265909	266045	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	266138	266246	.	1	1	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	267237	267514	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	267591	267657	.	1	1	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	267734	267802	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	CDS	267880	268011	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
+1	irgsp	exon	263523	263640	.	1	.	Os01t0104800-02.exon1	transcript:Os01t0104800-02	Os01t0104800-02.exon1	0	2	-1	Os01t0104800-02.exon1	1
+1	irgsp	exon	264014	264098	.	1	.	nbis_NEW-exon-27	transcript:Os01t0104800-02	Os01t0104800-01.exon7	1	0	2	Os01t0104800-01.exon7	2
+1	irgsp	exon	265236	265415	.	1	.	nbis_NEW-exon-28	transcript:Os01t0104800-02	Os01t0104800-01.exon8	1	0	0	Os01t0104800-01.exon8	3
+1	irgsp	exon	265506	265649	.	1	.	nbis_NEW-exon-29	transcript:Os01t0104800-02	Os01t0104800-01.exon9	1	0	0	Os01t0104800-01.exon9	4
+1	irgsp	exon	265740	265817	.	1	.	nbis_NEW-exon-30	transcript:Os01t0104800-02	Os01t0104800-01.exon10	1	0	0	Os01t0104800-01.exon10	5
+1	irgsp	exon	265909	266045	.	1	.	nbis_NEW-exon-31	transcript:Os01t0104800-02	Os01t0104800-01.exon11	1	2	0	Os01t0104800-01.exon11	6
+1	irgsp	exon	266138	266246	.	1	.	nbis_NEW-exon-32	transcript:Os01t0104800-02	Os01t0104800-01.exon12	1	0	2	Os01t0104800-01.exon12	7
+1	irgsp	exon	267237	267514	.	1	.	nbis_NEW-exon-33	transcript:Os01t0104800-02	Os01t0104800-01.exon13	1	2	0	Os01t0104800-01.exon13	8
+1	irgsp	exon	267591	267657	.	1	.	nbis_NEW-exon-34	transcript:Os01t0104800-02	Os01t0104800-01.exon14	1	0	2	Os01t0104800-01.exon14	9
+1	irgsp	exon	267734	267802	.	1	.	nbis_NEW-exon-35	transcript:Os01t0104800-02	Os01t0104800-01.exon15	1	0	0	Os01t0104800-01.exon15	10
+1	irgsp	exon	267880	268120	.	1	.	Os01t0104800-02.exon11	transcript:Os01t0104800-02	Os01t0104800-02.exon11	0	-1	0	Os01t0104800-02.exon11	11
+1	irgsp	five_prime_UTR	263523	263524	.	1	.	five_prime_utr-61	transcript:Os01t0104800-02
+1	irgsp	three_prime_UTR	268012	268120	.	1	.	three_prime_utr-58	transcript:Os01t0104800-02
+1	irgsp	gene	270179	275084	.	-1	.	gene:Os01g0104900	protein_coding	Transferase family protein. (Os01t0104900-01);Hypothetical conserved gene. (Os01t0104900-02)	Os01g0104900	irgspv1.0-20170804-genes
+1	irgsp	mRNA	270179	275084	.	-1	.	transcript:Os01t0104900-01	protein_coding	gene:Os01g0104900	Os01t0104900-01
+1	irgsp	CDS	270356	271333	.	-1	0	CDS:Os01t0104900-01	transcript:Os01t0104900-01	Os01t0104900-01
+1	irgsp	CDS	274529	274957	.	-1	0	CDS:Os01t0104900-01	transcript:Os01t0104900-01	Os01t0104900-01
+1	irgsp	exon	270179	271333	.	-1	.	Os01t0104900-01.exon2	transcript:Os01t0104900-01	Os01t0104900-01.exon2	0	-1	0	Os01t0104900-01.exon2	2
+1	irgsp	exon	274529	275084	.	-1	.	Os01t0104900-01.exon1	transcript:Os01t0104900-01	Os01t0104900-01.exon1	0	0	-1	Os01t0104900-01.exon1	1
+1	irgsp	five_prime_UTR	274958	275084	.	-1	.	five_prime_utr-62	transcript:Os01t0104900-01
+1	irgsp	three_prime_UTR	270179	270355	.	-1	.	three_prime_utr-59	transcript:Os01t0104900-01
+1	irgsp	mRNA	270250	271518	.	-1	.	transcript:Os01t0104900-02	protein_coding	gene:Os01g0104900	Os01t0104900-02
+1	irgsp	CDS	270356	271309	.	-1	0	CDS:Os01t0104900-02	transcript:Os01t0104900-02	Os01t0104900-02
+1	irgsp	exon	270250	271333	.	-1	.	Os01t0104900-02.exon2	transcript:Os01t0104900-02	Os01t0104900-02.exon2	0	-1	-1	Os01t0104900-02.exon2	2
+1	irgsp	exon	271457	271518	.	-1	.	Os01t0104900-02.exon1	transcript:Os01t0104900-02	Os01t0104900-02.exon1	0	-1	-1	Os01t0104900-02.exon1	1
+1	irgsp	five_prime_UTR	271310	271333	.	-1	.	five_prime_utr-63	transcript:Os01t0104900-02
+1	irgsp	five_prime_UTR	271457	271518	.	-1	.	five_prime_utr-64	transcript:Os01t0104900-02
+1	irgsp	three_prime_UTR	270250	270355	.	-1	.	three_prime_utr-60	transcript:Os01t0104900-02
+1	irgsp	gene	284762	291892	.	-1	.	gene:Os01g0105300	protein_coding	Similar to HAT family dimerisation domain containing protein, expressed. (Os01t0105300-01)	Os01g0105300	irgspv1.0-20170804-genes
+1	irgsp	mRNA	284762	291892	.	-1	.	transcript:Os01t0105300-01	protein_coding	gene:Os01g0105300	Os01t0105300-01
+1	irgsp	CDS	284931	285020	.	-1	0	CDS:Os01t0105300-01	transcript:Os01t0105300-01	Os01t0105300-01
+1	irgsp	exon	284762	287047	.	-1	.	Os01t0105300-01.exon5	transcript:Os01t0105300-01	Os01t0105300-01.exon5	1	-1	-1	Os01t0105300-01.exon5	5
+1	irgsp	exon	291398	291436	.	-1	.	Os01t0105300-01.exon4	transcript:Os01t0105300-01	Os01t0105300-01.exon4	1	-1	-1	Os01t0105300-01.exon4	4
+1	irgsp	exon	291520	291534	.	-1	.	Os01t0105300-01.exon3	transcript:Os01t0105300-01	Os01t0105300-01.exon3	1	-1	-1	Os01t0105300-01.exon3	3
+1	irgsp	exon	291678	291738	.	-1	.	Os01t0105300-01.exon2	transcript:Os01t0105300-01	Os01t0105300-01.exon2	1	-1	-1	Os01t0105300-01.exon2	2
+1	irgsp	exon	291838	291892	.	-1	.	Os01t0105300-01.exon1	transcript:Os01t0105300-01	Os01t0105300-01.exon1	1	-1	-1	Os01t0105300-01.exon1	1
+1	irgsp	five_prime_UTR	285021	287047	.	-1	.	five_prime_utr-65	transcript:Os01t0105300-01
+1	irgsp	five_prime_UTR	291398	291436	.	-1	.	five_prime_utr-66	transcript:Os01t0105300-01
+1	irgsp	five_prime_UTR	291520	291534	.	-1	.	five_prime_utr-67	transcript:Os01t0105300-01
+1	irgsp	five_prime_UTR	291678	291738	.	-1	.	five_prime_utr-68	transcript:Os01t0105300-01
+1	irgsp	five_prime_UTR	291838	291892	.	-1	.	five_prime_utr-69	transcript:Os01t0105300-01
+1	irgsp	three_prime_UTR	284762	284930	.	-1	.	three_prime_utr-61	transcript:Os01t0105300-01
+1	irgsp	gene	288372	292296	.	1	.	gene:Os01g0105400	protein_coding	Similar to Kinesin heavy chain. (Os01t0105400-01)	Os01g0105400	irgspv1.0-20170804-genes
+1	irgsp	mRNA	288372	292296	.	1	.	transcript:Os01t0105400-01	protein_coding	gene:Os01g0105400	Os01t0105400-01
+1	irgsp	CDS	290433	290512	.	1	0	CDS:Os01t0105400-01	transcript:Os01t0105400-01	Os01t0105400-01
+1	irgsp	CDS	291372	291558	.	1	1	CDS:Os01t0105400-01	transcript:Os01t0105400-01	Os01t0105400-01
+1	irgsp	exon	288372	288846	.	1	.	Os01t0105400-01.exon1	transcript:Os01t0105400-01	Os01t0105400-01.exon1	1	-1	-1	Os01t0105400-01.exon1	1
+1	irgsp	exon	288950	289116	.	1	.	Os01t0105400-01.exon2	transcript:Os01t0105400-01	Os01t0105400-01.exon2	1	-1	-1	Os01t0105400-01.exon2	2
+1	irgsp	exon	289202	289572	.	1	.	Os01t0105400-01.exon3	transcript:Os01t0105400-01	Os01t0105400-01.exon3	1	-1	-1	Os01t0105400-01.exon3	3
+1	irgsp	exon	289661	289830	.	1	.	Os01t0105400-01.exon4	transcript:Os01t0105400-01	Os01t0105400-01.exon4	1	-1	-1	Os01t0105400-01.exon4	4
+1	irgsp	exon	290395	290512	.	1	.	Os01t0105400-01.exon5	transcript:Os01t0105400-01	Os01t0105400-01.exon5	1	2	-1	Os01t0105400-01.exon5	5
+1	irgsp	exon	291372	291574	.	1	.	Os01t0105400-01.exon6	transcript:Os01t0105400-01	Os01t0105400-01.exon6	1	-1	2	Os01t0105400-01.exon6	6
+1	irgsp	exon	291648	291779	.	1	.	Os01t0105400-01.exon7	transcript:Os01t0105400-01	Os01t0105400-01.exon7	1	-1	-1	Os01t0105400-01.exon7	7
+1	irgsp	exon	291859	291948	.	1	.	Os01t0105400-01.exon8	transcript:Os01t0105400-01	Os01t0105400-01.exon8	1	-1	-1	Os01t0105400-01.exon8	8
+1	irgsp	exon	292073	292296	.	1	.	Os01t0105400-01.exon9	transcript:Os01t0105400-01	Os01t0105400-01.exon9	1	-1	-1	Os01t0105400-01.exon9	9
+1	irgsp	five_prime_UTR	288372	288846	.	1	.	five_prime_utr-70	transcript:Os01t0105400-01
+1	irgsp	five_prime_UTR	288950	289116	.	1	.	five_prime_utr-71	transcript:Os01t0105400-01
+1	irgsp	five_prime_UTR	289202	289572	.	1	.	five_prime_utr-72	transcript:Os01t0105400-01
+1	irgsp	five_prime_UTR	289661	289830	.	1	.	five_prime_utr-73	transcript:Os01t0105400-01
+1	irgsp	five_prime_UTR	290395	290432	.	1	.	five_prime_utr-74	transcript:Os01t0105400-01
+1	irgsp	three_prime_UTR	291559	291574	.	1	.	three_prime_utr-62	transcript:Os01t0105400-01
+1	irgsp	three_prime_UTR	291648	291779	.	1	.	three_prime_utr-63	transcript:Os01t0105400-01
+1	irgsp	three_prime_UTR	291859	291948	.	1	.	three_prime_utr-64	transcript:Os01t0105400-01
+1	irgsp	three_prime_UTR	292073	292296	.	1	.	three_prime_utr-65	transcript:Os01t0105400-01
+1	irgsp	gene	303233	306736	.	1	.	gene:Os01g0105700	protein_coding	Basic helix-loop-helix dimerisation region bHLH domain containing protein. (Os01t0105700-01)	Os01g0105700	irgspv1.0-20170804-genes	basic helix-loop-helix protein 071
+1	irgsp	mRNA	303233	306736	.	1	.	transcript:Os01t0105700-01	protein_coding	gene:Os01g0105700	Os01t0105700-01
+1	irgsp	CDS	303329	303471	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	303981	304509	.	1	1	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	305572	305718	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	305834	305899	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	305993	306058	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	306171	306245	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	CDS	306353	306493	.	1	0	CDS:Os01t0105700-01	transcript:Os01t0105700-01	Os01t0105700-01
+1	irgsp	exon	303233	303471	.	1	.	Os01t0105700-01.exon1	transcript:Os01t0105700-01	Os01t0105700-01.exon1	1	2	-1	Os01t0105700-01.exon1	1
+1	irgsp	exon	303981	304509	.	1	.	Os01t0105700-01.exon2	transcript:Os01t0105700-01	Os01t0105700-01.exon2	1	0	2	Os01t0105700-01.exon2	2
+1	irgsp	exon	305572	305718	.	1	.	Os01t0105700-01.exon3	transcript:Os01t0105700-01	Os01t0105700-01.exon3	1	0	0	Os01t0105700-01.exon3	3
+1	irgsp	exon	305834	305899	.	1	.	Os01t0105700-01.exon4	transcript:Os01t0105700-01	Os01t0105700-01.exon4	1	0	0	Os01t0105700-01.exon4	4
+1	irgsp	exon	305993	306058	.	1	.	Os01t0105700-01.exon5	transcript:Os01t0105700-01	Os01t0105700-01.exon5	1	0	0	Os01t0105700-01.exon5	5
+1	irgsp	exon	306171	306245	.	1	.	Os01t0105700-01.exon6	transcript:Os01t0105700-01	Os01t0105700-01.exon6	1	0	0	Os01t0105700-01.exon6	6
+1	irgsp	exon	306353	306736	.	1	.	Os01t0105700-01.exon7	transcript:Os01t0105700-01	Os01t0105700-01.exon7	1	-1	0	Os01t0105700-01.exon7	7
+1	irgsp	five_prime_UTR	303233	303328	.	1	.	five_prime_utr-75	transcript:Os01t0105700-01
+1	irgsp	three_prime_UTR	306494	306736	.	1	.	three_prime_utr-66	transcript:Os01t0105700-01
+1	irgsp	gene	306871	308842	.	-1	.	gene:Os01g0105800	protein_coding	Similar to Iron sulfur assembly protein 1. (Os01t0105800-01)	Os01g0105800	irgspv1.0-20170804-genes	IRON-SULFUR CLUSTER PROTEIN 9
+1	irgsp	mRNA	306871	308842	.	-1	.	transcript:Os01t0105800-01	protein_coding	gene:Os01g0105800	Os01t0105800-01
+1	irgsp	CDS	307124	307217	.	-1	1	CDS:Os01t0105800-01	transcript:Os01t0105800-01	Os01t0105800-01
+1	irgsp	CDS	307296	307413	.	-1	2	CDS:Os01t0105800-01	transcript:Os01t0105800-01	Os01t0105800-01
+1	irgsp	CDS	308397	308601	.	-1	0	CDS:Os01t0105800-01	transcript:Os01t0105800-01	Os01t0105800-01
+1	irgsp	exon	306871	307217	.	-1	.	Os01t0105800-01.exon4	transcript:Os01t0105800-01	Os01t0105800-01.exon4	1	-1	2	Os01t0105800-01.exon4	4
+1	irgsp	exon	307296	307413	.	-1	.	Os01t0105800-01.exon3	transcript:Os01t0105800-01	Os01t0105800-01.exon3	1	2	1	Os01t0105800-01.exon3	3
+1	irgsp	exon	308397	308626	.	-1	.	Os01t0105800-01.exon2	transcript:Os01t0105800-01	Os01t0105800-01.exon2	1	1	-1	Os01t0105800-01.exon2	2
+1	irgsp	exon	308703	308842	.	-1	.	Os01t0105800-01.exon1	transcript:Os01t0105800-01	Os01t0105800-01.exon1	1	-1	-1	Os01t0105800-01.exon1	1
+1	irgsp	five_prime_UTR	308602	308626	.	-1	.	five_prime_utr-76	transcript:Os01t0105800-01
+1	irgsp	five_prime_UTR	308703	308842	.	-1	.	five_prime_utr-77	transcript:Os01t0105800-01
+1	irgsp	three_prime_UTR	306871	307123	.	-1	.	three_prime_utr-67	transcript:Os01t0105800-01
+1	irgsp	gene	309520	313170	.	-1	.	gene:Os01g0105900	protein_coding	Carbohydrate/purine kinase domain containing protein. (Os01t0105900-01)	Os01g0105900	irgspv1.0-20170804-genes
+1	irgsp	mRNA	309520	313170	.	-1	.	transcript:Os01t0105900-01	protein_coding	gene:Os01g0105900	Os01t0105900-01
+1	irgsp	CDS	309822	310070	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	310256	310367	.	-1	1	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	310455	310552	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	310632	310739	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	310880	310918	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	311002	311073	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	311163	311426	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	CDS	312867	313064	.	-1	0	CDS:Os01t0105900-01	transcript:Os01t0105900-01	Os01t0105900-01
+1	irgsp	exon	309520	310070	.	-1	.	Os01t0105900-01.exon8	transcript:Os01t0105900-01	Os01t0105900-01.exon8	1	-1	0	Os01t0105900-01.exon8	8
+1	irgsp	exon	310256	310367	.	-1	.	Os01t0105900-01.exon7	transcript:Os01t0105900-01	Os01t0105900-01.exon7	1	0	2	Os01t0105900-01.exon7	7
+1	irgsp	exon	310455	310552	.	-1	.	Os01t0105900-01.exon6	transcript:Os01t0105900-01	Os01t0105900-01.exon6	1	2	0	Os01t0105900-01.exon6	6
+1	irgsp	exon	310632	310739	.	-1	.	Os01t0105900-01.exon5	transcript:Os01t0105900-01	Os01t0105900-01.exon5	1	0	0	Os01t0105900-01.exon5	5
+1	irgsp	exon	310880	310918	.	-1	.	Os01t0105900-01.exon4	transcript:Os01t0105900-01	Os01t0105900-01.exon4	1	0	0	Os01t0105900-01.exon4	4
+1	irgsp	exon	311002	311073	.	-1	.	Os01t0105900-01.exon3	transcript:Os01t0105900-01	Os01t0105900-01.exon3	1	0	0	Os01t0105900-01.exon3	3
+1	irgsp	exon	311163	311426	.	-1	.	Os01t0105900-01.exon2	transcript:Os01t0105900-01	Os01t0105900-01.exon2	1	0	0	Os01t0105900-01.exon2	2
+1	irgsp	exon	312867	313170	.	-1	.	Os01t0105900-01.exon1	transcript:Os01t0105900-01	Os01t0105900-01.exon1	1	0	-1	Os01t0105900-01.exon1	1
+1	irgsp	five_prime_UTR	313065	313170	.	-1	.	five_prime_utr-78	transcript:Os01t0105900-01
+1	irgsp	three_prime_UTR	309520	309821	.	-1	.	three_prime_utr-68	transcript:Os01t0105900-01
+1	irgsp	gene	319754	322205	.	1	.	gene:Os01g0106200	protein_coding	Similar to RER1A protein (AtRER1A). (Os01t0106200-01)	Os01g0106200	irgspv1.0-20170804-genes
+1	irgsp	mRNA	319754	322205	.	1	.	transcript:Os01t0106200-01	protein_coding	gene:Os01g0106200	Os01t0106200-01
+1	irgsp	CDS	319875	320236	.	1	0	CDS:Os01t0106200-01	transcript:Os01t0106200-01	Os01t0106200-01
+1	irgsp	CDS	321468	321648	.	1	1	CDS:Os01t0106200-01	transcript:Os01t0106200-01	Os01t0106200-01
+1	irgsp	CDS	321928	321975	.	1	0	CDS:Os01t0106200-01	transcript:Os01t0106200-01	Os01t0106200-01
+1	irgsp	exon	319754	320236	.	1	.	Os01t0106200-01.exon1	transcript:Os01t0106200-01	Os01t0106200-01.exon1	1	2	-1	Os01t0106200-01.exon1	1
+1	irgsp	exon	321468	321648	.	1	.	Os01t0106200-01.exon2	transcript:Os01t0106200-01	Os01t0106200-01.exon2	1	0	2	Os01t0106200-01.exon2	2
+1	irgsp	exon	321928	322205	.	1	.	Os01t0106200-01.exon3	transcript:Os01t0106200-01	Os01t0106200-01.exon3	1	-1	0	Os01t0106200-01.exon3	3
+1	irgsp	five_prime_UTR	319754	319874	.	1	.	five_prime_utr-79	transcript:Os01t0106200-01
+1	irgsp	three_prime_UTR	321976	322205	.	1	.	three_prime_utr-69	transcript:Os01t0106200-01
+1	irgsp	gene	322591	323923	.	-1	.	gene:Os01g0106300	protein_coding	Similar to Isoflavone reductase homolog IRL (EC 1.3.1.-). (Os01t0106300-01)	Os01g0106300	irgspv1.0-20170804-genes
+1	irgsp	mRNA	322591	323923	.	-1	.	transcript:Os01t0106300-01	protein_coding	gene:Os01g0106300	Os01t0106300-01
+1	irgsp	exon	322591	323923	.	-1	.	Os01t0106300-01.exon2	transcript:Os01t0106300-01	Os01t0106300-01.exon2	1	-1	1	Os01t0106300-01.exon2	2
+1	irgsp	three_prime_UTR	322591	322809	.	-1	.	three_prime_utr-70	transcript:Os01t0106300-01
+1	Ensembl_Plants	ncRNA_gene	182074	182154	.	1	.	gene:ENSRNA049442722	tRNA	tRNA-Leu for anticodon AAG	ENSRNA049442722	trnascan_gene	tRNA-Leu
+1	Ensembl_Plants	tRNA	182074	182154	.	1	.	transcript:ENSRNA049442722-T1	tRNA	gene:ENSRNA049442722	ENSRNA049442722-T1
+1	Ensembl_Plants	exon	182074	182154	.	1	.	ENSRNA049442722-E1	transcript:ENSRNA049442722-T1	ENSRNA049442722-E1	1	-1	-1	ENSRNA049442722-E1	1

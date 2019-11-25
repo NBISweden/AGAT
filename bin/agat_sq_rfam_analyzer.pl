@@ -151,20 +151,25 @@ else{
   }
 }
 
-my $goodTotalSize=sprintf("%0.2f",($totalSize/1000));
-my $goodTotalSizeMean=sprintf("%0.2f",($totalSize/$totalNumber));
+if($totalSize){
+  my $goodTotalSize=sprintf("%0.2f",($totalSize/1000));
+  my $goodTotalSizeMean=sprintf("%0.2f",($totalSize/$totalNumber));
 
-if(defined($genomeSize)){
-  my $goodxGenome=sprintf("%0.2f",($totalSize/$genomeSize)*100);
-  print $ostream "Total\t",$totalNumber,"\t",$goodTotalSize,"\t",$goodTotalSizeMean,"\t",$goodxGenome,"\n";
+  if(defined($genomeSize)){
+    my $goodxGenome=sprintf("%0.2f",($totalSize/$genomeSize)*100);
+    print $ostream "Total\t",$totalNumber,"\t",$goodTotalSize,"\t",$goodTotalSizeMean,"\t",$goodxGenome,"\n";
+  }
+  else{
+    print $ostream "Total\t",$totalNumber,"\t",$goodTotalSize,"\t",$goodTotalSizeMean,"\n";
+  }
 }
 else{
-  print $ostream "Total\t",$totalNumber,"\t",$goodTotalSize,"\t",$goodTotalSizeMean,"\n";
+  print $ostream "None found\n";
 }
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+  my $end_run = time();
+  my $run_time = $end_run - $start_run;
+  print "Job done in $run_time seconds\n";
 
 __END__
 

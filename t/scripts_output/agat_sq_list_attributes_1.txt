@@ -1,0 +1,72 @@
+
+We met 9 different feature types.
+Here the list of all the attributes tags met for the feature type <CDS> (3 attributes):
+ID
+Parent
+protein_id
+
+Here the list of all the attributes tags met for the feature type <chromosome> (2 attributes):
+Alias
+ID
+
+Here the list of all the attributes tags met for the feature type <exon> (7 attributes):
+Name
+Parent
+constitutive
+ensembl_end_phase
+ensembl_phase
+exon_id
+rank
+
+Here the list of all the attributes tags met for the feature type <five_prime_UTR> (1 attributes):
+Parent
+
+Here the list of all the attributes tags met for the feature type <gene> (6 attributes):
+ID
+Name
+biotype
+description
+gene_id
+logic_name
+
+Here the list of all the attributes tags met for the feature type <mRNA> (4 attributes):
+ID
+Parent
+biotype
+transcript_id
+
+Here the list of all the attributes tags met for the feature type <ncRNA_gene> (6 attributes):
+ID
+Name
+biotype
+description
+gene_id
+logic_name
+
+Here the list of all the attributes tags met for the feature type <tRNA> (4 attributes):
+ID
+Parent
+biotype
+transcript_id
+
+Here the list of all the attributes tags met for the feature type <three_prime_UTR> (1 attributes):
+Parent
+
+Here the list of all the attributes tags met (15 attributes):
+Alias
+ID
+Name
+Parent
+biotype
+constitutive
+description
+ensembl_end_phase
+ensembl_phase
+exon_id
+gene_id
+logic_name
+protein_id
+rank
+transcript_id
+
+Job done in 0 seconds

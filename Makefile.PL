@@ -78,6 +78,8 @@ my %WriteMakefileArgs = (
   BUILD_REQUIRES  => {"ExtUtils::MakeMaker" => 6.31,
                       "File::ShareDir::Install" => 0
                     },
+  TEST_REQUIRES   => {"Test::More" => 0
+                     },
   EXE_FILES       => $ref_list_exe,
   META_MERGE      => {
       'meta-spec' => { version => 2 },

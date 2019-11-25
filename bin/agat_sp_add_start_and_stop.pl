@@ -106,8 +106,8 @@ my $counter_end_added = 0;
 ######################
 ### Parse GFF input #
 # get nb of each feature in omniscient;
-foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
-  foreach my $id_l1 (keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
+foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
+  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
     foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}} ){
 
       # get level2 id
@@ -200,7 +200,6 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
                 $start_feature->end($cds_feature_list[$cpt]->end());
                 $size += $size + $cds_feature_list[$cpt]->end()-$cds_feature_list[$cpt]->start()+1;
               }
-              print $cds_feature_list[$cpt]->end()."\n";
               $start_feature->start($cds_feature_list[$cpt]->end()-$step+1);
             }
             push @{$hash_omniscient->{'level3'}{'start_codon'}{$id_level2}}, $start_feature;

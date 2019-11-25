@@ -6,12 +6,13 @@ use strict;
 use warnings;
 use Bio::Tools::GFF;
 use Bio::Seq;
+use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions remove_l2_related_feature l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame exists_keys remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
+our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions remove_l2_related_feature l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame exists_keys remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -40,7 +41,8 @@ This is the code to handle data store in Omniscient.
 
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
-# If a feature/record already exists in omniscient_to_append, it will be replaced by the new one (If the new one content less features, the surnumerary ones are actually erased/removed)
+# If a feature/record already exists in omniscient_to_append, it will be replaced by the new one
+# (If the new one content less features, the surnumerary ones are actually erased/removed)
 sub fill_omniscient_from_other_omniscient_level1_id {
 
 	my ($level_id_list, $hash_omniscient, $omniscient_to_append)=@_;
@@ -322,14 +324,25 @@ sub merge_omniscients {
   #################
   # ==  HEADER == #
   #################
-  if ( exists_keys($hash_omniscient2,('header') ) ){
-    if(! exists_keys($hash_omniscient1,('header') ) ) {
-      $hash_omniscient1->{'header'} = $hash_omniscient2->{'header'}; # add new header
-    }
-    else{
-      $hash_omniscient1->{'header'} = $hash_omniscient1->{'header'}.$hash_omniscient2->{'header'}; # append header
+  if ( exists_keys($hash_omniscient2,('other') ) ){
+    foreach my $thing (keys %{$hash_omniscient2->{'other'}}){
+      # append new header lines
+      if ($thing eq 'header'){
+        foreach my $value ( @{$hash_omniscient2->{'other'}{'header'}} ){
+          if ( !( grep { $_ eq $value }  @{ $hash_omniscient1->{'other'}{'header'} } ) ){
+            push @{$hash_omniscient1->{'other'}{'header'}}, $value; #add value which is new
+          }
+        }
+      }
+      # For other thing we take only if no values/key
+      else{
+        if(! exists_keys($hash_omniscient1,('other', $thing) ) ) {
+          $hash_omniscient1->{'other'}{$thing} = clone($hash_omniscient2->{'other'}{$thing});
+        }
+      }
     }
   }
+
 	#################
 	# == LEVEL 1 == #
 	#################
@@ -339,8 +352,8 @@ sub merge_omniscients {
 			my $new_parent=undef;
 			my $uID = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}->_tag_value('ID');
 
-			if ( ! exists ( $hash_whole_IDs->{$id_l1} ) ){
-					$hash_omniscient1->{'level1'}{$tag_l1}{$id_l1} = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
+			if ( ! exists_keys ( $hash_whole_IDs,($id_l1) ) ){
+					$hash_omniscient1->{'level1'}{$tag_l1}{$id_l1} = delete $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
 					$hash_whole_IDs->{$id_l1}++;
 			}
 			else{
@@ -368,7 +381,7 @@ sub merge_omniscients {
 						my $uID_l2 = $feature_l2->_tag_value('ID');
 						my $id_l2 = lc($uID_l2);
 
-						if ( exists ( $hash_whole_IDs->{$id_l2} ) ){
+						if ( exists_keys ( $hash_whole_IDs,($id_l2) ) ){
 
 							#print "INFO level2:  Parent $id_l2 already exist. We generate a new one to avoid collision !\n";
 							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs,  $hash2_whole_IDs, $miscCount);
@@ -392,19 +405,19 @@ sub merge_omniscients {
 									my $uID_l3 = $feature_l3->_tag_value('ID');
 									my $id_l3 = lc($uID_l3);
 
-									if ( exists ( $hash_whole_IDs->{$id_l3} ) ){
+									if ( exists_keys ( $hash_whole_IDs,($id_l3) ) ){
 									#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
 										$uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs,  $hash2_whole_IDs, $miscCount);
 									}
 									else{$hash_whole_IDs->{$id_l3}++;}
 								}
 								#save list feature level3
-								@{$hash_omniscient1->{'level3'}{$tag_l3}{lc($uID_l2)} } = @{ $hash_omniscient2->{'level3'}{$tag_l3}{$id_l2} };
+								$hash_omniscient1->{'level3'}{$tag_l3}{lc($uID_l2)}  = delete $hash_omniscient2->{'level3'}{$tag_l3}{$id_l2} ;
 							}
 						}
 					}
 					#save list feature level2
-					@{$hash_omniscient1->{'level2'}{$tag_l2}{lc($uID)}} = @{ $hash_omniscient2->{'level2'}{$tag_l2}{$id_l1} };
+					$hash_omniscient1->{'level2'}{$tag_l2}{lc($uID)} = delete $hash_omniscient2->{'level2'}{$tag_l2}{$id_l1} ;
 				}
 			}
 		}
@@ -1112,7 +1125,7 @@ sub info_omniscient {
 	}
 
 	foreach my $level (keys %{$hash_omniscient}){
-  		if ($level ne 'level1' and $level ne 'header'){
+  		if ($level ne 'level1' and $level ne 'other'){
     			foreach my $tag (keys %{$hash_omniscient->{$level}}){
       				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
         				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
@@ -1140,9 +1153,32 @@ sub exists_keys {
     	if (ref $hash ne 'HASH' or ! exists $hash->{$key}) {
     		return '';
     	}
-		$hash = $hash->{$key};
+		  $hash = $hash->{$key};
     }
     return 1;
+}
+
+
+# @Purpose: check if a value is undef in hash recursively (potentialy due to autovivification)
+# @input: 1 =>  hash reference
+# @output 1 => bolean
+sub exists_undef_value {
+    my ($hash) = @_;
+
+    if (ref $hash ne 'HASH'){ print "It is not a hash you provided\n";return ''; }
+    my $result = undef;
+
+    foreach my $key (keys %{$hash}) {
+      if (ref $hash->{$key} eq 'HASH'){
+        if ( exists_undef_value($hash->{$key})){return 1;};
+      }
+      else{
+		    if(! defined $hash->{$key}){
+          return 1;
+        }
+      }
+    }
+    return '';
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -1810,6 +1846,7 @@ sub check_gene_positions {
 #return 1 if something modified
 sub check_level1_positions {
 	my ($hash_omniscient, $feature_l1, $verbose) = @_;
+
 	my $result=undef;
 	if(! $verbose){$verbose=0;}
 
@@ -1844,21 +1881,21 @@ sub check_level1_positions {
 	    }
     }
     if(! $check_existence_feature_l2){
-    	warn "WARNING check_level1_positions: NO level2 feature to check positions of the level1 feature ! @\n";
+    	print "check_level1_positions: NO level2 feature to check positions of the level1 feature !".$feature_l1->gff_string()."\n" if($verbose >= 3);
     }
     else{
 	    # modify START if needed
 	    if($feature_l1->start != $extrem_start){
 	    	$feature_l1->start($extrem_start);
 	    	$result=1;
-	    	print "We modified the L1 LEFT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	print "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n" if($verbose >= 3);
 	    }
 
 	    # modify END if needed
 	    if($feature_l1->end != $extrem_end){
 	    	$feature_l1->end($extrem_end);
 	    	$result=1;
-	    	print "We modified the L1 RIGHT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	print "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n" if($verbose >= 3);
 	    }
 	}
 	return $result;

@@ -75,110 +75,136 @@ my $geneCounter_ok=0;
 my $total=0;
 my @gene_id_ok;
 
+
 my $sortBySeq = gather_and_sort_l1_location_by_seq_id($omniscient);
 
-foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
+#get top feature first
+my $hash = get_levels_info(); # get from the file
+my $top_features = $hash->{'other'}{'level'}{'topfeature'};
 
-  foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
+foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 
-    # Go through location from left to right ### !!
-    while ( @{$sortBySeq->{$locusID}{$tag_l1}} ){
-      $total++;
+  # print top features per sequence.
+  foreach my $type_top_feature (keys %{$top_features}){
+    if (exists_keys( $sortBySeq, ($locusID, $type_top_feature) ) ){
+      foreach my $location ( @{$sortBySeq->{$locusID}{$type_top_feature}} ){
+        push @gene_id_ok, lc($location->[0]); # print feature
+      }
+      delete  $sortBySeq->{$locusID}{$type_top_feature};
+    }
+  }
 
-      #location A
-      my $location = shift  @{$sortBySeq->{$locusID}{$tag_l1}};# This location will be updated on the fly
-      my $id_l1 = $location->[0];
-      #print "id_l1 $id_l1\n";
+  foreach my $tag_l1 ( sort keys %{$sortBySeq->{$locusID}} ) {
 
-      my $continue = 1;
-      my $overlap = 0;
-      my $jump = undef;
-      #loop to look at potential set of overlaping genes otherwise go through only once
-      while ( $continue ){
+    # Go through location from left to right ### !! if more than 2
+    if (scalar @{$sortBySeq->{$locusID}{$tag_l1}} > 1){
+      while ( @{$sortBySeq->{$locusID}{$tag_l1}} ){
+        $total++;
 
-        # Next location
-        my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
-        my $id2_l1 = $location2->[0];
-        my $dist = $location2->[1] - $location->[2] + 1;
-        print "distance $id_l1 - id2_l1 = $dist\n" if ($verbose);
+        #location A
+        my $location = shift  @{$sortBySeq->{$locusID}{$tag_l1}};# This location will be updated on the fly
+        my $id_l1 = $location->[0];
 
-        ############################
-        #deal with overlap
-        if ( ($location->[1] <= $location2->[2]) and ($location->[2] >= $location2->[1])){
+        #it was the last location we can keep it and get out of the while loop
+        if (scalar @{$sortBySeq->{$locusID}{$tag_l1}} eq 0){
+          push @gene_id_ok, lc($id_l1);last;
+        }
 
-              if( ! $overlap){
+        my $continue = 1;
+        my $overlap = 0;
+        my $jump = undef;
+        #loop to look at potential set of overlaping genes otherwise go through only once
+        while ( $continue ){
+
+          # Next location
+          my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
+          # print "location2:".Dumper($location2)."\n";
+          my $id2_l1 = $location2->[0];
+          my $dist = $location2->[1] - $location->[2] + 1;
+          print "distance $id_l1 - id2_l1 = $dist\n" if ($verbose);
+
+          ############################
+          #deal with overlap
+          if ( ($location->[1] <= $location2->[2]) and ($location->[2] >= $location2->[1])){
+
+                if( ! $overlap){
+
+                  foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
+                    if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
+                      my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
+                      add_info($level1_feature, 'O', $verbose);
+                    }
+                  }
+                }
+
+                $overlap=1;
 
                 foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
-                  if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
-                    my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
+                  if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
+                    my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
                     add_info($level1_feature, 'O', $verbose);
                   }
                 }
-              }
 
-              $overlap=1;
-
-              foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
-                if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
-                  my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-                  add_info($level1_feature, 'O', $verbose);
+                if($location2->[2] < $location->[2]){
+                  my $tothrow = shift  @{$sortBySeq->{$locusID}{$tag_l1}};# Throw location B. We still need to use location A to check the left extremity of the next locus
+                                                                            #location A  -------------------------                                --------------------------
+                                                                            #location B                ---------
+                  $total++;
+                  next;
                 }
+                else{
+                                                                            # We need to use the location B to check the left extremity of the next locus
+                                                                            #location A  -------------------------                                --------------------------
+                                                                            #location B                ------------------------
+                  $jump = 1;
+                  last;
+                }
+
+          }
+          #
+          ############################
+          $continue = 0;
+
+          # locus distance is under minimum distance
+          if( $dist < $opt_dist)  {
+
+            foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
+              if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
+                my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
+                add_info($level1_feature, 'R'.$dist, $verbose);
               }
+            }
 
-              if($location2->[2] < $location->[2]){
-                my $tothrow = shift  @{$sortBySeq->{$locusID}{$tag_l1}};# Throw location B. We still need to use location A to check the left extremity of the next locus
-                                                                          #location A  -------------------------                                --------------------------
-                                                                          #location B                ---------
-                $total++;
-                next;
+            foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
+              if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
+                my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
+                add_info($level1_feature, 'L'.$dist, $verbose);
               }
-              else{
-                                                                          # We need to use the location B to check the left extremity of the next locus
-                                                                          #location A  -------------------------                                --------------------------
-                                                                          #location B                ------------------------
-                $jump = 1;
-                last;
-              }
-
-        }
-        #
-        ############################
-        $continue = 0;
-
-
-        print "after overlap check\n";
-        # locus distance is under minimum distance
-        if( $dist < $opt_dist)  {
-          print "$dist < $opt_dist\n";
-
-          foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
-            if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
-              my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-              add_info($level1_feature, 'R'.$dist, $verbose);
             }
           }
 
-          foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
-            if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
-              my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-              add_info($level1_feature, 'L'.$dist, $verbose);
-            }
-          }
-        }
-
-        # distance with next is ok but we have to check what was the result with the previous locus
-        else{
-         foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
-            if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
-              my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-              if(! $level1_feature->has_tag('low_dist')){
-                $geneCounter_ok ++;
-                push @gene_id_ok, lc($id_l1);
+          # distance with next is ok but we have to check what was the result with the previous locus
+          else{
+           foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
+              if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
+                my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
+                if(! $level1_feature->has_tag('low_dist')){
+                  $geneCounter_ok ++;
+                  push @gene_id_ok, lc($id_l1);
+                }
               }
             }
           }
         }
       }
+    }
+    # if we have only 1 locations
+    else{
+      #push @gene_id_ok, $sortBySeq->{$locusID}{$tag_l1}->[0];
+      my $location = shift  @{$sortBySeq->{$locusID}{$tag_l1}};
+      my $id_l1 = $location->[0];
+      push @gene_id_ok, lc($id_l1);
     }
   }
 }

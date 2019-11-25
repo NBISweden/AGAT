@@ -12,13 +12,15 @@ use AGAT::Omniscient;
 my $header = get_agat_header();
 my $start_run = time();
 my $inputFile;
+my $verbose;
 my $outfile;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions ('i|file|input|gff=s' => \$inputFile,
-      'o|output=s' => \$outfile,
-      'h|help!'         => \$opt_help )  )
+                    'v|verbose!' => \$verbose,
+                    'o|output=s' => \$outfile,
+                    'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -70,10 +72,21 @@ my %check; # keep track of signature seen
 while (my $feature = $ref_in->next_feature() ) {
   $line_cpt++;
 
-  my $position=lc($feature->seq_id)."".lc($feature->primary_tag)."".$feature->start()."".$feature->end(); #uniq position
+  my $parent="";
+  if($feature->has_tag('Parent')){
+    $parent = $feature->_tag_value('Parent');
+  }
+  my $id="";
+  if($feature->has_tag('ID')){
+    $id = $feature->_tag_value('ID');
+  }
+  if ($parent eq "" and $id eq "" ){next;}
+
+  my $position=lc($feature->seq_id)."".lc($feature->primary_tag)."".$feature->start()."".$feature->end()."".$id."".$parent; #uniq position
 
   if(exists ($check{$position} ) ){
     $count++;
+    if ($verbose){print "remove: ".$feature->gff_string."\n";}
     next;
   }
   else{
@@ -106,7 +119,9 @@ agat_remove_redundant_entries.pl
 
 =head1 DESCRIPTION
 
-The script remove redundant entries: same seq_id,primary_tag,start,stop.
+The script remove redundant entries: same seq_id,primary_tag,start,stop,ID,Parent.
+If ID and Parent attribute is not present, we do no remove the feature. If one of them
+do not exists we use "" instead.
 
 =head1 SYNOPSIS
 

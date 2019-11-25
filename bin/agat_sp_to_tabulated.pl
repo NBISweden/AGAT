@@ -80,17 +80,16 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
 print ("GFF3 file parsed\n");
 
 
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
+  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 
     my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
-
     manage_attributes($feature_l1);
 
     #################
     # == LEVEL 2 == #
     #################
-    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
       if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
@@ -101,7 +100,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
           #################
           my $level2_ID = lc($feature_l2->_tag_value('ID'));
 
-          foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+          foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
             if ( exists ($hash_omniscient->{'level3'}{$tag_l3}{$level2_ID} ) ){
               foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
                 manage_attributes($feature_l3);
@@ -134,7 +133,8 @@ print $ostream "\n".$content;
 
 sub  manage_attributes{
   my  ($feature)=@_;
-  $content .= $feature->seq_id."\t".$feature->source_tag."\t".$feature->primary_tag."\t".$feature->start."\t".$feature->end."\t".$feature->score."\t".$feature->strand."\t".$feature->frame;
+  my $score = ($feature->score) ? $feature->score : ".";
+  $content .= $feature->seq_id."\t".$feature->source_tag."\t".$feature->primary_tag."\t".$feature->start."\t".$feature->end."\t".$score."\t".$feature->strand."\t".$feature->frame;
   my @tag_list = $feature->get_all_tags();
   my %tag_hash;
   foreach my $tag (@tag_list) {
@@ -150,7 +150,7 @@ sub  manage_attributes{
     }
   }
 
-  foreach my $tag ( keys %tag_hash ) {
+  foreach my $tag ( sort keys %tag_hash ) {
     $tag_to_number{$tag} = $cpt_tag;
     $number_to_tag{$cpt_tag} = $tag;
     my @values = $feature->get_tag_values($tag);

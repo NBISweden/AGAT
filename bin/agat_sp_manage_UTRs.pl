@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use POSIX qw(strftime);
 use Carp;
+use File::Basename;
 use IO::File;
 use Pod::Usage;
 use Getopt::Long qw(:config no_auto_abbrev);
@@ -57,6 +58,8 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 # #######################
 
 if (defined($opt_output) ) {
+  my ($path,$ext);
+  ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   if (-d $opt_output){
     print "The output directory choosen already exists. Please geve me another Name.\n";exit();
   }
@@ -105,8 +108,7 @@ my $ostreamUTRdiscarded;
 
 if (defined($opt_output) ) {
 
-  my $file_in=$opt_reffile;
-  $file_in =~ s/.gff.*//g;
+  my ($file_in,$path,$ext) = fileparse($opt_reffile,qr/\.[^.]*/);
 
   #manage name output
   my $utr_type_under=undef;
@@ -233,8 +235,10 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}) {
             $UTRoverview{$tag_l3}++;
             if(! exists $UTRbymRNA{'both'}{$id_l2}){
               $UTRbymRNA{'both'}{$id_l2}=$nbUTR;
-            }else{$UTRbymRNA{'both'}{$id_l2}+=$nbUTR;}
-
+            }
+            else{
+              $UTRbymRNA{'both'}{$id_l2}+=$nbUTR;
+            }
            #   print_omniscient_from_level1_id_list($hash_omniscient,[$geneID],$utr_gff{$tag_l3});
           }
         }
@@ -251,12 +255,12 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}) {
 ###########################
 
 ###########################
-# Overview of UTRs
+# Overview of UTRs per sides
 if($opt_utr3 or $opt_utr5 or $opt_bst){
   # print preliminary results
   my $stringPrint="";
   foreach my $key (keys %UTRoverview) {
-    $stringPrint.="There is $UTRoverview{$key} $key\n";
+    $stringPrint.="There are ".scalar $UTRoverview{$key}." $key\n";
     my $total=0;
     foreach my $value  ( sort {$b <=> $a} keys %{$UTRdistribution{$key}}){
       if($value >= $opt_nbUTR){
@@ -264,8 +268,20 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
       }
       else{last;}
     }
-    $stringPrint.= "There is $total $key cases that have over or equal $opt_nbUTR exons.\n";
+    $stringPrint.= "Among them $total have over or equal $opt_nbUTR exons.\n";
   }
+
+  ###########################
+  # Overview of UTRs both
+  # print preliminary results
+  $stringPrint.="There are ".scalar %{$UTRbymRNA{'both'}}." features that have UTRs (some at both sides some only at one extremity)\n";
+  my $total=0;
+  foreach my $id  ( keys %{$UTRbymRNA{'both'}}){
+    if($UTRbymRNA{'both'}{$id} >= $opt_nbUTR){
+      $total++;
+    }
+  }
+  $stringPrint.= "Among them $total have over or equal UTR (5' and/or 3') exons.\n\n";
 
   ###########################
   # Main compute
@@ -323,7 +339,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
   if(@listIDl2discarded){
     my $sizeList= @listIDl2discarded;
     my $nbGene = keys %geneName;
-    $stringPrint.= "$sizeList RNA discarded from $nbGene genes\n";
+    $stringPrint.= "According to the parameters $sizeList RNA discarded from $nbGene genes\n";
     my @listIDl2discardedUniq = uniq(@listIDl2discarded);
     my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discarded);
     print_omniscient($omniscient_discarded, $ostreamUTRdiscarded);
@@ -331,7 +347,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
   if(@listIDlok){
     my $sizeList= @listIDlok;
     my $nbGeneOk = keys %geneName_ok;
-    $stringPrint.= "$sizeList RNA from $nbGeneOk gene that reach your request.\n";
+    $stringPrint.= "$sizeList RNA from $nbGeneOk genes pass the filter (under the UTR Threshold).\n";
     my @listIDlokUniq = uniq(@listIDlok);
     my $omniscient_ok = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDlokUniq);
     print_omniscient($omniscient_ok, $ostreamUTR);
@@ -343,7 +359,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
         $union++;
       }
     }
-     $stringPrint.= "$union genes have RNA isoform that reach you request and RNA discarded.\n";
+     $stringPrint.= "$union genes have RNA isoform discarded (over the UTR Threshold).\n";
   }
 
   #Print Info OUtput

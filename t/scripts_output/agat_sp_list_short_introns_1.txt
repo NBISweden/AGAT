@@ -1,0 +1,5 @@
+List introns inferior to 10 nucleotides:
+
+Seq_id	Gene_name	intron_start	intron_size
+
+0 introns found for 0 uniq genes

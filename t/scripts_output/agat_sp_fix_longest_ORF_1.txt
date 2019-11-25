@@ -1,0 +1,14 @@
+usage: bin/agat_sp_fix_longest_ORF.pl --gff t/scripts_output/1.gff --fasta t/scripts_output/1.fa -o tmp.gff
+Codon table used:0
+Results:
+14 genes have been modified. These genes have  20 mRNA, and we fixed the ORF of 15 of them.
+0 model1: Prediction(s) contains the orignal prediction but is longer.
+1 model2: Longest ORF found non-overlaping the original one.
+2 model3: sequences have been re-shaped/re-modeled (Longest ORF found overlaping the original one but doesn't contain it.)
+0 model4: The prediction is shorter due to the presence of stop codon in the original CDS.
+12 model5: The prediction is shorter but the original CDS sequence has not premature stop codonThe original CDS does not start by a start codon, it is probably incomplete or fragmented (begining or finishing by NNNN or XXXX). The prediction is probably shorter because it is forced to use a start codon.
+0 model6: The prediction is the same size (AA size) but the original CDS has premature stop codons while the prediction not. This is a particular case where a +1 or +2 bp shift at the beginning of the sequencethat gives frame shifts in the original sequence but they are removed for the new prediction. 
+
+/!\Remind:
+ L and M are AA are possible start codons for standard codon table.
+Particular case: If we have a triplet as WTG, AYG, RTG, RTR or ATK it will be seen as a possible Methionine codon start (it's a X aa)

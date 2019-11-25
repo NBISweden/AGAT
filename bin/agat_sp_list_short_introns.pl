@@ -77,18 +77,8 @@ else{
   ### END Parse GFF input #
   #########################
 
-  #print statistics
-  my ($stat, $distri) = gff3_statistics($hash_omniscient);
-  #print statistics
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print "$info";
-    }
-    print "\n";
-  }
-
-  print $fh "List introns inferior to $INTRON_LENGTH nucleotides:\n\n";
-  print $fh "Seq_id\tGene_name\tintron_start\tintron_size\n";
+print $fh "List introns inferior to $INTRON_LENGTH nucleotides:\n\n";
+print $fh "Seq_id\tGene_name\tintron_start\tintron_size\n";
 
 my $total_intron = 0;
 my %total_gene;

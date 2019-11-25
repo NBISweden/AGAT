@@ -71,12 +71,12 @@ my $cpt_removed=0;
 my %seqNameSeen;
 my $cpt_kept=0;
 while (my $feature = $ref_in->next_feature() ) {
-
-  if($db->seq($feature->seq_id)){
+  my $seq_id = $feature->seq_id;
+  if($db->seq($seq_id)){
     $gffout->write_feature($feature);
     # to count number of sequence with annotation
-    if(! exists_keys(\%seqNameSeen, ($feature->seq_id))){
-      $seqNameSeen{$feature->seq_id}++;
+    if(! exists_keys(\%seqNameSeen, ($seq_id))){
+      $seqNameSeen{$seq_id}++;
     }
     $cpt_kept++;
   }

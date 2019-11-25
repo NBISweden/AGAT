@@ -69,8 +69,8 @@ sub gff3_statistics {
 	# get nb of each feature in omniscient;
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
-	foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
-		foreach my $id_l1 (keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
+	foreach my $tag_l2 ( keys %{$hash_omniscient->{'level2'}}){
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
 			my $one_f2 = $hash_omniscient->{'level2'}{$tag_l2}{$id_l1}[0];
 
 
@@ -322,17 +322,13 @@ sub gff3_statistics {
 		  	}# END all feature level 2
 		  	if($All_l2_single){
 		  		$extra_info{$tag_l2}{'level1'}{$tag_l1}{'single'}++;
-		  		#print "avant: ".$feature_l1->gff_string()."\n";
-		  		#print $extra_info{$tag_l2}{'level1'}{$tag_l1}{'single'}." ".$extra_info{$tag_l2}{'level2'}{$tag_l2}{'single'};
-		  		#if ($extra_info{$tag_l2}{'level1'}{$tag_l1}{'single'} !=  $extra_info{$tag_l2}{'level2'}{$tag_l2}{'single'} ){
-		  		#	print $feature_l1->gff_string()."\n";exit;
-		  		#}
 		  	}
 		}
 	}
 
 	# create the list of sentences that resume the results
-	foreach my $type (keys %all_info){
+	foreach my $type (sort keys %all_info){
+
 		my $hashType = $all_info{$type};
 		my @result;
 

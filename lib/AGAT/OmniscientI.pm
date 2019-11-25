@@ -22,7 +22,7 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format check_mrna_positions
               modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop
               slurp_gff3_file_JD _check_all_level1_positions _check_all_level2_positions
-              load_levels);
+              get_levels_info);
 sub import {
   AGAT::OmniscientI->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientI->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -99,6 +99,7 @@ sub slurp_gff3_file_JD {
 
 	my $start_run = time();
 	my $previous_time = undef;
+  my %omniscient; #Hast where all the feature will be saved
 
 #	+-----------------------------------------+
 #	|			HANDLE ARGUMENTS			  |
@@ -117,7 +118,7 @@ sub slurp_gff3_file_JD {
   if( ! defined($args->{expose_feature_levels})) {$expose_feature_levels = undef;}
                     else{ $expose_feature_levels = $args->{expose_feature_levels};
                     print "   expose json feature level files\n" if ($verbose > 0);} # list of check to skip
-                    load_levels($expose_feature_levels, $verbose); # 	HANDLE feature level
+                    _load_levels(\%omniscient, $expose_feature_levels, $verbose); # 	HANDLE feature level
 	if( defined($args->{input})) {$file = $args->{input};} 		       else{ print "Input data --input is mandatory when using slurp_gff3_file_JD!"; exit;}
 	if( ! defined($args->{gff_version})) {$gff_version = undef;}     else{ $gff_version = $args->{gff_version}; } # force using gff parser version
 	if( ! defined($args->{locus_tag})) {$locus_tag = undef;}         else{ push @COMONTAG, $args->{locus_tag}; } #add a new comon tag to the list if provided.}
@@ -173,7 +174,6 @@ sub slurp_gff3_file_JD {
 #	|			  HANDLE FEATUTRES PARSING ACCORDING TO TYPE OF INPUTS		  |
 #	+-------------------------------------------------------------------------+
 	my %mRNAGeneLink; #Hast that keep track about link between l2 and l1
-	my %omniscient; #Hast where all the feature will be saved
 	my %duplicate;# Hash to store duplicated feature info
 	my %miscCount;# Hash to store any counter. Will be use to create a new uniq ID
 	my %uniqID;# Hash to follow up with an uniq identifier every feature
@@ -201,12 +201,9 @@ sub slurp_gff3_file_JD {
 
 		foreach my $level (keys %{$file}){
       # save header if any
-      if ($level eq 'header'){
-        if(! exists_keys(\%omniscient,('header') ) ) {
-          $omniscient{'header'} = $file->{$level};
-        }
-        else{
-          $omniscient{'header'} = $omniscient{'header'}.$file->{$level};
+      if ($level eq 'other'){
+        foreach my $thing( keys %{$file->{'other'} } ){
+          $omniscient{'other'}{$thing} = $file->{'other'}{$thing};
         }
         next;
       }
@@ -239,7 +236,7 @@ sub slurp_gff3_file_JD {
 	else{
     # take care of headers
     my $header = get_header_lines($file, $verbose);
-    $omniscient{'header'}=$header if $header;
+    $omniscient{'other'}{'header'}=$header if $header;
 
 		#GFF format used for parser
 		my $format;
@@ -2794,24 +2791,24 @@ sub get_header_lines{
   my ($file, $verbose) = @_;
 
   #HANDLE format
-  my $headers=undef;
+  my @headers;
 
   open(my $fh, '<', $file) or die "cannot open file $file";
   {
     while(<$fh>){
       if($_ =~ /^#/){
         if($_ =~ /##gff-version/){next;}# we do not keep the version line because we will write it ourself
-        $headers.=$_;
+        push @headers, $_;
         print "catch header line: $_" if ($verbose >1);
       } #if it is a commented line starting by # we skip it.
       else{
         close($fh);
-        return $headers;
+        return \@headers;
       }
     }
   }
   close($fh);
-  return $headers;
+  return \@headers;
 }
 
 #GFF format guess
@@ -3160,12 +3157,27 @@ sub _handle_globalWARNS{
 	}
 }
 
-# @Purpose: set path to look at the json feature level files (If present locally we take them otherwise look at standard path). If expose option is activated, we copy the json files localy and exit
-# @input: 2 =>  string (path), integer
-# @output: 3 => hash, hash, hash
+# @Purpose: We save the Levels in the LEVEL variable accessible here, and in the hash
+# @input: 2 =>  hash, integer
+# @output: 3 => hash
 # @Remark: none
-sub load_levels{
-  my ($expose_feature_levels, $verbose) = @_ ;
+sub get_levels_info{
+    my ($hash, $verbose) = @_ ;
+
+    $hash = {} if (! $hash); # if the hash exist we will append it otherwise it will be a new one
+    $verbose = 0 if(! defined ($verbose));
+    _load_levels($hash,undef,$verbose);
+    return $hash;
+}
+
+# @Purpose: set path to look at the json feature level files (If present locally we take them otherwise look at standard path).
+# If expose option is activated, we copy the json files localy and exit
+# We save the Levels in the LEVEL variable accessible here, and in the hash
+# @input: 3 =>  hash, string (path), integer
+# @output: 0 => none
+# @Remark: none
+sub _load_levels{
+  my ($hash_omniscient, $expose_feature_levels, $verbose) = @_ ;
 
   $verbose = 0 if(!$verbose);
 
@@ -3200,15 +3212,22 @@ sub load_levels{
 
         if ($cpt == 1){
           $LEVEL1 = load_json($path);
+          $hash_omniscient->{'other'}{'level'}{'level1'}=$LEVEL1;
+          foreach my $key (keys %{$LEVEL1}){
+            if($LEVEL1->{$key} eq 'standalone'){ $hash_omniscient->{'other'}{'level'}{'topfeature'}{$key}++; }
+          }
         }
         elsif ($cpt == 2){
           $LEVEL2 = load_json($path);
+          $hash_omniscient->{'other'}{'level'}{'level2'}=$LEVEL2;
         }
         elsif ($cpt == 3){
           $LEVEL3 = load_json($path);
+          $hash_omniscient->{'other'}{'level'}{'level3'}=$LEVEL3;
         }
         else {
           $SPREADFEATURE = load_json($path);
+          $hash_omniscient->{'other'}{'level'}{'spreadfeature'}=$SPREADFEATURE;
         }
       }
       else{ #otherwise use the standard location ones
@@ -3217,21 +3236,27 @@ sub load_levels{
 
         if ($cpt == 1){
           $LEVEL1 = load_json($paths[0]);
+          $hash_omniscient->{'other'}{'level'}{'level1'}=$LEVEL1;
+          foreach my $key (keys %{$LEVEL1}){
+            if($LEVEL1->{$key} eq 'standalone'){ $hash_omniscient->{'other'}{'level'}{'topfeature'}{$key}++; }
+          }
         }
         elsif ($cpt == 2){
           $LEVEL2 = load_json($paths[1]);
+          $hash_omniscient->{'other'}{'level'}{'level2'}=$LEVEL2;
         }
         elsif ($cpt == 3){
           $LEVEL3 = load_json($paths[2]);
+          $hash_omniscient->{'other'}{'level'}{'level3'}=$LEVEL3;
         }
         else {
           $SPREADFEATURE = load_json($paths[3]);
+          $hash_omniscient->{'other'}{'level'}{'spreadfeature'}=$SPREADFEATURE;
         }
       }
       $cpt++;
     }
   }
-  return ($LEVEL1, $LEVEL2, $LEVEL3, $SPREADFEATURE);
 }
 
 # @Purpose: load json data into variable

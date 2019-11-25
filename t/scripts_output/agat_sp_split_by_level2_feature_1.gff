@@ -1,0 +1,4 @@
+##gff-version 3
+1	Ensembl_Plants	ncRNA_gene	182074	182154	.	+	.	ID=gene:ENSRNA049442722;Name=tRNA-Leu;biotype=tRNA;description=tRNA-Leu for anticodon AAG;gene_id=ENSRNA049442722;logic_name=trnascan_gene
+1	Ensembl_Plants	tRNA	182074	182154	.	+	.	ID=transcript:ENSRNA049442722-T1;Parent=gene:ENSRNA049442722;biotype=tRNA;transcript_id=ENSRNA049442722-T1
+1	Ensembl_Plants	exon	182074	182154	.	+	.	ID=ENSRNA049442722-E1;Parent=transcript:ENSRNA049442722-T1;Name=ENSRNA049442722-E1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSRNA049442722-E1;rank=1

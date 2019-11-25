@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-use Test::Simple tests => 62; # half of file to test but each tested twice
+use Test::More tests => 31;
 
 =head1 DESCRIPTION
 
@@ -11,10 +10,18 @@ Test to verify the parser deals properly with the different flavor / bugged gff 
 
 =cut
 
+# Check if has to be run in Devel::Cover or not
+my $script_prefix="";
+if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
+  if ($ENV{'HARNESS_PERL_SWITCHES'} =~ m/Devel::Cover/) {
+    $script_prefix="perl -MDevel::Cover ";
+  }
+}
+
 # script to call to check the parser
-my $handler_script = "bin/agat_sp_gxf_to_gff3.pl";
+my $script = $script_prefix."bin/agat_sp_gxf_to_gff3.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
-my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
+#my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
 my $dir = "t/gff_syntax"; # folder where the test files are
 opendir my $dh, $dir or die "Could not open '$dir' for reading: $!\n";
 my @files = readdir $dh;
@@ -29,14 +36,14 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     # peculiar case
     if ($file =~ m/^8_/){
-        system("$handler_script --gff t/gff_syntax/$file -o $pathtmp ");
+        system("$script --gff t/gff_syntax/$file -o $pathtmp 1>/dev/null");
     }
     elsif($file =~ m/^28_/){
-        system("$handler_script --gff t/gff_syntax/$file -c Name -o $pathtmp ");
+        system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp 1>/dev/null");
     }
     # standard cases
     else{
-      system("$handler_script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp ");
+      system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp 1>/dev/null");
     }
 
     my @splitname = split /_/, $file;
@@ -48,23 +55,23 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     #--------------- rerun on the first output #---------------
 
      # peculiar case
-     if ($file =~ m/^8_/){
-         system("$handler_script --gff $pathtmp -o $pathtmp2 ");
-     }
-     elsif($file =~ m/^28_/){
-         system("$handler_script --gff $pathtmp -c Name -o $pathtmp2 ");
-     }
+     #if ($file =~ m/^8_/){
+    #     system("$script --gff $pathtmp -o $pathtmp2 ");
+     #}
+     #elsif($file =~ m/^28_/){
+    #     system("$script --gff $pathtmp -c Name -o $pathtmp2 ");
+     #}
      # standard cases
-     else{
-       system("$handler_script --gff $pathtmp --merge_loci -o $pathtmp2 ");
-     }
+     #else{
+    #   system("$script --gff $pathtmp --merge_loci -o $pathtmp2 ");
+     #}
 
      #run test
-     ok( system("diff $pathtmp2 t/gff_syntax/$correct_output") == 0, "parse2 $file");
+     #ok( system("diff $pathtmp2 t/gff_syntax/$correct_output") == 0, "parse2 $file");
   }
 }
 closedir($dh);
 
 
 unlink $pathtmp;
-unlink $pathtmp2;
+#unlink $pathtmp2;

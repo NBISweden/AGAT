@@ -93,15 +93,15 @@ else{
   ######################
   ### Parse GFF input #
   # get nb of each feature in omniscient;
-  foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
-    foreach my $id_l1 (keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
+  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
+    foreach my $id_l1 (sort keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
       my $one_f2 = $hash_omniscient->{'level2'}{$tag_l2}{$id_l1}[0];
 
       #######################
       #get feature1 and info
       my $feature_l1=undef;
       my $tag_l1;
-      foreach my $tag_level1 (keys %{$hash_omniscient->{'level1'}}){
+      foreach my $tag_level1 (sort keys %{$hash_omniscient->{'level1'}}){
         if (exists ($hash_omniscient->{'level1'}{$tag_level1}{$id_l1})){
           $feature_l1=$hash_omniscient->{'level1'}{$tag_level1}{$id_l1};
           $tag_l1=$tag_level1;

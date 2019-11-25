@@ -21,8 +21,8 @@ my %cases_explanation = (
   -1  => "No protein alignement overlap the gene model.",
   0   => "There is protein alignment that overlap the gene model but none goes over the threshold defined.",
   1   => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined, the protein is from one of the species defined, and the PE value is as defined. P.S: Case only possible when both options sp and pe are activated.",
-  21  => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined, the PE value is as defined.",
-  22  => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined, the protein is from one of the species defined.",
+  2.1  => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined, the PE value is as defined.",
+  2.2  => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined, the protein is from one of the species defined.",
   3   => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined."
 );
 
@@ -124,8 +124,8 @@ if (defined($opt_output) ) {
   mkdir $opt_output;
 
   my $outfile_gff = $annotation_gff;
-  $outfile_gff =~ s/.gff//g;
-  $outfile_gff = $outfile_gff."_updated.gff";
+  my ($file1,$dir1,$ext1) = fileparse($outfile_gff, qr/\.[^.]*/);
+  $outfile_gff = $file1."_updated.gff";
 
   #0 txt
   my $ostreamReport = IO::File->new(">".$opt_output."/report.txt" ) or
@@ -238,11 +238,15 @@ _print( "Done\n",0);
 
 my $omniscient1_sorted = gather_and_sort_l1_location_by_seq_id_and_strand($hash_omniscient);
 my $omniscient2_sorted = gather_and_sort_l1_location_by_seq_id_and_strand($prot_omniscient);
+my $topfeatures = $hash_omniscient->{'other'}{'level'}{'topfeature'};
 
 my %cases;
 
 foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match match ....
   foreach my $tag_l1 ( keys %{$omniscient1_sorted->{$locusID}} ) {
+
+    #skip top features
+    if(exists_keys($topfeatures,($tag_l1))){ next; }
 
     # Go through location from left to right ### !!
     my @aligns;
@@ -255,6 +259,9 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
       if( exists_keys($omniscient2_sorted, ($locusID ) ) ) {
 
         foreach my $tag2_l1 ( keys %{$omniscient2_sorted->{$locusID}} ) {
+
+          #skip top features
+          if(exists_keys($topfeatures,($tag2_l1))){ next; }
 
           while ( @{$omniscient2_sorted->{$locusID}{$tag2_l1}} ){
 

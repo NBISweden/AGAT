@@ -276,21 +276,38 @@ foreach  my $tag (keys %introns){
 
     #calculate the breaks
     my $breaks_ok=int($biggest_value/$opt_breaks);
+    # try with shorter breaks
+    if ($breaks_ok == 0){ $breaks_ok = int($biggest_value/100)};
 
-    #R command
-    $R->run(qq`
+    if($breaks_ok){
+      #R command
+      $R->run(qq`
 
-          listValues1=as.matrix(read.table("$pathIntron", sep="\t", he=F))
-          pdf("$outputPDF")
-          hist1<-hist(listValues1,breaks=$breaks_ok,main="$title", xlab="$xlab")
-          plot(hist1\$mids,hist1\$counts)
-          mylims <- par("usr")
-          # Add Title second plot
-          title(main="$title")`
-    );
+            listValues1=as.matrix(read.table("$pathIntron", sep="\t", he=F))
+            pdf("$outputPDF")
+            hist1<-hist(listValues1,breaks=$breaks_ok,main="$title", xlab="$xlab")
+            plot(hist1\$mids,hist1\$counts)
+            mylims <- par("usr")
+            # Add Title second plot
+            title(main="$title")`
+      );
 
-    # Close the bridge
-    $R->stopR();
+    }
+    # If no breaks but we have values
+    elsif($biggest_value){
+      $R->run(qq`
+
+            listValues1=as.matrix(read.table("$pathIntron", sep="\t", he=F))
+            pdf("$outputPDF")
+            hist1<-hist(listValues1,main="$title", xlab="$xlab")
+            plot(hist1\$mids,hist1\$counts)
+            mylims <- par("usr")
+            # Add Title second plot
+            title(main="$title")`
+      );
+      # Close the bridge
+      $R->stopR();
+    }
   }
 
   # remove temporary files

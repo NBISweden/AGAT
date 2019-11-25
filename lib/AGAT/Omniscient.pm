@@ -12,7 +12,7 @@ use AGAT::OmniscientTool;
 use AGAT::OmniscientStat;
 use AGAT::PlotR;
 
-our $VERSION     = "v0.0.1";
+our $VERSION     = "v0.0.2";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header);
 sub import {
@@ -22,7 +22,7 @@ sub import {
 =head1 SYNOPSIS
 
   Meta package for conveniency. It allows to call all packages needed in once to deal with Omniscient data structure.
-  $omniscient{'header'){String}
+  $omniscient{'other'){'header'}[value, value]
   $omniscient->{"level1"}{$primary_tag}{$id}=$feature;
   $omniscient->{"level2"}{$primary_tag}{$parent} = [$feature,$feature];
   $omniscient->{"level3"}{$primary_tag}{$parent} = [$feature,$feature,$feature];

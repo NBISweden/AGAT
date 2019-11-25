@@ -119,7 +119,14 @@ sub _uniq_ID{
 
   #push the new ID
   $hash_IDs->{$id}++;
-  $mapID->{lc($feature->_tag_value('ID'))} = $id;
+  my $original_id = undef;
+  if($feature->has_tag('ID')){
+   $original_id = lc($feature->_tag_value('ID'));
+  }
+  else{
+    $original_id = lc($id);
+  }
+  $mapID->{$original_id} = $id;
 
   # modify the feature ID with the correct one chosen
   create_or_replace_tag($feature,'ID', $id); #modify ID to replace by parent value

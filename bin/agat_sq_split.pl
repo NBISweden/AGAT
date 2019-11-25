@@ -5,6 +5,7 @@ use warnings;
 use Carp;
 use Pod::Usage;
 use Getopt::Long;
+use File::Basename;
 use IO::File ;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
@@ -50,6 +51,8 @@ if (-d $outfolder) {
   print "The output directory <$outfolder> already exists.\n";exit;
 }
 else{
+  my ($path,$ext);
+  ($outfolder,$path,$ext) = fileparse($outfolder,qr/\.[^.]*/);
   print "Creating the $outfolder folder\n";
   mkdir $outfolder;
 }
@@ -67,9 +70,8 @@ my $line_cpt=0;
 #my $fh=undef;
 my $count_feature=0;
 my $count_file=1;
-my $file_name=$inputFile;
-$file_name=~ s/.gff//g;
-$file_name=~ s/.gff3//g;
+my ($file_name,$path,$ext) = fileparse($inputFile,qr/\.[^.]*/);
+
 my $gffout;
 open(my $fh, '>', $outfolder."/".$file_name."_".$count_file.".gff") or die "Could not open file $file_name.'_'.$count_file.'.gff' $!";
 $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );

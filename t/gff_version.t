@@ -3,8 +3,7 @@
 use strict;
 use warnings;
 use AGAT::Omniscient;
-
-use Test::Simple tests => 6; # half of file to test but each tested twice
+use Test::More tests => 6; # half of file to test but each tested twice
 
 =head1 DESCRIPTION
 

@@ -104,7 +104,7 @@ print ("Genome fasta parsed\n");
 ####################
 
 #counters
-my %mrnaCounter={1=>0, 2=>0, 3=>0};
+my %mrnaCounter=( 0 => 0, 1 => 0, 2 => 0, 3 => 0);
 my $geneCounter=0;
 my %omniscient_incomplete;
 my @incomplete_mRNA;
@@ -134,6 +134,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
           if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
             $ncGene=undef;
+            $mrnaCounter{'0'}++;
 
             my $seqobj = extract_cds(\@{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}, $db);
 
@@ -168,7 +169,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             }
           }
           else{ #No CDS
-            print "Not a coding rna (no CDS) we skip it";
+            print "Not a coding rna (no CDS) we skip it\n" if ($verbose);
           }
           if($start_missing or $stop_missing){
             #Keep track counter
@@ -182,7 +183,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $mrnaCounter{'2'}++;
             }
             $geneInc="true";
-            print "$level2_ID\n";
+
             if(! $add_flag){
               push(@incomplete_mRNA, $level2_ID); # will be removed at the end
               push(@level2_list, $level2_feature); # will be appended to omniscient_incomplete
@@ -206,7 +207,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      print "This is a non coding gene (no cds to any of its RNAs)";
+      print "This is a non coding gene (no cds to any of its RNAs)" if ($verbose);
     }
   }
 }
@@ -217,10 +218,11 @@ my $string_to_print="usage: $0 @copyARGV\n";
 $string_to_print .="Results:\n";
 
 if ($geneCounter) {
-  $string_to_print .="Number of gene affected: $geneCounter\n";
+  $string_to_print .="We checked ".$mrnaCounter{0}." mRNAs.\n";
   $string_to_print .="There are ".$mrnaCounter{3}." mRNAs without start and stop codons.\n";
   $string_to_print .="There are ".$mrnaCounter{2}." mRNAs without stop codons.\n";
   $string_to_print .="There are ".$mrnaCounter{1}." mRNAs without start codons.\n";
+  $string_to_print .="Number of gene affected: $geneCounter\n";
 }
 else{
   $string_to_print .="No gene with incomplete mRNA!\n";
@@ -239,10 +241,11 @@ if(! $add_flag){
   }
 }
 
+print "Now printing complete models\n";
 print_omniscient($hash_omniscient, $gffout); #print result
 
 if(@incomplete_mRNA){
-  print "Now print incomplete models:\n";
+  print "Now printing incomplete models\n";
   print_omniscient(\%omniscient_incomplete, $gffout_incomplete); #print result
 }
 

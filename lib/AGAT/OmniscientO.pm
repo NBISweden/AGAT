@@ -48,9 +48,6 @@ sub print_omniscient{
   # --------- deal with header --------------
   write_headers($hash_omniscient, $gffout);
 
-  # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
-  my $top_features = list_top_features();
-
 ### OLD FASHION GOING TRHOUGH LEVEL1
 	#foreach my $primary_tag_l1 ( sort {$a <=> $b or $a cmp $b} keys %{$hash_omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
 	#	foreach my $id_tag_key_level1 ( sort { $hash_omniscient->{'level1'}{$primary_tag_l1}{$a}->start <=> $hash_omniscient->{'level1'}{$primary_tag_l1}{$b}->start } keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}} ) { #sort by position
@@ -65,21 +62,11 @@ sub print_omniscient{
 	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
   #################
-	# == LEVEL 1 == #
+	# == LEVEL 1 == # IF not in omniscient do that, otherwise we us within. Make a method for it.
 	#################
-    # Write first what could be at the top of each sequence
-    foreach my $type_top_feature (@{$top_features}){
-      if (exists_keys( $hash_sortBySeq, ($seqid, $type_top_feature) ) ){
-        foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$type_top_feature}} ){
-          $gffout->write_feature($feature_l1); # print feature
-        }
-      }
-    }
+    write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
 
   	foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
-
-      # skip $top_features that have been dealed previously
-      if ( grep( /^$primary_tag_l1$/, @{$top_features} ) ){next;}
 
       foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
 		    my $id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
@@ -98,12 +85,24 @@ sub print_omniscient{
 							# == LEVEL 3 == #
 							#################
 							my $level2_ID = lc($feature_level2->_tag_value('ID'));
+              my @l3_done;
+
+              ###########
+              # Before tss
+              if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
+                foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
+                  #_uri_encode_one_feature($feature_level3);
+                  $gffout->write_feature($feature_level3);
+                  push @l3_done, 'tss';
+                }
+              }
 
 							######
 							# FIRST EXON
 							if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
 								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
 									$gffout->write_feature($feature_level3);
+                  push @l3_done, 'exon';
 								}
 							}
 							###########
@@ -111,13 +110,24 @@ sub print_omniscient{
 							if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
 								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
 									$gffout->write_feature($feature_level3);
+                  push @l3_done, 'cds';
 								}
 							}
+
+              ###########
+              # Last tts
+              if ( exists_keys($hash_omniscient,('level3','tts',$level2_ID)) ){
+                foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
+                  #_uri_encode_one_feature($feature_level3);
+                  $gffout->write_feature($feature_level3);
+                  push @l3_done, 'tts';
+                }
+              }
 
 							############
 							# THEN ALL THE REST
 							foreach my $primary_tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-								if (($primary_tag_l3 ne 'cds') and ($primary_tag_l3 ne 'exon')) {
+								if (! grep { $_ eq $primary_tag_l3 } @l3_done){
 									if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
 										foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
 											$gffout->write_feature($feature_level3);
@@ -143,9 +153,6 @@ sub print_omniscient_as_match{
   # --------- deal with header --------------
   write_headers($hash_omniscient, $gffout);
 
-  # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
-  my $top_features = list_top_features();
-
 	# sort by seq id
 	my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
 
@@ -156,19 +163,9 @@ sub print_omniscient_as_match{
   # == LEVEL 1 == #
   #################
 
-    # Write first what could be at the top of each sequence
-    foreach my $type_top_feature (@{$top_features}){
-      if (exists_keys( $hash_sortBySeq, ($seqid, $type_top_feature) ) ){
-        foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$type_top_feature}} ){
-          $gffout->write_feature($feature_l1); # print feature
-        }
-      }
-    }
+    write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
 
     foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
-
-      # skip $top_features that have been dealed previously
-      if ( grep( /^$primary_tag_l1$/, @{$top_features} ) ){next;}
 
 	    foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
 		    my $id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
@@ -232,14 +229,12 @@ sub print_omniscient_as_match{
 sub print_omniscient_from_level1_id_list {
 
 	my ($hash_omniscient, $level_id_list, $gffout) = @_  ;
+  my %topfeature_printed;
 
   #uri_decode_omniscient($hash_omniscient);
 
   # --------- deal with header --------------
   write_headers($hash_omniscient, $gffout);
-
-  # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
-  my $top_features = list_top_features();
 
   # sort by seq id
   my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
@@ -251,20 +246,7 @@ sub print_omniscient_from_level1_id_list {
     # == LEVEL 1 == #
     #################
 
-    my @saved_features;
-    # Save first what will be at the top of each sequence.
-    foreach my $type_top_feature (@{$top_features}){
-      if (exists_keys( $hash_sortBySeq, ($seqid, $type_top_feature) ) ){
-        foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$type_top_feature}} ){
-          push @saved_features, $feature_l1; # print feature
-        }
-      }
-    }
-
     foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
-
-      # skip $top_features that have been dealed previously
-      if ( grep( /^$primary_tag_l1$/, @{$top_features} ) ){next;}
 
       foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
         my $original_id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
@@ -276,12 +258,10 @@ sub print_omniscient_from_level1_id_list {
 
     				#_uri_encode_one_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
 
-            # Print first what suppose to be at the very begining of each sequence
-            if(@saved_features){
-              while(@saved_features){
-                my $features =  pop @saved_features;
-                $gffout->write_feature($features);
-              }
+            # Print first what suppose to be at the very begining of each sequence when is the first time we meet the sequence (seqid)
+            if(! exists_keys(\%topfeature_printed,($seqid) ) ) {
+              write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
+              $topfeature_printed{$seqid}++;
             }
     				$gffout->write_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
@@ -300,6 +280,7 @@ sub print_omniscient_from_level1_id_list {
     							#################
     							# == LEVEL 3 == #
     							#################
+                  my @l3_done;
     							my $level2_ID ;
     							if($feature_level2->has_tag('ID')){
     								$level2_ID = lc($feature_level2->_tag_value('ID'));
@@ -315,10 +296,9 @@ sub print_omniscient_from_level1_id_list {
     							# Before tss
     							if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
-
     									#_uri_encode_one_feature($feature_level3);
-
     									$gffout->write_feature($feature_level3);
+                      push @l3_done, 'tss';
     								}
     							}
 
@@ -326,20 +306,18 @@ sub print_omniscient_from_level1_id_list {
     							# FIRST EXON
     							if ( exists_keys($hash_omniscient,('level3','exon',$level2_ID)) ){
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
-
     									#_uri_encode_one_feature($feature_level3);
-
     									$gffout->write_feature($feature_level3);
+                      push @l3_done, 'exon';
     								}
     							}
     							###########
     							# SECOND CDS
     							if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID)) ){
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
-
     									#_uri_encode_one_feature($feature_level3);
-
     									$gffout->write_feature($feature_level3);
+                      push @l3_done, 'cds';
     								}
     							}
 
@@ -347,22 +325,19 @@ sub print_omniscient_from_level1_id_list {
     							# Last tts
     							if ( exists_keys($hash_omniscient,('level3','tts',$level2_ID)) ){
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
-
     									#_uri_encode_one_feature($feature_level3);
-
     									$gffout->write_feature($feature_level3);
+                      push @l3_done, 'tts';
     								}
     							}
 
     							###########
     							# The rest
-    							foreach my $primary_tag_key_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-    								if( ($primary_tag_key_level3 ne 'cds') and ($primary_tag_key_level3 ne 'exon') and ($primary_tag_key_level3 ne 'tss') and ($primary_tag_key_level3 ne 'tts')){
-    									if ( exists ($hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID} ) ){
+    							foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                    if (! grep { $_ eq $primary_tag_key_level3 } @l3_done){
+                      if ( exists ($hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID} ) ){
     										foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
-
     											#_uri_encode_one_feature($feature_level3);
-
     											$gffout->write_feature($feature_level3);
     										}
     									}
@@ -403,26 +378,48 @@ sub write_headers{
     $gffout->_print("##gff-version ".$gffout->gff_version()."\n");
 
     # Now we inject the header catched when parsing input file
-    if (exists_keys( $hash_omniscient, ('header') ) ){
+    if (exists_keys( $hash_omniscient, ('other', 'header') ) ){
       my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
-      print $gffXtra $hash_omniscient->{'header'};
+      foreach my $header_line ( @{$hash_omniscient->{'other'}{'header'} } ) {
+        print $gffXtra $header_line;
+      }
     }
     # to avoid to write again the header later in the file
     $gffout->{'_first'} = 0;
   }
 }
 
-sub list_top_features{
+sub write_seq_id_top_features_and_delete_them{
 
-  my @list_top_features;
-  my ($LEVEL1, $LEVEL2, $LEVEL3, $SPREADFEATURE) = load_levels();
-  foreach my $type (keys %{$LEVEL1}){
-    if ($LEVEL1->{$type} eq 'standalone'){
-      push @list_top_features, $type;
+  my ($gffout, $seqid, $hash_sortBySeq, $hash_omniscient ) = @_;
+
+  # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
+  my $top_features;
+   # get from omniscient
+  if (exists_keys ($hash_omniscient, ('other', 'level', 'topfeature') ) ){
+    $top_features = $hash_omniscient->{'other'}{'level'}{'topfeature'};
+  }
+  else{
+    my $hash = get_levels_info(); # get from the file
+    $top_features = $hash->{'other'}{'level'}{'topfeature'};
+    $hash_omniscient->{'other'}{'level'}{'topfeature'} = $top_features; # add in the omniscient to not read the data from file again
+  }
+
+  # Write first what could be at the top of each sequence
+  foreach my $type_top_feature ( keys %{$top_features}){
+
+    if (exists_keys( $hash_sortBySeq, ($seqid, $type_top_feature) ) ){
+
+      foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$type_top_feature}} ){
+        $gffout->write_feature($feature_l1); # print feature
+      }
+      # delete from $hash_sortBySeq to not loop again over those tags.
+      # Must not be deleted from hash omniscient!
+      delete $hash_sortBySeq->{$seqid}{$type_top_feature};
     }
   }
-  return \@list_top_features;
 }
+
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
 #				   || 					     webapollo compliant 					       ||

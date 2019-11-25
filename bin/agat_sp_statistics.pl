@@ -16,12 +16,14 @@ my $gff = undef;
 my $opt_output = undef;
 my $opt_genomeSize = undef;
 my $opt_plot = undef;
+my $opt_verbose = 0;
 my $opt_help= 0;
 
 if ( !GetOptions(
     "help|h"      => \$opt_help,
     'o|output=s'  => \$opt_output,
     'd|p'         => \$opt_plot,
+    'v|verbose'   => \$opt_verbose,
     'g|gs=s'      => \$opt_genomeSize,
     "gff|f=s"     => \$gff))
 
@@ -99,7 +101,7 @@ if($opt_plot){
 print "Reading file $gff\n";
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $gff,
-                                                               verbose => 1
+                                                               verbose => $opt_verbose
                                                                });
 print "Parsing Finished\n";
 ### END Parse GFF input #
@@ -262,6 +264,10 @@ This option inform about the genome size in oder to compute more statistics. You
 =item B<-d> or B<-p>
 
 When this option is used, an histogram of distribution of the features will be printed in pdf files. (d means distribution, p means plot).
+
+=item B<-v> or B<--verbose>
+
+Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
 
 =item B<--output> or B<-o>
 

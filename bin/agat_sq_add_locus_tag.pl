@@ -78,7 +78,9 @@ if(! $locus_tag){
 
 # Manage $primaryTag
 my @ptagList;
-my ($LEVEL1, $LEVEL2, $LEVEL3, $SPREADFEATURE) = load_levels();
+my $hash_levels= get_levels_info();
+my $hash_level1 = $hash_levels->{'other'}{'level'}{'level1'};
+
 if(! $primaryTag){
   print "We will work on attributes from all Level1 features.\n";
   push(@ptagList, "all");
@@ -86,12 +88,12 @@ if(! $primaryTag){
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-      if (exists($LEVEL1->{lc($tag)}) ){
+      if (exists($hash_level1->{lc($tag)}) ){
         print "We will work on attributes from <$tag> feature.\n";
       }
       else{
         print "<$tag> feature is not a level1 feature. Current accepted value are:\n";
-        foreach my $key ( keys %{$LEVEL1}){
+        foreach my $key ( keys %{$hash_level1}){
           print $key." ";
         }
         print "\n"; exit;
@@ -113,7 +115,7 @@ while (my $feature = $ref_in->next_feature() ) {
 
   my $ptag = lc($feature->primary_tag());
 
-  if ( exists($LEVEL1->{ $ptag }) ){
+  if ( exists($hash_level1->{ $ptag }) ){
 
     # initialize locus_tag
     if ( grep( /^$ptag/, @ptagList ) or   grep( /^all/, @ptagList ) ) {

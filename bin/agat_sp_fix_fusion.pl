@@ -121,20 +121,16 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 print ("Genome fasta parsed\n");
 
 ####################
-my $pseudo_threshold=70;
+
 #counters
-my $counter_case21=0;
 my $geneCounter=0;
-my $mRNACounter=0;
 my $mRNACounter_fixed=0;
-my $special_or_partial_mRNA=0;
 
 my %omniscient_modified_gene;
 my @intact_gene_list;
 
 # create the hash temp
-my %tmpOmniscientR;
-my $tmpOmniscient=\%tmpOmniscientR;
+my $tmpOmniscient={};
 my @mRNAlistToTakeCareR;
 my $mRNAlistToTakeCare=\@mRNAlistToTakeCareR;
 
@@ -143,8 +139,8 @@ my $TotalFeatureL1 = nb_feature_level1($hash_omniscient);
 my $featureChecked = 0;
 local $| = 1; # Or use IO::Handle; STDOUT->autoflush; Use to print progression bar
 
-foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
-  foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
+foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+  foreach my $gene_id ( keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
 
     #Display progression
     $featureChecked++;
@@ -161,10 +157,9 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     my $mrna_pseudo=0;
     my @list_mrna_pseudo;
     my $one_level2_modified; # check if one of the level2 feature will be modified
-    my $number_mrna=0;
 
     # COPY gene and subfeatures in tmpOmniscient.
-    %$tmpOmniscient = (); # empty the hash
+    $tmpOmniscient = {}; # empty the hash
     @$mRNAlistToTakeCare = (); # empty the list
     my @tmpListID=($gene_id);
     fill_omniscient_from_other_omniscient_level1_id(\@tmpListID,$hash_omniscient,$tmpOmniscient);
@@ -176,7 +171,6 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
           $PREFIX_CPT_MRNA=1;
 
           # get multiple info
-          $number_mrna=$#{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$gene_id}}+1;
           my $id_level2 = lc($level2_feature->_tag_value('ID'));
           push (@$mRNAlistToTakeCare,$id_level2);
 
@@ -208,7 +202,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
           }
           ##########################
           #If UTR not well defined #
-          if ( exists ($hash_omniscient->{'level3'}{'utr'}{$id_level2} ) ){
+          if ( exists_keys ($hash_omniscient, ('level3', 'utr', $id_level2) ) ){
             print "Sorry but we need to know which utr it is ... 5 or 3 ?\n";exit;
           }
 
@@ -224,9 +218,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
       }
       if($oneMRNAmodified){
         $geneCounter++;
-        $mRNACounter=$mRNACounter+$number_mrna; #add all the mRNA if at least one modified
+        $oneMRNAmodified=undef;
         #save remodelate gene name
-
         merge_omniscients(\%omniscient_modified_gene, $tmpOmniscient);
       }
       else{push(@intact_gene_list, $gene_id);}
@@ -242,13 +235,11 @@ else{print "\rProgress : 100 %\n"; }
 fil_cds_frame(\%omniscient_modified_gene, $db, $opt_codonTableID);
 fil_cds_frame($hash_omniscient, $db, $opt_codonTableID);
 
-
 #####################################
 # Manage modified gene to be sure they not overlap already existing gene. If yes => we give the same gene ID and remove one.
 print "Managing spurious labelling at gene level\n";
 # 1) create a hash omniscient intact
-my %hash_omniscient_intactR;
-my $hash_omniscient_intact=\%hash_omniscient_intactR;
+my $hash_omniscient_intact={};
 fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list,$hash_omniscient,$hash_omniscient_intact);
 delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
@@ -259,32 +250,38 @@ print_omniscient($hash_omniscient_intact, $gffout); #print intact gene to the fi
 # 3) Sort by seq_id - review all newly created gene
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id_and_strand($hash_omniscient_intact);
 my $overlap=0;
-foreach my $tag_l1 (keys %{$omniscient_modified_gene{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
-    foreach my $id_l1 (keys %{$omniscient_modified_gene{'level1'}{$tag_l1}} ) {
+
+foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
+  foreach my $id_l1 ( keys %{$omniscient_modified_gene{'level1'}{$tag_l1}} ) {
+    #find_overlap_between_geneFeature_and_sortBySeqId can remove the level1 ID so we have to check it is still present
+    if( exists_keys ( \%omniscient_modified_gene, ('level1', $tag_l1, $id_l1 ) ) ){
       my $geneFeature = $omniscient_modified_gene{'level1'}{$tag_l1}{$id_l1};
       if (find_overlap_between_geneFeature_and_sortBySeqId($geneFeature, \%omniscient_modified_gene, $hash_omniscient_intact, $hash_sortBySeq) ){
         $overlap++
       }
     }
+  }
 }
 
 # 4) special case where two newly created gene from to different gene are overlapping
 # Be careful If you by testing 2 identical omniscient, the method could remove element haven't yet been loop over. So check the gene exists before to analyse it !
 $hash_sortBySeq = gather_and_sort_l1_by_seq_id_and_strand(\%omniscient_modified_gene);
-foreach my $tag_l1 (keys %{$omniscient_modified_gene{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
-    foreach my $id_l1 (keys %{$omniscient_modified_gene{'level1'}{$tag_l1}} ) {
 
-      if( exists_keys( \%omniscient_modified_gene, ('level1', $tag_l1, $id_l1 ) ) ) {
-        my $geneFeature = $omniscient_modified_gene{'level1'}{$tag_l1}{$id_l1};
-        if (find_overlap_between_geneFeature_and_sortBySeqId($geneFeature, \%omniscient_modified_gene, \%omniscient_modified_gene, $hash_sortBySeq) ){
-          $overlap++
-        }
+foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
+  foreach my $id_l1 ( keys %{$omniscient_modified_gene{'level1'}{$tag_l1}} ) {
+    if( exists_keys( \%omniscient_modified_gene, ('level1', $tag_l1, $id_l1 ) ) ) {
+      my $geneFeature = $omniscient_modified_gene{'level1'}{$tag_l1}{$id_l1};
+      if (find_overlap_between_geneFeature_and_sortBySeqId($geneFeature, \%omniscient_modified_gene, \%omniscient_modified_gene, $hash_sortBySeq) ){
+        $overlap++
       }
     }
+  }
 }
 
 # 5) Print modified genes
 print "print modified...\n";
+if (exists_undef_value(\%omniscient_modified_gene)){print"there is an undef value";exit;}
+
 print_omniscient(\%omniscient_modified_gene, $gffout2); #print gene modified in file
 
 # 6) Print all together
@@ -365,7 +362,7 @@ sub merge_omniscients_fuse_l1duplicates {
   return $hash_omniscient1;
 }
 
-# @Purpose: The hash of reference will be the Hash target (HashT). The nkept name will come from the hash of reference.
+# @Purpose: The hash of reference will be the Hash target (HashT). The kept name will come from the hash of reference.
 # When an overlap is found, the ID/parent are fixed and we return 1 as a success !
 # @input: 4 => object(gene feature), hash(omniscient), hash(omniscient), hash(sortBySeq)
 # @output: 1 => undef || integer(1)
@@ -381,91 +378,93 @@ sub find_overlap_between_geneFeature_and_sortBySeqId {
   my $total_overlap=0;
   my $nb_feat_overlap=0;
   my @ListOverlapingGene=();
-    foreach my $gene_featureT ( @{$hashT_sortBySeq->{"$seqid$strand"}{$tag}}){
 
-      my $gene_idT = $gene_featureT->_tag_value('ID');
+  foreach my $gene_featureT ( @{$hashT_sortBySeq->{"$seqid$strand"}{$tag}}){
 
+    my $gene_idT = $gene_featureT->_tag_value('ID');
 
-      if($gene_idT eq $gene_idS){ next;} # avoid to compare same feature if we are checking same omniscient
+    if($gene_idT eq $gene_idS){ next;} # avoid to compare same feature if we are checking same omniscient
 
-      my ($start1,$end1) = get_most_right_left_cds_positions($hashT,$gene_idT); # look at CDS because we want only ioverlapinng CDS
-      my ($start2,$end2) = get_most_right_left_cds_positions($hash_source,$gene_idS); # look at CDS becaus ewe want only ioverlapinng CDS
+    my ($start1,$end1) = get_most_right_left_cds_positions($hashT,$gene_idT); # look at CDS because we want only overlapinng CDS
+    if( !$start1 or !$end1){next;} # No cds so no cds locations
+    my ($start2,$end2) = get_most_right_left_cds_positions($hash_source,$gene_idS); # look at CDS becaus we want only ioverlapinng CDS
+    if( !$start2 or !$end2){next;} # No cds so no cds locations
 
-      if( ($start2 <= $end1) and ($end2 >= $start1) ){ #feature overlap considering extrem start and extrem stop. It's just to optimise the next step. Avoid to do the next step every time. So at the end, that test (current one) could be removed
-                                                       # Even if true, they do not necessarly overlap on the spreded features
-            #now check at each CDS feature independently
-            if (_two_features_overlap_two_hashes($hash_source,$gene_idS, $hashT, $gene_idT)){
-              #print "These two features overlap without same id ! :\n".$geneFeature->gff_string."\n".$gene_featureT->gff_string."\n";
-              $nb_feat_overlap++;
+    if( ($start2 <= $end1) and ($end2 >= $start1) ){ #feature overlap considering extrem start and extrem stop. It's just to optimise the next step. Avoid to do the next step every time. So at the end, that test (current one) could be removed
+                                                     # Even if true, they do not necessarly overlap on the spreded features
+          #now check at each CDS feature independently
+          if (_two_features_overlap_two_hashes($hash_source,$gene_idS, $hashT, $gene_idT)){
+            #print "These two features overlap without same id ! :\n".$geneFeature->gff_string."\n".$gene_featureT->gff_string."\n";
+            $nb_feat_overlap++;
 
-              push(@ListOverlapingGene, $gene_featureT);
-            }
+            push(@ListOverlapingGene, $gene_featureT);
+          }
+      }
+  }
+
+   # Now manage name if some feature overlap
+  if( $nb_feat_overlap > 0){
+    my $reference_feature = shift(@ListOverlapingGene);
+      push(@ListOverlapingGene, $geneFeature);
+      #print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n";
+      #print "We decided to keep that one: ".$reference_feature->gff_string."\n";
+
+      my $gene_id_ref  = $reference_feature->_tag_value('ID');
+
+      #change level2 parent for feature of level2 that have a feature of level1 in $ListToRemove list
+      foreach my $featureToRemove (@ListOverlapingGene){
+
+        my $gene_id_to_remove  = lc($featureToRemove->_tag_value('ID'));
+
+        #######
+        #which hash the feature come from ?
+        my $currentHash=undef;
+        foreach my $tag_l1 (keys %{$hash_source->{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
+        if($hash_source->{'level1'}{$tag_l1}{$gene_id_to_remove} ){
+          $currentHash = $hash_source;
         }
-    }
+      }
+      if(! $currentHash){$currentHash = $hashT;}
+      # ok now hash is choosen
+      ################
 
-     # Now manage name if some feature overlap
-    if( $nb_feat_overlap > 0){
-      my $reference_feature = shift(@ListOverlapingGene);
-        push(@ListOverlapingGene, $geneFeature);
-        #print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n";
-        #print "We decided to keep that one: ".$reference_feature->gff_string."\n";
+        foreach my $tag_level2 (keys %{$currentHash->{'level2'}}){
 
-        my $gene_id_ref  = $reference_feature->_tag_value('ID');
+            if (exists_keys($currentHash, ('level2',$tag_level2,$gene_id_to_remove)) ){ # check if they have cds avoiding autovivification.
 
-        #change level2 parent for feature of level2 that have a feature of level1 in $ListToRemove list
-        foreach my $featureToRemove (@ListOverlapingGene){
+            my @list_tmp_features = @{$currentHash->{'level2'}{$tag_level2}{$gene_id_to_remove}}; # As we will remove element of the list we cannot loop over it directly, we have to save the list in a temporary list;
+            foreach my $level2_feature (@list_tmp_features){ #replace Parent of each feature level2 by the new level1 reference
+              # Change parent feature
+              create_or_replace_tag($level2_feature,'Parent',$gene_id_ref);
 
-          my $gene_id_to_remove  = lc($featureToRemove->_tag_value('ID'));
+              #add it in other list
+              push (@{$currentHash->{'level2'}{$tag_level2}{lc($gene_id_ref)}},$level2_feature);
 
-          #######
-          #which hash the feature come from ?
-          my $currentHash=undef;
-          foreach my $tag_l1 (keys %{$hash_source->{'level1'}} ){ # primary_tag_key_level1 = gene or repeat etc...
-          if($hash_source->{'level1'}{$tag_l1}{$gene_id_to_remove} ){
-            $currentHash = $hash_source;
-          }
-        }
-        if(! $currentHash){$currentHash = $hashT;}
-        # ok now hash is choosen
-        ################
+              #remove mRNA from list <= not mandatory
+              my $mrna_id_to_remove = $level2_feature->_tag_value('ID');
+              my @tag_list=('all');
+              my @id_list=($gene_id_to_remove);my @id_list2=($mrna_id_to_remove);
 
-          foreach my $tag_level2 (keys %{$currentHash->{'level2'}}){
+              remove_element_from_omniscient(\@id_list, \@id_list2, $currentHash, 'level2', 'false', \@tag_list);
 
-              if (exists_keys($currentHash, ('level2',$tag_level2,$gene_id_to_remove)) ){ # check if they have cds avoiding autovivification.
-
-              my @list_tmp_features = @{$currentHash->{'level2'}{$tag_level2}{$gene_id_to_remove}}; # As we will remove element of the list we cannot loop over it directly, we have to save the list in a temporary list;
-              foreach my $level2_feature (@list_tmp_features){ #replace Parent of each feature level2 by the new level1 reference
-                # Change parent feature
-                create_or_replace_tag($level2_feature,'Parent',$gene_id_ref);
-
-                #add it in other list
-                push (@{$currentHash->{'level2'}{$tag_level2}{lc($gene_id_ref)}},$level2_feature);
-
-                #remove mRNA from list <= not mandatory
-                my $mrna_id_to_remove = $level2_feature->_tag_value('ID');
-                my @tag_list=('all');
-                my @id_list=($gene_id_to_remove);my @id_list2=($mrna_id_to_remove);
-
-                remove_element_from_omniscient(\@id_list, \@id_list2, $currentHash, 'level2', 'false', \@tag_list);
-
-              }
             }
           }
+        }
 
-          foreach my $tag_level1 (keys %{$currentHash->{'level1'}}){ # remove the old feature level1 now
-            my $new_l1_feature = clone($reference_feature);
-            delete $currentHash->{'level1'}{$tag_level1}{$gene_id_to_remove}; # delete level1
-            $currentHash->{'level1'}{$tag_level1}{lc($gene_id_ref)} = $new_l1_feature;
-          }
+        foreach my $tag_level1 (keys %{$currentHash->{'level1'}}){ # remove the old feature level1 now
+          my $new_l1_feature = clone($reference_feature);
+          delete $currentHash->{'level1'}{$tag_level1}{$gene_id_to_remove}; # delete level1
+          $currentHash->{'level1'}{$tag_level1}{lc($gene_id_ref)} = $new_l1_feature;
+        }
 
-        } #END FEATURE TO HANDLE
-        ###
-        # check end and start of the new feature
-        my $gene_id=lc($reference_feature->_tag_value('ID'));
-        check_gene_positions($hashT, $gene_id);
-        return 1;
-    }
-    else{return undef;}
+      } #END FEATURE TO HANDLE
+      ###
+      # check end and start of the new feature
+      my $gene_id=lc($reference_feature->_tag_value('ID'));
+      check_gene_positions($hashT, $gene_id);
+      return 1;
+  }
+  else{return undef;}
 }
 
 # @Purpose: Check if two genes have at least one mRNA isoform which overlap at cds level.
@@ -522,7 +521,7 @@ sub take_care_utr{
 
               if($mRNAtoTakeCare eq $id_level2){ # ok is among the list of those to analyze
                 if($verbose) { print "id_level2 -- $id_level2 ***** to take_care -- $mRNAtoTakeCare  \n";}
-                if(exists ($tmpOmniscient->{'level3'}{$utr_tag}) and exists ($tmpOmniscient->{'level3'}{$utr_tag}{$id_level2}) ){
+                if(exists_keys ($tmpOmniscient, ('level3', $utr_tag) ) and exists_keys ($tmpOmniscient, ('level3', $utr_tag,$id_level2) ) ){
 
                   ##################################################
                   # extract the concatenated exon and cds sequence #
@@ -773,6 +772,7 @@ sub split_gene_model{
                   if ( $new_gene ){
                     $newcontainerUsed++;
                     $gene_id = take_care_gene_id($gene_id, $tmpOmniscient);
+
                     my $new_gene_feature = Bio::SeqFeature::Generic->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'gene' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -frame => $newPred_exon_list->[0]->frame, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $gene_id }) ;
                     @level1_list=($new_gene_feature);
                     #print "create_a_new_gene for ".$transcript_id." !!!! - ".$new_gene_feature->gff_string."\n";
