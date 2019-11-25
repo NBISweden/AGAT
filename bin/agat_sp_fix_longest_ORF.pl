@@ -399,7 +399,7 @@ print "print modified...\n";
 print_omniscient(\%omniscient_modified_gene, $gffout2); #print gene modified in file
 
 # create a hash containing everything
-print "print all with name of overlaping features resolved...\n";
+print "print all with name of overlapping features resolved...\n";
 my $hash_all = subsample_omniscient_from_level1_id_list($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
 _check_overlap_name_diff($hash_all, undef, $verbose);
@@ -413,17 +413,17 @@ my $string_to_print="usage: $0 @copyARGV\nCodon table used:".$codonTable."\n";
 $string_to_print .="Results:\n";
 $string_to_print .= "$geneCounter genes have been modified. These genes have  $mRNACounter mRNA, and we fixed the ORF of $mRNACounter_fixed of them.\n";
 if (exists ($ListModel{1})){
-  $string_to_print .= "$ListModel{1} model1: Prediction(s) contains the orignal prediction but is longer.\n";
+  $string_to_print .= "$ListModel{1} model1: Prediction contains the orignal prediction but is longer.\n";
 }
 if (exists ($ListModel{2})){
-  $string_to_print .= "$ListModel{2} model2: Longest ORF found non-overlaping the original one.";
+  $string_to_print .= "$ListModel{2} model2: Longer prediction found non-overlapping the original one.";
   if ($split_opt){
-    $string_to_print .= " Thus, sequences have been split en two different genes (Consequently $ListModel{2} new genes has been created";
+    $string_to_print .= " split option activate: the sequence is split in two different genes (Consequently $ListModel{2} new genes has been created)";
     }
      $string_to_print .= "\n";
 }
 if (exists ($ListModel{3})){
-  $string_to_print .= "$ListModel{3} model3: sequences have been re-shaped/re-modeled (Longest ORF found overlaping the original one but doesn't contain it.)\n";
+  $string_to_print .= "$ListModel{3} model3: Longer prediction found overlapping the original one but doesn't contain it(frame different).\n";
 }
 if (exists ($ListModel{4})) {
   $string_to_print .="$ListModel{4} model4: The prediction is shorter due to the presence of stop codon in the original CDS.\n";
@@ -510,7 +510,7 @@ sub modify_gene_model{
 
 }
 ############ /!\
-# P.S: To be perfect, when a gene is newly created, we should verify if it is not created where another one has already been created. If yes, the should be linked together !!
+# P.S: To be perfect, when a gene is newly created, we should verify if it is not created where another one has already been created. If yes, they should be linked together !!
 ############
 sub split_gene_model{
 
@@ -1154,7 +1154,7 @@ sub _check_overlap_name_diff{
           if($overlap){
 
             #let's check at CDS level
-            if(check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , lc($id_l1), lc($id2_l1) )){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
+            if(check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , lc($id_l1), lc($id2_l1) )){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlapping is sufficient to decide to merge the level1 together
               #they overlap in the CDS we should give them the same name
               $resume_case++;
 
@@ -1363,7 +1363,7 @@ Model6 = The prediction is same size but not correct frame (+1 or +2 bp gives fr
 
 =item B<-s> or B<--split>
 
-This option is usefull for Model2. Indeed when the prediction is non overlaping the original cds, it is possible to split the gene into two different genes. By default we don't split it.
+This option is usefull for Model2. Indeed when the prediction is non overlapping the original cds, it is possible to split the gene into two different genes. By default we don't split it.
 We keep the longest. If you want to split it type: -s
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
