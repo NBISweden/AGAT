@@ -1,6 +1,7 @@
 
 AGAT [![Build Status](https://travis-ci.org/NBISweden/AGAT.svg?branch=master)](https://travis-ci.org/NBISweden/AGAT)
 [![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg?branch=coveralls)](https://coveralls.io/github/NBISweden/AGAT?branch=coveralls)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3549547.svg)](https://doi.org/10.5281/zenodo.3549547)
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
@@ -13,11 +14,18 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 ## Table of Contents
 
    * Another Gff Analysis Toolkit (AGAT)
-      * [What AGAT can do for you?](#what-agat-can-do-for-you?)
-      * [Prerequisites](#prerequisites)
-      * [Installation](#installation)
-      * [Update](#update)
-      * [Uninstall](#uninstall)
+      * [What AGAT can do for you?](#what-agat-can-do-for-you)
+      * [Installation](#installation)  
+          * [Using bioconda](using-bioconda)
+             * [Install](#install)
+             * [Update](#update)
+             * [Uninstall](#uninstall)
+          * [Old school](#old-school)
+             * [Prerequisites](#prerequisites)
+             * [Install](#install-1)
+             * [Update](#update-1)
+             * [Uninstall](#uninstall-1)
+             * [Change to a specific version](#change-to-a-specific-version)
       * [Usage](#usage)
       * [List of tools](#list-of-tools)
       * [More about the tools](#more-about-the-tools)
@@ -63,7 +71,31 @@ Some example **what AGAT can do**:
     * convert into tabulated format: `agat_sp_to_tabulated.pl`  
     * ...
 
-## Prerequisites
+
+## Installation
+
+### Using bioconda
+
+#### Install
+
+  ```
+  conda install agat
+  ```
+  
+#### Update
+
+  ```
+  conda update agat
+  ```
+  
+#### Uninstall
+  ```
+  conda uninstall agat  
+  ```
+
+### Old school
+
+#### Prerequisites
   * R
   * Perl
     Perl >= 5.8, and a list of perl modules that can be installed using cpan, cpanm or conda:
@@ -87,8 +119,7 @@ Some example **what AGAT can do**:
     conda activate agat
     ```
 
-
-## Installation
+#### Install
 
   ```
   git clone https://github.com/NBISweden/AGAT.git # Clone AGAT
@@ -103,7 +134,7 @@ Some example **what AGAT can do**:
 
 **Remark**: On MS Windows, instead of make you'd probably have to use dmake or nmake depending the toolchain you have.
 
-## Update  
+#### Update  
 From the folder where the repository is located.
 
   ```
@@ -115,7 +146,7 @@ From the folder where the repository is located.
   make install                                    # Install
   ```
 
-## Change to a specific conversion
+#### Change to a specific version
 From the folder where the repository is located.  
 
   ```
@@ -128,7 +159,7 @@ From the folder where the repository is located.
   make install                                    # Install
   ```
 
-## UnInstall
+#### Uninstall
 
   ```
   perl uninstall_AGAT
