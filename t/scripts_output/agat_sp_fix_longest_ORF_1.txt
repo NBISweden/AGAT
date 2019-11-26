@@ -1,13 +1,13 @@
 usage: bin/agat_sp_fix_longest_ORF.pl --gff t/scripts_output/1.gff --fasta t/scripts_output/1.fa -o tmp.gff
-Codon table used:0
+Codon table used:1
 Results:
-14 genes have been modified. These genes have  20 mRNA, and we fixed the ORF of 15 of them.
-0 model1: Prediction contains the orignal prediction but is longer.
-1 model2: Longer prediction found non-overlapping the original one.
-2 model3: Longer prediction found overlapping the original one but doesn't contain it(frame different).
+26 genes have been modified. These genes have  34 mRNA, and we fixed the ORF of 28 of them.
+11 model1: Prediction contains the orignal prediction but is longer.
+2 model2: Longer prediction found non-overlapping the original one.
+4 model3: Longer prediction found overlapping the original one but doesn't contain it(frame different).
 0 model4: The prediction is shorter due to the presence of stop codon in the original CDS.
-12 model5: The prediction is shorter but the original CDS sequence has not premature stop codonThe original CDS does not start by a start codon, it is probably incomplete or fragmented (begining or finishing by NNNN or XXXX). The prediction is probably shorter because it is forced to use a start codon.
-0 model6: The prediction is the same size (AA size) but the original CDS has premature stop codons while the prediction not. This is a particular case where a +1 or +2 bp shift at the beginning of the sequencethat gives frame shifts in the original sequence but they are removed for the new prediction. 
+11 model5: The prediction is shorter but the original CDS sequence has not premature stop codonThe original CDS does not start by a start codon, it is probably incomplete or fragmented (begining or finishing by NNNN or XXXX). The prediction is probably shorter because it is forced to use a start codon.
+0 model6: The prediction is the same size (AA size) but the original CDS has premature stop codons while the prediction not. This is a particular case where a +1 or +2 bp shift at the beginning of the sequencethat gives frame shifts in the original sequence but they are removed for the new prediction.
 
 /!\Remind:
  L and M are AA are possible start codons for standard codon table.

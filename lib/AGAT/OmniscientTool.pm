@@ -9,10 +9,11 @@ use Bio::Seq;
 use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
+use AGAT::Utilities;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions remove_l2_related_feature l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame exists_keys remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
+our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions remove_l2_related_feature l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -1142,43 +1143,6 @@ sub info_omniscient {
 	foreach my $tag (keys %resu){
 		print "There is $resu{$tag} $tag\n";
 	}
-}
-
-#check if reference exists in hash. Deep infinite : hash{a} or hash{a}{b} or hash{a}{b}{c}, etc.
-# usage example: exists_keys($hash_omniscient,('level3','cds',$level2_ID)
-sub exists_keys {
-    my ($hash, @keys) = @_;
-
-    for my $key (@keys) {
-    	if (ref $hash ne 'HASH' or ! exists $hash->{$key}) {
-    		return '';
-    	}
-		  $hash = $hash->{$key};
-    }
-    return 1;
-}
-
-
-# @Purpose: check if a value is undef in hash recursively (potentialy due to autovivification)
-# @input: 1 =>  hash reference
-# @output 1 => bolean
-sub exists_undef_value {
-    my ($hash) = @_;
-
-    if (ref $hash ne 'HASH'){ print "It is not a hash you provided\n";return ''; }
-    my $result = undef;
-
-    foreach my $key (keys %{$hash}) {
-      if (ref $hash->{$key} eq 'HASH'){
-        if ( exists_undef_value($hash->{$key})){return 1;};
-      }
-      else{
-		    if(! defined $hash->{$key}){
-          return 1;
-        }
-      }
-    }
-    return '';
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)

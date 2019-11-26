@@ -7,6 +7,7 @@ use warnings;
 use Exporter;
 use Bio::Tools::GFF;
 use Statistics::R;
+use AGAT::Utilities;
 
 our @ISA         = qw(Exporter);
 our @EXPORT   = qw(execute_R_command rcc_density_one_row_per_file rcc_plot_from_list);

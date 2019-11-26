@@ -26,7 +26,7 @@ my $header = get_agat_header();
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
-my $opt_codonTableID=0;
+my $opt_codonTableID=1;
 my $stranded=undef;
 my $threshold=undef;
 my $verbose=undef;
@@ -86,12 +86,9 @@ else{
   $gffout4 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
-if($opt_codonTableID<0 and $opt_codonTableID>25){
-  print "$opt_codonTableID codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
-else{
-  print "We will use the codon table ".$opt_codonTableID.". If it is not what you want please stop the tool and use the --table option. \n";
-}
+$opt_codonTableID = get_proper_codon_table($opt_codonTableID);
+print "Codon table ".$opt_codonTableID." in use. You can change it using --table option.\n";
+
 
 if(!$threshold){
   $threshold=100;
@@ -556,7 +553,7 @@ sub take_care_utr{
                   # Get the longest ORF positive ## record ORF = start, end (half-open), length, and frame
                   my ($longest_ORF_prot_obj_p, $orf_utr_region_p) = translate_JD($utr_obj,
                                                                               -orf => 'longest',
-                                                                              -codontable => $opt_codonTableID);
+                                                                              -codontable_id => $opt_codonTableID);
                   ########################################
                   # Get the longest ORF opposite strand ## record ORF = start, end (half-open), length, and frame
                   my $length_longest_ORF_prot_obj_n=0;
@@ -566,7 +563,7 @@ sub take_care_utr{
                   if(! $stranded){
                     ($longest_ORF_prot_obj_n, $orf_utr_region_n) = translate_JD($opposite_utr_obj,
                                                                                 -orf => 'longest',
-                                                                                -codontable => $opt_codonTableID);
+                                                                                -codontable_id => $opt_codonTableID);
                     $length_longest_ORF_prot_obj_n = $longest_ORF_prot_obj_n->length();
                   }
 

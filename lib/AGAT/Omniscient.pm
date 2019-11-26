@@ -10,6 +10,7 @@ use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientStat;
+use AGAT::Utilities;
 use AGAT::PlotR;
 
 our $VERSION     = "v0.0.2";

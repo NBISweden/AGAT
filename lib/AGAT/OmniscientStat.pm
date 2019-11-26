@@ -7,6 +7,7 @@ use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;;
 use AGAT::OmniscientTool;
+use AGAT::Utilities;
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( gff3_statistics );

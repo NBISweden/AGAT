@@ -31,7 +31,7 @@ my $gff = undef;
 my $model_to_test = undef;
 my $file_fasta=undef;
 my $split_opt=undef;
-my $codonTable=0;
+my $codonTable=1;
 my $verbose = undef;
 my $opt_help= 0;
 
@@ -66,12 +66,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
-if($codonTable<0 and $codonTable>25){
-  print "$codonTable codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
-else{
-  print "We will use the codon table ".$codonTable.". If it is not what you want please stop the tool and use the --table option. \n";
-}
+$codonTable = get_proper_codon_table($codonTable);
+print "Codon table ".$codonTable." in use. You can change it using --table option.\n";
 
 ######################
 # Manage output file #

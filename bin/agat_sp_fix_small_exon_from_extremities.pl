@@ -53,9 +53,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
-if($codonTableId<0 and $codonTableId>25){
-  print "$codonTableId codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
+$codonTableId = get_proper_codon_table($codonTableId);
+print "Codon table ".$codonTableId." in use. You can change it using --table option.\n";
 
 ######################
 # Manage output file #

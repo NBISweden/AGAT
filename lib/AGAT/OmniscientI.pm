@@ -17,6 +17,7 @@ use Bio::OntologyIO::obo;
 use Clone 'clone';
 use Exporter;
 use AGAT::OmniscientTool;
+use AGAT::Utilities;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format check_mrna_positions

@@ -11,7 +11,6 @@ use AGAT::Omniscient;
 
 my $start_run = time();
 my $header = get_agat_header();
-my $codonTableId=1;
 my $PROT_LENGTH = 100;
 my $file_fasta=undef;
 my $outfile = undef;
@@ -27,7 +26,6 @@ if ( !GetOptions(
     "g|gff=s" => \$gff,
     't|test=s'            => \$opt_test,
     "size|s=i" => \$PROT_LENGTH,
-    "table|codon|ct=i" => \$codonTableId,
     "v!" => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
@@ -53,9 +51,6 @@ if ( ! (defined($gff)) ){
 
 ######################
 # Option check
-if($codonTableId<0 and $codonTableId>25){
-  print "$codonTableId codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
 if($opt_test){
   if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "=="){
     print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.";exit;
@@ -242,10 +237,6 @@ Input GTF/GFF file.
 =item B<-s> or B<--size>
 
 ORF size to apply the test. Default 100.
-
-=item B<--ct> or B<--table> or B<--codon>
-
-This option allows specifying the codon table to use - It expects an integer (1 by default = standard)
 
 =item B<-t> or B<--test>
 Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.

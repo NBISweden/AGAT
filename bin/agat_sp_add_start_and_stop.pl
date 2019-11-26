@@ -63,12 +63,8 @@ else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
-if($codon_table_id<0 and $codon_table_id>25){
-  print "$codon_table_id codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 might be problematic !)\n";
-}
-else{
-  print "We will use the codon table $codon_table_id. If it is not what you want please stop the tool and use the --table option. \n";
-}
+$codon_table_id = get_proper_codon_table($codon_table_id);
+print "Codon table ".$codon_table_id." in use. You can change it using --table option.\n";
 my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id);
 # #####################################
 # # END Manage OPTION

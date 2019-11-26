@@ -9,6 +9,7 @@ use Bio::Tools::GFF;
 use URI::Escape;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientI;
+use AGAT::Utilities;
 use Exporter;
 
 our @ISA = qw(Exporter);
