@@ -6,7 +6,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)  
 AGAT 
 =========================================
-<h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
+<h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
 [<img align="right" src="NBIS.png" width="200" height="100" />](https://nbis.se)
