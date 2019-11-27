@@ -1,7 +1,9 @@
 [![Build Status](https://travis-ci.org/NBISweden/AGAT.svg?branch=master)](https://travis-ci.org/NBISweden/AGAT)
 [![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg?branch=coveralls)](https://coveralls.io/github/NBISweden/AGAT?branch=coveralls)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
-[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)  
+[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
+[<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)  
 AGAT 
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
@@ -65,7 +67,7 @@ Some example **what AGAT can do**:
     * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
     * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
     * create introns features: `agat_sp_add_introns.pl`  
-    * fix cds frames: `agat_sp_fix_cds_frame.pl`  
+    * fix cds phases: `agat_sp_fix_cds_frame.pl`  
     * extract attributes: `agat_sp_extract_attributes.pl`  
     * manage IDs: `agat_sp_manage_IDs.pl`  
     * convert into tabulated format: `agat_sp_to_tabulated.pl`  
