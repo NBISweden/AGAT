@@ -67,7 +67,7 @@ Some example **what AGAT can do**:
     * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
     * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
     * create introns features: `agat_sp_add_introns.pl`  
-    * fix cds frames: `agat_sp_fix_cds_frame.pl`  
+    * fix cds phases: `agat_sp_fix_cds_frame.pl`  
     * extract attributes: `agat_sp_extract_attributes.pl`  
     * manage IDs: `agat_sp_manage_IDs.pl`  
     * convert into tabulated format: `agat_sp_to_tabulated.pl`  
