@@ -6,7 +6,6 @@ use Getopt::Long;
 use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
-use File::Basename;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 

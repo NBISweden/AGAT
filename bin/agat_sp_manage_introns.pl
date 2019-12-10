@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use POSIX qw(strftime);
-use File::Basename;
 use Carp;
 use Getopt::Long;
 use IO::File;
@@ -124,9 +123,6 @@ my %introns;
 foreach my $file (@opt_files){
 
   print "Reading ".$file,"\n";
-
-  # parse file name te remove extension
-  my ($file1,$dir1,$ext1) = fileparse($file, qr/\.[^.]*/);
 
   ######################
   ### Parse GFF input #

@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use File::Basename;
 use Getopt::Long;
 use Statistics::R;
 use Pod::Usage;

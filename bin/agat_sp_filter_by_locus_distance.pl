@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use Carp;
-use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);

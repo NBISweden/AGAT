@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use File::Basename;
 use Getopt::Long;
 use Statistics::R;
 use Pod::Usage;
@@ -59,7 +58,7 @@ print "Codon table ".$codonTableId." in use. You can change it using --table opt
 ######################
 # Manage output file #
 my $gffout;
-#my $gffout4;
+
 if ($outfile) {
 open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
