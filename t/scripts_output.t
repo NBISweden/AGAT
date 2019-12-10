@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 28;
+use Test::More tests => 31;
 
 =head1 DESCRIPTION
 
@@ -35,7 +35,6 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
 
 # -------------------------- check agat_sp_add_start_and_stop --------------------------
 $script = $script_prefix."bin/agat_sp_add_start_and_stop.pl";
@@ -77,7 +76,12 @@ unlink $outtmp;
 
 # --------check agat_sp_extract_attributes.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_extract_attributes.pl";
+$result = "$output_folder/agat_sp_extract_attributes_1.txt";
+system(" $script --gff $output_folder/1.gff --att protein_id -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result ${outprefix}_protein_id.gff") == 0, "output $script");
+unlink $outprefix."_protein_id.gff";
 
 # --------check agat_sp_extract_sequences.pl-------------
 
@@ -87,20 +91,6 @@ system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outt
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
-# --------check agat_sp_extract_attributes.pl.pl-------------
-
-# XXX
-
-# --------check agat_sp_filter_by_ORF_size.pl-------------
-# /!\ Two outputs with difficult characters as > <
-#$script = $script_prefix."bin/agat_sp_filter_by_ORF_size.pl";
-#$result = "$output_folder/agat_sp_filter_by_ORF_size\>100.gff";
-#$result2 = "$output_folder/agat_sp_filter_by_ORF_size_NOT>100.gff";
-#system(" $script --gff $output_folder/1.gff -o $outtmp ");
-#run test
-#ok( system("diff $result $outprefix\>100.gff") == 0, "output $script");
-#unlink $outtmp;
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
 $script = $script_prefix."bin/agat_sp_filter_by_locus_distance.pl";
@@ -112,6 +102,27 @@ unlink $outtmp;
 # --------check agat_sp_filter_by_mrnaBlastValue.pl-------------
 
 # XXX
+
+# --------check agat_sp_filter_by_ORF_size.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_by_ORF_size.pl";
+$result = "$output_folder/agat_sp_filter_by_ORF_size_sup100.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result ${outprefix}_sup100.gff") == 0, "output $script");
+unlink $outprefix."_sup100.gff";
+unlink  $outprefix."_NOT_sup100.gff";
+
+# --------check agat_sp_filter_feature_by_attribute_value.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
+$result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp --value Os01t0100100-01 -p level3 -a protein_id 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+system("cp $outtmp test10.gff");
+unlink $outtmp;
+system("cp ${outprefix}_discarded.txt test10_discarded.txt");
+unlink $outprefix."_discarded.txt";
+system("cp ${outprefix}_report.txt test10_report.txt");
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------
 
