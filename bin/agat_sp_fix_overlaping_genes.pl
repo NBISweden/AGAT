@@ -42,8 +42,7 @@ if ( ! (defined($ref)) ){
 # Manage output file #
 my $gffout;
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
+  open(my $fh, '>', $outfile) or die "Could not open file $outfile $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 }
 else{
