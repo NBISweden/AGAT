@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use File::Basename;
 use Pod::Usage;
 use Getopt::Long;
 use Bio::SeqIO ;
@@ -51,8 +50,7 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 
 my $ostream;
 if ($opt_output_fasta) {
-  my ($output_fasta, $dirs, $suffix) = fileparse($opt_output_fasta,qr/\.[^.]*/); #remove extension
-  open(my $fh, '>', "$output_fasta$suffix") or die "Could not open file '$output_fasta' $!";
+  open(my $fh, '>', $opt_output_fasta) or die "Could not open file $opt_output_fasta $!";
   $ostream= Bio::SeqIO->new(-fh => $fh, -format => 'Fasta' );
 }
 else{
@@ -61,8 +59,7 @@ else{
 
 my $gffout;
 if ($opt_output_gff) {
-  my ($opt_output_gff, $dirs, $suffix) = fileparse($opt_output_gff,qr/\.[^.]*/); #remove extension
-  open(my $fh, '>', "$opt_output_gff$suffix") or die "Could not open file '$opt_output_gff' $!";
+  open(my $fh, '>', $opt_output_gff) or die "Could not open file $opt_output_gff $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
   }
 else{
