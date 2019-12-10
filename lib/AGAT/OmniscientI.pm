@@ -1225,7 +1225,7 @@ sub _remove_orphan_l1{
 	my $resume_case=undef;
 
  	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
- 	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+ 	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}} ){
         if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan" if ($verbose > 1); next;};
 
         my $neverfound="yes";
@@ -1237,7 +1237,7 @@ sub _remove_orphan_l1{
  		    if($neverfound){
  		    	$resume_case++;
  		    	print "removing ".$hash_omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n" if ($verbose >= 3);
-  			  delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the thin has been cloned and modified, it is why we nevertheless remove it
+  			  delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
 		    }
  	 	}
  	}
@@ -2048,7 +2048,6 @@ sub _cleanSequentialIncase{
 
 	 			# The locusNameUniq already exists, we have to fill it with the part of inforamtion missing that is contained in$infoSequential->{$locusNameHIS}
 	 			if(exists_keys ($infoSequential,($locusNameUniq) ) ){
-
 	 				foreach my $bucket (keys %{$infoSequential->{$locusNameHIS}} ){
 	 					if ($bucket eq 'level1'){next;}
 
@@ -2404,7 +2403,7 @@ sub _merge_overlap_features{
 							}
 
 							# Let's change the parent of all the L2 features
-							foreach my $l2_type (%{$omniscient->{'level2'}} ){
+							foreach my $l2_type ( keys  %{$omniscient->{'level2'}} ){
 
 								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
 									###############################
