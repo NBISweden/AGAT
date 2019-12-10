@@ -77,15 +77,16 @@ my $fh_error = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 my $gffout; my $gffout2; my $gffout3; my $report; #my $gffout4;
 
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-open(my $fh, '>', $outfile."-intact.gff") or die "Could not open file '$outfile' $!";
+  my ($path,$ext);
+  ($outfile,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+  open(my $fh, '>', $path.$outfile."-intact.gff") or die "Could not open file '$outfile' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-open(my $fh2, '>', $outfile."-only_modified.gff") or die "Could not open file '$outfile' $!";
+  open(my $fh2, '>', $path.$outfile."-only_modified.gff") or die "Could not open file '$outfile' $!";
   $gffout2= Bio::Tools::GFF->new(-fh => $fh2, -gff_version => 3 );
-open(my $fh3, '>', $outfile."-all.gff") or die "Could not open file '$outfile' $!";
+  open(my $fh3, '>', $path.$outfile."-all.gff") or die "Could not open file '$outfile' $!";
   $gffout3= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
-open($report, '>', $outfile."-report.txt") or die "Could not open file '$outfile' $!";
-#open(my $fh3, '>', $outfile."-pseudogenes.gff") or die "Could not open file '$outfile' $!";
+  open($report, '>', $path.$outfile."-report.txt") or die "Could not open file '$outfile' $!";
+#open(my $fh3, '>', $path.$outfile."-pseudogenes.gff") or die "Could not open file '$outfile' $!";
 #  $gffout4= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
 }
 else{
