@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
+use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use IO::File;
@@ -44,14 +45,16 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if ( ! (defined($gff)) ){
+if ( ! $gff or ! $attributes ){
     pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
+           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff)\n".
+           "Attribute tag to investigate --att \n\n",
            -verbose => 0,
            -exitval => 2 } );
 }
 
 # If one output file we can create it here
+my ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
 if($one_tsv){
   if ($outfile) {
     open($outInOne, '>', $outfile) or die "Could not open file $outfile $!";
@@ -108,8 +111,8 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
 print ("GFF3 file parsed\n");
 
 
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
+  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 
     my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
@@ -118,7 +121,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
     #################
     # == LEVEL 2 == #
     #################
-    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
       if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
@@ -129,7 +132,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
           #################
           my $level2_ID = lc($feature_l2->_tag_value('ID'));
 
-          foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+          foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
             if ( exists ($hash_omniscient->{'level3'}{$tag_l3}{$level2_ID} ) ){
               foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
                 manage_attributes($feature_l3, 'level3', \@ptagList,\@attListOk);
@@ -187,8 +190,7 @@ sub tag_from_list{
       if(! exists ( $handlers{$att} ) ) {
         my $out = IO::File->new();
         if ($outfile) {
-          $outfile=~ s/.gff//g;
-          my $file_name =  $outfile."_".$att.".txt";
+          my $file_name =  $path.$outfile_pref."_".$att.$ext;
           open($out, '>', $file_name) or die "Could not open file $file_name $!";
         }
         else{
@@ -237,22 +239,6 @@ sub tag_from_list{
 
 __END__
 
-
-# while( my $feature = $gffio->next_feature()) {
-
-#     #manage handler
-#     my $source_tag = lc($feature->source_tag);
-#     if(! exists ( $handlers{$source_tag} ) ) {
-
-#       open(my $fh, '>', $splitedData_dir."/".$source_tag.".gff") or die "Could not open file '$source_tag' $!";
-#       my $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-#       $handlers{$source_tag}=$gffout;
-#     }
-
-#     my $gffout = $handlers{$source_tag};
-#     $gffout->write_feature($feature);
-#     }
-
 =head1 NAME
 
 agat_sp_extract_attributes.pl
@@ -262,7 +248,7 @@ agat_sp_extract_attributes.pl
 The script takes a gtf/gff file as input.
 The script allows to extract choosen attributes of all or specific feature types.
 The 9th column of a gff/gtf file contains a list of attributes.
-An attribute (gff3) is like that tag=value
+An attribute (gff3) looks like that tag=value
 
 =head1 SYNOPSIS
 
