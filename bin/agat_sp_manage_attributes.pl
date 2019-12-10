@@ -154,7 +154,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
       if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
-          manage_attributes($feature_l2,'level2',, \@ptagList,\%attListOk);
+          manage_attributes($feature_l2,'level2', \@ptagList,\%attListOk);
           #################
           # == LEVEL 3 == #
           #################
