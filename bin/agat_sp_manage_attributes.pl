@@ -20,12 +20,12 @@ my $add = undef;
 my $cp = undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "add" => \$add,
-    "cp" => \$cp,
-    "p|type|l=s" => \$primaryTag,
-    "tag|att=s" => \$attributes,
+    "help|h"      => \$opt_help,
+    "gff|f=s"     => \$gff,
+    "add"         => \$add,
+    "cp"          => \$cp,
+    "p|type|l=s"  => \$primaryTag,
+    "tag|att=s"   => \$attributes,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -41,17 +41,17 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if ( ! (defined($gff)) ){
+if ( ! $gff or ! $attributes){
     pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
+           -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (--gff)\n".
+           "Attribute tag (--att)\n\n",
            -verbose => 0,
            -exitval => 2 } );
 }
 
 my $gffout;
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
+  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 }
 else{
