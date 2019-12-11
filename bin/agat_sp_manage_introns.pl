@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use Carp;
 use Getopt::Long;
 use IO::File;
@@ -66,8 +65,8 @@ if (defined($opt_output) ) {
 else{
   $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
 }
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
+
+my $string1 .= "usage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
 if($opt_output){print $string1;}
@@ -219,7 +218,7 @@ foreach my $file (@opt_files){
 
 # PART 2
 
-foreach  my $tag (keys %introns){
+foreach  my $tag (sort keys %introns){
   ###############################
   my $biggest_value=0;
   my $pathIntron="tmp_intron_".$tag.".txt";

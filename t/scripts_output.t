@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 31;
+use Test::More tests => 34;
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ my $script;
 my $result;
 my $result2;
 
-# -------------------------- check agat_sp_add_introns --------------------------
+# -------------------------- check agat_sp_add_introns -------------------------
 
 $script = $script_prefix."bin/agat_sp_add_introns.pl";
 $result = "$output_folder/agat_sp_add_introns_1.gff";
@@ -36,7 +36,8 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-# -------------------------- check agat_sp_add_start_and_stop --------------------------
+# ---------------------- check agat_sp_add_start_and_stop ----------------------
+
 $script = $script_prefix."bin/agat_sp_add_start_and_stop.pl";
 $result = "$output_folder/agat_sp_add_start_and_stop_1.gff";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
@@ -112,16 +113,22 @@ ok( system("diff $result ${outprefix}_sup100.gff") == 0, "output $script");
 unlink $outprefix."_sup100.gff";
 unlink  $outprefix."_NOT_sup100.gff";
 
+# --------check agat_sp_filter_feature_by_attribute_presence.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_presence.pl";
+$result = "$output_folder/agat_sp_filter_feature_by_attribute_presence_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp -a protein_id 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_discarded.txt";
+unlink $outprefix."_report.txt";
+
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 $script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
 $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
 system(" $script --gff $output_folder/1.gff -o $outtmp --value Os01t0100100-01 -p level3 -a protein_id 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
-system("cp $outtmp test10.gff");
 unlink $outtmp;
-system("cp ${outprefix}_discarded.txt test10_discarded.txt");
 unlink $outprefix."_discarded.txt";
-system("cp ${outprefix}_report.txt test10_report.txt");
 unlink $outprefix."_report.txt";
 
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------
@@ -242,7 +249,12 @@ rmtree $outprefix;
 
 # --------check agat_sp_manage_attributes.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_manage_attributes.pl";
+$result = "$output_folder/agat_sp_manage_attributes_1.gff";
+system(" $script --gff $output_folder/1.gff --att protein_id -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
@@ -252,7 +264,12 @@ rmtree $outprefix;
 
 # --------check agat_sp_manage_introns.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_manage_introns.pl";
+$result = "$output_folder/agat_sp_manage_introns_1.txt";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system( "diff $result $outtmp/report.txt" ) == 0, "output $script");
+rmtree $outtmp;
 
 # ------------------- check agat_sp_merge_annotations script-------------------
 $script = $script_prefix."bin/agat_sp_merge_annotations.pl";
@@ -329,7 +346,7 @@ $script = $script_prefix."bin/agat_sq_list_attributes.pl";
 $result = "$output_folder/agat_sq_list_attributes_1.txt";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
-ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outtmp") == 0, "output $script");
+ok( system("diff -b -I '^Job done in' $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # --------check agat_sq_manage_ID.pl-------------
