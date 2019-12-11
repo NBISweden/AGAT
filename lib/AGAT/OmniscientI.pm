@@ -113,7 +113,7 @@ sub slurp_gff3_file_JD {
 	# Declare all variables and fill them
 	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels);
   #first define verbosity
-  if( ! defined($args->{verbose}) ) {$verbose = 0;}    		         else{ $verbose = $args->{verbose}; }
+  if( ! defined($args->{verbose}) ) {$verbose = 0;}    		         else{ $verbose = $args->{verbose}; } # verbose -1 is quite mode.
   print "=> parse option and metadata:\n" if ($verbose > 0);
   #Secondly check if expose_feature_levels option
   if( ! defined($args->{expose_feature_levels})) {$expose_feature_levels = undef;}
@@ -242,7 +242,7 @@ sub slurp_gff3_file_JD {
 		#GFF format used for parser
 		my $format;
 		if($gff_version){$format = $gff_version;}
-		else{ $format = select_gff_format($file);}
+		else{ $format = select_gff_format($file, $verbose);}
 		print "   GFF version parser used: $format\n" if ($verbose > 0) ;
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
@@ -258,13 +258,15 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
-    foreach my $thematic (keys %WARNS){
-  		my $nbW = $WARNS{$thematic};
-  		if($nbW > $nbWarnLimit){
-  			print "$nbW warning messages: $thematic\n";
-  		}
-  	}
-  	_handle_globalWARNS(\%globalWARNS, $ontology);
+    if ($verbose != -1){
+      foreach my $thematic (keys %WARNS){
+    		my $nbW = $WARNS{$thematic};
+    		if($nbW > $nbWarnLimit){
+    			print "$nbW warning messages: $thematic\n";
+    		}
+    	}
+  	   _handle_globalWARNS(\%globalWARNS, $ontology);
+    }
   	delete $globalWARNS{$_} for (keys %globalWARNS); # re-initialize the hash
   	delete $WARNS{$_} for (keys %WARNS); # re-initialize the hash
 
@@ -358,13 +360,15 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during checking ---------------
-    foreach my $thematic (keys %WARNS){
-  		my $nbW = $WARNS{$thematic};
-  		if($nbW > $nbWarnLimit){
-  			print "$nbW warning messages: $thematic\n";
-  		}
-  	}
-  	_handle_globalWARNS(\%globalWARNS, $ontology);
+    if ($verbose != -1){
+      foreach my $thematic (keys %WARNS){
+    		my $nbW = $WARNS{$thematic};
+    		if($nbW > $nbWarnLimit){
+    			print "$nbW warning messages: $thematic\n";
+    		}
+    	}
+    	_handle_globalWARNS(\%globalWARNS, $ontology);
+    }
 
   if(! $no_check ){
     _printSurrounded("- End extra check -\ndone in ".(time() - $previous_time)." seconds",50,"*","\n") if ($verbose > 0);
@@ -2815,7 +2819,7 @@ sub get_header_lines{
 # Input: filename
 # Output: Integer (1,2 or 3)
 sub select_gff_format{
-    my ($file) = @_;
+    my ($file, $verbose) = @_;
 
     #HANDLE format
     my %format;
@@ -2863,10 +2867,10 @@ sub select_gff_format{
    if (%format){
 	    my $number_of_format = scalar keys %format;
 	    if ($number_of_format > 1){
-	    	print ("There is a problem we found several formats in this file:");
-	    	my $var = join ",", keys %format;
-	    	print "$var\n";
-	    	print "Let's see what we can do...\n";
+	    	my $stringprint = "There is a problem we found several formats in this file:\n";
+	    	$stringprint .= join ",", sort keys %format;
+	    	$stringprint .= "\nLet's see what we can do...\n";
+        print $stringprint if ($verbose);
 		}
 	}
 	else{
@@ -3105,7 +3109,7 @@ sub _handle_ontology{
 				print "      read ontology $sofa_file_path with ",
              	"$nbroot_terms root terms, and ",
              	"$nbterms total terms, and ",
-             	"$nbleaf_terms leaf terms\n";
+             	"$nbleaf_terms leaf terms\n" if ( $verbose > 0);
 			}
 		}
 		catch{
