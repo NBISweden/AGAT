@@ -29,7 +29,7 @@ if ( !GetOptions(
     "d!" => \$doNotReportEmptyCase,
     "m|merge!" => \$one_tsv,
     "p|t|l=s" => \$primaryTag,
-    "attributes|a|att=s" => \$attributes,
+    "attribute|a|att=s" => \$attributes,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -272,16 +272,16 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature are taking in account. fill the option by the value "all" will have the same behaviour.
 
-=item B<--attributes>, B<--att>, B<-a>
+=item B<--attribute>, B<--att>, B<-a>
 
-Attributes specified, will be extracted from the feature type specified by the option p (primary tag). List of attributes must be coma separated.
-/!\\ You must use "" if name contains spaces.
+attribute tag. The value of the attribute tag specified will be extracted from the feature type specified by the option -p. List of attributes must be coma separated.
 
 =item B<--merge> or B<-m>
 
 By default the values of each attribute tag is writen in its dedicated file. To write the values of all tags in only one file use this option.
 
 =item B<-d>
+
 By default when an attribute is not found for a feature, a dot (.) is reported. If you don't want anything to be printed in such case use this option.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>

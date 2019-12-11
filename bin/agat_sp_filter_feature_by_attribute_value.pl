@@ -373,7 +373,7 @@ sub remove_l3{
         return;
       }
     }
-    print "Go there\n";
+
     # if we arrive here it means no more L3 feature is attached to L2
     # we remove the L2 parent properly (if isoforms they are kept)
     my @id_concern_list=($id_l1);
@@ -403,11 +403,10 @@ agat_sp_select_feature_by_attribute_value.pl
 
 The script aims to filter features according to attribute value (9th column).
 If the attribute tag is missing the feature will not be discarded.
+If the attribute exists and the value pass the test, the feature is discarded.
 Attribute are stored in the 9th column and have this shape: tag=value
 /!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
 removing all children of a feature will automatically remove this feature too.
-
-Example case, removing all
 
 =head1 SYNOPSIS
 
