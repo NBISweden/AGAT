@@ -12,15 +12,17 @@ my $gff = undef;
 my $opt_help= 0;
 my @opt_tag=();
 my $outfile=undef;
+my $ensembl=undef;
 my $prefix=undef;
 my $nbIDstart=1;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "nb=i" => \$nbIDstart,
-    "prefix=s" => \$prefix,
-    "p|t|l=s" => \@opt_tag,
+    "help|h"    => \$opt_help,
+    "gff|f=s"   => \$gff,
+    "nb=i"      => \$nbIDstart,
+    "ensembl!"  => \$ensembl,
+    "prefix=s"  => \$prefix,
+    "p|t|l=s"   => \@opt_tag,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -114,7 +116,7 @@ foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feat
 
       if(exists ($ptagList{$tag_l1}) or  exists ($ptagList{'level1'}) ){
         if(! exists_keys(\%keepTrack,($tag_l1))){$keepTrack{$tag_l1}=$nbIDstart;}
-        manage_attributes($feature_l1,\%keepTrack, $prefix);
+        manage_attributes($feature_l1,\%keepTrack, $prefix, $ensembl);
         $keepTrack{$tag_l1}++;
         $l1_ID_modified=$feature_l1->_tag_value('ID');
         $hash_omniscient->{'level1'}{$tag_l1}{lc($l1_ID_modified)} = delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
@@ -133,7 +135,7 @@ foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feat
 
             if(exists ($ptagList{$tag_l2}) or  exists ($ptagList{'level2'}) ){
               if(! exists_keys(\%keepTrack,($tag_l2))){$keepTrack{$tag_l2}=$nbIDstart;}
-              manage_attributes($feature_l2,\%keepTrack, $prefix);
+              manage_attributes($feature_l2,\%keepTrack, $prefix, $ensembl);
               $keepTrack{$tag_l2}++;
               $l2_ID_modified=$feature_l2->_tag_value('ID');
             }
@@ -154,7 +156,7 @@ foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feat
 
                   if(exists ($ptagList{$tag_l3}) or  exists ($ptagList{'level3'}) ){
                     if(! exists_keys(\%keepTrack,($tag_l3))){$keepTrack{$tag_l3}=$nbIDstart;}
-                    manage_attributes($feature_l3,\%keepTrack, $prefix);
+                    manage_attributes($feature_l3,\%keepTrack, $prefix, $ensembl);
                     $keepTrack{$tag_l3}++;
                   }
 
@@ -197,7 +199,7 @@ print_omniscient($hash_omniscient, $gffout); #print gene modified
                  ##
 
 sub  manage_attributes{
-  my  ($feature, $keepTrack, $prefix)=@_;
+  my  ($feature, $keepTrack, $prefix, $ensembl)=@_;
 
   my $primary_tag = lc($feature->primary_tag);
 
@@ -205,12 +207,16 @@ sub  manage_attributes{
 
     my $nbName = $keepTrack->{$primary_tag};
 
-    my $numberNum=11;
     my $GoodNum="";
-    for (my $i=0; $i<$numberNum-length($nbName); $i++){
-      $GoodNum.="0";
+    if($ensembl){
+      my $numberNum=11;
+      for (my $i=0; $i<$numberNum-length($nbName); $i++){
+        $GoodNum.="0";
+      }
+      $GoodNum.=$nbName;
     }
-    $GoodNum.=$nbName;
+    else{$GoodNum = $nbName;}
+
 
     my $abb = uc(select_abb($feature));
 
@@ -261,10 +267,8 @@ agat_sp_manage_IDs.pl
 =head1 DESCRIPTION
 
 The script take a gff3 file as input and will go through all feature to overwrite the uniq ID.
-By default the ID is build as follow:
-  primary_tag(i.e. 3rd column)-Number.
-If you provide a specific prefix the ID is build as follow (Ensembl like format ENSG00000000022):
- $prefix.$letterCode.0*.Number where the number of 0 i adapted in order to have 11 digits
+By default the ID is built as follow: primary_tag(i.e. 3rd column)-Number.
+If you provide a specific prefix the ID is built as follow: $prefix.$letterCode.Number.
 
 By default the numbering start to 1, but you can decide to change this value using the --nb option.
 The $letterCode is generated on the fly to be uniq. By defaut it used the first letter of the feature type (3rd colum). If two feature types
@@ -295,6 +299,11 @@ You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
       level3=CDS,exon,UTR,etc
 By default all feature are taken into account. fill the option by the value "all" will have the same behaviour.
+
+=item B<--ensembl>
+
+Boolean - For an ID Ensembl like (e.g ENSG00000000022). The ID is built as follow:
+$prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 11 digits.
 
 =item B<--nb>
 
