@@ -2364,7 +2364,7 @@ sub l2_has_cds {
 
 # @Purpose: Check if has a cds l3 subfeature.
 # @input: 2 => hash(omniscient hash), l2 feature
-# @output: bolean
+# @output: 1 => undef or Array ref of CDS features
 sub get_cds_from_l2 {
 	my ($omniscient, $l2_feature) = @_;
 
