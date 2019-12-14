@@ -37,7 +37,7 @@ if ($opt_help) {
 if ((!defined($inputFile)) ){
    pod2usage( { -message => "$header\nAt least 1 parameter is mandatory: -i",
                  -verbose => 0,
-                 -exitval => 2 } );
+                 -exitval => 1 } );
 }
 
 if (( $interval > 2 or $interval < 1) ){

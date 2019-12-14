@@ -45,7 +45,7 @@ if ( ! (defined($gff)) ){
     pod2usage( {
            -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
            -verbose => 0,
-           -exitval => 2 } );
+           -exitval => 1 } );
 }
 
 # Manage Output

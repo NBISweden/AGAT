@@ -51,6 +51,7 @@ if ( ! (defined($gff)) ){
 
 ######################
 # Option check
+
 if($opt_test){
   if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "=="){
     print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.";exit;
@@ -60,13 +61,18 @@ else{
   $opt_test = ">";
 }
 
+# To avoid > < character in output files
+my $opt_test_to_print = $opt_test;
+$opt_test_to_print =~ s/>/sup/ig;
+$opt_test_to_print =~ s/</inf/ig;
+
 ######################
 # Manage output file #
 my $gffout_pass;
 my $gffout_notpass;
 if ($outfile) {
   $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile.$opt_test.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
+  open(my $fh, '>', $outfile."_".$opt_test_to_print.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
   $gffout_pass= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 }
 else{
@@ -75,7 +81,7 @@ else{
 
 if ($outfile) {
   $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile."_NOT_".$opt_test.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
+  open(my $fh, '>', $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
   $gffout_notpass= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 }
 else{

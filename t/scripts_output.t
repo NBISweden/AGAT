@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 28;
+use Test::More tests => 35;
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ my $script;
 my $result;
 my $result2;
 
-# -------------------------- check agat_sp_add_introns --------------------------
+# -------------------------- check agat_sp_add_introns -------------------------
 
 $script = $script_prefix."bin/agat_sp_add_introns.pl";
 $result = "$output_folder/agat_sp_add_introns_1.gff";
@@ -36,8 +36,8 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# ---------------------- check agat_sp_add_start_and_stop ----------------------
 
-# -------------------------- check agat_sp_add_start_and_stop --------------------------
 $script = $script_prefix."bin/agat_sp_add_start_and_stop.pl";
 $result = "$output_folder/agat_sp_add_start_and_stop_1.gff";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
@@ -77,7 +77,12 @@ unlink $outtmp;
 
 # --------check agat_sp_extract_attributes.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_extract_attributes.pl";
+$result = "$output_folder/agat_sp_extract_attributes_1.txt";
+system(" $script --gff $output_folder/1.gff --att protein_id -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result ${outprefix}_protein_id.gff") == 0, "output $script");
+unlink $outprefix."_protein_id.gff";
 
 # --------check agat_sp_extract_sequences.pl-------------
 
@@ -87,20 +92,6 @@ system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outt
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
-# --------check agat_sp_extract_attributes.pl.pl-------------
-
-# XXX
-
-# --------check agat_sp_filter_by_ORF_size.pl-------------
-# /!\ Two outputs with difficult characters as > <
-#$script = $script_prefix."bin/agat_sp_filter_by_ORF_size.pl";
-#$result = "$output_folder/agat_sp_filter_by_ORF_size\>100.gff";
-#$result2 = "$output_folder/agat_sp_filter_by_ORF_size_NOT>100.gff";
-#system(" $script --gff $output_folder/1.gff -o $outtmp ");
-#run test
-#ok( system("diff $result $outprefix\>100.gff") == 0, "output $script");
-#unlink $outtmp;
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
 $script = $script_prefix."bin/agat_sp_filter_by_locus_distance.pl";
@@ -112,6 +103,33 @@ unlink $outtmp;
 # --------check agat_sp_filter_by_mrnaBlastValue.pl-------------
 
 # XXX
+
+# --------check agat_sp_filter_by_ORF_size.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_by_ORF_size.pl";
+$result = "$output_folder/agat_sp_filter_by_ORF_size_sup100.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result ${outprefix}_sup100.gff") == 0, "output $script");
+unlink $outprefix."_sup100.gff";
+unlink  $outprefix."_NOT_sup100.gff";
+
+# --------check agat_sp_filter_feature_by_attribute_presence.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_presence.pl";
+$result = "$output_folder/agat_sp_filter_feature_by_attribute_presence_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp -a protein_id 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_discarded.txt";
+unlink $outprefix."_report.txt";
+
+# --------check agat_sp_filter_feature_by_attribute_value.pl-------------
+$script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
+$result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp --value Os01t0100100-01 -p level3 -a protein_id 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_discarded.txt";
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------
 
@@ -125,10 +143,10 @@ ok( system("diff $result2 $outprefix"."_incomplete.gff") == 0, "output $script")
 unlink $outtmp;
 unlink $outprefix."_incomplete.gff";
 
-# --------check agat_sp_fix_cds_frame.pl-------------
+# --------check agat_sp_fix_cds_phases.pl-------------
 
-$script = $script_prefix."bin/agat_sp_fix_cds_frame.pl";
-$result = "$output_folder/agat_sp_fix_cds_frame_1.gff";
+$script = $script_prefix."bin/agat_sp_fix_cds_phases.pl";
+$result = "$output_folder/agat_sp_fix_cds_phases_1.gff";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -215,7 +233,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_manage_IDs.pl";
 $result = "$output_folder/agat_sp_manage_IDs_1.gff";
-system(" $script --gff $output_folder/1.gff --prefix NBIS -o $outtmp 1>/dev/null");
+system(" $script --gff $output_folder/1.gff --prefix NBIS --ensembl -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -231,7 +249,12 @@ rmtree $outprefix;
 
 # --------check agat_sp_manage_attributes.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_manage_attributes.pl";
+$result = "$output_folder/agat_sp_manage_attributes_1.gff";
+system(" $script --gff $output_folder/1.gff --att protein_id -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
@@ -241,7 +264,12 @@ rmtree $outprefix;
 
 # --------check agat_sp_manage_introns.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_manage_introns.pl";
+$result = "$output_folder/agat_sp_manage_introns_1.txt";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system( "diff $result $outtmp/report.txt" ) == 0, "output $script");
+rmtree $outtmp;
 
 # ------------------- check agat_sp_merge_annotations script-------------------
 $script = $script_prefix."bin/agat_sp_merge_annotations.pl";
@@ -251,6 +279,13 @@ system(" $script --gff t/gff_syntax/25_test.gff  --gff t/gff_syntax/9_test.gff -
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# ------------------- check agat_sp_sensitivity_specificity script-------------------
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
+system(" $script --gff1 $output_folder/1.gff --gff2 $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
@@ -318,7 +353,7 @@ $script = $script_prefix."bin/agat_sq_list_attributes.pl";
 $result = "$output_folder/agat_sq_list_attributes_1.txt";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
-ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outtmp") == 0, "output $script");
+ok( system("diff -b -I '^Job done in' $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # --------check agat_sq_manage_ID.pl-------------

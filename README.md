@@ -47,7 +47,7 @@ The formats have quite evolved since 1997, and despite well-defined specificatio
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs. For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
 
 Some example **what AGAT can do**:  
-  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix).  
+  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix):  
     * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
     * add missing features (e.g. exon and UTR).  
     * add missing mandatory attributes (i.e. ID, Parent).  
@@ -58,8 +58,8 @@ Some example **what AGAT can do**:
     * sort features.  
     * merge overlapping loci into one single locus (only if option activated).  
 
-  * perform different tasks (using different AGAT's tools).  
-    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`.  
+  * perform different tasks (using different AGAT's tools):  
+    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`  
     * make statistics: `agat_sp_statistics.pl`  
     * extract any type of sequence: `agat_sp_extract_sequences.pl`  
     * complement annotations: `agat_sp_complement_annotations.pl`  
@@ -67,7 +67,7 @@ Some example **what AGAT can do**:
     * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
     * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
     * create introns features: `agat_sp_add_introns.pl`  
-    * fix cds phases: `agat_sp_fix_cds_frame.pl`  
+    * fix cds phases: `agat_sp_fix_cds_phases.pl`  
     * extract attributes: `agat_sp_extract_attributes.pl`  
     * manage IDs: `agat_sp_manage_IDs.pl`  
     * convert into tabulated format: `agat_sp_to_tabulated.pl`  
@@ -83,13 +83,13 @@ Some example **what AGAT can do**:
   ```
   conda install -c bioconda agat
   ```
-  
+
 #### Update
 
   ```
   conda update agat
   ```
-  
+
 #### Uninstall
   ```
   conda uninstall agat  

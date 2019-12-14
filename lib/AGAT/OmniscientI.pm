@@ -113,7 +113,7 @@ sub slurp_gff3_file_JD {
 	# Declare all variables and fill them
 	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels);
   #first define verbosity
-  if( ! defined($args->{verbose}) ) {$verbose = 0;}    		         else{ $verbose = $args->{verbose}; }
+  if( ! defined($args->{verbose}) ) {$verbose = 0;}    		         else{ $verbose = $args->{verbose}; } # verbose -1 is quite mode.
   print "=> parse option and metadata:\n" if ($verbose > 0);
   #Secondly check if expose_feature_levels option
   if( ! defined($args->{expose_feature_levels})) {$expose_feature_levels = undef;}
@@ -242,7 +242,7 @@ sub slurp_gff3_file_JD {
 		#GFF format used for parser
 		my $format;
 		if($gff_version){$format = $gff_version;}
-		else{ $format = select_gff_format($file);}
+		else{ $format = select_gff_format($file, $verbose);}
 		print "   GFF version parser used: $format\n" if ($verbose > 0) ;
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
@@ -258,13 +258,15 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
-    foreach my $thematic (keys %WARNS){
-  		my $nbW = $WARNS{$thematic};
-  		if($nbW > $nbWarnLimit){
-  			print "$nbW warning messages: $thematic\n";
-  		}
-  	}
-  	_handle_globalWARNS(\%globalWARNS, $ontology);
+    if ($verbose != -1){
+      foreach my $thematic (keys %WARNS){
+    		my $nbW = $WARNS{$thematic};
+    		if($nbW > $nbWarnLimit){
+    			print "$nbW warning messages: $thematic\n";
+    		}
+    	}
+  	   _handle_globalWARNS(\%globalWARNS, $ontology);
+    }
   	delete $globalWARNS{$_} for (keys %globalWARNS); # re-initialize the hash
   	delete $WARNS{$_} for (keys %WARNS); # re-initialize the hash
 
@@ -280,12 +282,12 @@ sub slurp_gff3_file_JD {
 #	|		       	 CHECK OMNISCIENT		     	    |
 #	+-----------------------------------------+
   if(! $no_check ){
-    _printSurrounded("- Start extra check -",50,"*","\n") if ($verbose > 0) ;
+    printSurrounded("- Start extra check -",50,"*","\n") if ($verbose > 0) ;
   }
 
 	if(! $no_check or  grep( /^_check_sequential/, $no_check_skip ) ) {
 	  #Check sequential if we can fix cases. Hash to be done first, else is risky that we remove orphan L1 feature ... that are not yet linked to a sequential bucket
-    _printSurrounded("Check1: _check_sequential",30,"*") if ($verbose > 0) ;
+    printSurrounded("Check1: _check_sequential",30,"*") if ($verbose > 0) ;
     if( keys %infoSequential ){ #hash is not empty
 	    	_check_sequential(\%infoSequential, \%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%mRNAGeneLink, $verbose);
 	    	undef %infoSequential;
@@ -296,78 +298,80 @@ sub slurp_gff3_file_JD {
 
   if(! $no_check or  grep( /^_check_l2_linked_to_l3/, $no_check_skip ) ) {
 	    #Check relationship between l3 and l2
-      _printSurrounded("Check2: _check_l2_linked_to_l3",30,"*") if($verbose > 0 ) ;
+      printSurrounded("Check2: _check_l2_linked_to_l3",30,"*") if($verbose > 0 ) ;
 	    _check_l2_linked_to_l3(\%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose); # When creating L2 missing we create as well L1 if missing too
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
   }
 
   if(! $no_check or  grep( /^_check_l1_linked_to_l2/, $no_check_skip ) ) {
 	    #Check relationship between mRNA and gene.  / gene position are checked! If No Level1 we create it !
-      _printSurrounded("Check3: _check_l1_linked_to_l2",30,"*") if ($verbose > 0 ) ;
+      printSurrounded("Check3: _check_l1_linked_to_l2",30,"*") if ($verbose > 0 ) ;
 	    _check_l1_linked_to_l2(\%omniscient, $verbose);
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
   if(! $no_check or  grep( /^_remove_orphan_l1$/, $no_check_skip ) ) {
 	    #check level1 has subfeature else we remove it
-      _printSurrounded("Check4: _remove_orphan_l1",30,"*") if ($verbose > 0 ) ;
+      printSurrounded("Check4: _remove_orphan_l1",30,"*") if ($verbose > 0 ) ;
 	  	_remove_orphan_l1(\%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, \%mRNAGeneLink, $verbose); #or fix if level2 is missing (refseq case)
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
   }
 
 	if(! $no_check or  grep( /^_check_exons/, $no_check_skip ) ) {
 	    #Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
-      _printSurrounded("Check5: _check_exons",30,"*") if ($verbose > 0 ) ;
+      printSurrounded("Check5: _check_exons",30,"*") if ($verbose > 0 ) ;
 	    _check_exons(\%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,  \%uniqIDtoType, $verbose);
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n"; $previous_time = time();}
   }
 
   if(! $no_check or  grep( /^_check_utrs/, $no_check_skip ) ) {
 		#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
-    _printSurrounded("Check6: _check_utrs",30,"*") if ($verbose > 0 ) ;
+    printSurrounded("Check6: _check_utrs",30,"*") if ($verbose > 0 ) ;
 	    _check_utrs(\%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,  \%uniqIDtoType, $verbose);
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n"; $previous_time = time();}
 	}
 
   if(! $no_check or  grep( /^_check_all_level2_positions/, $no_check_skip ) ) {
 		# Check rna positions compared to its l2 features
-    _printSurrounded("Check7: _check_all_level2_positions",30,"*") if ($verbose > 0 ) ;
+    printSurrounded("Check7: _check_all_level2_positions",30,"*") if ($verbose > 0 ) ;
 		_check_all_level2_positions(\%omniscient, $verbose);
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
   if(! $no_check or  grep( /^_check_all_level1_positions/, $no_check_skip ) ) {
 		# Check gene positions compared to its l2 features
-    _printSurrounded("Check8: _check_all_level1_positions",30,"*") if ($verbose > 0 ) ;
+    printSurrounded("Check8: _check_all_level1_positions",30,"*") if ($verbose > 0 ) ;
 		_check_all_level1_positions(\%omniscient, $verbose);
 		if($verbose > 0) {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
   }
 
 	#check loci names (when overlap should be the same if type is the same)
 	if ( $merge_loci ){
-		_printSurrounded("merge overlaping features into \nsame locus",30,"-") if ($verbose > 0 ) ; # ancien check9. Better probably to keep it before check 10 anyway
+		printSurrounded("merge overlaping features into \nsame locus",30,"-") if ($verbose > 0 ) ; # ancien check9. Better probably to keep it before check 10 anyway
 		_merge_overlap_features(\%omniscient, \%mRNAGeneLink, $verbose);
 	    if($verbose > 0)  {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
   if(! $no_check or  grep( /^_check_identical_isoforms/, $no_check_skip ) ) {
 		#check identical isoforms
-		_printSurrounded("Check10: _check_identical_isoforms",30,"*") if ($verbose > 0 ) ;
+		printSurrounded("Check10: _check_identical_isoforms",30,"*") if ($verbose > 0 ) ;
 		_check_identical_isoforms(\%omniscient, \%mRNAGeneLink, $verbose);
 		 if($verbose > 0)  {print "   done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
 	#------- Inform user about warnings encountered during checking ---------------
-    foreach my $thematic (keys %WARNS){
-  		my $nbW = $WARNS{$thematic};
-  		if($nbW > $nbWarnLimit){
-  			print "$nbW warning messages: $thematic\n";
-  		}
-  	}
-  	_handle_globalWARNS(\%globalWARNS, $ontology);
+    if ($verbose != -1){
+      foreach my $thematic (keys %WARNS){
+    		my $nbW = $WARNS{$thematic};
+    		if($nbW > $nbWarnLimit){
+    			print "$nbW warning messages: $thematic\n";
+    		}
+    	}
+    	_handle_globalWARNS(\%globalWARNS, $ontology);
+    }
 
   if(! $no_check ){
-    _printSurrounded("- End extra check -\ndone in ".(time() - $previous_time)." seconds",50,"*","\n") if ($verbose > 0);
+    printSurrounded("- End extra check -\ndone in ".(time() - $previous_time)." seconds",50,"*","\n") if ($verbose > 0);
   }
 
  print "=> OmniscientI total time: ",(time() - $start_run)," seconds\n" if ($verbose > 0);
@@ -1225,7 +1229,7 @@ sub _remove_orphan_l1{
 	my $resume_case=undef;
 
  	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
- 	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+ 	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}} ){
         if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan" if ($verbose > 1); next;};
 
         my $neverfound="yes";
@@ -1237,7 +1241,7 @@ sub _remove_orphan_l1{
  		    if($neverfound){
  		    	$resume_case++;
  		    	print "removing ".$hash_omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n" if ($verbose >= 3);
-  			  delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the thin has been cloned and modified, it is why we nevertheless remove it
+  			  delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
 		    }
  	 	}
  	}
@@ -1855,7 +1859,8 @@ sub _check_utrs{
  	print "We modified $resume_case2 UTRs positions that were wrong\n" if($verbose >= 1 and $resume_case2);
 }
 
-# @Purpose: Will merge a list of "location" (tuple of integer), and another list of location. If two location overlap or are adjacent, only one location will be kept that represent the most extrem values
+# @Purpose: Will merge a list of "location" (tuple of integer), and another list of location.
+#           If two location overlap or are adjacent, only one location will be kept that represent the most extrem values
 # @input: 3 =>  list of 3 values([[S,X,Y][S,Z,W]] or [[[S],X,Y]]),  list of integer tuple, verbose option for debug
 # @output: list of list
 sub _manage_location{
@@ -1863,7 +1868,7 @@ sub _manage_location{
 
 	my @new_location_list; #new location list that will be returned once filled
 
-	_printSurrounded("Enter",25,"+","\n\n") if ($verbose >= 4);
+	printSurrounded("Enter",25,"+","\n\n") if ($verbose >= 4);
 	#print "Enter Ref: ".Dumper($locationRefList)."\nEnter Target: ".Dumper($locationTargetList) if ($verbose >= 4);
 
 	if ($locationTargetList and @$locationTargetList >= 1){ #check number of location -> List not empty
@@ -1912,11 +1917,11 @@ sub _manage_location{
 		}
 	}
 	else{#check number of location -> none
-		_printSurrounded("Return",25,"-","\n\n") if ($verbose >= 4);
+		printSurrounded("Return",25,"-","\n\n") if ($verbose >= 4);
 		if($verbose >= 4){print "returnA: ".Dumper($locationRefList)."\n\n\n";}
 		return \@{$locationRefList};
 	}
-	_printSurrounded("Return",25,"-","\n\n") if ($verbose >= 4);
+	printSurrounded("Return",25,"-","\n\n") if ($verbose >= 4);
 	if($verbose >= 4){print "returnB: ".Dumper(\@new_location_list)."\n\n\n";}
 	return \@new_location_list;
 }
@@ -1954,9 +1959,9 @@ sub _manage_location_lowLevel_adjacent{
 	return $new_location, $overlap;
 }
 
-#	===================== location1
-#		===================== location2
-#   ========================= <= New location2 returned
+# ===================== location1
+#     ===================== location2
+# ========================= <= New location2 returned
 # @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values. Return the location2 intact if no overlap. /!\ We append the ID list by the end (as push) when there is an overlap
 # @input: 2 =>  integer tuple [[ID],X,Y],  list of integer tuple
 # @output: 2 => ref of a list of 2 element, boolean
@@ -2048,7 +2053,6 @@ sub _cleanSequentialIncase{
 
 	 			# The locusNameUniq already exists, we have to fill it with the part of inforamtion missing that is contained in$infoSequential->{$locusNameHIS}
 	 			if(exists_keys ($infoSequential,($locusNameUniq) ) ){
-
 	 				foreach my $bucket (keys %{$infoSequential->{$locusNameHIS}} ){
 	 					if ($bucket eq 'level1'){next;}
 
@@ -2404,7 +2408,7 @@ sub _merge_overlap_features{
 							}
 
 							# Let's change the parent of all the L2 features
-							foreach my $l2_type (%{$omniscient->{'level2'}} ){
+							foreach my $l2_type ( keys  %{$omniscient->{'level2'}} ){
 
 								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
 									###############################
@@ -2718,7 +2722,7 @@ sub _check_duplicates{
 
 	  my $keyExist = keys %{$duplicate};
     if($keyExist){#print result
-    	_printSurrounded("Achthung /\\ Attention /\\ Be carefull => Duplicates removed !\n(Same chr/contig/scaffold, same position, same ID)",75, "#");
+    	printSurrounded("Achthung /\\ Attention /\\ Be carefull => Duplicates removed !\n(Same chr/contig/scaffold, same position, same ID)",75, "#");
 
       	my $gffout= Bio::Tools::GFF->new( -fh => \*STDOUT );
       	my $info = _print_duplicates($duplicate, $omniscient, $gffout, $verbose);
@@ -2752,39 +2756,6 @@ sub _print_duplicates {
 	return $string;
 }
 
-
-# allows to add a frame to a string to print
-sub _printSurrounded{
-  my ($term,$size,$char,$extra) = @_;
-
-   my $frame=$char x ($size+4);
-  $frame.="\n";
-
-  my $result = $frame;
-
-  my @lines = split(/\n/,$term);
-
-  	foreach my $line (@lines){
-  		$result .="$char ";
-
-  		my $sizeTerm=length($line);
-	  	if ($sizeTerm > $size ){
-		    $result .= substr($line, 0,($size));#
-	 	 }
-	 	else{
-		    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
-		    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
-		    $result .= " " x $nbBlancBefore;
-		    $result .= $line;
-		    $result .= " " x $nbBlancAfter;
-	  	}
-	  	$result .= " $char\n";
-	}
-	$result .= "$frame";
-	if($extra){$result .= "$extra";}
-	print $result;
-}
-
 # Method to store all headers (before the first feature)
 # Input: filename
 # Output: string (header lines)
@@ -2816,7 +2787,7 @@ sub get_header_lines{
 # Input: filename
 # Output: Integer (1,2 or 3)
 sub select_gff_format{
-    my ($file) = @_;
+    my ($file, $verbose) = @_;
 
     #HANDLE format
     my %format;
@@ -2857,21 +2828,21 @@ sub select_gff_format{
     close($fh);
 
 	if($problem3){
-        _printSurrounded("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!");
+        printSurrounded("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!");
     	$format{1}++;
     }
 
    if (%format){
 	    my $number_of_format = scalar keys %format;
 	    if ($number_of_format > 1){
-	    	print ("There is a problem we found several formats in this file:");
-	    	my $var = join ",", keys %format;
-	    	print "$var\n";
-	    	print "Let's see what we can do...\n";
+	    	my $stringprint = "There is a problem we found several formats in this file:\n";
+	    	$stringprint .= join ",", sort keys %format;
+	    	$stringprint .= "\nLet's see what we can do...\n";
+        print $stringprint if ($verbose);
 		}
 	}
 	else{
-		_printSurrounded("Doesn't look like a GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",100,"!");
+		printSurrounded("Doesn't look like a GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",100,"!");
 		$format{3}++;
 	}
 	if($format{3}){return 3;}
@@ -3106,7 +3077,7 @@ sub _handle_ontology{
 				print "      read ontology $sofa_file_path with ",
              	"$nbroot_terms root terms, and ",
              	"$nbterms total terms, and ",
-             	"$nbleaf_terms leaf terms\n";
+             	"$nbleaf_terms leaf terms\n" if ( $verbose > 0);
 			}
 		}
 		catch{
@@ -3136,7 +3107,7 @@ sub _handle_globalWARNS{
 			"- it must be a level2 feature if it has a parent and this parent is from level1.\n".
 			"- it must be a level3 feature if it has a parent and this parent has also a parent.\n\n".
 			"Currently the tool just ignore them, So if they where Level1,level2, a gene or RNA feature will be created accordingly.";
-			_printSurrounded($string,150,"-") ;
+			printSurrounded($string,150,"-") ;
 		}
 		if(exists($globalWARNS->{"ontology1"}) ) {
 			if( keys %{$ontology} ){
@@ -3148,11 +3119,11 @@ sub _handle_globalWARNS{
 				"https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md\n".
 				"They provide tools to check the gff3 format.\n".
 				"Even if you have this warning, you should be able to use the gff3 output in most of gff3 tools.";
-				_printSurrounded($string,150,"-") ;
+				printSurrounded($string,150,"-") ;
 			}
 			else{
 				my $string = "No ontology was available, we haven't checked if the feature types (3rd column) correspond to the gff3 specifactions.";
-				_printSurrounded($string,150,"-") ;
+				printSurrounded($string,150,"-") ;
 			}
 		}
 	}

@@ -986,24 +986,6 @@ sub parse_interpro_tsv {
   }
 }
 
-sub sizedPrint{
-  my ($term,$size) = @_;
-  my $result;
-  my $sizeTerm = ($term) ? length($term) : 0;
-  if ($sizeTerm > $size ){
-    $result=substr($term, 0,$size);
-    return $result;
-  }
-  else{
-    my $nbBlanc=$size-$sizeTerm;
-    $result=$term;
-    for (my $i = 0; $i < $nbBlanc; $i++){
-      $result.=" ";
-    }
-    return $result;
-  }
-}
-
 #Sorting mixed strings => Sorting alphabetically first, then numerically
 # how to use: my @y = sort by_number @x;
 sub alphaNum {

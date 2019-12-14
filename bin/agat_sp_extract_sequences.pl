@@ -641,13 +641,13 @@ Use of that option with exon will give the same result as extract the mrna seque
 Use of that option on cds will give the cdna* wihtout the untraslated sequences.
 *Not a real cdna because it is not reversed
 
-=item B<-u>, B<--up>, B<-5>, B<--five> or B<-upstream>
+=item B<--up>, B<-5>, B<--five> or B<-upstream>
 
 Integer. It will take that number of nucleotide in more at the 5' extremity.
 /!\ You must activate the option "--full" if you with to extract only the most upstream part of certain feature (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
 
-=item B<-d>, B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
+=item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
 
 Integer. It will take that number of nucleotide in more at the 3' extremity.
 /!\ You must activate the option "--full" if you with to extract only the most downstream part of certain feature (exon,cds,utr)

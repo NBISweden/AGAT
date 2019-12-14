@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use Carp;
-use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
@@ -112,13 +111,11 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 
         my $continue = 1;
         my $overlap = 0;
-        my $jump = undef;
         #loop to look at potential set of overlaping genes otherwise go through only once
         while ( $continue ){
 
           # Next location
           my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
-          # print "location2:".Dumper($location2)."\n";
           my $id2_l1 = $location2->[0];
           my $dist = $location2->[1] - $location->[2] + 1;
           print "distance $id_l1 - id2_l1 = $dist\n" if ($verbose);
@@ -157,7 +154,6 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
                                                                             # We need to use the location B to check the left extremity of the next locus
                                                                             #location A  -------------------------                                --------------------------
                                                                             #location B                ------------------------
-                  $jump = 1;
                   last;
                 }
 
