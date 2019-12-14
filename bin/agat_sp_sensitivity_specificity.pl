@@ -19,10 +19,10 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff1=s" => \$gff1,
-    "gff2=s" => \$gff2,
-    "v!" => \$verbose,
+    "help|h"      => \$opt_help,
+    "gff1=s"      => \$gff1,
+    "gff2=s"      => \$gff2,
+    "v!"          => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -451,6 +451,10 @@ foreach my $chimere_type ( sort keys %all ){
 }
 $string_to_print .=  join('', '-') x 64;
 $string_to_print .= "\n";
+
+if ($outfile){
+  print $report $string_to_print;
+}
 print $string_to_print;
 print "Bye Bye.\n";
 #######################################################################################################################

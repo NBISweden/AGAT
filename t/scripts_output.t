@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 =head1 DESCRIPTION
 
@@ -279,6 +279,13 @@ system(" $script --gff t/gff_syntax/25_test.gff  --gff t/gff_syntax/9_test.gff -
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# ------------------- check agat_sp_sensitivity_specificity script-------------------
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
+system(" $script --gff1 $output_folder/1.gff --gff2 $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
