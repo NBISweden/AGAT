@@ -11,7 +11,7 @@ use Sort::Naturally;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table);
+our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded sizedPrint);
 sub import {
   AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::Utilities->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -84,5 +84,71 @@ sub get_proper_codon_table {
   }
 
   return $codon_table_id_original;
+}
+
+# @Purpose: allows to add a frame to a string to print
+# @input: 4 =>  String (What has to be printed), int (size of the canevas),
+#               char (character to use to make the frame), String (extra to print at the end after the frame)
+# @output 1 => String
+sub printSurrounded{
+  my ($term,$size,$char,$extra) = @_;
+
+   my $frame=$char x ($size+4);
+  $frame.="\n";
+
+  my $result = $frame;
+
+  my @lines = split(/\n/,$term);
+
+  	foreach my $line (@lines){
+  		$result .="$char ";
+
+  		my $sizeTerm=length($line);
+	  	if ($sizeTerm > $size ){
+		    $result .= substr($line, 0,($size));#
+	 	 }
+	 	else{
+		    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
+		    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
+		    $result .= " " x $nbBlancBefore;
+		    $result .= $line;
+		    $result .= " " x $nbBlancAfter;
+	  	}
+	  	$result .= " $char\n";
+	}
+	$result .= "$frame";
+	if($extra){$result .= "$extra";}
+	print $result;
+}
+
+# @Purpose: Print a String in a specified String size. Add space before and after String to
+# center it in a decided String Size. If String is longer that Int, we shrink it.
+# @input: 2 => String (to be print), Int (size to print the string)
+# @output 1 => String
+sub sizedPrint{
+  my ($term,$size) = @_;
+  my $result;
+  my $sizeTerm = (defined($term)) ? length($term) : 0; #defnined to deal with string/int 0
+  if ($sizeTerm > $size ){
+    $result=substr($term, 0,$size);
+    return $result;
+  }
+  else{
+    my $nbBlanc=$size-$sizeTerm;
+
+    my $float = $nbBlanc/2;
+    my $nbBlanc_before = sprintf "%.0f", $float;
+    my $nbBlanc_after = $nbBlanc - $nbBlanc_before;
+
+    $result="";
+    for (my $i = 0; $i < $nbBlanc_before; $i++){
+      $result.=" ";
+    }
+    $result.=$term;
+    for (my $i = 0; $i < $nbBlanc_after; $i++){
+      $result.=" ";
+    }
+    return $result;
+  }
 }
 1;

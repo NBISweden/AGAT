@@ -46,7 +46,7 @@ if ( ! (defined($gff)) ){
 #### IN / OUT
 my $out;
 if ($opt_output) {
-  
+
   # remove prefix
   my ($path,$ext);
   ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
@@ -355,35 +355,6 @@ print "Bye Bye.\n";
                ######
                 ####
                  ##
-
-
-sub sizedPrint{
-  my ($term,$size) = @_;
-  my $result;
-  my $sizeTerm = ($term) ? length($term) : 0;
-  if ($sizeTerm > $size ){
-    $result=substr($term, 0,$size);
-    return $result;
-  }
-  else{
-    my $nbBlanc=$size-$sizeTerm;
-
-    my $float = $nbBlanc/2;
-    my $nbBlanc_before = sprintf "%.0f", $float;
-    my $nbBlanc_after = $nbBlanc - $nbBlanc_before;
-
-    $result="";
-    for (my $i = 0; $i < $nbBlanc_before; $i++){
-      $result.=" ";
-    }
-    $result.=$term;
-    for (my $i = 0; $i < $nbBlanc_after; $i++){
-      $result.=" ";
-    }
-    return $result;
-  }
-}
-
 
 __END__
 
