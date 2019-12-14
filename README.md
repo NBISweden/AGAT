@@ -2,7 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg?branch=coveralls)](https://coveralls.io/github/NBISweden/AGAT?branch=coveralls)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
 [![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)  
-AGAT 
+AGAT
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
@@ -57,7 +57,7 @@ Some example **what AGAT can do**:
     * merge overlapping loci into one single locus (only if option activated).  
 
   * perform different tasks (using different AGAT's tools).  
-    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`.  
+    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`  
     * make statistics: `agat_sp_statistics.pl`  
     * extract any type of sequence: `agat_sp_extract_sequences.pl`  
     * complement annotations: `agat_sp_complement_annotations.pl`  
@@ -65,7 +65,7 @@ Some example **what AGAT can do**:
     * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
     * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
     * create introns features: `agat_sp_add_introns.pl`  
-    * fix cds frames: `agat_sp_fix_cds_frame.pl`  
+    * fix cds phases: `agat_sp_fix_cds_phases.pl`  
     * extract attributes: `agat_sp_extract_attributes.pl`  
     * manage IDs: `agat_sp_manage_IDs.pl`  
     * convert into tabulated format: `agat_sp_to_tabulated.pl`  
@@ -81,13 +81,13 @@ Some example **what AGAT can do**:
   ```
   conda install -c bioconda agat
   ```
-  
+
 #### Update
 
   ```
   conda update agat
   ```
-  
+
 #### Uninstall
   ```
   conda uninstall agat  

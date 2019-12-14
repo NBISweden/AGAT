@@ -143,10 +143,10 @@ ok( system("diff $result2 $outprefix"."_incomplete.gff") == 0, "output $script")
 unlink $outtmp;
 unlink $outprefix."_incomplete.gff";
 
-# --------check agat_sp_fix_cds_frame.pl-------------
+# --------check agat_sp_fix_cds_phases.pl-------------
 
-$script = $script_prefix."bin/agat_sp_fix_cds_frame.pl";
-$result = "$output_folder/agat_sp_fix_cds_frame_1.gff";
+$script = $script_prefix."bin/agat_sp_fix_cds_phases.pl";
+$result = "$output_folder/agat_sp_fix_cds_phases_1.gff";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
