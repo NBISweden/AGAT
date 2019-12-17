@@ -13,7 +13,7 @@ use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
 
-our $VERSION     = "v0.0.3";
+our $VERSION     = "v0.1.0";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header);
 sub import {
@@ -45,7 +45,7 @@ sub get_agat_header{
 
   my $header = qq{
  ------------------------------------------------------------------------------
-|   Another GFF Analysis Toolkit (AGAT) - Version: $VERSION                       |
+|   Another GFF Analysis Toolkit (AGAT) - Version: $VERSION                      |
 |   https://github.com/NBISweden/AGAT                                          |
 |   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
  ------------------------------------------------------------------------------
