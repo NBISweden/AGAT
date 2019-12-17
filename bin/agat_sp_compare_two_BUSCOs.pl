@@ -330,22 +330,29 @@ __END__
 
 =head1 NAME
 
-agat_sp_busco_compare.pl
+agat_sp_compare_two_BUSCOs.pl
 
 =head1 DESCRIPTION
 
-The tool compares the results from two different BUSCO run in order to analyse the differences.
-The script look at the complete,fragmented and duplicated genes (not the missing ones)
-from the 1st run that are classified differently in the second run and print them in different gff files.
-The script also extracts the annotation of the complete,fragmented and duplicated genes from the 1st run in gff.
-Loading the gff tracks in a web browser and looking for BUSCO group classified differently
-allows to catch easily the locus with potential problems.
-Tool test on BUSCOv3.
+The tool compares the results from two BUSCO runs (genome and proteome mode) in order to pinpoint the differences.
+It compares the BUSCOs classification (complete,fragmented, duplicated) of the 1st run (genome mode)
+against the classification found in the second run. It will report the results in txt files, and
+extracts the complete,fragmented and duplicated annotated BUSCOs from the 1st run in gff files.
+We add in the gff an attribute specifying the cases e.g. description=EOG090W00UK-complete2duplicated.
+Where EOG090W00UK is the BUSCO name/label/group investigated, and complete2duplicated the case we found
+(was complete in run1 and duplicated in run2).
+By loading these gff tracks in a web browser and helped by other tracks (e.g the genome annotation/prediction)
+can help to understand why the BUSCO have been classified differently from run1 to run2.
+In other term it allows to catch potential problems in an annotation.
+agat_sp_compare_two_BUSCOs has been tested with result from BUSCOv3.
+/!\ The tool expects a BUSCO run in genome mode as input folder 1 and a BUSCO run in proteins mode
+as input folder 2. You can also decide to provide twice (--f1 --f2) the same BUSCO run in genome mode,
+the tool will only extract the annotation of the complete,fragmented and duplicated annotated BUSCOs from the 1st run in gff.
 
 =head1 SYNOPSIS
 
-    agat_sp_busco_compare.pl --f1 <input busco folder1> --f2 <input busco folder2> [-o <output folder>]
-    agat_sp_busco_compare.pl --help
+    agat_sp_compare_two_BUSCOs.pl --f1 <input busco folder1> --f2 <input busco folder2> [-o <output folder>]
+    agat_sp_compare_two_BUSCOs.pl --help
 
 =head1 OPTIONS
 
