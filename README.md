@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/NBISweden/AGAT.svg?branch=master)](https://travis-ci.org/NBISweden/AGAT)
 [![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg?branch=coveralls)](https://coveralls.io/github/NBISweden/AGAT?branch=coveralls)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
-[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)  
-AGAT
+[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
+[<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)  
+AGAT 
 =========================================
-<h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit (AGAT)</h2>  
+<h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
 [<img align="right" src="NBIS.png" width="200" height="100" />](https://nbis.se)
@@ -45,7 +47,7 @@ The formats have quite evolved since 1997, and despite well-defined specificatio
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs. For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
 
 Some example **what AGAT can do**:  
-  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix).  
+  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix):  
     * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
     * add missing features (e.g. exon and UTR).  
     * add missing mandatory attributes (i.e. ID, Parent).  
@@ -56,7 +58,7 @@ Some example **what AGAT can do**:
     * sort features.  
     * merge overlapping loci into one single locus (only if option activated).  
 
-  * perform different tasks (using different AGAT's tools).  
+  * perform different tasks (using different AGAT's tools):  
     * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`  
     * make statistics: `agat_sp_statistics.pl`  
     * extract any type of sequence: `agat_sp_extract_sequences.pl`  
