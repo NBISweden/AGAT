@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 35;
+use Test::More tests => 36;
 
 =head1 DESCRIPTION
 
@@ -57,6 +57,14 @@ unlink $outtmp;
 # --------check agat_sp_clipN_seqExtremities_and_fixCoordinates.pl-------------
 
 # XXX
+
+# ------------------- check agat_sp_complement_annotations script-------------------
+$script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
+$result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
+system(" $script --gff1 $output_folder/1.gff  --gff2 $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # ------------------- check agat_sp_complement_annotations script-------------------
 $script = $script_prefix."bin/agat_sp_complement_annotations.pl";
