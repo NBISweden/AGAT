@@ -15,27 +15,26 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ## Table of Contents
 
-   * Another Gff Analysis Toolkit (AGAT)
-      * [What AGAT can do for you?](#what-agat-can-do-for-you)
-      * [Installation](#installation)  
-          * [Using bioconda](using-bioconda)
-             * [Install](#install)
-             * [Update](#update)
-             * [Uninstall](#uninstall)
-          * [Old school](#old-school)
-             * [Prerequisites](#prerequisites)
-             * [Install](#install-1)
-             * [Update](#update-1)
-             * [Uninstall](#uninstall-1)
-             * [Change to a specific version](#change-to-a-specific-version)
-      * [Usage](#usage)
-      * [List of tools](#list-of-tools)
-      * [More about the tools](#more-about-the-tools)
-      * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient---standardisation-for-a-full-gff3-compliant-to-any-tool)
-         * [Omniscient data structure](#omniscient-data-structure)
-         * [How Omniscient parser works](#how-omniscient-parser-works)
-         * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
-         * [examples](#examples)
+   * [What AGAT can do for you?](#what-agat-can-do-for-you)
+   * [Installation](#installation)  
+       * [Using bioconda](using-bioconda)
+          * [Install](#install)
+          * [Update](#update)
+          * [Uninstall](#uninstall)
+       * [Old school](#old-school)
+          * [Prerequisites](#prerequisites)
+          * [Install](#install-1)
+          * [Update](#update-1)
+          * [Uninstall](#uninstall-1)
+          * [Change to a specific version](#change-to-a-specific-version)
+   * [Usage](#usage)
+   * [List of tools](#list-of-tools)
+   * [More about the tools](#more-about-the-tools)
+   * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient---standardisation-for-a-full-gff3-compliant-to-any-tool)
+      * [Omniscient data structure](#omniscient-data-structure)
+      * [How Omniscient parser works](#how-omniscient-parser-works)
+      * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
+      * [examples](#examples)
 
 ---------------------------
 
@@ -62,7 +61,7 @@ Some example **what AGAT can do**:
     * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`  
     * make statistics: `agat_sp_statistics.pl`  
     * extract any type of sequence: `agat_sp_extract_sequences.pl`  
-    * complement annotations: `agat_sp_complement_annotations.pl`  
+    * complement annotations (non-overlapping loci): `agat_sp_complement_annotations.pl`  
     * merge annotations: `agat_sp_merge_annotations.pl`  
     * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
     * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
@@ -70,7 +69,10 @@ Some example **what AGAT can do**:
     * fix cds phases: `agat_sp_fix_cds_phases.pl`  
     * extract attributes: `agat_sp_extract_attributes.pl`  
     * manage IDs: `agat_sp_manage_IDs.pl`  
-    * convert into tabulated format: `agat_sp_to_tabulated.pl`  
+    * convert into tabulated format: `agat_sp_to_tabulated.pl`
+    * specificity sensitivity: `agat_sp_sensitivity_specificity.pl`  
+    * fusion / split analysis between two annotations: `agat_sp_compare_two_annotations.pl`  
+    * analyze differences between BUSCO results: `agat_sp_compare_two_BUSCOs.pl`   
     * ...
 
 
