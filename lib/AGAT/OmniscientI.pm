@@ -1230,7 +1230,7 @@ sub _remove_orphan_l1{
 
  	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
  	  	foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}} ){
-        if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan" if ($verbose > 1); next;};
+        if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan\n" if ($verbose > 1); next;};
 
         my $neverfound="yes";
  		    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -2384,10 +2384,8 @@ sub _merge_overlap_features{
 					#If location_to_check start if over the end of the reference location, we stop
 					if($location_to_check[1] > $location[2]) {last;}
 
-					my ($notneeded, $overlap) = location_overlap_update(\@location, \@location_to_check); # location is updated on the fly, and the newly modified location is the one that will be used at the next loop
-
 					# Let's check at Gene LEVEL
-					if($overlap){
+					if(location_overlap(\@location, \@location_to_check)){
 
 						#let's check at CDS level
 						if(check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , $id_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together

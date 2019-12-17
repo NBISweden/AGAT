@@ -1683,7 +1683,7 @@ sub location_overlap{
 }
 
 # looking the end and the start, the method check if two location overlap.
-#A location os [Id, position1, position2]
+# A location iss [Id, position1, position2]
 # return the intersect of locations
 sub location_overlap_update{
 	my($location1, $location2)=@_;
@@ -1728,7 +1728,7 @@ sub check_gene_overlap_at_CDSthenEXON{
 							        foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
 
 							        	if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
-							            	$resu="yes";last;
+							            	$resu="cds";last;
 							          	}
 							        }
 							        if($resu){last;}
@@ -1748,7 +1748,7 @@ sub check_gene_overlap_at_CDSthenEXON{
 					    					foreach my $feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
 
 					    						if(($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start )){ # they overlap
-							            			$resu="yes";last;
+							            			$resu="exon";last;
 							          			}
 							          		}
 								          	if($resu){last;}
