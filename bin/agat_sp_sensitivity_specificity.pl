@@ -171,6 +171,7 @@ foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
 # ------------------------------------------------------------------------------
 # --------------------------- FIX OVERLAPPING LOCATIONS ------------- ----------
 # ------------------------------------------------------------------------------
+# Will merge same location types that overlap
 #use Data::Dumper; print "\n\n\n all locations1 sored: ".Dumper($flattened_locations1) ;
 #use Data::Dumper; print "\n\n\n all locations2 sored: ".Dumper($flattened_locations2) ;
 print "Now flattening the locations\n" if ($verbose);
@@ -371,10 +372,10 @@ foreach my $locusID (  keys %{$flattened_locations1} ){
     }
   }
 }
-#print "is already out??\n";exit;
-if ($verbose) { use Data::Dumper; print "\n\n\nFlatenned location1: ".Dumper($flattened_locations1) ;}
-if ($verbose) { use Data::Dumper; print "\n\n\nFlatenned location2: ".Dumper($flattened_locations2) ;}
-if ($verbose) { use Data::Dumper; print "The all hash: ".Dumper(\%all); }
+
+#if ($verbose) { use Data::Dumper; print "\n\n\nFlatenned location1: ".Dumper($flattened_locations1) ;}
+#if ($verbose) { use Data::Dumper; print "\n\n\nFlatenned location2: ".Dumper($flattened_locations2) ;}
+#if ($verbose) { use Data::Dumper; print "The all hash: ".Dumper(\%all); }
 # ---- NOw deal with what is remaining in annotationB => FP
 # Gather False positive => seq only annotated in annotationB, or type of feature annotated only in annotationB that was missing in annotatoin A
 foreach my $locusID (  keys %{$flattened_locations2} ){
@@ -419,15 +420,15 @@ foreach my $chimere_type ( keys %all ){
   }
 }
 
-
 # ------------------------------------------------------------------------------
 # ------------------------- Now compute the opposite -------------------------
 # ------------------------------------------------------------------------------
- if ($verbose) {use Data::Dumper; print "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity);}
+# should it be implemented?
 
 # ------------------------------------------------------------------------------
 # ------------------------- Now print the Results -------------------------
 # ------------------------------------------------------------------------------
+#if ($verbose) {use Data::Dumper; print "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity);}
 my $string_to_print = "usage: $0 @copyARGV\nResults:\n\n";
 $string_to_print .=  join('', '-') x 64;
 $string_to_print .= "\n|".sizedPrint("Feature type",20)."|".sizedPrint("Sensitivity",20)."|".sizedPrint("Specificity",20)."|\n";
@@ -597,37 +598,41 @@ __END__
 
 =head1 NAME
 
-agat_sp_filter_by_locus_distance.pl
+agat_sp_sensitivity_specificity.pl
 
 =head1 DESCRIPTION
 
-The script aims to remove or flag loci that are too close to each other.
-Close loci are important to remove when training abinitio tools in order
-to train intergenic region properly. Indeed if intergenic region
-(surrouneded part of a locus) contain part of another locus,
-the training on intergenic part will be biased.
+The script aims to compute the Sensitivity and Specificity in order to assess the quality
+of an annotation according to a reference (that is supposed to be true high-quality annotation).
+The Sensitivity (Sn) is the proportion of true predictions compared to the total number of correct genes (including missed predictions)
+Sn = TP / TP+FN
+The Specificity (Sp) is the proportion of true predictions among all predicted genes (including incorrectly predicted ones)
+Sp = TP / TP+FP
+
+reference annotation:     -------------
+prediction          :           ------------
+                            FN     TP    FP    TN
+
+Sensitivity and Specificity will be computed for each feature types.
+(and computed independentaly if part of different Level2 type. i.e. exons Sn Sp
+for tRNA will not be mixed up with the exon Sn Sp of mRNA exons)
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_by_locus_distance.pl -gff infile.gff [ -o outfile ]
-    agat_sp_filter_by_locus_distance.pl --help
+    agat_sp_sensitivity_specificity.pl --gff1 infile1.gff --gff2 infile2.gff  [ -o outfile ]
+    agat_sp_sensitivity_specificity.pl --help
 
 =head1 OPTIONS
 
 =over 8
 
-=item B<-gff>
+=item B<-gff1>
 
-Input GTF/GFF file.
+Input GTF/GFF file 1.
 
-=item B<--dist> or B<-d>
+=item B<-gff2>
 
-The minimum inter-loci distance to allow.  No default (will not apply
-filter by default).
-
-=item B<--add> or B<--add_flag>
-
-Instead of filter the result into two output files, write only one and add the flag <low_dist> in the gff.(tag = Lvalue or tag = Rvalue  where L is left and R right and the value is the distance with accordingle the left or right locus)
+Input GTF/GFF file 2.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
@@ -636,7 +641,7 @@ written to STDOUT.
 
 =item B<-v>
 
-Verbose option, make it easier to follow what is going on for debugging purpose.
+Verbose option for debug purposes.
 
 =item B<-h> or B<--help>
 
