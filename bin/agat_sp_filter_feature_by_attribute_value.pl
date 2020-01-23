@@ -46,7 +46,7 @@ if ($opt_help) {
 
 if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
     pod2usage( {
-           -message => "$header\nAt least 3 parameters are mandatory:\n1) Input reference gff file: -f\n".
+           -message => "$header\nAt least 3 parameters are mandatory:\n1) Input reference gff file: --gff\n".
            "2) An attribute tag: -a\n3) A value (string or int) that will be used for filtering: --value\n\n",
            -verbose => 0,
            -exitval => 2 } );
@@ -421,6 +421,10 @@ removing all children of a feature will automatically remove this feature too.
 
 Input GFF3 file that will be read
 
+=item  B<-a> or B<--attribute>
+
+Attribute tag to specify the attribute to analyse (attribute example: tag=value).
+
 =item B<-p>,  B<--type> or  B<-l>
 
 primary tag option, case insensitive, list. Allow to specied the feature types that will be handled.
@@ -430,7 +434,7 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature are taking into account. fill the option by the value "all" will have the same behaviour.
 
-=item B<-v> or B<--value>
+=item B<--value>
 
 Value to check in the attribute
 
@@ -441,6 +445,10 @@ Test to apply (> < = >= <=). default value "=". If you us one of these two chara
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-v>
+
+Verbose option for debugging purpose.
 
 =item B<-h> or B<--help>
 
