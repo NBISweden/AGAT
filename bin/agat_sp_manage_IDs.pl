@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use Getopt::Long;
+use Sort::Naturally;
 use Pod::Usage;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
@@ -106,7 +107,7 @@ foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}){
 }
 
 #Read by seqId to sort properly for ID naming
-foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feature level1
+foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %hash_sortBySeq){ # loop over all the feature level1
 
   foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq{$seqid}}){
 
@@ -128,7 +129,7 @@ foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feat
       foreach my $tag_l2 (sort {$a cmp $b}  keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
         if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
-          foreach my $feature_l2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
+          foreach my $feature_l2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
             my $l2_ID_modified=undef;
             my $level2_ID = lc($feature_l2->_tag_value('ID'));
