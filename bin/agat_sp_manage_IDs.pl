@@ -267,13 +267,13 @@ agat_sp_manage_IDs.pl
 
 =head1 DESCRIPTION
 
-The script take a gff3 file as input and will go through all feature to overwrite the uniq ID.
+The script takes a gff3 file as input and will go through all feature to overwrite
+the value of the ID attribute.
 By default the ID is built as follow: primary_tag(i.e. 3rd column)-Number.
 If you provide a specific prefix the ID is built as follow: $prefix.$letterCode.Number.
-
-By default the numbering start to 1, but you can decide to change this value using the --nb option.
-The $letterCode is generated on the fly to be uniq. By defaut it used the first letter of the feature type (3rd colum). If two feature types
-start with the same letter, the second one meet will have the two first letter as $letterCode (and so one).
+By default the numbering start at 1, but you can decide to change this value using the --nb option.
+The $letterCode is the first letter of the feature type (3rd colum). It is uniq for each feature type,
+i.e. when two feature types start with the same letter, the second one met will have the two first letter as $letterCode (and so one).
 
 =head1 SYNOPSIS
 
@@ -308,11 +308,11 @@ $prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 
 
 =item B<--nb>
 
-Integer. Start numbering to this value.
+Integer. Start numbering to this value. Default 1.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
-Output GFF file.  If no output file is specified, the output will be
+Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
