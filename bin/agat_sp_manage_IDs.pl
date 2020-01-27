@@ -9,21 +9,27 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $gff = undef;
+my $opt_gff = undef;
 my $opt_help= 0;
+my $opt_gap=0;
+my $opt_tair=undef;
 my @opt_tag=();
 my $outfile=undef;
-my $ensembl=undef;
-my $prefix=undef;
-my $nbIDstart=1;
+my $opt_ensembl=undef;
+my $opt_prefix=undef;
+my $opt_nbIDstart=1;
+my $opt_type_dependent = undef;
 
 if ( !GetOptions(
-    "help|h"    => \$opt_help,
-    "gff|f=s"   => \$gff,
-    "nb=i"      => \$nbIDstart,
-    "ensembl!"  => \$ensembl,
-    "prefix=s"  => \$prefix,
+    "help|h!"    => \$opt_help,
+    "gff|f=s"   => \$opt_gff,
+    "nb=i"      => \$opt_nbIDstart,
+    "gap=i"     => \$opt_gap,
+    "tair!"     => \$opt_tair,
+    "ensembl!"  => \$opt_ensembl,
+    "prefix=s"  => \$opt_prefix,
     "p|t|l=s"   => \@opt_tag,
+    "type_dependent!" => \$opt_type_dependent,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -39,21 +45,21 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if ( ! (defined($gff)) ){
+if ( ! (defined($opt_gff)) ){
     pod2usage( {
            -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
            -verbose => 0,
            -exitval => 1 } );
 }
 
-my $gffout;
+my $opt_gffout;
 if ($outfile) {
   $outfile=~ s/.gff//g;
   open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+  $opt_gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 }
 else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
+  $opt_gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
 # Manage $primaryTag
@@ -93,7 +99,7 @@ my @tagLetter_list;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff
                                                               });
 print ("GFF3 file parsed\n");
 
@@ -106,6 +112,7 @@ foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}){
   }
 }
 
+my $opt_tair_suffix=0;
 #Read by seqId to sort properly for ID naming
 foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %hash_sortBySeq){ # loop over all the feature level1
 
@@ -116,9 +123,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
       my $l1_ID_modified=undef;
 
       if(exists ($ptagList{$tag_l1}) or  exists ($ptagList{'level1'}) ){
-        if(! exists_keys(\%keepTrack,($tag_l1))){$keepTrack{$tag_l1}=$nbIDstart;}
-        manage_attributes($feature_l1,\%keepTrack, $prefix, $ensembl);
-        $keepTrack{$tag_l1}++;
+        manage_attributes('level1', $feature_l1);
         $l1_ID_modified=$feature_l1->_tag_value('ID');
         $hash_omniscient->{'level1'}{$tag_l1}{lc($l1_ID_modified)} = delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
       }
@@ -126,57 +131,50 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
       #################
       # == LEVEL 2 == #
       #################
+      $opt_tair_suffix=0;
       foreach my $tag_l2 (sort {$a cmp $b}  keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
         if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
           foreach my $feature_l2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
-
+            $opt_tair_suffix++;
             my $l2_ID_modified=undef;
             my $level2_ID = lc($feature_l2->_tag_value('ID'));
-
-            if(exists ($ptagList{$tag_l2}) or  exists ($ptagList{'level2'}) ){
-              if(! exists_keys(\%keepTrack,($tag_l2))){$keepTrack{$tag_l2}=$nbIDstart;}
-              manage_attributes($feature_l2,\%keepTrack, $prefix, $ensembl);
-              $keepTrack{$tag_l2}++;
-              $l2_ID_modified=$feature_l2->_tag_value('ID');
-            }
-
             #Modify parent if necessary
             if($l1_ID_modified){
                create_or_replace_tag($feature_l2,'Parent', $l1_ID_modified);
             }
 
+            if(exists ($ptagList{$tag_l2}) or  exists ($ptagList{'level2'}) ){
+              manage_attributes('level2', $feature_l2, );
+              $l2_ID_modified=$feature_l2->_tag_value('ID');
+            }
+
             #################
             # == LEVEL 3 == #
             #################
-            foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-
+            ##########
+            # Same order as in OmniscientO
+            if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
+                deal_with_level3(\%ptagList, $level2_ID, 'tss', $l2_ID_modified );
+            }
+            if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
+              deal_with_level3(\%ptagList, $level2_ID, 'exon', $l2_ID_modified );
+            }
+            if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
+              deal_with_level3(\%ptagList, $level2_ID, 'cds', $l2_ID_modified );
+            }
+            if ( exists_keys($hash_omniscient,('level3','tts',$level2_ID)) ){
+              deal_with_level3(\%ptagList, $level2_ID, 'tts', $l2_ID_modified );
+            }
+            foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
               if ( exists_keys($hash_omniscient, ('level3', $tag_l3 , $level2_ID) ) ){
-
-                foreach my $feature_l3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
-
-                  if(exists ($ptagList{$tag_l3}) or  exists ($ptagList{'level3'}) ){
-                    if(! exists_keys(\%keepTrack,($tag_l3))){$keepTrack{$tag_l3}=$nbIDstart;}
-                    manage_attributes($feature_l3,\%keepTrack, $prefix, $ensembl);
-                    $keepTrack{$tag_l3}++;
-                  }
-
-                  #Modify parent if necessary
-                  if($l2_ID_modified){
-                     create_or_replace_tag($feature_l3,'Parent', $l2_ID_modified);
-                  }
-
-                }
-
-                if($l2_ID_modified){
-                  $hash_omniscient->{'level3'}{$tag_l3}{lc($l2_ID_modified)} = delete $hash_omniscient->{'level3'}{$tag_l3}{$level2_ID};
-                }
+                deal_with_level3(\%ptagList, $level2_ID, $tag_l3, $l2_ID_modified );
               }
             }
           }
-          if($l1_ID_modified){
-            $hash_omniscient->{'level2'}{$tag_l2}{lc($l1_ID_modified)} = delete $hash_omniscient->{'level2'}{$tag_l2}{$id_l1};
-          }
+        }
+        if($l1_ID_modified){
+          $hash_omniscient->{'level2'}{$tag_l2}{lc($l1_ID_modified)} = delete $hash_omniscient->{'level2'}{$tag_l2}{$id_l1};
         }
       }
     }
@@ -184,7 +182,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # Print results
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient($hash_omniscient, $opt_gffout); #print gene modified
 
 
 #######################################################################################################################
@@ -198,36 +196,115 @@ print_omniscient($hash_omniscient, $gffout); #print gene modified
                ######
                 ####
                  ##
+sub deal_with_level3{
+  my  ($ptagList, $level2_ID, $tag_l3, $l2_ID_modified)=@_;
 
-sub  manage_attributes{
-  my  ($feature, $keepTrack, $prefix, $ensembl)=@_;
+  foreach my $feature_l3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
 
-  my $primary_tag = lc($feature->primary_tag);
-
-  if ($prefix){
-
-    my $nbName = $keepTrack->{$primary_tag};
-
-    my $GoodNum="";
-    if($ensembl){
-      my $numberNum=11;
-      for (my $i=0; $i<$numberNum-length($nbName); $i++){
-        $GoodNum.="0";
-      }
-      $GoodNum.=$nbName;
+    #Modify parent if necessary
+    if($l2_ID_modified){
+       create_or_replace_tag($feature_l3,'Parent', $l2_ID_modified);
     }
-    else{$GoodNum = $nbName;}
-
-
-    my $abb = uc(select_abb($feature));
-
-    my $result="$prefix$abb$GoodNum";
-    create_or_replace_tag($feature,'ID', $result);
+    if(exists ($ptagList->{$tag_l3}) or  exists ($ptagList->{'level3'}) ){
+      manage_attributes('level3', $feature_l3);
+    }
   }
-  else{
-    create_or_replace_tag($feature,'ID', $primary_tag."-".$keepTrack->{$primary_tag});
+
+  if($l2_ID_modified){
+    $hash_omniscient->{'level3'}{$tag_l3}{lc($l2_ID_modified)} = delete $hash_omniscient->{'level3'}{$tag_l3}{$level2_ID};
   }
 }
+
+# $opt_prefix.$letterCode.EnsemblSup.$Number
+# $primary_tag
+# $opt_tair_suffix $opt_nbIDstart $keepTrack, $opt_type_dependent, $opt_prefix, $opt_ensembl, $opt_tair, $opt_tair_suffix variable are available from everywhere in the script
+sub  manage_attributes{
+  my  ($level, $feature)=@_;
+
+  my $result;
+  my $verbose = 0; # for debug purpose
+  my $primary_tag = lc($feature->primary_tag);
+  my $prefix = undef;
+  my $parent_id = undef;
+  if ($level ne 'level1'){ $parent_id = $feature->_tag_value('Parent'); }
+
+
+  # ---- deal with prefix ----
+  if (! $opt_prefix){ # Either the one given or the primary_tag by default
+    $prefix = $primary_tag."-";
+  }
+  else{
+    $prefix = $opt_prefix;
+  }
+  print "prefix $prefix \n" if $verbose;
+
+  #  ----- deal with value independent or not of the feature type--------
+  my $tag = $opt_type_dependent ? $primary_tag : 'all';
+  print "tag: $tag\n" if $verbose;
+  print "primary_tag: $primary_tag\n" if $verbose;
+
+  if ($opt_tair){
+    if ($level eq 'level1') {
+      my $ID_number = get_id_number($tag, $level);
+      $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
+      $result="$prefix$ID_number";
+      print "tair l1: $result\n" if $verbose;
+    }
+    if($level eq 'level2'){
+      $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
+        print "tair l2: $result\n" if $verbose;
+    }
+    elsif ($level eq 'level3'){
+      my $ID_number = get_id_number("$parent_id$tag", $level);
+      $result = $parent_id."-"."$primary_tag$ID_number";
+      print "tair l3: $result\n" if $verbose;
+    }
+
+  }
+  else{
+    # ---- get id number -----
+    my $ID_number = get_id_number($tag, $level);
+    # ---- deal with Ensembl - depend of value -----
+    $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
+    # Finalize
+    $result="$prefix$ID_number";
+  }
+
+  create_or_replace_tag($feature,'ID', $result);
+}
+
+# get ensembl id number prefix according to ID_number
+sub add_ensembl_id_number_prefix{
+  my  ($feature, $ID_number)=@_;
+
+  my $abb = uc(select_abb($feature));
+  my $GoodNum="";
+  for (my $i=0; $i<11-length($ID_number); $i++){
+    $GoodNum.="0";
+  }
+
+  return $abb.$GoodNum.$ID_number; #E00000000001
+}
+
+# Get id number according to tag
+sub get_id_number{
+  my  ($tag, $level)=@_;
+
+  # First time for the tag
+  if(! exists_keys(\%keepTrack,($tag))){ $keepTrack{$tag}=$opt_nbIDstart;}
+  # Not first time
+  else{# if Gap asked we add this value between to level1 feature
+    if ($opt_gap and $level eq 'level1'){
+      $keepTrack{$tag}=$keepTrack{$tag}+$opt_gap+1;
+    } # normal incrementation
+    else{
+      $keepTrack{$tag}++;
+    }
+  }
+
+  return $keepTrack{$tag};
+}
+
 
 #Select the proper abbreviation for the tag
 sub  select_abb{
@@ -270,7 +347,7 @@ agat_sp_manage_IDs.pl
 The script takes a gff3 file as input and will go through all feature to overwrite
 the value of the ID attribute.
 By default the ID is built as follow: primary_tag(i.e. 3rd column)-Number.
-If you provide a specific prefix the ID is built as follow: $prefix.$letterCode.Number.
+If you provide a specific prefix the ID is built as follow: $opt_prefix.$letterCode.Number.
 By default the numbering start at 1, but you can decide to change this value using the --nb option.
 The $letterCode is the first letter of the feature type (3rd colum). It is uniq for each feature type,
 i.e. when two feature types start with the same letter, the second one met will have the two first letter as $letterCode (and so one).
@@ -288,9 +365,44 @@ i.e. when two feature types start with the same letter, the second one met will 
 
 Input GTF/GFF file.
 
+=item B<--gap>
+
+Integer. Increment the next gene (level1 feature) suffix with this value. Defauft 0.
+
+=item B<--ensembl>
+
+Boolean - For an ID Ensembl like (e.g PREFIXG00000000022). The ID is built as follow:
+$opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 11 digits.
+
 =item B<--prefix>
 
-String. Add a specific prefix to the ID.
+String. Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
+
+=item B<--type_dependent>
+
+Boolean - Activate type_dependent numbering. The number is depedendent of the feature type.
+i.e instead of:
+NbV1Ch01        AUGUSTUS        gene    97932   99714   0.06    -       .       ID=gene1
+NbV1Ch01        AUGUSTUS        mRNA    97932   99714   0.06    -       .       ID=mRNA2
+NbV1Ch01        AUGUSTUS        exon    97932   98571   .       -       .       ID=exon3
+NbV1Ch01        AUGUSTUS        exon    98679   98844   .       -       .       ID=exon4
+You will get:
+NbV1Ch01        AUGUSTUS        gene    97932   99714   0.06    -       .       ID=gene1
+NbV1Ch01        AUGUSTUS        mRNA    97932   99714   0.06    -       .       ID=mRNA1
+NbV1Ch01        AUGUSTUS        exon    97932   98571   .       -       .       ID=exon1
+NbV1Ch01        AUGUSTUS        exon    98679   98844   .       -       .       ID=exon2
+
+=item B<--tair>
+
+Boolean. Tair like Output:
+
+NbV1Ch01    TAIR10  gene    5928    8737    .       -       .       ID=AT1G01020
+NbV1Ch01    TAIR10  mRNA    5928    8737    .       -       .       ID=AT1G01020.1
+NbV1Ch01    TAIR10  exon    5928    8737   .       -       .        ID=AT1G01020.1-exon1
+
+=item B<--nb>
+
+Integer. Start numbering to this value. Default 1.
 
 =item B<-p>,  B<-t> or  B<-l>
 
@@ -300,15 +412,6 @@ You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
       level3=CDS,exon,UTR,etc
 By default all feature are taken into account. fill the option by the value "all" will have the same behaviour.
-
-=item B<--ensembl>
-
-Boolean - For an ID Ensembl like (e.g ENSG00000000022). The ID is built as follow:
-$prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 11 digits.
-
-=item B<--nb>
-
-Integer. Start numbering to this value. Default 1.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 

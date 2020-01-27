@@ -241,7 +241,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_manage_IDs.pl";
 $result = "$output_folder/agat_sp_manage_IDs_1.gff";
-system(" $script --gff $output_folder/1.gff --prefix NBIS --ensembl -o $outtmp 1>/dev/null");
+system(" $script --gff $output_folder/1.gff --prefix NBIS --ensembl --tair --type_dependent -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
