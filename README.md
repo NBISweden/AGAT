@@ -15,7 +15,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ## Table of Contents
 
-   * [What AGAT can do for you?](#what-agat-can-do-for-you)
+   * [What can AGAT do for you?](#what-can-agat-do-for-you)
    * [Installation](#installation)  
        * [Using bioconda](using-bioconda)
           * [Install](#install)
@@ -38,14 +38,15 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ---------------------------
 
-## What AGAT can do for you?  
+## What can AGAT do for you?  
 
-It has the power to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.
+It has the power to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
-This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs. For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
+This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.  
+For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
 
-Some example **what AGAT can do**:  
+Some examples **what AGAT can do**:  
   * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix):  
     * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
     * add missing features (e.g. exon and UTR).  
@@ -143,7 +144,6 @@ From the folder where the repository is located.
 
   ```
   git pull                                        # Update to last AGAT
-  cd AGAT                                         # move into AGAT folder
   perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
   make                                            # Compile
   make test                                       # Test
