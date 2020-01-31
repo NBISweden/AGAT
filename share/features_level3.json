@@ -12,5 +12,6 @@
   "stop_codon_read_through":"exon",
   "three_prime_utr":"exon",
   "tss":"exon",
+  "transcription_end_site":"exon",
   "tts":"exon"
 }
