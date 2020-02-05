@@ -3,7 +3,8 @@
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
 [![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
 [<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
-[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)  
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/downloads.svg)](https://anaconda.org/bioconda/agat)  
 AGAT 
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit</h2>  
