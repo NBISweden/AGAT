@@ -43,7 +43,7 @@ if ($opt_help) {
 
 if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defined($opt_HardMask) && (! defined($opt_SoftMask))) ) ){
     pod2usage( {
-           -message => "$header\nAt least 3 parametes are mandatory:\nInput reference gff file (-g);  Input reference fasta file (-f); Mask type (-hm for hard mask or -sm for soft mask)\n\n".
+           -message => "$header\nAt least 3 parametes are mandatory:\nInput reference gff file (-g);  Input reference fasta file (-f); Mask type (--hm for hard mask or --sm for soft mask)\n\n".
            "Ouptut is optional. Look at the help documentation to know more.\n",
            -verbose => 0,
            -exitval => 1 } );
@@ -94,7 +94,7 @@ print( "Reading features from $opt_gfffile...\n");
    	push @{$gff{uc $seqname}},"$start $end";
     $nbLineRead++;
    }
-close $gff_in;
+$gff_in->close();
 print "$nbLineRead lines read\n";
 
 #### read fasta
@@ -122,6 +122,7 @@ while ($_=$inFasta->next_seq()) {
     for (my $i=0;$i<length $sequence;$i+=$width) { print $ostream substr($sequence,$i,$width)."\n" }
     $nbFastaSeq++;
 }
+$inFasta->close();
 print "$nbFastaSeq fasta sequences read.\n";
 print "$nucl_masked nucleotides masked.\n";
 my $end_run = time();
