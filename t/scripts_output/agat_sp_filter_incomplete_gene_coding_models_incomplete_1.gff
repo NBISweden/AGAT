@@ -14,8 +14,8 @@
 1	irgsp	gene	62060	63576	.	+	.	ID=gene:Os01g0101200;biotype=protein_coding;description=2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01)%3B2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02);gene_id=Os01g0101200;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	62112	65537	.	+	.	ID=transcript:Os01t0101200-02;Parent=gene:Os01g0101200;biotype=protein_coding;transcript_id=Os01t0101200-02
 1	irgsp	exon	62112	62295	.	+	.	ID=Os01t0101200-02.exon1;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon1;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0101200-02.exon1;rank=1
-1	irgsp	exon	62385	62905	.	+	.	ID=nbis_NEW-exon-1;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0101200-02.exon2;rank=2
-1	irgsp	exon	62996	63114	.	+	.	ID=nbis_NEW-exon-2;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon3;constitutive=1;ensembl_end_phase=1;ensembl_phase=2;exon_id=Os01t0101200-02.exon3;rank=3
+1	irgsp	exon	62385	62905	.	+	.	ID=nbis-exon-1;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0101200-02.exon2;rank=2
+1	irgsp	exon	62996	63114	.	+	.	ID=nbis-exon-2;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon3;constitutive=1;ensembl_end_phase=1;ensembl_phase=2;exon_id=Os01t0101200-02.exon3;rank=3
 1	irgsp	exon	63248	65537	.	+	.	ID=Os01t0101200-02.exon4;Parent=transcript:Os01t0101200-02;Name=Os01t0101200-02.exon4;constitutive=0;ensembl_end_phase=-1;ensembl_phase=1;exon_id=Os01t0101200-02.exon4;rank=4
 1	irgsp	CDS	62113	62295	.	+	0	ID=CDS:Os01t0101200-02;Parent=transcript:Os01t0101200-02;protein_id=Os01t0101200-02
 1	irgsp	CDS	62385	62905	.	+	0	ID=CDS:Os01t0101200-02;Parent=transcript:Os01t0101200-02;protein_id=Os01t0101200-02
@@ -32,7 +32,7 @@
 1	irgsp	gene	145603	147847	.	+	.	ID=gene:Os01g0102600;Name=Shikimate kinase 4;biotype=protein_coding;description=Shikimate kinase domain containing protein. (Os01t0102600-01)%3BSimilar to shikimate kinase family protein. (Os01t0102600-02);gene_id=Os01g0102600;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	147104	147805	.	+	.	ID=transcript:Os01t0102600-02;Parent=gene:Os01g0102600;biotype=protein_coding;transcript_id=Os01t0102600-02
 1	irgsp	exon	147104	147184	.	+	.	ID=Os01t0102600-02.exon1;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon1;constitutive=0;ensembl_end_phase=1;ensembl_phase=-1;exon_id=Os01t0102600-02.exon1;rank=1
-1	irgsp	exon	147311	147375	.	+	.	ID=nbis_NEW-exon-4;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0102600-02.exon2;rank=2
+1	irgsp	exon	147311	147375	.	+	.	ID=nbis-exon-4;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0102600-02.exon2;rank=2
 1	irgsp	exon	147507	147805	.	+	.	ID=Os01t0102600-02.exon3;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon3;constitutive=0;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0102600-02.exon3;rank=3
 1	irgsp	CDS	147106	147184	.	+	0	ID=CDS:Os01t0102600-02;Parent=transcript:Os01t0102600-02;protein_id=Os01t0102600-02
 1	irgsp	CDS	147311	147375	.	+	2	ID=CDS:Os01t0102600-02;Parent=transcript:Os01t0102600-02;protein_id=Os01t0102600-02
@@ -111,12 +111,12 @@
 1	irgsp	three_prime_UTR	213789	214173	.	+	.	ID=three_prime_utr-49;Parent=transcript:Os01t0104100-01
 1	irgsp	mRNA	209794	214147	.	+	.	ID=transcript:Os01t0104100-02;Parent=gene:Os01g0104100;biotype=protein_coding;transcript_id=Os01t0104100-02
 1	irgsp	exon	209794	209896	.	+	.	ID=Os01t0104100-02.exon1;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-02.exon1;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0104100-02.exon1;rank=1
-1	irgsp	exon	210244	210563	.	+	.	ID=nbis_NEW-exon-7;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104100-01.exon2;rank=2
-1	irgsp	exon	210659	210890	.	+	.	ID=nbis_NEW-exon-8;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon3;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104100-01.exon3;rank=3
-1	irgsp	exon	211015	211160	.	+	.	ID=nbis_NEW-exon-9;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon4;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104100-01.exon4;rank=4
-1	irgsp	exon	212265	212352	.	+	.	ID=nbis_NEW-exon-10;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon5;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104100-01.exon5;rank=5
-1	irgsp	exon	212433	212579	.	+	.	ID=nbis_NEW-exon-11;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon6;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104100-01.exon6;rank=6
-1	irgsp	exon	213490	213639	.	+	.	ID=nbis_NEW-exon-12;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon7;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104100-01.exon7;rank=7
+1	irgsp	exon	210244	210563	.	+	.	ID=nbis-exon-7;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104100-01.exon2;rank=2
+1	irgsp	exon	210659	210890	.	+	.	ID=nbis-exon-8;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon3;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104100-01.exon3;rank=3
+1	irgsp	exon	211015	211160	.	+	.	ID=nbis-exon-9;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon4;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104100-01.exon4;rank=4
+1	irgsp	exon	212265	212352	.	+	.	ID=nbis-exon-10;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon5;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104100-01.exon5;rank=5
+1	irgsp	exon	212433	212579	.	+	.	ID=nbis-exon-11;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon6;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104100-01.exon6;rank=6
+1	irgsp	exon	213490	213639	.	+	.	ID=nbis-exon-12;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-01.exon7;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104100-01.exon7;rank=7
 1	irgsp	exon	213741	214147	.	+	.	ID=Os01t0104100-02.exon8;Parent=transcript:Os01t0104100-02;Name=Os01t0104100-02.exon8;constitutive=0;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0104100-02.exon8;rank=8
 1	irgsp	CDS	209795	209896	.	+	0	ID=CDS:Os01t0104100-02;Parent=transcript:Os01t0104100-02;protein_id=Os01t0104100-02
 1	irgsp	CDS	210244	210563	.	+	0	ID=CDS:Os01t0104100-02;Parent=transcript:Os01t0104100-02;protein_id=Os01t0104100-02
@@ -131,15 +131,15 @@
 1	irgsp	gene	261530	268145	.	+	.	ID=gene:Os01g0104800;biotype=protein_coding;description=Sas10/Utp3 family protein. (Os01t0104800-01)%3BHypothetical conserved gene. (Os01t0104800-02);gene_id=Os01g0104800;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	263523	268120	.	+	.	ID=transcript:Os01t0104800-02;Parent=gene:Os01g0104800;biotype=protein_coding;transcript_id=Os01t0104800-02
 1	irgsp	exon	263523	263640	.	+	.	ID=Os01t0104800-02.exon1;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-02.exon1;constitutive=0;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0104800-02.exon1;rank=1
-1	irgsp	exon	264014	264098	.	+	.	ID=nbis_NEW-exon-27;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon7;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon7;rank=2
-1	irgsp	exon	265236	265415	.	+	.	ID=nbis_NEW-exon-28;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon8;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon8;rank=3
-1	irgsp	exon	265506	265649	.	+	.	ID=nbis_NEW-exon-29;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon9;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon9;rank=4
-1	irgsp	exon	265740	265817	.	+	.	ID=nbis_NEW-exon-30;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon10;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon10;rank=5
-1	irgsp	exon	265909	266045	.	+	.	ID=nbis_NEW-exon-31;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon11;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104800-01.exon11;rank=6
-1	irgsp	exon	266138	266246	.	+	.	ID=nbis_NEW-exon-32;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon12;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon12;rank=7
-1	irgsp	exon	267237	267514	.	+	.	ID=nbis_NEW-exon-33;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon13;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104800-01.exon13;rank=8
-1	irgsp	exon	267591	267657	.	+	.	ID=nbis_NEW-exon-34;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon14;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon14;rank=9
-1	irgsp	exon	267734	267802	.	+	.	ID=nbis_NEW-exon-35;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon15;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon15;rank=10
+1	irgsp	exon	264014	264098	.	+	.	ID=nbis-exon-27;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon7;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon7;rank=2
+1	irgsp	exon	265236	265415	.	+	.	ID=nbis-exon-28;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon8;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon8;rank=3
+1	irgsp	exon	265506	265649	.	+	.	ID=nbis-exon-29;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon9;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon9;rank=4
+1	irgsp	exon	265740	265817	.	+	.	ID=nbis-exon-30;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon10;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon10;rank=5
+1	irgsp	exon	265909	266045	.	+	.	ID=nbis-exon-31;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon11;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104800-01.exon11;rank=6
+1	irgsp	exon	266138	266246	.	+	.	ID=nbis-exon-32;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon12;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon12;rank=7
+1	irgsp	exon	267237	267514	.	+	.	ID=nbis-exon-33;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon13;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0104800-01.exon13;rank=8
+1	irgsp	exon	267591	267657	.	+	.	ID=nbis-exon-34;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon14;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0104800-01.exon14;rank=9
+1	irgsp	exon	267734	267802	.	+	.	ID=nbis-exon-35;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-01.exon15;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104800-01.exon15;rank=10
 1	irgsp	exon	267880	268120	.	+	.	ID=Os01t0104800-02.exon11;Parent=transcript:Os01t0104800-02;Name=Os01t0104800-02.exon11;constitutive=0;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0104800-02.exon11;rank=11
 1	irgsp	CDS	263525	263640	.	+	0	ID=CDS:Os01t0104800-02;Parent=transcript:Os01t0104800-02;protein_id=Os01t0104800-02
 1	irgsp	CDS	264014	264098	.	+	1	ID=CDS:Os01t0104800-02;Parent=transcript:Os01t0104800-02;protein_id=Os01t0104800-02

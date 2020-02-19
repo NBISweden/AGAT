@@ -13,7 +13,7 @@ use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
 
-our $VERSION     = "v0.1.0";
+our $VERSION     = "v0.1.1";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header);
 sub import {

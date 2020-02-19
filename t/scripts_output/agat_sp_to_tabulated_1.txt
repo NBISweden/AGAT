@@ -206,8 +206,8 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	62996	63114	.	1	1	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
 1	irgsp	CDS	63248	63345	.	1	2	CDS:Os01t0101200-02	transcript:Os01t0101200-02	Os01t0101200-02
 1	irgsp	exon	62112	62295	.	1	.	Os01t0101200-02.exon1	transcript:Os01t0101200-02	Os01t0101200-02.exon1	0	0	-1	Os01t0101200-02.exon1	1
-1	irgsp	exon	62385	62905	.	1	.	nbis_NEW-exon-1	transcript:Os01t0101200-02	Os01t0101200-02.exon2	1	2	0	Os01t0101200-02.exon2	2
-1	irgsp	exon	62996	63114	.	1	.	nbis_NEW-exon-2	transcript:Os01t0101200-02	Os01t0101200-02.exon3	1	1	2	Os01t0101200-02.exon3	3
+1	irgsp	exon	62385	62905	.	1	.	nbis-exon-1	transcript:Os01t0101200-02	Os01t0101200-02.exon2	1	2	0	Os01t0101200-02.exon2	2
+1	irgsp	exon	62996	63114	.	1	.	nbis-exon-2	transcript:Os01t0101200-02	Os01t0101200-02.exon3	1	1	2	Os01t0101200-02.exon3	3
 1	irgsp	exon	63248	65537	.	1	.	Os01t0101200-02.exon4	transcript:Os01t0101200-02	Os01t0101200-02.exon4	0	-1	1	Os01t0101200-02.exon4	4
 1	irgsp	five_prime_UTR	62112	62112	.	1	.	five_prime_utr-14	transcript:Os01t0101200-02
 1	irgsp	three_prime_UTR	63346	65537	.	1	.	three_prime_utr-14	transcript:Os01t0101200-02
@@ -246,7 +246,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	74468	74981	.	1	2	CDS:Os01t0101600-02	transcript:Os01t0101600-02	Os01t0101600-02
 1	irgsp	CDS	75619	77008	.	1	1	CDS:Os01t0101600-02	transcript:Os01t0101600-02	Os01t0101600-02
 1	irgsp	exon	72823	73935	.	1	.	Os01t0101600-02.exon1	transcript:Os01t0101600-02	Os01t0101600-02.exon1	0	1	-1	Os01t0101600-02.exon1	1
-1	irgsp	exon	74468	74981	.	1	.	nbis_NEW-exon-3	transcript:Os01t0101600-02	Os01t0101600-02.exon2	0	2	1	Os01t0101600-02.exon2	2
+1	irgsp	exon	74468	74981	.	1	.	nbis-exon-3	transcript:Os01t0101600-02	Os01t0101600-02.exon2	0	2	1	Os01t0101600-02.exon2	2
 1	irgsp	exon	75619	77699	.	1	.	Os01t0101600-02.exon3	transcript:Os01t0101600-02	Os01t0101600-02.exon3	0	-1	2	Os01t0101600-02.exon3	3
 1	irgsp	five_prime_UTR	72823	72902	.	1	.	five_prime_utr-17	transcript:Os01t0101600-02
 1	irgsp	three_prime_UTR	77009	77699	.	1	.	three_prime_utr-18	transcript:Os01t0101600-02
@@ -362,7 +362,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	147311	147375	.	1	2	CDS:Os01t0102600-02	transcript:Os01t0102600-02	Os01t0102600-02
 1	irgsp	CDS	147507	147575	.	1	0	CDS:Os01t0102600-02	transcript:Os01t0102600-02	Os01t0102600-02
 1	irgsp	exon	147104	147184	.	1	.	Os01t0102600-02.exon1	transcript:Os01t0102600-02	Os01t0102600-02.exon1	0	1	-1	Os01t0102600-02.exon1	1
-1	irgsp	exon	147311	147375	.	1	.	nbis_NEW-exon-4	transcript:Os01t0102600-02	Os01t0102600-02.exon2	1	0	1	Os01t0102600-02.exon2	2
+1	irgsp	exon	147311	147375	.	1	.	nbis-exon-4	transcript:Os01t0102600-02	Os01t0102600-02.exon2	1	0	1	Os01t0102600-02.exon2	2
 1	irgsp	exon	147507	147805	.	1	.	Os01t0102600-02.exon3	transcript:Os01t0102600-02	Os01t0102600-02.exon3	0	-1	0	Os01t0102600-02.exon3	3
 1	irgsp	five_prime_UTR	147104	147105	.	1	.	five_prime_utr-31	transcript:Os01t0102600-02
 1	irgsp	three_prime_UTR	147576	147805	.	1	.	three_prime_utr-30	transcript:Os01t0102600-02
@@ -467,7 +467,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	189841	189990	.	-1	2	CDS:Os01t0103600-01	transcript:Os01t0103600-01	Os01t0103600-01
 1	irgsp	CDS	190087	190231	.	-1	0	CDS:Os01t0103600-01	transcript:Os01t0103600-01	Os01t0103600-01
 1	irgsp	exon	187345	189715	.	-1	.	Os01t0103600-01.exon3	transcript:Os01t0103600-01	Os01t0103600-01.exon3	0	-1	1	Os01t0103600-01.exon3	3
-1	irgsp	exon	189841	189990	.	-1	.	nbis_NEW-exon-5	transcript:Os01t0103600-01	Os01t0103600-02.exon2	1	1	1	Os01t0103600-02.exon2	2
+1	irgsp	exon	189841	189990	.	-1	.	nbis-exon-5	transcript:Os01t0103600-01	Os01t0103600-02.exon2	1	1	1	Os01t0103600-02.exon2	2
 1	irgsp	exon	190087	190904	.	-1	.	Os01t0103600-01.exon1	transcript:Os01t0103600-01	Os01t0103600-01.exon1	0	1	-1	Os01t0103600-01.exon1	1
 1	irgsp	five_prime_UTR	190232	190904	.	-1	.	five_prime_utr-43	transcript:Os01t0103600-01
 1	irgsp	three_prime_UTR	187345	189395	.	-1	.	three_prime_utr-40	transcript:Os01t0103600-01
@@ -556,7 +556,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	209438	209525	.	-1	0	CDS:Os01t0104000-01	transcript:Os01t0104000-01	Os01t0104000-01
 1	irgsp	exon	206134	207029	.	-1	.	Os01t0104000-01.exon4	transcript:Os01t0104000-01	Os01t0104000-01.exon4	0	-1	2	Os01t0104000-01.exon4	4
 1	irgsp	exon	207706	208276	.	-1	.	Os01t0104000-01.exon3	transcript:Os01t0104000-01	Os01t0104000-01.exon3	0	2	1	Os01t0104000-01.exon3	3
-1	irgsp	exon	208408	208836	.	-1	.	nbis_NEW-exon-6	transcript:Os01t0104000-01	Os01t0104000-01.exon2	1	1	1	Os01t0104000-01.exon2	2
+1	irgsp	exon	208408	208836	.	-1	.	nbis-exon-6	transcript:Os01t0104000-01	Os01t0104000-01.exon2	1	1	1	Os01t0104000-01.exon2	2
 1	irgsp	exon	209438	209606	.	-1	.	Os01t0104000-01.exon1	transcript:Os01t0104000-01	Os01t0104000-01.exon1	0	1	-1	Os01t0104000-01.exon1	1
 1	irgsp	five_prime_UTR	209526	209606	.	-1	.	five_prime_utr-51	transcript:Os01t0104000-01
 1	irgsp	three_prime_UTR	206134	206449	.	-1	.	three_prime_utr-48	transcript:Os01t0104000-01
@@ -589,12 +589,12 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	213490	213639	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
 1	irgsp	CDS	213741	213788	.	1	0	CDS:Os01t0104100-02	transcript:Os01t0104100-02	Os01t0104100-02
 1	irgsp	exon	209794	209896	.	1	.	Os01t0104100-02.exon1	transcript:Os01t0104100-02	Os01t0104100-02.exon1	0	0	-1	Os01t0104100-02.exon1	1
-1	irgsp	exon	210244	210563	.	1	.	nbis_NEW-exon-7	transcript:Os01t0104100-02	Os01t0104100-01.exon2	1	2	0	Os01t0104100-01.exon2	2
-1	irgsp	exon	210659	210890	.	1	.	nbis_NEW-exon-8	transcript:Os01t0104100-02	Os01t0104100-01.exon3	1	0	2	Os01t0104100-01.exon3	3
-1	irgsp	exon	211015	211160	.	1	.	nbis_NEW-exon-9	transcript:Os01t0104100-02	Os01t0104100-01.exon4	1	2	0	Os01t0104100-01.exon4	4
-1	irgsp	exon	212265	212352	.	1	.	nbis_NEW-exon-10	transcript:Os01t0104100-02	Os01t0104100-01.exon5	1	0	2	Os01t0104100-01.exon5	5
-1	irgsp	exon	212433	212579	.	1	.	nbis_NEW-exon-11	transcript:Os01t0104100-02	Os01t0104100-01.exon6	1	0	0	Os01t0104100-01.exon6	6
-1	irgsp	exon	213490	213639	.	1	.	nbis_NEW-exon-12	transcript:Os01t0104100-02	Os01t0104100-01.exon7	1	0	0	Os01t0104100-01.exon7	7
+1	irgsp	exon	210244	210563	.	1	.	nbis-exon-7	transcript:Os01t0104100-02	Os01t0104100-01.exon2	1	2	0	Os01t0104100-01.exon2	2
+1	irgsp	exon	210659	210890	.	1	.	nbis-exon-8	transcript:Os01t0104100-02	Os01t0104100-01.exon3	1	0	2	Os01t0104100-01.exon3	3
+1	irgsp	exon	211015	211160	.	1	.	nbis-exon-9	transcript:Os01t0104100-02	Os01t0104100-01.exon4	1	2	0	Os01t0104100-01.exon4	4
+1	irgsp	exon	212265	212352	.	1	.	nbis-exon-10	transcript:Os01t0104100-02	Os01t0104100-01.exon5	1	0	2	Os01t0104100-01.exon5	5
+1	irgsp	exon	212433	212579	.	1	.	nbis-exon-11	transcript:Os01t0104100-02	Os01t0104100-01.exon6	1	0	0	Os01t0104100-01.exon6	6
+1	irgsp	exon	213490	213639	.	1	.	nbis-exon-12	transcript:Os01t0104100-02	Os01t0104100-01.exon7	1	0	0	Os01t0104100-01.exon7	7
 1	irgsp	exon	213741	214147	.	1	.	Os01t0104100-02.exon8	transcript:Os01t0104100-02	Os01t0104100-02.exon8	0	-1	0	Os01t0104100-02.exon8	8
 1	irgsp	five_prime_UTR	209794	209794	.	1	.	five_prime_utr-52	transcript:Os01t0104100-02
 1	irgsp	three_prime_UTR	213789	214147	.	1	.	three_prime_utr-50	transcript:Os01t0104100-02
@@ -622,8 +622,8 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	228557	228785	.	1	0	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
 1	irgsp	CDS	228930	228931	.	1	2	CDS:Os01t0104400-02	transcript:Os01t0104400-02	Os01t0104400-02
 1	irgsp	exon	227139	227634	.	1	.	Os01t0104400-02.exon1	transcript:Os01t0104400-02	Os01t0104400-02.exon1	0	0	-1	Os01t0104400-02.exon1	1
-1	irgsp	exon	227742	227864	.	1	.	nbis_NEW-exon-13	transcript:Os01t0104400-02	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
-1	irgsp	exon	228557	228785	.	1	.	nbis_NEW-exon-14	transcript:Os01t0104400-02	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
+1	irgsp	exon	227742	227864	.	1	.	nbis-exon-13	transcript:Os01t0104400-02	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
+1	irgsp	exon	228557	228785	.	1	.	nbis-exon-14	transcript:Os01t0104400-02	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
 1	irgsp	exon	228930	229301	.	1	.	Os01t0104400-02.exon4	transcript:Os01t0104400-02	Os01t0104400-02.exon4	0	-1	1	Os01t0104400-02.exon4	4
 1	irgsp	five_prime_UTR	227139	227181	.	1	.	five_prime_utr-54	transcript:Os01t0104400-02
 1	irgsp	three_prime_UTR	228932	229301	.	1	.	three_prime_utr-52	transcript:Os01t0104400-02
@@ -633,8 +633,8 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	228557	228785	.	1	0	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
 1	irgsp	CDS	228930	228931	.	1	2	CDS:Os01t0104400-03	transcript:Os01t0104400-03	Os01t0104400-03
 1	irgsp	exon	227179	227634	.	1	.	Os01t0104400-03.exon1	transcript:Os01t0104400-03	Os01t0104400-03.exon1	0	0	-1	Os01t0104400-03.exon1	1
-1	irgsp	exon	227742	227864	.	1	.	nbis_NEW-exon-15	transcript:Os01t0104400-03	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
-1	irgsp	exon	228557	228785	.	1	.	nbis_NEW-exon-16	transcript:Os01t0104400-03	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
+1	irgsp	exon	227742	227864	.	1	.	nbis-exon-15	transcript:Os01t0104400-03	Os01t0104400-03.exon2	1	0	0	Os01t0104400-03.exon2	2
+1	irgsp	exon	228557	228785	.	1	.	nbis-exon-16	transcript:Os01t0104400-03	Os01t0104400-03.exon3	1	1	0	Os01t0104400-03.exon3	3
 1	irgsp	exon	228930	229214	.	1	.	Os01t0104400-03.exon4	transcript:Os01t0104400-03	Os01t0104400-03.exon4	0	-1	1	Os01t0104400-03.exon4	4
 1	irgsp	five_prime_UTR	227179	227181	.	1	.	five_prime_utr-55	transcript:Os01t0104400-03
 1	irgsp	three_prime_UTR	228932	229214	.	1	.	three_prime_utr-53	transcript:Os01t0104400-03
@@ -686,16 +686,16 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	255325	255553	.	-1	1	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
 1	irgsp	CDS	255674	256098	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
 1	irgsp	CDS	256361	256441	.	-1	0	CDS:Os01t0104600-01	transcript:Os01t0104600-01	Os01t0104600-01
-1	irgsp	exon	248828	249107	.	-1	.	nbis_NEW-exon-17	transcript:Os01t0104600-01	Os01t0104600-01.exon11	1	-1	1	Os01t0104600-01.exon11	11
-1	irgsp	exon	249369	249468	.	-1	.	nbis_NEW-exon-18	transcript:Os01t0104600-01	Os01t0104600-01.exon10	1	1	0	Os01t0104600-01.exon10	10
-1	irgsp	exon	249861	249956	.	-1	.	nbis_NEW-exon-19	transcript:Os01t0104600-01	Os01t0104600-01.exon9	1	0	0	Os01t0104600-01.exon9	9
-1	irgsp	exon	250617	250781	.	-1	.	nbis_NEW-exon-20	transcript:Os01t0104600-01	Os01t0104600-01.exon8	1	0	0	Os01t0104600-01.exon8	8
-1	irgsp	exon	250860	250940	.	-1	.	nbis_NEW-exon-21	transcript:Os01t0104600-01	Os01t0104600-01.exon7	1	0	0	Os01t0104600-01.exon7	7
-1	irgsp	exon	251026	251082	.	-1	.	nbis_NEW-exon-22	transcript:Os01t0104600-01	Os01t0104600-01.exon6	1	0	0	Os01t0104600-01.exon6	6
-1	irgsp	exon	251316	251384	.	-1	.	nbis_NEW-exon-23	transcript:Os01t0104600-01	Os01t0104600-01.exon5	1	0	0	Os01t0104600-01.exon5	5
-1	irgsp	exon	251695	251790	.	-1	.	nbis_NEW-exon-24	transcript:Os01t0104600-01	Os01t0104600-01.exon4	1	0	0	Os01t0104600-01.exon4	4
-1	irgsp	exon	255325	255553	.	-1	.	nbis_NEW-exon-25	transcript:Os01t0104600-01	Os01t0104600-01.exon3	1	0	2	Os01t0104600-01.exon3	3
-1	irgsp	exon	255674	256098	.	-1	.	nbis_NEW-exon-26	transcript:Os01t0104600-01	Os01t0104600-01.exon2	1	2	0	Os01t0104600-01.exon2	2
+1	irgsp	exon	248828	249107	.	-1	.	nbis-exon-17	transcript:Os01t0104600-01	Os01t0104600-01.exon11	1	-1	1	Os01t0104600-01.exon11	11
+1	irgsp	exon	249369	249468	.	-1	.	nbis-exon-18	transcript:Os01t0104600-01	Os01t0104600-01.exon10	1	1	0	Os01t0104600-01.exon10	10
+1	irgsp	exon	249861	249956	.	-1	.	nbis-exon-19	transcript:Os01t0104600-01	Os01t0104600-01.exon9	1	0	0	Os01t0104600-01.exon9	9
+1	irgsp	exon	250617	250781	.	-1	.	nbis-exon-20	transcript:Os01t0104600-01	Os01t0104600-01.exon8	1	0	0	Os01t0104600-01.exon8	8
+1	irgsp	exon	250860	250940	.	-1	.	nbis-exon-21	transcript:Os01t0104600-01	Os01t0104600-01.exon7	1	0	0	Os01t0104600-01.exon7	7
+1	irgsp	exon	251026	251082	.	-1	.	nbis-exon-22	transcript:Os01t0104600-01	Os01t0104600-01.exon6	1	0	0	Os01t0104600-01.exon6	6
+1	irgsp	exon	251316	251384	.	-1	.	nbis-exon-23	transcript:Os01t0104600-01	Os01t0104600-01.exon5	1	0	0	Os01t0104600-01.exon5	5
+1	irgsp	exon	251695	251790	.	-1	.	nbis-exon-24	transcript:Os01t0104600-01	Os01t0104600-01.exon4	1	0	0	Os01t0104600-01.exon4	4
+1	irgsp	exon	255325	255553	.	-1	.	nbis-exon-25	transcript:Os01t0104600-01	Os01t0104600-01.exon3	1	0	2	Os01t0104600-01.exon3	3
+1	irgsp	exon	255674	256098	.	-1	.	nbis-exon-26	transcript:Os01t0104600-01	Os01t0104600-01.exon2	1	2	0	Os01t0104600-01.exon2	2
 1	irgsp	exon	256361	256872	.	-1	.	Os01t0104600-01.exon1	transcript:Os01t0104600-01	Os01t0104600-01.exon1	0	0	-1	Os01t0104600-01.exon1	1
 1	irgsp	five_prime_UTR	256442	256872	.	-1	.	five_prime_utr-59	transcript:Os01t0104600-01
 1	irgsp	three_prime_UTR	248828	248970	.	-1	.	three_prime_utr-56	transcript:Os01t0104600-01
@@ -748,15 +748,15 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	ID	biotype	desc
 1	irgsp	CDS	267734	267802	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
 1	irgsp	CDS	267880	268011	.	1	0	CDS:Os01t0104800-02	transcript:Os01t0104800-02	Os01t0104800-02
 1	irgsp	exon	263523	263640	.	1	.	Os01t0104800-02.exon1	transcript:Os01t0104800-02	Os01t0104800-02.exon1	0	2	-1	Os01t0104800-02.exon1	1
-1	irgsp	exon	264014	264098	.	1	.	nbis_NEW-exon-27	transcript:Os01t0104800-02	Os01t0104800-01.exon7	1	0	2	Os01t0104800-01.exon7	2
-1	irgsp	exon	265236	265415	.	1	.	nbis_NEW-exon-28	transcript:Os01t0104800-02	Os01t0104800-01.exon8	1	0	0	Os01t0104800-01.exon8	3
-1	irgsp	exon	265506	265649	.	1	.	nbis_NEW-exon-29	transcript:Os01t0104800-02	Os01t0104800-01.exon9	1	0	0	Os01t0104800-01.exon9	4
-1	irgsp	exon	265740	265817	.	1	.	nbis_NEW-exon-30	transcript:Os01t0104800-02	Os01t0104800-01.exon10	1	0	0	Os01t0104800-01.exon10	5
-1	irgsp	exon	265909	266045	.	1	.	nbis_NEW-exon-31	transcript:Os01t0104800-02	Os01t0104800-01.exon11	1	2	0	Os01t0104800-01.exon11	6
-1	irgsp	exon	266138	266246	.	1	.	nbis_NEW-exon-32	transcript:Os01t0104800-02	Os01t0104800-01.exon12	1	0	2	Os01t0104800-01.exon12	7
-1	irgsp	exon	267237	267514	.	1	.	nbis_NEW-exon-33	transcript:Os01t0104800-02	Os01t0104800-01.exon13	1	2	0	Os01t0104800-01.exon13	8
-1	irgsp	exon	267591	267657	.	1	.	nbis_NEW-exon-34	transcript:Os01t0104800-02	Os01t0104800-01.exon14	1	0	2	Os01t0104800-01.exon14	9
-1	irgsp	exon	267734	267802	.	1	.	nbis_NEW-exon-35	transcript:Os01t0104800-02	Os01t0104800-01.exon15	1	0	0	Os01t0104800-01.exon15	10
+1	irgsp	exon	264014	264098	.	1	.	nbis-exon-27	transcript:Os01t0104800-02	Os01t0104800-01.exon7	1	0	2	Os01t0104800-01.exon7	2
+1	irgsp	exon	265236	265415	.	1	.	nbis-exon-28	transcript:Os01t0104800-02	Os01t0104800-01.exon8	1	0	0	Os01t0104800-01.exon8	3
+1	irgsp	exon	265506	265649	.	1	.	nbis-exon-29	transcript:Os01t0104800-02	Os01t0104800-01.exon9	1	0	0	Os01t0104800-01.exon9	4
+1	irgsp	exon	265740	265817	.	1	.	nbis-exon-30	transcript:Os01t0104800-02	Os01t0104800-01.exon10	1	0	0	Os01t0104800-01.exon10	5
+1	irgsp	exon	265909	266045	.	1	.	nbis-exon-31	transcript:Os01t0104800-02	Os01t0104800-01.exon11	1	2	0	Os01t0104800-01.exon11	6
+1	irgsp	exon	266138	266246	.	1	.	nbis-exon-32	transcript:Os01t0104800-02	Os01t0104800-01.exon12	1	0	2	Os01t0104800-01.exon12	7
+1	irgsp	exon	267237	267514	.	1	.	nbis-exon-33	transcript:Os01t0104800-02	Os01t0104800-01.exon13	1	2	0	Os01t0104800-01.exon13	8
+1	irgsp	exon	267591	267657	.	1	.	nbis-exon-34	transcript:Os01t0104800-02	Os01t0104800-01.exon14	1	0	2	Os01t0104800-01.exon14	9
+1	irgsp	exon	267734	267802	.	1	.	nbis-exon-35	transcript:Os01t0104800-02	Os01t0104800-01.exon15	1	0	0	Os01t0104800-01.exon15	10
 1	irgsp	exon	267880	268120	.	1	.	Os01t0104800-02.exon11	transcript:Os01t0104800-02	Os01t0104800-02.exon11	0	-1	0	Os01t0104800-02.exon11	11
 1	irgsp	five_prime_UTR	263523	263524	.	1	.	five_prime_utr-61	transcript:Os01t0104800-02
 1	irgsp	three_prime_UTR	268012	268120	.	1	.	three_prime_utr-58	transcript:Os01t0104800-02

@@ -34,7 +34,9 @@ Launch the tester.sh script to check the parser and all these files.
 29: Gnomom output. Two isoforms do not have CDS described but only exons. (was raising error at some point. See issue #9, fixed now)
 30: Level1 and level3 linked by common tag ... but level2 missing ...
 31: interleaved feature with parent( here transcript_id) and other with locus only Level3 features. (locus shared with feature having parent attribute)
-32: Same as 31 except, the first feature of a record do not have parent attribute (it will be saved into the sequential before to be fish out and put with the features in omniscient sharing the same locus tag) 
+32: Same as 31 except, the first feature of a record do not have parent attribute (it will be saved into the sequential before to be fish out and put with the features in omniscient sharing the same locus tag)
+33: Missing level1 features. The main problem is that the Parent ID and ID of the feature2 is the same. L1 feature is built from L2 feature, the parser has to check modify the Parent ID.
+34: L1 and L2 features of a record have the same ID. The parser will modify the ID of the l2 feature and consequently the Parent ID of the L3 features.
 
 /!\ If only level3 features are defined, and no locus tag present (see test 26), the tool cannot deal with it. I will create by default one umbrella level1, or if you on attribute as uniq locus ID, It will create a l1 for each feature => If only exon or only CDS features so the result will be fine, but if there are two different features that has to be linked together (two CDS or a CDS and a signal peptide as in the test case 26) , the tool will not perform properly.
 
@@ -45,4 +47,4 @@ The philosophy of the parser is to
 
 Definitions:
 feature = 1 line
-record = bench of features linked together to describe a genomic element (i.e gebe feature + mRNA feature + exon feature + CDS feature + UTR feature)
+record = bench of features linked together to describe a genomic element (i.e gene feature + mRNA feature + exon feature + CDS feature + UTR feature)
