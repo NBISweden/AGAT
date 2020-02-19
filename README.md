@@ -155,7 +155,6 @@ From the folder where the repository is located.
 From the folder where the repository is located.  
 
   ```
-  cd AGAT                                         # move into AGAT folder
   git pull                                        # Update the code
   git checkout v0.1.1                             # use version v0.1 (See releases tab for a list of available versions)
   perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
