@@ -492,7 +492,7 @@
 1	irgsp	mRNA	206134	209606	.	-	.	ID=transcript:Os01t0104000-01;Parent=gene:Os01g0104000;biotype=protein_coding;transcript_id=Os01t0104000-01
 1	irgsp	exon	206134	207029	.	-	.	ID=Os01t0104000-01.exon4;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon4;constitutive=0;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0104000-01.exon4;rank=4
 1	irgsp	exon	207706	208276	.	-	.	ID=Os01t0104000-01.exon3;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon3;constitutive=0;ensembl_end_phase=2;ensembl_phase=1;exon_id=Os01t0104000-01.exon3;rank=3
-1	irgsp	exon	208408	208836	.	-	.	ID=nbis_NEW-exon-6;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon2;constitutive=1;ensembl_end_phase=1;ensembl_phase=1;exon_id=Os01t0104000-01.exon2;rank=2
+1	irgsp	exon	208408	208836	.	-	.	ID=nbis-exon-6;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon2;constitutive=1;ensembl_end_phase=1;ensembl_phase=1;exon_id=Os01t0104000-01.exon2;rank=2
 1	irgsp	exon	209438	209606	.	-	.	ID=Os01t0104000-01.exon1;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon1;constitutive=0;ensembl_end_phase=1;ensembl_phase=-1;exon_id=Os01t0104000-01.exon1;rank=1
 1	irgsp	CDS	206450	207029	.	-	1	ID=CDS:Os01t0104000-01;Parent=transcript:Os01t0104000-01;protein_id=Os01t0104000-01
 1	irgsp	CDS	207706	208276	.	-	2	ID=CDS:Os01t0104000-01;Parent=transcript:Os01t0104000-01;protein_id=Os01t0104000-01

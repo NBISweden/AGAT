@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 31;
+use Test::More tests => 33;
 
 =head1 DESCRIPTION
 
@@ -29,18 +29,20 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
   # for all test files
   if ( $file =~ m/test.gff$/ ){
+
     # skip cases
     if ( ($file =~ m/^24_*/) or  ($file =~ m/^26_*/) ){ #Skip those cases
         next;
     }
 
     # peculiar case
-    if ($file =~ m/^8_/){
+    if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/){
         system("$script --gff t/gff_syntax/$file -o $pathtmp 1>/dev/null");
     }
     elsif($file =~ m/^28_/){
         system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp 1>/dev/null");
     }
+
     # standard cases
     else{
       system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp 1>/dev/null");
