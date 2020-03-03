@@ -96,7 +96,7 @@ my @COMONTAG = ('locus_tag','gene_id');
 # $file => string (file) / list / hash
 # $locus_tag => tag to consider for gathering features (in top of the default one)
 # $gff_version => Int (if is used, force the parser to use this gff parser instead of guessing)
-# $verbose =>define the deepth of verbosity
+# $verbose => define the deepth of verbosity
 # $no_check is to deactivate sanity check. We can tune the deactivation of check steps using no_check_skip.
 # $no_check_skip [list] is to avoid the deactivation of all check with the $no_check parameter. Check steps listed here will not be deactivated.
 sub slurp_gff3_file_JD {
@@ -1271,7 +1271,7 @@ sub _remove_orphan_l1{
 
  	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
  			foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}} ){
-				if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan\n" if ($verbose > 1); next;};
+				if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan\n" if ($verbose > 2); next;};
 
 				my $neverfound="yes";
  				foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -1408,7 +1408,7 @@ sub _check_l2_linked_to_l3{
 					$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_ID_l1)} = $l1_feature; # now save it in omniscient
 					$mRNAGeneLink->{lc($id_l2)} = $new_ID_l1;
 
-					print "L1 and L2 created, \n" if($verbose >= 1);
+					print "L1 and L2 created\n" if($verbose >= 2);
 	 				}
 	 			}
  			}
@@ -3142,9 +3142,9 @@ sub _handle_globalWARNS{
 			"Those primary tag are not yet taken into account by the parser!\n".
 			"If you wish to use it/them, pleast update the parameter feature json files accordingly (features_level1, features_level2 or features_level3).\n".
 			"To resume:\n".
-			"- it must be a level1 feature if it has no parent.\n".
-			"- it must be a level2 feature if it has a parent and this parent is from level1.\n".
-			"- it must be a level3 feature if it has a parent and this parent has also a parent.\n\n".
+			"* it must be a level1 feature if it has no parent.\n".
+			"* it must be a level2 feature if it has a parent and this parent is from level1.\n".
+			"* it must be a level3 feature if it has a parent and this parent has also a parent.\n\n".
 			"Currently the tool just ignore them, So if they where Level1,level2, a gene or RNA feature will be created accordingly.";
 			printSurrounded($string,150,"-") ;
 		}
