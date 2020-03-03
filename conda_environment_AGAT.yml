@@ -1,4 +1,4 @@
-# conda env create -f agat_environment.yml
+# conda env create -f conda_environment_AGAT.yml
 name: agat
 channels:
   - conda-forge
