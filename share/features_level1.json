@@ -19,5 +19,11 @@
   "snrna_gene":"17",
   "source":"standalone",
   "sts":"18",
-  "translated_nucleotide_match":"19"
+  "translated_nucleotide_match":"19",
+	"biological_region":"standalone",
+	"gene_segment":"20",
+	"c_gene_segment":"20",
+	"d_gene_segment":"20",
+	"j_gene_segment":"20",
+	"v_gene_segment":"20"
 }
