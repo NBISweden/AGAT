@@ -523,9 +523,11 @@ sub  get_sequence{
 sub print_seqObj{
   my($ostream, $seqObj, $opt_AA, $codonTable) = @_;
 
-  $nbFastaSeq++;
 
   if($opt_AA){ #translate if asked
+
+			if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n"; return; }
+
       my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
 
       if($opt_cleanFinalStop and $opt_cleanInternalStop){ #this case is needed to be able to remove two final stop codon in a raw when the bothotpion are activated.
@@ -558,11 +560,15 @@ sub print_seqObj{
         $transObj->seq($cleanedSeq);
       }
 
+			if ( length($transObj->seq()) == 0 ){warn "Translated sequence empty for ".$transObj->id().". The nucleotide sequence was only coding for stop codon(s). The translated stop codon(s) '*' has/have been removed due to stop codon(s)'s cleaning  parameter(s) activated. Skipped...\n"; return; }
+
       $ostream->write_seq($transObj);
    }
   else{
     $ostream->write_seq($seqObj);
   }
+
+	$nbFastaSeq++;
 }
 
 
