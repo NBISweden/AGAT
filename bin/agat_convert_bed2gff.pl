@@ -13,7 +13,7 @@ my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
 my $primary_tag = "gene";
-my $inflating = undef;
+my $inflating_off = undef;
 my $inflate_type = "exon";
 my $verbose = undef;
 my $help;
@@ -23,7 +23,7 @@ if( !GetOptions(  "help" => \$help,
 									"source=s" => \$source_tag,
 									"verbose|v!" => \$verbose,
 									"primary_tag=s" => \$primary_tag,
-									"inflate!" => \$inflating,
+									"inflate_off!" => \$inflating_off,
 									"inflate_type=s" => \$inflate_type,
 							    "outfile|output|o|out|gff=s" => \$outfile ) )
 {
@@ -111,6 +111,7 @@ while( my $line = <$fh>)  {
     $UniqID++;
     foreach my $field (@fields){
       $cptField++;
+			$field=~ s/,+$//; #removing trailing coma
 
       ##########
       #MANDATORY fields
@@ -247,8 +248,8 @@ foreach my $id (keys %bedOmniscent){
 
     $gffout->write_feature($feature);
 
-		if ( exists($bedOmniscent{$id}{'blockCount'}) and $inflating){
-			print "inflating $inflating\n" if ($verbose);
+		if ( exists($bedOmniscent{$id}{'blockCount'}) and ! $inflating_off){
+			print "inflating $inflating_off\n" if ($verbose);
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -340,11 +341,12 @@ Example: Stringtie,Maker,Augustus,etc. [default: data]
 The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
 Example: gene,mRNA,CDS,etc.  [default: gene]
 
-=item B<--inflate>
+=item B<--inflate_off>
 
-Inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
+By default we inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
 of the main feature (primary_tag). Type of subfeature created based on the
-inflate_type parameter.
+inflate_type parameter. If you don't want this inflating behaviour you can deactivate it
+by using the option --inflate_off.
 
 =item B<--inflate_type>
 
