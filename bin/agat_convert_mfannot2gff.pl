@@ -276,7 +276,7 @@ sub write_gff {
 		else{ # print to STDOUT
 			*GFF = *STDOUT;
 		}
-  	use Data::Dumper; #print Dumper(\%filtered_result);exit;
+  	#use Data::Dumper; #print Dumper(\%filtered_result);exit;
     print GFF "##gff-version 3\n";  # header line
 
 		foreach my $current_contig ( sort keys %filtered_result ){
