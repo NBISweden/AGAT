@@ -123,7 +123,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 
           ##############################
           #If it's a mRNA = have CDS. #
-          if ( exists ($hash_omniscient->{'level3'}{'cds'}{$id_level2} ) ){
+					if( exists_keys( $hash_omniscient, ('level3', 'cds', $id_level2 ) ) ) {
             $there_is_cds="true";
 
             ##############
