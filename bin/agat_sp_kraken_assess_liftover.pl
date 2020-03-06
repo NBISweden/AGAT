@@ -230,8 +230,16 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
           $nb_noCaseL3++;
         }
 
+				# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
         my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
-																																										 verbose => -1
+																																										 verbose => -1,
+																																										 no_check => 1,
+											                                                               no_check_skip => ["_check_sequential",
+																																																			 "_check_l2_linked_to_l3",
+																																																			 "_check_l1_linked_to_l2",
+																																																			 "_remove_orphan_l1",
+																																																			 "_check_all_level2_positions",
+																																																			 "_check_all_level1_positions"],
                                                                                    });
 
         if($verbose){
@@ -253,7 +261,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
             $gene_feature = $hash_omniscient_clean->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1};
             my @ListmrnaNoMatch;
-            print "level1 feature:\n".$gene_feature->gff_string."\n" if $verbose;
+            print "\n\nlevel1 feature:\n".$gene_feature->gff_string."\n\n" if $verbose;
 
             ################
             # == LEVEL 2
@@ -290,7 +298,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                   my $matchFeatureExample = undef;
 
                   foreach my $feature (@{$refListFetaureL3}){
-                    print "level3 feature:\n".$feature->gff_string."\n" if $verbose;
+                    #print "level3 feature:\n".$feature->gff_string."\n" if $verbose;
                     my $end=$feature->end();
                     my $start=$feature->start();
 
@@ -313,8 +321,6 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                   #compute the total sie (has to be compute against the original hash)
                   my $totalSize=0;
                   $totalSize = compute_total_size($hash_omniscient, $l1_original_id, $matchFeatureExample);
-                  #print "totalSize=$totalSize \n";
-                  #print "matchSize $matchSize\n";
 
                   #compute the MATCH. A MATCH can be over 100% because we compute the size of the original feature l3 against the new feature l3. The new feature l3 (i.e exon) could have been strenghten to fit a new size/map of feature l2.
                   $percentMatch=($matchSize*100)/$totalSize;
@@ -536,20 +542,26 @@ print "We finished !! Bye Bye.\n";
 sub compute_total_size{
   my ($hash_omniscient, $l1_original_id, $feature_l3)=@_;
 
-  my $l2_transcipt_id = lc($feature_l3->_tag_value('transcript_id'));
-  my $total_size=0;
+		#print $l1_original_id." = l1_original_id\n" if ($verbose);
+		#use Data::Dumper ; print Dumper($hash_omniscient); exit;
+		  my $l2_transcipt_id = lc($feature_l3->_tag_value('transcript_id'));
+		  my $total_size=0;
 
 
       foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
         if ( exists_keys($hash_omniscient, ('level2',$primary_tag_key_level2, $l1_original_id) ) ){
+
           my $found=undef;
           foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$l1_original_id}}) {
             if($l2_transcipt_id eq lc($feature_level2->_tag_value('transcript_id'))){
+							#print $l2_transcipt_id." = l2_transcipt_id\n" if ($verbose);
               my $l2_original_id = lc($feature_level2->_tag_value('ID'));
               foreach my $primary_tag_l3  (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
                 if( lc($primary_tag_l3) eq lc( $feature_l3->primary_tag() ) ){
                   if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $l2_original_id) ) ){
                     foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$l2_original_id}}){
+											my $l3_transcipt_id = lc($feature_level3->_tag_value('transcript_id'));
+											#print $l3_transcipt_id." = l3_transcipt_id\n" if ($verbose);
                       $total_size+=($feature_level3->end - $feature_level3->start)+1;
                     }
                   }
@@ -566,7 +578,7 @@ sub compute_total_size{
 
   }
   if($total_size == 0){
-    print "Something went wrong, total_size is 0 while we exepect a positive value.\n";
+    print "Something went wrong, total_size is 0 while we expect a positive value.\n";
   }
   return $total_size;
 }
@@ -696,11 +708,9 @@ A plot nammed geneMapped_plot.pdf is performed to visualize the result.
 the script calcul the real percentage lentgh that has been mapped.
 Else the calcul is only based on feature with kraken_mapped="TRUE" attributes.
 So in this case the result most of time will be 100%.
-/!\/!\/!\ Sometimes Kraken will map features to several locations of the de-novo genome.
-As result we end with mapping over > 100%. We report them as 100% mapped in the plot,
-but a warning is raised to allow to check thoses cases.
-
-
+/!\/!\/!\ We met rare cases where Kraken mapped a feature to several locations of the de-novo genome.
+As result we could end up with mapping over > 100%. We report them as 100% mapped in the plot
+and a warning is raised to allow to check thoses cases.
 
 =head1 SYNOPSIS
 
