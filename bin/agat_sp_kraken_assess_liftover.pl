@@ -473,7 +473,13 @@ if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
 	###############
 	# print the value per gene in a temporary file for R plot
 	foreach my $key (keys %mappedPercentPerGene){
-	   print $ostreamPlotFile "$mappedPercentPerGene{$key}\n";
+		if ($mappedPercentPerGene{$key} > 100){
+				print $ostreamPlotFile "100\n";
+				warn "Warning: $key mapped value over 100%: ".$mappedPercentPerGene{$key}."%\n";
+		}
+		else{
+	   print $ostreamPlotFile $mappedPercentPerGene{$key}."\n";
+	 	}
 	}
 
 	my $messagePlot;
@@ -501,49 +507,13 @@ if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
 	else{print $messagePlot;}
 
 	# Delete temporary file
-	unlink "$pathPlotFile";
+	#unlink "$pathPlotFile";
 }
 else {
 	print "R no available. We cannot perform any plot\n";
 }
 #END
 print "We finished !! Bye Bye.\n";
-
-
-# #############
-# #PLOT
-# #############
-# 	my $messagePlot;
-# 	if ($nbGeneIdUniqMap){
-# 	  # Create the legend
-# 	  my $nbOfGeneSelected = $nbGeneIdUniqMap;
-# 	  # parse file name to remove extension
-# 	  my ($file1,$dir1,$ext1) = fileparse($gff, qr/\.[^.]*/);
-# 	  my $legend=$nbOfGeneSelected." genes selected from ".$file1;
-#
-# 	  my @listTuple=([$pathPlotFile,$legend]);
-# 	  my $R_command=rcc_density_one_row_per_file(\@listTuple,"histogram","Percentage of gene length mapped","10","",$pathOutPlot); # create the R command
-# 	  execute_R_command($R_command);
-#
-# 	  my $messagePlot;
-# 	  $messagePlot = "Plot done in the pdf file named $pathOutPlot\n";
-# 	}
-# 	else{
-# 	  $messagePlot = "Cannot perform any plot without data.\n";
-# 	}
-#
-# 	#print info
-# 	if ($outfile) {
-# 	  print $outReport $messagePlot;
-# 	}
-# 	else{print $messagePlot;}
-#
-# 	# Delete temporary file
-# 	#unlink "$pathPlotFile";
-#
-# #END
-# print "We finished !! Bye Bye.\n";
-
 
 #######################################################################################################################
         ####################
@@ -719,14 +689,18 @@ agat_sp_kraken_assess_lift_coverage.pl
 
 The script takes as input gtf produced by Kraken (lift-over tool).
 It will analyse the kraken_mapped attributes to calculate the mapped percentage of each mRNA.
+According to a threshold (0 by default), gene with a mapping percentage over that value will be reported.
+A plot nammed geneMapped_plot.pdf is performed to visualize the result.
 /!\ The script handles chimeric files (i.e containg gene part mapped on the template genome and others on the de-novo one)
 /!\/!\ If the file is complete (containing kraken_mapped="TRUE" and kraken_mapped="FALSE" attributes),
 the script calcul the real percentage lentgh that has been mapped.
 Else the calcul is only based on feature with kraken_mapped="TRUE" attributes.
-So in this case the result most of time will be 100%, execpt for cases where several
-piecies are mapped at different location of the de-novo genome.
-According to a threshold (0 by default), gene with a mapping percentage over that value will be reported.
-A plot nammed geneMapped_plot.pdf is performed to visualize the result.
+So in this case the result most of time will be 100%.
+/!\/!\/!\ Sometimes Kraken will map features to several locations of the de-novo genome.
+As result we end with mapping over > 100%. We report them as 100% mapped in the plot,
+but a warning is raised to allow to check thoses cases.
+
+
 
 =head1 SYNOPSIS
 
