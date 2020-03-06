@@ -127,7 +127,17 @@ sub slurp_gff3_file_JD {
 	if( ! defined($args->{gff_version})) {$gff_version = undef;}		 else{ $gff_version = $args->{gff_version}; } # force using gff parser version
 	if( ! defined($args->{locus_tag})) {$locus_tag = undef;}				 else{ push @COMONTAG, $args->{locus_tag}; } #add a new comon tag to the list if provided.}
 	if( ! defined($args->{no_check})) {$no_check = undef;} 					 else{ $no_check = $args->{no_check}; print "	 no_check option activated\n" if ($verbose > 0); } # skip checks
-	if( ! defined($args->{no_check_skip})) {$no_check_skip = [];} 	 else{ $no_check_skip = $args->{no_check_skip}; } # list of check to skip
+	if( ! defined($args->{no_check_skip})) {$no_check_skip = [];} 	 # arrayref of check to skip
+	else{
+			$no_check_skip = $args->{no_check_skip}	;
+
+			if( ref($no_check_skip) ne 'ARRAY') {
+				$no_check_skip = [$no_check_skip];
+			}
+			foreach my $no_check (@$no_check_skip){
+				print "	 check $no_check forced.\n" if ($verbose > 0);
+			}
+	}
 	if( ! defined($args->{merge_loci})) { $merge_loci = undef;	print "	 merge_locus option deactivated\n" if ($verbose > 0);}
 																																	 else{ $merge_loci = $args->{merge_loci}; print "	 merge_locus option activated\n" if ($verbose > 0);} # activat merge locus option
 
@@ -288,7 +298,7 @@ sub slurp_gff3_file_JD {
 		printSurrounded("- Start extra check -",50,"*","\n") if ($verbose > 0) ;
 	}
 
-	if(! $no_check or	grep( /^_check_sequential/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_sequential/, @$no_check_skip ) ) {
 		#Check sequential if we can fix cases. Hash to be done first, else is risky that we remove orphan L1 feature ... that are not yet linked to a sequential bucket
 		printSurrounded("Check1: _check_sequential",30,"*") if ($verbose > 0) ;
 		if( keys %infoSequential ){ #hash is not empty
@@ -299,21 +309,21 @@ sub slurp_gff3_file_JD {
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n"; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_l2_linked_to_l3/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_l2_linked_to_l3/, @$no_check_skip ) ) {
 			#Check relationship between l3 and l2
 			printSurrounded("Check2: _check_l2_linked_to_l3",30,"*") if($verbose > 0 ) ;
 			_check_l2_linked_to_l3(\%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose); # When creating L2 missing we create as well L1 if missing too
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_l1_linked_to_l2/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_l1_linked_to_l2/, @$no_check_skip ) ) {
 			#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
 			printSurrounded("Check3: _check_l1_linked_to_l2",30,"*") if ($verbose > 0 ) ;
 			_check_l1_linked_to_l2(\%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose);
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_remove_orphan_l1$/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_remove_orphan_l1$/, @$no_check_skip ) ) {
 			#check level1 has subfeature else we remove it
 			printSurrounded("Check4: _remove_orphan_l1",30,"*") if ($verbose > 0 ) ;
 			_remove_orphan_l1(\%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, \%mRNAGeneLink, $verbose); #or fix if level2 is missing (refseq case)
@@ -327,21 +337,21 @@ sub slurp_gff3_file_JD {
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n"; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_utrs/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_utrs/, @$no_check_skip ) ) {
 		#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
 		printSurrounded("Check6: _check_utrs",30,"*") if ($verbose > 0 ) ;
 			_check_utrs(\%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,	\%uniqIDtoType, $verbose);
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n"; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_all_level2_positions/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_all_level2_positions/, @$no_check_skip ) ) {
 		# Check rna positions compared to its l2 features
 		printSurrounded("Check7: _check_all_level2_positions",30,"*") if ($verbose > 0 ) ;
 		_check_all_level2_positions(\%omniscient, $verbose);
 		if($verbose > 0) {print "	 done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_all_level1_positions/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_all_level1_positions/, @$no_check_skip ) ) {
 		# Check gene positions compared to its l2 features
 		printSurrounded("Check8: _check_all_level1_positions",30,"*") if ($verbose > 0 ) ;
 		_check_all_level1_positions(\%omniscient, $verbose);
@@ -355,7 +365,7 @@ sub slurp_gff3_file_JD {
 			if($verbose > 0)	{print "	 done in ",time() - $previous_time," seconds\n\n" ; $previous_time = time();}
 	}
 
-	if(! $no_check or	grep( /^_check_identical_isoforms/, $no_check_skip ) ) {
+	if(! $no_check or	grep( /^_check_identical_isoforms/, @$no_check_skip ) ) {
 		#check identical isoforms
 		printSurrounded("Check10: _check_identical_isoforms",30,"*") if ($verbose > 0 ) ;
 		_check_identical_isoforms(\%omniscient, \%mRNAGeneLink, $verbose);
