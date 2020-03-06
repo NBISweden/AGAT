@@ -39,14 +39,6 @@ write_gff($gff_file);
 
 ## SUBROUTINES #######################################################
 
-sub usage {
-    print STDERR "Convert Mfannot Masterfile to GFF3 format\n";
-    print STDERR "\n";
-    print STDERR "Usage: perl mfannot2gff.pl -m input.new -g output.gff \n";
-    print STDERR "\n";
-    exit();
-}
-
 sub read_mfannot {
     my $current_contig;         # Track the current contig
     my $current_genetic_code;   # Track current genetic code
