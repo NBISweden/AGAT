@@ -11,7 +11,6 @@ use Bio::SeqIO;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $header = "";
 my $outfile = undef;
 my $embl = undef;
 my $primaryTags = undef;
