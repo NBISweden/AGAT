@@ -82,7 +82,7 @@ foreach my $next_file (@opt_files){
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together and remove the identical ones
-print ("\n$next_file Now merging overlaping loci, and removing identical isoforms\n");
+print ("\nNow merging overlaping loci, and removing identical isoforms\n");
 ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
                                                               merge_loci => 1
                                                             });
