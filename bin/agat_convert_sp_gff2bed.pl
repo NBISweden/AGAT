@@ -113,6 +113,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # tag_l1 = gene or re
 					$field5_score = $feature_l2->score ;
 					if(!$field5_score or $field5_score < 0){$field5_score = "0";}
 					$field6_strand = $feature_l2->strand;
+						$field6_strand = "+" if ( $field6_strand eq "1");
+						$field6_strand = "-" if ( $field6_strand eq "-1");
+					print $feature_l2->strand."\n";
 					$field7_thickStart = $feature_l2->start;
 					$field8_thickEnd = $feature_l2->end;
 
@@ -144,13 +147,16 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # tag_l1 = gene or re
 			$field12_blockStarts=~ s/,+$//; #removing trailing coma
 		}
 
-		my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
-		if($field10_blockCount){
-			$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
-		}
-		$line .= "\n";
+		# skip topfeatures e.g chromosome, location, etc. because do not have level2 features.
+		if($field1_chrom){
+			my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
+			if($field10_blockCount){
+				$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
+			}
+			$line .= "\n";
 
-		print $bedout $line;
+			print $bedout $line;
+		}
   }
 }
 
