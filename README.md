@@ -5,7 +5,7 @@
 [<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/downloads.svg)](https://anaconda.org/bioconda/agat)  
-AGAT 
+AGAT
 =========================================
 <h2><em>A</em>nother <em>G</em>ff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
@@ -114,6 +114,7 @@ Some examples **what AGAT can do**:
     cpanm LWP::UserAgent
     cpanm Statistics::R
     cpanm JSON
+    cpanm Carp
     cpanm Sort::Naturally
     cpanm File::Share
     cpanm File::ShareDir::Install
