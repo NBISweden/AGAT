@@ -5,6 +5,7 @@ package AGAT::PlotR;
 use strict;
 use warnings;
 use Exporter;
+use Carp;
 use Bio::Tools::GFF;
 use Statistics::R;
 use AGAT::Utilities;
