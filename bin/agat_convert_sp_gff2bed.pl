@@ -112,7 +112,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        foreach my $feature_l2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
 						$field1_chrom = $feature_l2->seq_id;
-						$field2_chromStart = $feature_l2->start;
+						$field2_chromStart = $feature_l2->start-1;
 						$field3_chromEnd = $feature_l2->end;
 						$field4_name = $feature_l2->_tag_value('ID');
 						$field5_score = $feature_l2->score ;
@@ -120,8 +120,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 						$field6_strand = $feature_l2->strand;
 							$field6_strand = "+" if ( $field6_strand eq "1");
 							$field6_strand = "-" if ( $field6_strand eq "-1");
-						$field7_thickStart = $feature_l2->start;
-						$field8_thickEnd = $feature_l2->end;
+						$field7_thickStart = ".";
+						$field8_thickEnd = ".";
 
 	          #################
 	          # == LEVEL 3 == #
@@ -133,12 +133,19 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							foreach my $feature_l3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{lc($sub)}{$level2_ID}}) {
 									$field10_blockCount++;
 
-									my $size_l3 = $feature_l3->end - $feature_l3->start; #No +1 as in GFF feature size because 0-based format in bed
+									my $start_l3 = $feature_l3->start - 1;
+									my $size_l3 = $feature_l3->end - $start_l3; #No +1 as in GFF feature size because 0-based format in bed
 									$field11_blockSizes .= $size_l3.",";
 
-									my $start_l3 = $feature_l3->start - 1; #No +1 as in GFF feature size because 0-based format in bed
-									$field12_blockStarts .= $start_l3.",";
+									$field12_blockStarts .= $start_l3-$field2_chromStart.",";
 	            }
+	          }
+						#add thick if CDS
+						if( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID ) ) ) {
+
+							my @sorted_cds = sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+							$field7_thickStart = $sorted_cds[0]->start - 1;
+							$field8_thickEnd = $sorted_cds[$#sorted_cds]->end;
 	          }
 	        }
 	      }
@@ -192,7 +199,7 @@ Definintion of the bed format:
 # 9 itemRgb - An RGB value of the form R,G,B (e.g. 255,0,0). If the track line itemRgb attribute is set to "On", this RBG value will determine the display color of the data contained in this BED line. NOTE: It is recommended that a simple color scheme (eight colors or less) be used with this attribute to avoid overwhelming the color resources of the Genome Browser and your Internet browser.
 # 10 blockCount - The number of blocks (exons) in the BED line.
 # 11 blockSizes - A comma-separated list of the block sizes. The number of items in this list should correspond to blockCount.
-# 12 blockStarts
+# 12 blockStarts - A comma-separated list of block starts. All of the blockStart positions should be calculated relative to chromStart. The number of items in this list should correspond to blockCount.
 
 =head1 SYNOPSIS
 
