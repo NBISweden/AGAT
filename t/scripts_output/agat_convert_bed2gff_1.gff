@@ -1,0 +1,7 @@
+##gff-version 3
+chr1	data	gene	57598	64116	.	+	1	ID=1;Name=ENST00000642116.1;blockCount=3;blockSizes=56%2C157%2C1201;blockStarts=0%2C1102%2C5318;itemRgb=0;thickEnd=64116;thickStart=64116
+chr1	data	exon	57598	57653	.	+	1	ID=exon1;Parent=1
+chr1	data	exon	58700	58856	.	+	1	ID=exon2;Parent=1
+chr1	data	exon	62916	64116	.	+	1	ID=exon3;Parent=1
+chr1	data	gene	52473	53312	.	+	1	ID=2;Name=ENST00000606857.1;blockCount=1;blockSizes=840;blockStarts=0;itemRgb=0;thickEnd=53312;thickStart=53312
+chr1	data	exon	52473	53312	.	+	1	ID=exon4;Parent=2

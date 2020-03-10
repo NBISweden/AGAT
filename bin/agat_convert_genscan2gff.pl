@@ -13,7 +13,7 @@ my $header = get_agat_header();
 my $outfile = undef;
 my $genscan = undef;
 my $seq_id = "unknown";
-my @list_introns = ("Init", "Intr", "Term", "Sngl");
+my @list_exon_types = ("Init", "Intr", "Term", "Sngl");
 my %hash_raw;
 my %hash_uniqID;
 my $verbose = undef;
@@ -98,7 +98,7 @@ sub convert_genscan{
 		foreach my $tag ( keys %{$hash_raw{$genscan_id} } ){
 			# first create EXONS
 			#print $tag."\n";
-			if ( 	grep( /^$tag/, @list_introns ) ){
+			if ( 	grep( /^$tag/, @list_exon_types ) ){
 				foreach my $nb (keys %{$hash_raw{$genscan_id}{$tag} } ){
 
 					my @splitline = split /\s+/, $hash_raw{$genscan_id}{$tag}{$nb};
@@ -112,7 +112,7 @@ sub convert_genscan{
 					}
 					# phase and frame from genscan cannot be used
 					my $strand=$splitline[2];
-					my $id = create_uniq_id("exon");
+					my $id = "fake";
 					my $score = $splitline[$#splitline];
 
 					my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
@@ -159,6 +159,8 @@ sub convert_genscan{
 			my $strand = $list_exons[0]->strand;
 
 			foreach my $exon (@list_exons){
+				my $ordered_exon_id = create_uniq_id("exon");
+				create_or_replace_tag($exon, 'ID', $ordered_exon_id);
 				$gffout->write_feature($exon);
 			}
 			#-------------- print cds --------------

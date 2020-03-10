@@ -15,6 +15,8 @@ my $mfannot_file;
 my $verbose;
 my $gff_file;
 my %startend_hash;     # Stores start and end positions of each feature reported
+my %sorted_hash;
+my %hash_uniqID;
 my %filtered_result;
 my %gencode_hash;
 
@@ -249,12 +251,50 @@ sub read_mfannot {
 
 sub sort_result {
 
+	my $gene_uniqid=0;
 	foreach my $contig (keys %startend_hash){
 		foreach my $name (keys %{$startend_hash{$contig}} ){
 			foreach my $nb ( keys %{$startend_hash{$contig}{$name}{'start'}} ){
 				my $start = $startend_hash{$contig}{$name}{'start'}{$nb};
-				$filtered_result{$contig}{"$start$name"}{$name}{'start'}=$start;
-				$filtered_result{$contig}{"$start$name"}{$name}{'end'}=$startend_hash{$contig}{$name}{'end'}{$nb};;
+				my $end = $startend_hash{$contig}{$name}{'end'}{$nb};
+				my $featuredir = "+";
+				if ( $start > $end) {
+						$featuredir = "-";
+						my $tmpstart=$start;
+						$start = $end;
+						$end = $tmpstart;
+				}
+
+				my $parent = undef;
+				my $type = undef;
+				my $gene_id = undef;
+				my $gene_name = $name;
+				if ($name =~ /^rnl/ | $name =~ /^rns/) { $type="rRNA"; }
+				elsif ($name =~ /^trn/) { $type = "tRNA"; }
+				elsif ($name =~ /^group/){$type = "group_II_intron";}
+				elsif ($name =~ /^(\w+)-I\w+/){$type="intron"; $parent=$1; $gene_name=$1; $gene_id = $1;}
+				elsif ($name =~ /^(\w+)-E\w+/){$type="exon"; $parent=$1; $gene_name=$1; $gene_id = $1;}
+				else {$type="mRNA"; $gene_name=$name; $gene_id = $1;}
+
+				if (! $gene_id ){$gene_id = $gene_uniqid++;}
+
+				my %hash_value = (
+					start => $start,
+					end => $end,
+					strand => $featuredir,
+					type  => $type,
+					parent => $parent,
+					name => $name,
+					gene_name => $gene_name
+				);
+
+
+
+				push ( @{$filtered_result{ $contig }{ $gene_id }{ lc($type) }}, {%hash_value} );
+
+				if ($type ne "intron" and $type ne "exon"){
+					$sorted_hash{$contig}{"$start$end$name"} =  $gene_id; # to print the features sorted
+				}
 			}
 		}
 	}
@@ -268,65 +308,125 @@ sub write_gff {
 		else{ # print to STDOUT
 			*GFF = *STDOUT;
 		}
-  	#use Data::Dumper; #print Dumper(\%filtered_result);exit;
+  	#use Data::Dumper; print Dumper(\%filtered_result);exit;
     print GFF "##gff-version 3\n";  # header line
 
 		foreach my $current_contig ( sort keys %filtered_result ){
-      foreach my $thefeature_uniq ( sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } keys %{$filtered_result{$current_contig}}) {
+      foreach my $uniqid ( sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } keys %{$sorted_hash{$current_contig}}) {
+				my $gene_name = $sorted_hash{$current_contig}{$uniqid};
 
-				foreach my $thefeature ( keys %{$filtered_result{$current_contig}{$thefeature_uniq}}) {
-					my $featuretype;
-					#print $thefeature."\n";
-          if ($thefeature =~ /^rnl/ | $thefeature =~ /^rns/) { $featuretype="rRNA"; }
-          elsif ($thefeature =~ /^trn/) { $featuretype = "tRNA"; }
-					elsif ($thefeature =~ /^group/){$featuretype = "group_II_intron";}
-          else {$featuretype="CDS";}
+					# mRNA can have exon or not (If none we create one)
+					if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'mrna')) ){
+						write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'mrna'});
+						if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'exon')) ){
+							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'exon'});
+						}
+						# create exon because none exists
+						else{
+							my $mrna_hash = $filtered_result{$current_contig}{$gene_name}{'mrna'}[0];
 
-          my $featuredir;
-          my $frame;
-
-          my $start = $filtered_result{$current_contig}{$thefeature_uniq}{$thefeature}{'start'};
-          my $end = $filtered_result{$current_contig}{$thefeature_uniq}{$thefeature}{'end'};
-          if ( $start > $end) {
-              $featuredir = "-";
-							my $tmpstart=$start;
-              $start = $end;
-              $end = $tmpstart;
-          }
-					else {
-              $featuredir="+";
-          }
-          if ($featuretype eq "CDS") { $frame="0"; } else { $frame = "."; }
-
-					#create uniq ID
-					my $uniqID;
-					if ( defined($id_hash{$featuretype}) ){
-						$id_hash{$featuretype}++;
-						$uniqID = $featuretype."".$id_hash{$featuretype};
+							my %hash_value = (
+								start => $mrna_hash->{'start'},
+								end => $mrna_hash->{'end'},
+								strand => $mrna_hash->{'strand'},
+								type  => 'exon',
+								parent => $mrna_hash->{'name'},
+								name => $mrna_hash->{'name'},
+								gene_name => $mrna_hash->{'gene_name'}
+							);
+							write_feature($current_contig, [\%hash_value] );
+						}
+						if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'intron')) ){
+							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'intron'});
+						}
 					}
+					# Other than mRNA
 					else{
-						$uniqID = $featuretype."1";
-						$id_hash{$featuretype}=1;
+						foreach my $type ( keys %{$filtered_result{$current_contig}{$gene_name}}) {
+
+							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{$type});
+
+							#create exon for other feature than group_ii_intron
+							if ( lc($type) ne "group_ii_intron" ) {
+								my @list_hashes;
+								foreach my $other_hash ( @{$filtered_result{$current_contig}{$gene_name}{$type} }){
+
+									my %hash_value = (
+										start => $other_hash->{'start'},
+										end => $other_hash->{'end'},
+										strand => $other_hash->{'strand'},
+										type  => 'exon',
+										parent => $other_hash->{'id'},
+										name => $other_hash->{'name'},
+										gene_name => $other_hash->{'gene_name'}
+									);
+									push @list_hashes, {%hash_value};
+								}
+
+								write_feature($current_contig, \@list_hashes );
+							}
+						}
 					}
-
-
-					my @gff3_line = ($current_contig,
-                           "mfannot",
-                           $featuretype,
-                           $start,
-                           $end,
-                           ".",
-                           $featuredir,
-                           $frame,
-                           "ID=$uniqID;Name=$thefeature;transl_table=$gencode_hash{$current_contig};gene=$thefeature"
-                           );
-          print GFF join ("\t", @gff3_line)."\n";
-				}
       }
 		}
 
     close (GFF);
 }
+
+
+sub write_feature{
+	my ($contig, $list)=@_;
+
+	foreach my $hash ( sort {$a->{'start'} <=> $b->{'start'}} @{$list} ) {
+
+		# deal with frame
+		my $frame;
+		if ($hash->{'type'} eq "CDS") { $frame="0"; }
+		else { $frame = "."; }
+
+		#ID and Parent
+		my $uniqID = create_uniq_id($hash->{'type'});
+		$hash->{'id'} = $uniqID;
+		my $mandatory = undef;
+		if( defined ($hash->{'parent'} ) ){
+			$mandatory = "ID=$uniqID;Parent=$hash->{'parent'}";
+		}
+		else{
+			$mandatory = "ID=$uniqID";
+		}
+
+		my @gff3_line = ($contig,
+										 "mfannot",
+										 $hash->{'type'},
+										 $hash->{'start'},
+										 $hash->{'end'},
+										 ".",
+										 $hash->{'strand'},
+										 $frame,
+										 "$mandatory;Name=$hash->{'name'};transl_table=$gencode_hash{$contig};gene=$hash->{'gene_name'}"
+										 );
+		print GFF join ("\t", @gff3_line)."\n";
+	}
+}
+
+
+sub create_uniq_id{
+	my ( $tag ) = @_;
+
+	my $uniqID;
+
+	if(! exists_keys(\%hash_uniqID,($tag) ) ){
+		$uniqID=$tag."_1";
+		$hash_uniqID{$tag}=1;
+	}
+	else{
+		$hash_uniqID{$tag}++;
+		$uniqID=$tag."_".$hash_uniqID{$tag};
+	}
+
+	return $uniqID;
+}
+
 
 =head1 NAME
 

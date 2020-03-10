@@ -77,87 +77,92 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
 #   }
 # }
 
+# sort by seq id
+my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
 
 #################
 # == LEVEL 1 == #
 #################
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # tag_l1 = gene or repeat etc...
-  foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-    my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
-    #################
-    # == LEVEL 2 == #
-    #################
-		my $field1_chrom = undef;
-		my $field2_chromStart = undef;
-		my $field3_chromEnd = undef;
-		my $field4_name = undef;
-		my $field5_score = undef;
-		my $field6_strand = undef;
-		my $field7_thickStart = undef;
-		my $field8_thickEnd = undef;
-		my $field9_itemRgb = "255,0,0";
-		my $field10_blockCount = undef;
-		my $field11_blockSizes = undef;
-		my $field12_blockStarts = undef;
+	foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
+		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
+			my $id_l1 = lc($feature_l1->_tag_value('ID'));
 
-    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # tag_l2 = mrna or mirna or ncrna or trna etc...
-			if( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1 ) ) ) {
-        foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
-					$field1_chrom = $feature_l2->seq_id;
-					$field2_chromStart = $feature_l2->start;
-					$field3_chromEnd = $feature_l2->end;
-					$field4_name = $feature_l2->_tag_value('ID');
-					$field5_score = $feature_l2->score ;
-					if(!$field5_score or $field5_score < 0){$field5_score = "0";}
-					$field6_strand = $feature_l2->strand;
-						$field6_strand = "+" if ( $field6_strand eq "1");
-						$field6_strand = "-" if ( $field6_strand eq "-1");
-					print $feature_l2->strand."\n";
-					$field7_thickStart = $feature_l2->start;
-					$field8_thickEnd = $feature_l2->end;
+	    #################
+	    # == LEVEL 2 == #
+	    #################
+			my $field1_chrom = undef;
+			my $field2_chromStart = undef;
+			my $field3_chromEnd = undef;
+			my $field4_name = undef;
+			my $field5_score = undef;
+			my $field6_strand = undef;
+			my $field7_thickStart = undef;
+			my $field8_thickEnd = undef;
+			my $field9_itemRgb = "255,0,0";
+			my $field10_blockCount = undef;
+			my $field11_blockSizes = undef;
+			my $field12_blockStarts = undef;
 
-          #################
-          # == LEVEL 3 == #
-          #################
-          my $level2_ID = lc( $feature_l2->_tag_value('ID') );
+	    foreach my $tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # tag_l2 = mrna or mirna or ncrna or trna etc...
+				if( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1 ) ) ) {
+	        foreach my $feature_l2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
-					if( exists_keys( $hash_omniscient, ('level3', lc($sub), $level2_ID ) ) ) {
+						$field1_chrom = $feature_l2->seq_id;
+						$field2_chromStart = $feature_l2->start;
+						$field3_chromEnd = $feature_l2->end;
+						$field4_name = $feature_l2->_tag_value('ID');
+						$field5_score = $feature_l2->score ;
+						if(!$field5_score or $field5_score < 0){$field5_score = "0";}
+						$field6_strand = $feature_l2->strand;
+							$field6_strand = "+" if ( $field6_strand eq "1");
+							$field6_strand = "-" if ( $field6_strand eq "-1");
+						$field7_thickStart = $feature_l2->start;
+						$field8_thickEnd = $feature_l2->end;
 
-						foreach my $feature_l3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{lc($sub)}{$level2_ID}}) {
-								$field10_blockCount++;
+	          #################
+	          # == LEVEL 3 == #
+	          #################
+	          my $level2_ID = lc( $feature_l2->_tag_value('ID') );
 
-								my $size_l3 = $feature_l3->end - $feature_l3->start; #No +1 as in GFF feature size because 0-based format in bed
-								$field11_blockSizes .= $size_l3.",";
+						if( exists_keys( $hash_omniscient, ('level3', lc($sub), $level2_ID ) ) ) {
 
-								my $start_l3 = $feature_l3->start - 1; #No +1 as in GFF feature size because 0-based format in bed
-								$field12_blockStarts .= $start_l3.",";
-            }
-          }
-        }
-      }
-    }
+							foreach my $feature_l3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{lc($sub)}{$level2_ID}}) {
+									$field10_blockCount++;
 
-		if ($field11_blockSizes){
-			$field11_blockSizes=~ s/,+$//; #removing trailing coma
-		}
-		if ($field12_blockStarts){
-			$field12_blockStarts=~ s/,+$//; #removing trailing coma
-		}
+									my $size_l3 = $feature_l3->end - $feature_l3->start; #No +1 as in GFF feature size because 0-based format in bed
+									$field11_blockSizes .= $size_l3.",";
 
-		# skip topfeatures e.g chromosome, location, etc. because do not have level2 features.
-		if($field1_chrom){
-			my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
-			if($field10_blockCount){
-				$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
+									my $start_l3 = $feature_l3->start - 1; #No +1 as in GFF feature size because 0-based format in bed
+									$field12_blockStarts .= $start_l3.",";
+	            }
+	          }
+	        }
+	      }
+	    }
+
+			if ($field11_blockSizes){
+				$field11_blockSizes=~ s/,+$//; #removing trailing coma
 			}
-			$line .= "\n";
+			if ($field12_blockStarts){
+				$field12_blockStarts=~ s/,+$//; #removing trailing coma
+			}
 
-			print $bedout $line;
-		}
-  }
+			# skip topfeatures e.g chromosome, location, etc. because do not have level2 features.
+			if($field1_chrom){
+				my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
+				if($field10_blockCount){
+					$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
+				}
+				$line .= "\n";
+
+				print $bedout $line;
+			}
+	  }
+	}
 }
 
 __END__

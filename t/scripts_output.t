@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 36;
+use Test::More tests => 42;
 
 =head1 DESCRIPTION
 
@@ -26,6 +26,59 @@ my $outprefix = "tmp";
 my $script;
 my $result;
 my $result2;
+
+# -------------------------- check agat_convert_bed2gff -------------------------
+
+$script = $script_prefix."bin/agat_convert_bed2gff.pl";
+$result = "$output_folder/agat_convert_bed2gff_1.gff";
+system(" $script --bed $output_folder/test.bed -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# -------------------------- check agat_convert_embl2gff -------------------------
+
+# Nothing yet
+
+# -------------------------- check agat_convert_genscan2gff -------------------------
+
+$script = $script_prefix."bin/agat_convert_genscan2gff.pl";
+$result = "$output_folder/agat_convert_genscan2gff_1.gff";
+system(" $script --genscan $output_folder/test.genscan -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# -------------------------- check agat_convert_mfannot2gff -------------------------
+
+$script = $script_prefix."bin/agat_convert_mfannot2gff.pl";
+$result = "$output_folder/agat_convert_mfannot2gff_1.gff";
+system(" $script --mfannot $output_folder/test.mfannot -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# -------------------------- check agat_convert_sp_gff2bed -------------------------
+
+$script = $script_prefix."bin/agat_convert_sp_gff2bed.pl";
+$result = "$output_folder/agat_convert_sp_gff2bed_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# -------------------------- check agat_convert_sp_gff2gtf -------------------------
+
+$script = $script_prefix."bin/agat_convert_sp_gff2gtf.pl";
+$result = "$output_folder/agat_convert_sp_gff2gtf_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# -------------------------- check sp_gxf_togxf.pl -------------------------
+
+# No need to be tested, it is the same as agat_sp_gxf_to_gff3
 
 # -------------------------- check agat_sp_add_introns -------------------------
 
@@ -130,6 +183,7 @@ unlink $outtmp;
 unlink $outprefix."_discarded.txt";
 unlink $outprefix."_report.txt";
 
+
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 $script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
 $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
@@ -167,7 +221,7 @@ unlink $outtmp;
 # --------check agat_sp_fix_fusion.pl-------------
 
 $script = $script_prefix."bin/agat_sp_fix_fusion.pl";
-$result = "$output_folder/agat_sp_fix_fusion_1.txt"; # txt becaus
+$result = "$output_folder/agat_sp_fix_fusion_1.txt";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outprefix-report.txt") == 0, "output $script");
@@ -179,7 +233,7 @@ unlink "$outprefix-only_modified.gff";
 # --------agat_sp_fix_longest_ORF.pl-------------
 
 $script = $script_prefix."bin/agat_sp_fix_longest_ORF.pl";
-$result = "$output_folder/agat_sp_fix_longest_ORF_1.txt"; # txt becaus
+$result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff -b -I '^Job done in' -I '^Job done in' $result $outprefix-report.txt") == 0, "output $script");
@@ -222,6 +276,18 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+
+# --------check agat_sp_kraken_assess_liftover.pl-------------
+
+$script = $script_prefix."bin/agat_sp_kraken_assess_liftover.pl";
+$result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
+system(" $script --gtf $output_folder/test_kraken.gtf -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outprefix;
+unlink $outprefix."_report.txt";
+unlink $outprefix."-geneMapped_plot.pdf";
+unlink $outprefix."-geneMapped.txt";
 
 # --------check agat_sp_list_short_introns.pl-------------
 

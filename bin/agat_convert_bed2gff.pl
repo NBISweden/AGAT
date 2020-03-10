@@ -189,7 +189,7 @@ while( my $line = <$fh>)  {
 
 ###
 # MANAGE BED OMNISCIEN FOR OUTPUT
-foreach my $id (keys %bedOmniscent){
+foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 #  foreach my $key (keys %{$bedOmniscent{$id}}){
 
     my $seq_id=$bedOmniscent{$id}{'chrom'};
