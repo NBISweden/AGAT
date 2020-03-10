@@ -81,8 +81,8 @@ if ($opt_output) {
 }
 else{
   $gffout_ok = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $fhout_discarded = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $ostreamReport = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
+  $fhout_discarded = \*STDOUT;
+  $ostreamReport = \*STDOUT;
 }
 
 # Manage $primaryTag
@@ -164,7 +164,7 @@ foreach my $tag_l1 ( sort keys %{$hash_omniscient->{'level1'}}){
 
       if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
         my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
-        foreach my $feature_l2 ( @list_fl2 ) {
+        foreach my $feature_l2 ( sort { $a->start <=> $b->start } @list_fl2 ) {
 
           $removeit = check_feature($feature_l2,'level2', \@ptagList, \@attListOk, $opt_test);
           if ($removeit){
@@ -179,7 +179,7 @@ foreach my $tag_l1 ( sort keys %{$hash_omniscient->{'level1'}}){
           foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
             if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
               my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
-              foreach my $feature_l3 ( @list_fl3 ) {
+              foreach my $feature_l3 ( sort { $a->start <=> $b->start } @list_fl3 ) {
 
                 $removeit = check_feature($feature_l3, 'level3', \@ptagList, \@attListOk, $opt_test);
                 if ($removeit){
