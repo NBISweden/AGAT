@@ -16,11 +16,13 @@ my $start_run = time();
 my @inputFile;
 my $outputFile;
 my $genome;
+my $inflate;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions ('i|file|input|gff=s' => \@inputFile,
       'o|output=s' => \$outputFile,
+			'inflate!' => \$inflate,
       'g|genome=s' => \$genome,
       'h|help!'         => \$opt_help )  )
 {
@@ -92,8 +94,22 @@ foreach my $file (@inputFile){
   while (my $feature = $ref_in->next_feature() ) {
     $line_cpt++;
     my $type = lc($feature->primary_tag);
-    $type_count->{$type}++;
-    $type_bp->{$type}+=($feature->end()-$feature->start())+1;
+
+		my $nb_parent = 1;
+
+		# count number of parent if option activated
+		if ($inflate){
+			if($feature->has_tag('Parent')){
+				my @parentList = $feature->get_tag_values('Parent');
+				$nb_parent = scalar @parentList;
+			}
+		}
+
+		# count several time is several parents
+		for (my $i=0; $i<$nb_parent; $i++){
+    	$type_count->{$type}++;
+    	$type_bp->{$type}+=($feature->end()-$feature->start())+1;
+		}
 
     #Display progression
     if ((30 - (time - $startP)) < 0) {
@@ -177,6 +193,14 @@ STRING: Input GTF/GFF file. Several files can be processed at once: -i file1 -i 
 
 That input is design to know the genome size in order to calculate the percentage of the genome represented by each kind of feature type.
 You can provide an INTEGER or the genome in fasta format. If you provide the fasta, the genome size will be calculated on the fly.
+
+=item B<--inflate>
+
+Inflate the statistics taking into account feature with multi-parents.
+Indeed to avoid redundant information, some gff factorize identical features.
+e.g: one exon used in two different isoform will be defined only once, and will have multiple parent.
+By default the script count such feature only once. Using the inflate option allows
+to count the feature and its size as many time there are parents.
 
 =item B<-o> or B<--output>
 

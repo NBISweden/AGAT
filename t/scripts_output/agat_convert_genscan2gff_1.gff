@@ -1,0 +1,25 @@
+##gff-version 3
+unknown	genscan	gene	2223	4605	75.25	+	.	ID=gene_1
+unknown	genscan	mRNA	2223	4605	75.25	+	.	ID=mrna_1;Parent=gene_1
+unknown	genscan	exon	2223	3020	75.25	+	.	ID=exon_1;Parent=mrna_1
+unknown	genscan	exon	4249	4605	13.03	+	.	ID=exon_2;Parent=mrna_1
+unknown	genscan	CDS	2223	3020	75.25	+	0	ID=cds_1;Parent=mrna_1
+unknown	genscan	CDS	4249	4605	13.03	+	0	ID=cds_2;Parent=mrna_1
+unknown	genscan	gene	6829	8789	20.06	-	.	ID=gene_2
+unknown	genscan	mRNA	6829	8789	20.06	-	.	ID=mrna_2;Parent=gene_2
+unknown	genscan	exon	6829	7297	20.06	-	.	ID=exon_3;Parent=mrna_2
+unknown	genscan	exon	7730	7888	12.78	-	.	ID=exon_4;Parent=mrna_2
+unknown	genscan	exon	8029	8185	7.45	-	.	ID=exon_5;Parent=mrna_2
+unknown	genscan	exon	8278	8546	17.45	-	.	ID=exon_6;Parent=mrna_2
+unknown	genscan	exon	8647	8789	18.65	-	.	ID=exon_7;Parent=mrna_2
+unknown	genscan	CDS	6829	7297	20.06	-	1	ID=cds_3;Parent=mrna_2
+unknown	genscan	CDS	7730	7888	12.78	-	1	ID=cds_4;Parent=mrna_2
+unknown	genscan	CDS	8029	8185	7.45	-	2	ID=cds_5;Parent=mrna_2
+unknown	genscan	CDS	8278	8546	17.45	-	1	ID=cds_6;Parent=mrna_2
+unknown	genscan	CDS	8647	8789	18.65	-	0	ID=cds_7;Parent=mrna_2
+unknown	genscan	gene	10209	11924	16.18	+	.	ID=gene_3
+unknown	genscan	mRNA	10209	11924	16.18	+	.	ID=mrna_3;Parent=gene_3
+unknown	genscan	exon	10209	11313	16.18	+	.	ID=exon_8;Parent=mrna_3
+unknown	genscan	exon	11850	11924	3.27	+	.	ID=exon_9;Parent=mrna_3
+unknown	genscan	CDS	10209	11313	16.18	+	0	ID=cds_8;Parent=mrna_3
+unknown	genscan	CDS	11850	11924	3.27	+	2	ID=cds_9;Parent=mrna_3

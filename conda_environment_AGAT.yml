@@ -1,4 +1,4 @@
-# conda env create -f agat_environment.yml
+# conda env create -f conda_environment_AGAT.yml
 name: agat
 channels:
   - conda-forge
@@ -13,6 +13,7 @@ dependencies:
   - perl-lwp-simple
   - perl-statistics-r
   - perl-json
+  - perl-carp
   - perl-sort-naturally
   - perl-file-share
   - perl-file-sharedir-install

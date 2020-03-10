@@ -30,6 +30,7 @@ my $opt_OFS=undef;
 my $opt_type = 'cds';
 my $opt_cleanFinalStop=undef;
 my $opt_cleanInternalStop=undef;
+my $opt_remove_orf_offset = undef;
 my $quiet = undef;
 
 # OPTION MANAGMENT
@@ -38,10 +39,11 @@ if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
                   'f|fa|fasta=s' => \$opt_fastafile,
                   't=s' => \$opt_type,
                   'ofs=s' => \$opt_OFS,
-                  'protein|p|aa' => \$opt_AA,
+                  'protein|p|aa!' => \$opt_AA,
                   'cdna' => \$opt_cdna,
-                  'cfs'   => \$opt_cleanFinalStop,
-		              'cis'   => \$opt_cleanInternalStop,
+                  'cfs|clean_final_stop!'   => \$opt_cleanFinalStop,
+		              'cis|clean_internal_stop!'   => \$opt_cleanInternalStop,
+									'remove_orf_offset|roo!' => \$opt_remove_orf_offset,
                   'full!' => \$opt_full,
                   'split!' => \$opt_split,
                   'eo!' => \$opt_extremity_only,
@@ -57,8 +59,7 @@ if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
                  -verbose => 1,
                  -exitval => 1 } );
 }
-# shortcut for cdna
-if($opt_cdna){$opt_type="exon";}
+
 
 # Print Help and exit
 if ($opt_help) {
@@ -74,6 +75,9 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# shortcut for cdna
+if($opt_cdna){$opt_type="exon";}
 
 if( $opt_full   and $opt_split)
 {print "Options --full and --split cannot be used concomitantly. Please read the help\n"; exit;}
@@ -280,6 +284,16 @@ sub extract_sequences{
   if($opt_full){
     my $start = $sortedList[0]->start;
     my $end = $sortedList[$#sortedList]->end;
+		# Deal with phase for CDS not starting at 0 when we want to do translation
+		if( $opt_remove_orf_offset and  lc($sortedList[0]->primary_tag) eq "cds" ){
+			if($minus and $sortedList[$#sortedList]->frame != 0){
+				$end = $sortedList[$#sortedList]->end - $sortedList[$#sortedList]->frame;
+			}
+			elsif (! $minus and $sortedList[0]->frame != 0){
+				$start = $sortedList[0]->start + $sortedList[0]->frame;
+			}
+		}
+
     my $info = ""; my $right_piece = ""; my $left_piece = ""; my $sequence = "";
 
     # take and append the left piece if asked for
@@ -315,6 +329,16 @@ sub extract_sequences{
      foreach my $feature ( @sortedList ){
        my $start = $feature->start;
        my $end = $feature->end;
+			 # Deal with phase for CDS not starting at 0 when we want to do translation
+			 if( $opt_remove_orf_offset and  lc($feature->primary_tag) eq "cds" ){
+				 if($minus and $feature->frame != 0){
+					 $end = $feature->end - $feature->frame;
+				 }
+				 elsif (! $minus and $feature->frame != 0){
+					 $start =$feature->start + $feature->frame;
+				 }
+			 }
+
        my $info = ""; my $right_piece = ""; my $left_piece = ""; my $sequence = "";
 
        # take and append the left piece if asked for
@@ -362,6 +386,16 @@ sub extract_sequences{
      foreach my $feature ( @sortedList ){
        $sequence .= get_sequence($db, $feature->seq_id, $feature->start, $feature->end);
      }
+		 # Deal with phase for CDS not starting at 0 when we want to do translation or if asked by activation of $opt_remove_orf_offset parameter
+		 if( ($opt_remove_orf_offset or $opt_AA) and  lc($sortedList[0]->primary_tag) eq "cds" ){
+
+			 if($minus and $sortedList[$#sortedList]->frame != 0){
+				 $sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
+			 }
+			 elsif (! $minus and $sortedList[0]->frame != 0){
+				 $sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
+			 }
+		 }
 
      # update sequence with extremities if option
      if($opt_upstreamRegion or $opt_downRegion){
@@ -523,9 +557,11 @@ sub  get_sequence{
 sub print_seqObj{
   my($ostream, $seqObj, $opt_AA, $codonTable) = @_;
 
-  $nbFastaSeq++;
 
   if($opt_AA){ #translate if asked
+
+			if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n"; return; }
+
       my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
 
       if($opt_cleanFinalStop and $opt_cleanInternalStop){ #this case is needed to be able to remove two final stop codon in a raw when the bothotpion are activated.
@@ -558,11 +594,15 @@ sub print_seqObj{
         $transObj->seq($cleanedSeq);
       }
 
+			if ( length($transObj->seq()) == 0 ){warn "Translated sequence empty for ".$transObj->id().". The nucleotide sequence was only coding for stop codon(s). The translated stop codon(s) '*' has/have been removed due to stop codon(s)'s cleaning  parameter(s) activated. Skipped...\n"; return; }
+
       $ostream->write_seq($transObj);
    }
   else{
     $ostream->write_seq($seqObj);
   }
+
+	$nbFastaSeq++;
 }
 
 
@@ -662,13 +702,21 @@ This extract the cdna* sequence (i.e transcribed sequence (devoid of introns, bu
 
 Output Fields Separator for the description field. By default it's a space < > but can be modified by any String or character using this option.
 
-=item B<--cis>
+=item B<--clean_internal_stop> or B<--cis>
 
 The Clean Internal Stop option allows replacing the translation of the stop codons present among the sequence that is represented by the <*> character by <X>. Indeed the <*> character can be disturbing for many programs (e.g interproscan)
 
-=item B<--cfs>
+=item B<--clean_final_stop> or B<--cfs>
 
 The Clean Final Stop option allows removing the translation of the final stop codons that is represented by the <*> character. This character can be disturbing for many programs (e.g interproscan)
+
+=item B<--remove_orf_offset> or B<--roo>
+
+CDS can start with a phase different from 0 when a gene model is fragmented.
+When asking for protein translation this (start) offset is trimmed out automatically.
+But when you extract CDS dna sequences, this  (start) offset is not removed by default.
+To remove it activate this option. If --up or --do option are used too, the (start) offset
+is trimmed first, then is added the piece of sequence asked for.
 
 =item B<-o> or B<--output>
 

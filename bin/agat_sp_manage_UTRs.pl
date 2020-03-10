@@ -88,6 +88,18 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 
 print $ostreamReport $string1;
 if($opt_output){print $string1;}
+
+# Check R is available. If not we try to load it through Module software
+if($opt_plot){
+	if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
+		print "R is available. We can continue\n";
+	}
+	else {
+		print "R no available. We cannot perform any plot\n";
+		$opt_plot = undef;
+	}
+}
+
 # #####################################
 # # END Manage OPTION
 # #####################################

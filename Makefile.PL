@@ -73,7 +73,6 @@ my %WriteMakefileArgs = (
   ABSTRACT        => 'Module to deal comprehensively with GFF and GTF format',
   LICENSE         => 'gpl_3',
   PREREQ_PM       => \%prereq_hash, # give a ref to the hash
-  TEST_REQUIRES   => {},
   MIN_PERL_VERSION => '5.006',
   BUILD_REQUIRES  => {"ExtUtils::MakeMaker" => 6.31,
                       "File::ShareDir::Install" => 0

@@ -185,10 +185,7 @@ print_omniscient($hash_omniscient, $gffout); #print gene modified
                 ####
                  ##
 
-
-
 __END__
-
 
 =head1 NAME
 

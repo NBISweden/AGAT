@@ -91,7 +91,7 @@ sub get_proper_codon_table {
 #               char (character to use to make the frame), String (extra to print at the end after the frame)
 # @output 1 => String
 sub printSurrounded{
-  my ($term,$size,$char,$extra) = @_;
+  my ($term, $size, $char, $extra) = @_;
 
    my $frame=$char x ($size+4);
   $frame.="\n";
@@ -101,20 +101,29 @@ sub printSurrounded{
   my @lines = split(/\n/,$term);
 
   	foreach my $line (@lines){
-  		$result .="$char ";
 
-  		my $sizeTerm=length($line);
-	  	if ($sizeTerm > $size ){
-		    $result .= substr($line, 0,($size));#
-	 	 }
-	 	else{
-		    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
-		    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
-		    $result .= " " x $nbBlancBefore;
-		    $result .= $line;
-		    $result .= " " x $nbBlancAfter;
-	  	}
-	  	$result .= " $char\n";
+			while ( defined($line) ){
+				$result .="$char ";
+
+	  		my $sizeTerm=length($line);
+		  	if ($sizeTerm > $size ){
+			    my $lineout = substr($line, 0,($size),"");
+					$lineout .= " $char\n";
+					#print "l1 $lineout";
+					$result .= $lineout;
+		 	 	}
+		 		else{
+			    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
+			    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
+			    my $lineout =  " " x $nbBlancBefore;
+			    $lineout .= $line;
+			    $lineout .= " " x $nbBlancAfter;
+					$lineout .= " $char\n";
+					$result .= $lineout;
+					$line  = undef;
+					#print "l2 $lineout";
+		  	}
+			}
 	}
 	$result .= "$frame";
 	if($extra){$result .= "$extra";}

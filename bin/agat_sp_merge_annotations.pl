@@ -76,15 +76,16 @@ foreach my $next_file (@opt_files){
 
   #merge annotation taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  print ("\n$next_file added we now have:\n");
+  print ("\n$next_file Total raw data:\n");
   info_omniscient($hash_omniscient);
 }
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together and remove the identical ones
+print ("\nNow merging overlaping loci, and removing identical isoforms\n");
 ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
-                                                                 merge_loci => 1
-                                                               });
+                                                              merge_loci => 1
+                                                            });
 print ("\nfinal result:\n");
 info_omniscient($hash_omniscient);
 
