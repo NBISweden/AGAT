@@ -59,23 +59,36 @@ Some examples **what AGAT can do**:
     * sort features.  
     * merge overlapping loci into one single locus (only if option activated).  
 
-  * perform different tasks (using different AGAT's tools):  
-    * check, fix, pad missing information into sorted and standardised gff3 `agat_sp_gxf_to_gff3.pl`  
-    * make statistics: `agat_sp_statistics.pl`  
-    * extract any type of sequence: `agat_sp_extract_sequences.pl`  
-    * complement annotations (non-overlapping loci): `agat_sp_complement_annotations.pl`  
-    * merge annotations: `agat_sp_merge_annotations.pl`  
-    * filter gene models by ORF size: `agat_sp_filter_by_ORF_size.pl`  
-    * filter to keep only longest isoforms: `agat_sp_keep_longest_isoform.pl`  
-    * create introns features: `agat_sp_add_introns.pl`  
-    * fix cds phases: `agat_sp_fix_cds_phases.pl`  
-    * extract attributes: `agat_sp_extract_attributes.pl`  
-    * manage IDs: `agat_sp_manage_IDs.pl`  
-    * convert into tabulated format: `agat_sp_to_tabulated.pl`
-    * specificity sensitivity: `agat_sp_sensitivity_specificity.pl`  
-    * fusion / split analysis between two annotations: `agat_sp_compare_two_annotations.pl`  
-    * analyze differences between BUSCO results: `agat_sp_compare_two_BUSCOs.pl`   
-    * ...
+  * perform different tasks (using different AGAT's tools): 
+  
+| task | tool |
+| --- | --- |
+| **check, fix, pad** missing information into sorted and standardised gff3 | `agat_sp_gxf_to_gff3.pl`  |
+| make feature **statistics** | `agat_sp_statistics.pl`  |
+| make **function statistics** | `agat_sp_functional_statistics.pl`  |
+| **extract** any type of sequence | `agat_sp_extract_sequences.pl`  |
+| **extract** attributes | `agat_sp_extract_attributes.pl`  |
+| **complement** annotations (non-overlapping loci) | `agat_sp_complement_annotations.pl`  |
+| **merge** annotations | `agat_sp_merge_annotations.pl`  |
+| **filter** gene models by ORF size | `agat_sp_filter_by_ORF_size.pl`  |
+| **filter** to keep only longest isoforms | `agat_sp_keep_longest_isoform.pl`  |
+| **create** introns features | `agat_sp_add_introns.pl`  |
+| **fix** cds phases | `agat_sp_fix_cds_phases.pl`  |
+| **manage** IDs | `agat_sp_manage_IDs.pl`  |
+| **manage** UTRs | `agat_sp_manage_UTRs.pl`  |
+| **manage** introns | `agat_sp_manage_introns.pl`  |
+| **specificity sensitivity** | `agat_sp_sensitivity_specificity.pl`  |
+| **fusion / split** analysis between two annotations | `agat_sp_compare_two_annotations.pl`  |
+| analyze differences between **BUSCO** results | `agat_sp_compare_two_BUSCOs.pl`   |
+| convert any **GTF/GFF** into **tabulated format** | `agat_sp_to_tabulated.pl`  |
+| convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
+| convert any **GTF/GFF** into **GTF** format | `agat_convert_sp_gff2gtf.pl`  |
+| convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf_to_gxf.pl`  |
+| convert **BED** format into **GFF3** format | `agat_convert_bed2gff.pl`  |
+| convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
+| convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
+| convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
+| ... and much more ...| ... see [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) ...|
 
 
 ## Installation
@@ -177,7 +190,7 @@ From the folder where the repository is located.
   ```
 
 ## List of tools
-
+See [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) for a list of tools.  
 As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_sp_gxf_to_gff3.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
 All the installed scripts have the `agat_` prefix.  
 Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
