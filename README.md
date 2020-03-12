@@ -88,7 +88,7 @@ Some examples **what AGAT can do**:
 | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
 | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
 | convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
-| ... and much more ...| ... |
+| ... and much more ...| ... see [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) ...|
 
 
 ## Installation
@@ -190,7 +190,7 @@ From the folder where the repository is located.
   ```
 
 ## List of tools
-
+See [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) for a list of tools.  
 As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_sp_gxf_to_gff3.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
 All the installed scripts have the `agat_` prefix.  
 Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
