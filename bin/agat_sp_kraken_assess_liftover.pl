@@ -59,14 +59,15 @@ if ( ! (defined($gff)) ){
 
 ## Manage output file
 my $gffout;
-my $outReport     = IO::File->new();
+my $outfile_no_extension;
+my $outReport = IO::File->new();
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-
-  open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
+	my ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+	$outfile_no_extension = $path.$outfile_pref;
+  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 
-  $outReport->open($outfile."_report.txt", 'w') or die "Could not open file '$outfile'_report.txt $!";
+  $outReport->open($outfile_no_extension."_report.txt", 'w') or die "Could not open file ".$outfile_no_extension."_report.txt $!";
 }
 else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
@@ -478,8 +479,8 @@ if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
 	$pathPlotFile="geneMapped.txt";
 	$pathOutPlot="geneMapped_plot.pdf";
 	if ($outfile) {
-	  $pathPlotFile=$outfile."-geneMapped.txt";
-	  $pathOutPlot=$outfile."-geneMapped_plot.pdf";
+	  $pathPlotFile=$outfile_no_extension."-geneMapped.txt";
+	  $pathOutPlot=$outfile_no_extension."-geneMapped_plot.pdf";
 	}
 	$ostreamPlotFile->open($pathPlotFile, 'w' ) or
         croak(
