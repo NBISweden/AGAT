@@ -1,7 +1,12 @@
 ##gff-version 3
-chr1	data	gene	57598	64116	.	+	1	ID=1;Name=ENST00000642116.1;blockCount=3;blockSizes=56%2C157%2C1201;blockStarts=0%2C1102%2C5318;itemRgb=0;thickEnd=64116;thickStart=64116
-chr1	data	exon	57598	57653	.	+	1	ID=exon1;Parent=1
-chr1	data	exon	58700	58856	.	+	1	ID=exon2;Parent=1
-chr1	data	exon	62916	64116	.	+	1	ID=exon3;Parent=1
-chr1	data	gene	52473	53312	.	+	1	ID=2;Name=ENST00000606857.1;blockCount=1;blockSizes=840;blockStarts=0;itemRgb=0;thickEnd=53312;thickStart=53312
-chr1	data	exon	52473	53312	.	+	1	ID=exon4;Parent=2
+scaffold625	data	gene	337818	343277	.	+	.	ID=1;Name=CLUHART00000008717;blockCount=4;blockSizes=154%2C109%2C111%2C1314;blockStarts=0%2C2915%2C3700%2C4146;itemRgb=255%2C0%2C0;thickEnd=343033;thickStart=337914
+scaffold625	data	exon	337818	337971	.	+	.	ID=exon1;Parent=1
+scaffold625	data	exon	340733	340841	.	+	.	ID=exon2;Parent=1
+scaffold625	data	exon	341518	341628	.	+	.	ID=exon3;Parent=1
+scaffold625	data	exon	341964	343277	.	+	.	ID=exon4;Parent=1
+scaffold625	data	CDS	337915	337971	.	+	0	ID=CDS1;Parent=1
+scaffold625	data	CDS	340733	340841	.	+	0	ID=CDS2;Parent=1
+scaffold625	data	CDS	341518	341628	.	+	2	ID=CDS3;Parent=1
+scaffold625	data	CDS	341964	343033	.	+	2	ID=CDS4;Parent=1
+scaffold625	data	five_prime_UTR	337818	337914	.	+	.	ID=five_prime_UTR1;Parent=1
+scaffold625	data	three_prime_UTR	343034	343277	.	+	.	ID=three_prime_UTR1;Parent=1

@@ -88,6 +88,9 @@ open my $fh, $bed or die "Could not open $bed: $!";
 my %bedOmniscent;
 my $UniqID=0;
 my $inflate_cpt=0;
+my $inflate_cds_cpt=0;
+my $inflate_left_cpt=0;
+my $inflate_right_cpt=0;
 while( my $line = <$fh>)  {
   chomp $line;
 
@@ -202,15 +205,15 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 
     my $end=$bedOmniscent{$id}{'chromEnd'};
 
-    my $frame;
+    my $frame=".";
 
     my $score;
-    if(exists($bedOmniscent{$UniqID}{'score'})){
+    if( exists_keys (\%bedOmniscent, ($UniqID, 'score') ) ){
       $score=$bedOmniscent{$UniqID}{'score'};
     }
 
     my $strand;
-    if(exists($bedOmniscent{$UniqID}{'strand'})){
+    if( exists_keys (\%bedOmniscent, ($UniqID, 'strand') ) ){
       $strand=$bedOmniscent{$UniqID}{'strand'};
     }
 
@@ -224,31 +227,31 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
                                                 tag => {'ID' => $id}
                                                 ) ;
 
-    if(exists($bedOmniscent{$id}{'name'})){
+    if( exists_keys ( \%bedOmniscent, ($id, 'name') ) ){
       $feature->add_tag_value('Name',$bedOmniscent{$id}{'name'});
     }
-		if(exists($bedOmniscent{$id}{'thickStart'})){
+		if( exists_keys ( \%bedOmniscent, ($id, 'thickStart') ) ){
       $feature->add_tag_value('thickStart',$bedOmniscent{$id}{'thickStart'});
     }
-		if(exists($bedOmniscent{$id}{'thickEnd'})){
+		if( exists_keys ( \%bedOmniscent, ($id ,'thickEnd') ) ){
 			$feature->add_tag_value('thickEnd',$bedOmniscent{$id}{'thickEnd'});
 		}
-		if(exists($bedOmniscent{$id}{'itemRgb'})){
+		if( exists_keys ( \%bedOmniscent, ($id, 'itemRgb') ) ){
 			$feature->add_tag_value('itemRgb',$bedOmniscent{$id}{'itemRgb'});
 		}
-		if(exists($bedOmniscent{$id}{'blockCount'})){
+		if( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) ){
 			$feature->add_tag_value('blockCount',$bedOmniscent{$id}{'blockCount'});
 		}
-		if(exists($bedOmniscent{$id}{'blockSizes'})){
+		if( exists_keys ( \%bedOmniscent, ($id, 'blockSizes') ) ){
 			$feature->add_tag_value('blockSizes',$bedOmniscent{$id}{'blockSizes'});
 		}
-		if(exists($bedOmniscent{$id}{'blockStarts'})){
+		if( exists_keys ( \%bedOmniscent, ($id, 'blockStarts') ) ){
 			$feature->add_tag_value('blockStarts',$bedOmniscent{$id}{'blockStarts'});
 		}
 
     $gffout->write_feature($feature);
 
-		if ( exists($bedOmniscent{$id}{'blockCount'}) and ! $inflating_off){
+		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
 			print "inflating $inflating_off\n" if ($verbose);
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
@@ -261,7 +264,9 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 			if ($#l3_size_list != $#l3_start_list){warn "Error: Number of elements in blockSizes (11th column) blockStarts (12th column) is different!\n";}
 
 			my $l3_indice=-1;
-			foreach my $l3_start (@l3_start_list){
+			my $phase = "." ;
+			my @list_l3;
+			foreach my $l3_start (sort {$a <=> $b} @l3_start_list){
 				$l3_indice++;
 				$inflate_cpt++;
 
@@ -273,11 +278,140 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 																										-primary_tag => $inflate_type,
 																										-start => $l3_start,
 																										-end => $l3_end ,
-																										-frame => $frame ,
+																										-frame => "." ,
 																										-strand =>$strand,
 																										tag => {'ID' => $Inflate_ID, 'Parent' => $id}
 																										) ;
-				$gffout->write_feature($feature);
+				push @list_l3, $feature;
+			}
+			# set outside in case minus strand because could not have been computed on the fly
+			if (lc($inflate_type) eq "cds"){
+				$phase = 0;
+				@list_l3 = $strand eq "+" ? sort {$a->start <=> $b->start} @list_l3 : sort {$b->start <=> $a->start} @list_l3	;
+				# set phases
+				# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
+				foreach my $feature (@list_l3){
+					$feature->frame($phase);
+					# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
+					my $cds_length = $feature->end - $feature->start + 1;
+					$phase = (3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
+				}
+			}
+			# print l3 features
+			foreach my $feature (sort {$a->start <=> $b->start}  @list_l3){
+					$gffout->write_feature($feature);
+			}
+
+			# add CDS if inflating is $inflate_type=exon
+			if ( ($inflate_type eq "exon") and  exists_keys( \%bedOmniscent, ($id, 'thickStart') ) and exists_keys( \%bedOmniscent, ($id, 'thickEnd') ) ){
+				my $phase = ".";
+				my $l3_indice=-1;
+				my $write_cds = undef;
+				my $left_utr_start = undef;
+				my $left_utr_end = undef;
+				my $right_utr_start = undef;
+				my $right_utr_end = undef;
+				my $left_utr_type = ( $strand eq "+") ? "five_prime_UTR" : "three_prime_UTR" ;
+				my $right_utr_type = ( $strand eq "+") ? "three_prime_UTR" : "five_prime_UTR" ;
+				my @cds;
+				my @utrs;
+				foreach my $l3_start (sort {$a <=> $b} @l3_start_list){
+
+					$l3_indice++;
+
+					my $thickStart = $bedOmniscent{$id}{'thickStart'};
+					my $thickEnd = $bedOmniscent{$id}{'thickEnd'};
+
+					# exon position
+					my $l3_end = $l3_start+$l3_size_list[$l3_indice]-1;
+					#left utr
+					my $left_utr_start = ( $l3_start < $thickStart ) ? $l3_start : undef ;
+					$left_utr_end = $l3_end;
+					#right utr
+					my $right_utr_start = ( $l3_end > $thickEnd ) ? $l3_start : undef ;
+					$right_utr_end = $l3_end;
+					# set default cds
+					my $cds_start = $l3_start;
+					my $cds_end = $l3_end;
+					# set first CDS
+					if ( ( $thickStart <= $l3_end ) and ( $thickStart >= $l3_start ) ){ # CDS overlaps exon
+						$write_cds = 1;
+						$cds_start = $thickStart+1;
+						$left_utr_end = $thickStart;
+					}
+					elsif( $thickStart < $l3_start ){
+						$write_cds = 1;
+					}
+					# set last CDS
+					#print "$thickEnd <= $l3_end and $thickEnd >= $l3_start\n";
+					if ( ( $thickEnd <= $l3_end ) and ( $thickEnd >= $l3_start ) ){ # CDS overlaps exon
+						$write_cds = 2;
+						$cds_end = $thickEnd;
+						$right_utr_start = $thickEnd + 1;
+					}
+					elsif( $thickEnd < $l3_start ){
+						$write_cds = undef;
+					}
+
+					if ($left_utr_start){
+						$inflate_left_cpt++;
+						my $Inflate_ID = $left_utr_type.$inflate_left_cpt;
+						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+																												-source_tag => $source_tag,
+																												-primary_tag => $left_utr_type,
+																												-start => $left_utr_start,
+																												-end => $left_utr_end ,
+																												-frame => $phase ,
+																												-strand =>$strand,
+																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												) ;
+						push @utrs, $feature;
+					}
+					if ($write_cds){
+						$inflate_cds_cpt++;
+						my $Inflate_ID = "CDS".$inflate_cds_cpt;
+						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+																												-source_tag => $source_tag,
+																												-primary_tag => "CDS",
+																												-start => $cds_start,
+																												-end => $cds_end ,
+																												-frame => $phase ,
+																												-strand =>$strand,
+																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												) ;
+						push @cds, $feature;
+						$write_cds = undef if ($write_cds == 2); #deactivate to stop before UTR
+					}
+					if ($right_utr_start){
+						$inflate_right_cpt++;
+						my $Inflate_ID = $right_utr_type.$inflate_right_cpt;
+						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+																												-source_tag => $source_tag,
+																												-primary_tag => $right_utr_type,
+																												-start => $right_utr_start,
+																												-end => $right_utr_end ,
+																												-frame => $phase ,
+																												-strand =>$strand,
+																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												) ;
+						push @utrs, $feature;
+					}
+				}
+				$phase = 0;
+				@cds = $strand eq "+" ? sort {$a->start <=> $b->start} @cds : sort {$a->start <=> $b->start} @cds;
+				# set phases
+				foreach my $feature (@cds){
+					$feature->frame($phase);
+					# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
+					my $cds_length = $feature->end - $feature->start + 1;
+					$phase = (3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
+				}
+				foreach my $feature (sort {$a->start <=> $b->start}  @cds){
+						$gffout->write_feature($feature);
+				}
+				foreach my $feature (sort {$a->start <=> $b->start} @utrs){
+						$gffout->write_feature($feature);
+				}
 			}
 		}
 }
