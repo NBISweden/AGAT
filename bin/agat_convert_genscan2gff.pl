@@ -182,7 +182,6 @@ sub convert_genscan{
 			# compute the phase. Assuming it always start at 0. No fragmented prediction
 			my $phase = 0;
 			foreach my $cds_feature ( @cds) {
-				my $original_phase = $cds_feature->frame;
 				$cds_feature->frame($phase);
 				my $cds_length=$cds_feature->end-$cds_feature->start +1;
 				$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
