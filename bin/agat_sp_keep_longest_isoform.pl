@@ -44,7 +44,7 @@ if ( ! (defined($gff)) ){
 #### OUT
 my $gffout;
 if ($opt_output) {
-  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
+  open(my $fh, '>', $opt_output) or die "Could not open file $opt_output $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
   }
 else{

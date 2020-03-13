@@ -3299,7 +3299,7 @@ sub load_json{
 	my $result = undef;
 	my $json_text = do {
 		open(my $json_fh, "<:encoding(UTF-8)", $file_path)
-		or die("Can't open \$file_path\": $!\n");
+		or die("load_json: Can't open $file_path: $!\n");
 		local $/;
 		<$json_fh>
 	};
