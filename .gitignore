@@ -1,3 +1,9 @@
 .DS_Store
-MYMETA.json
-MYMETA.yml
+MYMETA*
+Makefile
+pm_to_blib
+blib
+MANIFEST*
+t/scripts_output/1.fa.index
+cover_db
+
