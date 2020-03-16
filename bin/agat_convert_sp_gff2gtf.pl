@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
+use Sort::Naturally;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
