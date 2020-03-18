@@ -115,14 +115,18 @@ sub check_version{
 __END__
 =head1 NAME
 
-agat_convert_sp_gxf_to_gxf.pl
+agat_convert_sp_gxf2gxf.pl
 
 =head1 DESCRIPTION
 
 This script convert GTF/GFF of any flavor to bioperl GTF/GFF flavors.
-By default the script fixes and/or standardizes a gtf/gff file into full sorted gff3 fromat.
-It will be read by the Omniscient parser, that will first detect automtically
-which GFF parser to use from bioperl (GFF1,GFF2,GFF3) to read the lines.
+By default the script fixes and/or standardizes a GTF/GFF file into full sorted GFF3 format.
+The output GFF syntax is shaped by bioperl and choose among the versions
+1,2,2.5 (GTF equivalent) and 3.
+
+Without specifying an input GTF/GFF version, the Omniscient parser will first detect 
+automtically the most appropriate GFF parser to use from bioperl (GFF1,GFF2,GFF3)
+in order to read you file properly.
 Then the Omniscient parser removes duplicate features, fixes duplicated IDs,
 adds missing ID and/or Parent attributes, deflates factorized attributes
 (attributes with several parents are duplicated with uniq ID), add missing features
@@ -155,8 +159,8 @@ Omniscient parser phylosophy:
 
 =head1 SYNOPSIS
 
-    agat_sp_gxf_to_gxf.pl -g infile.gff [ -o outfile ]
-    agat_sp_gxf_to_gxf.pl --help
+    agat_convert_sp_gxf2gxf.pl -g infile.gff [ -o outfile ]
+    agat_convert_sp_gxf2gxf.pl --help
 
 =head1 OPTIONS
 
