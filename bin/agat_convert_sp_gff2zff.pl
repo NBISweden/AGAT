@@ -1,0 +1,209 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Bio::Tools::GFF;
+use Pod::Usage;
+use Bio::DB::Fasta;
+use File::Basename;
+use Bio::SeqIO;
+use AGAT::Omniscient;
+
+my $header = get_agat_header();
+my $outfile = undef;
+my $gff = undef;
+my $model_id = -1;
+my $fasta = undef;
+my $help;
+
+if( !GetOptions(
+    "help|h" => \$help,
+    "gff=s" => \$gff,
+		"fasta=s" => \$fasta,
+    "outfile|output|out|o=s" => \$outfile))
+{
+    pod2usage( { -message => "Failed to parse command line.",
+                 -verbose => 1,
+                 -exitval => 1 } );
+}
+# Print Help and exit
+if ($help) {
+    pod2usage( { -message => "$header",
+                 -verbose => 99,
+                 -exitval => 0 } );
+}
+
+if ( ! defined($gff) or ! defined($fasta) ){
+    pod2usage( {
+           -message => "$header\nAt least 2 parameters are mandatory:\n  Input gff file (--gff)\nInput fasta file (--fasta)\n",
+           -verbose => 0,
+           -exitval => 1 } );
+}
+
+## Manage output file
+my $zffout;
+my $fastaout;
+if ($outfile) {
+	my ($outfile_prefix,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+	my $outfile_zff = $outfile_prefix.".ann";
+	open(my $fh, '>', $outfile_zff) or die "Could not open file '$outfile_zff' $!";
+	$zffout=$fh;
+	my $outfile_fasta = $outfile_prefix.".dna";
+	open(my $fh2, '>', $outfile_fasta) or die "Could not open file '$outfile_fasta' $!";
+	$fastaout= Bio::SeqIO->new(-fh => $fh2, -format => 'Fasta' );
+}
+else{
+  $zffout=\*STDOUT ;
+	$fastaout = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
+}
+
+#### read fasta
+my $nbFastaSeq=0;
+my $db = Bio::DB::Fasta->new($fasta);
+my @ids      = $db->get_all_primary_ids;
+my %allIDs; # save ID in lower case to avoid cast problems
+foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
+
+### Parse GTF input file
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+                                                              });
+# END parsing
+
+# sort by seq id
+my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
+
+#################
+# == LEVEL 1 == #
+#################
+foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+
+	#print fasta sequence
+	my $seq_id_correct = undef;
+	if( exists $allIDs{lc($seqid)}){
+		$seq_id_correct = $allIDs{lc($seqid)};
+		my $seqObj = Bio::Seq->new( '-format' => 'fasta' , -seq =>  $db->seq($seq_id_correct));
+		$seqObj->id($seq_id_correct);
+		$fastaout->write_seq($seqObj);
+	}
+	else{
+		warn "$seqid sequence ID not found among the fasta file!\n";
+	}
+
+	print $zffout ">".$seqid."\n";
+
+	foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
+		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
+			my $id_l1 = lc($feature_l1->_tag_value('ID'));
+
+
+	    #################
+	    # == LEVEL 2 == #
+	    #################
+	    foreach my $tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # tag_l2 = mrna or mirna or ncrna or trna etc...
+				if( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1 ) ) ) {
+	        foreach my $feature_l2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
+
+	          #################
+	          # == LEVEL 3 == #
+	          #################
+	          my $level2_ID = lc( $feature_l2->_tag_value('ID') );
+
+						if( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID ) ) ) {
+							$model_id++;
+							my $exon_list_ref = $hash_omniscient->{'level3'}{'cds'}{$level2_ID};
+
+							#deal with single exon
+							if ( scalar @{ $exon_list_ref } == 1 ){
+								my $start = $exon_list_ref->[0]->start;
+								my $end = $exon_list_ref->[0]->end;
+								if ( ($exon_list_ref->[0]->strand eq '-') or $exon_list_ref->[0]->strand eq '-1')
+								{
+									($start, $end) = ($end, $start);
+								}
+								print $zffout "Esngl\t$start\t$end\tMODEL$model_id\n";
+								next;
+							}
+
+							#deal multi exons
+							# check strand for sorting features
+							my $strand = $exon_list_ref->[0]->strand;
+							if ( ($strand eq "+" ) or ($strand eq "1" ) ) {
+								@{$exon_list_ref} = sort {$a->start <=> $b->start} @{$exon_list_ref};
+							}else{
+								@{$exon_list_ref} = sort {$b->start <=> $a->start} @{$exon_list_ref};
+							}
+
+							my $cpt = 1;
+							foreach my $feature_l3 ( @{$exon_list_ref} ) {
+
+								# check strand to deal with location
+								my $start = $feature_l3->start;
+								my $end = $feature_l3->end;
+								if ( ($strand eq '-') or ($strand eq '-1') ){
+										($start, $end) = ($end, $start);
+								}
+
+								#deal multi exons
+								if ( $cpt eq 1 ){ #first exon
+									print $zffout "Einit\t$start\t$end\tMODEL$model_id\n";
+								}
+								elsif ( $cpt eq  scalar @{ $exon_list_ref } ){ #last exon
+									print $zffout "Eterm\t$start\t$end\tMODEL$model_id\n";
+								}
+								else{
+									print $zffout "Exon\t$start\t$end\tMODEL$model_id\n";
+								}
+								$cpt++;
+							}
+	          }
+	        }
+	      }
+	    }
+	  }
+	}
+}
+
+__END__
+
+
+=head1 NAME
+
+agat_convert_sp_gff2zff.pl
+
+=head1 DESCRIPTION
+
+The script converts GTF/GFF file into zff file a format used by the ab initio
+tool SNAP. The script produces a .ann file containing the annotation and .dna
+file containing the fasta file. The .ann and .dna are identicaly sorted by
+sequence identifier (This is mandatory for usage with fathom).
+
+=head1 SYNOPSIS
+
+    agat_convert_sp_gff2zff.pl --gff file.gff  --fasta file.fasta [ -o outfile ]
+    agat_convert_sp_gff2zff.pl --help
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--gff>
+
+Input GTF/GFF file
+
+=item B<--fasta>
+
+Input fasta file
+
+=item B<--outfile>, B<--out>, B<--output>, or B<-o>
+
+File prefix where will be written the results (e.g. outfile.ann and outfile.dna).
+If no output file is specified, the output will be written to STDOUT.
+
+=item B<-h> or B<--help>
+
+Display this helpful text.
+
+=back
+
+=cut

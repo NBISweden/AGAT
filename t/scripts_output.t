@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 42;
+use Test::More tests => 43;
 
 =head1 DESCRIPTION
 
@@ -76,7 +76,17 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-# -------------------------- check sp_gxf_togxf.pl -------------------------
+# -------------------------- check agat_convert_sp_gff2zff -------------------------
+
+$script = $script_prefix."bin/agat_convert_sp_gff2zff.pl";
+$result = "$output_folder/agat_convert_sp_gff2zff_1.gff";
+system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outprefix.ann") == 0, "output $script");
+unlink $outprefix.".ann";
+unlink $outprefix.".dna";
+
+# -------------------------- check sp_gxf2gxf.pl -------------------------
 
 # No need to be tested, it is the same as agat_sp_gxf_to_gff3
 
