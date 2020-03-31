@@ -77,13 +77,14 @@ Some examples **what AGAT can do**:
 | **manage** IDs | `agat_sp_manage_IDs.pl`  |
 | **manage** UTRs | `agat_sp_manage_UTRs.pl`  |
 | **manage** introns | `agat_sp_manage_introns.pl`  |
+| **manage** functional annotation | `agat_sp_manage_functional_annotation.pl`  |
 | **specificity sensitivity** | `agat_sp_sensitivity_specificity.pl`  |
 | **fusion / split** analysis between two annotations | `agat_sp_compare_two_annotations.pl`  |
 | analyze differences between **BUSCO** results | `agat_sp_compare_two_BUSCOs.pl`   |
 | convert any **GTF/GFF** into **tabulated format** | `agat_sp_to_tabulated.pl`  |
 | convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
 | convert any **GTF/GFF** into **GTF** format | `agat_convert_sp_gff2gtf.pl`  |
-| convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf_to_gxf.pl`  |
+| convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf2gxf.pl`  |
 | convert **BED** format into **GFF3** format | `agat_convert_bed2gff.pl`  |
 | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
 | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
