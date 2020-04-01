@@ -19,7 +19,7 @@
   "rnase_mrp_rna":"gene",
   "rnase_p_rna":"gene",
   "rrna":"gene",
-	"scrna":"gene",
+  "scrna":"gene",
   "similarity":"match",
   "sirna_gene":"gene",
   "snorna":"gene",
@@ -29,7 +29,8 @@
   "transcript":"gene",
   "trna":"gene",
   "trna_pseudogene":"pseudogene",
-	"unconfirmed_transcript":"gene",
+  "unconfirmed_transcript":"gene",
   "unitary_pseudogene":"pseudogene",
-  "vaultrna":"gene"
+  "vaultrna":"gene",
+  "vaultrna_primary_transcript":"gene"
 }

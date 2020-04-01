@@ -14,6 +14,7 @@
   "protein_match":"12",
   "pseudogene":"13",
   "rrna_gene":"14",
+	"scaffold":"standalone",
   "sirna_gene":"15",
   "snorna_gene":"16",
   "snrna_gene":"17",
