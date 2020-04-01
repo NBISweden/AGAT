@@ -11,7 +11,7 @@ use Sort::Naturally;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded sizedPrint);
+our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded sizedPrint activate_warning_limit);
 sub import {
   AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::Utilities->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -160,4 +160,28 @@ sub sizedPrint{
     return $result;
   }
 }
+
+# the warning message will be filtered to be printed only $nb_warnings times
+# To use it in a script do: my %warnings; activate_warning_limit(\%warnings, $nb_warnings);
+# @input: 2 => empty hash, Int
+# @output 0 => None
+sub activate_warning_limit{
+	my ($warnings_hash,$nb_warnings) = @_;
+
+	if (! $nb_warnings){ $nb_warnings = 10;} # Handle to not print to much warning
+
+		$SIG{__WARN__} = sub {
+		my $message = shift;
+
+		$warnings_hash->{$message}++;
+
+		if ($warnings_hash->{$message} <= $nb_warnings){
+			print "WARNING: ".$message;
+		}
+		if($warnings_hash->{$message} == $nb_warnings){
+			print "************** Too much WARNING of this type we skip the next **************\n";
+		}
+	};
+}
+
 1;
