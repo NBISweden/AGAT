@@ -63,7 +63,7 @@ else{
 #### read fasta
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 #time to calcul progression
 my $startP=time;

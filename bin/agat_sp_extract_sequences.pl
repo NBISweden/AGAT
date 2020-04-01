@@ -128,7 +128,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 

@@ -96,7 +96,7 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 my @ids      = $db->get_all_primary_ids;
 my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 ####################
 
 #counters
@@ -338,7 +338,7 @@ The name of the fasta file containing the genome to work with.
 =item B<--ct> or B<--table> or B<--codon>
 
 This option allows specifying the codon table to use.
-It expects an integer (1 by default = standard)
+It expects an integer [default 1]
 
 =item B<--ad> or B<--add_flag>
 

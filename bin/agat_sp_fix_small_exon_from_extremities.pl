@@ -82,7 +82,7 @@ print ("GFF3 file parsed\n");
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 ####################
 

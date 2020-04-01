@@ -92,7 +92,7 @@ print("Parsing Finished\n\n");
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 my $counter_start_missing = 0;
 my $counter_start_added = 0;
@@ -398,7 +398,7 @@ Input fasta file. Needed to check that CDS sequences start by start codon and st
 
 =item B<--ct>, B<--codon> or B<--table>
 
-Codon table to use. 1 By default.
+Codon table to use. [default 1]
 
 =item  B<--out>, B<--output> or B<-o>
 

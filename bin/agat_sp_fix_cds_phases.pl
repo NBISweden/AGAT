@@ -14,7 +14,6 @@ my $start_run = time();
 my $opt_fasta = undef;
 my $opt_gfffile;
 my $opt_verbose;
-my $codonTable=0;
 my $opt_output;
 my $opt_help = 0;
 
@@ -23,7 +22,6 @@ if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
                   'o|output=s'  => \$opt_output,
                   "fasta|fa=s" => \$opt_fasta,
                   "v|vebose!" => \$opt_verbose,
-                  "table|codon|ct=i" => \$codonTable,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -59,27 +57,20 @@ else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
-if($codonTable<0 and $codonTable>25){
-  print "$codonTable codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
-else{
-  print "We will use the codon table ".$codonTable.". If it is not what you want please stop the tool and use the --table option. \n";
-}
-
                 #####################
                 #     MAIN          #
                 #####################
-
-####################
-# index the genome #
-my $db = Bio::DB::Fasta->new($opt_fasta);
-print ("Genome fasta parsed\n");
 
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
                                                             });
 print ("GFF3 file parsed\n");
+
+####################
+# index the genome #
+my $db = Bio::DB::Fasta->new($opt_fasta);
+print ("Fasta file parsed\n");
 
 ###
 # Fix frame
@@ -117,11 +108,7 @@ Input GTF/GFF file.
 
 =item B<-fa> or B<--fasta>
 
-Genome fasta file.
-
-=item B<--ct>, B<--codon> or B<--table>
-
-Codon table to use. 0 By default.
+Input fasta file.
 
 =item B<-v> or B<--verbose>
 

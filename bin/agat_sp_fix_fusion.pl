@@ -88,7 +88,6 @@ else{
 $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
 print "Codon table ".$opt_codonTableID." in use. You can change it using --table option.\n";
 
-
 if(!$threshold){
   $threshold=100;
 }
@@ -114,7 +113,7 @@ print ("GFF3 file parsed\n");
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 ####################
 
@@ -1382,8 +1381,8 @@ agat_sp_fix_fusion.pl
 =head1 DESCRIPTION
 
 The script looks for other ORF in UTRs (UTR3 and UTR5) of each gene model described in the gff file.
-Several ouput files will be written if you specify an output. One will contain the gene not modified (intact),
-one the gene models fixed.
+Several ouput files will be written if you specify an output.
+One will contain the gene not modified (intact), one the gene models fixed.
 
 =head1 SYNOPSIS
 
@@ -1400,12 +1399,11 @@ Input GTF/GFF file.
 
 =item B<-fa> or B<--fasta>
 
-Genome fasta file.
-The name of the fasta file containing the genome to work with.
+Input fasta file.
 
 =item B<--ct>, B<--codon> or B<--table>
 
-Codon table to use. 0 By default.
+Codon table to use. [default 1]
 
 =item B<-t> or B<--threshold>
 

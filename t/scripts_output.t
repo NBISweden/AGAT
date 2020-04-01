@@ -86,7 +86,7 @@ ok( system("diff $result $outprefix.ann") == 0, "output $script");
 unlink $outprefix.".ann";
 unlink $outprefix.".dna";
 
-# -------------------------- check sp_gxf2gxf.pl -------------------------
+# -------------------------- check agat_convert_sp_gxf2gxf.pl -------------------------
 
 # No need to be tested, it is the same as agat_sp_gxf_to_gff3
 
