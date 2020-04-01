@@ -989,8 +989,9 @@ sub create_or_replace_tag{
 }
 
 # frame explanation
-#0 indicates that the feature begins with a whole codon at the 5' most base. 1 means that there is one extra base (the third base of a codon) before the first whole codon
-#and 2 means that there are two extra bases (the second and third bases of the codon) before the first codon.
+# 0 indicates that the feature begins with a whole codon at the 5' most base.
+# 1 means that there is one extra base (the third base of a codon) before the first whole codon
+# 2 means that there are two extra bases (the second and third bases of the codon) before the first codon.
 sub fil_cds_frame {
 
 	my ($hash_omniscient, $db, $verbose)=@_;
@@ -1001,11 +1002,11 @@ sub fil_cds_frame {
 
 			foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
-				my @temp = $feature_level2->get_tag_values('ID');
-				my $level2_ID = lc(shift @temp);
+				my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
 				# == LEVEL 3 == #
 				if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID) ) ){
+
 					my $strand=$feature_level2->strand;
 					my @cds_list;
 					if(($feature_level2->strand eq "+") or ($feature_level2->strand eq "1")){
@@ -1015,10 +1016,21 @@ sub fil_cds_frame {
 					}
 
 					my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID} );
-          if ($phase ) { #If no phase found we keep original, otherwise we loop over CDS features to set the correct phase
+
+					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
+					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
+						$phase = 0;
+						warn "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
+						"We will assume then to be in phase 0" if $verbose;
+					}
+
+					# If no phase found and a phase exists in the CDS feature we keep the original
+					# otherwise we loop over CDS features to set the correct phase
+          if ( defined( $phase ) ) {
             foreach my $cds_feature ( @cds_list) {
               my $original_phase = $cds_feature->frame;
-              if ($original_phase != $phase ){
+
+              if ( ($original_phase eq ".") or ($original_phase != $phase) ){
                 print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
                 $cds_feature->frame($phase);
               }
@@ -1032,7 +1044,7 @@ sub fil_cds_frame {
 	}
 }
 
-# @Purpose: get phase of the start of a CDS
+# @Purpose: get the proper phase of the start of a CDS by looking at the ORF of the different frames
 # @input: 1 =>  $db of the fasta genome, list of CDS features, codon table
 # @output 1 => integer (0,1,2) or undef
 sub _get_cds_start_phase {
@@ -1109,7 +1121,7 @@ sub _get_cds_start_phase {
       }
 
       # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and trow a warning !
-      warn "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS. ".
+      warn "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ".
       "All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n";
       return undef;
   }
