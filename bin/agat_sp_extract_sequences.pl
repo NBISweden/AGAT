@@ -76,6 +76,10 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -exitval => 2 } );
 }
 
+# activate warnings limit
+my %warnings;
+activate_warning_limit(\%warnings, 10);
+
 # shortcut for cdna
 if($opt_cdna){$opt_type="exon";}
 
@@ -379,23 +383,33 @@ sub extract_sequences{
 
 
    # ------ Collapse spreaded features ------
-   else{
-     my $sequence="";my $info = "";
+  else{
+  	my $sequence="";my $info = "";
 
-     # create sequence part 1
-     foreach my $feature ( @sortedList ){
+    # create sequence part 1
+    foreach my $feature ( @sortedList ){
        $sequence .= get_sequence($db, $feature->seq_id, $feature->start, $feature->end);
-     }
-		 # Deal with phase for CDS not starting at 0 when we want to do translation or if asked by activation of $opt_remove_orf_offset parameter
-		 if( ($opt_remove_orf_offset or $opt_AA) and  lc($sortedList[0]->primary_tag) eq "cds" ){
+    }
+		# Deal with phase for CDS not starting at 0 when we want to do translation or if asked by activation of $opt_remove_orf_offset parameter
+		if( ($opt_remove_orf_offset or $opt_AA) and  lc($sortedList[0]->primary_tag) eq "cds" ){
 
-			 if($minus and $sortedList[$#sortedList]->frame != 0){
-				 $sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
-			 }
-			 elsif (! $minus and $sortedList[0]->frame != 0){
-				 $sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
-			 }
-		 }
+			if($minus){
+				if ( $sortedList[$#sortedList]->frame eq "." ){
+					warn_no_phase();
+				}
+			 	elsif ( $sortedList[$#sortedList]->frame != 0 ){
+					$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
+				}
+			}
+			else { # ! minus
+				if ( $sortedList[0]->frame  eq "." ){
+					warn_no_phase();
+				}
+				elsif( $sortedList[0]->frame != 0 ){
+					$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
+				}
+			}
+		}
 
      # update sequence with extremities if option
      if($opt_upstreamRegion or $opt_downRegion){
@@ -430,6 +444,10 @@ sub extract_sequences{
   # --------------------------------------
 }
 
+# patch to avoid different warn due to different lines.
+sub warn_no_phase{
+	warn "No phase is specify in the CDS. We will assume it start in phase 0.";
+}
 
 # Get left extremity regardless if it is 5' or 3'
 sub get_left_extremity{
@@ -660,11 +678,11 @@ Will translate the extracted sequence in Amino acid. By default the codon table 
 
 =item B<--codon>, B<--table> or B<--ct>
 
-Allow to choose another type of codon table for the translation.
+Allow to choose the codon table for the translation. [default 1]
 
 =item B<--eo>
 
-Called ´extremity only', this option allows the extracttion of adjacent parts of a feature. This option has to be activated with -u and/or -p option.
+Called 'extremity only', this option allows the extracttion of adjacent parts of a feature. This option has to be activated with -u and/or -p option.
 /!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
 =item B<--split>
