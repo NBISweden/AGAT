@@ -23,6 +23,8 @@ use Bio::SeqIO;
 use AGAT::Omniscient;
 use AGAT::PlotR;
 
+# avoid case of ambiguous start codon (translated into X) -> we accept if the ORF is SIZE_OPT AA longer.
+# Indeed statistically it has more chance to be a real start codon.
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
@@ -32,7 +34,7 @@ my $model_to_test = undef;
 my $file_fasta=undef;
 my $split_opt=undef;
 my $codonTable=1;
-my $verbose = undef;
+my $verbose = 0;
 my $opt_help= 0;
 
 my @copyARGV=@ARGV;
@@ -43,7 +45,7 @@ if ( !GetOptions(
     "split|s" => \$split_opt,
     "table|codon|ct=i" => \$codonTable,
     "m|model=s" => \$model_to_test,
-    "v!" => \$verbose,
+    "v=i" => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -130,7 +132,7 @@ print ("GFF3 file parsed\n");
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Genome fasta parsed\n");
+print ("Fasta file parsed\n");
 
 ####################
 my $pseudo_threshold=70;
@@ -175,6 +177,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             ##############
             # Manage CDS #
             my @cds_feature_list = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$id_level2}}; # be sure that list is sorted
+						shrink_cds_offset(\@cds_feature_list);
             my ($cdsExtremStart, $cds_dna_seq, $cdsExtremEnd) = concatenate_feature_list(\@cds_feature_list);
             #create the cds object
             my $cds_obj = Bio::Seq->new(-seq => $cds_dna_seq, -alphabet => 'dna' );
@@ -228,14 +231,16 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             ########################
             # prediction is longer #
             print $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n" if $verbose;
-            #print $original_prot_obj->seq."\n";
+						print "Original: ".$original_prot_obj->seq."\n" if $verbose > 3;
+						print "Prediction: ".$longest_ORF_prot_obj->seq."\n" if $verbose > 3;
             if($longest_ORF_prot_obj->length() > $originalProt_size){
 
   #Model1     ###############################################
               # sequence original is part of new prediction #
               if (index($longest_ORF_prot_obj->seq,$cds_prot) != -1){
                 if ( exists($ListModel{1}) ){
-                  if(!(($longest_ORF_prot_obj->seq =~ m/^X/) and ($longest_ORF_prot_obj->length() < $originalProt_size+$SIZE_OPT))){ #avoid case of ambigous methionine (Written X) -> Need to be over 21 AA to decide ok is longer and can be a M
+
+									if( pass_ambiguous_start($longest_ORF_prot_obj, $originalProt_size) ){
 
                     $ListModel{1}++; print "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
                     print "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n" if $verbose;
@@ -378,9 +383,9 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 ###########
 # Fix frame
-fil_cds_frame(\%omniscient_modified_gene, $db, $codonTable);
+fil_cds_frame(\%omniscient_modified_gene, $db, $verbose);
 #fil_cds_frame(\%omniscient_pseudogene);
-fil_cds_frame($hash_omniscient, $db, $codonTable);
+fil_cds_frame($hash_omniscient, $db, $verbose);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
 print "removing duplicates\n" if $verbose;
@@ -410,12 +415,12 @@ my $string_to_print="usage: $0 @copyARGV\nCodon table used:".$codonTable."\n";
 $string_to_print .="Results:\n";
 $string_to_print .= "$geneCounter genes have been modified. These genes have  $mRNACounter mRNA, and we fixed the ORF of $mRNACounter_fixed of them.\n";
 if (exists ($ListModel{1})){
-  $string_to_print .= "$ListModel{1} model1: Prediction contains the orignal prediction but is longer.\n";
+  $string_to_print .= "$ListModel{1} model1: Prediction contains the original prediction but is longer.\n";
 }
 if (exists ($ListModel{2})){
   $string_to_print .= "$ListModel{2} model2: Longer prediction found non-overlapping the original one.";
   if ($split_opt){
-    $string_to_print .= " split option activate: the sequence is split in two different genes (Consequently $ListModel{2} new genes has been created)";
+    $string_to_print .= " Split option activated: the sequence is split in two different genes (Consequently $ListModel{2} new genes has been created)";
     }
      $string_to_print .= "\n";
 }
@@ -427,8 +432,9 @@ if (exists ($ListModel{4})) {
 }
 if (exists ($ListModel{5})){
   $string_to_print .="$ListModel{5} model5: The prediction is shorter but the original CDS sequence has not premature stop codon".
-  "The original CDS does not start by a start codon, it is probably incomplete or fragmented (begining or finishing by NNNN or XXXX). ".
-  "The prediction is probably shorter because it is forced to use a start codon.\n";
+  "\n  The original CDS does not start by a start codon, it is probably incomplete or fragmented".
+	"\n  (The adjacent sequence of the start side might be NNNN or XXXX). ".
+  "\n  The prediction is probably shorter because it is forced here to use a start codon.\n";
 }
  # " The threshold to declare them as a pseudogene (comparing to the original size) is $pseudo_threshold percent.\n".
  # "According to this threshold, we change the gene status (primary_tag) of $gene_pseudo_suspected genes (corresponding to $mrna_pseudo_suspected mRNA) to pseudogene.\n".
@@ -438,13 +444,15 @@ if (exists ($ListModel{5})){
 
 if (exists ($ListModel{6})){
   $string_to_print .= "$ListModel{6} model6: The prediction is the same size (AA size) but the original CDS has premature stop codons".
-  " while the prediction not. This is a particular case where a +1 or +2 bp shift at the beginning of the sequence".
-  "that gives frame shifts in the original sequence but they are removed for the new prediction. \n";
+  " while the prediction not.\n  This is a particular case where a +1 or +2 bp shift at the beginning of the sequence".
+  "\n  gives a frame shift in the original sequence but they are removed within the new prediction. \n";
 }
 
-$string_to_print .="\n/!\\Remind:\n L and M are AA are possible start codons for standard codon table.\nParticular case: If we have a triplet as WTG, AYG, RTG, RTR or ATK it will be seen as a possible Methionine codon start (it's a X aa)\n";
-#"An arbitrary choisce has been done: The longer translate can begin by a L only if it's longer by 21 AA than the longer translate beginning by M. It's happened $counter_case21 times here.\n";
-
+if ($codonTable == 1){
+	$string_to_print .="\n/!\\ Remind: L and M are AA are possible start codons for standard codon table (table 1).\n".
+	"Particular case: If we have a triplet as WTG, AYG, RTG, RTR or ATK it will be seen as a possible start codon (but translated into X)\n";
+	#"An arbitrary choisce has been done: The longer translate can begin by a L only if it's longer by 21 AA than the longer translate beginning by M. It's happened $counter_case21 times here.\n";
+}
 print $string_to_print;
 if($outfile){
   print $report $string_to_print
@@ -463,6 +471,44 @@ print "Bye Bye.\n";
                ######
                 ####
                  ##
+
+# @Purpose: Shrink CDS start related to offset (phase information)
+# @input: 1 =>  list reference of CDS objects
+# @output 0 => None
+sub shrink_cds_offset{
+	my ($sortedList) = @_;
+
+	#set strand, check if need to be reverse complement
+  my $minus = undef;
+  if($sortedList->[0]->strand eq "-1" or $sortedList->[0]->strand eq "-"){ $minus = 1; }
+
+	my $start = $sortedList->[0]->start;
+	my $end = $sortedList->[$#{$sortedList}]->end;
+
+	# in minus strand
+	if($minus and $sortedList->[$#{$sortedList}]->frame != 0){
+		$sortedList->[$#{$sortedList}]->end = $sortedList->[$#{$sortedList}]->end - $sortedList->[$#{$sortedList}]->frame;
+	}
+	# in plus strand
+	elsif (! $minus and $sortedList->[0]->frame != 0){
+		$sortedList->[0]->start($sortedList->[0]->start + $sortedList->[0]->frame);
+	}
+}
+
+# @Purpose: Test for ambiguous start codon (translated into X) -> we accept if the ORF is SIZE_OPT AA longer.
+#           Indeed statistically it has more chance to be a real start codon.
+# @input: 2 =>  object (predicted ORF), int (original protein size)
+# @output 1 => Bolean
+sub pass_ambiguous_start{
+	my ($longest_ORF_prot_obj, $originalProt_size) = @_;
+	my $pass=0;
+
+  if( ! ( ($longest_ORF_prot_obj->seq =~ m/^X/) and ($longest_ORF_prot_obj->length() < $originalProt_size+$SIZE_OPT) ) ) {
+		$pass=1;
+	}
+	return $pass;
+}
+
 sub modify_gene_model{
 
   my ($hash_omniscient, $omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, $exons_features, $cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, $model, $gffout)=@_;
@@ -1313,6 +1359,11 @@ sub _sort_by_seq{
   return \%hash_sortBySeq;
 }
 
+# Previous description with pseudogene =>
+#one contains the putative pseudogene detected (As they are just putatuve, they are also present among the intacts ),
+#and a last a report of the results.
+#Pseudogene particularity: If gene contains mRNA models goods and mRNA that look like a pseudogene, the pseudogene one will be removed.
+
 __END__
 
 =head1 NAME
@@ -1321,10 +1372,15 @@ agat_sp_fix_longest_ORF.pl
 
 =head1 DESCRIPTION
 
-The script looks for other ORF in each gene model described in the gff file.
-Several ouput files will be written if you specify an output. One will contain the gene not modified (intact),
-one the gene models fixed, one contains the putative pseudogene detected (As they are just putatuve, they are also present among the intacts ), and a last a report of the results.
-Pseudogene particularity: If gene contains mRNA models goods and mRNA that look like a pseudogene, the pseudogene one will be removed.
+The script aims to fix the ORFs of gene models described in the gff file.
+By fixing it means replacing the original ORF (defined by the cds)
+when the longest predicted one within the mRNA is different. See the --model parameter
+for more details about the different cases. Currently the tool does not perform
+incomplete prediction (It always look for a start codon). It is consequently advised
+to not use the model5 except if you understand what you do.
+Several ouput files will be written if you specify an output.
+One will contain the gene not modified (intact), one with the gene models fixed (modified),
+one will both together (all).
 
 =head1 SYNOPSIS
 
@@ -1335,28 +1391,40 @@ Pseudogene particularity: If gene contains mRNA models goods and mRNA that look 
 
 =over 8
 
-=item B<-gff>
+=item B<--gff>
 
 Input GTF/GFF file.
 
-=item B<-fa> or B<--fasta>
+=item B<--fa> or B<--fasta>
 
-Genome fasta file.
-The name of the fasta file containing the genome to work with.
+Imput fasta file.
 
 =item B<--ct>, B<--codon> or B<--table>
 
-Codon table to use. 0 By default.
+Codon table to use. [default 1]
 
 =item B<-m> or B<--model>
 
-Kind of ORF fix Model you want. By default all are used. To define specific model writte: --model 1,4
-Model1 = sequence original is part of new prediction; the predicted one is longest
-Model2 = sequence original predicted are different; the predicted one is longest, they don't overlap each other.
-Model3 = original protein and predicted one are different; the predicted one is longest, they overlap each other.
-Model4 = The prediction is shorter... /!\
-Model5 = The prediction is shorter... /!\
-Model6 = The prediction is same size but not correct frame (+1 or +2 bp gives frame shift).
+Kind of ORF Model you want to fix. By default all are used. To select specific models writte e.g --model 1,4
+
+Model1 = The original ORF is part of the new ORF; the new ORF is longer
+
+Model2 = The original ORF and the new one are different; the new one is longer, they do not overlap each other.
+
+Model3 = The original ORF and the new one are different; the new one is longer, they overlap each other.
+
+Model4 = The new ORF is shorter due to the presence of stop codon in the original ORF.
+
+Model5 = The new ORF is shorter but the original ORF has not premature stop codon.
+         The shorter predicted ORF can be due to the fact that the original ORF does not start by a start codon,
+				 while we force here the prediction to have a start codon.
+				 A ORF wihtout start can be the fact of an incomplete or fragmented ORF:
+				 annotation tool didn't predict the start because:
+				 * the start region is NNNN
+				 * the start region is XXXX
+				 * correct nucleotides but prediction tool did not annotate this part (e.g incomplete evidence in evidence-based prediction)
+
+Model6 = The ORF is same size but not correct frame (+1 or +2 bp gives a frame shift).
 
 =item B<-s> or B<--split>
 
@@ -1370,7 +1438,7 @@ written to STDOUT.
 
 =item B<-v>
 
-verbose
+verbose mode. Default off. -v 1 minimum verbosity, -v 3 maximum verbosity
 
 =item B<-h> or B<--help>
 
