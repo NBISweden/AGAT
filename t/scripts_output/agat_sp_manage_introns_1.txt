@@ -15,6 +15,7 @@ Number of intron in cds                      226
 Number of intron in exon                     254
 Number of intron in five_prime_utr           19
 Number of intron in three_prime_utr          9
+Number gene overlapping                      9
 Number of single exon gene                   8
 Number of single exon mrna                   10
 mean mrnas per gene                          1.2
@@ -82,6 +83,7 @@ Shortest intron into three_prime_utr part    40
 Number of ncrna_genes                        1
 Number of trnas                              1
 Number of exons                              1
+Number gene overlapping                      0
 Number of single exon ncrna_gene             1
 Number of single exon trna                   1
 mean trnas per ncrna_gene                    1.0

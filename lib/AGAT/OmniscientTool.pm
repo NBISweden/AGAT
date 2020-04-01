@@ -13,7 +13,7 @@ use AGAT::Utilities;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2);
+our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2 check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type);
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -1715,11 +1715,53 @@ sub location_overlap_update{
 	return $location, $overlap;
 }
 
+# Check if two genes have at least one L2 isoform which overlap at level3 feature
+# Ouput: 1 => String corresponding to the tag of the l3 feature
+sub check_gene_overlap_at_level3{
+  my  ($hash_omniscient, $hash_omniscient2, $gene_id, $gene_id2, $tag_l3)=@_;
+
+	$tag_l3 = lc($tag_l3); # lowercase in case
+
+	foreach my $l2_type (keys %{$hash_omniscient->{'level2'}} ){
+
+		#check full CDS for each mRNA
+		if(exists_keys($hash_omniscient,('level2', $l2_type, lc($gene_id)))){
+
+			foreach my $mrna_feature (@{$hash_omniscient->{'level2'}{$l2_type}{lc($gene_id)}}){
+				my $mrna_id1 = $mrna_feature->_tag_value('ID');
+
+				if(exists_keys($hash_omniscient2,('level2', $l2_type, lc($gene_id2)))){
+
+			    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){ # from here bothe feature level2 are the same type
+
+						my $mrna_id2 = $mrna_feature2->_tag_value('ID');
+
+				    #check l3 pieces
+				    if(exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1)))){
+			      	if(exists_keys($hash_omniscient2,('level3', $tag_l3, lc($mrna_id2)))){
+					    	foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id1)}}){
+					        foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
+
+					        	if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
+					            return $tag_l3;
+					          }
+					        }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return undef;
+}
+
 # Check if two genes have at least one L2 isoform which overlap at cds level.
 # if no CDS we check if overlap at any other l3 feature.
+# Check exon level only if no CDS exists !
 sub check_gene_overlap_at_CDSthenEXON{
   my  ($hash_omniscient, $hash_omniscient2, $gene_id, $gene_id2)=@_;
-  my $resu=undef;
 
 	foreach my $l2_type (keys %{$hash_omniscient->{'level2'}} ){
 
@@ -1730,58 +1772,47 @@ sub check_gene_overlap_at_CDSthenEXON{
 
 				if(exists_keys($hash_omniscient2,('level2', $l2_type, lc($gene_id2)))){
 
-				    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){ # from here bothe feature level2 are the same type
-						my $mrna_id2 = $mrna_feature2->_tag_value('ID');
+			    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){ # from here bothe feature level2 are the same type
+					my $mrna_id2 = $mrna_feature2->_tag_value('ID');
 
-					    #check all cds pieces
-					    if(exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1)))){
-					      	if(exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){
-							    foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
-							        foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
+				    #check all cds pieces
+				    if(exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1)))){
+				      	if(exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){
+						    foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
+					        foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
 
-							        	if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
-							            	$resu="cds";last;
-							          	}
-							        }
-							        if($resu){last;}
-							    }
+					        	if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
+					            return "cds";
+					          }
+					        }
+						    }
+				      }
+				    }
+				    elsif(! exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){ # No CDS at all, check at exon / match level and if same level2 type
 
-					      		if($resu){last;}
-					      	}
-					    }
-					    elsif(! exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){ # No CDS at all, check at exon / match level and if same level2 type
+				    	foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
 
-					    	foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
-
-					    		if(exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1)))){
-					    			foreach my $feature1 (@{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id1)}}){
+				    		if(exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1)))){
+				    			foreach my $feature1 (@{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id1)}}){
 
 										if(exists_keys($hash_omniscient2,('level3', $tag_l3, lc($mrna_id2)))){
-					    					foreach my $feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
+				    					foreach my $feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
 
-					    						if(($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start )){ # they overlap
-							            			$resu="exon";last;
-							          			}
-							          		}
-								          	if($resu){last;}
-								        }
-								    }
-								    if($resu){last;}
+				    						if(($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start )){ # they overlap
+					            		return "exon";
+					          		}
+					          	}
+						        }
+							    }
 								}
 							}
-
-							if($resu){last;}
-					    }
 				    }
-
-				    if($resu){last;}
+			    }
 				}
 			}
-
-			if($resu){last;}
 		}
 	}
-  return $resu;
+  return undef;
 }
 
 # @Purpose: Check the start and end of gene feature based on its mRNAs and eventualy fix it.
@@ -2074,8 +2105,31 @@ sub gather_and_sort_l1_by_seq_id{
 	    	push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
 	  	}
 	  	foreach my $position_l1 (keys %hash_sortBySeq){
-        	@{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
-        }
+        @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+      }
+	}
+ 	return \%hash_sortBySeq;
+}
+
+
+# Sort by locusID only for l2 of a specific type (tag from 3rd column)
+# LocusID->typeFeature = [feature, feature, feature]
+#return a hash. Key is position,tag and value is list of feature l1. The list is sorted
+sub gather_and_sort_l1_by_seq_id_for_l2type{
+	my ($omniscient, $l2_tag) = @_;
+
+	my %hash_sortBySeq;
+	foreach my $tag_level1 ( keys %{$omniscient->{'level1'}}){
+
+		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
+			if (exists_keys ($omniscient, ('level2', $l2_tag, $level1_id) ) ){
+		    my $position=$omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+		    push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
+			}
+	  }
+	  foreach my $position_l1 (keys %hash_sortBySeq){
+      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+    }
 	}
  	return \%hash_sortBySeq;
 }

@@ -383,7 +383,7 @@ rmtree $outprefix;
 # -------------------------- check agat_sp_statistics --------------------------
 
 $script = $script_prefix."bin/agat_sp_statistics.pl";
-$result = "$output_folder/agat_sp_statistics_1.gff";
+$result = "$output_folder/agat_sp_statistics_1.txt";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");

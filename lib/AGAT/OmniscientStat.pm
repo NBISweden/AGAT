@@ -47,6 +47,8 @@ sub gff3_statistics {
 
 	my ($hash_omniscient, $genome) = @_  ;
 
+	my %all_info;
+	my %extra_info; #For info not sorted by Level.
 	my @result_list;
 	my %distribution;
 	#my $out = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
@@ -68,8 +70,6 @@ sub gff3_statistics {
 	}
 
 	# get nb of each feature in omniscient;
-	my %all_info;
-	my %extra_info; #For info not sorted by Level.
 	foreach my $tag_l2 ( keys %{$hash_omniscient->{'level2'}}){
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
 			my $one_f2 = $hash_omniscient->{'level2'}{$tag_l2}{$id_l1}[0];
@@ -303,7 +303,7 @@ sub gff3_statistics {
 		    			if ($tag_l3 =~ /exon/){
 		    				if ($indexLast == 0) {
 			    				# body...
-			    				$extra_info{$tag_l2}{'level2'}{$tag_l2}{'single'}++;
+			    				$extra_info{'single'}{$tag_l2}{'level2'}{$tag_l2}++;
 			    			}
 			    			else{
 			    				$All_l2_single=undef;
@@ -322,9 +322,12 @@ sub gff3_statistics {
  				}
 		  	}# END all feature level 2
 		  	if($All_l2_single){
-		  		$extra_info{$tag_l2}{'level1'}{$tag_l1}{'single'}++;
+		  		$extra_info{'single'}{$tag_l2}{'level1'}{$tag_l1}++;
 		  	}
 		}
+		# count how many overlaping genes
+		my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
+		$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
 	}
 
 	# create the list of sentences that resume the results
@@ -336,9 +339,19 @@ sub gff3_statistics {
 		my $info_number = _info_number($hashType);
 		push @result, @$info_number;
 
-		if(exists ($extra_info{$type})){
-			my $info_single = _info_single($extra_info{$type});
-			push @result, @$info_single;
+		foreach my $extra_key (sort keys %extra_info){
+
+			if( exists_keys (\%extra_info, ($extra_key, $type) ) ){
+
+				if ($extra_key eq "single" ){
+					my $info_single = _info_single($extra_info{'single'}{$type});
+					push @result, @$info_single;
+				}
+				if ($extra_key eq "overlap" ){
+					my $info_single = _info_overlap($extra_info{'overlap'}{$type});
+					push @result, @$info_single;
+				}
+			}
 		}
 
 		my $info_mean_per = _info_mean_per($hashType);
@@ -391,13 +404,28 @@ sub _info_single{
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l1",, $all_info->{'level1'}{$tag_l1}{'single'},"\n");
+		push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l1", $all_info->{'level1'}{$tag_l1},"\n");
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l2", $all_info->{'level2'}{$tag_l2}{'single'},"\n");
-	 }
+	    push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l2", $all_info->{'level2'}{$tag_l2},"\n");
+	}
+
+	return \@resu;
+}
+
+#####
+# Give info about snumber of overlaping genes
+sub _info_overlap{
+
+	my ($all_info) = @_  ;
+	my @resu;
+
+	#print level1
+	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
+		push @resu, sprintf("%-45s%d%s", "Number gene overlapping", $all_info->{'level1'}{$tag_l1},"\n");
+	}
 
 	return \@resu;
 }
@@ -697,5 +725,54 @@ sub _info_coverage {
 	return \@resu;
 }
 
+#############
+# Give info about the overlaping genes
+# return a hash
+sub _detect_overlap_features{
+	my ($omniscient, $tag_l2, $verbose) = @_;
+	my $resume_case = 0;
+
+	my $sortBySeq = gather_and_sort_l1_by_seq_id_for_l2type($omniscient, $tag_l2);
+
+	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
+		foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
+
+			#create list to keep track of l1
+			my %to_check;
+			foreach my $feature_l1 ( @{$sortBySeq->{$locusID}{$tag_l1}} ) {
+				my $id_l1 = lc($feature_l1->_tag_value('ID'));
+				$to_check{$id_l1}++;
+			}
+
+			# Go through location from left to right ###
+			while ( @{$sortBySeq->{$locusID}{$tag_l1}} ){
+
+				my $feature_l1 = shift @{$sortBySeq->{$locusID}{$tag_l1}};
+				my $id_l1 = lc($feature_l1->_tag_value('ID'));
+				my @location = ($id_l1, int($feature_l1->start()), int($feature_l1->end())); # This location will be updated on the fly
+
+				# Go through location from left to right ### !!
+				foreach my $l1_feature2 ( @{$sortBySeq->{$locusID}{$tag_l1}} ) {
+					my $id2_l1 = lc($l1_feature2->_tag_value('ID'));
+					my @location_to_check = ($id2_l1, int($l1_feature2->start()), int($l1_feature2->end()));
+
+					#If location_to_check start if over the end of the reference location, we stop
+					if($location_to_check[1] > $location[2]) {last;}
+
+					# Let's check at Gene LEVEL
+					if(location_overlap(\@location, \@location_to_check)){
+
+						#let's check at CDS level
+						if(check_gene_overlap_at_level3($omniscient, $omniscient , $id_l1, $id2_l1, "exon")){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
+							#they overlap in the CDS we should give them the same name
+							$resume_case++;
+						}
+					}
+				}
+			}
+		}
+	}
+	return $resume_case;
+}
 
 1;
