@@ -10,7 +10,7 @@ use Cwd qw(cwd);
 use Bio::Tools::GFF;
 use File::Basename;
 use File::Copy;
-use File::Share ':all';
+use File::ShareDir ':ALL';
 use Sort::Naturally;
 use LWP::UserAgent;
 use Bio::OntologyIO::obo;
@@ -3208,19 +3208,20 @@ sub get_levels_info{
 sub _load_levels{
 	my ($hash_omniscient, $expose_feature_levels, $verbose) = @_ ;
 
-	$verbose = 0 if(!$verbose);
+	$verbose = 0 if(! $verbose );
 
-	#set run directory
-	my $run_dir = cwd;
 	print "	 Accessing the feature level files:\n" if($verbose > 0);
 	#set original path to json files, order matter
 	my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
 	my @paths;
 	foreach my $file ( @files ){
 		my $path = dist_file('AGAT', $file);
+		print "Path where $file is standing according to dist_file: $path\n" if ($verbose > 2);
 		push @paths, $path;
 	}
 
+	#set run directory
+	my $run_dir = cwd;
 	# Check if it is asked to copy the json files locally
 	if ($expose_feature_levels){
 		foreach my $path (@paths) {
