@@ -248,12 +248,12 @@ sub clean_string{
 
       if($string =~ m/\Q$OFS/){
         if ($OFS eq " "){
-            print "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
-            "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $quiet;
-            $string="\"".$string."\"";
+          warn "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
+          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $quiet;
+          $string="\"".$string."\"";
         }
         else{
-          print "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
+          warn "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
           "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $quiet;
           eval "\$string =~ tr/\Q$OFS\E/\Q$replaceBy\E/";
         }
@@ -663,7 +663,8 @@ Input GTF/GFF file.
 
 Input fasta file.
 
-=item B<-dnrc>
+=item B<--dnrc>
+
 dnrc means `do not reverse complemt`, by default if a feature is indicated on the minus strand, the tool will reverse complement the extrated sequence.
 You can deactivate the behavior by using this option.
 
@@ -682,12 +683,12 @@ Allow to choose the codon table for the translation. [default 1]
 
 =item B<--eo>
 
-Called 'extremity only', this option allows the extracttion of adjacent parts of a feature. This option has to be activated with -u and/or -p option.
+Called 'extremity only', this option allows the extraction of adjacent parts of a feature. This option has to be activated with -u and/or -p option.
 /!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
 =item B<--split>
 
-By default, all level3 features (exon, cds, utr) collectively linled to a level2 feature (rna, mRNA) are merge together to shape an entire feature
+By default, all level3 features (exon, cds, utr) collectively linked to a level2 feature (rna, mRNA) are merge together to shape an entire feature
 (e.g. several cds pieces can be merged to create the CDS in its whole).
 If you wish to extract all the subfetures independantly activate tge --split option.
 
