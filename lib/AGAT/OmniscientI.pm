@@ -173,7 +173,7 @@ sub slurp_gff3_file_JD {
 		}
 		else{
 			$WARNS{$thematic[0]}++;
-				if($verbose > 0){
+				if($verbose >= 0){
 					if ($WARNS{$thematic[0]} <= $nbWarnLimit){
 					print $message;
 				}
@@ -1812,7 +1812,7 @@ sub _check_utrs{
 	 						my $list_utr_to_create=undef;
 
 	 						if($list_location_UTR){ #List UTR not empty
-							if($list_location_UTR_expected){ #List UTR not empty
+								if($list_location_UTR_expected){ #List UTR not empty
 				 					foreach my $UTRexp_location (sort {$a->[1] <=> $b->[1] } @{$list_location_UTR_expected} ){
 
 			 							my $create_utr=1;
@@ -1852,7 +1852,22 @@ sub _check_utrs{
 				 						}
 			 					}
 			 				}
-			 				else{print "UTR check step. How is it possible ? We have an UTR in the file but none is expected according to the described exons.\nLevel2 studied:".$id_l2."\n";exit;}
+			 				else{
+								warn "UTR check step: Error in the file, we have an UTR but none is expected according to the described exons. @ Level2 studied:".$id_l2."\n";
+								#let's remove UTR we will re-create new ones
+								foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
+									if ($tag_l3 =~ "utr"){
+						 				if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
+
+						 					delete $hash_omniscient->{'level3'}{$tag_l3}{$id_l2};
+						 				}
+									}
+								}
+								# list UTR to create if any has to be created
+								if($list_location_UTR_expected){
+									$list_utr_to_create=$list_location_UTR_expected;# no UTR exists, we have to create all of them
+								}
+							}
 		 				}
 	 					else{
 	 						if($list_location_UTR_expected){
