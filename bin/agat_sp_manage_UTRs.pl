@@ -542,7 +542,7 @@ The threshold of the option <n> will be applied on the 5'UTR.
 
 The threshold of the option <n> will be applied on genes where the number of UTR exon (3' and 5' additioned) is over it.
 
-=item  B<--p>, B<--plot> or B<-o>
+=item  B<--p> or B<--plot>
 
 Allows to create an histogram in pdf of UTR sizes distribution.
 
