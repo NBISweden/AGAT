@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long qw(:config no_auto_abbrev);
 use Pod::Usage;
 use Statistics::R;
 use IO::File;
@@ -24,8 +24,8 @@ if ( !GetOptions(
     'o|output=s'  => \$opt_output,
     'd|p'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,
-    'g|gs=s'      => \$opt_genomeSize,
-    "gff|f=s"     => \$gff))
+    'g|f|gs=s'      => \$opt_genomeSize,
+    "gff|i=s"     => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -253,11 +253,11 @@ isoforms, once wihtout (In that case we keep the longest isoform per locus).
 
 =over 8
 
-=item B<--gff> or B<-f>
+=item B<--gff> or B<-i>
 
 Input GTF/GFF file.
 
-=item B<--gs> or B<-g>
+=item B<--gs>, B<-f> or B<-g>
 
 This option inform about the genome size in oder to compute more statistics. You can give the size in Nucleotide or directly the fasta file.
 
