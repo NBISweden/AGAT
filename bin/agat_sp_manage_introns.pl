@@ -14,17 +14,18 @@ use AGAT::Omniscient;
 my $header = get_agat_header();
 my @opt_files;
 my $opt_output=undef;
+my $opt_plot;
 my $opt_breaks;
 my $Xpercent=1;
 my $opt_help = 0;
-my $plot_possible = 1;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
-                  'o|out|output=s' => \$opt_output,
-                  'w|window|b|break|breaks=i'      => \$opt_breaks,
-                  'x|p=f'      => \$Xpercent,
-                  'h|help!'         => \$opt_help ) )
+                  'o|out|output=s'      => \$opt_output,
+                  'w|window|b|break|breaks=i'  => \$opt_breaks,
+                  'x|p=f'               => \$Xpercent,
+									'plot!'               => \$opt_plot,
+                  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -95,13 +96,15 @@ else{
   $outputPDF_prefix="intronPlot_";
 }
 
-# Check R is available. If not we try to load it through Module software
-if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
-  print "R is available. We can continue\n";
-}
-else {
-  print "R no available. We cannot perform any plot\n";
-  $plot_possible = undef;
+if($opt_plot){
+	# Check R is available. If not we try to load it through Module software
+	if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
+	  print "R is available. We can continue\n";
+	}
+	else {
+	  print "R no available. We cannot perform any plot\n";
+	  $opt_plot = undef;
+	}
 }
 
 # #####################################
@@ -258,7 +261,7 @@ foreach  my $tag (sort keys %introns){
   # Part 4
   #########
   # PLOT  #
-  if($plot_possible){
+  if($opt_plot){
     #chose output file name
     my $outputPDF=$outputPDF_prefix.$tag.".pdf";
     #Choose a main title:
@@ -361,6 +364,10 @@ It the number of break used within the histogram plot. By default it's 1000. You
 =item  B<-x>, B<--p>
 
 Allows to modify the X values to calculate the percentage of the longest introns to remove. By default the value is 1 (We remove 1 percent of the longest).
+
+=item  B<--plot>
+
+Allows to create an histogram in pdf of intron sizes distribution.
 
 =item  B<--out>, B<--output> or B<-o>
 
