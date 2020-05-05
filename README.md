@@ -19,15 +19,15 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
    * [What can AGAT do for you?](#what-can-agat-do-for-you)
    * [Installation](#installation)  
        * [Using bioconda](using-bioconda)
-          * [Install](#install)
-          * [Update](#update)
-          * [Uninstall](#uninstall)
-       * [Old school](#old-school)
-          * [Prerequisites](#prerequisites)
-          * [Install](#install-1)
-          * [Update](#update-1)
-          * [Uninstall](#uninstall-1)
+          * [Install AGAT](#install-agat)
+          * [Update AGAT](#update-agat)
+          * [Uninstall AGAT](#uninstall-agat)
+       * [Old school - Manually](#old-school---manually)
+          * [Install prerequisites](#install-prerequisites)
+          * [Install AGAT](#install-aga-1)
+          * [Update AGAT](#update-agat-1)
           * [Change to a specific version](#change-to-a-specific-version)
+          * [Uninstall AGAT](#uninstall-agat-1)
    * [Usage](#usage)
    * [List of tools](#list-of-tools)
    * [More about the tools](#more-about-the-tools)
@@ -96,51 +96,64 @@ Some examples **what AGAT can do**:
 
 ### Using conda
 
-#### Install
+#### Install AGAT
 
   ```
   conda install -c bioconda agat
   ```
 
-#### Update
+#### Update AGAT
 
   ```
   conda update agat
   ```
 
-#### Uninstall
+#### Uninstall AGAT
   ```
   conda uninstall agat  
   ```
 
-### Old school
+### Old school - Manually
 
-#### Prerequisites
-  * R
-  * Perl
-    Perl >= 5.8, and a list of perl modules that can be installed using cpan, cpanm or conda:
+You will have to install all prerequisites and AGAT manually.
 
-    * Install perl modules with cpanm
-    ```
-    cpanm bioperl
-    cpanm Clone
-    cpanm Graph::Directed
-    cpanm LWP::UserAgent
-    cpanm Statistics::R
-    cpanm JSON
-    cpanm Carp
-    cpanm Sort::Naturally
-    cpanm File::Share
-    cpanm File::ShareDir::Install
-    ```
-    * Install perl modules with conda
+#### Install prerequisites
+  * R  
+    You can install it by conda (`conda install r-base`), through [CRAN] (https://cran.r-project.org)([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions).
+  * Perl >= 5.8  
+    It should already be available on your computer. If you are unlucky [perl.org](https://www.perl.org/get.html) is the place to go. 
 
+  * Perl modules  
+    They can be installed in different ways:
+    
+    * using cpan or cpanm
+  
     ```
-    conda env create -f conda_environment_AGAT.yml
-    conda activate agat
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install
+    ```
+    
+    * using conda
+    
+      * using the provided yaml file
+    
+      ```
+      conda env create -f conda_environment_AGAT.yml
+      conda activate agat
+      ``` 
+    
+      * manually  
+    
+      ```
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install
+      ```
+      
+    * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
+      
+    ```
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libjson-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl
     ```
 
-#### Install
+#### Install AGAT
 
   ```
   git clone https://github.com/NBISweden/AGAT.git # Clone AGAT
@@ -151,34 +164,36 @@ Some examples **what AGAT can do**:
   make install                                    # Install
   ```
 
-<sup>*</sup>If dependencies are missing you can install them using cpan/cpanm or use conda and load the environment conda_environment_AGAT.yml
+<sup>*</sup>If dependencies are missing you will be warn. Please refer to the [Install prerequisites](#install-prerequisites) section.
 
 **Remark**: On MS Windows, instead of make you'd probably have to use dmake or nmake depending the toolchain you have.
 
-#### Update  
+#### Update  AGAT
 From the folder where the repository is located.
 
   ```
   git pull                                        # Update to last AGAT
-  perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
+  perl Makefile.PL                                # Check all the dependencies*
   make                                            # Compile
   make test                                       # Test
   make install                                    # Install
   ```
+<sup>*</sup>If dependencies are missing you will be warn. Please refer to the [Install prerequisites](#install-prerequisites) section.
 
 #### Change to a specific version
 From the folder where the repository is located.  
 
   ```
   git pull                                        # Update the code
-  git checkout v0.1.1                             # use version v0.1 (See releases tab for a list of available versions)
-  perl Makefile.PL                                # Check all the dependencies<sup>1</sup>
+  git checkout v0.1                               # use version v0.1 (See releases tab for a list of available versions)
+  perl Makefile.PL                                # Check all the dependencies*
   make                                            # Compile
   make test                                       # Test
   make install                                    # Install
   ```
+<sup>*</sup>If dependencies are missing you will be warn. Please refer to the [Install prerequisites](#install-prerequisites) section.
 
-#### Uninstall
+#### Uninstall AGAT
 
   ```
   perl uninstall_AGAT
