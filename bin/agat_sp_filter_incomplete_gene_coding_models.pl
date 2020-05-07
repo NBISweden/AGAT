@@ -291,11 +291,15 @@ sub  get_sequence{
     if($sequence eq ""){
       warn "Problem ! no sequence extracted for - $seq_id !\n";  exit;
     }
-    if(length($sequence) != ($end-$start+1)){
+    if( length($sequence) != ($end-$start+1) ){
       my $wholeSeq = $db->subseq($seq_id_correct);
       $wholeSeq = length($wholeSeq);
-      warn "Problem ! The size of the sequence extracted ".length($sequence)." is different than the specified span: ".($end-$start+1).".\nThat often occurs when the fasta file does not correspond to the annotation file. Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
-           "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\nSupplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; $seq_id sequence length: $wholeSeq )\n";
+      warn "Problem ! The size of the sequence extracted ".length($sequence).
+			" is different than the specified span: ".($end-$start+1).".\n".
+			"That often occurs when the fasta file does not correspond to the annotation file.".
+			" Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
+      "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n".
+			"Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; sequence length: $wholeSeq )\n";
     }
   }
   else{

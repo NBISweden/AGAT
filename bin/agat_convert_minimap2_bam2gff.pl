@@ -9,7 +9,6 @@ use AGAT::Omniscient;
 
 
 my $header = get_agat_header();
-my $intronID = 1;
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
@@ -222,7 +221,20 @@ while(<FILE>){
 	                      "ID=$align_counter_l2;Parent=$align_counter_l1;Target=$read_name $trans_lend $trans_rend") . "\n";
 	}
 	#print "\n";
+	close(FILE);
 }
+
+################################################################################
+        ####################
+         #     METHODS    #
+          ################
+           ##############
+            ############
+             ##########
+              ########
+               ######
+                ####
+                 ##
 
 sub get_aligned_coords {
 
@@ -271,7 +283,6 @@ sub get_aligned_coords {
                $code eq 'S' || $code eq 'H')  # masked region of query
         {
             $query_lend += $len;
-
 		}
 	}
 
@@ -299,18 +310,6 @@ sub get_aligned_coords {
 
 	return(\@genome_coords, \@query_coords);
 }
-
-################################################################################
-        ####################
-         #     METHODS    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
 
 sub check_bin
 {

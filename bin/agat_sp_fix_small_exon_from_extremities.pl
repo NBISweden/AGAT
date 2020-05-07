@@ -5,7 +5,6 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use Getopt::Long;
-use Statistics::R;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;

@@ -492,7 +492,7 @@ which is used to group features into transcripts.
 =head1 SYNOPSIS
 
     agat_convert_sp_gff2gtf.pl --gff infile.gtf [ -o outfile ]
-		agat_convert_sp_gff2gtf -h
+    agat_convert_sp_gff2gtf -h
 
 =head1 OPTIONS
 
@@ -501,10 +501,6 @@ which is used to group features into transcripts.
 =item B<--gff> or B<--in>
 
 Input GFF file that will be read
-
-=item B<--att> or B<-a>
-
-With this option, attributes "gene_id" and "transcript_id" will be created when they are missing.
 
 =item B<--gtf_version>
 version of the GTF output. Default 3 (for GTF3)

@@ -4,10 +4,6 @@ package AGAT::Utilities;
 
 use strict;
 use warnings;
-use Bio::Tools::GFF;
-use Bio::Seq;
-use Clone 'clone';
-use Sort::Naturally;
 use Exporter;
 
 our @ISA = qw(Exporter);
