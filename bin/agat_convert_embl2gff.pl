@@ -21,7 +21,7 @@ my $help;
 if( !GetOptions(
     "help" => \$help,
     "embl=s" => \$embl,
-    "ptag|t=s" => \$primaryTags,
+    "primary_tag|pt|t=s" => \$primaryTags,
     "d|s" => \$discard,
     "k" => \$keep,
     "outfile|output|o|out|gff=s" => \$outfile))
@@ -143,20 +143,16 @@ The script takes an EMBL file as input, and will translate it in gff format.
 
 Input EMBL file that will be read
 
-=item B<-primary_tag>, B<--pt>, B<-t>
+=item B<--primary_tag>, B<--pt>, B<-t>
 
 List of "primary tag". Useful to discard or keep specific features.
 Multiple tags must be coma-separated.
 
 =item B<-d>
 
-Means that primary tags provided by the option "prinary_tag" will be discarded.
+Means that primary tags provided by the option "primary_tag" will be discarded.
 
-=item B<-d>
-
-Means that only primary tags provided by the option "prinary_tag" will be kept.
-
-=item B<-o> , B<--output> , B<--out> , B<--outfile> or B<--gff>
+=item B<-o>, B<--output>, B<--out>, B<--outfile> or B<--gff>
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
