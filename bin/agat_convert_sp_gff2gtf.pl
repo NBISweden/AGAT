@@ -265,15 +265,19 @@ print "Bye Bye\n";
 
 # ---------------------------------
 
-# convert feature type to correct one expected
+# convert feature type to correct one expected.
+# All l1 will become gene type excepted for topfeature and standalone features
+# that will be discarded.
 sub convert_feature_type{
 	my ($hash_omniscient, $gtf_version)=@_;
 
-	my $topfeatures = $hash_omniscient->{'other'}{'level'}{'topfeature'};
+	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
+	my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalones');
 
 	# all l1 are gene now
 	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
 		if(exists_keys($topfeatures,($tag_l1))){ next; }
+		if(exists_keys($standalones,($tag_l1))){ next; }
 
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			if (lc($tag_l1) ne "gene"){

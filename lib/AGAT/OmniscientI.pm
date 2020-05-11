@@ -5,11 +5,8 @@ package AGAT::OmniscientI;
 use strict;
 use warnings;
 use Try::Tiny;
-use JSON;
-use Cwd qw(cwd);
 use Bio::Tools::GFF;
 use File::Basename;
-use File::Copy;
 use File::ShareDir ':ALL';
 use Sort::Naturally;
 use LWP::UserAgent;
@@ -17,13 +14,13 @@ use Bio::OntologyIO::obo;
 use Clone 'clone';
 use Exporter;
 use AGAT::OmniscientTool;
+use AGAT::OmniscientJson;
 use AGAT::Utilities;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format check_mrna_positions
 							modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop
-							slurp_gff3_file_JD _check_all_level1_positions _check_all_level2_positions
-							get_levels_info);
+							slurp_gff3_file_JD _check_all_level1_positions _check_all_level2_positions);
 sub import {
 	AGAT::OmniscientI->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
 	AGAT::OmniscientI->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -76,10 +73,6 @@ use constant PREFIX_ID_L2_NEW => "nbisL2"; # used when creating a new ID for a n
 #		 DEFINE file scope variable		#
 my $createL3forL2orphan = 1;
 my $fh_error = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-my $LEVEL1; # level1 are features without parent
-my $LEVEL2; # level2 are features with parent and potentially a child (no child as example for match)
-my $LEVEL3; # level3 features have parents, but no child. ( cds => "exon" mean that cds is included into an exon)
-my $SPREADFEATURE; # feature that can be split over different locations
 
 # Comon_tag is used in old gff format and in gtf (with gene_id) to group features together. Priority to comonTag compare to sequential read
 # COMONTAG is accessible from the whole file. if a tag has been specified by a user, it is added to this list when slurp_gff3_file_JD is called
@@ -122,7 +115,7 @@ sub slurp_gff3_file_JD {
 	if( ! defined($args->{expose_feature_levels})) {$expose_feature_levels = undef;}
 										else{ $expose_feature_levels = $args->{expose_feature_levels};
 										print "	 expose json feature level files\n" if ($verbose > 0);} # list of check to skip
-										_load_levels(\%omniscient, $expose_feature_levels, $verbose); # 	HANDLE feature level
+										load_levels(\%omniscient, $expose_feature_levels, $verbose); # 	HANDLE feature level
 	if( defined($args->{input})) {$file = $args->{input};} 					 else{ print "Input data --input is mandatory when using slurp_gff3_file_JD!"; exit;}
 	if( ! defined($args->{gff_version})) {$gff_version = undef;}		 else{ $gff_version = $args->{gff_version}; } # force using gff parser version
 	if( ! defined($args->{locus_tag})) {$locus_tag = undef;}				 else{ push @COMONTAG, $args->{locus_tag}; } #add a new comon tag to the list if provided.}
@@ -458,12 +451,14 @@ sub manage_one_feature{
 #	+----------------------------------------------------------------------------+
 #							MANAGE LEVEL1 => feature WITHOUT parent
 #	+----------------------------------------------------------------------------+
-		if( get_level($feature) eq 'level1' ) {
+		if( get_level($omniscient, $feature) eq 'level1' ) {
 
 				##########
 				# Deal with standalone top features that do not expect children, and occur
 				# at the top of each sequence
-				if ($LEVEL1->{$primary_tag} eq 'standalone'){
+				if ($omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'standalone' or
+							$omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'topfeature'){
+
 					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
 					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
 						$omniscient->{"level1"}{$primary_tag}{$id}=$feature;
@@ -512,7 +507,7 @@ sub manage_one_feature{
 # +----------------------------------------------------------------------------+
 #					MANAGE LEVEL2 => feature WITH child and WITH parent
 # +----------------------------------------------------------------------------+
-		elsif ( get_level($feature) eq 'level2' ) {
+		elsif ( get_level($omniscient, $feature) eq 'level2' ) {
 
 				#reinitialization
 				$last_l3_f=undef;
@@ -562,7 +557,9 @@ sub manage_one_feature{
 						}
 						else{ # case where previous level1 exists
 								# Stricly sequential at level2 feature. We create a new L1 at every L2 met except if two L2 are in a row
-								if ( ($lastL1_new and not exists($LEVEL2->{$last_f->primary_tag}) ) and (!$locusTAGvalue or ($locusTAGvalue ne $last_locusTAGvalue) ) ){ # if previous L1 newly created and last feature is not f2 (if several f2 in a row we attach them to the same newly created l1 feature)
+								if ( ( $lastL1_new and not exists_keys( $omniscient, ('other', 'level', 'level2', $last_f->primary_tag ) ) ) and
+										(!$locusTAGvalue or ($locusTAGvalue ne $last_locusTAGvalue) ) ){ # if previous L1 newly created and last feature is not f2 (if several f2 in a row we attach them to the same newly created l1 feature)
+
 										print "create L1 feature stritcly\n" if ($verbose > 2);
 										$l1_ID = _create_ID($miscCount, $uniqID, $uniqIDtoType, $primary_tag, $id, PREFIX_ID_L1_NEW);
 										$last_l1_f = clone($feature);
@@ -622,7 +619,7 @@ sub manage_one_feature{
 # +----------------------------------------------------------------------------+
 #									MANAGE LEVEL3 => feature WITHOUT child
 # +----------------------------------------------------------------------------+
-		elsif ( get_level($feature) eq 'level3' ){
+		elsif ( get_level($omniscient, $feature) eq 'level3' ){
 
 				# get ID #
 				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature);
@@ -970,7 +967,7 @@ sub _it_is_duplication{
 	my $is_dupli=undef;
 	my $potentialList=undef;
 
-	my $level = get_level($feature);
+	my $level = get_level($omniscient, $feature);
 	my $primary_tag = lc($feature->primary_tag);
 
 	my $id = $uniqID->{ lc($feature->_tag_value('ID') ) }; # check the original ID
@@ -1014,12 +1011,12 @@ sub _it_is_duplication{
 	else{push (@list_feature, $potentialList);} # it's a feature
 
 	#### PREPARE THE SENTENCE TO CHECK
-	my $current_string=_create_comparison_string($uniqID, $feature);
+	my $current_string=_create_comparison_string($omniscient, $uniqID, $feature);
 
 	#Check all the level2 list element
 	foreach my $feature_in_omniscient ( @list_feature ){
 
-		my $string=_create_comparison_string($uniqID, $feature_in_omniscient);
+		my $string=_create_comparison_string($omniscient, $uniqID, $feature_in_omniscient);
 		if($current_string eq $string){
 			$is_dupli=1;
 			push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
@@ -1036,7 +1033,7 @@ sub _it_is_duplication{
 
 # find the level of the feature tested
 sub get_level{
-	my ($feature)=@_;
+	my ($omniscient, $feature)=@_;
 
 	my $source_tag = lc($feature->source_tag);
 	my $primary_tag = lc($feature->primary_tag);
@@ -1055,13 +1052,13 @@ sub get_level{
 	## PECULIARITIES FROM HAVANA / ENSEMBL ##
 	#########################################
 
-	if (exists($LEVEL1->{$primary_tag}) ){
+	if ( exists_keys($omniscient, ('other','level','level1', $primary_tag) ) ){
 		return 'level1';
 	}
-	elsif(exists($LEVEL2->{$primary_tag}) ){
+	elsif( exists_keys($omniscient, ('other','level','level2', $primary_tag) ) ){
 		return 'level2';
 	}
-	elsif(exists($LEVEL3->{$primary_tag}) ){
+	elsif( exists_keys($omniscient, ('other','level','level3', $primary_tag) ) ){
 		return 'level3';
 	}
 }
@@ -1069,7 +1066,7 @@ sub get_level{
 # create string that should be uniq by feature
 # will be used to detect duplicated features
 sub _create_comparison_string{
-	my ($uniqID, $feature)=@_;
+	my ($omniscient, $uniqID, $feature)=@_;
 
 	my $string=$feature->seq_id().$feature->primary_tag().$feature->start().$feature->end();
 	my $primary_tag = lc($feature->primary_tag);
@@ -1084,7 +1081,7 @@ sub _create_comparison_string{
 	}
 
 	# If we are checking a level1 feature no need to go further
-	if ( exists($LEVEL1->{$primary_tag}) ){
+	if ( exists_keys( $omniscient, ('other', 'level', 'level1', $primary_tag) ) ){
 		$string .= $ID; # compare with original ID
 		return $string;
 	}
@@ -1099,11 +1096,11 @@ sub _create_comparison_string{
 		$Parent = $feature->_tag_value('Parent')
 	}
 
-	if ( exists($LEVEL2->{$primary_tag}) ){
+	if ( exists_keys( $omniscient, ('other', 'level', 'level2', $primary_tag) ) ){
 		$string .= $ID; # compare with original ID
 		$string .= $Parent; # compare with original Parent
 	}
-	if ( exists($LEVEL3->{$primary_tag}) ){
+	if ( exists_keys( $omniscient, ('other', 'level', 'level3', $primary_tag) ) ){
 		$string .= $Parent; # compare with original Parent
 	}
 
@@ -1111,7 +1108,7 @@ sub _create_comparison_string{
 }
 
 # create an ID uniq. Don't give multi-parent feature !
-# If we have to create new ID for SPREADFEATURES they will not have a shared ID.
+# If we have to create new ID for a SPREADFEATURES they will not have a shared ID.
 sub _check_uniq_id{
 	my	($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature)=@_;
 
@@ -1126,11 +1123,11 @@ sub _check_uniq_id{
 		$id = $feature->_tag_value($primary_tag."_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($feature) eq 'level1' and $feature->has_tag("gene_id") ){
+	elsif( get_level($omniscient, $feature) eq 'level1' and $feature->has_tag("gene_id") ){
 		$id = $feature->_tag_value("gene_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($feature) eq 'level2' and $feature->has_tag("transcript_id") ){
+	elsif( get_level($omniscient, $feature) eq 'level2' and $feature->has_tag("transcript_id") ){
 		$id = $feature->_tag_value("transcript_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
@@ -1138,7 +1135,7 @@ sub _check_uniq_id{
 	# CHECK THE ID TO SEE IF IT's uniq, otherwise we have to create a new uniq ID
 	if($id){
 		# In case of non-spreadfeature (avoid CDS and UTR that can share identical IDs)
-		if(! exists_keys($SPREADFEATURE,($primary_tag) ) ){
+		if(! exists_keys($omniscient,('other', 'level', 'spreadfeature', $primary_tag) ) ){
 			$uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, $primary_tag, $id, PREFIX_NEW_ID); #method will push the uID
 			if(	$id ne $uID ){ #push the new ID if there is one
 				create_or_replace_tag($feature, 'ID', $uID);
@@ -1175,7 +1172,7 @@ sub _check_uniq_id{
 		}
 	}
 	else{ #tag absent
-		my $level = get_level($feature);
+		my $level = get_level($omniscient, $feature);
 		if($level ne 'level3'){
 			warn "gff3 reader error ".$level .": No ID attribute found @ for the feature: ".$feature->gff_string()."\n";
 		}
@@ -1276,25 +1273,30 @@ sub _check_l1_linked_to_l2{
 # @input: 1 => hash(omniscient hash)
 # @output: none
 sub _remove_orphan_l1{
-	my ($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $mRNAGeneLink, $verbose)=@_;
+	my ($omniscient, $miscCount, $uniqID, $uniqIDtoType, $mRNAGeneLink, $verbose)=@_;
 	my $resume_case=undef;
 
- 	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
- 			foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}} ){
-				if ( exists_keys($LEVEL1,($tag_l1) ) ){
-					if ( $LEVEL1->{$tag_l1} eq 'standalone' ) {print "skip $tag_l1 because is suppose to be orphan\n" if ($verbose > 2); next;};
+ 	foreach my $tag_l1 (keys %{$omniscient->{'level1'}}){
+ 			foreach my $id_l1 (keys %{$omniscient->{'level1'}{$tag_l1}} ){
+				if ( exists_keys( $omniscient, ('other', 'level', 'level1', $tag_l1) ) ){
+					if ($omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'standalone' or
+								$omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'topfeature'){
+
+						print "skip $tag_l1 because is suppose to be orphan\n" if ($verbose > 2);
+						next;
+					}
 				}
 
 				my $neverfound="yes";
- 				foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
- 						if ( exists_keys ( $hash_omniscient,('level2',$tag_l2,$id_l1) ) ){
+ 				foreach my $tag_l2 (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+ 						if ( exists_keys ( $omniscient,('level2',$tag_l2,$id_l1) ) ){
  							$neverfound=undef;last
  						}
  				}
  				if($neverfound){
  					$resume_case++;
- 					print "removing ".$hash_omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n" if ($verbose >= 3);
-					delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
+ 					print "removing ".$omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n" if ($verbose >= 3);
+					delete $omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
 				}
  	 	}
  	}
@@ -1460,7 +1462,7 @@ sub _check_exons{
 	 					foreach my $tag_l3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
 
 	 						# LIST NON-EXON LOCATIONS THAT NEED TO BE IN AN EXON LOCATION
-	 						if ($tag_l3 ne "exon" and $LEVEL3->{$tag_l3} eq "exon" ){
+	 						if ($tag_l3 ne "exon" and $hash_omniscient->{'other'}{'level'}{'level3'}{$tag_l3} eq "exon" ){
 
 				 				if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
 
@@ -3199,136 +3201,6 @@ sub _handle_globalWARNS{
 			}
 		}
 	}
-}
-
-# @Purpose: We save the Levels in the LEVEL variable accessible here, and in the hash
-# @input: 2 =>	hash, integer
-# @output: 3 => hash
-# @Remark: none
-sub get_levels_info{
-		my ($hash, $verbose) = @_ ;
-
-		$hash = {} if (! $hash); # if the hash exist we will append it otherwise it will be a new one
-		$verbose = 0 if(! defined ($verbose));
-		_load_levels($hash,undef,$verbose);
-		return $hash;
-}
-
-# @Purpose: set path to look at the json feature level files (If present locally we take them otherwise look at standard path).
-# If expose option is activated, we copy the json files localy and exit
-# We save the Levels in the LEVEL variable accessible here, and in the hash
-# @input: 3 =>	hash, string (path), integer
-# @output: 0 => none
-# @Remark: none
-sub _load_levels{
-	my ($hash_omniscient, $expose_feature_levels, $verbose) = @_ ;
-
-	$verbose = 0 if(! $verbose );
-
-	print "	 Accessing the feature level files:\n" if($verbose > 0);
-	#set original path to json files, order matter
-	my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
-	my @paths;
-	foreach my $file ( @files ){
-		my $path = dist_file('AGAT', $file);
-		print "Path where $file is standing according to dist_file: $path\n" if ($verbose > 2);
-		push @paths, $path;
-	}
-
-	#set run directory
-	my $run_dir = cwd;
-	# Check if it is asked to copy the json files locally
-	if ($expose_feature_levels){
-		foreach my $path (@paths) {
-				copy($path, $run_dir) or die "Copy failed: $!";
-		}
-		print "			All json feature level files copied in your working directory\n" if ($verbose);
-		exit;
-	}
-	# Load the json files
-	else{
-		my $cpt=1;
-		foreach my $file (@files) {
-			#check first if exist locally
-			my $path = $run_dir."/".$file;
-			if (-e $path) {
-
-				print "			Using local $file file\n" if($verbose > 0);
-
-				if ($cpt == 1){
-					$LEVEL1 = load_json($path);
-					$hash_omniscient->{'other'}{'level'}{'level1'}=$LEVEL1;
-					foreach my $key (keys %{$LEVEL1}){
-						if($LEVEL1->{$key} eq 'standalone'){ $hash_omniscient->{'other'}{'level'}{'topfeature'}{$key}++; }
-					}
-				}
-				elsif ($cpt == 2){
-					$LEVEL2 = load_json($path);
-					$hash_omniscient->{'other'}{'level'}{'level2'}=$LEVEL2;
-				}
-				elsif ($cpt == 3){
-					$LEVEL3 = load_json($path);
-					$hash_omniscient->{'other'}{'level'}{'level3'}=$LEVEL3;
-				}
-				else {
-					$SPREADFEATURE = load_json($path);
-					$hash_omniscient->{'other'}{'level'}{'spreadfeature'}=$SPREADFEATURE;
-				}
-			}
-			else{ #otherwise use the standard location ones
-
-				print "			Using standard ".$paths[$cpt-1]." file\n" if($verbose > 0);
-
-				if ($cpt == 1){
-					$LEVEL1 = load_json($paths[0]);
-					$hash_omniscient->{'other'}{'level'}{'level1'}=$LEVEL1;
-					foreach my $key (keys %{$LEVEL1}){
-						if($LEVEL1->{$key} eq 'standalone'){ $hash_omniscient->{'other'}{'level'}{'topfeature'}{$key}++; }
-					}
-				}
-				elsif ($cpt == 2){
-					$LEVEL2 = load_json($paths[1]);
-					$hash_omniscient->{'other'}{'level'}{'level2'}=$LEVEL2;
-				}
-				elsif ($cpt == 3){
-					$LEVEL3 = load_json($paths[2]);
-					$hash_omniscient->{'other'}{'level'}{'level3'}=$LEVEL3;
-				}
-				else {
-					$SPREADFEATURE = load_json($paths[3]);
-					$hash_omniscient->{'other'}{'level'}{'spreadfeature'}=$SPREADFEATURE;
-				}
-			}
-			$cpt++;
-		}
-	}
-}
-
-# @Purpose: load json data into variable
-# @input: 3 =>	String path to the json file
-# @output: 1 => hash reference with data
-# @Remark: none
-sub load_json{
-
-	my ($file_path) = @_;
-
-	my $result = undef;
-	my $json_text = do {
-		open(my $json_fh, "<:encoding(UTF-8)", $file_path)
-		or die("load_json: Can't open $file_path: $!\n");
-		local $/;
-		<$json_fh>
-	};
-
-	my $json = JSON->new;
-	try{
-		$result = $json->decode($json_text);
-	}
-	catch{
-		print "error while parsing $file_path. Please verify the sanity of your json file.\n";
-	};
-
-	return $result;
 }
 
 1;

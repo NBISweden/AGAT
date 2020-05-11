@@ -77,8 +77,7 @@ my $sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omnis
 print ("GFF3 files sorted\n");
 
 #get top feature first
-my $hash = get_levels_info(); # get from the file
-my $top_features = $hash->{'other'}{'level'}{'topfeature'};
+my $top_features = get_feature_type_by_agat_value($omniscient1, 'level1', 'topfeature');
 
 # ----- Remove $top_features ------
 foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
@@ -115,7 +114,7 @@ foreach my $locusID (  keys %{$sortBySeq1} ){
     while ( my $location1 = shift @{$sortBySeq1->{$locusID}{$chimere_type}} ){
       my $l1_id1 = lc($location1->[0]);
       $l1_type = lc($location1->[3]);
-      ($locations1, $type_deeper, $l2_type1) = get_locations_deeper($omniscient1, $l1_id1);
+      ($locations1, $type_deeper, $l2_type1) = get_locations_deeper($omniscient1, $l1_id1, $location1);
       if ($verbose) { print "GENERAL list of location1 <$type_deeper>: "; foreach my $array ( @{$locations1}){print "@{$array} - "; } print "\n";}
       if ($verbose) { print "Lets work with $l2_type1 @$location1\n"};
       if ($verbose and $current_flattened_locations) { print "current_flattened_locations investigated: "; foreach my $array ( @{$current_flattened_locations}){print "@{$array} - "; } print "\n";}
@@ -223,7 +222,7 @@ foreach my $locusID (  keys %{$sortBySeq1} ){
           # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
           #      ------------ OVERLAP  AT EXON or CDS level -----------
           ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-          my ($locations2, $type_deeper2, $l2_type2) = get_locations_deeper($omniscient2, $l1_id2);
+          my ($locations2, $type_deeper2, $l2_type2) = get_locations_deeper($omniscient2, $l1_id2, $location2);
 
           my ($overlap, $flattened_locations) = flatten_locations_and_merge($current_flattened_locations, $locations2);
           if( $overlap ){ #This check is a deeplevel location check !!!!
@@ -269,7 +268,7 @@ foreach my $locusID (  keys %{$sortBySeq1} ){
      while ( my $location2 = shift @{$sortBySeq2->{$locusID}{$chimere_type}} ){
        my $l1_id1 = lc($location2->[0]);
        my $l1_type = lc($location2->[3]);
-       my ($tothrow1, $tothrow2, $l2_type1) = get_locations_deeper($omniscient2, $l1_id1);
+       my ($tothrow1, $tothrow2, $l2_type1) = get_locations_deeper($omniscient2, $l1_id1, $location2);
        $overlap_info{$l1_type}{$l2_type1}{0}{1}++; # uniq to annotationB
        print "Let save the result 5 ( A 0 => 1)\n" if ($verbose);
      }
@@ -353,7 +352,7 @@ print "Bye Bye.\n";
 
 # Get location from level3 or level2 is no level3
 sub get_locations_deeper{
-  my ($omniscient, $l1_id, $verbose) = @_;
+  my ($omniscient, $l1_id, $original_location) = @_;
   print "get_locations_deeper...\n" if ($verbose);
   my @locations;
   my @locations_l2;
@@ -400,6 +399,11 @@ sub get_locations_deeper{
       return $locations_fixed, $type, $type_l2;
     }
   }
+
+	# case where no l2 no l3, we return the l1 location
+	my $location = [ int($original_location->[1]), int($original_location->[2]) ];
+	push @locations, $location;
+	return \@locations, lc($original_location->[3]), lc($original_location->[3]);
 }
 
 # merge overlapping locations in a list of locations

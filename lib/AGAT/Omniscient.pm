@@ -9,6 +9,7 @@ use Exporter;
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
+use AGAT::OmniscientJson;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;

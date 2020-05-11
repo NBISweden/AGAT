@@ -8,6 +8,7 @@ use Sort::Naturally;
 use Bio::Tools::GFF;
 use URI::Escape;
 use AGAT::OmniscientTool;
+use AGAT::OmniscientJson;
 use AGAT::OmniscientI;
 use AGAT::Utilities;
 use Exporter;
@@ -395,16 +396,7 @@ sub write_seq_id_top_features_and_delete_them{
   my ($gffout, $seqid, $hash_sortBySeq, $hash_omniscient ) = @_;
 
   # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
-  my $top_features;
-   # get from omniscient
-  if (exists_keys ($hash_omniscient, ('other', 'level', 'topfeature') ) ){
-    $top_features = $hash_omniscient->{'other'}{'level'}{'topfeature'};
-  }
-  else{
-    my $hash = get_levels_info(); # get from the file
-    $top_features = $hash->{'other'}{'level'}{'topfeature'};
-    $hash_omniscient->{'other'}{'level'}{'topfeature'} = $top_features; # add in the omniscient to not read the data from file again
-  }
+  my $top_features = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 
   # Write first what could be at the top of each sequence
   foreach my $type_top_feature ( keys %{$top_features}){

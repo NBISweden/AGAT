@@ -76,8 +76,7 @@ my $sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omnis
 print ("GFF3 files sorted\n");
 
 #get top feature first
-my $hash = get_levels_info(); # get from the file
-my $top_features = $hash->{'other'}{'level'}{'topfeature'};
+my $top_features = get_feature_type_by_agat_value($omniscient1, 'level1', 'topfeature');
 
 # ----- Remove $top_features ------
 foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
