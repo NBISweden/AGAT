@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
+use Sort::Naturally;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
@@ -67,7 +68,6 @@ else{
                 #####################
 
 my $cpt_tag=1;
-my %tag_to_number;
 my %number_to_tag;
 my $content;
 ######################
@@ -80,8 +80,22 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
 print ("GFF3 file parsed\n");
 
 
-foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
-  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+
+# sort by seq id
+my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
+
+#Read by seqId to sort properly the output by seq ID
+foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+
+	#################
+	# == LEVEL 1 == #
+	#################
+	#write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
+
+	foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
+
+		my $tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+		my $id_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
     my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
     manage_attributes($feature_l1);
@@ -99,12 +113,40 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
           # == LEVEL 3 == #
           #################
           my $level2_ID = lc($feature_l2->_tag_value('ID'));
+					my @l3_done;
+
+					if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
+							manage_attributes($feature_l3);
+							push @l3_done, 'tss';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','exon',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
+							manage_attributes($feature_l3);
+							push @l3_done, 'exon';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
+							manage_attributes($feature_l3);
+							push @l3_done, 'cds';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','tts',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
+							manage_attributes($feature_l3);
+							push @l3_done, 'tts';
+						}
+					}
 
           foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-            if ( exists ($hash_omniscient->{'level3'}{$tag_l3}{$level2_ID} ) ){
-              foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
-                manage_attributes($feature_l3);
-              }
+						if (! grep { $_ eq $tag_l3 } @l3_done){
+							if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $level2_ID) ) ){
+	              foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
+	                manage_attributes($feature_l3);
+	              }
+							}
             }
           }
         }
@@ -113,12 +155,33 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
   }
 }
 
-
+# print header specifing columns
 print $ostream "seq_id\tsource_tag\tprimary_tag\tstart\tend\tscore\tstrand\tframe";
 foreach my $key (sort { $a <=> $b } keys %number_to_tag){
    print $ostream "\t".$number_to_tag{$key};
 }
-print $ostream "\n".$content;
+ print $ostream "\n";
+
+ #compute how many columns expected
+my $size_hash = keys %number_to_tag;
+my $total_column = $size_hash + 8;
+
+#as number of column where ... Read twice the file to not store the data
+my @lines = split /\n/, $content;
+print  ($#lines+1)." lines\n";
+foreach my $line (@lines){
+	my @elements = split /\t/, $line;
+	print  "total_column $total_column and ".($#elements+1)." elements\n";
+	if ($#elements+1 < $total_column){
+		my $roof = $total_column - ($#elements+1);
+		print "add  $roof NA at the end\n";
+		for (my $i=0; $i < $roof; $i++) {
+			print "add MA\n";
+			$line .= "\tNA";
+		}
+	}
+	print $ostream $line."\n";
+}
 #######################################################################################################################
         ####################
          #     methods    #
@@ -141,17 +204,21 @@ sub  manage_attributes{
     $tag_hash{$tag}++;
   }
 
-  foreach my $key (sort { $a <=> $b } keys %number_to_tag){
+	#tag has already a column number assign
+  foreach my $key (sort { $a <=> $b } keys %number_to_tag){ # check all column one by one if has to fill it
     my $sorted_tag = $number_to_tag{$key};
     if( exists_keys(\%tag_hash,($sorted_tag))){
       my @values = $feature->get_tag_values($sorted_tag);
       $content .= "\t".join(", ", @values);
       delete $tag_hash{$sorted_tag};
     }
+		else{
+			$content .= "\tNA"; # add NA for column whre na value can be stored according to the information of the feature
+		}
   }
 
+	# New tag, set a column number for it
   foreach my $tag ( sort keys %tag_hash ) {
-    $tag_to_number{$tag} = $cpt_tag;
     $number_to_tag{$cpt_tag} = $tag;
     my @values = $feature->get_tag_values($tag);
     $content .= "\t".join(", ", @values);
@@ -167,7 +234,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_to_tabulated.pl
+agat_convert_sp_gff2tsv.pl
 
 =head1 DESCRIPTION
 
@@ -176,8 +243,8 @@ Attribute's tags from the 9th column become column titles.
 
 =head1 SYNOPSIS
 
-    agat_sp_to_tabulated.pl -gff file.gff [ -o outfile ]
-    agat_sp_to_tabulated.pl --help
+    agat_convert_sp_gff2tsv.pl -gff file.gff [ -o outfile ]
+    agat_convert_sp_gff2tsv.pl --help
 
 =head1 OPTIONS
 

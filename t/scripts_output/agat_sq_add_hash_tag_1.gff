@@ -1,5 +1,6 @@
 ##gff-version 3
 1	RAP-DB	chromosome	1	43270923	.	.	.	ID=chromosome:1;Alias=Chr1,AP014957.1,NC_029256.1
+1	irgsp	repeat_region	2000	2100	.	+	.	ID=fakeRepeat1
 ###
 1	irgsp	gene	2983	10815	.	+	.	ID=gene:Os01g0100100;biotype=protein_coding;description=RabGAP/TBC domain containing protein. (Os01t0100100-01);gene_id=Os01g0100100;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	2983	10815	.	+	.	ID=transcript:Os01t0100100-01;Parent=gene:Os01g0100100;biotype=protein_coding;transcript_id=Os01t0100100-01
@@ -485,6 +486,7 @@
 1	irgsp	exon	185189	185828	.	-	.	Parent=transcript:Os01t0103400-01;Name=Os01t0103400-01.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0103400-01.exon1;rank=1
 1	irgsp	CDS	185435	185827	.	-	0	ID=CDS:Os01t0103400-01;Parent=transcript:Os01t0103400-01;protein_id=Os01t0103400-01
 1	irgsp	five_prime_UTR	185828	185828	.	-	.	Parent=transcript:Os01t0103400-01
+1	irgsp	repeat_region	186000	186100	.	+	.	ID=fakeRepeat2
 ###
 1	irgsp	gene	186250	190904	.	-	.	ID=gene:Os01g0103600;biotype=protein_coding;description=Similar to sterol-8%2C7-isomerase. (Os01t0103600-01)%3BEmopamil-binding family protein. (Os01t0103600-02);gene_id=Os01g0103600;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	186250	190262	.	-	.	ID=transcript:Os01t0103600-02;Parent=gene:Os01g0103600;biotype=protein_coding;transcript_id=Os01t0103600-02

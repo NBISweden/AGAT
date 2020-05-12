@@ -62,8 +62,7 @@ if(! $outformat){
 # Manage Output
 my $gffout;
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
+  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => $outformat );
 
 }
@@ -88,7 +87,7 @@ if(! $primaryTag){
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-      if (exists($hash_level1->{lc($tag)}) ){
+      if ( exists_keys ( $hash_level1, ( lc($tag) ) ) ){
         print "We will work on attributes from <$tag> feature.\n";
       }
       else{
@@ -115,7 +114,7 @@ while (my $feature = $ref_in->next_feature() ) {
 
   my $ptag = lc($feature->primary_tag());
 
-  if ( exists($hash_level1->{ $ptag }) ){
+  if ( exists_keys( $hash_level1, ( $ptag ) ) and  ( $hash_level1->{$ptag} ne "topfeature" ) ){
 
     # initialize locus_tag
     if ( grep( /^$ptag/, @ptagList ) or   grep( /^all/, @ptagList ) ) {

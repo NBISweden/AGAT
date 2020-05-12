@@ -426,7 +426,9 @@ sub slurp_gff3_file_JD {
 # ====== OUTPUT======= : Omniscient Hash
 sub manage_one_feature{
 
-		my ($ontology, $feature, $omniscient, $mRNAGeneLink, $duplicate, $miscCount, $uniqID, $uniqIDtoType, $locusTAG_uniq, $infoSequential, $last_locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose)=@_;
+		my ($ontology, $feature, $omniscient, $mRNAGeneLink, $duplicate, $miscCount,
+		$uniqID, $uniqIDtoType, $locusTAG_uniq, $infoSequential, $last_locusTAGvalue,
+		$last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose)=@_;
 
 		my $seq_id = $feature->seq_id;					#col1
 		my $source_tag = lc($feature->source_tag);		#col2
@@ -454,17 +456,16 @@ sub manage_one_feature{
 		if( get_level($omniscient, $feature) eq 'level1' ) {
 
 				##########
-				# Deal with standalone top features that do not expect children, and occur
-				# at the top of each sequence
+				# Deal with standalone and topfeature that do not expect children
 				if ($omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'standalone' or
 							$omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'topfeature'){
 
 					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
 					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
 						$omniscient->{"level1"}{$primary_tag}{$id}=$feature;
-						return $id, $last_l1_f, $last_l2_f, $last_l3_f, $last_l1_f, $lastL1_new;
 						print "::::::::::0Push-L1-omniscient level1 || $primary_tag || $id = ".$feature->gff_string()."\n" if ($verbose > 1);
 					}
+					return $last_locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_l1_f, $lastL1_new;
 				}
 
 				##########
@@ -487,13 +488,13 @@ sub manage_one_feature{
  				 		# COMON TAG #
 						$locusTAGvalue =_get_comon_tag_value($feature, $locusTAG_uniq, 'level1');
 
-				if($locusTAGvalue){
-						print "::::::::::Push-L1-sequential $locusTAGvalue || level1 == $id\n" if ($verbose > 1);
-						$locusTAG_uniq->{'level1'}{$locusTAGvalue}=$id;
-						$infoSequential->{$id}{'level1'}=$id;
+						if($locusTAGvalue){
+								print "::::::::::Push-L1-sequential $locusTAGvalue || level1 == $id\n" if ($verbose > 1);
+								$locusTAG_uniq->{'level1'}{$locusTAGvalue}=$id;
+								$infoSequential->{$id}{'level1'}=$id;
 						}
 						else{
-								 $locusTAGvalue=$id;
+								$locusTAGvalue=$id;
 						}
 
 						#################

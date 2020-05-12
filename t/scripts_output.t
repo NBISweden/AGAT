@@ -76,6 +76,15 @@ system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# --------check agat_sp_to_tabulated.pl-------------
+
+$script = $script_prefix."bin/agat_convert_sp_gff2tsv.pl";
+$result = "$output_folder/agat_convert_sp_gff2tsv_1.txt";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # -------------------------- check agat_convert_sp_gff2zff -------------------------
 
 $script = $script_prefix."bin/agat_convert_sp_gff2zff.pl";
@@ -384,15 +393,6 @@ rmtree $outprefix;
 
 $script = $script_prefix."bin/agat_sp_statistics.pl";
 $result = "$output_folder/agat_sp_statistics_1.txt";
-system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
-#run test
-ok( system("diff $result $outtmp") == 0, "output $script");
-unlink $outtmp;
-
-# --------check agat_sp_to_tabulated.pl-------------
-
-$script = $script_prefix."bin/agat_sp_to_tabulated.pl";
-$result = "$output_folder/agat_sp_to_tabulated_1.txt";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");

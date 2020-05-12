@@ -14,7 +14,11 @@ use AGAT::Utilities;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match print_omniscient_from_level1_id_list webapollo_compliant embl_compliant convert_omniscient_to_ensembl_style );
+our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
+print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
+convert_omniscient_to_ensembl_style gather_l1_by_seq_id_for_sorted_printing
+write_top_features);
+
 sub import {
   AGAT::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientO->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -57,7 +61,7 @@ sub print_omniscient{
 ### NEW FASHION GOING TRHOUGH LEVEL1 - Have to first create a hash of seq_id -> level1_feature , then we can go through in alphanumerical order.
 
 	# sort by seq id
-	my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
+	my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
 
 	# Read by seqId to sort properly the output by seq ID
 	# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101
@@ -66,12 +70,12 @@ sub print_omniscient{
   #################
 	# == LEVEL 1 == # IF not in omniscient do that, otherwise we us within. Make a method for it.
 	#################
-    write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
+		write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
 
-  	foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
+		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
-      foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
-		    my $id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
+				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 			  $gffout->write_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
 				#################
@@ -141,7 +145,7 @@ sub print_omniscient{
 					}
 				}
 			}
-		}
+
 	}
 }
 
@@ -156,7 +160,7 @@ sub print_omniscient_as_match{
   write_headers($hash_omniscient, $gffout);
 
 	# sort by seq id
-	my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
+	my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
 
 	#Read by seqId to sort properly the output by seq ID
 	foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
@@ -165,12 +169,12 @@ sub print_omniscient_as_match{
   # == LEVEL 1 == #
   #################
 
-    write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
+    write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
 
-    foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
+		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
-	    foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
-		    my $id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
+				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
 				if($primary_tag_l1 =~ "match"){
 					$gffout->write_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
@@ -224,7 +228,6 @@ sub print_omniscient_as_match{
 				}
 			}
 		}
-	}
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -239,7 +242,7 @@ sub print_omniscient_from_level1_id_list {
   write_headers($hash_omniscient, $gffout);
 
   # sort by seq id
-  my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
+  my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient, $level_id_list);
 
   #Read by seqId to sort properly the output by seq ID
   foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
@@ -247,24 +250,15 @@ sub print_omniscient_from_level1_id_list {
     #################
     # == LEVEL 1 == #
     #################
+		write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
 
-    foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
+		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
-      foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
-        my $original_id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
-
-    		foreach my $id_tag_key_level1_raw (@$level_id_list){
-    			my $id_tag_key_level1 = lc($id_tag_key_level1_raw);
-
-          if($id_tag_key_level1 eq $original_id_tag_key_level1){
+				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
     				#_uri_encode_one_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
 
-            # Print first what suppose to be at the very begining of each sequence when is the first time we meet the sequence (seqid)
-            if(! exists_keys(\%topfeature_printed,($seqid) ) ) {
-              write_seq_id_top_features_and_delete_them($gffout, $seqid, $hash_sortBySeq, $hash_omniscient);
-              $topfeature_printed{$seqid}++;
-            }
     				$gffout->write_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
     				#################
@@ -351,9 +345,7 @@ sub print_omniscient_from_level1_id_list {
 					}
 				}
 			}
-		}
-	}
-}
+
 
 # @Purpose: Print a list of feature simple apporach (not sorting)
 # @input: 2 =>  reference list, gff fh
@@ -391,26 +383,73 @@ sub write_headers{
   }
 }
 
-sub write_seq_id_top_features_and_delete_them{
+sub write_top_features{
 
-  my ($gffout, $seqid, $hash_sortBySeq, $hash_omniscient ) = @_;
+  my ($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient ) = @_;
 
-  # --------- get list of feature type that shoud appear at the very beginning of each sequence id --------------
-  my $top_features = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
+    if ( exists_keys( $hash_sortBySeq_topf, ($seqid) ) ){
 
-  # Write first what could be at the top of each sequence
-  foreach my $type_top_feature ( keys %{$top_features}){
-
-    if (exists_keys( $hash_sortBySeq, ($seqid, $type_top_feature) ) ){
-
-      foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$type_top_feature}} ){
+      foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq_topf->{$seqid}} ){
+				my $tag_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'tag'};
+				my $id_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'id'};
+				my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
         $gffout->write_feature($feature_l1); # print feature
       }
-      # delete from $hash_sortBySeq to not loop again over those tags.
-      # Must not be deleted from hash omniscient!
-      delete $hash_sortBySeq->{$seqid}{$type_top_feature};
     }
-  }
+}
+
+#				   +------------------------------------------------------+
+#				   |+----------------------------------------------------+|
+#				   || 					     extra specific function 			       ||
+#				   |+----------------------------------------------------+|
+#				   +------------------------------------------------------+
+
+# @Purpose: Sort by locusID and location
+# @input: 2 => hash(omniscient hash), optional list or hash of id to filter
+# @output: return a hash:  LocusID->uniqLocationId = [id => X, tag => Y]
+
+sub gather_l1_by_seq_id_for_sorted_printing{
+	my ($omniscient, $filterid) = @_;
+
+	my %hash_sortBySeq;
+	my %hash_topfeatures;
+
+	#Check option filterid
+	my $hash_filterid;
+	if ($filterid){
+		if( ref($filterid) eq 'ARRAY' ){
+			$hash_filterid->{$_}++ for (@{$filterid});
+		}
+		elsif( ref($filterid) eq 'HASH' ){
+			$hash_filterid = $filterid;
+		}
+		else{
+			warn "optional filterid parameter need to be a list or hash ref\n";
+		}
+	}
+
+	# get list of feature type that shoud appear at the very beginning of each sequence id
+	my $top_features = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeature');
+
+	foreach my $tag_level1 ( keys %{$omniscient->{'level1'}}){
+		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
+
+				if ($hash_filterid and ! exists_keys ($hash_filterid, $level1_id) ){
+					next;
+				}
+
+				my $seqid = $omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+				my $uniq = $omniscient->{'level1'}{$tag_level1}{$level1_id}->start."|".$omniscient->{'level1'}{$tag_level1}{$level1_id}->end.$tag_level1.$level1_id;
+
+				if ( exists_keys($top_features, ($tag_level1) ) ) {
+					$hash_topfeatures{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
+				}
+				else{
+					$hash_sortBySeq{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
+				}
+	  }
+	}
+	return \%hash_topfeatures, \%hash_sortBySeq;
 }
 
 #				   +------------------------------------------------------+
@@ -685,19 +724,18 @@ sub _add_exon_id{
 			# == LEVEL 2 == #
 			#################
 			foreach my $primary_tag_l2 (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-				if ( exists ($omniscient->{'level2'}{$primary_tag_l2}{$id_l1} ) ){
+				if ( exists_keys ($omniscient, ('level2', $primary_tag_l2, $id_l1) ) ){
 					foreach my $feature_l2 ( @{$omniscient->{'level2'}{$primary_tag_l2}{$id_l1}}) {
 						#################
 						# == LEVEL 3 == #
 						#################
 						my $level2_ID  = lc($feature_l2->_tag_value('ID'));
-						foreach my $primary_tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-							if ( exists ($omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} ) ){
-								foreach my $feature_l3 ( @{$omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
 
-									if( $feature_l3->has_tag($original_attribute) and ! $feature_l3->has_tag('exon_id') ){
-										create_or_replace_tag($feature_l3, "exon_id", $feature_l3->_tag_value($original_attribute) );
-									}
+						if ( exists_keys ($omniscient, ('level3', 'exon', $level2_ID) ) ){
+							foreach my $feature_l3 ( @{$omniscient->{'level3'}{'exon'}{$level2_ID}}) {
+
+								if( $feature_l3->has_tag($original_attribute) and ! $feature_l3->has_tag("exon_id") ){
+									create_or_replace_tag($feature_l3, "exon_id", $feature_l3->_tag_value($original_attribute) );
 								}
 							}
 						}

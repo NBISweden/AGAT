@@ -49,8 +49,7 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 
 my $gffout;
 if ($opt_output) {
-  $opt_output=~ s/.gff//g;
-  open(my $fh, '>', $opt_output.".gff") or die "Could not open file '$opt_output' $!";
+  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
   $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
   }
 else{

@@ -5,6 +5,7 @@
 #!genome-date 2015-10
 #!genome-build-accession GCA_001433935.1
 1	RAP-DB	chromosome	1	43270923	.	.	.	ID=NBISC00000000001;Alias=Chr1,AP014957.1,NC_029256.1
+1	irgsp	repeat_region	2000	2100	.	+	.	ID=NBISR00000000001
 1	irgsp	gene	2983	10815	.	+	.	ID=NBISG00000000001;biotype=protein_coding;description=RabGAP/TBC domain containing protein. (Os01t0100100-01);gene_id=Os01g0100100;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	2983	10815	.	+	.	ID=NBISG00000000001.1;Parent=NBISG00000000001;biotype=protein_coding;transcript_id=Os01t0100100-01
 1	irgsp	exon	2983	3268	.	+	.	ID=NBISG00000000001.1-exon1;Parent=NBISG00000000001.1;Name=Os01t0100100-01.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100100-01.exon1;rank=1
@@ -449,12 +450,16 @@
 1	irgsp	CDS	179512	180054	.	-	0	ID=NBISG00000000031.1-cds1;Parent=NBISG00000000031.1;protein_id=Os01t0103075-00
 1	irgsp	five_prime_UTR	180055	180433	.	-	.	ID=NBISG00000000031.1-five_prime_utr1;Parent=NBISG00000000031.1
 1	irgsp	three_prime_UTR	178815	179511	.	-	.	ID=NBISG00000000031.1-three_prime_utr1;Parent=NBISG00000000031.1
+1	Ensembl_Plants	ncRNA_gene	182074	182154	.	+	.	ID=NBISN00000000001;Name=tRNA-Leu;biotype=tRNA;description=tRNA-Leu for anticodon AAG;gene_id=ENSRNA049442722;logic_name=trnascan_gene
+1	Ensembl_Plants	tRNA	182074	182154	.	+	.	ID=NBISN00000000001.1;Parent=NBISN00000000001;biotype=tRNA;transcript_id=ENSRNA049442722-T1
+1	Ensembl_Plants	exon	182074	182154	.	+	.	ID=NBISN00000000001.1-exon1;Parent=NBISN00000000001.1;Name=ENSRNA049442722-E1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSRNA049442722-E1;rank=1
 1	irgsp	gene	185189	185828	.	-	.	ID=NBISG00000000032;biotype=protein_coding;description=Hypothetical gene. (Os01t0103400-01);gene_id=Os01g0103400;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	185189	185828	.	-	.	ID=NBISG00000000032.1;Parent=NBISG00000000032;biotype=protein_coding;transcript_id=Os01t0103400-01
 1	irgsp	exon	185189	185828	.	-	.	ID=NBISG00000000032.1-exon1;Parent=NBISG00000000032.1;Name=Os01t0103400-01.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0103400-01.exon1;rank=1
 1	irgsp	CDS	185435	185827	.	-	0	ID=NBISG00000000032.1-cds1;Parent=NBISG00000000032.1;protein_id=Os01t0103400-01
 1	irgsp	five_prime_UTR	185828	185828	.	-	.	ID=NBISG00000000032.1-five_prime_utr1;Parent=NBISG00000000032.1
 1	irgsp	three_prime_UTR	185189	185434	.	-	.	ID=NBISG00000000032.1-three_prime_utr1;Parent=NBISG00000000032.1
+1	irgsp	repeat_region	186000	186100	.	+	.	ID=NBISR00000000002
 1	irgsp	gene	186250	190904	.	-	.	ID=NBISG00000000033;biotype=protein_coding;description=Similar to sterol-8%2C7-isomerase. (Os01t0103600-01)%3BEmopamil-binding family protein. (Os01t0103600-02);gene_id=Os01g0103600;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	186250	190262	.	-	.	ID=NBISG00000000033.1;Parent=NBISG00000000033;biotype=protein_coding;transcript_id=Os01t0103600-02
 1	irgsp	exon	186250	186771	.	-	.	ID=NBISG00000000033.1-exon1;Parent=NBISG00000000033.1;Name=Os01t0103600-02.exon4;constitutive=0;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0103600-02.exon4;rank=4
@@ -880,6 +885,3 @@
 1	irgsp	mRNA	322591	323923	.	-	.	ID=NBISG00000000052.1;Parent=NBISG00000000052;biotype=protein_coding;transcript_id=Os01t0106300-01
 1	irgsp	exon	322591	323923	.	-	.	ID=NBISG00000000052.1-exon1;Parent=NBISG00000000052.1;Name=Os01t0106300-01.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=1;exon_id=Os01t0106300-01.exon2;rank=2
 1	irgsp	three_prime_UTR	322591	322809	.	-	.	ID=NBISG00000000052.1-three_prime_utr1;Parent=NBISG00000000052.1
-1	Ensembl_Plants	ncRNA_gene	182074	182154	.	+	.	ID=NBISN00000000001;Name=tRNA-Leu;biotype=tRNA;description=tRNA-Leu for anticodon AAG;gene_id=ENSRNA049442722;logic_name=trnascan_gene
-1	Ensembl_Plants	tRNA	182074	182154	.	+	.	ID=NBISN00000000001.1;Parent=NBISN00000000001;biotype=tRNA;transcript_id=ENSRNA049442722-T1
-1	Ensembl_Plants	exon	182074	182154	.	+	.	ID=NBISN00000000001.1-exon1;Parent=NBISN00000000001.1;Name=ENSRNA049442722-E1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSRNA049442722-E1;rank=1

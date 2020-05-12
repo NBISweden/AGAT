@@ -27,6 +27,9 @@
 1	havana	exon	12975	13052	.	+	.	ID=ENSE00001799933;Parent=transcript:ENST00000450305;Name=ENSE00001799933;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001799933;rank=4;version=2
 1	havana	exon	13221	13374	.	+	.	ID=ENSE00001746346;Parent=transcript:ENST00000450305;Name=ENSE00001746346;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001746346;rank=5;version=2
 1	havana	exon	13453	13670	.	+	.	ID=ENSE00001863096;Parent=transcript:ENST00000450305;Name=ENSE00001863096;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001863096;rank=6;version=1
+1	ensembl	RNA	1340841	1341132	.	-	.	ID=gene:ENSG00000264293;Name=RN7SL657P;biotype=misc_RNA;description=RNA%2C 7SL%2C cytoplasmic 657%2C pseudogene [Source:HGNC Symbol%3BAcc:46673];gene_id=ENSG00000264293;logic_name=ncrna;version=1
+1	ensembl	transcript	1340841	1341132	.	-	.	ID=transcript:ENST00000582431;Parent=gene:ENSG00000264293;Name=RN7SL657P-201;biotype=misc_RNA;tag=basic;transcript_id=ENST00000582431;version=1
+1	ensembl	exon	1340841	1341132	.	-	.	ID=ENSE00002720632;Parent=transcript:ENST00000582431;Name=ENSE00002720632;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002720632;rank=1;version=1
 1	havana	pseudogene	13411551	13414482	.	+	.	ID=gene:ENSG00000237700;Name=RP11-219C24.6;biotype=pseudogene;gene_id=ENSG00000237700;logic_name=havana;version=1
 1	havana	pseudogene	13411551	13414482	.	+	.	ID=transcript:ENST00000437300;Parent=gene:ENSG00000237700;Name=RP11-219C24.6-001;biotype=unitary_pseudogene;havana_transcript=OTTHUMT00000022042;havana_version=1;tag=basic;transcript_id=ENST00000437300;version=1
 1	havana	exon	13411551	13411837	.	+	.	ID=ENSE00001677077;Parent=transcript:ENST00000437300;Name=ENSE00001677077;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001677077;rank=1;version=1
@@ -37,6 +40,3 @@
 1	havana	exon	176241619	176241675	.	+	.	ID=ENSE00001660785;Parent=transcript:ENST00000440296;Name=ENSE00001660785;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001660785;rank=1;version=2
 1	havana	exon	176241743	176242168	.	+	.	ID=ENSE00001739151;Parent=transcript:ENST00000440296;Name=ENSE00001739151;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001739151;rank=2;version=2
 1	havana	exon	176242227	176242538	.	+	.	ID=ENSE00001773509;Parent=transcript:ENST00000440296;Name=ENSE00001773509;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00001773509;rank=3;version=2
-1	ensembl	RNA	1340841	1341132	.	-	.	ID=gene:ENSG00000264293;Name=RN7SL657P;biotype=misc_RNA;description=RNA%2C 7SL%2C cytoplasmic 657%2C pseudogene [Source:HGNC Symbol%3BAcc:46673];gene_id=ENSG00000264293;logic_name=ncrna;version=1
-1	ensembl	transcript	1340841	1341132	.	-	.	ID=transcript:ENST00000582431;Parent=gene:ENSG00000264293;Name=RN7SL657P-201;biotype=misc_RNA;tag=basic;transcript_id=ENST00000582431;version=1
-1	ensembl	exon	1340841	1341132	.	-	.	ID=ENSE00002720632;Parent=transcript:ENST00000582431;Name=ENSE00002720632;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSE00002720632;rank=1;version=1

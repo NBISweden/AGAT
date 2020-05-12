@@ -127,7 +127,7 @@ foreach my $attribute ( sort keys %all_attributes){
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print $out "\nJob done in $run_time seconds\n";
+print "\nJob done in $run_time seconds\n";
 
 #######################################################################################################################
         ####################
