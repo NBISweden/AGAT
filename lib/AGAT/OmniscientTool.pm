@@ -27,8 +27,8 @@ remove_element_from_omniscient append_omniscient merge_omniscients remove_omnisc
 fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap
 remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
-collect_l1_info_sorted_by_seqid_and_location remove_l1_and_relatives remove_l2_and_relatives
-remove_l3_and_relatives);
+gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
+remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives);
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -2370,6 +2370,26 @@ sub gather_and_sort_l1_by_seq_id_for_l2type{
  	return \%hash_sortBySeq;
 }
 
+# Sort by locusID only for l1 of a specific type (tag from 3rd column)
+# LocusID->typeFeature = [feature, feature, feature]
+#return a hash. Key is position,tag and value is list of feature l1. The list is sorted
+sub gather_and_sort_l1_by_seq_id_for_l1type{
+	my ($omniscient, $tag_level1) = @_;
+
+	my %hash_sortBySeq;
+	if (exists_keys ($omniscient, ('level1', $tag_level1) ) ){
+
+		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
+		  my $position=$omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+		  push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
+		}
+	  foreach my $position_l1 (keys %hash_sortBySeq){
+      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+    }
+	}
+
+ 	return \%hash_sortBySeq;
+}
 
 # Sort by locusID and strand
 # LocusID_strand->typeFeature = [feature, feature, feature]

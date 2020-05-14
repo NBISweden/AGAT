@@ -1,4 +1,28 @@
-Compute mrna with isoforms if any (Nb level1 features: 52 / Nb level2 features: 65)
+--------------------------------------------------------------------------------
+
+Compute chromosome
+
+Number of chromosomes                        1
+Number gene overlapping                      0
+Total chromosome length                      43270923
+mean chromosome length                       43270923
+Longest chromosomes                          43270923
+Shortest chromosomes                         43270923
+
+--------------------------------------------------------------------------------
+
+Compute repeat_region
+
+Number of repeat_regions                     2
+Number gene overlapping                      0
+Total repeat_region length                   202
+mean repeat_region length                    101
+Longest repeat_regions                       101
+Shortest repeat_regions                      101
+
+--------------------------------------------------------------------------------
+
+Compute mrna with isoforms if any
 
 Number of genes                              52
 Number of mrnas                              65
@@ -80,7 +104,7 @@ Shortest intron into exon part               40
 Shortest intron into five_prime_utr part     77
 Shortest intron into three_prime_utr part    40
 
-Re-compute mrna without isoforms asked. We remove shortest isoforms if any (Nb level1 features: 52 / Nb level2 features: 65)
+Re-compute mrna without isoforms asked. We remove shortest isoforms if any
 
 Number of genes                              52
 Number of mrnas                              52
@@ -164,7 +188,7 @@ Shortest intron into three_prime_utr part    40
 
 --------------------------------------------------------------------------------
 
-Compute trna with isoforms if any (Nb level1 features: 1 / Nb level2 features: 1)
+Compute trna with isoforms if any
 
 Number of ncrna_genes                        1
 Number of trnas                              1
@@ -187,7 +211,7 @@ Shortest ncrna_genes                         81
 Shortest trnas                               81
 Shortest exons                               81
 
-Re-compute trna without isoforms asked. We remove shortest isoforms if any (Nb level1 features: 1 / Nb level2 features: 1)
+Re-compute trna without isoforms asked. We remove shortest isoforms if any
 
 Number of ncrna_genes                        1
 Number of trnas                              1

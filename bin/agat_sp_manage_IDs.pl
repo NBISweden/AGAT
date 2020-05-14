@@ -17,6 +17,7 @@ my @opt_tag=();
 my $outfile=undef;
 my $opt_ensembl=undef;
 my $opt_prefix=undef;
+my $opt_collective=undef;
 my $opt_nbIDstart=1;
 my $opt_type_dependent = undef;
 
@@ -30,6 +31,7 @@ if ( !GetOptions(
     "prefix=s"  => \$opt_prefix,
     "p|t|l=s"   => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
+		"collective!" => \$opt_collective,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -84,10 +86,6 @@ else{
     }
   }
 }
-
-
-
-
                 #####################
                 #     MAIN          #
                 #####################
@@ -99,8 +97,11 @@ my @tagLetter_list;
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff
-                                                              });
+                                                            });
 print ("GFF3 file parsed\n");
+
+# get spreadfeatire in case of collective option set
+my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spreadfeature'};
 
 # sort by seq id
 my %hash_sortBySeq;
@@ -198,6 +199,9 @@ print_omniscient($hash_omniscient, $opt_gffout); #print gene modified
 sub deal_with_level3{
   my  ($ptagList, $level2_ID, $tag_l3, $l2_ID_modified)=@_;
 
+	my $first_round = 1;
+	my $previous_id = undef;
+
   foreach my $feature_l3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
 
     #Modify parent if necessary
@@ -205,7 +209,21 @@ sub deal_with_level3{
        create_or_replace_tag($feature_l3,'Parent', $l2_ID_modified);
     }
     if(exists ($ptagList->{$tag_l3}) or  exists ($ptagList->{'level3'}) ){
-      manage_attributes('level3', $feature_l3);
+
+			# Case withcollective ID (need option activated + the feature type is a spreadfeature)
+			if($opt_collective and exists_keys($spreadfeatures, ($tag_l3) ) ){
+				if(! $previous_id){
+					manage_attributes('level3', $feature_l3);
+					$previous_id = $feature_l3->_tag_value('ID');
+				}
+				else{
+					create_or_replace_tag($feature_l3,'ID', $previous_id);
+				}
+			}
+			# Case without collective ID
+			else{
+      	manage_attributes('level3', $feature_l3);
+			}
     }
   }
 
@@ -390,6 +408,12 @@ NbV1Ch01        AUGUSTUS        gene    97932   99714   0.06    -       .       
 NbV1Ch01        AUGUSTUS        mRNA    97932   99714   0.06    -       .       ID=mRNA1
 NbV1Ch01        AUGUSTUS        exon    97932   98571   .       -       .       ID=exon1
 NbV1Ch01        AUGUSTUS        exon    98679   98844   .       -       .       ID=exon2
+
+=item B<--collective>
+
+Boolean - In the case of discontinuous features (i.e. a single feature that
+exists over multiple genomic locations like CDS, UTR) we set a uniq ID by default.
+If you wish to set the a collective ID for those feature, please activate this option.
 
 =item B<--tair>
 

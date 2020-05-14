@@ -1151,7 +1151,7 @@ sub _check_uniq_id{
 			 	$uniqID->{lc($uID)}=$id;
 			 	$uniqIDtoType->{lc($id)}=$primary_tag;
 			}
-		# NOT the first time we have this ID
+		  # NOT the first time we have this ID
 			# check if it's the same type (To not mix a same ID between UTR and CDS);
 			elsif( $uniqIDtoType->{lc($id)} eq $primary_tag ){ # Same type, so we can keep this ID, let's continue
 			 	$uID = $id;

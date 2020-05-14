@@ -1,4 +1,6 @@
-Compute mrna with isoforms if any (Nb level1 features: 2 / Nb level2 features: 2)
+--------------------------------------------------------------------------------
+
+Compute mrna
 
 Number of genes                              2
 Number of mrnas                              2

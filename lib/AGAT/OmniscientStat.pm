@@ -7,10 +7,11 @@ use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;;
 use AGAT::OmniscientTool;
+use AGAT::OmniscientJson;
 use AGAT::Utilities;
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw( print_omniscient_statistics get_omniscient_statistics );
+our @EXPORT = qw( print_omniscient_statistics );
 
 sub import {
   AGAT::OmniscientStat->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -77,8 +78,11 @@ sub print_omniscient_statistics{
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
 
+	print $output ("-"x80)."\n\n";
+
 	#print statistics
 	foreach my $by_main_type  ( sort {$a <=> $b } keys %{$result_by_type} ){ # by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
+		my $isoform_type = ($by_main_type eq 3) ? $isoform : undef;
 		foreach my $by_type ( sort keys %{ $result_by_type->{$by_main_type} } ){
 
 			my $stat = $result_by_type->{$by_main_type}{$by_type}{'info'};
@@ -87,9 +91,12 @@ sub print_omniscient_statistics{
 
 			# print sentences/info
 			foreach my $infoList (@$stat){
-
-				print $output "Compute $by_type with isoforms if any".
-				" (Nb level1 features: ".$l1l2->[0]." / Nb level2 features: ".$l1l2->[1].")\n\n";
+				if($isoform_type){
+					print $output "Compute $by_type with isoforms if any\n\n";
+				}
+				else{
+					print $output "Compute $by_type\n\n";
+				}
 
 				foreach my $info (@$infoList){
 			    print $output "$info";
@@ -102,9 +109,8 @@ sub print_omniscient_statistics{
 			}
 
 			#------- DEAL WITH ISOFORMS -----
-			if($isoform){
-				print $output "Re-compute $by_type without isoforms asked. We remove shortest isoforms if any".
-				" (Nb level1 features: ".$l1l2->[0]." / Nb level2 features: ".$l1l2->[1].")\n\n";
+			if($isoform_type){
+				print $output "Re-compute $by_type without isoforms asked. We remove shortest isoforms if any\n\n";
 
 				if(! $omniscientNew){ # re-compute wihtout isoforms only once!
 
@@ -204,14 +210,37 @@ sub get_omniscient_statistics {
 
 	# --- get statistics from topfeatures -------------------------
 
+	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
+	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
+		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
+
+			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
+			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
+			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
+
+			$result_by_type{1}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
+		}
+	}
+
 	# --- get statistics from standalone features -------------------------
 
+	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
+	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
+		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
+
+				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
+				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
+				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
+
+				$result_by_type{2}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
+		}
+	}
 	# ------------------------- get statistic from l2 -------------------------
 
 	# get nb of each feature in omniscient;
 	foreach my $tag_l2 ( sort keys %{$hash_omniscient->{'level2'} }){
 
-		my ($info_l2, $extra_l2) = gff3_statistics_from_l2($hash_omniscient, $tag_l2);
+		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2);
 		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2);
 		my $info_l2_distri = get_distributions($info_l2, $extra_l2);
 
@@ -232,8 +261,46 @@ sub get_omniscient_statistics {
 	return \%result_by_type;
 }
 
+# Get statistics for top features
+sub get_omniscient_statistics_for_topfeature{
+	my ($omniscient, $tag_l1) = @_;
 
-sub gff3_statistics_from_l2{
+	my %all_info;
+	my %extra_info; #For info not sorted by Level.
+
+	foreach my $id_l1 ( sort keys %{$omniscient->{'level1'}{$tag_l1}}){
+		my $feature_l1=$omniscient->{'level1'}{$tag_l1}{$id_l1};
+
+		#count number of feature
+		$all_info{$tag_l1}{'level1'}{$tag_l1}{'nb_feat'}++;
+
+		#compute feature size
+		my $sizeFeature=($feature_l1->end-$feature_l1->start)+1;
+		$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_feat'}+=$sizeFeature;
+
+		#create distribution list
+		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
+
+		# grab longest
+		if ((! $all_info{$tag_l1}{'level1'}{$tag_l1}{'longest'}) or ($all_info{$tag_l1}{'level1'}{$tag_l1}{'longest'} < $sizeFeature)){
+			$all_info{$tag_l1}{'level1'}{$tag_l1}{'longest'}=$sizeFeature;
+		}
+
+		# grab shorter
+		if ((! $all_info{$tag_l1}{'level1'}{$tag_l1}{'shortest'}) or ($all_info{$tag_l1}{'level1'}{$tag_l1}{'shortest'} > $sizeFeature)){
+			$all_info{$tag_l1}{'level1'}{$tag_l1}{'shortest'}=$sizeFeature;
+		}
+
+		# count how many overlaping genes
+		my $nb_overlap_gene = _detect_overlap_features($omniscient, $tag_l1, 'level1');
+		$extra_info{"overlap"}{$tag_l1}{"level1"}{"gene"} = $nb_overlap_gene;
+	}
+	return \%all_info, \%extra_info;
+}
+
+# Parse omiscient by L2 to seprate statistics e.g not mixing exon from mRNA of
+# those tRNA
+sub get_omniscient_statistics_from_l2{
 	my ($hash_omniscient, $tag_l2) = @_;
 
 	my %all_info;
@@ -907,14 +974,24 @@ sub _info_coverage {
 	return \@resu;
 }
 
-############# - SHOULD BE IMPROVED TO ADAPT IF NO L2 OR L3
-# Give info about the overlaping genes
-# return a hash
+#############
+# @Purpose: Give info about the overlaping genes
+# Could check only at L1 if level1 only feature (standalone, topfeature)
+# check overlap at L3 if not a level1 only feature (standalone, topfeature)
+# return a string summerizing the number of overlap
+# @input: 3 => hash(omniscient hash), featureL2,  primary tag, if it is for L1 feature only (topfeature and standalone feature)
+# @output: 1 => int (nb feature removed)
 sub _detect_overlap_features{
-	my ($omniscient, $tag_l2, $verbose) = @_;
+	my ($omniscient, $tag, $toplevel) = @_;
 	my $resume_case = 0;
 
-	my $sortBySeq = gather_and_sort_l1_by_seq_id_for_l2type($omniscient, $tag_l2);
+	my $sortBySeq;
+	if($toplevel){
+		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, $tag);
+	}
+	else{
+		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l2type($omniscient, $tag);
+	}
 
 	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 		foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
@@ -944,10 +1021,17 @@ sub _detect_overlap_features{
 					# Let's check at Gene LEVEL
 					if(location_overlap(\@location, \@location_to_check)){
 
-						#let's check at CDS level
-						if(check_gene_overlap_at_level3($omniscient, $omniscient , $id_l1, $id2_l1, "exon")){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
-							#they overlap in the CDS we should give them the same name
+						# Need to check only at level1
+						if($toplevel){
 							$resume_case++;
+						}
+						# Need to check at level3
+						else{
+							#let's check at CDS level
+							if(check_gene_overlap_at_level3($omniscient, $omniscient , $id_l1, $id2_l1, "exon")){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
+								#they overlap in the CDS we should give them the same name
+								$resume_case++;
+							}
 						}
 					}
 				}
