@@ -8,7 +8,6 @@ use Sort::Naturally;
 use Bio::Tools::GFF;
 use URI::Escape;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientJson;
 use AGAT::OmniscientI;
 use AGAT::Utilities;
 use Exporter;
@@ -16,8 +15,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
 print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
-convert_omniscient_to_ensembl_style gather_l1_by_seq_id_for_sorted_printing
-write_top_features);
+convert_omniscient_to_ensembl_style write_top_features);
 
 sub import {
   AGAT::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -61,7 +59,7 @@ sub print_omniscient{
 ### NEW FASHION GOING TRHOUGH LEVEL1 - Have to first create a hash of seq_id -> level1_feature , then we can go through in alphanumerical order.
 
 	# sort by seq id
-	my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
+	my ( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	# Read by seqId to sort properly the output by seq ID
 	# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101
@@ -160,7 +158,7 @@ sub print_omniscient_as_match{
   write_headers($hash_omniscient, $gffout);
 
 	# sort by seq id
-	my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
+	my ( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	#Read by seqId to sort properly the output by seq ID
 	foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
@@ -242,7 +240,7 @@ sub print_omniscient_from_level1_id_list {
   write_headers($hash_omniscient, $gffout);
 
   # sort by seq id
-  my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient, $level_id_list);
+	my ( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient, $level_id_list);
 
   #Read by seqId to sort properly the output by seq ID
   foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
@@ -396,60 +394,6 @@ sub write_top_features{
         $gffout->write_feature($feature_l1); # print feature
       }
     }
-}
-
-#				   +------------------------------------------------------+
-#				   |+----------------------------------------------------+|
-#				   || 					     extra specific function 			       ||
-#				   |+----------------------------------------------------+|
-#				   +------------------------------------------------------+
-
-# @Purpose: Sort by locusID and location
-# @input: 2 => hash(omniscient hash), optional list or hash of id to filter
-# @output: return a hash:  LocusID->uniqLocationId = [id => X, tag => Y]
-
-sub gather_l1_by_seq_id_for_sorted_printing{
-	my ($omniscient, $filterid) = @_;
-
-	my %hash_sortBySeq;
-	my %hash_topfeatures;
-
-	#Check option filterid
-	my $hash_filterid;
-	if ($filterid){
-		if( ref($filterid) eq 'ARRAY' ){
-			$hash_filterid->{$_}++ for (@{$filterid});
-		}
-		elsif( ref($filterid) eq 'HASH' ){
-			$hash_filterid = $filterid;
-		}
-		else{
-			warn "optional filterid parameter need to be a list or hash ref\n";
-		}
-	}
-
-	# get list of feature type that shoud appear at the very beginning of each sequence id
-	my $top_features = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeature');
-
-	foreach my $tag_level1 ( keys %{$omniscient->{'level1'}}){
-		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
-
-				if ($hash_filterid and ! exists_keys ($hash_filterid, $level1_id) ){
-					next;
-				}
-
-				my $seqid = $omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
-				my $uniq = $omniscient->{'level1'}{$tag_level1}{$level1_id}->start."|".$omniscient->{'level1'}{$tag_level1}{$level1_id}->end.$tag_level1.$level1_id;
-
-				if ( exists_keys($top_features, ($tag_level1) ) ) {
-					$hash_topfeatures{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
-				}
-				else{
-					$hash_sortBySeq{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
-				}
-	  }
-	}
-	return \%hash_topfeatures, \%hash_sortBySeq;
 }
 
 #				   +------------------------------------------------------+

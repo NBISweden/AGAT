@@ -4,10 +4,14 @@ package AGAT::Utilities;
 
 use strict;
 use warnings;
+use Time::Piece;
+use Time::Seconds;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded sizedPrint activate_warning_limit);
+our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded
+sizedPrint activate_warning_limit print_time);
+
 sub import {
   AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::Utilities->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -178,6 +182,14 @@ sub activate_warning_limit{
 			print "************** Too much WARNING of this type we skip the next **************\n";
 		}
 	};
+}
+
+# add stamotime as suffux before printing
+# print like [10:31:23] string
+sub print_time{
+  my $t = localtime;
+  my $line = "[".$t->hms."] @_\n";
+  print $line;
 }
 
 1;

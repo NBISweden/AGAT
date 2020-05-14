@@ -79,7 +79,7 @@ unlink $outtmp;
 # --------check agat_sp_to_tabulated.pl-------------
 
 $script = $script_prefix."bin/agat_convert_sp_gff2tsv.pl";
-$result = "$output_folder/agat_convert_sp_gff2tsv_1.txt";
+$result = "$output_folder/agat_convert_sp_gff2tsv_1.tsv";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -279,8 +279,8 @@ $script = $script_prefix."bin/agat_sp_functional_statistics.pl";
 $result = "$output_folder/agat_sp_functional_statistics_1.txt";
 system(" $script --gff t/gff_syntax/10_test.gff -o $outtmp 1>/dev/null");
 #run test
-ok( system("diff $result $outprefix/report.txt") == 0, "output $script");
-rmtree $outprefix;
+ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
+rmtree $outtmp;
 
 
 # --------check agat_sp_gxf_to_gff3.pl-------------

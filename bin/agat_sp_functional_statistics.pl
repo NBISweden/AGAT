@@ -47,10 +47,6 @@ if ( ! (defined($gff)) ){
 my $out;
 if ($opt_output) {
 
-  # remove prefix
-  my ($path,$ext);
-  ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
-
   if (-f $opt_output){
       print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
   }
@@ -83,33 +79,12 @@ print "Parsing Finished\n";
 ###############################################################
 ### Print Statistics structural first
 ###############################################################
-#check number of level1
-my $nbLevel1 = 0;
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  $nbLevel1 += keys %{$hash_omniscient->{'level1'}{$tag_l1}};
-}
 
-#chech number of level2
-my $nbLevel2 = keys %$hash_mRNAGeneLink;
-
-##############
-# STATISTICS #
-my $stat;
-my $distri;
-if($opt_genomeSize){
-  ($stat, $distri) = gff3_statistics($hash_omniscient, $opt_genomeSize);
-}
-else{
-  ($stat, $distri) = gff3_statistics($hash_omniscient);
-}
-
-#print statistics
-foreach my $infoList (@$stat){
-  foreach my $info (@$infoList){
-    print $out "$info";
-  }
-  print $out "\n";
-}
+print "Compute statistics\n";
+print_omniscient_statistics ({ input => $hash_omniscient,
+															 genome => $opt_genomeSize,
+															 output => $out
+														 });
 
 ###############################################################
 ### Print Statistics function

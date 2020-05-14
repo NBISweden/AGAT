@@ -1,5 +1,7 @@
 usage: bin/agat_sp_manage_introns.pl --gff t/scripts_output/1.gff -o tmp.gff
 
+Compute mrna with isoforms if any (Nb level1 features: 52 / Nb level2 features: 65)
+
 Number of genes                              52
 Number of mrnas                              65
 Number of mrnas with utr both sides          59
@@ -80,6 +82,10 @@ Shortest intron into exon part               40
 Shortest intron into five_prime_utr part     77
 Shortest intron into three_prime_utr part    40
 
+--------------------------------------------------------------------------------
+
+Compute trna with isoforms if any (Nb level1 features: 1 / Nb level2 features: 1)
+
 Number of ncrna_genes                        1
 Number of trnas                              1
 Number of exons                              1
@@ -100,6 +106,8 @@ Longest exons                                81
 Shortest ncrna_genes                         81
 Shortest trnas                               81
 Shortest exons                               81
+
+--------------------------------------------------------------------------------
 
 Introns in feature cds: Removing 1 percent of the highest values (2 values) gives you 3196 bp as the longest intron in cds.
 Introns in feature exon: Removing 1 percent of the highest values (2 values) gives you 3535 bp as the longest intron in exon.

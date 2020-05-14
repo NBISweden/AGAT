@@ -59,11 +59,9 @@ else{
 # # END Manage OPTION
 # #####################################
 
-
-
-                                                      #######################
-                                                      #        MAIN         #
-#                     >>>>>>>>>>>>>>>>>>>>>>>>>       #######################       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#                         #######################
+# >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#                         #######################
 
 #PART 1
 ###################################
@@ -78,16 +76,8 @@ else{
   ### END Parse GFF input #
   #########################
 
-  #print statistics
-  my ($stat, $distri) = gff3_statistics($hash_omniscient);
-  #print statistics
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print "$info";
-    }
-    print "\n";
-  }
 
+my $intron_added=0;
 
   ######################
   ### Parse GFF input #
@@ -151,6 +141,7 @@ else{
         if(@introns){
           my $it = natatime 2, @introns;
           while (my @tuple = $it->()) {
+						$intron_added++;
             my $intron_feature = clone($feature_example);
             $intron_feature->primary_tag('intron');
             my $ID='intron_added-'.$intronID;
@@ -167,6 +158,7 @@ else{
 
 print_omniscient($hash_omniscient, $gffout); #print gene modified
 
+print "$intron_added introns added\nBye Bye\n";
       #########################
       ######### END ###########
       #########################

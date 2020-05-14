@@ -1,3 +1,5 @@
+Compute mrna with isoforms if any (Nb level1 features: 2 / Nb level2 features: 2)
+
 Number of genes                              2
 Number of mrnas                              2
 Number of mrnas with utr both sides          1
@@ -81,6 +83,8 @@ Shortest three_prime_utr piece               3
 Shortest intron into cds part                56
 Shortest intron into exon part               56
 Shortest intron into five_prime_utr part     207
+
+--------------------------------------------------------------------------------
 
  _______________________________________________________________________________________________________
 |                         |  Nb term linked to mRNA |    Nb mRNA with term    |    Nb gene with term    |

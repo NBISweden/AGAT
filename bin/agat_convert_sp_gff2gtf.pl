@@ -372,7 +372,7 @@ sub print_omniscient_filter{
   write_headers_gtf($hash_omniscient, $gffout, $gtf_version, $relax);
 
 	# sort by seq id
-	my ( $hash_sortBySeq_topf, $hash_sortBySeq ) = gather_l1_by_seq_id_for_sorted_printing($hash_omniscient);
+	my ( $hash_sortBySeq, $hash_sortBySeq_stdf,  $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	# Read by seqId to sort properly the output by seq ID
 	# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101

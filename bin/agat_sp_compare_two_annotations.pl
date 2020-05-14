@@ -280,22 +280,13 @@ foreach my $locusID (  keys %{$sortBySeq1} ){
 ##############
 # STATISTICS #
 if($verbose){
-  print "stat file1:\n";
-  my ($stat, $distri) = gff3_statistics($omniscient1);
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print "$info";
-    }
-    print "\n";
-  }
-  print "stat file2:\n";
-  ($stat, $distri) = gff3_statistics($omniscient2);
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print "$info";
-    }
-    print "\n";
-  }
+  print "Compute statistics for $gff1:\n";
+	print_omniscient_statistics ({ input => $omniscient1
+															 });
+
+	print "Compute statistics for $gff2:\n";
+	print_omniscient_statistics ({ input => $omniscient2
+															 });
 }
 
 # ------------------------------------------------------------------------------

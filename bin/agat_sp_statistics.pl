@@ -94,8 +94,6 @@ if($opt_plot){
                 #     MAIN          #
                 #####################
 
-
-
 ######################
 ### Parse GFF input #
 print "Reading file $gff\n";
@@ -107,127 +105,19 @@ print "Parsing Finished\n";
 ### END Parse GFF input #
 #########################
 
-#check number of level1
-my $nbLevel1 = 0;
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  $nbLevel1 += keys %{$hash_omniscient->{'level1'}{$tag_l1}};
-}
-
-#chech number of level2
-my $nbLevel2 = keys %$hash_mRNAGeneLink;
-
 ##############
 # STATISTICS #
-my $stat;
-my $distri;
-if($opt_genomeSize){
-  ($stat, $distri) = gff3_statistics($hash_omniscient, $opt_genomeSize);
-}
-else{
-  ($stat, $distri) = gff3_statistics($hash_omniscient);
-}
-
-#print statistics
-foreach my $infoList (@$stat){
-  foreach my $info (@$infoList){
-    print $out "$info";
-  }
-  print $out "\n";
-}
-
-#Check if we have isoforms
-if($nbLevel1 != $nbLevel2){
-
-  #print distribution before removing isoforms
-  if($opt_plot){
-    print_distribution($opt_plot, "with_isoforms", $distri);
-  }
-
-  print $out "\nApparently we have isoforms : Number of level1 features: $nbLevel1 / Number of level2 features: $nbLevel2\n";
-  print $out "We will proceed to the statistics analysis using only the mRNA with the longest cds\n";
-
-  #create list of level2 where we kept only level2 that have cds and only the longest isoform !
-  my $list_id_l2 = get_longest_cds_level2($hash_omniscient);
-
-  # create a new omniscient with only one mRNA isoform per gene
-  my $omniscientNew = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, $list_id_l2);
-
-  # print stats
-  my $stat;
-  my $distri;
-  if($opt_genomeSize){
-    ($stat, $distri) = gff3_statistics($omniscientNew, $opt_genomeSize);
-  }else{
-    ($stat, $distri) = gff3_statistics($omniscientNew);
-  }
-
-  #print statistics
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print $out "$info";
-    }
-    print $out "\n";
-  }
-
-  #print distribution after having removed the isoforms
-  if($opt_plot){
-    print_distribution($opt_plot, "without_isoforms", $distri);
-  }
-}
-else{ #No isoforms
-  if($opt_plot){
-    print_distribution($opt_plot, "without_isoforms", $distri);
-  }
-}
-
+print "Compute statistics\n";
+print_omniscient_statistics ({ input => $hash_omniscient,
+															 genome => $opt_genomeSize,
+															 output => $out,
+															 distri => $opt_plot,
+															 isoform => 1
+														 });
 # END STATISTICS #
 ##################
+
 print "Bye Bye.\n";
-#######################################################################################################################
-        ####################
-         #     METHODS    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
-
-sub print_distribution{
-  my ($folder, $subfolder, $distri)=@_;
-
-  foreach my $type (keys %{$distri} ) {
-
-    foreach my $level (keys %{$distri->{$type}} ) {
-      foreach my $tag ( keys %{$distri->{$type}{$level}} ) {
-        if( exists_keys ($distri,($type, $level, $tag, 'whole') ) ){
-
-          if(! -d $folder){
-            mkdir $folder;
-          }
-
-          if(! -d $folder."/".$subfolder){
-            mkdir $folder."/".$subfolder;
-          }
-
-          my $outputPDF = $folder."/".$subfolder."/".$type."Class_".$tag.".pdf";
-
-          #CREATE THE R COMMAND
-          my $nbValues = @{$distri->{$type}{$level}{$tag}{'whole'}};
-          my $R_command = rcc_plot_from_list($distri->{$type}{$level}{$tag}{'whole'}, "", "histogram", "$tag"." size (nt)", "Number of $tag", "Distribution of $tag sizes\nMade with $nbValues $tag"."s", $outputPDF);
-          #EXECUTE THE R COMMAND
-          execute_R_command($R_command);
-        }
-
-        if( exists_keys ($distri,($type, $level, $tag, 'piece') ) ){
-        }
-
-      }
-    }
-  }
-}
 
 __END__
 
