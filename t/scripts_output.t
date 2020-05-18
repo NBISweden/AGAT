@@ -97,7 +97,7 @@ unlink $outprefix.".dna";
 
 # -------------------------- check agat_convert_sp_gxf2gxf.pl -------------------------
 
-# No need to be tested, it is the same as agat_sp_gxf_to_gff3
+# XXX No need to be tested, it is tested by gff_syntax tests
 
 # -------------------------- check agat_sp_add_introns -------------------------
 
@@ -281,11 +281,6 @@ system(" $script --gff t/gff_syntax/10_test.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
 rmtree $outtmp;
-
-
-# --------check agat_sp_gxf_to_gff3.pl-------------
-
-# XXX NOT needed done by gff_syntax test
 
 # --------check agat_sp_keep_longest_isoform.pl-------------
 

@@ -19,7 +19,7 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # script to call to check the parser
-my $script = $script_prefix."bin/agat_sp_gxf_to_gff3.pl";
+my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 #my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
 my $dir = "t/gff_syntax"; # folder where the test files are
