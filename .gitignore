@@ -6,4 +6,5 @@ blib
 MANIFEST*
 t/scripts_output/1.fa.index
 cover_db
+*.log
 
