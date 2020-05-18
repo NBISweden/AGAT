@@ -377,8 +377,8 @@ unlink $outtmp;
 
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
-$script = $script_prefix."bin/agat_sp_separate_by_feature_type.pl";
-$result = "$output_folder/agat_sp_separate_by_feature_type_1.gff";
+$script = $script_prefix."bin/agat_sp_separate_by_record_type.pl";
+$result = "$output_folder/agat_sp_separate_by_record_type_1.gff";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outprefix/trna.gff") == 0, "output $script");
