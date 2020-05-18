@@ -23,12 +23,14 @@ gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds
 create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list
 remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap
 check_level1_positions check_level2_positions info_omniscient fil_cds_frame
-remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
+check_all_level1_positions check_all_level2_positions remove_element_from_omniscient
+append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
 fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap
 remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
-remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives);
+remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives
+check_mrna_positions);
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -2031,17 +2033,152 @@ sub check_gene_positions {
 }
 
 # Check the start and end of level1 feature based on all features level2;
+sub check_all_level1_positions {
+	my ($args) = @_;
+
+	my $resume_case=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($hash_omniscient, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
+
+			my $level1_feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+
+			$resume_case++ if(check_level1_positions({ omniscient => $hash_omniscient,
+																								 feature => $level1_feature,
+																								 verbose => $verbose}));
+		}
+	}
+
+	if($resume_case){
+		dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose );
+	}
+	else{
+		dual_print($log, "All level1 locations are fine\n", $verbose );
+	}
+}
+
+# Purpose: review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+sub check_all_level2_positions{
+	my ($args) = @_;
+	my $resume_case=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($hash_omniscient, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
+
+			foreach my $tag_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+					if ( exists_keys ($hash_omniscient, ('level2', $tag_level2, $id_l1) ) ){
+
+					foreach my $mRNA_feature ( @{$hash_omniscient->{'level2'}{$tag_level2}{$id_l1}}){
+						my $level2_ID = lc($mRNA_feature->_tag_value('ID'));
+						my @feature_list=();
+						foreach my $primary_tag_l3 ( keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
+
+							if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
+								push @feature_list, @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}};
+							}
+						}
+						if(scalar(@feature_list) > 0){ #could be emtpy like in match match_part features
+							 $resume_case++ if( check_mrna_positions({ l2_feature => $mRNA_feature,
+							 																					exon_list => \@feature_list,
+																												log => $log,
+																												verbose => $verbose} ) );
+						}
+					}
+				}
+			}
+		}
+	}
+	if($resume_case){
+		dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose );
+	}
+	else{
+		dual_print($log, "All level2 locations are fine\n", $verbose );
+	}
+}
+
+# Check the start and end of mRNA based a list of feature like list of exon;
+sub check_mrna_positions{
+	my ($args) = @_;
+	my $result=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_mrna_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($mRNA_feature, $exon_list, $verbose, $log);
+	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ print "Input l2_feature mandatory to use check_mrna_positions!"; exit; }
+	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ print "Input exon_list mandatory to use check_mrna_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	my @exon_list_sorted = sort {$a->start <=> $b->start} @{$exon_list};
+	my $exonStart=$exon_list_sorted[0]->start;
+
+	@exon_list_sorted = sort {$a->end <=> $b->end} @exon_list_sorted;
+	my $exonEnd=$exon_list_sorted[$#exon_list_sorted]->end;
+
+	#check start
+	if ($mRNA_feature->start != $exonStart){
+		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 0); # print log only
+		$mRNA_feature->start($exonStart);
+		$result=1;
+	}
+	#check stop
+	if($mRNA_feature->end != $exonEnd){
+		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 0); # print log only
+		$mRNA_feature->end($exonEnd);
+		$result=1;
+	}
+
+	return $result;
+}
+
+# Check the start and end of level1 feature based on all features level2;
 #return 1 if something modified
 sub check_level1_positions {
-	my ($hash_omniscient, $feature_l1, $verbose) = @_;
-
+	my ($args) = @_;
 	my $result=undef;
-	if(! $verbose){$verbose=0;}
+
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_level1_positions. Please check the call.\n";exit;	}
+
+	my ($hash_omniscient, $feature_l1, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_level1_positions!"; exit; }
+	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ print "Input feature mandatory to use check_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
 
 	my $extrem_start=1000000000000;
 	my $extrem_end=0;
 	my $check_existence_feature_l2=undef;
 	my $id_l1 = lc($feature_l1->_tag_value('ID'));
+	my $tag_l1 = lc($feature_l1->primary_tag());
+
+	# Skip top and standalone features
+	if (! exists_keys ($hash_omniscient, ('other', 'level', 'level1') ) ){ # Check info is present in $hash_omniscient
+		get_levels_info({verbose => 0, omniscient => $hash_omniscient});
+	}
+	if ($hash_omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'standalone' or
+				$hash_omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'topfeature'){
+		return $result;
+	}
 
 	foreach my $tag_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
     	if ( exists_keys ($hash_omniscient, ('level2', $tag_level2, $id_l1) ) ){
@@ -2069,21 +2206,21 @@ sub check_level1_positions {
 	    }
     }
     if(! $check_existence_feature_l2){
-    	print "check_level1_positions: NO level2 feature to check positions of the level1 feature !".$feature_l1->gff_string()."\n" if($verbose >= 3);
+    	dual_print($log, "check_level1_positions: NO level2 feature to check positions of the level1 feature !".$feature_l1->gff_string()."\n", $verbose);
     }
     else{
 	    # modify START if needed
 	    if($feature_l1->start != $extrem_start){
 	    	$feature_l1->start($extrem_start);
 	    	$result=1;
-	    	print "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 0); # print in log only
 	    }
 
 	    # modify END if needed
 	    if($feature_l1->end != $extrem_end){
 	    	$feature_l1->end($extrem_end);
 	    	$result=1;
-	    	print "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 0); # print in log only
 	    }
 	}
 	return $result;

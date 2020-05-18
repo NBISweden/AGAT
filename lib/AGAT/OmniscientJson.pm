@@ -55,19 +55,19 @@ sub get_feature_type_by_agat_value {
 	my $hash = undef;
 	# If info not in omniscient we append omniscient to include all info
 	if (! exists_keys ($omniscient, ('other', 'level', 'level1') ) ){
-		$hash = get_levels_info() if (! $hash); # get from the file
+		$hash = get_levels_info({verbose => 0}) if (! $hash); # get from the file
 		$omniscient->{'other'}{'level'}{'level1'} = $hash->{'other'}{'level'}{'level1'};
 	}
 	elsif(! exists_keys ($omniscient, ('other', 'level', 'level2') ) ){
-		$hash = get_levels_info() if (! $hash); # get from the file
+		$hash = get_levels_info({verbose => 0}) if (! $hash); # get from the file
 		$omniscient->{'other'}{'level'}{'level2'} = $hash->{'other'}{'level'}{'level2'};
 	}
 	elsif(! exists_keys ($omniscient, ('other', 'level', 'level3') ) ){
-		$hash = get_levels_info() if (! $hash); # get from the file
+		$hash = get_levels_info({verbose => 0}) if (! $hash); # get from the file
 		$omniscient->{'other'}{'level'}{'level3'} = $hash->{'other'}{'level'}{'level3'};
 	}
 	elsif(! exists_keys ($omniscient, ('other', 'level', 'spreadfeature') ) ){
-		$hash = get_levels_info() if (! $hash); # get from the file
+		$hash = get_levels_info({verbose => 0}) if (! $hash); # get from the file
 		$omniscient->{'other'}{'level'}{'spreadfeature'} = $hash->{'other'}{'level'}{'spreadfeature'};
 	}
 
@@ -84,12 +84,16 @@ sub get_feature_type_by_agat_value {
 # @output: 3 => hash
 # @Remark: none
 sub get_levels_info{
-		my ($hash, $verbose) = @_ ;
+	my ($args) = @_;
 
-		$hash = {} if (! $hash); # if the hash exist we will append it otherwise it will be a new one
-		$verbose = 0 if(! defined ($verbose));
-		load_levels($hash,undef,$verbose);
-		return $hash;
+	my ($hash, $verbose);
+	# if the hash exist we will append it otherwise it will be a new one
+	if( ! defined($args->{omniscient})) { $hash = {} } else{ $hash = $args->{omniscient}; }
+	#size line
+	if( ! defined($args->{verbose}) ) { $verbose = 0;} else{ $verbose = $args->{verbose}; }
+
+	load_levels({ omniscient => $hash, verbose => $verbose});
+	return $hash;
 }
 
 # @Purpose: set path to look at the json feature level files (If present locally we take them otherwise look at standard path).
@@ -99,17 +103,30 @@ sub get_levels_info{
 # @output: 0 => none
 # @Remark: none
 sub load_levels{
-	my ($hash_omniscient, $expose_feature_levels, $verbose) = @_ ;
+	my ($args) = @_;
 
-	$verbose = 0 if(! $verbose );
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for load_levels. Please check the call.\n";exit;}
+	# -- Declare all variables and fill them --
+	my ($hash_omniscient, $expose_feature_levels, $verbose, $log, $debug);
+	# string to print
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ warn "Omniscient input is mandatory for load_levels\n"; exit;}
+	#size line
+	if( ! defined($args->{expose}) ) { $expose_feature_levels = undef;} else{ $expose_feature_levels = $args->{expose}; }
+	# character to fill the line with
+	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
+	# log
+	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
+	# log
+	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
 
-	print "	 Accessing the feature level files:\n" if($verbose > 0);
 	#set original path to json files, order matter
 	my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
 	my @paths;
 	foreach my $file ( @files ){
 		my $path = dist_file('AGAT', $file);
-		print "Path where $file is standing according to dist_file: $path\n" if ($verbose > 2);
+		dual_print ($log, "Path where $file is standing according to dist_file: $path\n", $verbose) if ($debug);
 		push @paths, $path;
 	}
 
@@ -118,9 +135,9 @@ sub load_levels{
 	# Check if it is asked to copy the json files locally
 	if ($expose_feature_levels){
 		foreach my $path (@paths) {
-				copy($path, $run_dir) or die "Copy failed: $!";
+				copy($path, $run_dir) or die dual_print($log,"Copy failed: $!");
 		}
-		print "			All json feature level files copied in your working directory\n" if ($verbose);
+		dual_print($log, "	All json feature level files copied in your working directory\n", $verbose);
 		exit;
 	}
 	# Load the json files
@@ -131,7 +148,7 @@ sub load_levels{
 			my $path = $run_dir."/".$file;
 			if (-e $path) {
 
-				print "			Using local $file file\n" if($verbose > 0);
+				dual_print($log, "	Using local $file file\n", $verbose );
 
 				if ($cpt == 1){
 					$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($path);
@@ -148,7 +165,7 @@ sub load_levels{
 			}
 			else{ #otherwise use the standard location ones
 
-				print "			Using standard ".$paths[$cpt-1]." file\n" if($verbose > 0);
+				dual_print($log, "	Using standard ".$paths[$cpt-1]." file\n", $verbose );
 
 				if ($cpt == 1){
 					$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($paths[0]);

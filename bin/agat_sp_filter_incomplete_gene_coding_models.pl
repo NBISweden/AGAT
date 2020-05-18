@@ -228,12 +228,12 @@ print $string_to_print;
 if(! $add_flag){
   #clean for printing
   if (@incomplete_mRNA){
-    _check_all_level2_positions(\%omniscient_incomplete,0); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-    _check_all_level1_positions(\%omniscient_incomplete,0);
+    check_all_level2_positions( { omniscient => \%omniscient_incomplete } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+    check_all_level1_positions( { omniscient => \%omniscient_incomplete } );
 
     remove_omniscient_elements_from_level2_ID_list($hash_omniscient, \@incomplete_mRNA);
-    _check_all_level2_positions($hash_omniscient,0); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-    _check_all_level1_positions($hash_omniscient,0); # Check the start and end of level1 feature based on all features level2.
+		check_all_level2_positions( { omniscient => $hash_omniscient } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+    check_all_level1_positions( { omniscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
   }
 }
 

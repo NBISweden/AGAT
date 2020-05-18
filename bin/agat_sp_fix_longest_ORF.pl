@@ -1241,7 +1241,7 @@ sub _check_overlap_name_diff{
                   delete $omniscient->{'level2'}{$l2_type}{lc($id2_l1)};
                 }
               }
-              check_level1_positions($omniscient, $omniscient->{'level1'}{$tag_l1}{lc($id_l1)}, 0);
+              check_level1_positions({ omniscient => $omniscient, feature => $omniscient->{'level1'}{$tag_l1}{lc($id_l1)} } );
 
               #Update the location on the fly
               if($omniscient->{'level1'}{$tag_l1}{lc($id_l1)}->end > $sortBySeq->{$locusID}{'level1'}{$tag_l1}{lc($id_l1)}[2]){

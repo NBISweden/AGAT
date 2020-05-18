@@ -243,8 +243,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   }
 }
 
-_check_all_level2_positions($hash_omniscient,0); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-_check_all_level1_positions($hash_omniscient,0); # Check the start and end of level1 feature based on all features level2.
+check_all_level2_positions( { omiscient => $hash_omniscient } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+check_all_level1_positions( { omiscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
 
 #END
 my $string_to_print="usage: $0 @copyARGV\n";

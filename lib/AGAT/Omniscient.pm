@@ -50,7 +50,7 @@ sub get_agat_header{
 |   https://github.com/NBISweden/AGAT                                          |
 |   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
  ------------------------------------------------------------------------------
-  };
+};
 
 return $header;
 

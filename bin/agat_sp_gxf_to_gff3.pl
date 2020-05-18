@@ -15,6 +15,7 @@ my $opt_comonTag=undef;
 my $opt_verbose = 1;
 my $opt_no_check = undef;
 my $opt_output;
+my $opt_debug;
 my $opt_expose_feature_levels = undef;
 my $opt_help = 0;
 my $opt_version_input = undef;
@@ -28,6 +29,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
                   'efl|expose!'      => \$opt_expose_feature_levels,
                   'nc|no_check!'      => \$opt_no_check,
+									'debug!'           => \$opt_debug,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
                   'ml|merge_loci!'     => \$opt_merge,
@@ -87,6 +89,8 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
+																															 log => "agat_gxf_to_gff3.log",
+																															 debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
                                                                });
 print ("GFF3 file parsed\n");
@@ -200,6 +204,10 @@ written to STDOUT.
 =item B<--gvi> or B<--gff_version_input>
 
 If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
+
+=item B<--debug>
+
+For debug purpose
 
 =item B<--gvo> or B<--gff_version_output>
 

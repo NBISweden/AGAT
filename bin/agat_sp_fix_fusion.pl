@@ -722,7 +722,8 @@ sub split_gene_model{
                   if ($new_mrna){
                     #########
                     #RE-SHAPE mrna extremities
-                    check_mrna_positions($level2_feature, $newOrignal_exon_list);
+                    check_mrna_positions({ l2_feature => $level2_feature,
+                                           exon_list => $newOrignal_exon_list});
 
                   }
                   else{

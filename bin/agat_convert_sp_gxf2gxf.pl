@@ -12,14 +12,15 @@ use AGAT::Omniscient;
 my $header = get_agat_header();
 my $start_run = time();
 my $opt_gfffile;
-my $opt_merge = undef;
-my $opt_comonTag=undef;
+my $opt_merge;
+my $opt_comonTag;
 my $opt_verbose = 1;
-my $opt_no_check = undef;
+my $opt_no_check;
 my $opt_output;
-my $opt_expose_feature_levels = undef;
+my $opt_debug;
+my $opt_expose_feature_levels;
 my $opt_help = 0;
-my $opt_version_input = undef;
+my $opt_version_input;
 my $opt_version_output = 3;
 
 # OPTION MANAGMENT
@@ -29,6 +30,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'v=i'             => \$opt_verbose,
                   'o|output=s'      => \$opt_output,
                   'efl|expose!'      => \$opt_expose_feature_levels,
+									'debug!'           => \$opt_debug,
                   'nc|no_check!'      => \$opt_no_check,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
@@ -89,6 +91,8 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
+																															 log => "agat_convert_sp_gxf2gxf.log",
+																															 debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
                                                                });
 print ("GFF3 file parsed\n");
@@ -119,12 +123,11 @@ agat_convert_sp_gxf2gxf.pl
 
 =head1 DESCRIPTION
 
-This script convert GTF/GFF of any flavor to bioperl GTF/GFF flavors.
-By default the script fixes and/or standardizes a GTF/GFF file into full sorted GFF3 format.
+This script fixes and/or standardizes any GTF/GFF file into full sorted GFF3 file.
 The output GFF syntax is shaped by bioperl and choose among the versions
 1,2,2.5 (GTF equivalent) and 3.
 
-Without specifying an input GTF/GFF version, the Omniscient parser will first detect 
+Without specifying an input GTF/GFF version, the Omniscient parser will first detect
 automtically the most appropriate GFF parser to use from bioperl (GFF1,GFF2,GFF3)
 in order to read you file properly.
 Then the Omniscient parser removes duplicate features, fixes duplicated IDs,
@@ -197,6 +200,10 @@ Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are incre
 =item B<--nc> or B<--no_check>
 
 To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+
+=item B<--debug>
+
+For debug purpose
 
 =item B<-o> or B<--output>
 

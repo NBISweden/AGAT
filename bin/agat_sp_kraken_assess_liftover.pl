@@ -247,8 +247,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 																																																				 "_check_l2_linked_to_l3",
 																																																				 "_check_l1_linked_to_l2",
 																																																				 "_remove_orphan_l1",
-																																																				 "_check_all_level2_positions",
-																																																				 "_check_all_level1_positions"],
+																																																				 "check_all_level2_positions",
+																																																				 "check_all_level1_positions"],
 	                                                                                   });
 
 	        if($verbose){
