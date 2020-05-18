@@ -177,19 +177,22 @@ __END__
 
 =head1 NAME
 
-agat_sp_separate_by_feature_type.pl
+agat_sp_separate_by_record_type.pl
 
 =head1 DESCRIPTION
 
 The script will separate the features from the gff input file into different files according to
-a) the different Level2 feature types (for records with L2)
-b) the different Level1 feature (for records without L2. i.e only L1 like
-top and standalone features)
+the record type. A record represent all features linked collectively by Parent/ID relationships.
+(e.g gene + mrna + exon + cds + utr of a locus).
+
+a) When the record contains Level2 feature, the record type is the Level2 feature type (e.g tRNA,mRNA,ncRNA etc...)
+b) Some features do not have children (top and standalone level1 features) e.g. location,region,chromosome.
+In such case the record type is the level1 feature type.
 
 =head1 SYNOPSIS
 
-    agat_sp_separate_by_feature_type.pl -g infile.gff [ -o outfolder ]
-    agat_sp_separate_by_feature_type.pl --help
+    agat_sp_separate_by_record_type.pl -g infile.gff [ -o outfolder ]
+    agat_sp_separate_by_record_type.pl --help
 
 =head1 OPTIONS
 
