@@ -10,7 +10,7 @@
   "nc_primary_transcript":"gene",
   "ncrna":"gene",
   "nmd_transcript_variant":"gene",
-  "piRNA":"pirna_gene",
+  "pirna":"pirna_gene",
   "pre_mirna":"gene",
   "processed_pseudogene":"pseudogene",
   "processed_transcript":"gene",

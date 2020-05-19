@@ -1,5 +1,5 @@
 
-We met 9 different feature types.
+We met 10 different feature types.
 Here the list of all the attributes tags met for the feature type <CDS> (3 attributes):
 ID
 Parent
@@ -43,6 +43,9 @@ description
 gene_id
 logic_name
 
+Here the list of all the attributes tags met for the feature type <repeat_region> (1 attributes):
+ID
+
 Here the list of all the attributes tags met for the feature type <tRNA> (4 attributes):
 ID
 Parent
@@ -68,5 +71,3 @@ logic_name
 protein_id
 rank
 transcript_id
-
-Job done in 0 seconds

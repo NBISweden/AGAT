@@ -10,10 +10,28 @@ use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
+use AGAT::OmniscientJson;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2 check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1 check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap check_level1_positions check_level2_positions info_omniscient fil_cds_frame remove_element_from_omniscient append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased get_longest_cds_level2 check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type);
+our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
+l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient
+complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2
+check_gene_overlap_at_CDSthenEXON location_overlap_update location_overlap nb_feature_level1
+check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand
+gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient
+create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list
+remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap
+check_level1_positions check_level2_positions info_omniscient fil_cds_frame
+check_all_level1_positions check_all_level2_positions remove_element_from_omniscient
+append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
+fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap
+remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
+remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
+gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
+remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives
+check_mrna_positions);
+
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -836,6 +854,150 @@ sub remove_element_from_omniscient_attributeValueBased {
 	}
 }
 
+# @Purpose: remove from omniscient l1 feature and all subfeatures
+# @input: 3 => hash(omniscient hash), feature L1, optional fh to write case removed
+# @output: 1 => int (nb feature removed)
+sub remove_l1_and_relatives{
+  my ($omniscient, $feature, $fh_removed)=@_;
+
+  my $cases = 0;
+	my $tag_l1 = lc($feature->primary_tag);
+	my $id_l1 = lc($feature->_tag_value('ID'));
+
+  foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+
+    if ( exists_keys( $omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+      foreach my $feature_l2 ( @{$omniscient->{'level2'}{$ptag_l2}{$id_l1}}) {
+
+        my $level2_ID = lc($feature_l2->_tag_value('ID'));
+
+        foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+          if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID) ) ){
+            foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
+              $cases++;
+							print $fh_removed $feature_l3->_tag_value('ID')."\n" if ($fh_removed);
+            }
+            delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
+          }
+        }
+        $cases++;
+				print $fh_removed $feature_l2->_tag_value('ID')."\n" if($fh_removed);
+      }
+      delete $omniscient->{'level2'}{$ptag_l2}{$id_l1} # delete level2
+    }
+  }
+  print $fh_removed $feature->gff_string()."\n" if $fh_removed;
+  delete $omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1
+	$cases++;
+
+	return $cases;
+}
+
+# @Purpose: remove from omniscient l2 feature and all subfeatures
+# @input: 5 => hash(omniscient hash), featureL2,  primary tag l1, id l1, optional fh to write case removed
+# @output: 1 => int (nb feature removed)
+sub remove_l2_and_relatives{
+  my ($omniscient, $feature, $ptag_l1, $id_l1, $fh_removed)=@_;
+
+  my $cases = 0;
+	my $ptag_l2 = lc($feature->primary_tag);
+  my $level2_Parent_ID = lc($feature->_tag_value('Parent'));
+  my $level2_ID = lc($feature->_tag_value('ID'));
+
+  if ( exists_keys( $omniscient, ('level2', $ptag_l2, $id_l1) ) ){ # just extra security in case
+    foreach my $feature_l2 ( @{$omniscient->{'level2'}{$ptag_l2}{$id_l1}}) {
+
+      if($level2_ID eq lc($feature_l2->_tag_value('ID')) ){
+        # let's delete all l3 subfeatures before to remove the l2
+        foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+          if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID)  ) ){
+            foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
+              $cases++;
+							print $fh_removed $feature_l3->_tag_value('ID')."\n" if ($fh_removed);
+            }
+            delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
+          }
+        }
+      }
+    }
+
+    # delete level2 and the hash pointer if the list is empty (no isoform left)
+    my @id_concern_list=($id_l1);
+    my @id_list_to_remove=($level2_ID);
+    my @list_tag_key=('all');
+    $cases++;
+		print $fh_removed $feature->gff_string()."\n" if ($fh_removed);
+    remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
+
+
+    if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+      #The list was empty so l2 has been removed, we can now remove l1
+      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+        $cases++;
+				print $fh_removed $id_l1."\n" if ($fh_removed);
+        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+      }
+    }
+  }
+	return $cases;
+}
+
+# @Purpose: remove from omniscient l3 feature and all related feature if needed
+# @input: 7 => hash(omniscient hash), feature L3, primary tag l2, id l2, primary tag l2, id l2, optional fh to write case removed
+# @output: 1 => int (nb feature removed)
+sub remove_l3_and_relatives{
+  my ($omniscient, $feature, $ptag_l1, $id_l1, $ptag_l2, $id_l2, $fh_removed)=@_;
+
+	my $cases = 0;
+  my $level3_Parent_ID = lc($feature->_tag_value('Parent'));
+  my $id_l3 = lc($feature->_tag_value('ID'));
+	my $ptag_l3 = lc($feature->primary_tag);
+
+  if ( exists_keys( $omniscient, ('level3', $ptag_l3, $id_l2) ) ){ # just extra security in case
+    foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$id_l2}}) {
+
+      if($id_l3 eq lc($feature_l3->_tag_value('ID')) ){
+        #remove one feature and pointer if no more feature left in the list
+        my @id_concern_list=($level3_Parent_ID);
+        my @id_list_to_remove=($id_l3);
+        my @list_tag_key=('all');
+        $cases++;
+				print $fh_removed $feature->gff_string()."\n" if ($fh_removed);
+        remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level3','false', \@list_tag_key);
+      }
+    }
+  }
+
+  # List empty check if we remove l2 or other l3 linked to it
+  if( ! exists_keys($omniscient, ('level3', $ptag_l3, $id_l2)) ){
+    foreach my $tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+      if ( exists_keys( $omniscient, ('level3', $tag_l3, $id_l2) ) ){
+        return $cases;
+      }
+    }
+
+    # if we arrive here it means no more L3 feature is attached to L2
+    # we remove the L2 parent properly (if isoforms they are kept)
+    my @id_concern_list=($id_l1);
+    my @id_list_to_remove=($id_l2);
+    my @list_tag_key=('all');
+    $cases++;
+		print $fh_removed $id_l2."\n" if ($fh_removed);
+    remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
+
+    # Should we remove l1 too?
+    if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+      #The list was empty so l2 has been removed, we can now remove l1
+      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+        $cases++;
+				print $fh_removed $id_l1."\n" if($fh_removed);
+        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1}
+      }
+    }
+  }
+	return $cases;
+}
+
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
 #				   || 			HANDLE OMNISCIENT => CREATE				 ||
@@ -1314,13 +1476,15 @@ sub get_longest_cds_start_end {
   return $resu_start,$resu_end;
 }
 
-# @Purpose: Filter the mRNA to keep only the one containing the longest CDS per gene
+# @Purpose: Filter the RNA to remove short isoforms. Based at CDS level if exists or exon if no CDS
 # @input: 1 => hash(omniscient hash)
-# @output: list of id level2
-sub get_longest_cds_level2{
+# @output: return cleaned hash
+sub remove_shortest_isoforms{
   my ($hash_omniscient)= @_;
 
-  my @list_id_l2;
+	my @list_to_remove;
+	my $case_exon=0;
+	my $case_cds=0;
 
   #################
   # == LEVEL 1 == #
@@ -1332,14 +1496,15 @@ sub get_longest_cds_level2{
       # == LEVEL 2 == #
       #################
       foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-        if ( exists ($hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1} ) ){
+        if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_l2, $id_tag_l1) ) ){
 
           #check if there is isoforms
           ###########################
 
-          #take only le longest
           if ($#{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}} > 0){
-            my $longestL2 ="";
+
+            my $longestL2cds = undef;
+						my $longestL2exon = undef;
             my $longestCDSsize = 0;
             my $longestEXONsize = 0;
 
@@ -1347,46 +1512,63 @@ sub get_longest_cds_level2{
 
 	            my $level2_ID =   lc($feature_level2->_tag_value('ID') ) ;
 	            if ( exists_keys( $hash_omniscient, ('level3','cds',$level2_ID ) ) ) {
-	                my $cdsSize=0;
+
+									my $cdsSize=0;
 	                foreach my $cds ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 	                  $cdsSize += ( $cds->end - $cds->start + 1 );
 	                }
 
 	                if($cdsSize > $longestCDSsize ){
-	                  $longestL2 = $level2_ID;
+										if($longestL2cds){ # we found a longest CDS. The previous is shortest
+											$case_cds++;
+											push @list_to_remove, [$longestL2cds, $primary_tag_l1, $id_tag_l1];
+										}
+	                  $longestL2cds = $feature_level2;
 	                  $longestCDSsize = $cdsSize;
 	                }
+									else{ # we have a longest CDS. The current is shortest
+										$case_cds++;
+										push @list_to_remove, [$feature_level2, $primary_tag_l1, $id_tag_l1];
+									}
 	            }
 	            elsif ( exists_keys( $hash_omniscient, ('level3','exon',$level2_ID ) ) ) {
-					my $exonSize=0;
+
+								if ($longestL2cds){
+									# We have a CDS for another isoform so we remove this one that do not have CDS
+									push @list_to_remove, [ $feature_level2, $primary_tag_l1, $id_tag_l1];
+									$case_exon++;
+								}
+								else{
+									my $exonSize=0;
 	                foreach my $exon ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 	                  $exonSize += ( $exon->end - $exon->start + 1 );
 	                }
-
 	                if($exonSize > $longestEXONsize ){
-	                  $longestL2 = $level2_ID;
+										if($longestL2exon){ # we found a longest exon. The previous is shortest
+											push @list_to_remove, [$longestL2exon, $primary_tag_l1, $id_tag_l1];
+											$case_exon++;
+										}
+	                  $longestL2exon = $feature_level2;
 	                  $longestEXONsize = $exonSize;
 	                }
-	            }
-	            else{
-	            	warn "WARNING get_longest_cds_level2: NO exon or cds to select the longest l2 for $id_tag_l1 l1 ! We will take one randomly ! @\n";
-	            	$longestL2 = $level2_ID;
-	        	}
-            }
-            push @list_id_l2,$longestL2; # push id of the longest
-          }
-          else{ #take it only of cds exits
-            my $level2_ID =  lc(@{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}}[0]->_tag_value('ID')) ;
-            if (exists_keys( $hash_omniscient, ('level3','cds', $level2_ID ) ) ){
-              push @list_id_l2, $level2_ID; # push the only one existing
+									else{ # we have a longest exons. The current is shortest
+										push @list_to_remove, [ $feature_level2, $primary_tag_l1, $id_tag_l1 ];
+										$case_exon++;
+									}
+								}
+            	}
             }
           }
         }
       }
     }
   }
+	# remove listed l2
+	foreach my $infos (@list_to_remove) {
+		my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
+	}
 
-  return \@list_id_l2;
+  return $case_cds, $case_exon;
 }
 
 # @Purpose: Counter the number of feature level in an omniscient
@@ -1851,17 +2033,152 @@ sub check_gene_positions {
 }
 
 # Check the start and end of level1 feature based on all features level2;
+sub check_all_level1_positions {
+	my ($args) = @_;
+
+	my $resume_case=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($hash_omniscient, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
+
+			my $level1_feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+
+			$resume_case++ if(check_level1_positions({ omniscient => $hash_omniscient,
+																								 feature => $level1_feature,
+																								 verbose => $verbose}));
+		}
+	}
+
+	if($resume_case){
+		dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose );
+	}
+	else{
+		dual_print($log, "All level1 locations are fine\n", $verbose );
+	}
+}
+
+# Purpose: review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+sub check_all_level2_positions{
+	my ($args) = @_;
+	my $resume_case=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($hash_omniscient, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
+
+			foreach my $tag_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+					if ( exists_keys ($hash_omniscient, ('level2', $tag_level2, $id_l1) ) ){
+
+					foreach my $mRNA_feature ( @{$hash_omniscient->{'level2'}{$tag_level2}{$id_l1}}){
+						my $level2_ID = lc($mRNA_feature->_tag_value('ID'));
+						my @feature_list=();
+						foreach my $primary_tag_l3 ( keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
+
+							if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
+								push @feature_list, @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}};
+							}
+						}
+						if(scalar(@feature_list) > 0){ #could be emtpy like in match match_part features
+							 $resume_case++ if( check_mrna_positions({ l2_feature => $mRNA_feature,
+							 																					exon_list => \@feature_list,
+																												log => $log,
+																												verbose => $verbose} ) );
+						}
+					}
+				}
+			}
+		}
+	}
+	if($resume_case){
+		dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose );
+	}
+	else{
+		dual_print($log, "All level2 locations are fine\n", $verbose );
+	}
+}
+
+# Check the start and end of mRNA based a list of feature like list of exon;
+sub check_mrna_positions{
+	my ($args) = @_;
+	my $result=undef;
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_mrna_positions. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($mRNA_feature, $exon_list, $verbose, $log);
+	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ print "Input l2_feature mandatory to use check_mrna_positions!"; exit; }
+	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ print "Input exon_list mandatory to use check_mrna_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
+	my @exon_list_sorted = sort {$a->start <=> $b->start} @{$exon_list};
+	my $exonStart=$exon_list_sorted[0]->start;
+
+	@exon_list_sorted = sort {$a->end <=> $b->end} @exon_list_sorted;
+	my $exonEnd=$exon_list_sorted[$#exon_list_sorted]->end;
+
+	#check start
+	if ($mRNA_feature->start != $exonStart){
+		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 0); # print log only
+		$mRNA_feature->start($exonStart);
+		$result=1;
+	}
+	#check stop
+	if($mRNA_feature->end != $exonEnd){
+		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 0); # print log only
+		$mRNA_feature->end($exonEnd);
+		$result=1;
+	}
+
+	return $result;
+}
+
+# Check the start and end of level1 feature based on all features level2;
 #return 1 if something modified
 sub check_level1_positions {
-	my ($hash_omniscient, $feature_l1, $verbose) = @_;
-
+	my ($args) = @_;
 	my $result=undef;
-	if(! $verbose){$verbose=0;}
+
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_level1_positions. Please check the call.\n";exit;	}
+
+	my ($hash_omniscient, $feature_l1, $verbose, $log);
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_level1_positions!"; exit; }
+	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ print "Input feature mandatory to use check_level1_positions!"; exit; }
+	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{log}) ) { $log = $args->{log}; }
+
 
 	my $extrem_start=1000000000000;
 	my $extrem_end=0;
 	my $check_existence_feature_l2=undef;
 	my $id_l1 = lc($feature_l1->_tag_value('ID'));
+	my $tag_l1 = lc($feature_l1->primary_tag());
+
+	# Skip top and standalone features
+	if (! exists_keys ($hash_omniscient, ('other', 'level', 'level1') ) ){ # Check info is present in $hash_omniscient
+		get_levels_info({verbose => 0, omniscient => $hash_omniscient});
+	}
+	if ($hash_omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'standalone' or
+				$hash_omniscient->{'other'}{'level'}{'level1'}{$tag_l1} eq 'topfeature'){
+		return $result;
+	}
 
 	foreach my $tag_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
     	if ( exists_keys ($hash_omniscient, ('level2', $tag_level2, $id_l1) ) ){
@@ -1889,21 +2206,21 @@ sub check_level1_positions {
 	    }
     }
     if(! $check_existence_feature_l2){
-    	print "check_level1_positions: NO level2 feature to check positions of the level1 feature !".$feature_l1->gff_string()."\n" if($verbose >= 3);
+    	dual_print($log, "check_level1_positions: NO level2 feature to check positions of the level1 feature !".$feature_l1->gff_string()."\n", $verbose);
     }
     else{
 	    # modify START if needed
 	    if($feature_l1->start != $extrem_start){
 	    	$feature_l1->start($extrem_start);
 	    	$result=1;
-	    	print "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 0); # print in log only
 	    }
 
 	    # modify END if needed
 	    if($feature_l1->end != $extrem_end){
 	    	$feature_l1->end($extrem_end);
 	    	$result=1;
-	    	print "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n" if($verbose >= 3);
+	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 0); # print in log only
 	    }
 	}
 	return $result;
@@ -2092,6 +2409,62 @@ sub check_record_positions {
 	}
 }
 
+# @Purpose: Sort by locusID and location
+# @input: 2 => hash(omniscient hash), optional list or hash of id to filter
+# @output 3: return 3 similar hashes:  LocusID->uniqLocationId = [id => X, tag => Y].
+# One contains all features L1(wihtout topfeature), the second only standalone features, the third only top features
+# The standalone feature hash is needed when we loop over omniscient from L2. We will miss stand alone featurs that
+# only have L1 features.  It is way to still access them.
+
+sub collect_l1_info_sorted_by_seqid_and_location{
+	my ($omniscient, $filterid) = @_;
+
+	my %hash_sortBySeq; # all classified feature L1 even standalone feature
+	my %hash_topfeatures; # topfeatures
+	my %hash_stdfeatures; # standalone features only
+
+	#Check option filterid
+	my $hash_filterid;
+	if ($filterid){
+		if( ref($filterid) eq 'ARRAY' ){
+			$hash_filterid->{$_}++ for (@{$filterid});
+		}
+		elsif( ref($filterid) eq 'HASH' ){
+			$hash_filterid = $filterid;
+		}
+		else{
+			warn "optional filterid parameter need to be a list or hash ref\n";
+		}
+	}
+
+	# get list of feature type that shoud appear at the very beginning of each sequence id
+	my $top_features = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeature');
+	my $std_features = get_feature_type_by_agat_value($omniscient, 'level1', 'standalone');
+
+	foreach my $tag_level1 ( keys %{$omniscient->{'level1'}}){
+		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
+
+				if ($hash_filterid and ! exists_keys ($hash_filterid, $level1_id) ){
+					next;
+				}
+
+				my $seqid = $omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+				my $uniq = $omniscient->{'level1'}{$tag_level1}{$level1_id}->start."|".$omniscient->{'level1'}{$tag_level1}{$level1_id}->end.$tag_level1.$level1_id;
+
+				if ( exists_keys($top_features, ($tag_level1) ) ) {
+					$hash_topfeatures{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
+				}
+				else{
+					if ( exists_keys($std_features, ($tag_level1) ) ) { #save in standalone is standalone
+						$hash_stdfeatures{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
+					}
+					$hash_sortBySeq{$seqid}{$uniq} = { tag => $tag_level1, id => $level1_id };
+				}
+	  }
+	}
+	return \%hash_sortBySeq, \%hash_stdfeatures, \%hash_topfeatures;
+}
+
 # Sort by locusID
 # LocusID->typeFeature = [feature, feature, feature]
 #return a hash. Key is position,tag and value is list of feature l1. The list is sorted
@@ -2134,6 +2507,26 @@ sub gather_and_sort_l1_by_seq_id_for_l2type{
  	return \%hash_sortBySeq;
 }
 
+# Sort by locusID only for l1 of a specific type (tag from 3rd column)
+# LocusID->typeFeature = [feature, feature, feature]
+#return a hash. Key is position,tag and value is list of feature l1. The list is sorted
+sub gather_and_sort_l1_by_seq_id_for_l1type{
+	my ($omniscient, $tag_level1) = @_;
+
+	my %hash_sortBySeq;
+	if (exists_keys ($omniscient, ('level1', $tag_level1) ) ){
+
+		foreach my $level1_id ( keys %{$omniscient->{'level1'}{$tag_level1}}){
+		  my $position=$omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+		  push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
+		}
+	  foreach my $position_l1 (keys %hash_sortBySeq){
+      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+    }
+	}
+
+ 	return \%hash_sortBySeq;
+}
 
 # Sort by locusID and strand
 # LocusID_strand->typeFeature = [feature, feature, feature]
@@ -2261,7 +2654,7 @@ sub get_most_right_left_cds_positions {
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
-# @Purpose: Check the ID of a record and fix it if ducplicate.
+# @Purpose: Check the ID of a record and fix it if duplicated.
 # @input: 3 => id from level1 hash1, hash1 omnicient, hash1 of whole_IDs
 # @output: l1_id
 # /!\ Not tested yest
@@ -2523,4 +2916,5 @@ sub is_single_exon_gene {
 	}
 }
 
+#				   +-------------------------  END -----------------------------+
 1;

@@ -4,8 +4,6 @@ use strict;
 use warnings;
 use File::Basename;
 use Carp;
-use Time::Piece;
-use Time::Seconds;
 use POSIX qw(strftime);
 use Getopt::Long;
 use IO::File;
@@ -189,22 +187,15 @@ if($opt_output){ print_time("$stringPrint");} # When ostreamReport is a file we 
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile
                                                               });
-print_time("Parsing Finished\n");
+print_time("Parsing Finished");
 ### END Parse GFF input #
 #########################
 
 #Print directly what has been read
-my ($stat, $distri) = gff3_statistics($hash_omniscient);
-$ostreamReport->print("Statistics:\n==========\n");
-if($opt_output){print "Statistics:\n==========\n";} # When ostreamReport is a file we have to also display on screen
-foreach my $infoList (@$stat){
-  foreach my $info (@$infoList){
-    $ostreamReport->print("$info");
-    if($opt_output){print "$info";} # When ostreamReport is a file we have to also display on screen
-  }
-  $ostreamReport->print("\n");
-  if($opt_output){print "\n";} # When ostreamReport is a file we have to also display on screen
-}
+print_time("Compute statistics");
+print_omniscient_statistics ({ input => $hash_omniscient,
+															 output => $ostreamReport
+														 });
 
 ################################
 # MANAGE FUNCTIONAL INPUT FILE #
@@ -564,7 +555,6 @@ if($opt_name or $opt_nameU){
 
 # Display
 $ostreamReport->print("$stringPrint");
-if(defined $opt_output){print_time( "$stringPrint" ) ;}
 
 ####################
 # PRINT IN FILES
@@ -606,13 +596,6 @@ sub get_letter_tag{
     push(@tag_list, $letter)
   }
   return $tag_hash{ $tag };
-}
-
-# print with time
-sub print_time{
-  my $t = localtime;
-  my $line = "[".$t->hms."] @_\n";
-  print $line;
 }
 
 # each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end. To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).

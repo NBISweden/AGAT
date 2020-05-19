@@ -4,14 +4,14 @@ package AGAT::Utilities;
 
 use strict;
 use warnings;
-use Bio::Tools::GFF;
-use Bio::Seq;
-use Clone 'clone';
-use Sort::Naturally;
+use Time::Piece;
+use Time::Seconds;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table printSurrounded sizedPrint activate_warning_limit);
+our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
+sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text);
+
 sub import {
   AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::Utilities->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -86,81 +86,6 @@ sub get_proper_codon_table {
   return $codon_table_id_original;
 }
 
-# @Purpose: allows to add a frame to a string to print
-# @input: 4 =>  String (What has to be printed), int (size of the canevas),
-#               char (character to use to make the frame), String (extra to print at the end after the frame)
-# @output 1 => String
-sub printSurrounded{
-  my ($term, $size, $char, $extra) = @_;
-
-   my $frame=$char x ($size+4);
-  $frame.="\n";
-
-  my $result = $frame;
-
-  my @lines = split(/\n/,$term);
-
-  	foreach my $line (@lines){
-
-			while ( defined($line) ){
-				$result .="$char ";
-
-	  		my $sizeTerm=length($line);
-		  	if ($sizeTerm > $size ){
-			    my $lineout = substr($line, 0,($size),"");
-					$lineout .= " $char\n";
-					#print "l1 $lineout";
-					$result .= $lineout;
-		 	 	}
-		 		else{
-			    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
-			    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
-			    my $lineout =  " " x $nbBlancBefore;
-			    $lineout .= $line;
-			    $lineout .= " " x $nbBlancAfter;
-					$lineout .= " $char\n";
-					$result .= $lineout;
-					$line  = undef;
-					#print "l2 $lineout";
-		  	}
-			}
-	}
-	$result .= "$frame";
-	if($extra){$result .= "$extra";}
-	print $result;
-}
-
-# @Purpose: Print a String in a specified String size. Add space before and after String to
-# center it in a decided String Size. If String is longer that Int, we shrink it.
-# @input: 2 => String (to be print), Int (size to print the string)
-# @output 1 => String
-sub sizedPrint{
-  my ($term,$size) = @_;
-  my $result;
-  my $sizeTerm = (defined($term)) ? length($term) : 0; #defnined to deal with string/int 0
-  if ($sizeTerm > $size ){
-    $result=substr($term, 0,$size);
-    return $result;
-  }
-  else{
-    my $nbBlanc=$size-$sizeTerm;
-
-    my $float = $nbBlanc/2;
-    my $nbBlanc_before = sprintf "%.0f", $float;
-    my $nbBlanc_after = $nbBlanc - $nbBlanc_before;
-
-    $result="";
-    for (my $i = 0; $i < $nbBlanc_before; $i++){
-      $result.=" ";
-    }
-    $result.=$term;
-    for (my $i = 0; $i < $nbBlanc_after; $i++){
-      $result.=" ";
-    }
-    return $result;
-  }
-}
-
 # the warning message will be filtered to be printed only $nb_warnings times
 # To use it in a script do: my %warnings; activate_warning_limit(\%warnings, $nb_warnings);
 # @input: 2 => empty hash, Int
@@ -182,6 +107,194 @@ sub activate_warning_limit{
 			print "************** Too much WARNING of this type we skip the next **************\n";
 		}
 	};
+}
+
+# --------------------------------\\ PRINT //-----------------------------------
+
+# @Purpose: allows to add a frame to a string to print
+# @input: 4 =>  String (What has to be printed), int (size of the canevas),
+#               Char (character to use to make the frame),
+#								String (extra to print at the end after the frame)
+# @output 1 => String
+sub surround_text{
+  my ($term, $size, $char, $extra) = @_;
+
+   my $frame= $char x $size;
+  $frame.="\n";
+
+  my $result = $frame;
+
+  my @lines = split(/\n/,$term);
+
+  	foreach my $line (@lines){
+
+			while ( defined($line) ){
+				$line=~ s/^\s+//; #removing leading white spaces
+				$line=~ s/\s+$//; #removing trailing white spaces
+				$result .= "$char";
+
+	  		my $sizeTerm=length($line)+2; # add 2 extra characters beginning and end of line
+		  	if ($sizeTerm > $size ){
+			    my $lineout = substr($line, 0,($size - 2),"");
+					$lineout .= "$char\n";
+					$result .= $lineout;
+		 	 	}
+		 		else{
+			    my $nbBlancBefore=int(($size-$sizeTerm) / 2);
+			    my $nbBlancAfter = ($size-$sizeTerm) - $nbBlancBefore;
+			    my $lineout =  " " x $nbBlancBefore;
+			    $lineout .= $line;
+			    $lineout .= " " x $nbBlancAfter;
+					$lineout .= "$char\n";
+					$result .= $lineout;
+					$line  = undef;
+		  	}
+			}
+	}
+	$result .= "$frame";
+	if($extra){$result .= "$extra";}
+	return $result;
+}
+
+sub file_text_line{
+  my ($args) = @_;
+
+  # -------------- OUTPUT --------------
+	my $result = "";
+
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for file_text_line. Please check the call.\n";exit;	}
+	# -- Declare all variables and fill them --
+	my ($term, $size, $char, $extra);
+	# string to print
+	if( defined($args->{string})) {$term = $args->{string};} else{ $term=" ";}
+	#size line
+	if( ! defined($args->{size}) ) { $size = 80;} else{ $size = $args->{size}; }
+	# character to fill the line with
+	if( ! defined($args->{char}) ) { $char = "-";} else{ $char = $args->{char}; }
+	# to add at the end
+	if( ! defined($args->{extra}) ) { $extra = undef;} else{ $extra = $args->{extra}; }
+	# to add at the beginning
+	if( defined($args->{prefix}) ) { $result = $args->{prefix};}
+
+ # -------------- MAIN --------------
+  my @lines = split(/\n/,$term);
+
+  	foreach my $line (@lines){
+			$line=~ s/^\s+//; #removing leading white spaces
+			$line=~ s/\s+$//; #removing trailing white spaces
+			$line =" $line ";
+
+			while ( defined($line) ){
+
+	  		my $sizeTerm=length($line);
+		  	if ($sizeTerm > $size ){
+			    my $lineout = substr($line, 0,($size),"");
+					$lineout .= "\n";
+					$result .= $lineout;
+		 	 	}
+		 		else{
+			    my $nbCharBefore=int(($size-$sizeTerm) / 2);
+			    my $nbCharAfter = ($size-$sizeTerm) - $nbCharBefore;
+			    my $lineout =  $char x $nbCharBefore;
+			    $lineout .= $line;
+			    $lineout .= $char x $nbCharAfter;
+					$lineout .= "\n";
+					$result .= $lineout;
+					$line  = undef;
+		  	}
+			}
+	}
+	# add extra
+	if($extra){$result .= "$extra";}
+
+	return $result;
+}
+
+sub print_wrap_text{
+  my ($term, $size, $extra) = @_;
+
+  # -------------- OUTPUT --------------
+	my $result = "";
+ # -------------- MAIN --------------
+  my @lines = split(/\n/,$term);
+
+  	foreach my $line (@lines){
+			while ( defined($line) ){
+
+	  		my $sizeTerm=length($line);
+		  	if ($sizeTerm > $size ){
+			    $result .= substr($line, 0,($size),"");
+					$result .= "\n";
+		 	 	}
+		 		else{
+					$result .= "$line\n";
+					$line  = undef;
+		  	}
+			}
+	}
+	# add extra
+	if($extra){$result .= "$extra";}
+
+	return $result;
+}
+
+# @Purpose: Print a String in a specified String size. Add space before and after String to
+# center it in a decided String Size. If String is longer that Int, we shrink it.
+# @input: 2 => String (to be print), Int (size to print the string)
+# @output 1 => String
+sub sizedPrint{
+  my ($term,$size,$extra) = @_;
+  my $result;
+  my $sizeTerm = (defined($term)) ? length($term) : 0; #defined to deal with string/int 0
+  if ($sizeTerm > $size ){
+    $result=substr($term, 0,$size);
+    return $result;
+  }
+  else{
+    my $nbBlanc=$size-$sizeTerm;
+
+    my $float = $nbBlanc/2;
+    my $nbBlanc_before = sprintf "%.0f", $float;
+    my $nbBlanc_after = $nbBlanc - $nbBlanc_before;
+
+    $result="";
+    for (my $i = 0; $i < $nbBlanc_before; $i++){
+      $result.=" ";
+    }
+    $result.=$term;
+    for (my $i = 0; $i < $nbBlanc_after; $i++){
+      $result.=" ";
+    }
+		# add extra
+		if($extra){$result .= "$extra";}
+
+    return $result;
+  }
+}
+
+# add stamotime as suffux before printing
+# print like [10:31:23] string
+sub print_time{
+  my $t = localtime;
+  my $line = "[".$t->hms."] @_\n";
+  print $line;
+}
+
+# @purpose: print to screen when verbose not 0 and always print to log if any log
+# @input: 3 => fh, string, integer
+# @output 0 => None
+sub dual_print{
+	my ($fh, $string, $verbose) = @_;
+	if(! defined($verbose)){$verbose = 1;}#if verbose no set we set it to activate
+
+	if($verbose > 0 ){ #only 0 is quite mode
+		print $string;
+	}
+	if($fh){
+		print $fh $string;
+	}
 }
 
 1;

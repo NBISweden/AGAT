@@ -228,12 +228,12 @@ print $string_to_print;
 if(! $add_flag){
   #clean for printing
   if (@incomplete_mRNA){
-    _check_all_level2_positions(\%omniscient_incomplete,0); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-    _check_all_level1_positions(\%omniscient_incomplete,0);
+    check_all_level2_positions( { omniscient => \%omniscient_incomplete } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+    check_all_level1_positions( { omniscient => \%omniscient_incomplete } );
 
     remove_omniscient_elements_from_level2_ID_list($hash_omniscient, \@incomplete_mRNA);
-    _check_all_level2_positions($hash_omniscient,0); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-    _check_all_level1_positions($hash_omniscient,0); # Check the start and end of level1 feature based on all features level2.
+		check_all_level2_positions( { omniscient => $hash_omniscient } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+    check_all_level1_positions( { omniscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
   }
 }
 
@@ -291,11 +291,15 @@ sub  get_sequence{
     if($sequence eq ""){
       warn "Problem ! no sequence extracted for - $seq_id !\n";  exit;
     }
-    if(length($sequence) != ($end-$start+1)){
+    if( length($sequence) != ($end-$start+1) ){
       my $wholeSeq = $db->subseq($seq_id_correct);
       $wholeSeq = length($wholeSeq);
-      warn "Problem ! The size of the sequence extracted ".length($sequence)." is different than the specified span: ".($end-$start+1).".\nThat often occurs when the fasta file does not correspond to the annotation file. Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
-           "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\nSupplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; $seq_id sequence length: $wholeSeq )\n";
+      warn "Problem ! The size of the sequence extracted ".length($sequence).
+			" is different than the specified span: ".($end-$start+1).".\n".
+			"That often occurs when the fasta file does not correspond to the annotation file.".
+			" Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
+      "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n".
+			"Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; sequence length: $wholeSeq )\n";
     }
   }
   else{

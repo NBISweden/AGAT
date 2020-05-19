@@ -111,11 +111,9 @@ if($opt_plot){
 # # END Manage OPTION
 # #####################################
 
-
-
-                                                      #######################
-                                                      #        MAIN         #
-#                     >>>>>>>>>>>>>>>>>>>>>>>>>       #######################       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#                         #######################
+# >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#                         #######################
 
 #PART 1
 ###################################
@@ -135,16 +133,10 @@ foreach my $file (@opt_files){
   #########################
 
   #print statistics
-  my ($stat, $distri) = gff3_statistics($hash_omniscient);
-
-  #print statistics
-  foreach my $infoList (@$stat){
-    foreach my $info (@$infoList){
-      print $ostreamReport "$info";
-    }
-    print $ostreamReport "\n";
-  }
-
+	print "Compute statistics\n";
+	print_omniscient_statistics ({ input => $hash_omniscient,
+																 output => $ostreamReport
+															 });
 
   ######################
   ### Parse GFF input #

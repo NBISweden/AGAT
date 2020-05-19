@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
+use Sort::Naturally;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
@@ -61,15 +62,10 @@ else{
       croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
 }
 
-
                 #####################
                 #     MAIN          #
                 #####################
 
-my $cpt_tag=1;
-my %tag_to_number;
-my %number_to_tag;
-my $content;
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
@@ -79,12 +75,36 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                });
 print ("GFF3 file parsed\n");
 
+# ---- List attributes ----
+my $attribute_bucket = get_all_attributes($hash_omniscient);
+my $nb_attributes= keys %{$attribute_bucket};
 
-foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
-  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+# ---- print header specifing columns ----
+print $ostream "seq_id\tsource_tag\tprimary_tag\tstart\tend\tscore\tstrand\tframe";
+foreach my $key ( sort { "\L$a" cmp "\L$b" } keys %{$attribute_bucket} ){
+	 print $ostream "\t".$key;
+}
+print $ostream "\n";
+
+# ---- Go through features and print tsv values ----
+# sort by seq id
+my ( $hash_sortBySeq, $hash_sortBySeq_stdf,  $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
+
+#Read by seqId to sort properly the output by seq ID
+foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+
+	#################
+	# == LEVEL 1 == #
+	#################
+	#write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
+
+	foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
+
+		my $tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+		my $id_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
     my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
-    manage_attributes($feature_l1);
+    print_tsv_feature($feature_l1,$attribute_bucket);
 
     #################
     # == LEVEL 2 == #
@@ -94,17 +114,45 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
       if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
-          manage_attributes($feature_l2);
+          print_tsv_feature($feature_l2,$attribute_bucket);
           #################
           # == LEVEL 3 == #
           #################
           my $level2_ID = lc($feature_l2->_tag_value('ID'));
+					my @l3_done;
+
+					if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
+							print_tsv_feature($feature_l3,$attribute_bucket);
+							push @l3_done, 'tss';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','exon',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
+							print_tsv_feature($feature_l3,$attribute_bucket);
+							push @l3_done, 'exon';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
+							print_tsv_feature($feature_l3,$attribute_bucket);
+							push @l3_done, 'cds';
+						}
+					}
+					if ( exists_keys($hash_omniscient,('level3','tts',$level2_ID)) ){
+						foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
+							print_tsv_feature($feature_l3,$attribute_bucket);
+							push @l3_done, 'tts';
+						}
+					}
 
           foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-            if ( exists ($hash_omniscient->{'level3'}{$tag_l3}{$level2_ID} ) ){
-              foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
-                manage_attributes($feature_l3);
-              }
+						if (! grep { $_ eq $tag_l3 } @l3_done){
+							if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $level2_ID) ) ){
+	              foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}) {
+	                print_tsv_feature($feature_l3,$attribute_bucket);
+	              }
+							}
             }
           }
         }
@@ -113,12 +161,6 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
   }
 }
 
-
-print $ostream "seq_id\tsource_tag\tprimary_tag\tstart\tend\tscore\tstrand\tframe";
-foreach my $key (sort { $a <=> $b } keys %number_to_tag){
-   print $ostream "\t".$number_to_tag{$key};
-}
-print $ostream "\n".$content;
 #######################################################################################################################
         ####################
          #     methods    #
@@ -131,33 +173,71 @@ print $ostream "\n".$content;
                 ####
                  ##
 
-sub  manage_attributes{
-  my  ($feature)=@_;
+sub get_all_attributes{
+	my ($hash_omniscient)=@_;
+
+	my $attribute_bucket;
+	# == LEVEL 1 == #
+	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}} ){ # primary_tag_l1 = gene or repeat etc...
+		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
+			my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+
+			my @tag_list = $feature_l1->get_all_tags();
+			$attribute_bucket->{$_}++ for (@tag_list);
+			# == LEVEL 2 == #
+			foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+
+				if ( exists_keys ($hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
+					foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
+
+						my @tag_list = $feature_l2->get_all_tags();
+						$attribute_bucket->{$_}++ for (@tag_list);
+
+						# == LEVEL 3 == #
+						my $level2_ID = lc($feature_l2->_tag_value('ID'));
+						foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+
+							if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $level2_ID ) ) ){
+								foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID} } ) {
+									my @tag_list = $feature_l3->get_all_tags();
+									$attribute_bucket->{$_}++ for (@tag_list);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return $attribute_bucket;
+}
+
+sub print_tsv_feature{
+  my  ($feature, $attribute_bucket)=@_;
+
+	# get 8 first columns
   my $score = ($feature->score) ? $feature->score : ".";
-  $content .= $feature->seq_id."\t".$feature->source_tag."\t".$feature->primary_tag."\t".$feature->start."\t".$feature->end."\t".$score."\t".$feature->strand."\t".$feature->frame;
-  my @tag_list = $feature->get_all_tags();
+  my $tsv_line = $feature->seq_id."\t".$feature->source_tag."\t".$feature->primary_tag."\t".$feature->start."\t".$feature->end."\t".$score."\t".$feature->strand."\t".$feature->frame;
+
+	# get attributes of the 9th column
+	my @tag_list = $feature->get_all_tags();
   my %tag_hash;
-  foreach my $tag (@tag_list) {
-    $tag_hash{$tag}++;
-  }
+	$tag_hash{$_}++ for (@tag_list);
 
-  foreach my $key (sort { $a <=> $b } keys %number_to_tag){
-    my $sorted_tag = $number_to_tag{$key};
-    if( exists_keys(\%tag_hash,($sorted_tag))){
-      my @values = $feature->get_tag_values($sorted_tag);
-      $content .= "\t".join(", ", @values);
-      delete $tag_hash{$sorted_tag};
-    }
-  }
+	# print in same order than header (N/A if attribute does not exist)
+	foreach my $key_bucket ( sort { "\L$a" cmp "\L$b" } keys %{$attribute_bucket} ){
+		if ( exists_keys(\%tag_hash, ($key_bucket) ) ){
+			my @values = $feature->get_tag_values($key_bucket);
+			$tsv_line .= "\t".join(", ", @values);
+		}
+		else{
+			$tsv_line .= "\tN/A";# attribute do not exists in this feature. Set N/A
+		}
+	}
 
-  foreach my $tag ( sort keys %tag_hash ) {
-    $tag_to_number{$tag} = $cpt_tag;
-    $number_to_tag{$cpt_tag} = $tag;
-    my @values = $feature->get_tag_values($tag);
-    $content .= "\t".join(", ", @values);
-    $cpt_tag++;
-  }
-  $content .=  "\n";
+	$tsv_line .= "\n";
+
+	print $ostream $tsv_line;
 }
 
 
@@ -167,7 +247,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_to_tabulated.pl
+agat_convert_sp_gff2tsv.pl
 
 =head1 DESCRIPTION
 
@@ -176,8 +256,8 @@ Attribute's tags from the 9th column become column titles.
 
 =head1 SYNOPSIS
 
-    agat_sp_to_tabulated.pl -gff file.gff [ -o outfile ]
-    agat_sp_to_tabulated.pl --help
+    agat_convert_sp_gff2tsv.pl -gff file.gff [ -o outfile ]
+    agat_convert_sp_gff2tsv.pl --help
 
 =head1 OPTIONS
 

@@ -6,6 +6,7 @@ five_prime_utr	79	11.77	149.03
 gene	52	158.83	3054.40
 mrna	65	197.99	3045.94
 ncrna_gene	1	0.08	81.00
+repeat_region	2	0.20	101.00
 three_prime_utr	70	25.60	365.66
 trna	1	0.08	81.00
-Total	879	43842.26	49877.43
+Total	881	43842.46	49764.43

@@ -238,7 +238,7 @@ _print( "Done\n",0);
 
 my $omniscient1_sorted = gather_and_sort_l1_location_by_seq_id_and_strand($hash_omniscient);
 my $omniscient2_sorted = gather_and_sort_l1_location_by_seq_id_and_strand($prot_omniscient);
-my $topfeatures = $hash_omniscient->{'other'}{'level'}{'topfeature'};
+my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 
 my %cases;
 

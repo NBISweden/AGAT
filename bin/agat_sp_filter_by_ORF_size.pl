@@ -111,11 +111,13 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
     print "Study gene $gene_id_l1\n" if($verbose);
+		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       my $there_is_cds=undef;
       my $one_pass=undef;
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_l2, $gene_id_l1) ) ){
+				$no_l2 = undef;
         foreach my $level2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1}}) {
 
           # get level2 id
@@ -154,6 +156,10 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         }
       }
     }
+		if($no_l2){ # case of l1 feature without child
+			print "No child for $gene_id_l1\n" if ($verbose);
+			push(@good_gene_list, $gene_id_l1);
+		}
   }
 }
 

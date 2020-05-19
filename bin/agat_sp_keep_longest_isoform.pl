@@ -51,11 +51,9 @@ else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
-                #####################
-                #     MAIN          #
-                #####################
-
-
+#                         #######################
+# >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#                         #######################
 
 ######################
 ### Parse GFF input #
@@ -66,32 +64,13 @@ print "Parsing Finished\n";
 ### END Parse GFF input #
 #########################
 
-#check number of level1
-my $nbLevel1 = 0;
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  $nbLevel1 += keys %{$hash_omniscient->{'level1'}{$tag_l1}};
-}
-#chech number of level2
-my $nbLevel2 = keys %$hash_mRNAGeneLink;
+# clean omniscient to remove isoforms
+my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash_omniscient);
 
-#Check if we have isoforms
-if($nbLevel1 != $nbLevel2){
-
-
-  #create list of level2 where we kept only level2 that have cds and only the longest isoform !
-  my $list_id_l2 = get_longest_cds_level2($hash_omniscient);
-
-  # create a new omniscient with only one mRNA isoform per gene
-  my $omniscientNew = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, $list_id_l2);
-
-  # print omniscientNew containing only the longest isoform per gene
-  print_omniscient($omniscientNew, $gffout);
-  print $nbLevel2 - $nbLevel1." isoforms removed ! \n";
-}
-else{
-  print "Nothing to do... this file doesn't contain any isoform !\n";
-  print_omniscient($hash_omniscient, $gffout);
-}
+# print omniscientNew containing only the longest isoform per gene
+print_omniscient($hash_omniscient, $gffout);
+print $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n";
+print $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n";
 
 # END STATISTICS #
 ##################
@@ -108,8 +87,10 @@ agat_sp_keep_longest_isoform.pl
 
 =head1 DESCRIPTION
 
-The script aims to filter isoforms of each locus to keep only the one with the
-longest CDS.
+The script aims to filter isoforms when present. For a locus:
+- when all isoforms have CDS we keep the one with the longest CDS.
+- when some isoforms have CDS some others not, we keep the one with the longest CDS.
+- when none of the isoforms have CDS, we keep the one with the longest concatenated exons. 
 
 =head1 SYNOPSIS
 

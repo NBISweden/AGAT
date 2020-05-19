@@ -78,8 +78,7 @@ my @gene_id_ok;
 my $sortBySeq = gather_and_sort_l1_location_by_seq_id($omniscient);
 
 #get top feature first
-my $hash = get_levels_info(); # get from the file
-my $top_features = $hash->{'other'}{'level'}{'topfeature'};
+my $top_features = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeature');
 
 foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 

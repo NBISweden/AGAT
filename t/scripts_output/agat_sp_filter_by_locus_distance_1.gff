@@ -5,7 +5,7 @@
 #!genome-date 2015-10
 #!genome-build-accession GCA_001433935.1
 1	RAP-DB	chromosome	1	43270923	.	.	.	ID=chromosome:1;Alias=Chr1,AP014957.1,NC_029256.1
-1	RAP-DB	chromosome	1	43270923	.	.	.	ID=chromosome:1;Alias=Chr1,AP014957.1,NC_029256.1
+1	irgsp	repeat_region	2000	2100	.	+	.	ID=fakeRepeat1
 1	irgsp	gene	16399	20144	.	+	.	ID=gene:Os01g0100500;biotype=protein_coding;description=Immunoglobulin-like domain containing protein. (Os01t0100500-01);gene_id=Os01g0100500;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	16399	20144	.	+	.	ID=transcript:Os01t0100500-01;Parent=gene:Os01g0100500;biotype=protein_coding;transcript_id=Os01t0100500-01
 1	irgsp	exon	16399	16976	.	+	.	ID=Os01t0100500-01.exon1;Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon1;constitutive=1;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0100500-01.exon1;rank=1
@@ -158,6 +158,10 @@
 1	irgsp	CDS	155543	156214	.	+	0	ID=CDS:Os01t0102800-01;Parent=transcript:Os01t0102800-01;protein_id=Os01t0102800-01
 1	irgsp	five_prime_UTR	152853	152853	.	+	.	ID=five_prime_utr-33;Parent=transcript:Os01t0102800-01
 1	irgsp	three_prime_UTR	156215	156449	.	+	.	ID=three_prime_utr-32;Parent=transcript:Os01t0102800-01
+1	Ensembl_Plants	ncRNA_gene	182074	182154	.	+	.	ID=gene:ENSRNA049442722;Name=tRNA-Leu;biotype=tRNA;description=tRNA-Leu for anticodon AAG;gene_id=ENSRNA049442722;logic_name=trnascan_gene
+1	Ensembl_Plants	tRNA	182074	182154	.	+	.	ID=transcript:ENSRNA049442722-T1;Parent=gene:ENSRNA049442722;biotype=tRNA;transcript_id=ENSRNA049442722-T1
+1	Ensembl_Plants	exon	182074	182154	.	+	.	ID=ENSRNA049442722-E1;Parent=transcript:ENSRNA049442722-T1;Name=ENSRNA049442722-E1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSRNA049442722-E1;rank=1
+1	irgsp	repeat_region	186000	186100	.	+	.	ID=fakeRepeat2
 1	irgsp	gene	197647	200803	.	+	.	ID=gene:Os01g0103800;Name=OsDW1-01g;biotype=protein_coding;description=Conserved hypothetical protein. (Os01t0103800-01);gene_id=Os01g0103800;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	197647	200803	.	+	.	ID=transcript:Os01t0103800-01;Parent=gene:Os01g0103800;biotype=protein_coding;transcript_id=Os01t0103800-01
 1	irgsp	exon	197647	197838	.	+	.	ID=Os01t0103800-01.exon1;Parent=transcript:Os01t0103800-01;Name=Os01t0103800-01.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0103800-01.exon1;rank=1
@@ -371,6 +375,3 @@
 1	irgsp	mRNA	322591	323923	.	-	.	ID=transcript:Os01t0106300-01;Parent=gene:Os01g0106300;biotype=protein_coding;transcript_id=Os01t0106300-01
 1	irgsp	exon	322591	323923	.	-	.	ID=Os01t0106300-01.exon2;Parent=transcript:Os01t0106300-01;Name=Os01t0106300-01.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=1;exon_id=Os01t0106300-01.exon2;rank=2
 1	irgsp	three_prime_UTR	322591	322809	.	-	.	ID=three_prime_utr-70;Parent=transcript:Os01t0106300-01
-1	Ensembl_Plants	ncRNA_gene	182074	182154	.	+	.	ID=gene:ENSRNA049442722;Name=tRNA-Leu;biotype=tRNA;description=tRNA-Leu for anticodon AAG;gene_id=ENSRNA049442722;logic_name=trnascan_gene
-1	Ensembl_Plants	tRNA	182074	182154	.	+	.	ID=transcript:ENSRNA049442722-T1;Parent=gene:ENSRNA049442722;biotype=tRNA;transcript_id=ENSRNA049442722-T1
-1	Ensembl_Plants	exon	182074	182154	.	+	.	ID=ENSRNA049442722-E1;Parent=transcript:ENSRNA049442722-T1;Name=ENSRNA049442722-E1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=ENSRNA049442722-E1;rank=1

@@ -86,7 +86,7 @@ print ("$ref file parsed\n");
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_location_by_seq_id_and_strand($omniscient);
-my $topfeatures = $omniscient->{'other'}{'level'}{'topfeature'};
+my $topfeatures = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeature');
 
 #find overlap
 my %checked_l1;

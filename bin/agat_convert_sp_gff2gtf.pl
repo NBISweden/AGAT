@@ -12,6 +12,7 @@ my $header = get_agat_header();
 my $outfile = undef;
 my $gff = undef;
 my $gtf_version = 3;
+my $verbose = undef;
 my $relax = undef;
 my $help;
 my @GTF3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
@@ -34,6 +35,7 @@ if( !GetOptions(
     "help" => \$help,
     "gff|in=s" => \$gff,
 		"gtf_version=s" => \$gtf_version,
+		"verbose|v!" => \$verbose,
 		"relax!" => \$relax,
     "outfile|output|o|out|gtf=s" => \$outfile))
 {
@@ -265,18 +267,23 @@ print "Bye Bye\n";
 
 # ---------------------------------
 
-# convert feature type to correct one expected
+# convert feature type to correct one expected.
+# All l1 will become gene type excepted for topfeature and standalone features
+# that will be discarded.
 sub convert_feature_type{
 	my ($hash_omniscient, $gtf_version)=@_;
 
-	my $topfeatures = $hash_omniscient->{'other'}{'level'}{'topfeature'};
+	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
+	my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 
 	# all l1 are gene now
 	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
-		if(exists_keys($topfeatures,($tag_l1))){ next; }
+		if(exists_keys($topfeatures,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
+		if(exists_keys($standalones,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
 
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			if (lc($tag_l1) ne "gene"){
+				print "convert $tag_l1 to gene feature\n" if $verbose;
 				my $feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 				create_or_replace_tag( $feature, "original_biotype", $tag_l1 );
 				$feature->primary_tag("gene");
@@ -363,66 +370,69 @@ sub print_omniscient_filter{
 
 	# --------- deal with header --------------
   write_headers_gtf($hash_omniscient, $gffout, $gtf_version, $relax);
+
 	# sort by seq id
-	my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
+	my ( $hash_sortBySeq, $hash_sortBySeq_stdf,  $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	# Read by seqId to sort properly the output by seq ID
 	# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101
 	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
 		# ----- LEVEL 1 -----
-		foreach my $primary_tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
+		write_top_features_gtf($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient, \%hash_ok, $relax);
 
-			foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_l1}} ){
-				my $id_tag_key_level1 = lc($feature_l1->_tag_value('ID'));
-				my $primary_tag_l1_gtf = lc($feature_l1->primary_tag());
+		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
+			my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+			my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
-				if(exists_keys (\%hash_ok, ( $primary_tag_l1_gtf) ) or $relax ) {
-					$gffout->write_feature($hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
-				}
+			my $feature_l1 = $hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1};
+			my $primary_tag_l1_gtf = lc($feature_l1->primary_tag());
 
-				# ----- LEVEL 2 -----
-				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-					if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+			if(exists_keys (\%hash_ok, ( $primary_tag_l1_gtf) ) or $relax ) {
+				$gffout->write_feature( $feature_l1 ); # print feature
+			}
 
-							my $primary_tag_l2_gtf = lc($feature_level2->primary_tag());
-							if(exists_keys (\%hash_ok, ($primary_tag_l2_gtf) )  or $relax ) {
-								$gffout->write_feature($feature_level2); # print feature
+			# ----- LEVEL 2 -----
+			foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
+				if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
+					foreach my $feature_level2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+
+						my $primary_tag_l2_gtf = lc($feature_level2->primary_tag());
+						if(exists_keys (\%hash_ok, ($primary_tag_l2_gtf) )  or $relax ) {
+							$gffout->write_feature($feature_level2); # print feature
+						}
+
+						# ----- LEVEL 3 -----
+						my $level2_ID = lc($feature_level2->_tag_value('ID'));
+						my @l3_done;
+
+						######
+						# FIRST EXON
+						if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
+							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
+								$gffout->write_feature($feature_level3);
+								push @l3_done, 'exon';
 							}
-
-							# ----- LEVEL 3 -----
-							my $level2_ID = lc($feature_level2->_tag_value('ID'));
-							my @l3_done;
-
-							######
-							# FIRST EXON
-							if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
-								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
-									$gffout->write_feature($feature_level3);
-									push @l3_done, 'exon';
-								}
+						}
+						###########
+						# SECOND CDS
+						if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
+							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
+								$gffout->write_feature($feature_level3);
+								push @l3_done, 'cds';
 							}
-							###########
-							# SECOND CDS
-							if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
-								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
-									$gffout->write_feature($feature_level3);
-									push @l3_done, 'cds';
-								}
-							}
+						}
 
-							############
-							# THEN ALL THE REST
-							foreach my $primary_tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-								if (! grep { $_ eq $primary_tag_l3 } @l3_done){
-									if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
-										my $primary_tag_l3_gtf = lc($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}->[0]->primary_tag() );
+						############
+						# THEN ALL THE REST
+						foreach my $primary_tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
+							if (! grep { $_ eq $primary_tag_l3 } @l3_done){
+								if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
+									my $primary_tag_l3_gtf = lc($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}->[0]->primary_tag() );
 
-										if(exists_keys (\%hash_ok, ( $primary_tag_l3_gtf) )  or $relax ) {
-											foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
-												$gffout->write_feature($feature_level3);
-											}
+									if(exists_keys (\%hash_ok, ( $primary_tag_l3_gtf) )  or $relax ) {
+										foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
+											$gffout->write_feature($feature_level3);
 										}
 									}
 								}
@@ -465,6 +475,24 @@ sub write_headers_gtf{
   }
 }
 
+sub write_top_features_gtf{
+
+  my ( $gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient, $hash_ok, $relax ) = @_;
+
+  if ( exists_keys( $hash_sortBySeq_topf, ($seqid) ) ){
+
+    foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq_topf->{$seqid}} ){
+			my $tag_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'tag'};
+			my $id_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'id'};
+			my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+
+			if(exists_keys ($hash_ok, ( $tag_l1) ) or $relax ) {
+				$gffout->write_feature($feature_l1); # print feature
+			}
+    }
+  }
+}
+
 __END__
 
 =head1 NAME
@@ -492,7 +520,7 @@ which is used to group features into transcripts.
 =head1 SYNOPSIS
 
     agat_convert_sp_gff2gtf.pl --gff infile.gtf [ -o outfile ]
-		agat_convert_sp_gff2gtf -h
+    agat_convert_sp_gff2gtf -h
 
 =head1 OPTIONS
 
@@ -501,10 +529,6 @@ which is used to group features into transcripts.
 =item B<--gff> or B<--in>
 
 Input GFF file that will be read
-
-=item B<--att> or B<-a>
-
-With this option, attributes "gene_id" and "transcript_id" will be created when they are missing.
 
 =item B<--gtf_version>
 version of the GTF output. Default 3 (for GTF3)
