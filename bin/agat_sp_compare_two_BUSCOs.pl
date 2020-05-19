@@ -48,8 +48,8 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
 my $fh1;
 $folderIn1 = remove_slash_path_folder($folderIn1);
 opendir(DIR, "$folderIn1")  or die "Unable to read Directory : $!";
-my @files_table1 = grep(/^full_table_/,readdir(DIR));
-if (! @files_table1){print "full_table_abinitio.tsv file missing in $folderIn1\n"; exit;}
+my @files_table1 = grep(/^full_table/,readdir(DIR));
+if (! @files_table1){print "full_table[_abinitio].tsv file missing in $folderIn1\n"; exit;}
 my $path1=$folderIn1."/".$files_table1[0];
 open($fh1, '<', $path1) or die "Could not open file '$path1' $!";
 
@@ -57,8 +57,8 @@ open($fh1, '<', $path1) or die "Could not open file '$path1' $!";
 my $fh2;
 $folderIn2 = remove_slash_path_folder($folderIn2);
 opendir(DIR, "$folderIn2") or die "Unable to read Directory $folderIn2 : $!";;
-my @files_table2 = grep(/^full_table_/,readdir(DIR));
-if (! @files_table2){print "full_table_abinitio.tsv file missing in $folderIn2\n"; exit;}
+my @files_table2 = grep(/^full_table/,readdir(DIR));
+if (! @files_table2){print "full_table[_abinitio].tsv file missing in $folderIn2\n"; exit;}
 my $path2=$folderIn2."/".$files_table2[0];
 open($fh2, '<', $path2) or die "Could not open file '$path2' $!";
 
@@ -344,7 +344,7 @@ Where EOG090W00UK is the BUSCO name/label/group investigated, and complete2dupli
 By loading these gff tracks in a web browser and helped by other tracks (e.g the genome annotation/prediction)
 can help to understand why the BUSCO have been classified differently from run1 to run2.
 In other term it allows to catch potential problems in an annotation.
-agat_sp_compare_two_BUSCOs has been tested with result from BUSCOv3.
+agat_sp_compare_two_BUSCOs.pl has been tested with results from BUSCO version 3 and 4.
 /!\ The tool expects a BUSCO run in genome mode as input folder 1 and a BUSCO run in proteins mode
 as input folder 2. You can also decide to provide twice (--f1 --f2) the same BUSCO run in genome mode,
 the tool will only extract the annotation of the complete,fragmented and duplicated annotated BUSCOs from the 1st run in gff.
