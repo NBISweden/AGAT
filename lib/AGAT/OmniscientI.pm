@@ -12,6 +12,7 @@ use POSIX qw(strftime);
 use Sort::Naturally;
 use LWP::UserAgent;
 use Bio::OntologyIO::obo;
+use Bio::Ontology::OntologyEngineI;
 use Clone 'clone';
 use Exporter;
 use AGAT::Omniscient;
@@ -161,7 +162,7 @@ sub slurp_gff3_file_JD {
 	my $ontology = {};
 	my $ontology_obj = _handle_ontology($gff3headerInfo, $verbose, $log);
 	if($ontology_obj){
-		$ontology = create_term_and_id_hash($ontology_obj);
+		$ontology = create_term_and_id_hash($ontology_obj, $verbose, $log, $debug);
 	}
 
 #	+-----------------------------------------+
@@ -333,7 +334,7 @@ sub slurp_gff3_file_JD {
 	if(! $no_check or	grep( /check_l2_linked_to_l3/, @$no_check_skip ) ) {
 			#Check relationship between l3 and l2
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }), $verbose );
-			_check_l2_linked_to_l3($log, \%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose); # When creating L2 missing we create as well L1 if missing too
+			_check_l2_linked_to_l3($log, \%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose, $debug); # When creating L2 missing we create as well L1 if missing too
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 			$check_cpt++; $previous_time = time();
 	}
@@ -341,7 +342,7 @@ sub slurp_gff3_file_JD {
 	if(! $no_check or	grep( /check_l1_linked_to_l2/, @$no_check_skip ) ) {
 			#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: l1 linked to l2", char => "-", prefix => "\n" }), $verbose );
-			_check_l1_linked_to_l2($log, \%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose);
+			_check_l1_linked_to_l2($log, \%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, $verbose, $debug);
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 			$check_cpt++; $previous_time = time();
 	}
@@ -1266,7 +1267,7 @@ sub _create_ID{
 
 # check if mRNA have a Parental feature existing. If not we create it.
 sub _check_l1_linked_to_l2{
-	my ($log, $hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
+	my ($log, $hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $verbose, $debug)=@_;
 	my $resume_case=undef;
 
 	foreach my $primary_tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -1281,7 +1282,6 @@ sub _check_l1_linked_to_l2{
 			# L1 is missing
 			if(! $l1_exist){
 				$resume_case++;
-				print "WARNING level2: No Parent feature found with the ID @ ".$id_l1.". We will create one.\n" if ($verbose >= 2);
 				my $gene_feature=clone($hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1}[0]);#create a copy of the first mRNA feature;
 
 				#Deal case where we reconstruct other thing than a gene
@@ -1299,7 +1299,7 @@ sub _check_l1_linked_to_l2{
 				# Parent ID has same id as l2 feature !! We must modify it
 				if ( lc( $l2_id ) eq  lc($ParentID) ){
 					$ParentID = _create_ID($miscCount, $uniqID, $uniqIDtoType, $primary_tag_l1, $ParentID, PREFIX_ID_L1_NEW);
-					print "Parent ID and ID are the same. Here is the new parent ID created $ParentID.\n" if ($verbose >= 2);
+					dual_print($log, "Parent ID and ID are the same. Here is the new parent ID created $ParentID.\n") if ($debug);
 
 					# Update new parent id to all feature l2 related
 					foreach	my $l2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1} } ){
@@ -1314,12 +1314,13 @@ sub _check_l1_linked_to_l2{
 				# now save it in omniscient
 				create_or_replace_tag($gene_feature, 'ID', $ParentID); #modify ID to replace by parent value
 				$hash_omniscient->{"level1"}{$primary_tag_l1}{lc($ParentID)}=$gene_feature;
+				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 0); # print only in log
 			}
 		}
 	}
 
 	if($resume_case){
- 		dual_print($log, "We fixed $resume_case cases where L2 features have parent feature missing\n", $verbose);
+		dual_print($log, "$resume_case cases fixed where L2 features have parent features missing\n", $verbose);
 	}
 	else{
 		dual_print($log, "No problem found\n", $verbose);
@@ -1358,7 +1359,7 @@ sub _remove_orphan_l1{
  	 	}
  	}
 	if($resume_case){
-		dual_print($log, "We removed $resume_case cases where L1 features do not have children (while they are suposed to have children).\n", $verbose);
+		dual_print($log, "$resume_case cases removed where L1 features do not have children (while they are suposed to have children).\n", $verbose);
 	}
 	else{
 		dual_print($log, "None found\n", $verbose);
@@ -1369,7 +1370,7 @@ sub _remove_orphan_l1{
 # @input: 4 => hash(omniscient hash), hash(mRNAGeneLink hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
 sub _check_l2_linked_to_l3{
-	my ($log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
+	my ($log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose, $debug)=@_;
 	my $resume_case=undef;
 
  	foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
@@ -1496,7 +1497,7 @@ sub _check_l2_linked_to_l3{
  			}
  	}
 	if($resume_case){
- 		dual_print($log, "We fixed $resume_case cases where L3 features have parent feature(s) missing\n", $verbose);
+ 		dual_print($log, "$resume_case cases fixed where L3 features have parent feature(s) missing\n", $verbose);
 	}
 	else{
 		dual_print($log, "No problem found\n", $verbose);
@@ -2548,7 +2549,7 @@ sub _merge_overlap_features{
 	 	}
 	}
 	if($resume_case){
-		dual_print($log, "We found $resume_case overlapping cases. For each case 2 loci have been merged within a same locus\n", $verbose);
+		dual_print($log, "$resume_case overlapping cases found. For each case 2 loci have been merged within a same locus\n", $verbose);
 	}
 	else{
 		dual_print($log, "None found\n", $verbose);
@@ -2630,7 +2631,7 @@ sub _check_identical_isoforms{
 		}
 	}
 	if($resume_case){
-		dual_print($log, "Remove $resume_case ientical isoforms\n", $verbose);
+		dual_print($log, "$resume_case identical isoforms removed\n", $verbose);
 	}
 	else{dual_print($log,"None found\n", $verbose)}
 }
@@ -3015,11 +3016,28 @@ sub _gff1_corrector{
 # @input: 1 =>	Object Bio::Ontology
 # @output: 1 => hash containing all the name and identifier
 sub create_term_and_id_hash{
-		my ($self) = @_;
+		my ($ontology, $verbose, $log, $debug) = @_;
 
 		my %hash_term_id;
 
-		foreach my $term ($self->get_all_terms) {
+		# Print some information
+		dual_print($log, "	Filtering ontology:\n", $verbose);
+		dual_print($log, "The feature type (3rd column) is constrained to be either a term from the Sequence ".
+		"Ontology or an SO accession number. The latter alternative is distinguished".
+		" using the syntax SO:000000. In either case, it must be sequence_feature ".
+		"(SO:0000110) or an is_a child of it.\nWe filter the ontology to aplly this rule.", 0) ; # print in log only
+
+		#Get top term
+		my ($term) = $ontology->find_terms(-name => "sequence_feature");
+		# get all descendant and the top term
+		my @descendants = $ontology->get_descendant_terms($term);
+		dual_print($log, "		We found ".(scalar @descendants)." terms that are sequence_feature or descendant terms of it (is_a constraint not applied).\n", $verbose) if($debug);
+		# get a is_a relationship
+		my $is_a = Bio::Ontology::RelationshipType->get_instance('IS_A');
+		@descendants = $ontology->get_descendant_terms($term, $is_a);
+		dual_print($log, "		We found ".(scalar @descendants)." terms that are sequence_feature or is_a child of it.\n", $verbose);
+
+		foreach my $term (@descendants) {
 			 $hash_term_id{lc($term->name)} = lc($term->identifier);
 			 $hash_term_id{lc($term->identifier)} = lc($term->name);
 			 #print $term->name." <=> ".$term->identifier."\n";
@@ -3153,7 +3171,7 @@ sub _handle_ontology{
 	if($internalO){ #No URI provided for the feature-ontology(file case), or doesn't exist (hash / table case) let's use the interal one
 		dual_print( $log, "	No ontology accessible from the gff file header!\n", $verbose);
 		try{
-			my $sofa_file_path = dist_file('AGAT', 'sofa_2_5_3.obo');
+			my $sofa_file_path = dist_file('AGAT', 'so.obo');
 			dual_print( $log, "	We use the SOFA ontology distributed with AGAT:\n		$sofa_file_path\n", $verbose);
 
 			#parse the ontology
@@ -3173,7 +3191,7 @@ sub _handle_ontology{
 				foreach my $term ($ontology_obj->get_leaf_terms) {
 					$nbleaf_terms++;
 				}
-				dual_print( $log, "	read ontology $sofa_file_path:\n".
+				dual_print( $log, "	Read ontology $sofa_file_path:\n".
 						 	"		$nbroot_terms root terms, and ".
 						 	"$nbterms total terms, and ".
 						 	"$nbleaf_terms leaf terms\n", $verbose );
