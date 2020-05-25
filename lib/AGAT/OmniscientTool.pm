@@ -2061,7 +2061,7 @@ sub check_all_level1_positions {
 		dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose );
 	}
 	else{
-		dual_print($log, "All level1 locations are fine\n", $verbose );
+		dual_print($log, "No problem found\n", $verbose );
 	}
 }
 
@@ -2108,7 +2108,7 @@ sub check_all_level2_positions{
 		dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose );
 	}
 	else{
-		dual_print($log, "All level2 locations are fine\n", $verbose );
+		dual_print($log, "No problem found\n", $verbose );
 	}
 }
 
