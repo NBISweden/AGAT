@@ -302,8 +302,8 @@ sub slurp_gff3_file_JD {
 	dual_print ($log, surround_text("- Start checks -",80,"*"), $verbose);
 
 	dual_print ($log, file_text_line({ string => "Check$check_cpt: feature types", char => "-" }), $verbose );
-	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "agat", verbose => $verbose });
 	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "ontology", verbose => $verbose });
+	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "agat", verbose => $verbose });
 	delete $globalWARNS{$_} for (keys %globalWARNS); # re-initialize the hash
 	delete $WARNS{$_} for (keys %WARNS); # re-initialize the hash
 	dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-", extra => "\n" }), $verbose );
@@ -3025,7 +3025,7 @@ sub create_term_and_id_hash{
 		dual_print($log, "The feature type (3rd column) is constrained to be either a term from the Sequence ".
 		"Ontology or an SO accession number. The latter alternative is distinguished".
 		" using the syntax SO:000000. In either case, it must be sequence_feature ".
-		"(SO:0000110) or an is_a child of it.\nWe filter the ontology to aplly this rule.", 0) ; # print in log only
+		"(SO:0000110) or an is_a child of it.\nWe filter the ontology to apply this rule.", 0) ; # print in log only
 
 		#Get top term
 		my ($term) = $ontology->find_terms(-name => "sequence_feature");
@@ -3229,39 +3229,21 @@ sub _handle_globalWARNS{
 	if( defined($args->{type})) {$type = $args->{type};} else{ $type = undef;}
 	if( defined($args->{verbose})) {$verbose = $args->{verbose};} else{ $verbose = undef;}
 
-	if( lc($type) eq "agat" ){
-		dual_print($log, file_text_line({ string => "agat", char => "-" }), $verbose);
-		my $string;
-		if(exists_keys($globalWARNS, ("parser1") ) ) {
-			my %hash	 = map { $_, 1 } @{$globalWARNS->{parser1}};
-			my @unique = keys %hash;
-			$string = "Feature types (3rd column) not expected => @unique\n".
-			"Those primary tag are not yet taken into account by the parser!\n".
-			"If you wish to use it/them, pleast update the parameter feature json files accordingly (features_level1, features_level2 or features_level3).\n".
-			"To resume:\n".
-			"* it must be a level1 feature if it has no parent.\n".
-			"* it must be a level2 feature if it has a parent and this parent is from level1.\n".
-			"* it must be a level3 feature if it has a parent and this parent has also a parent.\n\n".
-			"Currently the tool just ignore them, So if they where Level1,level2, a gene or RNA feature will be created accordingly.";
-		}
-		else{
-			$string = "AGAT can deal with all the encountered feature types (3rd column)";
-		}
-		dual_print ($log, print_wrap_text($string,80), $verbose);
-	}
 	if( lc($type) eq "ontology" ){
 		dual_print($log, file_text_line({ string => "ontology", char => "-" }), $verbose);
 		my $string;
 		if(exists_keys( $globalWARNS, ("ontology1") ) ) {
 			if( keys %{$ontology} ){
 				my %hash	 = map { $_, 1 } @{$globalWARNS->{ontology1}};
-				my @unique = keys %hash;
-				$string = "Feature types (3rd column) not expected => @unique\n".
-				"In theory these values are not compatible with gff3 format because they are not part of the Sequence Ontology.\n".
-				"To follow rigourously the gff3 format, please visit this website:\n".
-				"https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md\n".
-				"They provide tools to check the gff3 format.\n".
-				"Even if you have this warning, you should be able to use the gff3 output in most of gff3 tools.";
+				my @unique = sort keys %hash;
+				$string = "INFO - Feature types not expected by the GFF3 specification:\n* ".
+				join("\n* ", @unique).
+				"\nThe feature type (3rd column in GFF3) is constrained to be either a term from the Sequence Ontology ".
+				"or an SO accession number. The latter alternative is distinguished using the ".
+				"syntax SO:000000. In either case, it must be sequence_feature (SO:0000110) or ".
+				"an is_a child of it.".
+				"To follow rigorously the gff3 format, please visit this website:\n".
+				"https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md\n";
 			}
 			else{
 				$string = "No ontology was available, we haven't checked if the feature types (3rd column) correspond to the gff3 specifactions.";
@@ -3269,6 +3251,28 @@ sub _handle_globalWARNS{
 		}
 		else{
 			$string = "All feature types in agreement with the Ontology.";
+		}
+		dual_print ($log, print_wrap_text($string,80), $verbose);
+	}
+	if( lc($type) eq "agat" ){
+		dual_print($log, file_text_line({ string => "agat", char => "-" }), $verbose);
+		my $string;
+		if(exists_keys($globalWARNS, ("parser1") ) ) {
+			my %hash	 = map { $_, 1 } @{$globalWARNS->{parser1}};
+			my @unique = sort keys %hash;
+			$string = "WARNING - Feature types not expected by AGAT:\n* ".
+			join("\n* ", @unique).
+			"\nThe feature of these types (3rd column in GFF3) are skipped by the parser!\n".
+			"To take them into account you must update the feature json files. To access the json files run:".
+			"\n			agat_convert_sp_gxf2gxf.pl --expose\n".
+			"In which file to add my feature?\n".
+			"* Feature level1 (e.g. gene, match, region):\n  My feature has no parent\n  => features_level1.json\n".
+			"* Feature level2 (e.g. mrna, match_part, trna):\n  My feature has one parent and children\n  => features_level2.json.\n".
+			"* Feature level3 (e.g. exon, intron, cds):\n  My feature has one parent (the parent has also a parent) and no children\n  => features_level3.json.\n".
+			"* Feature level3 discontinuous (e.g. cds, utr):\n  A single feature that exists over multiple genomic locations\n  => features_spread.json.";
+		}
+		else{
+			$string = "AGAT can deal with all the encountered feature types (3rd column)";
 		}
 		dual_print ($log, print_wrap_text($string,80), $verbose);
 	}
