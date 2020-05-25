@@ -33,6 +33,7 @@ my $ref_list_exe = get_list_exe();
 my %prereq_hash = ( "Bio::DB::Fasta" => 0,
                     "Bio::DB::Taxonomy" => 0,
                     "Bio::OntologyIO::obo" => 0,
+                    "Bio::Ontology::OntologyEngineI" => 0,
                     "Bio::Seq" => 0,
                     "Bio::SeqIO" => 0,
                     "Bio::Tools::CodonTable" => 0,
