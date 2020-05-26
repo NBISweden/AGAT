@@ -437,8 +437,8 @@ unlink $outtmp;
 
 # --------check agat_sq_manage_ID.pl-------------
 
-$script = $script_prefix."bin/agat_sq_manage_ID.pl";
-$result = "$output_folder/agat_sq_manage_ID_1.gff";
+$script = $script_prefix."bin/agat_sq_manage_IDs.pl";
+$result = "$output_folder/agat_sq_manage_IDs_1.gff";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
