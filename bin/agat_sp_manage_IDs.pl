@@ -384,7 +384,7 @@ Input GTF/GFF file.
 
 =item B<--gap>
 
-Integer. Increment the next gene (level1 feature) suffix with this value. Defauft 0.
+Integer - Increment the next gene (level1 feature) suffix with this value. Defauft 0.
 
 =item B<--ensembl>
 
@@ -393,7 +393,7 @@ $opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to h
 
 =item B<--prefix>
 
-String. Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
+String - Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
 
 =item B<--type_dependent>
 
@@ -417,7 +417,7 @@ If you wish to set the a collective ID for those feature, please activate this o
 
 =item B<--tair>
 
-Boolean. Tair like Output:
+Boolean - Tair like Output:
 
 NbV1Ch01    TAIR10  gene    5928    8737    .       -       .       ID=AT1G01020
 NbV1Ch01    TAIR10  mRNA    5928    8737    .       -       .       ID=AT1G01020.1
@@ -425,7 +425,7 @@ NbV1Ch01    TAIR10  exon    5928    8737   .       -       .        ID=AT1G01020
 
 =item B<--nb>
 
-Integer. Start numbering to this value. Default 1.
+Integer - Start numbering to this value. Default 1.
 
 =item B<-p>,  B<-t> or  B<-l>
 
@@ -438,12 +438,12 @@ By default all feature are taken into account. fill the option by the value "all
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
-Output GFF file. If no output file is specified, the output will be
+String - Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
 
-Display this helpful text.
+Boolean - Display this helpful text.
 
 =back
 

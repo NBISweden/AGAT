@@ -985,10 +985,19 @@ agat_sp_manage_functional_annotation.pl
 
 =head1 DESCRIPTION
 
-The script take a gff3 file as input and blast and/or interpro output in order to attach functional annotation to corresponding features within the gff file.
->The blast against Protein Database (outfmt 6) allows to fill the field/attribute NAME for gene and PRODUCT for mRNA.
->The Interpro result (.tsv) file allows to fill the DBXREF field/attribute with pfam, tigr, interpro, GO, KEGG, etc... terms data.
-With the <id> option the script will change all the ID field by an Uniq ID created from the given prefix, a letter to specify the kind of feature (G,T,C,E,U), and the feature number.
+The script take a gff3 file as input and blast and/or interpro output in order
+to attach functional annotation to corresponding features within the gff file.
+
+>The blast against Protein Database (outfmt 6) allows to fill the field/attribute
+NAME for gene and PRODUCT for mRNA.
+
+>The Interpro result (.tsv) file allows to fill the DBXREF field/attribute with
+pfam, tigr, interpro, GO, KEGG, etc... terms data.
+
+With the <id> option the script will change all the ID field by an Uniq ID
+created from the given prefix, a letter to specify the kind of feature (G,T,C,E,U),
+and the feature number.
+
 The result is written to the specified output file, or to STDOUT.
 
 About the TSV format from interproscan:
@@ -996,21 +1005,21 @@ About the TSV format from interproscan:
 
 The TSV format presents the match data in columns as follows:
 
-1.Protein Accession (e.g. P51587)
-2.Sequence MD5 digest (e.g. 14086411a2cdf1c4cba63020e1622579)
-3.Sequence Length (e.g. 3418)
-4.Analysis (e.g. Pfam / PRINTS / Gene3D)
-5.Signature Accession (e.g. PF09103 / G3DSA:2.40.50.140)
-6.Signature Description (e.g. BRCA2 repeat profile)
-7.Start location
-8.Stop location
-9.Score - is the e-value (or score) of the match reported by member database method (e.g. 3.1E-52)
-10.Status - is the status of the match (T: true)
-11.Date - is the date of the run
-12.(InterPro annotations - accession (e.g. IPR002093) - optional column; only displayed if -iprlookup option is switched on)
-13.(InterPro annotations - description (e.g. BRCA2 repeat) - optional column; only displayed if -iprlookup option is switched on)
-14.(GO annotations (e.g. GO:0005515) - optional column; only displayed if --goterms option is switched on)
-15.(Pathways annotations (e.g. REACT_71) - optional column; only displayed if --pathways option is switched on)
+ 1.Protein Accession (e.g. P51587)
+ 2.Sequence MD5 digest (e.g. 14086411a2cdf1c4cba63020e1622579)
+ 3.Sequence Length (e.g. 3418)
+ 4.Analysis (e.g. Pfam / PRINTS / Gene3D)
+ 5.Signature Accession (e.g. PF09103 / G3DSA:2.40.50.140)
+ 6.Signature Description (e.g. BRCA2 repeat profile)
+ 7.Start location
+ 8.Stop location
+ 9.Score - is the e-value (or score) of the match reported by member database method (e.g. 3.1E-52)
+ 10.Status - is the status of the match (T: true)
+ 11.Date - is the date of the run
+ 12.(InterPro annotations - accession (e.g. IPR002093) - optional column; only displayed if -iprlookup option is switched on)
+ 13.(InterPro annotations - description (e.g. BRCA2 repeat) - optional column; only displayed if -iprlookup option is switched on)
+ 14.(GO annotations (e.g. GO:0005515) - optional column; only displayed if --goterms option is switched on)
+ 15.(Pathways annotations (e.g. REACT_71) - optional column; only displayed if --pathways option is switched on)
 
 P.S: The 9th column contains most of time e-value, but can contain also score (e.g Prosite). To understand the difference: https://myhits.isb-sib.ch/cgi-bin/help?doc=scores.html
 
@@ -1030,8 +1039,9 @@ About the outfmt 6 from blast:
  11.   evalue  expect value
  12.   bitscore  bit score
 
-Currently the best e-value win... That means another hit with a lower e-value ( but still over the defined threshold anyway) even if it has a better PE value
- will not be reported.
+Currently the best e-value win... That means another hit with a lower e-value
+(but still over the defined threshold anyway) even if it has a better PE value
+will not be reported.
 
 =head1 SYNOPSIS
 
@@ -1044,24 +1054,24 @@ Currently the best e-value win... That means another hit with a lower e-value ( 
 
 =item B<-f>, B<--reffile>,B<-ref> , B<--gff> or B<--gff3>
 
-Input GTF/GFF file.
+String - Input GTF/GFF file.
 
 =item B<-b> or B<--blast>
 
-Input blast ( outfmt 6 = tabular ) file that will be used to complement the features
+String - Input blast ( outfmt 6 = tabular ) file that will be used to complement the features
 read from the first file (specified with --ref).
 
 =item B<-d> or B<--db>
 
-The fasta file that has been used as DB for the blast. Gene names and products/descriptions will be fished from this file.
+String - The fasta file that has been used as DB for the blast. Gene names and products/descriptions will be fished from this file.
 
 =item B<--be> or B<--blast_evalue>
 
- Maximum e-value to keep the annotation from the blast file. By default 1e-6.
+Integer - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
 
 =item B<--pe>
 
-The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
+Integer - The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
 You can decide until which protein existence level you want to consider to lift the finctional information. Default 5.
 
 1. Experimental evidence at protein level
@@ -1072,35 +1082,35 @@ You can decide until which protein existence level you want to consider to lift 
 
 =item B<-i> or B<--interpro>
 
-Input interpro file (.tsv) that will be used to complement the features read from
+String - Input interpro file (.tsv) that will be used to complement the features read from
 the first file (specified with B<--ref>).
 
 =item B<-id>
 
-This option will changed the id name. It will create from id prefix (usually 6 letters) given as input, uniq IDs like prefixE00000000001. Where E mean exon. Instead E we can have C for CDS, G for gene, T for mRNA, U for Utr.
+String - This option will changed the id name. It will create from id prefix (usually 6 letters) given as input, uniq IDs like prefixE00000000001. Where E mean exon. Instead E we can have C for CDS, G for gene, T for mRNA, U for Utr.
 In the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID collectively represent a signle feature.
 
 =item B<-idau>
 
-This option (id all uniq) is similar to -id option but Id of features that share an ID collectively will be change by different and uniq ID.
+Boolean - This option (id all uniq) is similar to -id option but Id of features that share an ID collectively will be change by different and uniq ID.
 
 =item B<-nb>
 
-Usefull only if -id is used.
+Integer - Usefull only if -id is used.
 This option is used to define the number that will be used to begin the numbering. By default begin by 1.
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
+String - Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-v>
 
-Verbose (bolean). For debug purpose.
+Boolean - Verbose, for debug purpose.
 
 =item B<-h> or B<--help>
 
-Display this helpful text.
+Boolean - Display this helpful text.
 
 =back
 

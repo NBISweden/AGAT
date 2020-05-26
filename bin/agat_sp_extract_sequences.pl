@@ -327,7 +327,7 @@ sub extract_sequences{
   # --------------------------------------
 
 
-   # ------ all pieces independantly ------
+   # ------ all pieces independently ------
    elsif($opt_split){
 
      foreach my $feature ( @sortedList ){
@@ -632,21 +632,25 @@ agat_sp_extract_sequences.pl
 
 =head1 DESCRIPTION
 
-This script extracts sequences in fasta format according to features described in a gff file.
-You can extract the fasta of any kind of feature define by the 3th column in the gff file.
+This script extracts sequences in fasta format according to features described
+in a gff file. You can extract the fasta of any type of feature. The feature
+type is defined within the 3rd column in the gff file.
 The result is written to the specified output file, or to STDOUT.
 
 The Header are formated like that:
->mRNA_ID gene=gene_ID name=NAME seq_id=Chromosome_ID type=cds 5'extra=VALUE
-    ^    <----------------------------v------------------------------------>
-    ID                           description (Where the OFS can be modified)
+>ID gene=gene_ID name=NAME seq_id=Chromosome_ID type=cds 5'extra=VALUE
 
-/!\The ID will be the gene_ID extracting gene.
-Name is optional and will be written only if the Name attribute exists in th gff.
-type will be the feature type extracted.
-5'extra or 3'extra is otpional, according to the use of the upstream and downstream options.
+The ID is the identifier of the feature (ID attribute in the 9th column.
+If missing it is created by AGAT)
+The gene value will be the ID of the level1 feature (the top feature of the record)
+The name value is optional and will be written only if the Name attribute exists in the gff.
+The seq_id value is the value from 1st column within the gff.
+The type value holds the information of the feature type extracted.
+5'extra or 3'extra is optional, it holds the information of extra nucleotides
+removed or added when using the downstream and/or upstream parameter.
 
-=head1 SYNOPSIS
+The OFS of all values can be modified excepted for the ID (see --ofs parameter).
+In such case the tool will give a warning.
 
     agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta  [ -o outfile ]
     agat_sp_extract_sequences.pl --help
@@ -657,81 +661,102 @@ type will be the feature type extracted.
 
 =item B<-g>, B<--gff> or B<-ref>
 
-Input GTF/GFF file.
+String - Input GTF/GFF file.
 
 =item B<-f> or B<--fasta>
 
-Input fasta file.
+String - Input fasta file.
 
 =item B<--dnrc>
 
-dnrc means `do not reverse complemt`, by default if a feature is indicated on the minus strand, the tool will reverse complement the extrated sequence.
+Boolean - dnrc means `do not reverse complement`, by default the extrated sequence of a
+feature on the minus strand is reverse complemented.
 You can deactivate the behavior by using this option.
 
 =item B<-t>
 
-Define the feature you want to extract the sequnece from. By deafault it's 'cds'. Most common choice are: gene,mrna,exon,cds,trna,three_prime_utr,five_prime_utr.
-When you chose exon (or cds,utr,etc.), all the exon related to a same L2 feature are attached together before to extract the exon. (It doesnt provide one sequence by exon !!)
+String - Define the feature you want to extract the sequnece from.
+Default 'cds'.
+Most common choice are: gene,mrna,exon,cds,trna,three_prime_utr,five_prime_utr.
+When you chose exon (or cds,utr,etc.), all the exon of a same parent feature
+are attached together before to extract the sequence. If you wish to extract each
+exon of a mRNA independently, see option --split.
+
 
 =item B<-p>, B<--protein> or B<--aa>
 
-Will translate the extracted sequence in Amino acid. By default the codon table used is the 1 (Standard). See codon table option for more options.
+Boolean - Will translate the extracted sequence in Amino acid.
+By default the codon table used is the 1 (Standard).
+See --table parameter for more options.
 
 =item B<--codon>, B<--table> or B<--ct>
 
-Allow to choose the codon table for the translation. [default 1]
+Integer - Allow to choose the codon table for the translation. [default 1]
 
 =item B<--eo>
 
-Called 'extremity only', this option allows the extraction of adjacent parts of a feature. This option has to be activated with -u and/or -p option.
+Boolean - Called 'extremity only', this option will extract only the adjacent parts of a feature.
+This option has to be activated with -u and/or -p option.
 /!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
 =item B<--split>
 
-By default, all level3 features (exon, cds, utr) collectively linked to a level2 feature (rna, mRNA) are merge together to shape an entire feature
+Boolean -  By default, all level3 features (exon, cds, utr) collectively linked to a level2
+feature (rna, mRNA) are merge together to shape an entire feature
 (e.g. several cds pieces can be merged to create the CDS in its whole).
-If you wish to extract all the subfetures independantly activate tge --split option.
+If you wish to extract all the subfeatures independently activate this option.
 
 =item B<--full>
 
-This option allows dealing with multifeature like cds or exon, to extract the full sequence from start extremity to the end extremity, i.e with introns.
-Use of that option with exon will give the same result as extract the mrna sequence (-t mRNA) and corresponds to the cdna*.
-(To actually extract an mRNA as it is defined biologicaly you need to use the -t exon option wihtout the --full option and wihtout the --split option)
+Boolean - This option allows dealing with multifeature like cds or exon, to extract the
+full sequence from start extremity to the end extremity, i.e with introns.
+The use of that option with exon feature will give the same result as extracting
+the mrna sequence (-t mRNA) and corresponds to the cdna*.
+(To actually extract an mRNA as it is defined biologicaly you need to use the
+`-t exon` option wihtout the --full option and wihtout the --split option)
 Use of that option on cds will give the cdna* wihtout the untraslated sequences.
 *Not a real cdna because it is not reversed
 
 =item B<--up>, B<-5>, B<--five> or B<-upstream>
 
-Integer. It will take that number of nucleotide in more at the 5' extremity.
+Integer - It will take that number of nucleotide in more at the 5' extremity.
 /!\ You must activate the option "--full" if you with to extract only the most upstream part of certain feature (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
 
 =item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
 
-Integer. It will take that number of nucleotide in more at the 3' extremity.
+Integer - It will take that number of nucleotide in more at the 3' extremity.
 /!\ You must activate the option "--full" if you with to extract only the most downstream part of certain feature (exon,cds,utr)
 otherwise you will extract each downstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
 
 =item B<--cdna>
 
-This extract the cdna* sequence (i.e transcribed sequence (devoid of introns, but containing untranslated exons)). It corresponds to extract the exons sequences.
+Boolean - This extract the cdna* sequence (i.e transcribed sequence (devoid of
+introns, but containing untranslated exons)). It corresponds to extract the exons sequences.
 *Not a real cdna because it is not reversed
 
 =item B<--ofs>
 
-Output Fields Separator for the description field. By default it's a space < > but can be modified by any String or character using this option.
+String - Output Fields Separator for the description field of the header of the
+created fasta sequences. By default it's a space < > but can be modified by any String or
+character using this option.
 
 =item B<--clean_internal_stop> or B<--cis>
 
-The Clean Internal Stop option allows replacing the translation of the stop codons present among the sequence that is represented by the <*> character by <X>. Indeed the <*> character can be disturbing for many programs (e.g interproscan)
+Boolean - The Clean Internal Stop option allows replacing the translation of the
+stop codons present among the sequence that is represented by the <*> character
+by <X>. Indeed the <*> character can be disturbing for many programs
+(e.g interproscan)
 
 =item B<--clean_final_stop> or B<--cfs>
 
-The Clean Final Stop option allows removing the translation of the final stop codons that is represented by the <*> character. This character can be disturbing for many programs (e.g interproscan)
+Boolean - The Clean Final Stop option allows removing the translation of the
+final stop codons that is represented by the <*> character.
+This character can be disturbing for many programs (e.g interproscan)
 
 =item B<--remove_orf_offset> or B<--roo>
 
-CDS can start with a phase different from 0 when a gene model is fragmented.
+Boolean - CDS can start with a phase different from 0 when a gene model is fragmented.
 When asking for protein translation this (start) offset is trimmed out automatically.
 But when you extract CDS dna sequences, this  (start) offset is not removed by default.
 To remove it activate this option. If --up or --do option are used too, the (start) offset
@@ -739,12 +764,12 @@ is trimmed first, then is added the piece of sequence asked for.
 
 =item B<-o> or B<--output>
 
-Output fasta file.  If no output file is specified, the output will be
+String - Output fasta file.  If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
 
-Display this helpful text.
+Boolean - Display this helpful text.
 
 =back
 
