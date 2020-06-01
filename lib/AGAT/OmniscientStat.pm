@@ -73,8 +73,8 @@ sub print_omniscient_statistics{
 	# Should we deal with isoform (remove them and re-compute the statistics)
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
-
-	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size);
+	print "get_omniscient_statistics\n" if $verbose;
+	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size, $verbose);
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
 
@@ -118,7 +118,7 @@ sub print_omniscient_statistics{
 					my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($omniscient);
 
 					#get stat without isoform
-					$result_by_type2 = get_omniscient_statistics($omniscient, $genome_size);
+					$result_by_type2 = get_omniscient_statistics($omniscient, $genome_size, $verbose);
 				}
 
 				my $stat2 = $result_by_type2->{$by_main_type}{$by_type}{'info'};
@@ -183,7 +183,7 @@ sub _print_distribution{
 # (eg: Gene(l1),mRNA(l2),cds(l3),exon(l3), where the type of level1 and level3 feature are only those linked to mRNA.)
 sub get_omniscient_statistics {
 
-	my ($hash_omniscient, $genome) = @_  ;
+	my ($hash_omniscient, $genome, $verbose) = @_  ;
 
 	my %result_by_type;
 
@@ -213,7 +213,7 @@ sub get_omniscient_statistics {
 	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-
+			print "get_omniscient_statistics_for_topfeature\n" if $verbose;
 			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
 			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
 			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
@@ -227,8 +227,8 @@ sub get_omniscient_statistics {
 	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-
-				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
+				print "get_omniscient_statistics_for_standalone\n" if $verbose;
+				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
 				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
 
@@ -236,11 +236,11 @@ sub get_omniscient_statistics {
 		}
 	}
 	# ------------------------- get statistic from l2 -------------------------
-
+	print "get_omniscient_statistics_from_l2\n" if $verbose;
 	# get nb of each feature in omniscient;
 	foreach my $tag_l2 ( sort keys %{$hash_omniscient->{'level2'} }){
-
-		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2);
+		print "tag_l2 $tag_l2\n" if $verbose;
+		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
 		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2);
 		my $info_l2_distri = get_distributions($info_l2, $extra_l2);
 
@@ -301,7 +301,7 @@ sub get_omniscient_statistics_for_topfeature{
 # Parse omiscient by L2 to seprate statistics e.g not mixing exon from mRNA of
 # those tRNA
 sub get_omniscient_statistics_from_l2{
-	my ($hash_omniscient, $tag_l2) = @_;
+	my ($hash_omniscient, $tag_l2, $verbose) = @_;
 
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
@@ -555,11 +555,12 @@ sub get_omniscient_statistics_from_l2{
 		if($All_l2_single){
 			$extra_info{'single'}{$tag_l2}{'level1'}{$tag_l1}++;
 		}
-
-		# count how many overlaping genes
-		my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
-		$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
 	}
+	# count how many overlaping genes
+	print "_detect_overlap_features\n" if ($verbose);
+	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
+	$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
+	
 	return \%all_info, \%extra_info;
 }
 
