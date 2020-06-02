@@ -48,7 +48,7 @@ This flexibility has a drawback aspect, there is an incredible amount of flavour
 For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/CheatSheet/gxf.md).
 
 Some examples **what AGAT can do**:  
-  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp`prefix):  
+  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp` prefix):  
     * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
     * add missing features (e.g. exon and UTR).  
     * add missing mandatory attributes (i.e. ID, Parent).  
@@ -119,7 +119,7 @@ You will have to install all prerequisites and AGAT manually.
 
 #### Install prerequisites
   * R  
-    You can install it by conda (`conda install r-base`), through [CRAN] (https://cran.r-project.org)([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions).
+    You can install it by conda (`conda install r-base`), through [CRAN](https://cran.r-project.org) ([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions).
   * Perl >= 5.8  
     It should already be available on your computer. If you are unlucky [perl.org](https://www.perl.org/get.html) is the place to go. 
 
