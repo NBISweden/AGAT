@@ -10,7 +10,7 @@ use AGAT::Omniscient;
 
 # for skipping data that may be represented elsewhere; currently, this is
 # only the score
-my %SKIPPED_TAGS = map { $_ => 1 } qw(score); # BIOPERL FIX
+my %SKIPPED_TAGS = map { $_ => 1 } qw(score); # BIOPERL FIX.
 
 my $header = get_agat_header();
 my $outfile = undef;
