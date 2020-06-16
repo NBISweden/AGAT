@@ -259,14 +259,6 @@ if (! $relax){
 # print results
 print_omniscient_filter($hash_omniscient, $gtf_version, $relax, $gtf_out, $relax);
 
-
-if($outfile){
-	`cp $outfile tmp`;
-  `sed 's/  / /g' tmp > tmp2`;
-  `sed 's/ ;/;/g' tmp2 > $outfile`;
-  `rm tmp tmp2`;
-}
-
 print "Bye Bye\n";
 
 # ---------------------------------
