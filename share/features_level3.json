@@ -13,5 +13,7 @@
   "three_prime_utr":"exon",
   "tss":"exon",
   "transcription_end_site":"exon",
-  "tts":"exon"
+  "tts":"exon",
+	"3utr":"exon",
+	"5utr":"exon"
 }
