@@ -24,7 +24,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
           * [Uninstall AGAT](#uninstall-agat)
        * [Old school - Manually](#old-school---manually)
           * [Install prerequisites](#install-prerequisites)
-          * [Install AGAT](#install-aga-1)
+          * [Install AGAT](#install-agat-1)
           * [Update AGAT](#update-agat-1)
           * [Change to a specific version](#change-to-a-specific-version)
           * [Uninstall AGAT](#uninstall-agat-1)
@@ -36,6 +36,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [How Omniscient parser works](#how-omniscient-parser-works)
       * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
       * [examples](#examples)
+   * [How to cite?](#how-to-cite)
 
 ---------------------------
 
@@ -168,7 +169,7 @@ You will have to install all prerequisites and AGAT manually.
 
 **Remark**: On MS Windows, instead of make you'd probably have to use dmake or nmake depending the toolchain you have.
 
-#### Update  AGAT
+#### Update AGAT
 From the folder where the repository is located.
 
   ```
@@ -434,4 +435,13 @@ scaffold789	maker	CDS	562057	562121	.	+	0	ID=CLUHART00000006147:cds;Parent=CLUHA
 scaffold789	maker	CDS	564372	564588	.	+	1	ID=CLUHART00000006147:cds;Parent=CLUHART00000006147
 scaffold789	maker	five_prime_UTR	558184	558190	.	+	.	ID=CLUHART00000006147:five_prime_utr;Parent=CLUHART00000006147
 scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:three_prime_utr;Parent=CLUHART00000006147
+```
+
+## How to cite?
+
+This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used): 
+
+```
+Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
+(Version v0.4.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
