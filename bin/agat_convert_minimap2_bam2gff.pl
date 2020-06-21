@@ -220,9 +220,10 @@ while(<FILE>){
 	                      ".",
 	                      "ID=$align_counter_l2;Parent=$align_counter_l1;Target=$read_name $trans_lend $trans_rend") . "\n";
 	}
-	#print "\n";
-	close(FILE);
 }
+
+#print "\n";
+close(FILE);
 
 ################################################################################
         ####################
