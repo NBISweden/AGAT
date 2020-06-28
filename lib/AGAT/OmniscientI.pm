@@ -71,11 +71,6 @@ use constant PREFIX_NEW_ID => "nbis"; # used when creating a new ID # old nbis_N
 use constant PREFIX_ID_L1_NEW => "nbisL1"; # used when creating a new ID for a new Level1 feature # old nbis_noL1id
 use constant PREFIX_ID_L2_NEW => "nbisL2"; # used when creating a new ID for a new Level2 feature # old nbis_noL2id
 
-
-#####################################
-#		 DEFINE file scope variable		#
-my $fh_error = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-
 # Comon_tag is used in old gff format and in gtf (with gene_id) to group features together. Priority to comonTag compare to sequential read
 # COMONTAG is accessible from the whole file. if a tag has been specified by a user, it is added to this list when slurp_gff3_file_JD is called
 my @COMONTAG = ('locus_tag','gene_id');
@@ -128,28 +123,40 @@ sub slurp_gff3_file_JD {
 	dual_print($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
 	#Secondly check if expose_feature_levels option
 	if( defined($args->{expose_feature_levels})){ $expose_feature_levels = $args->{expose_feature_levels};
-										dual_print ($log, "=> expose feature level json files\n", $verbose );
+										dual_print ($log, "=> Expose feature level json files\n", $verbose );
 	} # list of check to skip
 	dual_print ($log, "=> Accessing the feature level json files\n", $verbose );
 	load_levels( {omniscient => \%omniscient, expose => $expose_feature_levels, verbose => $verbose, log => $log, debug => $debug}); # 	HANDLE feature level
 	if( defined($args->{input})) {$file = $args->{input};} 					 else{ dual_print($log, "Input data --input is mandatory when using slurp_gff3_file_JD!"); exit;}
 	if( defined($args->{gff_version})) { $gff_version = $args->{gff_version}; } # force using gff parser version
-	if( defined($args->{locus_tag})) { push @COMONTAG, $args->{locus_tag}; } #add a new comon tag to the list if provided.}
-	if( defined($args->{no_check})) { $no_check = $args->{no_check}; dual_print($log, "	 no_check option activated\n", $verbose); } # skip checks
+	if( defined($args->{locus_tag})) {
+		if( ref($args->{locus_tag}) ne 'ARRAY') {
+			@COMONTAG = ($args->{locus_tag});
+		}
+		else{
+			@COMONTAG = @{$args->{locus_tag}};
+		}
+	} #add a new comon tag to the list if provided.}
+		dual_print($log, "=> Attribute used to group features when no Parent/ID relationship exists:\n", $verbose);
+		foreach my $comTag (@COMONTAG){
+			dual_print($log, "	* $comTag\n", $verbose);
+		}
+	if( defined($args->{no_check})) { $no_check = $args->{no_check}; dual_print($log, "=> no_check option activated\n", $verbose); } # skip checks
 	if( defined($args->{no_check_skip})) {
 			$no_check_skip = $args->{no_check_skip}	;
 
 			if( ref($no_check_skip) ne 'ARRAY') {
 				$no_check_skip = [$no_check_skip];
 			}
+			dual_print($log, "=> Check forced:\n", $verbose);
 			foreach my $no_check (@$no_check_skip){
-				dual_print($log, "	 check $no_check forced.\n", $verbose);
+				dual_print($log, " * $no_check\n", $verbose);
 			}
 	}
-		else {$no_check_skip = [];} 	 # arrayref of check to skip
+	else {$no_check_skip = [];} 	 # arrayref of check to skip
 
-	if( defined($args->{merge_loci})) { $merge_loci = $args->{merge_loci}; dual_print($log, "	 merge_locus option activated\n", $verbose); } # activat merge locus option
-		else{ $merge_loci = undef;	dual_print($log, "=> merge_locus option deactivated\n", $verbose); }
+	if( defined($args->{merge_loci})) { $merge_loci = $args->{merge_loci}; dual_print($log, "=> merge_loci option activated\n", $verbose); } # activat merge locus option
+		else{ $merge_loci = undef;	dual_print($log, "=> merge_loci option deactivated\n", $verbose); }
 
 #	+-----------------------------------------+
 #	|	HANDLE GFF HEADER						|
@@ -2502,8 +2509,7 @@ sub _merge_overlap_features{
 							#they overlap in the CDS we should give them the same name
 							$resume_case++;
 
-							dual_print($log, "$id_l1 and	$id2_l1 same locus. We merge them together. Below the corresponding feature groups in their whole.\n", 0); # print only in log
-							print_omniscient_from_level1_id_list($omniscient, [$id_l1,$id2_l1], $fh_error ) if ($verbose >= 3);
+							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 0); # print only in log
 							# remove the level1 of the ovelaping one
 							delete $omniscient->{'level1'}{$tag_l1}{$id2_l1};
 							# remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
