@@ -78,6 +78,12 @@ else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => $opt_version_output);
 }
 
+# Allow list of common tags
+if($opt_comonTag){
+	my @list_comonTag = split(/,/, $opt_comonTag);
+	$opt_comonTag = \@list_comonTag;
+}
+
                 #####################
                 #     MAIN          #
                 #####################
@@ -177,7 +183,8 @@ Input GTF/GFF file.
 
 When the features do not have Parent/ID relationships, the parser will try to group
 features using a common/shared attribute (i.e. a locus tag.). By default locus_tag and gene_id.
-You can provide another specific common/shared attribute using this option.
+You can replace the default common/shared attributes by providing your own(s) using this option.
+Use comma separated list when providing several.
 
 =item B<--efl> or B<--expose>
 
