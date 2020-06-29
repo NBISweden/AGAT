@@ -1408,7 +1408,7 @@ sub _check_l2_linked_to_l3{
 										foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 											if($l3_feature->has_tag($tag) and	lc($l3_feature->_tag_value($tag)) eq	$l1_ct_value){
 												$has_l1_feature = $l1_feature;
-												$id_l2_to_replace = $l3_feature->_tag_value('ID');
+												$id_l2_to_replace = $l3_feature->_tag_value('Parent');
 												# case where it's linked by comon_tag attribute
 												last;
 											}
@@ -1434,7 +1434,7 @@ sub _check_l2_linked_to_l3{
 
 	 						#Modify parent L2 (and L1 id if necessary)
 	 						create_or_replace_tag($l2_feature,'Parent', $l1_ID); #modify ID to replace by parent value
-	 						create_or_replace_tag($l2_feature,'ID', $id_l2) if ($id_l2_to_replace); #modify ID to replace by parent value
+	 						create_or_replace_tag($l2_feature,'ID', $id_l2_to_replace) if ($id_l2_to_replace); #modify ID to replace by parent value
 
 							if ( exists_keys ($uniqID,(lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
 
