@@ -2624,7 +2624,7 @@ sub get_most_right_left_cds_positions {
 						if (exists_keys ($omniscient, ('level3', 'cds', $l2_id ) ) ){
 
 							my @sorted_cds = sort {$a->start <=> $b->start} @{$omniscient->{'level3'}{'cds'}{$l2_id}};
-    						my $local_cds_start  = $omniscient->{'level3'}{'cds'}{lc($l2_id)}[0]->start; #first element of the array
+    						my $local_cds_start  = $omniscient->{'level3'}{'cds'}{$l2_id}[0]->start; #first element of the array
 							my $local_cds_end = $omniscient->{'level3'}{'cds'}{$l2_id}[$#{$omniscient->{'level3'}{'cds'}{$l2_id}}]->end; #last element of the array
 
 							if ( ! $cds_start){

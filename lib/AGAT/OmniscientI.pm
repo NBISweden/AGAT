@@ -1426,7 +1426,7 @@ sub _check_l2_linked_to_l3{
 							my $l2_feature = clone($has_l1_feature);#create a copy of the first mRNA feature;
 
 							if (exists_keys($hash_omniscient,("level3",'cds', $id_l2) )	){
-							 		$l2_feature->primary_tag('mRNA');
+									$l2_feature->primary_tag('mRNA');
 							}
 							else{ #we cannot guess
 								$l2_feature->primary_tag('RNA');
@@ -1435,6 +1435,7 @@ sub _check_l2_linked_to_l3{
 	 						#Modify parent L2 (and L1 id if necessary)
 	 						create_or_replace_tag($l2_feature,'Parent', $l1_ID); #modify ID to replace by parent value
 	 						create_or_replace_tag($l2_feature,'ID', $id_l2_to_replace) if ($id_l2_to_replace); #modify ID to replace by parent value
+							check_level2_positions($hash_omniscient, $l2_feature);
 
 							if ( exists_keys ($uniqID,(lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
 
