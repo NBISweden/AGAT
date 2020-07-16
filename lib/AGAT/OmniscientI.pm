@@ -681,7 +681,7 @@ sub manage_one_feature{
 				###################
 				#	 GFF case			#
 				if($feature->has_tag('Parent')){
-						_fix_parent_attribute_when_id_l1_l2_identical($feature, $last_l1_f, $last_l2_f, $uniqID, 'Parent', $verbose); # must be before @parentList
+						_fix_parent_attribute_when_id_l1_l2_identical($feature, $last_l1_f, $last_l2_f, $uniqID, 'Parent', $verbose, $log, $debug); # must be before @parentList
 						@parentList = $feature->get_tag_values('Parent');
 						$locusTAGvalue=$last_locusTAGvalue;
 						_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level3');
@@ -690,7 +690,7 @@ sub manage_one_feature{
 				###################
 				#		GTF case		#
 				elsif($feature->has_tag('transcript_id') ){
-						_fix_parent_attribute_when_id_l1_l2_identical($feature, $last_l1_f, $last_l2_f, $uniqID, 'transcript_id', $verbose); # must be before @parentList
+						_fix_parent_attribute_when_id_l1_l2_identical($feature, $last_l1_f, $last_l2_f, $uniqID, 'transcript_id', $verbose, $log, $debug); # must be before @parentList
 						@parentList = $feature->get_tag_values('transcript_id');
 						create_or_replace_tag($feature,'Parent',$feature->_tag_value('transcript_id')); #modify Parent To keep only one
 						$locusTAGvalue=$last_locusTAGvalue;
@@ -925,7 +925,7 @@ sub manage_one_feature{
 # case where l1 and l2 feature have same ID, l2 ID has been modified,
 # consequently parent of L3 has to be updated
 sub _fix_parent_attribute_when_id_l1_l2_identical{
-	my ($feature, $last_l1_f, $last_l2_f, $uniqID, $tag_parent, $verbose) = @_ ;
+	my ($feature, $last_l1_f, $last_l2_f, $uniqID, $tag_parent, $verbose, $log, $debug) = @_ ;
 
   if (! $last_l1_f or ! $last_l2_f){return;}
 	my $last_l1_id = $last_l1_f->_tag_value('ID');
@@ -934,8 +934,7 @@ sub _fix_parent_attribute_when_id_l1_l2_identical{
 	my $previous_l2_original_id = lc( $uniqID->{ lc($last_l2_id) } );
 
 	if ( lc($last_l1_id) eq lc($previous_l2_original_id) ){
-		print "l1 and l2 had same ID, not normal but I will fix it.\n" if ($verbose > 2);
-		print "previous_l2_original_id $previous_l2_original_id\n";
+		dual_print ($log, "l1 and l2 had same ID, not normal but I will fix it.\nprevious_l2_original_id $previous_l2_original_id\n", $verbose) if ($debug);
 		print $last_l1_f->gff_string."\n";
 		print $last_l2_f->gff_string."\n";
 		print $feature->gff_string."\n";
