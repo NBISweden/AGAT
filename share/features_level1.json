@@ -27,10 +27,5 @@
   "source":"topfeature",
   "sts":"18",
   "translated_nucleotide_match":"19",
-	"biological_region":"topfeature",
-	"gene_segment":"20",
-	"c_gene_segment":"20",
-	"d_gene_segment":"20",
-	"j_gene_segment":"20",
-	"v_gene_segment":"20"
+	"biological_region":"topfeature"
 }

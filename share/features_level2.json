@@ -35,5 +35,10 @@
   "unconfirmed_transcript":"gene",
   "unitary_pseudogene":"pseudogene",
   "vaultrna":"gene",
-  "vaultrna_primary_transcript":"gene"
+  "vaultrna_primary_transcript":"gene",
+	"gene_segment":"gene",
+	"c_gene_segment":"gene",
+	"d_gene_segment":"gene",
+	"j_gene_segment":"gene",
+	"v_gene_segment":"gene"
 }
