@@ -98,9 +98,10 @@ my $gene_id=undef;
 #################
 foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-
+	print "seqid $seqid\n" if $verbose;
 	foreach my $primary_tag_key_level1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
 		foreach my $feature_level1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_key_level1}} ){
+			print "\n\n\nlevel1: ".$feature_level1->gff_string."\n" if $verbose;
 			my $id_tag_key_level1 = lc($feature_level1->_tag_value('ID'));
 
       # Gene ID level1
@@ -118,7 +119,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
         if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_tag_key_level1) ) ){
           foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-
+						print "\nlevel2: ".$feature_level2->gff_string."\n" if $verbose;
 
 
             # Gene ID level2
@@ -145,7 +146,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
             foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
               if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
                 foreach my $feature_level3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
-
+									print "level3: ".$feature_level3->gff_string."\n" if $verbose;
                   #Get level3 gene_id
                   if(! $level3_gene_id){
                     if($feature_level3->has_tag('gene_id')){
@@ -204,7 +205,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                     $feature_level3->add_tag_value('gene_id', $gene_id);
                   }
                   elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-                    warn("We replace the transcript_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
+                    warn("We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
                     $feature_level3->add_tag_value('gene_id', $gene_id);
                   }
                   #Check add transcript_id
