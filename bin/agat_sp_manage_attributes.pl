@@ -18,11 +18,13 @@ my $attributes=undef;
 my $outfile=undef;
 my $add = undef;
 my $cp = undef;
+my $overwrite = undef;
 
 if ( !GetOptions(
     "help|h"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
+		"overwrite"   => \$overwrite,
     "cp"          => \$cp,
     "p|type|l=s"  => \$primaryTag,
     "tag|att=s"   => \$attributes,
@@ -226,14 +228,27 @@ sub remove_tag_from_list{
       if ($feature->has_tag($att)){
 
         if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
-          $feature->remove_tag($att);
-        }
+					if(!$add){
+						$feature->remove_tag($att);
+					}
+					elsif($add and $overwrite){
+						create_or_replace_tag($feature,$att,'empty');
+					}
+				}
         else{ # We replace the attribute name
 
           my @values=$feature->get_tag_values($att);
           my $newAttributeName=$attListOk{$att};
-          create_or_replace_tag($feature,$newAttributeName, @values);
-          if(! $cp){
+					if($overwrite){
+            create_or_replace_tag($feature,$newAttributeName, @values);
+					}
+					else{#if new attribute exist we do no overwrite it
+						if(! $feature->has_tag($newAttributeName)){
+							create_or_replace_tag($feature,$newAttributeName, @values);
+						}
+						#else we do not change the existing value
+					}
+					if(! $cp){
             $feature->remove_tag($att); #remove old attribute if it is not the cp option
           }
         }
@@ -293,12 +308,19 @@ To remove all attributes non mandatory (only ID and Parent are mandatory) you ca
 
 =item B<--add>
 
-Attribute specified will be added if doesn't exist. The value will be 'empty'.
+Attribute with the tag specified will be added if doesn't exist. The value will be 'empty'.
 
 =item B<--cp>
 
-When attributes specied are with this form: tagName/newTagName. By using this <cp> parameter, the tag will not be modified but duplicated with the new
-tagName.
+When tags specied are with this form: tagName/newTagName.
+By using this <cp> parameter, the attribute with the tag tagName will be duplicated
+with the new tag newTagName if no attribute with the tag newTagName already exits.
+
+=item B<--overwrite>
+
+When using -add parameter, if an attribute with the specificed tag already exists, it will not be modified.
+When using --cp parameter, if an attribute with the specificed newTagName already exists, it will not be modified.
+So using the --overwrite parameter allows to overwrite the value of the existing attribute.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
