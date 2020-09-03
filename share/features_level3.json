@@ -15,5 +15,6 @@
   "transcription_end_site":"exon",
   "tts":"exon",
 	"3utr":"exon",
+	"utr":"exon",
 	"5utr":"exon"
 }
