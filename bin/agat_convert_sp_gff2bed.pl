@@ -182,9 +182,9 @@ agat_convert_sp_gff2bed.pl
 =head1 DESCRIPTION
 
 The script aims to convert GTF/GXF file into bed file.
-It will convert level2 feature from gff (mRNA, transcripts) into bed feature.
-If level2 subfeatures selected (defaut: exon) exist, they will be reported in the
-block fields (9-12th colum in bed).
+It will convert level2 features from gff (mRNA, transcripts) into bed features.
+If  the selected level2 subfeatures (defaut: exon) exist, they will be reported
+in the block fields (9-12th colum in bed).
 
 Definintion of the bed format:
 # 1 chrom - The name of the chromosome (e.g. chr3, chrY, chr2_random) or scaffold (e.g. scaffold10671).

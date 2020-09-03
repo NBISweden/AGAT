@@ -35,10 +35,11 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
         next;
     }
 
-    # peculiar case
+    # peculiar case 8,32,34
     if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/){
         system("$script --gff t/gff_syntax/$file -o $pathtmp 1>/dev/null");
     }
+		# peculiar case 28
     elsif($file =~ m/^28_/){
         system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp 1>/dev/null");
     }

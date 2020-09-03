@@ -463,7 +463,7 @@ The script converts 0-based, half-open [start-1, end) bed file to
 
 =item B<--bed>
 
-Input bed file that will be convert.
+Input bed file that will be converted.
 
 =item B<--source>
 
@@ -472,15 +472,15 @@ Example: Stringtie,Maker,Augustus,etc. [default: data]
 
 =item B<--primary_tag>
 
-The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
+The primary_tag corresponds to the data type and is stored in 3rd field of a gff file.
 Example: gene,mRNA,CDS,etc.  [default: gene]
 
 =item B<--inflate_off>
 
 By default we inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
-of the main feature (primary_tag). Type of subfeature created based on the
-inflate_type parameter. If you don't want this inflating behaviour you can deactivate it
-by using the option --inflate_off.
+of the main feature (primary_tag). The type of subfeature created is based on the
+inflate_type parameter. If you do not want this inflating behaviour you can deactivate it
+by using the --inflate_off option.
 
 =item B<--inflate_type>
 
