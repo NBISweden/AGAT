@@ -92,7 +92,6 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
 
-my $gene_id=undef;
 #################
 # == LEVEL 1 == #
 #################
@@ -105,6 +104,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			my $id_tag_key_level1 = lc($feature_level1->_tag_value('ID'));
 
       # Gene ID level1
+			my $gene_id=undef;
       my $gene_id_att=undef;
       if($feature_level1->has_tag('gene_id')){
         $gene_id_att=$feature_level1->_tag_value('gene_id');
@@ -225,7 +225,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                $feature_level2->add_tag_value('gene_id', $gene_id);
             }
             elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-              warn("We replace the transcript_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
+              warn("We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
               $feature_level2->add_tag_value('gene_id', $gene_id);
             }
             # add level2 missing information transcript_id
