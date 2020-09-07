@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 35;
 
 =head1 DESCRIPTION
 
@@ -35,8 +35,8 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
         next;
     }
 
-    # peculiar case 8,32,34
-    if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/){
+    # case do not merge loci 8,32,34,36
+    if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/ or $file =~ m/^36_/){
         system("$script --gff t/gff_syntax/$file -o $pathtmp 1>/dev/null");
     }
 		# peculiar case 28
