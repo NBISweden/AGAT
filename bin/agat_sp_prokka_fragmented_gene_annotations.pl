@@ -30,6 +30,7 @@ BEGIN {
 	 has hash_sub_gene_obj => ('is' => 'rw', isa => 'ArrayRef');
 	 has insert_size => ('is' => 'rw', isa => 'ArrayRef');
 	 has insert_position => ('is' => 'rw', isa => 'ArrayRef');
+	 has frame => ('is' => 'rw', isa => 'ArrayRef');
 	 has total_insert_before => ('is' => 'rw', isa => 'ArrayRef');
 
    $INC{"case_info.pm"} = 1;
@@ -65,6 +66,8 @@ my $file_fasta=undef;
 my $file_db=undef;
 my $codonTable=1;
 my $hamap_size="high";
+my $pseudo;
+my $frags;
 my $verbose = 0;
 my $opt_help= 0;
 
@@ -74,6 +77,8 @@ if ( !GetOptions(
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,
 		"db=s" => \$file_db,
+		"frags!" => \$frags,
+		"pseudo!" => \$pseudo,
 		"hamap_size=s" =>$hamap_size,
     "table|codon|ct=i" => \$codonTable,
     "v=i" => \$verbose,
@@ -116,16 +121,21 @@ if ($outfolder) {
 	if (-d $outfolder){
 		  print "Provided output folder exists. Exit!\n";exit;
 	}
-	# gff out
-	my $gff_out_path = "$outfolder/$file_gff_in$ext_gff";
 	mkdir $outfolder;
-  open(my $fh_gff, '>', $gff_out_path) or die "Could not open file '$gff_out_path' $!";
-  $gff_out= Bio::Tools::GFF->new(-fh => $fh_gff, -gff_version => 3 );
 
-	# fasta out
-	my $fasta_out_path = "$outfolder/$file_fasta_in$ext_fasta";
-	open(my $fh_fasta, '>', $fasta_out_path) or die "Could not open file '$fasta_out_path' $!";
-	$fasta_out=  Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
+	if($frags or $pseudo){
+		# gff out
+		my $gff_out_path = "$outfolder/$file_gff_in$ext_gff";
+
+	  open(my $fh_gff, '>', $gff_out_path) or die "Could not open file '$gff_out_path' $!";
+	  $gff_out= Bio::Tools::GFF->new(-fh => $fh_gff, -gff_version => 3 );
+	}
+	if($frags){
+		# fasta out
+		my $fasta_out_path = "$outfolder/$file_fasta_in$ext_fasta";
+		open(my $fh_fasta, '>', $fasta_out_path) or die "Could not open file '$fasta_out_path' $!";
+		$fasta_out=  Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
+	}
 
 	# report out
 	my $report_out_path = "$outfolder/report.txt";
@@ -178,9 +188,9 @@ my $total_putative_gene_fixed_after = 0;
 my $total_gene_fixed_before = 0;
 my $total_gene_fixed_after = 0;
 my $fixed_gene = 0;
-my $case_wierd = 0; # case where to contiguous gene cannot be merged because in hte same frame. It means the stop codon of the first gene cannot be skipped.
-my $case_frame1 = 0;
+my $case_frame1 = 0; # case where to contiguous gene cannot be merged because in hte same frame. It means the stop codon of the first gene cannot be skipped.
 my $case_frame2 = 0;
+my $case_frame3 = 0;
 my $incongruent_size = 0;
 my $congruent_size = 0;
 my $total_insert_before = 0;
@@ -246,7 +256,15 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 				my @listGeneToMerge_sorted = sort {$a->start <=> $b->start } @listGeneToMerge;
 				my $obj_case = case_info->new(name => $previousName, list_gene =>\@listGeneNameToMerge, list_gene_feature => \@listGeneToMerge_sorted);
 
-				process_the_case($obj_case, $seqObj);
+				if ( check_protein_size_congruency($obj_case, $seqObj) ){
+					if (check_long_orf_if_can_be_merged($obj_case)){
+						$total_gene_fixed_before += @listGeneToMerge;
+						$total_gene_fixed_after ++;
+						if($frags or $pseudo){
+							merge_case($obj_case, $seqObj);
+						}
+					}
+				}
 			}
 			@listGeneToMerge=();
 			@listGeneNameToMerge=();
@@ -259,92 +277,106 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	if(@listGeneToMerge){
 		my @listGeneToMerge_sorted = sort {$a->start <=> $b->start } @listGeneToMerge;
 		my $obj_case = case_info->new(name => $previousName, list_gene =>\@listGeneNameToMerge, list_gene_feature => \@listGeneToMerge_sorted);
-		process_the_case($obj_case, $seqObj);
-	}
-	# write the tested seq modified or intact
-	$fasta_out->write_seq($seqObj);
-}
 
-
-# add non modified sequences
-foreach my $id_seq (keys %all_db_fasta_IDs){
-	my $seq_id_correct = $all_db_fasta_IDs{lc($id_seq)};
-
-	if (! exists_keys( $hash_sortBySeq, ($seq_id_correct) )){
-			my $sequence = $db_fasta->seq($seq_id_correct);
-
-			# get description
-			my $header = $db_fasta->header($seq_id_correct);
-			my @headers =  split(' ',$header);
-			shift @headers;
-			my $description = "";
-			if(@headers){
-				$description .= join(' ',@headers);
+		if( check_protein_size_congruency($obj_case, $seqObj) ){
+			if ( check_long_orf_if_can_be_merged($obj_case) ) {
+				$total_gene_fixed_before += @listGeneToMerge;
+				$total_gene_fixed_after ++;
+				if($frags or $pseudo){
+					merge_case($obj_case, $seqObj);
+				}
 			}
+		}
+	}
 
-			my $seqObj  = Bio::Seq->new( '-format' => 'fasta' , -id => $seq_id_correct, -seq => $sequence, -description => $description);
-			$fasta_out->write_seq($seqObj);
+	if($frags){
+		# write the tested seq modified or intact
+		$fasta_out->write_seq($seqObj);
 	}
 }
 
-#shift annotation
-# need to be parsed again because we might have removed some features
-( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
-foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){
 
-	my $total_shift = 0;
-	my $shift_location;
-	my @shift_locations;
+if($frags){
+	# add non modified sequences
+	foreach my $id_seq (keys %all_db_fasta_IDs){
+		my $seq_id_correct = $all_db_fasta_IDs{lc($id_seq)};
 
-	# make a list of location
-	foreach my $val (keys %{$gff_shift{$seqid}}) {
-		push @shift_locations, $val;
+		if (! exists_keys( $hash_sortBySeq, ($seq_id_correct) )){
+				my $sequence = $db_fasta->seq($seq_id_correct);
+
+				# get description
+				my $header = $db_fasta->header($seq_id_correct);
+				my @headers =  split(' ',$header);
+				shift @headers;
+				my $description = "";
+				if(@headers){
+					$description .= join(' ',@headers);
+				}
+
+				my $seqObj  = Bio::Seq->new( '-format' => 'fasta' , -id => $seq_id_correct, -seq => $sequence, -description => $description);
+				$fasta_out->write_seq($seqObj);
+		}
 	}
-	@shift_locations = sort { $a <=> $b} @shift_locations; # sort
-	$shift_location = shift @shift_locations; # get first value
-	if (exists_keys (\%gff_shift, ($seqid) ) ){
-		# loop over feature in order
-		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
-			my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
-			my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
-			my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1};
-			my $id_l1 = lc($gene_feature->_tag_value('ID'));
+	#shift annotation
+	# need to be parsed again because we might have removed some features
+	( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
+	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){
 
-			# get new start
-			while (@shift_locations and $shift_location < $gene_feature->start) {
-				$total_shift += $gff_shift{$seqid}{$shift_location}; # append value
-				$shift_location = shift @shift_locations; # get first value
-			}
-			if($shift_location and $shift_location < $gene_feature->start and !@shift_locations){
-				$total_shift += $gff_shift{$seqid}{$shift_location};
-				$shift_location = undef;
-			}
-			$gene_feature->start($gene_feature->start + $total_shift);
+		my $total_shift = 0;
+		my $shift_location;
+		my @shift_locations;
 
-			# get new end
-			while (@shift_locations and $shift_location <= $gene_feature->end) {
-				$total_shift += $gff_shift{$seqid}{$shift_location}; # append value
-				$shift_location = shift @shift_locations; # get first value
-			}
-			if($shift_location and $shift_location <= $gene_feature->end and !@shift_locations){
-				$total_shift += $gff_shift{$seqid}{$shift_location};
-				$shift_location = undef;
-			}
-			$gene_feature->end($gene_feature->end + $total_shift);
+		# make a list of location
+		foreach my $val (keys %{$gff_shift{$seqid}}) {
+			push @shift_locations, $val;
+		}
+		@shift_locations = sort { $a <=> $b} @shift_locations; # sort
+		$shift_location = shift @shift_locations; # get first value
+		if (exists_keys (\%gff_shift, ($seqid) ) ){
+			# loop over feature in order
+			foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
-			foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-				if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
-					foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
-						$feature_l2->start( $gene_feature->start );
-						$feature_l2->end( $gene_feature->end );
-						my $id_l2 = lc($feature_l2->_tag_value('ID'));
+				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
+				my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1};
+				my $id_l1 = lc($gene_feature->_tag_value('ID'));
 
-						foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-							if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
-								foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}} ){
-									$feature_l3->start( $gene_feature->start );
-									$feature_l3->end( $gene_feature->end );
+				# get new start
+				while (@shift_locations and $shift_location < $gene_feature->start) {
+					$total_shift += $gff_shift{$seqid}{$shift_location}; # append value
+					$shift_location = shift @shift_locations; # get first value
+				}
+				if($shift_location and $shift_location < $gene_feature->start and !@shift_locations){
+					$total_shift += $gff_shift{$seqid}{$shift_location};
+					$shift_location = undef;
+				}
+				$gene_feature->start($gene_feature->start + $total_shift);
+
+				# get new end
+				while (@shift_locations and $shift_location <= $gene_feature->end) {
+					$total_shift += $gff_shift{$seqid}{$shift_location}; # append value
+					$shift_location = shift @shift_locations; # get first value
+				}
+				if($shift_location and $shift_location <= $gene_feature->end and !@shift_locations){
+					$total_shift += $gff_shift{$seqid}{$shift_location};
+					$shift_location = undef;
+				}
+				$gene_feature->end($gene_feature->end + $total_shift);
+
+				foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+					if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
+						foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
+							$feature_l2->start( $gene_feature->start );
+							$feature_l2->end( $gene_feature->end );
+							my $id_l2 = lc($feature_l2->_tag_value('ID'));
+
+							foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+								if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
+									foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}} ){
+										$feature_l3->start( $gene_feature->start );
+										$feature_l3->end( $gene_feature->end );
+									}
 								}
 							}
 						}
@@ -355,8 +387,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	}
 }
 
-#print gff
-print_omniscient($hash_omniscient, $gff_out);
+if($frags or $pseudo){
+	#print gff
+	print_omniscient($hash_omniscient, $gff_out);
+}
 
 # print results
 my $stringprint = "total gene: $total_gene\n";
@@ -365,9 +399,9 @@ $stringprint .=  "total gene not checked:".($total_gene-$total_gene_with_name)."
 $stringprint .=  "Among the $total_gene_with_name gene checked, $total_putative_gene_fixed_before putative gene may have been merged into $total_putative_gene_fixed_after\n";
 $stringprint .=  "$incongruent_size case where contiguous genes that do not pass the length test. When appending them we got something too long compared to the expected protein.\n";
 $stringprint .=  "Among the $congruent_size case that passed the length test:\n";
-$stringprint .=  "* We got $case_wierd cases where the two contiguous genes were in the same frame.\n  Is the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
-$stringprint .=  "* We got $case_frame1 cases where the two contiguous genes can be merged in a single one by adding 1 nucleotide in between.\n";
-$stringprint .=  "* We got $case_frame2 cases where the two contiguous genes can be merged in a single one by adding 2 nucleotide in between.\n";
+$stringprint .=  "* We got $case_frame1 cases where the two contiguous genes were in the same frame.\n  Is the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
+$stringprint .=  "* We got $case_frame2 cases where the two contiguous genes can be merged in a single one by adding 1 nucleotide in between.\n";
+$stringprint .=  "* We got $case_frame3 cases where the two contiguous genes can be merged in a single one by adding 2 nucleotide in between.\n";
 $stringprint .=  "In total $total_gene_fixed_before gene have been merged into $total_gene_fixed_after\n";
 $stringprint .=  "\nBye Bye.\n";
 print $stringprint;
@@ -386,8 +420,10 @@ print $report $stringprint;
                 ####
                  ##
 
-sub process_the_case{
+sub check_protein_size_congruency{
 	my ($obj_case, $seqObj) = @_;
+
+	my $size_congruency;
 	my $Name_ok = $obj_case->{name};
 	my $listGeneToMerge = $obj_case->{list_gene_feature};
 	my $listGeneNameToMerge =  $obj_case->{list_gene};
@@ -422,12 +458,7 @@ sub process_the_case{
 	 	if ($total_current_size < $expected_protein_length_plus10){
 	 		print "$total_current_size < $expected_protein_length_plus10 => Let's merge them. (The length of the appended proteins is shorter than the size of the protein use for the inference)\n\n";
 			$congruent_size++;
-
-			if (check_long_orf_if_ready_to_merge($obj_case)){
-				$total_gene_fixed_before += @$listGeneToMerge;
-				$total_gene_fixed_after ++;
-				merge_case($obj_case, $seqObj);
-			}
+			$size_congruency = 1;
 		}
 		else{
 			$incongruent_size++;
@@ -436,7 +467,7 @@ sub process_the_case{
 	else{
 		print "No expected size found - skip the case\n";
 	}
- return $obj_case;
+ return $size_congruency;
 }
 
 
@@ -465,18 +496,33 @@ sub merge_case{
 		print "piece of sequence after: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n" if ($verbose);
 		$seqObj->seq($sequence);
 
+		# Should I add Pseudo attribure?
+		my $add_pseudo = undef;
+		if($pseudo) {
+			$add_pseudo = 1;
+			if($frags){
+				$add_pseudo = undef;
+				# if frags and case frame 1, we have to add the pseudo attribute
+				if( grep( /1/, @{$obj_case->{frame}} ) ){
+					$add_pseudo = 1;
+				}
+			}
+		}
+
 		# modify end position
+		$gene_feature1->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
 		$gene_feature1->end( $gene_feature2->end );
 		my $id_l1 = lc($gene_feature1->_tag_value('ID'));
 		foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 			if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
 				foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
+					$feature_l2->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
 					$feature_l2->end( $gene_feature2->end );
-
 					my $id_l2 = lc($feature_l2->_tag_value('ID'));
 					foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 						if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
 							foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}} ){
+								$feature_l3->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
 								$feature_l3->end( $gene_feature2->end );
 							}
 						}
@@ -492,7 +538,7 @@ sub merge_case{
 # test if we can merge genes
 # test will look if we can have one only long ORF by shifting the frame by adding 1 or 2 nucleotides.
 # To avoid the stop codon we also replace the last nucleotide from the codon stop of the first gene by a N
-sub check_long_orf_if_ready_to_merge{
+sub check_long_orf_if_can_be_merged{
 	my ($obj_case)=@_;
 	my $merged = 0;
 
@@ -632,9 +678,11 @@ sub check_long_orf_if_ready_to_merge{
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
 				print "Test frame 1 : ".$prot_obj1->seq."\n" if ($verbose);;
 				if (index($prot_obj1->seq, $prot_second->seq) != -1) {
-					$case_wierd++;
 					print "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
 					$found++;
+					$case_frame1++;
+					$merged++ if ($pseudo);
+					push @{$obj_case->{frame}}, 1 ;
 				}
 
 				#create seq test2 by merging with part2
@@ -649,8 +697,9 @@ sub check_long_orf_if_ready_to_merge{
 					push @{$obj_case->{total_insert_before}}, $total_insert_before ;
 					$total_insert_before += 1;
 					push @{$obj_case->{insert_position}}, $gene_feature2->start;
+					push @{$obj_case->{frame}}, 2 ;
 					$found++;
-					$case_frame1++;
+					$case_frame2++;
 					$merged++;
 				}
 
@@ -666,8 +715,9 @@ sub check_long_orf_if_ready_to_merge{
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 2;
 					push @{$obj_case->{insert_position}}, $gene_feature2->start;
+					push @{$obj_case->{frame}}, 3 ;
 					$found++;
-					$case_frame2++;
+					$case_frame3++;
 					$merged++;
 				}
 			}
@@ -700,9 +750,11 @@ sub check_long_orf_if_ready_to_merge{
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
 				print "Test frame 1 : ".$prot_obj1->seq."\n" if ($verbose);
 				if (index($prot_obj1->seq, $prot_second->seq) != -1) {
-					$case_wierd++;
 					print "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
 					$found++;
+					$case_frame1++;
+					$merged++ if ($pseudo);
+					push @{$obj_case->{frame}}, 1 ;
 				}
 
 				#create seq test2 by merging with part2
@@ -716,8 +768,9 @@ sub check_long_orf_if_ready_to_merge{
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 1;
 					push @{$obj_case->{insert_position}}, $gene_feature1->end;
+					push @{$obj_case->{frame}}, 2 ;
 					$found++;
-					$case_frame1++;
+					$case_frame2++;
 					$merged++;
 				}
 
@@ -732,8 +785,9 @@ sub check_long_orf_if_ready_to_merge{
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 2;
 					push @{$obj_case->{insert_position}}, $gene_feature1->end;
+					push @{$obj_case->{frame}}, 3 ;
 					$found++;
-					$case_frame2++;
+					$case_frame3++;
 					$merged++;
 				}
 				if (! $found){
@@ -748,7 +802,7 @@ sub check_long_orf_if_ready_to_merge{
 			}
 		}
 	}
-	if($merged == 1){return $merged;}
+	return $merged;
 }
 
 #return AA size of the overlaping region between the genes if any
@@ -897,24 +951,42 @@ __END__
 
 =head1 NAME
 
-agat_sp_fix_longest_ORF.pl
+agat_sp_prokka_fragmented_gene_annotations.pl
 
 =head1 DESCRIPTION
 
-The script aims to fix the ORFs of gene models described in the gff file.
-By fixing it means replacing the original ORF (defined by the cds)
-when the longest predicted one within the mRNA is different. See the --model parameter
-for more details about the different cases. Currently the tool does not perform
-incomplete prediction (It always look for a start codon). It is consequently advised
-to not use the model5 except if you understand what you do.
-Several ouput files will be written if you specify an output.
-One will contain the gene not modified (intact), one with the gene models fixed (modified),
-one will both together (all).
+The script aims to look at fragmented gene annotations (FRAGS) within prokka annotations.
+The FRAGS represent two (or more) ORFs that are in close proximity and are annotated
+with homology to the same gene. In such cases, Prokka ads an _n suffix to the gene ID.
+For example, a splitted genX can then be found as genX_1 and genX_2 in the GFF.
+See here for a case: https://github.com/tseemann/prokka/issues/502
+
+* The script will inform you how many case there is in your annotation.
+* If you think the FRAGS is due to a sequencing error (frameshift due to short indel),
+using the --frags parameter will fix the FRAGS if genX_1 and genX_2 are not in the same frame.
+The gff and the fasta file will be modified. The gene are merged, an insertion of
+one or two N will be added in between the genes to fix the frameshift.
+* If you think the FRAGS is not due to a sequencing error, use the --pseudo parameter,
+the gff will be fix (gene merged) and the agat_pseudo attribute (the value is the position of the codon stop)
+will be added to the related features.
+* using --frags and --pseudo is similar to use only --frags, except when no frameshift
+is found for a detected FRAGS (both gene are in the same frame), the agat_pseudo
+attribute is also added to the related features.
+
+How the tool detecte the FRAGS?
+* Search for cases where contiguous genes have the same name (e.g. lpxA_1 lpxA_2).
+* If so we look at the size of the protein of each of those genes (lpxA_1 AA=175 ; lpxA_2 AA=116),
+and compute the size when merged togeter (devoided of the overlap if any) => here 270 AA
+* Then we look at the size of the protein used to infer the name (lpxA_1 inferred from Q9PIM1 = 263 AA ; lpxA_2 inferred from P0A722 = 262 AA )
+and compute the average length of the reference protein: here 262AA. We add 20% to the length to be sure to include border cases => 282AA.
+* Compare the length of the merged proteins (262 AA) against the reference protein length (282).
+If the the expected protein length (282 AA) is longer we have a FRAGS.
+
 
 =head1 SYNOPSIS
 
-    agat_sp_fix_longest_ORF.pl -gff infile.gff --fasta genome.fa [ -o outfile ]
-    agat_sp_fix_longest_ORF.pl --help
+    agat_sp_prokka_fragmented_gene_annotations.pl -gff infile.gff --fasta genome.fa --db prokka/prokka_bacteria_sprot.fa  -o outfolder
+    agat_sp_prokka_fragmented_gene_annotations.pl --help
 
 =head1 OPTIONS
 
@@ -922,24 +994,44 @@ one will both together (all).
 
 =item B<--gff>
 
-Input GTF/GFF file.
+Input genome GTF/GFF file. Mandatory.
 
-=item B<--fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
-Imput fasta file.
+Input genome fasta file. Mandatory.
+
+=item B<--db>
+
+Input Uniprot fasta file used by prokka. Mandatory.
+
+=item B<--frags>
+
+Merge and fix detected FRAGS if not in the same frame
+
+=item B<--pseudo>
+
+Merge detected FRAGS and add the agat_pseudo attribute (value will be the stop location).
+
+=item B<--hamap_size>
+
+Some protein function are not infered by Uniprot but by Hamap. In such case the information
+is retrieved from the web. As hamap provide a family profile, the protein size if a range.
+"low" option will use the low value of the range,
+"middle" option will use the average of the range,
+"high" option will the the high value of the range.
+Default "high".
 
 =item B<--ct>, B<--codon> or B<--table>
 
 Codon table to use. [default 1]
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o> , B<--output> or B<--out>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output folder. Mandatory.
 
 =item B<-v>
 
-verbose mode. Default off. -v 1 minimum verbosity, -v 3 maximum verbosity
+verbose mode. Default off.
 
 =item B<-h> or B<--help>
 
