@@ -396,14 +396,38 @@ if($frags or $pseudo){
 my $stringprint = "total gene: $total_gene\n";
 $stringprint .= "total gene with name: $total_gene_with_name\n";
 $stringprint .=  "total gene not checked:".($total_gene-$total_gene_with_name)."\n";
-$stringprint .=  "Among the $total_gene_with_name gene checked, $total_putative_gene_fixed_before putative gene may have been merged into $total_putative_gene_fixed_after\n";
-$stringprint .=  "$incongruent_size case where contiguous genes that do not pass the length test. When appending them we got something too long compared to the expected protein.\n";
-$stringprint .=  "Among the $congruent_size case that passed the length test:\n";
-$stringprint .=  "* We got $case_frame1 cases where the two contiguous genes were in the same frame.\n  Is the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
-$stringprint .=  "* We got $case_frame2 cases where the two contiguous genes can be merged in a single one by adding 1 nucleotide in between.\n";
-$stringprint .=  "* We got $case_frame3 cases where the two contiguous genes can be merged in a single one by adding 2 nucleotide in between.\n";
-$stringprint .=  "In total $total_gene_fixed_before gene have been merged into $total_gene_fixed_after\n";
+$stringprint .=  "Among the $total_gene_with_name gene checked, $total_putative_gene_fixed_before putative gene may be part of $total_putative_gene_fixed_after FRAGS.\n";
+$stringprint .=  "$incongruent_size case where contiguous genes that do not pass the length test. When appending them we got something too long compared to the reference protein.\n";
+$stringprint .=  "$congruent_size detected FRAGS:\n";
+$stringprint .=  "* We got $case_frame1 cases where the FRAGS is in the same frame.\n";
+$stringprint .=  "* We got $case_frame2 cases where the FRAGS is due to a frameshift of 1 nucleotide.\n";
+$stringprint .=  "* We got $case_frame3 cases where the FRAGS is due to a frameshift of 2 nucleotides.\n";
+
+if ($pseudo and $frags) {
+	$stringprint .=  "$case_frame1 FRAGS merged and annotated as pseudo.\n";
+	my $cases = $case_frame2 + $case_frame3;
+	$stringprint .=  "$cases FRAGS merged and frameshift fixed.\n";
+	$stringprint .=  "In total $total_gene_fixed_before gene have been merged into $total_gene_fixed_after\n";
+}
+elsif ($pseudo and ! $frags){
+	my $cases = $case_frame1 + $case_frame2 + $case_frame3;
+	$stringprint .=  "$cases FRAGS merged and annotated as pseudo.\n";
+}
+elsif (! $pseudo and $frags){
+	my $cases = $case_frame2 + $case_frame3;
+	$stringprint .=  "$cases FRAGS merged and frameshift fixed.\n";
+	$stringprint .=  "In total $total_gene_fixed_before gene have been merged into $total_gene_fixed_after\n";
+}
+
+$stringprint .= "\nWhen a FRAGS is detected you shoud think about few things...\n".
+								"Does the stop codon really codes for a stop codon?\n".
+								"Is the stop codon from the first gene real?\n".
+								"    => If the two fragments (genes) are in the same frame, it can be due to a substitution...\n".
+								"    => If the two fragments (genes) are in a different frame, it can be due to an indel...\n".
+								"Indel or substitution, is it a pseudogene or a sequencing error?\n".
+								"In a case of pseudogene, if the pseudogene is not recent, other mutations should be accumulated in the sequence after the first premature stop codon...\n";
 $stringprint .=  "\nBye Bye.\n";
+
 print $stringprint;
 print $report $stringprint;
 
