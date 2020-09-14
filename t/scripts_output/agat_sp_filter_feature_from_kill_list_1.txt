@@ -1,0 +1,3 @@
+gene:Os01g0100700
+CDS:Os01t0100650-00
+transcript:Os01t0102700-01
