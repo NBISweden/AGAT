@@ -68,6 +68,7 @@ my $codonTable=1;
 my $hamap_size="high";
 my $pseudo;
 my $frags;
+my $skip_hamap;
 my $verbose = 0;
 my $opt_help= 0;
 
@@ -79,8 +80,9 @@ if ( !GetOptions(
 		"db=s" => \$file_db,
 		"frags!" => \$frags,
 		"pseudo!" => \$pseudo,
-		"hamap_size=s" =>$hamap_size,
+		"hamap_size=s" => \$hamap_size,
     "table|codon|ct=i" => \$codonTable,
+		"skip_hamap!" => \$skip_hamap,
     "v=i" => \$verbose,
     "output|out|o=s" => \$outfolder))
 
@@ -146,7 +148,7 @@ else{
 }
 # check $hamap_size parameter
 $hamap_size = lc($hamap_size);
-if($hamap_size != "high" and $hamap_size != "low" and $hamap_size != "middle"){
+if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 	print "Wrong value provided for the option --hamap_size: $hamap_size\n;Accepted value: high, low or middle";exit;
 }
 
@@ -909,7 +911,7 @@ sub retrieve_expected_protein_length{
 		}
 		elsif (lc($obj_sub_gene->{inference_db}) eq "hamap"){
 			print "Inference made with HAMAP, looking for protein size using internet: $prot_name\n";
-			fetcher_HAMAP($obj_sub_gene);
+			fetcher_HAMAP($obj_sub_gene) if (! $skip_hamap);
 		}
 		else{
 			print "Inference made with ".$obj_sub_gene->{inference_db}.", not yet implemented\n";
@@ -1048,6 +1050,10 @@ Default "high".
 =item B<--ct>, B<--codon> or B<--table>
 
 Codon table to use. [default 1]
+
+=item B<--skip_hamap>
+
+For test purpose it could be useful to skip hamap, because it requires fetching information through internet.
 
 =item B<-o> , B<--output> or B<--out>
 

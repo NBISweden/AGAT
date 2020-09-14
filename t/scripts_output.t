@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 43;
+use Test::More tests => 45;
 
 =head1 DESCRIPTION
 
@@ -360,6 +360,7 @@ ok( system( "diff $result $outtmp/report.txt" ) == 0, "output $script");
 rmtree $outtmp;
 
 # ------------------- check agat_sp_merge_annotations script-------------------
+
 $script = $script_prefix."bin/agat_sp_merge_annotations.pl";
 $result = "$output_folder/agat_sp_merge_annotations_1.gff";
 system(" $script --gff t/gff_syntax/25_test.gff  --gff t/gff_syntax/9_test.gff -o $outtmp 1>/dev/null");
@@ -367,7 +368,19 @@ system(" $script --gff t/gff_syntax/25_test.gff  --gff t/gff_syntax/9_test.gff -
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
+
+$script = $script_prefix."bin/agat_sp_prokka_fragmented_gene_annotations.pl";
+$result = "$output_folder/agat_sp_prokka_fragmented_gene_annotations_1.gff";
+$result2 = "$output_folder/agat_sp_prokka_fragmented_gene_annotations_1.fa";
+system(" $script --gff $output_folder/prokka_cav_10DC88.gff --fasta $output_folder/prokka_cav_10DC88.fa --db $output_folder/prokka_bacteria_sprot.fa --skip_hamap --frags -o $outtmp 1>/dev/null");
+#run test
+ok( system( "diff $result $outtmp/prokka_cav_10DC88.gff" ) == 0, "output $script");
+ok( system( "diff $result2 $outtmp/prokka_cav_10DC88.fa" ) == 0, "output $script");
+rmtree $outtmp;
+
 # ------------------- check agat_sp_sensitivity_specificity script-------------------
+
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
 system(" $script --gff1 $output_folder/1.gff --gff2 $output_folder/1.gff -o $outtmp 1>/dev/null");
