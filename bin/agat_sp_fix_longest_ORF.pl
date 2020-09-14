@@ -1395,7 +1395,7 @@ one will both together (all).
 
 Input GTF/GFF file.
 
-=item B<--fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 Imput fasta file.
 
