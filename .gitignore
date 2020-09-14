@@ -4,7 +4,7 @@ Makefile
 pm_to_blib
 blib
 MANIFEST*
-t/scripts_output/1.fa.index
+t/scripts_output/*.index
 cover_db
 *.log
 
