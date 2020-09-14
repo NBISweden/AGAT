@@ -370,9 +370,9 @@ unlink $outtmp;
 
 # ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
 
-$script = $script_prefix."bin/agat_sp_prokka_fragmented_gene_annotations.pl";
-$result = "$output_folder/agat_sp_prokka_fragmented_gene_annotations_1.gff";
-$result2 = "$output_folder/agat_sp_prokka_fragmented_gene_annotations_1.fa";
+$script = $script_prefix."bin/agat_sp_prokka_fix_fragmented_gene_annotations.pl";
+$result = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.gff";
+$result2 = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.fa";
 system(" $script --gff $output_folder/prokka_cav_10DC88.gff --fasta $output_folder/prokka_cav_10DC88.fa --db $output_folder/prokka_bacteria_sprot.fa --skip_hamap --frags -o $outtmp 1>/dev/null");
 #run test
 ok( system( "diff $result $outtmp/prokka_cav_10DC88.gff" ) == 0, "output $script");
