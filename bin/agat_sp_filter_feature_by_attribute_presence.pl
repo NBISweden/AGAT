@@ -137,7 +137,7 @@ else{ print $stringPrint; }
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 													#######################
 
-my $cases=0;
+my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
@@ -162,8 +162,12 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    $removeit = check_feature($feature_l1, 'level1', \@ptagList, \@attListOk, $opt_test);
 			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
 			if ($removeit){
-	      $cases += remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
-	      next;
+	      my $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
+				$all_cases{'l1'} += $cases->{'l1'};
+				$all_cases{'l2'} += $cases->{'l2'};
+				$all_cases{'l3'} += $cases->{'l3'};
+				$all_cases{'all'} += $cases->{'all'};
+				next;
 	    }
 
 	    #################
@@ -205,12 +209,20 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			# Should be removed after looping over them to avoid problems
 			if (@list_l2_to_remove) {
 				foreach my $infos (@list_l2_to_remove) {
-					$cases += remove_l2_and_relatives( $hash_omniscient, @$infos);
+					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
+					$all_cases{'l1'} += $cases->{'l1'};
+					$all_cases{'l2'} += $cases->{'l2'};
+					$all_cases{'l3'} += $cases->{'l3'};
+					$all_cases{'all'} += $cases->{'all'};
 				}
 			}
 			if (@list_l3_to_remove) {
 				foreach my $infos (@list_l3_to_remove) {
-					$cases += remove_l3_and_relatives( $hash_omniscient, @$infos);
+					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos);
+					$all_cases{'l1'} += $cases->{'l1'};
+					$all_cases{'l2'} += $cases->{'l2'};
+					$all_cases{'l3'} += $cases->{'l3'};
+					$all_cases{'all'} += $cases->{'all'};
 				}
 			}
 	  }
@@ -219,8 +231,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 print_omniscient($hash_omniscient, $gffout_ok); #print gene modified
 
-
-$stringPrint = "$cases features removed \n";
+$stringPrint = $all_cases{'all'}." features removed:\n";
+$stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
+$stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
+$stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
 if ($opt_output){
   print $ostreamReport $stringPrint;
   print $stringPrint;
