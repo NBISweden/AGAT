@@ -535,20 +535,23 @@ sub merge_case{
 			}
 		}
 
+		# create first stop codon position
+		my $first_stop = ($gene_feature1->strand == -1 or $gene_feature1->strand eq "-") ? $gene_feature2->start + 2 : $gene_feature1->end - 2;
+
 		# modify end position
-		$gene_feature1->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
+		$gene_feature1->add_tag_value('agat_pseudo', $first_stop) if ($add_pseudo);
 		$gene_feature1->end( $gene_feature2->end );
 		my $id_l1 = lc($gene_feature1->_tag_value('ID'));
 		foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 			if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
 				foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
-					$feature_l2->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
+					$feature_l2->add_tag_value('agat_pseudo', $first_stop ) if ($add_pseudo);
 					$feature_l2->end( $gene_feature2->end );
 					my $id_l2 = lc($feature_l2->_tag_value('ID'));
 					foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 						if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
 							foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}} ){
-								$feature_l3->add_tag_value('agat_pseudo',$gene_feature1->end - 3 ) if ($add_pseudo);
+								$feature_l3->add_tag_value('agat_pseudo', $first_stop ) if ($add_pseudo);
 								$feature_l3->end( $gene_feature2->end );
 							}
 						}
@@ -1036,7 +1039,7 @@ Merge and fix detected FRAGS if not in the same frame
 
 =item B<--pseudo>
 
-Merge detected FRAGS and add the agat_pseudo attribute (value will be the stop location).
+Merge detected FRAGS and add the agat_pseudo attribute (value will be the location of the first stop codon met).
 
 =item B<--hamap_size>
 
