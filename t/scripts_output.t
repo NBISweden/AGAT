@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 46;
+use Test::More tests => 47;
 
 =head1 DESCRIPTION
 
@@ -283,6 +283,16 @@ unlink "$outprefix-only_modified.gff";
 # --------check agat_sp_flag_short_introns.pl-------------
 
 # XXX
+
+# --------check agat_sp_flag_premature_stop_codons.pl-------------
+# I use result from another test because it shifted the annotation location, that allows to create pseudogenes because I use the original fasta not shifted
+$script = $script_prefix."bin/agat_sp_flag_premature_stop_codons.pl";
+$result = "$output_folder/agat_sp_flag_premature_stop_codons_1.gff";
+system(" $script --gff $output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.gff --fasta $output_folder/prokka_cav_10DC88.fa -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outtmp."_report.txt";
 
 # --------check agat_sp_functional_statistics.pl-------------
 
