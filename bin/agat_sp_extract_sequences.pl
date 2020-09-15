@@ -165,7 +165,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
     #################
     foreach my $ptag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-      if ( exists ($hash_omniscient->{'level2'}{$ptag_l2}{lc($id_l1)} ) ){
+      if (exists_keys ( $hash_omniscient, ('level2', $ptag_l2, lc($id_l1)) ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$ptag_l2}{lc($id_l1)}}) {
 
           #For Header
@@ -195,7 +195,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
           # == LEVEL 3 == #
           #################
           foreach my $ptag_l3 (keys %{$hash_omniscient->{'level3'}}){
-            if ( exists ($hash_omniscient->{'level3'}{$ptag_l3}{lc($id_l2)} ) ){
+            if ( exists_keys ( $hash_omniscient, ('level3', $ptag_l3, lc($id_l2)) ) ){
 
               if( $opt_type eq $ptag_l3 or $opt_type eq "l3" or $opt_type eq "level3" ){
                 extract_sequences(\@{$hash_omniscient->{'level3'}{$ptag_l3}{lc($id_l2)}}, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, 'level3');
@@ -546,7 +546,7 @@ sub  get_sequence{
 
   my $sequence="";
   my $seq_id_correct = undef;
-  if( exists $allIDs{lc($seq_id)}){
+  if ( exists_keys ( \%allIDs, (lc($seq_id)) ) ){
 
     $seq_id_correct = $allIDs{lc($seq_id)};
 
@@ -582,7 +582,7 @@ sub print_seqObj{
 
       my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
 
-      if($opt_cleanFinalStop and $opt_cleanInternalStop){ #this case is needed to be able to remove two final stop codon in a raw when the bothotpion are activated.
+      if($opt_cleanFinalStop and $opt_cleanInternalStop){ #this case is needed to be able to remove two final stop codon in a raw when the both options are activated.
         my $lastChar = substr $transObj->seq(),-1,1;
         my $cleanedSeq=$transObj->seq();
         if ($lastChar eq "*"){ # if last char is a stop we remove it
