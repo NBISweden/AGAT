@@ -88,7 +88,10 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
                                                               });
 
 # rebuild gene_id and transcript_id feature;
-
+my %keep_track_gene_id;
+my %keep_track_transcript_id;
+my $previous_tag_l1 = "previous_gene_id";
+my $previous_tag_l2 = "previous_transcript_id";
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
 
@@ -168,13 +171,13 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
             #################
             # CHOOSE the gene_id. We take the first from level1 to level3.
-            if($gene_id_att){
+            if($gene_id_att and ! does_id_exist("gene_id", $gene_id_att, \%keep_track_gene_id) ){
               $gene_id=$gene_id_att;
             }
-            elsif($gene_id_mrna_att){
+            elsif($gene_id_mrna_att and ! does_id_exist("gene_id", $gene_id_mrna_att, \%keep_track_gene_id) ){
               $gene_id=$gene_id_mrna_att
             }
-            elsif($level3_gene_id){
+            elsif($level3_gene_id and ! does_id_exist("gene_id", $level3_gene_id, \%keep_track_gene_id) ){
               $gene_id=$level3_gene_id;
             }
             else{ # We didn't find any gene_id we will the ID of level1 as gene_id.
@@ -183,10 +186,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
             #################
             # CHOOSE the transcript_id. We take the first from level2 to level3.
-            if($transcript_id_mrna_att){
+            if($transcript_id_mrna_att and ! does_id_exist("transcript_id", $transcript_id_mrna_att, \%keep_track_transcript_id) ){
               $transcript_id=$transcript_id_mrna_att;
             }
-            elsif($level3_transcript_id){
+            elsif($level3_transcript_id and ! does_id_exist("transcript_id", $level3_transcript_id, \%keep_track_transcript_id) ){
               $transcript_id=$level3_transcript_id;
             }
             else{ # We didn't find any gene_id we will the ID of level2 as transcript_id.
@@ -205,16 +208,18 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                     $feature_level3->add_tag_value('gene_id', $gene_id);
                   }
                   elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-                    warn("We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
-                    $feature_level3->add_tag_value('gene_id', $gene_id);
+                    warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+										create_or_replace_tag($feature_level3, $previous_tag_l1, $feature_level3->_tag_value('gene_id'));
+										create_or_replace_tag($feature_level3, 'gene_id', $gene_id);
                   }
                   #Check add transcript_id
                   if(! $feature_level3->has_tag('transcript_id')){
                     $feature_level3->add_tag_value('transcript_id', $transcript_id);
                   }
                   elsif($feature_level3->_tag_value('transcript_id') ne $transcript_id){ #transcript_id different, we replace it.
-                    warn("We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". Is it normal ?\n");exit;
-                    $feature_level3->add_tag_value('transcript_id', $transcript_id);
+                    warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+									  create_or_replace_tag($feature_level3, $previous_tag_l2, $feature_level3->_tag_value('transcript_id'));
+										create_or_replace_tag($feature_level3, 'transcript_id', $transcript_id);
                   }
                 }
               }
@@ -225,28 +230,37 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                $feature_level2->add_tag_value('gene_id', $gene_id);
             }
             elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-              warn("We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
-              $feature_level2->add_tag_value('gene_id', $gene_id);
+              warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+							create_or_replace_tag($feature_level2, $previous_tag_l1, $feature_level2->_tag_value('gene_id'));
+							create_or_replace_tag($feature_level2, 'gene_id', $gene_id);
             }
             # add level2 missing information transcript_id
             if(! $feature_level2->has_tag('transcript_id')){
               $feature_level2->add_tag_value('transcript_id', $transcript_id);
             }
             elsif($feature_level2->_tag_value('transcript_id') ne $transcript_id){ #gene_id transcript_id, we replace it.
-              warn("We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". Is it normal ?\n");exit;
-              $feature_level2->add_tag_value('transcript_id', $transcript_id);
+              warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+							create_or_replace_tag($feature_level2, $previous_tag_l2, $feature_level2->_tag_value('transcript_id'));
+              create_or_replace_tag($feature_level2, 'transcript_id', $transcript_id);
             }
           }
         }
       }
+
       ## add level1 missing information gene_id
       if(! $feature_level1->has_tag('gene_id')) {
+        $gene_id = $feature_level1->_tag_value('ID') if (! $gene_id);
         $feature_level1->add_tag_value('gene_id', $gene_id);
       }
       elsif($feature_level1->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-        warn("We replace the transcript_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". Is it normal ?\n");exit;
-        $feature_level1->add_tag_value('gene_id', $gene_id);
+        warn("Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+				create_or_replace_tag($feature_level1, $previous_tag_l1, $feature_level1->_tag_value('gene_id'));
+				create_or_replace_tag($feature_level1,'gene_id', $gene_id);
       }
+
+			# Save used ID
+			$keep_track_gene_id{$gene_id}++;
+			$keep_track_transcript_id{$transcript_id}++ if ($transcript_id);
     }
   }
 }
@@ -263,6 +277,18 @@ print_omniscient_filter($hash_omniscient, $gtf_version, $relax, $gtf_out, $relax
 print "Bye Bye\n";
 
 # ---------------------------------
+# check if the ID has already been used for another record. In that case we will not use it but we need to inform the user.
+sub does_id_exist{
+	my ($id_type, $id, $hash_to_check) = @_;
+	my $result=0;
+
+	if( exists_keys($hash_to_check,(lc($id))) ){
+		warn "$id_type $id has already been used earlier, I will use another uniq id value.\n";
+		$result = 1;
+	}
+
+	return $result;
+}
 
 # convert feature type to correct one expected.
 # All l1 will become gene type excepted for topfeature and standalone features
