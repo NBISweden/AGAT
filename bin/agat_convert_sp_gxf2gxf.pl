@@ -116,8 +116,8 @@ print "Job done in $run_time seconds\n";
 
 sub check_version{
   my ($version) = @_;
-  if($version and ($version != 1 and $version != 2 and $version != 3)){
-    print "Gff version accepted is 1,2 or 3. $version is not a correct value.\n";
+  if($version and ($version != 1 and $version != 2 and $version != 2.5 and $version != 3)){
+    print "Gff version accepted is 1,2,2.5 or 3. $version is not a correct value.\n";
     exit;
   }
 }
@@ -131,7 +131,8 @@ agat_convert_sp_gxf2gxf.pl
 
 This script fixes and/or standardizes any GTF/GFF file into full sorted GFF3 file.
 The output GFF syntax is shaped by bioperl and choose among the versions
-1,2,2.5 (GTF equivalent) and 3.
+1,2,2.5 (GTF equivalent) and 3. For a correct GTF file it is recommended to use 
+agat_convert_sp_gff2gtf.pl
 
 Without specifying an input GTF/GFF version, the Omniscient parser will first detect
 automtically the most appropriate GFF parser to use from bioperl (GFF1,GFF2,GFF3)
