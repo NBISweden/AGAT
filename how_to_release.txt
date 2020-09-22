@@ -5,12 +5,12 @@ Update version in lib/AGAT/Omniscient.pm
 make test to check everything is fine
   - make test TEST_FILES=t/scripts_output.t TEST_VERBOSE=1 # check one test file at a time for debugging
 
-# create the distribution
+# create the distribution (optional)
 - make manifest
 - make dist
 => test local installation with the dist
-=> if everything is fine the dist can provided as an asset with the github release
+=> if everything is fine the dist can be provided as an asset with the github release
 
-# PR and merge in maser branch
+# PR and merge in master branch
 
 # create a release
