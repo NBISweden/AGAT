@@ -7,6 +7,7 @@ use warnings;
 use Bio::Tools::GFF;
 use Bio::Seq;
 use JSON;
+use File::Copy;
 use Try::Tiny;
 use File::ShareDir ':ALL';
 use AGAT::Utilities;
