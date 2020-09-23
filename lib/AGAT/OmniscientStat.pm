@@ -5,7 +5,7 @@ package AGAT::OmniscientStat;
 use strict;
 use warnings;
 use Bio::Tools::GFF;
-use Bio::SeqIO;;
+use Bio::SeqIO;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientJson;
 use AGAT::Utilities;
@@ -560,7 +560,7 @@ sub get_omniscient_statistics_from_l2{
 	print "_detect_overlap_features\n" if ($verbose);
 	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
 	$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
-	
+
 	return \%all_info, \%extra_info;
 }
 
