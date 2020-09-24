@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
+use File::Basename;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
@@ -19,7 +20,7 @@ my $opt_no_check;
 my $opt_output;
 my $opt_debug;
 my $opt_expose_feature_levels;
-my $opt_help = 0;
+my $opt_help;
 my $opt_version_input;
 my $opt_version_output = 3;
 
@@ -30,7 +31,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'v=i'             => \$opt_verbose,
                   'o|output=s'      => \$opt_output,
                   'efl|expose!'      => \$opt_expose_feature_levels,
-									'debug!'           => \$opt_debug,
+                  'debug!'           => \$opt_debug,
                   'nc|no_check!'      => \$opt_no_check,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
@@ -84,6 +85,10 @@ if($opt_comonTag){
 	$opt_comonTag = \@list_comonTag;
 }
 
+# get log name
+my ($file,$path,$ext) = fileparse($opt_gfffile,qr/\.[^.]*/);
+my $log_name = $file.".agat.log";
+
                 #####################
                 #     MAIN          #
                 #####################
@@ -97,7 +102,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
-																															 log => "agat_convert_sp_gxf2gxf.log",
+																															 log => $log_name,
 																															 debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
                                                                });
@@ -131,7 +136,7 @@ agat_convert_sp_gxf2gxf.pl
 
 This script fixes and/or standardizes any GTF/GFF file into full sorted GFF3 file.
 The output GFF syntax is shaped by bioperl and choose among the versions
-1,2,2.5 (GTF equivalent) and 3. For a correct GTF file it is recommended to use 
+1,2,2.5 (GTF equivalent) and 3. For a correct GTF file it is recommended to use
 agat_convert_sp_gff2gtf.pl
 
 Without specifying an input GTF/GFF version, the Omniscient parser will first detect
