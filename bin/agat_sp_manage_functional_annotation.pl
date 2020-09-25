@@ -212,6 +212,7 @@ if (defined $opt_BlastFile){
   my @ids      = $db->get_all_primary_ids;
   foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
   print_time("Parsing Finished\n\n");
+  #print "id.".$id"\t";
 
   # parse blast output
   print( "Reading features from $opt_BlastFile...\n");
@@ -250,6 +251,8 @@ if ($opt_BlastFile || $opt_InterproFile ){#|| $opt_BlastFile || $opt_InterproFil
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}){
 
       my $feature_level1=$hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
+
+  #    print $feature_level1."\n";
       # Clean NAME attribute
       if($feature_level1->has_tag('Name')){
         $feature_level1->remove_tag('Name');
@@ -602,6 +605,7 @@ sub get_letter_tag{
 # If it stay at the end of the process more than one name, they will be concatenated together.
 # It removes redundancy intra name.
 sub manageGeneNameBlast{
+
   my ($geneName)=@_;
   foreach my $element (keys %$geneName){
     my @tab=@{$geneName->{$element}};
@@ -610,6 +614,9 @@ sub manageGeneNameBlast{
     my @unique;
     for my $w (@tab) { # remove duplicate in list case insensitive
       $w =~ s/_[0-9]+$// ;
+
+#      print "w".$w."\t";
+
       next if $seen{lc($w)}++;
       push(@unique, $w);
     }
@@ -617,10 +624,13 @@ sub manageGeneNameBlast{
     my $finalName="";
     my $cpt=0;
     foreach my $name (@unique){  #if several name we will concatenate them together
+
         if ($cpt == 0){
           $finalName .="$name";
+          $cpt++;
         }
         else{$finalName .="_$name"}
+
     }
     $geneName->{$element}=$finalName;
     $nameBlast{lc($finalName)}++;
@@ -781,7 +791,7 @@ sub parse_blast {
     #Save uniprot id of the best match
     print "save for $l2  ".$candidates{$l2}[2]."\n" if($opt_verbose);
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    print "save for $l2  ".$candidates{$l2}[2]."\n";
+    print "save for $l2  ".$candidates{$l2}[2]."\n" if($opt_verbose);
     my $header = $candidates{$l2}[0];
     print "header: ".$header."\n" if($opt_verbose);
 
@@ -816,6 +826,8 @@ sub parse_blast {
 		    else{ $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if($opt_verbose or $opt_output); }
 	    }
 	    else{ $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if($opt_verbose or $opt_output); }
+  #  }else{
+  #    print "Nope\s".$candidates{$l2}[0]."\n";
     }
   }
 
