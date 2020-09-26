@@ -102,8 +102,8 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
-																															 log => $log_name,
-																															 debug => $opt_debug,
+                                                               log => $log_name,
+                                                               debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
                                                                });
 print ("GFF3 file parsed\n");
