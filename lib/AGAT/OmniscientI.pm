@@ -1670,7 +1670,7 @@ sub _check_exons{
 
 				 					#Rare case when a feature of the same type is badly defined
 				 					if(@{$list_location_l3} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-				 						my $message = "Peculiar rare case, we found ".@{$list_location_l3}." ".$tag_l3." while ".@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}." expected.\n";
+				 						my $message = "Peculiar rare case, we found ".@{$list_location_l3}." ".$tag_l3." while ".@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}." expected. Parent feature: $id_l2\n";
 										$message .=	"Either some are supernumerary or some have been merged because they overlap or are adjacent while they are not suppose to.\n";
 				 						$message .= "In case you were using gtf file as input (no parent/id attributes), check you provide the attribute (i.e comon_tag) used to group features together (e.g. locus_tag, gene_id, etc.).\n";
 				 						$message .= "(In case your file contains only CDS features, and your organism is prokaryote (e.g rast file), using ID as comon_tag might be the solution.)\n";
