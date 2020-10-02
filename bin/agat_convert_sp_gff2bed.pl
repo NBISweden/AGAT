@@ -118,8 +118,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 						$field5_score = $feature_l2->score ;
 						if(!$field5_score or $field5_score < 0){$field5_score = "0";}
 						$field6_strand = $feature_l2->strand;
-							$field6_strand = "+" if ( $field6_strand eq "1");
-							$field6_strand = "-" if ( $field6_strand eq "-1");
+						$field6_strand = "+" if ( $field6_strand eq "1");
+						$field6_strand = "-" if ( $field6_strand eq "-1");
 						$field7_thickStart = ".";
 						$field8_thickEnd = ".";
 
@@ -147,26 +147,33 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$field7_thickStart = $sorted_cds[0]->start - 1;
 							$field8_thickEnd = $sorted_cds[$#sorted_cds]->end;
 	          }
-	        }
-	      }
-	    }
 
-			if ($field11_blockSizes){
-				$field11_blockSizes=~ s/,+$//; #removing trailing coma
-			}
-			if ($field12_blockStarts){
-				$field12_blockStarts=~ s/,+$//; #removing trailing coma
-			}
+						if ($field11_blockSizes){
+							$field11_blockSizes=~ s/,+$//; #removing trailing coma
+						}
+						if ($field12_blockStarts){
+							$field12_blockStarts =~ s/,+$//; #removing trailing coma
+						}
 
-			# skip topfeatures e.g chromosome, location, etc. because do not have level2 features.
-			if($field1_chrom){
-				my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
-				if($field10_blockCount){
-					$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
+						# skip topfeatures e.g chromosome, location, etc. because do not have level2 features.
+						if($field1_chrom){
+							my $line = $field1_chrom."\t".$field2_chromStart."\t".$field3_chromEnd."\t".$field4_name."\t".$field5_score."\t".$field6_strand."\t".$field7_thickStart."\t".$field8_thickEnd."\t".$field9_itemRgb;
+							if($field10_blockCount){
+								$line .= "\t".$field10_blockCount."\t".$field11_blockSizes."\t".$field12_blockStarts;
+							}
+							$line .= "\n";
+
+							print $bedout $line;
+
+						  # reinitialize values
+							$field7_thickStart = undef;
+							$field8_thickEnd = undef;
+							$field10_blockCount = undef;
+							$field11_blockSizes = undef;
+							$field12_blockStarts = undef;
+						}
+					}
 				}
-				$line .= "\n";
-
-				print $bedout $line;
 			}
 	  }
 	}
