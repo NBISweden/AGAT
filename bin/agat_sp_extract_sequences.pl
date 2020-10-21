@@ -650,7 +650,22 @@ The type value holds the information of the feature type extracted.
 removed or added when using the downstream and/or upstream parameter.
 
 The OFS of all values can be modified excepted for the ID (see --ofs parameter).
-In such case the tool will give a warning.
+In such case the tool gives a warning.
+
+Some examples:
+To extract the coding regions (same as using -t cds):
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta
+To extract and translate the coding regions (same as using -t cds) :
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -p
+To extract the mRNA (biological definition):
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon
+To extract each exon independently:
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon --split
+To extract 5'UTR with introns:
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t "5'UTR" --full
+To extract 100nt upstream region of a gene:
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t gene --upstream 100
+
 
     agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta  [ -o outfile ]
     agat_sp_extract_sequences.pl --help
@@ -675,13 +690,16 @@ You can deactivate the behavior by using this option.
 
 =item B<-t>
 
-String - Define the feature you want to extract the sequnece from.
+String - Define the feature you want to extract the sequence from.
 Default 'cds'.
 Most common choice are: gene,mrna,exon,cds,trna,three_prime_utr,five_prime_utr.
-When you chose exon (or cds,utr,etc.), all the exon of a same parent feature
+When you choose exon (or cds,utr,etc.), all the exons of a same parent feature
 are attached together before to extract the sequence. If you wish to extract each
-exon of a mRNA independently, see option --split.
-
+exon of an mRNA independently, see option --split.
+/!\ `-t mRNA` will extract the features labeled as "mRNA" and corresponds to the cdna*
+because it contains the introns if any. It does not actually extract the mRNAs as
+it is defined biologicaly. To extract the mRNA as defined biologicaly you must use `-t exon`.
+*Not a real cdna because it is not reversed
 
 =item B<-p>, B<--protein> or B<--aa>
 
@@ -714,13 +732,13 @@ The use of that option with exon feature will give the same result as extracting
 the mrna sequence (-t mRNA) and corresponds to the cdna*.
 (To actually extract an mRNA as it is defined biologicaly you need to use the
 `-t exon` option wihtout the --full option and wihtout the --split option)
-Use of that option on cds will give the cdna* wihtout the untraslated sequences.
+Use of that option on cds will give the cdna* without the untraslated regions (UTRs).
 *Not a real cdna because it is not reversed
 
 =item B<--up>, B<-5>, B<--five> or B<-upstream>
 
 Integer - It will take that number of nucleotide in more at the 5' extremity.
-/!\ You must activate the option "--full" if you with to extract only the most upstream part of certain feature (exon,cds,utr)
+/!\ You must activate the option "--full" if you wish to extract only the most upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
 
 =item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
