@@ -736,12 +736,12 @@ sub _info_shortest {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Shortest $tag_l1"."s", $all_info->{'level1'}{$tag_l1}{'shortest'},"\n");
+		push @resu, sprintf("%-45s%d%s", "Shortest $tag_l1", $all_info->{'level1'}{$tag_l1}{'shortest'},"\n");
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Shortest $tag_l2"."s", $all_info->{'level2'}{$tag_l2}{'shortest'},"\n");
+	    push @resu, sprintf("%-45s%d%s", "Shortest $tag_l2", $all_info->{'level2'}{$tag_l2}{'shortest'},"\n");
 	 }
 
 	#print level3
@@ -750,7 +750,7 @@ sub _info_shortest {
 			print "No shortest for $tag_l3\n";
 		}
 		else{
-	    	push @resu, sprintf("%-45s%d%s", "Shortest $tag_l3"."s", $all_info->{'level3'}{$tag_l3}{'shortest'},"\n");
+	    	push @resu, sprintf("%-45s%d%s", "Shortest $tag_l3", $all_info->{'level3'}{$tag_l3}{'shortest'},"\n");
 		}
 	}
 
@@ -780,12 +780,12 @@ sub _info_longest {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Longest $tag_l1"."s", $all_info->{'level1'}{$tag_l1}{'longest'},"\n");
+		push @resu, sprintf("%-45s%d%s", "Longest $tag_l1", $all_info->{'level1'}{$tag_l1}{'longest'},"\n");
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Longest $tag_l2"."s", $all_info->{'level2'}{$tag_l2}{'longest'},"\n");
+	    push @resu, sprintf("%-45s%d%s", "Longest $tag_l2", $all_info->{'level2'}{$tag_l2}{'longest'},"\n");
 	 }
 
 	#print level3
@@ -794,7 +794,7 @@ sub _info_longest {
 			print "No longest for $tag_l3\n";
 		}
 		else{
-	    	push @resu, sprintf("%-45s%d%s", "Longest $tag_l3"."s", $all_info->{'level3'}{$tag_l3}{'longest'},"\n");
+	    	push @resu, sprintf("%-45s%d%s", "Longest $tag_l3", $all_info->{'level3'}{$tag_l3}{'longest'},"\n");
 		}
 	}
 

@@ -51,7 +51,7 @@ if ($opt_output) {
       print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
   }
   if (-d $opt_output){
-      print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+      print "The output directory choosen already exists. Please give me another Name.\n";exit();
   }
   mkdir $opt_output;
 

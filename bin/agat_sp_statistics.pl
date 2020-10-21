@@ -52,7 +52,7 @@ my $out = IO::File->new();
 if ($opt_output) {
 
   if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+      print "Cannot create a file with the name $opt_output because a file with this name already exists.\n";exit();
   }
   if (-d $opt_output){
       print "The output directory choosen already exists. Please geve me another Name.\n";exit();

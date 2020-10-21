@@ -57,28 +57,28 @@ mean three_prime_utr piece length            42
 mean intron in cds length                    95
 mean intron in exon length                   109
 mean intron in five_prime_utr length         207
-Longest genes                                2717
-Longest mrnas                                2717
-Longest cdss                                 1992
-Longest exons                                1713
-Longest five_prime_utrs                      147
-Longest start_codons                         3
-Longest stop_codons                          3
-Longest three_prime_utrs                     82
+Longest gene                                 2717
+Longest mrna                                 2717
+Longest cds                                  1992
+Longest exon                                 1713
+Longest five_prime_utr                       147
+Longest start_codon                          3
+Longest stop_codon                           3
+Longest three_prime_utr                      82
 Longest cds piece                            1652
 Longest five_prime_utr piece                 86
 Longest three_prime_utr piece                82
 Longest intron into cds part                 143
 Longest intron into exon part                207
 Longest intron into five_prime_utr part      207
-Shortest genes                               1056
-Shortest mrnas                               1056
-Shortest cdss                                684
-Shortest exons                               29
-Shortest five_prime_utrs                     147
-Shortest start_codons                        3
-Shortest stop_codons                         3
-Shortest three_prime_utrs                    3
+Shortest gene                                1056
+Shortest mrna                                1056
+Shortest cds                                 684
+Shortest exon                                29
+Shortest five_prime_utr                      147
+Shortest start_codon                         3
+Shortest stop_codon                          3
+Shortest three_prime_utr                     3
 Shortest cds piece                           29
 Shortest five_prime_utr piece                61
 Shortest three_prime_utr piece               3
