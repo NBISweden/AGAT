@@ -30,7 +30,7 @@ remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscien
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives
-check_mrna_positions);
+check_mrna_positions check_features_overlap);
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -2292,6 +2292,17 @@ sub check_level2_positions {
     if($level2_feature->end != $extrem_end){
     	$level2_feature->end($extrem_end);
     }
+}
+
+# return 1 if feature overlaps
+sub check_features_overlap {
+  my ($feature1, $feature2)=@_;
+  my $result = undef;
+
+  if( ($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start ) ){ # they overlap
+    $result = 1;
+  }
+  return $result;
 }
 
 #calcul the overlaping percentage betwwen 2 CDS list or 2 exon list etc...
