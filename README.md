@@ -456,3 +456,23 @@ agat_convert_sp_gxf2gxf.pl --expose
 ```
 Then open the `features_level1.json` and put the value `standalone` as value to the required feature.
 Finally run your scripts in the same folder as the modified json file is standing.
+
+### Use a version of AGAT from a specific branch
+```
+# install AGAT dependencies
+conda install -c bioconda agat
+# clone the repo
+https://github.com/NBISweden/AGAT.git
+# if the branch you want is not the master (replace BRANCHE_NAME by the one you wish to use)
+git checkout BRANCHE_NAME
+# move into AGAT folder
+cd AGAT 
+# Check all the dependencies*
+perl Makefile.PL
+# Compile
+make
+# Test
+make test
+# Install
+make install                                    
+```
