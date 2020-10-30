@@ -37,7 +37,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
       * [examples](#examples)
    * [How to cite?](#how-to-cite)
-
+   * [Troubleshooting](#troubleshooting)
 ---------------------------
 
 ## What can AGAT do for you?  
@@ -445,4 +445,35 @@ This work has not been published (I will think about it). But if you wish to cit
 ```
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
 (Version v0.4.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
+```
+
+## Troubleshooting
+
+### AGAT throws features out, because child features are not provided
+Features level1 (e.g. gene, match, chromosome) may require to have child features or not depending of the information stored into the `features_level1.json` file. If a child is required, and the GFF file does not contain it, the level1 feature will be thrown away. You must modify the json file to add the the term `standalone` to inform AGAT that this feature level1 do not require any child. (This work only on feature level1, not level2 or level3).
+```
+# export the json files
+agat_convert_sp_gxf2gxf.pl --expose
+```
+Then open the `features_level1.json` and put the value `standalone` as value to the required feature.
+Finally run your scripts in the same folder as the modified json file is standing.
+
+### Use a version of AGAT from a specific branch
+```
+# install AGAT dependencies
+conda install -c bioconda agat
+# clone the repo
+https://github.com/NBISweden/AGAT.git
+# if the branch you want is not the master (replace BRANCHE_NAME by the one you wish to use)
+git checkout BRANCHE_NAME
+# move into AGAT folder
+cd AGAT 
+# Check all the dependencies*
+perl Makefile.PL
+# Compile
+make
+# Test
+make test
+# Install
+make install                                    
 ```
