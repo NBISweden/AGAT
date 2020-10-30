@@ -33,10 +33,11 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
    * [More about the tools](#more-about-the-tools)
    * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient---standardisation-for-a-full-gff3-compliant-to-any-tool)
       * [Omniscient data structure](#omniscient-data-structure)
-      * [How Omniscient parser works](#how-omniscient-parser-works)
-      * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
+      * [How does the Omniscient parser work](#how-does-the-omniscient-parser-work)
+      * [What can the Omniscient parser do for you](#what-can-the-omniscient-parser-do-for-you)
       * [examples](#examples)
    * [How to cite?](#how-to-cite)
+   * [Publication using AGAT](#publication-using-agat)
    * [Troubleshooting](#troubleshooting)
 ---------------------------
 
@@ -446,6 +447,15 @@ This work has not been published (I will think about it). But if you wish to cit
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
 (Version v0.4.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
+
+## Publication using AGAT
+Some examples of publications that have used AGAT
+  * [A long read optimized de novo transcriptome pipeline reveals novel ocular developmentally regulated gene isoforms and disease targets](https://www.biorxiv.org/content/10.1101/2020.08.21.261644v2.full.pdf)
+  * [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode
+chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pdf)
+  * [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
+  * [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://www.biorxiv.org/content/10.1101/2020.09.25.314088v1.full)
+  * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.biorxiv.org/content/10.1101/2020.10.26.356485v1.full.pdf)
 
 ## Troubleshooting
 
