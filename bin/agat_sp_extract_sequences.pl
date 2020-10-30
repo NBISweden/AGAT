@@ -32,6 +32,7 @@ my $opt_cleanFinalStop=undef;
 my $opt_cleanInternalStop=undef;
 my $opt_remove_orf_offset = undef;
 my $quiet = undef;
+my $opt_alternative_start_codon = undef;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
@@ -48,6 +49,7 @@ if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
                   'split!' => \$opt_split,
                   'eo!' => \$opt_extremity_only,
                   'dnrc!' => \$DONOTREVCOMP,
+                  "alternative_start_codon|asc!" => \$opt_alternative_start_codon,
                   'table|codon|ct=i' => \$codonTable,
                   'up|5|five|upstream=i'      => \$opt_upstreamRegion,
                   'do|3|three|down|downstream=i'      => \$opt_downRegion,
@@ -282,7 +284,7 @@ sub extract_sequences{
   #set strand, check if need to be reverse complement
   my $minus = undef;
   if($sortedList[0]->strand eq "-1" or $sortedList[0]->strand eq "-"){ $minus = 1; }
-
+  my $phase = 0;
 
   # ------ Full sequence with introns ------
   if($opt_full){
@@ -292,9 +294,11 @@ sub extract_sequences{
 		if( $opt_remove_orf_offset and  lc($sortedList[0]->primary_tag) eq "cds" ){
 			if($minus and $sortedList[$#sortedList]->frame != 0){
 				$end = $sortedList[$#sortedList]->end - $sortedList[$#sortedList]->frame;
+        $phase = $sortedList[$#sortedList]->frame;
 			}
 			elsif (! $minus and $sortedList[0]->frame != 0){
 				$start = $sortedList[0]->start + $sortedList[0]->frame;
+        $phase = $sortedList[0]->frame;
 			}
 		}
 
@@ -303,6 +307,7 @@ sub extract_sequences{
     # take and append the left piece if asked for
     if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
       ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+      $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
     }
 
     # take and append the right piece if asked for
@@ -313,6 +318,7 @@ sub extract_sequences{
     # append only extremities
     if($opt_extremity_only){
       $sequence = $left_piece.$right_piece;
+      $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
     }
     else{ # append extremity to main sequence even if empty
       $sequence = get_sequence($db, $seq_id, $start, $end);
@@ -322,7 +328,7 @@ sub extract_sequences{
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
-    print_seqObj($ostream, $seqObj, $opt_AA, $codonTable);
+    print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
   }
   # --------------------------------------
 
@@ -337,9 +343,11 @@ sub extract_sequences{
 			 if( $opt_remove_orf_offset and  lc($feature->primary_tag) eq "cds" ){
 				 if($minus and $feature->frame != 0){
 					 $end = $feature->end - $feature->frame;
+           $phase = $feature->frame;
 				 }
 				 elsif (! $minus and $feature->frame != 0){
 					 $start =$feature->start + $feature->frame;
+           $phase = $feature->frame;
 				 }
 			 }
 
@@ -348,6 +356,7 @@ sub extract_sequences{
        # take and append the left piece if asked for
        if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
          ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
        }
 
        # take and append the right piece if asked for
@@ -358,6 +367,7 @@ sub extract_sequences{
        # append only extremities
        if($opt_extremity_only){
          $sequence = $left_piece.$right_piece;
+         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
        }
        else{  # append extremity to main sequence even if empty
          $sequence = get_sequence($db, $seq_id, $start, $end);
@@ -376,7 +386,7 @@ sub extract_sequences{
        }
 
        #print object
-       print_seqObj($ostream, $seqObj, $opt_AA, $codonTable);
+       print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
      }
    }
    # --------------------------------------
@@ -399,7 +409,8 @@ sub extract_sequences{
 				}
 			 	elsif ( $sortedList[$#sortedList]->frame != 0 ){
 					$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
-				}
+          $phase = $sortedList[$#sortedList]->frame;
+        }
 			}
 			else { # ! minus
 				if ( $sortedList[0]->frame  eq "." ){
@@ -407,6 +418,7 @@ sub extract_sequences{
 				}
 				elsif( $sortedList[0]->frame != 0 ){
 					$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
+          $phase = $sortedList[0]->frame;
 				}
 			}
 		}
@@ -420,6 +432,7 @@ sub extract_sequences{
        # take and append the left piece if asked for
        if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
          ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
        }
 
        # take and append the right piece if asked for
@@ -430,6 +443,7 @@ sub extract_sequences{
        # append only extremities
        if($opt_extremity_only){
          $sequence = $left_piece.$right_piece;
+         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
        }
        else{  # append extremity to main sequence even if empty
          $sequence = $left_piece.$sequence.$right_piece;
@@ -439,7 +453,7 @@ sub extract_sequences{
      #create object
      my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
      #print object
-     print_seqObj($ostream, $seqObj, $opt_AA, $codonTable);
+     print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
    }
   # --------------------------------------
 }
@@ -573,7 +587,7 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $codonTable) = @_;
+  my($ostream, $seqObj, $opt_AA, $codonTable, $phase) = @_;
 
 
   if($opt_AA){ #translate if asked
@@ -581,6 +595,18 @@ sub print_seqObj{
 			if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n"; return; }
 
       my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
+
+      # translate alternative start codon by a M
+      my $start_codon = substr($seqObj->seq(),0,3); # get start codon
+      my $myCodonTable  = Bio::Tools::CodonTable->new( -id => $codonTable );
+      my $first_AA = substr($transObj->seq(),0,1);
+      if ($phase == 0 and $opt_alternative_start_codon and $myCodonTable->is_start_codon($start_codon)){
+        if($first_AA ne "M"){ # if the start codon was not a M while it is a valid start codon we have to replace it by a methionine
+          my $translated_seq = substr($transObj->seq(),1); # removing first AA
+          $transObj->seq("M".$translated_seq);  # adding M as first AA
+          print "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n";
+        }
+      }
 
       if($opt_cleanFinalStop and $opt_cleanInternalStop){ #this case is needed to be able to remove two final stop codon in a raw when the both options are activated.
         my $lastChar = substr $transObj->seq(),-1,1;
@@ -710,6 +736,16 @@ See --table parameter for more options.
 =item B<--codon>, B<--table> or B<--ct>
 
 Integer - Allow to choose the codon table for the translation. [default 1]
+
+=item B<--alternative_start_codon> or B<--asc>
+
+Bolean - When activated it can affect the translation of the start codon.
+Indeed alternative start codons exist, and are translated by the cells'machinery
+by a Methionine (M). By default AGAT translates the first codon as other codons by the
+corresponding AA. If you wish to translate the first codon by a M when it is a valid
+alternative start codon, activate this parameter.
+If the sequence you try to translate is a CDS (or starting by a CDS), the phase
+is checked and the alternative start codon is accepted only if the phase is 0.
 
 =item B<--eo>
 
