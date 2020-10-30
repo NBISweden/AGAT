@@ -37,7 +37,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
       * [What the Omniscient parser can do for you](#what-the-omniscient-parser-can-do-for-you)
       * [examples](#examples)
    * [How to cite?](#how-to-cite)
-
+   * [Troubleshooting](#troubleshooting)
 ---------------------------
 
 ## What can AGAT do for you?  
