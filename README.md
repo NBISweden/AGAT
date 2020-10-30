@@ -234,39 +234,40 @@ and the parsing approach used.
 #### Omniscient data structure
 
 The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
-
+```
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
 $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureList is a list to be able to manage isoform cases.  
 $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureList is a list to be able to put all the feature of a same tag together.  
+```
 
-#### How Omniscient parser works
+#### How does the Omniscient parser work
 
 The Omniscient parser phylosophy:
   * 1) Parse by Parent/child relationship  
   * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter).  
   * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature).  
 
-/!\ Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of feature, a common tag must be used to group them correctly. We use `gene_id` and `locus_tag` by default but you can set up the one of your choice)
+**/!\\** Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of features, a common tag must be used to group them correctly. We use `gene_id` and `locus_tag` by default but you can set up the one of your choice)
 
 To resume by priority of way to parse: **Parent/child relationship > locus_tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 
-#### What the Omniscient parser can do for you
+#### What can the Omniscient parser do for you
 
-=> It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s)).    
-=> It creates missing mandatory attributes (ID and/or Parent).  
-=> It fixes identifier to be uniq.  
-=> It removes duplicated features (same position, same ID, same Parent).  
-=> It expands level3 features sharing multiple parents (e.g  if one exon has list of multiple parent mRNA in its Parent attribute, one exon per parent with uniq ID will be created.  
-=> It fixes feature location errors (e.g an mRNA spanning over its gene location, we fix the gene location).  
-=> It adds UTR if possible (CDS and exon present).  
-=> It add exon if possible (CDS has to be present).  
-=> It group features together (if related features are spread at different place in the file).  
+* It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s)).    
+* It creates missing mandatory attributes (ID and/or Parent).  
+* It fixes identifier to be uniq.  
+* It removes duplicated features (same position, same ID, same Parent).  
+* It expands level3 features sharing multiple parents (e.g  if one exon has list of multiple parent mRNA in its Parent attribute, one exon per parent with uniq ID will be created.  
+* It fixes feature location errors (e.g an mRNA spanning over its gene location, we fix the gene location).  
+* It adds UTR if possible (CDS and exon present).  
+* It adds exon if possible (CDS has to be present).  
+* It groups features together (if related features are spread at different places in the file).  
 
 
 
 #### examples
-AGAT has been tested on 32 different peculiar GTF/GFF formats being different flavours or/and containing errors.
+AGAT has been tested on 36 different peculiar GTF/GFF formats being different flavours or/and containing errors.
 Below few are listed but you can find the full list of them into the `t/gff_syntax` directory.
 
 example 8 - only CDS defined:  
