@@ -454,6 +454,7 @@ Some examples of publications that have used AGAT
   * [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode
 chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pdf)
   * [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
+  * [Application of an optimized annotation pipeline to the Cryptococcus deuterogattii genome reveals dynamic primary metabolic gene clusters and genomic impact of RNAi loss](https://www.biorxiv.org/content/10.1101/2020.09.01.278374v1.full)
   * [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://www.biorxiv.org/content/10.1101/2020.09.25.314088v1.full)
   * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.biorxiv.org/content/10.1101/2020.10.26.356485v1.full.pdf)
 
