@@ -314,7 +314,7 @@ sub convert_feature_type{
 
 			# all l2 are transcript now
 			foreach my $tag_l2 ( keys %{$hash_omniscient->{'level2'}}){
-				if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
+				if ( exists_keys ($hash_omniscient, ('level2',$tag_l2,$id_l1) ) ){
 					foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 						if (lc($tag_l2) ne "transcript"){
 
@@ -329,6 +329,27 @@ sub convert_feature_type{
 						my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
 						foreach my $tag_l3_lc (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+
+							#shortened CDS to remove stop codon if any
+							if ( $tag_l3_lc =~ "cds"){
+								if (exists_keys($hash_omniscient, ('level3', 'stop_codon', $level2_ID) ) ){
+									my @list_cds = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+									my $first_cds =  $list_cds[0];
+									my $last_cds = $list_cds[ $#list_cds ];
+									my $strand = $first_cds->strand;
+									my $stop_codon = $hash_omniscient->{'level3'}{'stop_codon'}{$level2_ID}->[0];
+									if ( ($strand eq "+" ) or ($strand eq "1" ) ) {
+										if (check_features_overlap($stop_codon, $last_cds) ){
+											$last_cds->end($stop_codon->start-1);
+										}
+									}
+									else{ # minus strand
+										if (check_features_overlap($stop_codon, $first_cds) ){
+											$first_cds->start($stop_codon->end+1);
+										}
+									}
+								}
+							}
 
 							if ( $tag_l3_lc =~ "utr"){
 								if ( exists_keys ($hash_omniscient, ('level3', $tag_l3_lc, $level2_ID) ) ){
