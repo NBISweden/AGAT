@@ -448,7 +448,7 @@ Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GF
 
 ## Troubleshooting
 
-### AGAT thsows features out, because child features are not provided
+### AGAT throws features out, because child features are not provided
 Features level1 (e.g. gene, match, chromosome) may require to have child features or not depending of the information stored into the `features_level1.json` file. If a child is required, and the GFF file does not contain it, the level1 feature will be thrown away. You must modify the json file to add the the term `standalone` to inform AGAT that this feature level1 do not require any child. (This work only on feature level1, not level2 or level3).
 ```
 # export the json files
