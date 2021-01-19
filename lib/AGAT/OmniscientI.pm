@@ -1541,7 +1541,7 @@ sub _check_l2_linked_to_l3{
 							my $l2_feature = clone($has_l1_feature);#create a copy of the first mRNA feature;
 
 							if (exists_keys($hash_omniscient,("level3",'cds', $id_l2) )	){
-									$l2_feature->primary_tag('mRNA');
+								$l2_feature->primary_tag('mRNA');
 							}
 							else{ #we cannot guess
 								$l2_feature->primary_tag('RNA');
@@ -1600,8 +1600,18 @@ sub _check_l2_linked_to_l3{
 					else{ $primary_tag_l1="gene"; }
 					$l1_feature->primary_tag($primary_tag_l1); # change primary tag
 
-					my $new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature);
-					create_or_replace_tag($l1_feature,'ID', $new_ID_l1); #modify ID to replace by parent value
+					# -- Create an id for LEVEL1
+					my $new_ID_l1 = undef;
+					# check there are common tags
+					foreach my $tag_common (@COMONTAG){
+						if($l1_feature->has_tag($tag_common)){
+							#save info common tag value and l3 seq_id
+							$new_ID_l1 = $l1_feature->_tag_value($tag_common);
+							create_or_replace_tag($l1_feature,'ID', $new_ID_l1); #modify ID to replace by parent value
+							last;
+						}
+					}
+					$new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature);
 
 				#finish fill Level2
 					create_or_replace_tag($l2_feature, 'Parent', $new_ID_l1); # remove parent ID because, none.

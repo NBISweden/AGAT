@@ -732,7 +732,7 @@ and a warning is raised to allow to check thoses cases.
 
 =over 8
 
-=item B<-gff>
+=item B<-gtf>
 
 Input gtf file produced by Kraken.
 
