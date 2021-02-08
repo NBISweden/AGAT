@@ -13,8 +13,9 @@ use AGAT::Omniscient;
 my $header = get_agat_header();
 my $gff = undef;
 my $opt_help= 0;
-my $primaryTag=undef;
+my $primaryTag="all";
 my $value=undef;
+my $strategy="equal";
 my $attributes=undef;
 my $start_run = time();
 my $outfile=undef;
@@ -28,7 +29,8 @@ if ( !GetOptions(
     "add"         => \$add,
 		"overwrite"   => \$overwrite,
     "cp"          => \$cp,
-    "value"       => \$value,
+    "value=s"     => \$value,
+    "strategy=s"  => \$strategy,
     "p|type|l=s"  => \$primaryTag,
     "tag|att=s"   => \$attributes,
     "output|outfile|out|o=s" => \$outfile))
@@ -61,6 +63,13 @@ if ($outfile) {
 }
 else{
   $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
+}
+
+# deal with strategy input
+$strategy=lc($strategy);
+if( ($strategy ne "equal") and ($strategy ne "match") ){
+  print "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
+  exit;
 }
 
 # Manage $primaryTag
@@ -221,51 +230,53 @@ sub remove_tag_from_list{
     my @list_att = $feature->get_all_tags;
     foreach my $tag (@list_att){
       if(lc($tag) ne "id" and lc($tag) ne "parent"){
-        if(!$value or ( lc($value) eq lc($feature->_tag_value(($tag) ) ) ) ){
+        if(!$value or ( $strategy eq "equal" and lc($value) eq lc($feature->_tag_value($tag) ) )
+        or ( $strategy eq "match" and lc($feature->_tag_value($tag) ) =~ lc($value) ) ){
           $feature->remove_tag($tag);
         }
       }
     }
   }
+
   else{
     foreach my $att (keys %{$attListOk}){
 
       if ($feature->has_tag($att)){
 
-        if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
-					if(!$add){
-            if(!$value or ( lc($value) eq lc($feature->_tag_value(($att) ) ) ) ){
-						  $feature->remove_tag($att);
-            }
-					}
-					elsif($add and $overwrite){
-						create_or_replace_tag($feature,$att,'empty');
-					}
-				}
-        else{ # We replace the attribute name
+        if(!$value or ( $strategy eq "equal" and lc($value) eq lc($feature->_tag_value($att) ) )
+        or ( $strategy eq "match" and lc($feature->_tag_value($att) ) =~ lc($value) ) ){
 
-          my @values=$feature->get_tag_values($att);
-          my $newAttributeName=$attListOk{$att};
-					if($overwrite){
-            create_or_replace_tag($feature,$newAttributeName, @values);
-					}
-					else{#if new attribute exist we do no overwrite it
-						if(! $feature->has_tag($newAttributeName)){
-							create_or_replace_tag($feature,$newAttributeName, @values);
-						}
-						#else we do not change the existing value
-					}
-					if(! $cp){
-            if(!$value or ( lc($value) eq lc($feature->_tag_value(($att) ) ) ) ){
+          if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
+  					if(!$add){
+  						  $feature->remove_tag($att);
+  					}
+  					elsif($add and $overwrite){
+  						create_or_replace_tag($feature,$att,'empty');
+  					}
+  				}
+          else{ # We replace the attribute name
+
+            my @values=$feature->get_tag_values($att);
+            my $newAttributeName=$attListOk{$att};
+  					if($overwrite){
+              create_or_replace_tag($feature,$newAttributeName, @values);
+  					}
+  					else{#if new attribute exist we do no overwrite it
+  						if(! $feature->has_tag($newAttributeName)){
+  							create_or_replace_tag($feature,$newAttributeName, @values);
+  						}
+  						#else we do not change the existing value
+  					}
+  					if(! $cp){
               $feature->remove_tag($att); #remove old attribute if it is not the cp option
             }
           }
         }
-      }
 
-      elsif($add){
-        if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
-          create_or_replace_tag($feature,$att,'empty');
+        elsif($add){
+          if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
+            create_or_replace_tag($feature,$att,'empty');
+          }
         }
       }
     }
@@ -288,8 +299,8 @@ are stored within the 9th column.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_attributes.pl -gff file.gff  -att locus_tag,product,name/NewName -p level2,cds,exon [ -o outfile ]
-    agat_sp_manage_attributes.pl --help
+    agat_sq_manage_attributes.pl --gff file.gff  --att locus_tag,product,name/NewName -p level2,cds,exon [ -o outfile ]
+    agat_sq_manage_attributes.pl --help
 
 =head1 OPTIONS
 
@@ -306,7 +317,7 @@ You can specified a specific feature by given its primary tag name (column 3) as
 You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
       level3=CDS,exon,UTR,etc
-By default all feature are taking in account. fill the option by the value "all" will have the same behaviour.
+By default all feature are taking in account.
 
 =item B<--tag>, B<--att>
 
@@ -330,6 +341,16 @@ with the new tag newTagName if no attribute with the tag newTagName already exit
 When using -add parameter, if an attribute with the specificed tag already exists, it will not be modified.
 When using --cp parameter, if an attribute with the specificed newTagName already exists, it will not be modified.
 So using the --overwrite parameter allows to overwrite the value of the existing attribute.
+
+=item B<--value>
+
+String. When a value is provided the attribute is taken into account only if
+the attribute contains (or match) a specific value
+
+=item B<--strategy>
+
+String. [Default equal]. Strategy to use when --value parameter is in use. Can be equal or match.
+Equal => the attribute value must be identical. Match => the attribute value must match
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
