@@ -22,6 +22,7 @@ my $outfile=undef;
 my $add = undef;
 my $cp = undef;
 my $overwrite = undef;
+my $cpt_case=0;
 
 if ( !GetOptions(
     "help|h"      => \$opt_help,
@@ -188,6 +189,16 @@ while (my $feature = $ref_in->next_feature() ) {
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
+
+if($add){
+  print "$cpt_case attribute added\n";
+}
+elsif($cp){
+  print "$cpt_case attribute copied\n";
+
+}else{
+  print "$cpt_case attribute removed\n";
+}
 print "Job done in $run_time seconds\n";
 
 
@@ -233,6 +244,7 @@ sub remove_tag_from_list{
         if(!$value or ( $strategy eq "equal" and lc($value) eq lc($feature->_tag_value($tag) ) )
         or ( $strategy eq "match" and lc($feature->_tag_value($tag) ) =~ lc($value) ) ){
           $feature->remove_tag($tag);
+          $cpt_case++;
         }
       }
     }
@@ -249,9 +261,11 @@ sub remove_tag_from_list{
           if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
   					if(!$add){
   						  $feature->remove_tag($att);
+                $cpt_case++;
   					}
   					elsif($add and $overwrite){
   						create_or_replace_tag($feature,$att,'empty');
+              $cpt_case++;
   					}
   				}
           else{ # We replace the attribute name
@@ -260,15 +274,18 @@ sub remove_tag_from_list{
             my $newAttributeName=$attListOk{$att};
   					if($overwrite){
               create_or_replace_tag($feature,$newAttributeName, @values);
+              $cpt_case++;
   					}
   					else{#if new attribute exist we do no overwrite it
   						if(! $feature->has_tag($newAttributeName)){
   							create_or_replace_tag($feature,$newAttributeName, @values);
+                $cpt_case++;
   						}
   						#else we do not change the existing value
   					}
   					if(! $cp){
               $feature->remove_tag($att); #remove old attribute if it is not the cp option
+              $cpt_case++;
             }
           }
         }
@@ -276,13 +293,13 @@ sub remove_tag_from_list{
         elsif($add){
           if ($attListOk{$att} eq "null" ){ # the attribute name is kept inctact
             create_or_replace_tag($feature,$att,'empty');
+            $cpt_case++;
           }
         }
       }
     }
   }
 }
-
 
 __END__
 
@@ -338,7 +355,7 @@ with the new tag newTagName if no attribute with the tag newTagName already exit
 
 =item B<--overwrite>
 
-When using -add parameter, if an attribute with the specificed tag already exists, it will not be modified.
+When using --add parameter, if an attribute with the specificed tag already exists, it will not be modified.
 When using --cp parameter, if an attribute with the specificed newTagName already exists, it will not be modified.
 So using the --overwrite parameter allows to overwrite the value of the existing attribute.
 
