@@ -475,7 +475,7 @@ Finally run your scripts in the same folder as the modified json file is standin
 # install AGAT dependencies
 conda install -c bioconda agat
 # clone the repo
-https://github.com/NBISweden/AGAT.git
+git clone https://github.com/NBISweden/AGAT.git
 # if the branch you want is not the master (replace BRANCHE_NAME by the one you wish to use)
 git checkout BRANCHE_NAME
 # move into AGAT folder
