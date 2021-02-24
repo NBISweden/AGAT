@@ -27,7 +27,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'kl|kill_list=s'      => \$opt_kill_list,
                   "p|type|l=s"          => \$primaryTag,
                   'o|output=s'          => \$opt_output,
-									'a|attribute=s'       => \$opt_attribute,
+				  'a|attribute=s'       => \$opt_attribute,
                   'v|verbose!'          => \$opt_verbose,
                   'h|help!'             => \$opt_help ) )
 {
