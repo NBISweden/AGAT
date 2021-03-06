@@ -458,6 +458,10 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
   * [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://www.biorxiv.org/content/10.1101/2020.09.25.314088v1.full)
   * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.biorxiv.org/content/10.1101/2020.10.26.356485v1.full.pdf)
   * [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://www.biorxiv.org/content/10.1101/2020.12.06.413450v1.full)
+  * [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://www.biorxiv.org/content/10.1101/2021.01.15.426838v1.full.pdf)
+  * [Two novel loci underlie natural differences in Caenorhabditis elegans macrocyclic lactone responses](https://www.biorxiv.org/content/10.1101/2021.01.14.426644v1.full)
+  * [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
+  * [...]
 
 ## Troubleshooting
 
