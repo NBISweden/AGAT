@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 47;
+use Test::More tests => 48;
 
 =head1 DESCRIPTION
 
@@ -212,6 +212,15 @@ system(" $script --gff $output_folder/1.gff -o $outtmp --value Os01t0100100-01 -
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_discarded.txt";
+unlink $outprefix."_report.txt";
+
+# --------check agat_sp_filter_feature_from_keep_list.pl-------------
+
+$script = $script_prefix."bin/agat_sp_filter_feature_from_keep_list.pl";
+$result = "$output_folder/agat_sp_filter_feature_from_keep_list_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp --kl $output_folder/agat_sp_filter_feature_from_keep_list_1.txt 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 unlink $outprefix."_report.txt";
 
 # --------check agat_sp_filter_feature_from_kill_list.pl-------------

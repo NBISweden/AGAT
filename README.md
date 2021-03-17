@@ -131,7 +131,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
   
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
     ```
     
     * using conda
@@ -146,7 +146,7 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
     
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
       ```
       
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
@@ -458,17 +458,52 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
   * [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://www.biorxiv.org/content/10.1101/2020.09.25.314088v1.full)
   * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.biorxiv.org/content/10.1101/2020.10.26.356485v1.full.pdf)
   * [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://www.biorxiv.org/content/10.1101/2020.12.06.413450v1.full)
+  * [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://www.biorxiv.org/content/10.1101/2021.01.15.426838v1.full.pdf)
+  * [Two novel loci underlie natural differences in Caenorhabditis elegans macrocyclic lactone responses](https://www.biorxiv.org/content/10.1101/2021.01.14.426644v1.full)
+  * [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
+  * [...]
 
 ## Troubleshooting
 
+### AGAT throws features out, because the feature type is not yet taken into account
+Feature types (primary_tag) handled by AGAT are defined within json files. Most common features are already defined in those files. If you encounter files with feature types not accepted, AGAT will inform you and throw the features out. To keep those feature you must inform properly AGAT how to handle them.
+First access the json files by running:
+```
+			agat_convert_sp_gxf2gxf.pl --expose
+```
+
+Then open the file corresponding to the feature type you want to add:
+* Feature level1 (e.g. gene, match, region):
+  My feature has no parent
+  => features_level1.json
+* Feature level2 (e.g. mrna, match_part, trna):
+  My feature has one parent and the parent is a level 1 feature.
+  => features_level2.json.
+* Feature level3 (e.g. exon, intron, cds):
+  My feature has one parent (the parent has also a parent) and no children
+  => features_level3.json.
+* Feature level3 discontinuous (e.g. cds, utr):
+  A single feature that exists over multiple genomic locations
+  => features_spread.json.
+
+Then add the feature type information by adding a paired-value like this:
+```
+	"bigRNA":"gene",
+```
+Where `bigRNA`is the feature type and `gene`the parent feature type expected.
+/!\\ For level1 feature type the second value can be:
+ * topfeature: feature does not expect children, and will be written first in the sequence
+ * standalone: feature does not expect children
+ * other values do not have any meaning but a value is required, write whatever you want. 
+
 ### AGAT throws features out, because child features are not provided
-Features level1 (e.g. gene, match, chromosome) may require to have child features or not depending of the information stored into the `features_level1.json` file. If a child is required, and the GFF file does not contain it, the level1 feature will be thrown away. You must modify the json file to add the the term `standalone` to inform AGAT that this feature level1 do not require any child. (This work only on feature level1, not level2 or level3).
+Features level1 (e.g. gene, match, chromosome) may require to have child features or not depending of the information stored into the `features_level1.json` file. If a child is required, and the GFF file does not contain it, the level1 feature will be thrown away. You must modify the json file to add the the term `standalone` to inform AGAT that this feature level1 do not require any child. (This work only on feature level1, not level2 or level3). To access the json files run the following command:
 ```
 # export the json files
 agat_convert_sp_gxf2gxf.pl --expose
 ```
 Then open the `features_level1.json` and put the value `standalone` as value to the required feature.
-Finally run your scripts in the same folder as the modified json file is standing.
+Finally run your scripts in the same folder as the modified json files are standing.
 
 ### Use a version of AGAT from a specific branch
 ```
