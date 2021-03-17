@@ -27,7 +27,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'kl|keep_list=s'      => \$opt_keep_list,
                   "p|type|l=s"          => \$primaryTag,
                   'o|output=s'          => \$opt_output,
-				  'a|attribute=s'       => \$opt_attribute,
+                  'a|attribute=s'       => \$opt_attribute,
                   'v|verbose!'          => \$opt_verbose,
                   'h|help!'             => \$opt_help ) )
 {
@@ -42,10 +42,10 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if ( ! $opt_gff or ! $opt_kill_list ){
+if ( ! $opt_gff or ! $opt_keep_list ){
     pod2usage( {
            -message => "$header\nAt least 2 parameters are mandatory:\n1) Input reference gff file: --gff\n".
-           "2) A kill list (one value per line): --kill_list\n\n",
+           "2) A keep list (one value per line): --keep_list\n\n",
            -verbose => 0,
            -exitval => 2 } );
 }
@@ -102,15 +102,15 @@ else{
    }
 }
 
-# Manage kill List
-my %kill_hash;
-open my $in_kill_list, "<:encoding(utf8)", $opt_kill_list or die "$opt_kill_list: $!";
-while (my $line = <$in_kill_list>) {
+# Manage keep List
+my %keep_hash;
+open my $in_keep_list, "<:encoding(utf8)", $opt_keep_list or die "$opt_keep_list: $!";
+while (my $line = <$in_keep_list>) {
     chomp $line;
     $line =~ s/^\s+|\s+$//g; #removing leading and trailing white spaces
-    $kill_hash{lc($line)}++;
+    $keep_hash{lc($line)}++;
 }
-my $nb_to_keep = keys %kill_hash;
+my $nb_to_keep = keys %keep_hash;
 
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
@@ -149,64 +149,61 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
 			my $id_l1 = lc($feature_l1->_tag_value('ID'));
 
-		    $keepit = check_feature($feature_l1, 'level1', \@ptagList);
-				# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
-		    if ($keepit){
-		    	push @keeplist, $id_l1;
-		    	next;
-		    }
+		  $keepit = check_feature($feature_l1, 'level1', \@ptagList);
+			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
+		  if ($keepit){
+		  	push @keeplist, $id_l1;
+		   	next;
+		  }
 
-		    #################
-		    # == LEVEL 2 == #
-		    #################
+		  #################
+		  # == LEVEL 2 == #
+		  #################
 			my @list_l2_to_remove;
 			my @list_l3_to_remove;
-		    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+		  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-		        if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
-			        my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
-			        foreach my $feature_l2 ( @list_fl2 ) {
+		    if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
+			    my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
+	        foreach my $feature_l2 ( @list_fl2 ) {
 
-				        $keepit = check_feature($feature_l2,'level2', \@ptagList);
-				        if ($keepit){
-				            push @keeplist, $id_l1;
-				            last;
-				        }
-				        #################
-				        # == LEVEL 3 == #
-				        #################
-				        my $id_l2 = lc($feature_l2->_tag_value('ID'));
+            $keepit = check_feature($feature_l2,'level2', \@ptagList);
+				    if ($keepit){
+				      push @keeplist, $id_l1;
+				      last;
+				    }
+				    #################
+				    # == LEVEL 3 == #
+				    #################
+			      my $id_l2 = lc($feature_l2->_tag_value('ID'));
 
-				        foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-				            if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
-				              	my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
-				              	foreach my $feature_l3 ( @list_fl3 ) {
+				    foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+				      if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
+				       	my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
+				       	foreach my $feature_l3 ( @list_fl3 ) {
 
-					                $keepit = check_feature($feature_l3, 'level3', \@ptagList);
-					                if ($keepit){
-					                  push @keeplist, $id_l1;
-					                  last;
-					                }
-					            }
-					            last if keepit; #We found one l3 we can skip the rest of l3
+					        $keepit = check_feature($feature_l3, 'level3', \@ptagList);
+					        if ($keepit){
+					          push @keeplist, $id_l1;
+					          last;
 					        }
+					      }
+					      last if $keepit; #We found one l3 we can skip the rest of l3
 					    }
-					    last if keepit; #We found one l3 we can skip the rest of l2
-				   	}
-				   	last if keepit; #We found one l2 we can skip the rest of l2
-		     	}
+					  }
+					  last if $keepit; #We found one l3 we can skip the rest of l2
+				  }
+				  last if $keepit; #We found one l2 we can skip the rest of l2
+		    }
 			}
 		}
 	}
 }
 
 # create omniscient with only selected recoreds
-subsample_omniscient_from_level1_id_list($hash_omniscient, \@keeplist)
-
-$stringPrint = $all_cases{'all'}." features removed:\n";
-$stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
-$stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
-$stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
+my $hash_kept = subsample_omniscient_from_level1_id_list($hash_omniscient, \@keeplist);
+print_omniscient($hash_kept, $gffout_ok); #print gene modified in file
+$stringPrint = ($#keeplist+1)." records kept!\n";
 if ($opt_output){
   print $ostreamReport $stringPrint;
   print $stringPrint;
@@ -235,13 +232,13 @@ sub check_feature{
 	  foreach my $ptag (@$ptagList){
 
 	    if($ptag eq "all"){
-	      $keepit = 1 if( exists_keys(\%kill_hash, (lc($feature->_tag_value($opt_attribute)))));
+	      $keepit = 1 if( exists_keys(\%keep_hash, (lc($feature->_tag_value($opt_attribute)))));
 	    }
 	    elsif(lc($ptag) eq $level){
-	      $keepit = 1 if( exists_keys(\%kill_hash, (lc($feature->_tag_value($opt_attribute)))));
+	      $keepit = 1 if( exists_keys(\%keep_hash, (lc($feature->_tag_value($opt_attribute)))));
 	    }
 	    elsif(lc($ptag) eq lc($primary_tag) ){
-	      $keepit = 1 if( exists_keys(\%kill_hash, (lc($feature->_tag_value($opt_attribute)))));
+	      $keepit = 1 if( exists_keys(\%keep_hash, (lc($feature->_tag_value($opt_attribute)))));
 	    }
 	  }
 	}
@@ -255,20 +252,20 @@ __END__
 
 =head1 NAME
 
-agat_sp_filter_feature_from_kill_list.pl
+agat_sp_filter_feature_from_keep_list.pl
 
 =head1 DESCRIPTION
 
-The script aims to remove features based on a kill list.
+The script aims to keep records based on a keeplist.
 The default behaviour is to look at the features's ID. If the feature has an ID
-(case insensitive) listed among the kill list it will be removed.
-/!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
-removing all children of a feature will automatically remove this feature too.
+(case insensitive) listed among the keeplist it will be kept along with all
+related features (the whole record is kept. A record repsent all features linked
+ by relationship e.g. gene+transcript+exon+cds of a same locus).
 
 =head1 SYNOPSIS
 
-    ./agat_sp_filter_feature_from_kill_list.pl -f infile.gff --kill_list file.txt  [ --output outfile ]
-    ./agat_sp_filter_feature_from_kill_list.pl --help
+    ./agat_sp_filter_feature_from_keep_list.pl -f infile.gff --keep_list file.txt  [ --output outfile ]
+    ./agat_sp_filter_feature_from_keep_list.pl --help
 
 =head1 OPTIONS
 
@@ -288,9 +285,9 @@ You can specify directly all the feature of a particular level:
 By default all feature are taking into account. fill the option by the value "all" will have the same behaviour.
 
 
-=item B<--kl> or B<--kill_list>
+=item B<--kl> or B<--keep_list>
 
-Kill list. One value per line.
+Keep list. One value per line.
 
 =item  B<-a> or B<--attribute>
 

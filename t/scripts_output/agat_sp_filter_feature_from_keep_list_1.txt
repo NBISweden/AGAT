@@ -1,0 +1,3 @@
+transcript:Os01t0100100-01
+transcript:Os01t0100200-01
+gene:Os01g0100300
