@@ -269,7 +269,7 @@ sub slurp_gff3_file_JD {
 	# ============================> FILE CASE <============================
 	else{
 		# take care of headers
-		my $header = get_header_lines($file, $verbose, $log);
+		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
 
 		#GFF format used for parser
@@ -2991,7 +2991,7 @@ sub _check_duplicates{
 # Input: filename
 # Output: string (header lines)
 sub get_header_lines{
-	my ($file, $verbose, $log) = @_;
+	my ($file, $verbose, $log, $debug) = @_;
 
 	#HANDLE format
 	my @headers;
@@ -3002,7 +3002,7 @@ sub get_header_lines{
 			if($_ =~ /^#/){
 				if($_ =~ /##gff-version/){next;}# we do not keep the version line because we will write it ourself
 				push @headers, $_;
-				dual_print($log, "catch header line: $_", 0); # print in log only
+				dual_print($log, "catch header line: $_", $verbose) if ($debug);
 			} #if it is a commented line starting by # we skip it.
 			else{
 				close($fh);
