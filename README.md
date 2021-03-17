@@ -131,7 +131,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
   
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
     ```
     
     * using conda
@@ -146,7 +146,7 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
     
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
       ```
       
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
