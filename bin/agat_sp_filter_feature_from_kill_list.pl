@@ -5,8 +5,6 @@ use warnings;
 use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use List::MoreUtils qw(uniq);
-use Scalar::Util qw(looks_like_number);
 use Pod::Usage;
 use Bio::Tools::GFF;
 use IO::File;
@@ -27,7 +25,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'kl|kill_list=s'      => \$opt_kill_list,
                   "p|type|l=s"          => \$primaryTag,
                   'o|output=s'          => \$opt_output,
-				  'a|attribute=s'       => \$opt_attribute,
+                  'a|attribute=s'       => \$opt_attribute,
                   'v|verbose!'          => \$opt_verbose,
                   'h|help!'             => \$opt_help ) )
 {
@@ -285,8 +283,8 @@ removing all children of a feature will automatically remove this feature too.
 
 =head1 SYNOPSIS
 
-    ./agat_sp_filter_feature_from_kill_list.pl -f infile.gff --kill_list file.txt  [ --output outfile ]
-    ./agat_sp_filter_feature_from_kill_list.pl --help
+    agat_sp_filter_feature_from_kill_list.pl -f infile.gff --kill_list file.txt  [ --output outfile ]
+    agat_sp_filter_feature_from_kill_list.pl --help
 
 =head1 OPTIONS
 
