@@ -5,8 +5,6 @@ use warnings;
 use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use List::MoreUtils qw(uniq);
-use Scalar::Util qw(looks_like_number);
 use Pod::Usage;
 use Bio::Tools::GFF;
 use IO::File;
@@ -302,8 +300,8 @@ removing all children of a feature will automatically remove this feature too.
 
 =head1 SYNOPSIS
 
-    ./agat_sp_select_feature_by_attribute_presence.pl -f infile.gff -a <tag> [ --output outfile ]
-    ./agat_sp_select_feature_by_attribute_presence.pl --help
+    agat_sp_select_feature_by_attribute_presence.pl -f infile.gff -a <tag> [ --output outfile ]
+    agat_sp_select_feature_by_attribute_presence.pl --help
 
 =head1 OPTIONS
 

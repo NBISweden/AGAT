@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 48;
+use Test::More tests => 49;
 
 =head1 DESCRIPTION
 
@@ -230,6 +230,16 @@ $result = "$output_folder/agat_sp_filter_feature_from_kill_list_1.gff";
 system(" $script --gff $output_folder/1.gff -o $outtmp --kl $output_folder/agat_sp_filter_feature_from_kill_list_1.txt 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink $outprefix."_report.txt";
+
+# --------check agat_sp_filter_feature_from_kill_list.pl-------------
+
+$script = $script_prefix."bin/agat_sp_filter_gene_by_intron_numbers.pl";
+$result = "$output_folder/agat_sp_filter_gene_by_intron_numbers_1.gff";
+system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_remaining.gff";
 unlink $outprefix."_report.txt";
 
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------

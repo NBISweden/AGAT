@@ -22,11 +22,11 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "g|gff=s" => \$gff,
-    't|test=s'            => \$opt_test,
+    "help|h"   => \$opt_help,
+    "g|gff=s"  => \$gff,
+    't|test=s' => \$opt_test,
     "size|s=i" => \$PROT_LENGTH,
-    "v!" => \$verbose,
+    "v!"       => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -216,7 +216,6 @@ sub test_size{
       return "true";
     }
   }
-
 return undef;
 }
 

@@ -5,8 +5,6 @@ use warnings;
 use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use List::MoreUtils qw(uniq);
-use Scalar::Util qw(looks_like_number);
 use Pod::Usage;
 use Bio::Tools::GFF;
 use IO::File;
@@ -264,8 +262,8 @@ related features (the whole record is kept. A record repsent all features linked
 
 =head1 SYNOPSIS
 
-    ./agat_sp_filter_feature_from_keep_list.pl -f infile.gff --keep_list file.txt  [ --output outfile ]
-    ./agat_sp_filter_feature_from_keep_list.pl --help
+    agat_sp_filter_feature_from_keep_list.pl -f infile.gff --keep_list file.txt  [ --output outfile ]
+    agat_sp_filter_feature_from_keep_list.pl --help
 
 =head1 OPTIONS
 
