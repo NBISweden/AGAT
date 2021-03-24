@@ -233,13 +233,13 @@ the other one with the remaining genes.
 
 Some examples:
 Select intronless genes:
-agat_sp_filter_gene_by_intron_numbers.pl -g infile.gff -o result.gff
+agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff -o result.gff
 Select genes with more or equal 10 introns:
-agat_sp_filter_gene_by_intron_numbers.pl -f infile.gff --test ">=" --nb 10 [ --output outfile ]
+agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_gene_by_intron_numbers.pl -f infile.gff --test ">=" --nb 10 [ --output outfile ]
+    agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
     agat_sp_filter_gene_by_intron_numbers.pl --help
 
 =head1 OPTIONS

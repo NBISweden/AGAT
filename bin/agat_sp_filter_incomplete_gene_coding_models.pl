@@ -323,7 +323,7 @@ You can modify the behavior using the skip_start_check or skip_stop_check option
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_incomplete_gene_coding_models.pl -gff infile.gff --fasta genome.fa [ -o outfile ]
+    agat_sp_filter_incomplete_gene_coding_models.pl --gff infile.gff --fasta genome.fa [ -o outfile ]
     agat_sp_filter_incomplete_gene_coding_models.pl --help
 
 =head1 OPTIONS

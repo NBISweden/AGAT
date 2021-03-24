@@ -94,7 +94,7 @@ This script aims to fix the cds phases.
 
 =head1 SYNOPSIS
 
-    agat_sp_fix_cds_frame.pl -g infile.gff -f fasta [ -o outfile ]
+    agat_sp_fix_cds_frame.pl --gff infile.gff -f fasta [ -o outfile ]
     agat_sp_fix_cds_frame.pl --help
 
 =head1 OPTIONS

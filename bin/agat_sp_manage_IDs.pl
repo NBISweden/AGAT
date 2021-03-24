@@ -371,7 +371,7 @@ i.e. when two feature types start with the same letter, the second one met will 
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_IDs.pl -gff file.gff -p level2 -p cds -p exon [ -o outfile ]
+    agat_sp_manage_IDs.pl --gff file.gff -p level2 -p cds -p exon [ -o outfile ]
     agat_sp_manage_IDs.pl --help
 
 =head1 OPTIONS

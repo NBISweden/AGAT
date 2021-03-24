@@ -283,7 +283,7 @@ removing all children of a feature will automatically remove this feature too.
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_feature_from_kill_list.pl -f infile.gff --kill_list file.txt  [ --output outfile ]
+    agat_sp_filter_feature_from_kill_list.pl --gff infile.gff --kill_list file.txt  [ --output outfile ]
     agat_sp_filter_feature_from_kill_list.pl --help
 
 =head1 OPTIONS
