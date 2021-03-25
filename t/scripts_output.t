@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 49;
+use Test::More tests => 51;
 
 =head1 DESCRIPTION
 
@@ -232,11 +232,21 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 
-# --------check agat_sp_filter_feature_from_kill_list.pl-------------
+# --------check agat_sp_filter_gene_by_intron_numbers.pl-------------
 
 $script = $script_prefix."bin/agat_sp_filter_gene_by_intron_numbers.pl";
 $result = "$output_folder/agat_sp_filter_gene_by_intron_numbers_1.gff";
 system(" $script --gff $output_folder/1.gff -o $outtmp 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_remaining.gff";
+unlink $outprefix."_report.txt";
+
+# --------check agat_sp_filter_gene_by_length.pl-------------
+
+$script = $script_prefix."bin/agat_sp_filter_gene_by_length.pl";
+$result = "$output_folder/agat_sp_filter_gene_by_length_1.gff";
+system(" $script --gff $output_folder/1.gff --size 1000 --test \"<\" -o $outtmp 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_remaining.gff";
@@ -253,6 +263,16 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 ok( system("diff $result2 $outprefix"."_incomplete.gff") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_incomplete.gff";
+
+# --------check agat_sp_filter_record_by_coordinates.pl-------------
+
+$script = $script_prefix."bin/agat_sp_filter_record_by_coordinates.pl";
+$result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
+system(" $script --gff $output_folder/1.gff --tsv $output_folder/agat_sp_filter_record_by_coordinates_1.tsv -o $outtmp 1>/dev/null");
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_remaining.gff";
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_fix_cds_phases.pl-------------
 

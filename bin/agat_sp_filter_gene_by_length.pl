@@ -11,9 +11,9 @@ use IO::File;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $opt_test="=";
+my $opt_test=">";
 my $opt_output= undef;
-my $opt_nb = 0;
+my $opt_size = 100;
 my $opt_gff = undef;
 my $opt_verbose = undef;
 my $opt_help;
@@ -22,7 +22,7 @@ my $opt_help;
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   't|test=s'            => \$opt_test,
-                  "nb|number|n=i"       => \$opt_nb,
+                  "s|size=i"            => \$opt_size,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
                   'h|help!'             => \$opt_help ) )
@@ -84,7 +84,7 @@ if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne 
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will select genes that contain $opt_test $opt_nb introns.\n";
+$stringPrint .= "We will select l1 feature (e.g. gene) that have length $opt_test $opt_size bp.\n";
 
 if ($opt_output){
   print $ostreamReport $stringPrint;
@@ -107,7 +107,7 @@ print("Parsing Finished\n");
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
 
 my @listok;
-my @list2;
+my @listNotOk;
 #################
 # == LEVEL 1 == #
 #################
@@ -116,41 +116,61 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
 		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
 			my $id_l1 = lc($feature_l1->_tag_value('ID'));
-      my $success=undef;
-
+      my $gene_length=$feature_l1->end()-$feature_l1->start()+1;
+      my $successl1 = test_size( $gene_length, $opt_test, $opt_size );
+      my $longer_concat_exon=undef;
 	    #################
 	    # == LEVEL 2 == #
 	    #################
 	    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-
 	      if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
-	        my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
-	        foreach my $feature_l2 ( @list_fl2 ) {
-
+	        foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}} ) {
+            my $id_l2 = lc($feature_l2->_tag_value('ID'));
 	          #################
 	          # == LEVEL 3 == #
 	          #################
-	          my $id_l2 = lc($feature_l2->_tag_value('ID'));
-
-	          if ( exists_keys( $hash_omniscient, ('level3', 'exon', $id_l2) ) ){
-	            my $nb_exon = @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}};
-              my $nb_intron = $nb_exon-1;
-
-              if( test_size( $nb_intron, $opt_test, $opt_nb ) ){
-                push @listok, $id_l1;
-                $success = 1;
-                last;
+            foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+  	          if ( exists_keys( $hash_omniscient, ('level3', 'exon', $id_l2) ) ){
+                my $local_size=0;
+                foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}} ) {
+                  $local_size = $local_size+$feature_l3->end()-$feature_l3->start()+1;
+                }
+                if($longer_concat_exon and $longer_concat_exon<$local_size){
+                  $longer_concat_exon = $local_size;
+                }
+                elsif(! $longer_concat_exon) {
+                  $longer_concat_exon = $local_size;
+                }
               }
 	          }
 	        }
-          if( $success ) {
-            last ;
-          }
-          else{
-            push @list2, $id_l1;
-          }
 	      }
 	    }
+      # case we had exon (we look at the longest mRNA)
+      if($longer_concat_exon){
+        print "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n" if $opt_verbose;
+        if( test_size( $longer_concat_exon, $opt_test, $opt_size ) ){
+          print "$id_l1 pass the test\n" if $opt_verbose;
+          push @listok, $id_l1;
+        }
+        else{
+          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          push @listNotOk, $id_l1;
+        }
+      }
+      else{
+        print "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n" if $opt_verbose;
+        # No exon, L1 pass test
+        if($successl1){
+          print "$id_l1 pass the test\n" if $opt_verbose;
+          push @listok, $id_l1;
+        }
+        # No exon, L1 do not pass test
+        else{
+          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          push @listNotOk, $id_l1;
+        }
+      }
     }
   }
 }
@@ -161,16 +181,16 @@ print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
 %{$hash_ok} = ();
 # print remaining if an output is provided
 if($opt_output){
-  my $hash_remaining = subsample_omniscient_from_level1_id_list($hash_omniscient, \@list2);
+  my $hash_remaining = subsample_omniscient_from_level1_id_list($hash_omniscient, \@listNotOk);
   print_omniscient($hash_remaining, $gffout_notok); #print gene modified in file
   %{$hash_remaining} = ();
 }
 
 my $test_success = scalar @listok;
-my $test_fail = scalar @list2;
+my $test_fail = scalar @listNotOk;
 
-$stringPrint = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
-$stringPrint .= "$test_fail remaining genes that not pass the test.\n";
+$stringPrint = "$test_success l1 feature (e.g. gene) selected with a length $opt_test $opt_size bp.\n";
+$stringPrint .= "$test_fail remaining l1 feature (e.g. gene) do not pass the test.\n";
 if ($opt_output){
   print $ostreamReport $stringPrint;
   print $stringPrint;
@@ -223,24 +243,27 @@ __END__
 
 =head1 NAME
 
-agat_sp_filter_gene_by_intron_numbers.pl
+agat_sp_filter_gene_by_length.pl
 
 =head1 DESCRIPTION
 
-The script aims to filter genes by intron numbers.
-It will create two files. one with the genes passing the intron number filter,
-the other one with the remaining genes.
+The script aims to filter level1 feature (e.g. gene, match, etc) by length.
+It will create two files. one with the feature passing the length filter,
+the other one with the remaining features.
+If the level1 feature has exon features, the size is computed by concatenating
+the exon together. If the level1 feature has several level2 features (e.g. mRNA)
+we apply the test on the longest one (the longest concatenated exon set).
 
 Some examples:
-Select intronless genes:
-agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff -o result.gff
-Select genes with more or equal 10 introns:
-agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
+Select L1 feature shorter than 1000bp:
+agat_sp_filter_gene_by_length.pl --gff infile.gff  --size 1000 --test "<" -o result.gff
+Select genes longer than 200bp:
+agat_sp_filter_gene_by_length.pl --gff infile.gff --size 200 --test ">" -o result.gff
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
-    agat_sp_filter_gene_by_intron_numbers.pl --help
+    agat_sp_filter_gene_by_length.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
+    agat_sp_filter_gene_by_length.pl --help
 
 =head1 OPTIONS
 
@@ -250,11 +273,12 @@ agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ 
 
 Input GFF3 file that will be read
 
-=item B<-n>,  B<--nb> or B<--number>
+=item B<-s> or B<--size>
 
-Integer - Number of introns [Default 0]
+Integer - Gene size in pb [Default 100]
 
 =item B<-t> or B<--test>
+
 Test to apply (>, <, =, >= or <=). If you use one of these two characters >, <,
 please do not forget to quote your parameter like that "<=". Else your terminal will complain.
 [Default "="]

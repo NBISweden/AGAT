@@ -262,7 +262,7 @@ related features (the whole record is kept. A record repsent all features linked
 
 =head1 SYNOPSIS
 
-    agat_sp_filter_feature_from_keep_list.pl -f infile.gff --keep_list file.txt  [ --output outfile ]
+    agat_sp_filter_feature_from_keep_list.pl --gff infile.gff --keep_list file.txt  [ --output outfile ]
     agat_sp_filter_feature_from_keep_list.pl --help
 
 =head1 OPTIONS

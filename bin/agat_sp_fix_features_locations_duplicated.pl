@@ -545,7 +545,7 @@ the file to ena (after convertion).
 
 =head1 SYNOPSIS
 
-    agat_sp_fix_features_locations_duplicated.pl -f infile  [-o outfile]
+    agat_sp_fix_features_locations_duplicated.pl --gff infile  [-o outfile]
     agat_sp_fix_features_locations_duplicated.pl --help
 
 =head1 OPTIONS
