@@ -719,34 +719,32 @@ sub parse_blast {
 
   while( my $line = <$file_in>)  {
     my @values = split(/\t/, $line);
-     my $l2_name = lc($values[0]);
-     my $prot_name = $values[1];
-      my @prot_name_sliced = split(/\|/, $values[1]);
-      my $uniprot_id = $prot_name_sliced[1];
-      print "uniprot_id: ".$uniprot_id."\n" if($opt_verbose);
-     my $evalue = $values[10];
-     print "Evalue: ".$evalue."\n" if($opt_verbose);
+    my $l2_name = lc($values[0]);
+    my $prot_name = $values[1];
+    my @prot_name_sliced = split(/\|/, $values[1]);
+    my $uniprot_id = $prot_name_sliced[1];
+    print "uniprot_id: ".$uniprot_id."\n" if($opt_verbose);
+    my $evalue = $values[10];
+    print "Evalue: ".$evalue."\n" if($opt_verbose);
 
-     #if does not exist fill it if over the minimum evalue
+    #if does not exist fill it if over the minimum evalue
     if (! exists_keys(\%candidates,($l2_name)) or @{$candidates{$l2_name}}> 3 ){ # the second one means we saved an error message as candidates we still have to try to find a proper one
       if( $evalue <= $opt_blastEvalue ) {
         my $protID_correct=undef;
+
         if( exists $allIDs{lc($prot_name)}){
         	$protID_correct = $allIDs{lc($prot_name)};
         	my $header = $db->header( $protID_correct );
-
-        	if ($header =~ m/GN=/){
-      			if($header =~ /PE=([1-5])\s/){
-      				if($1 <= $opt_pe){
-      					$candidates{$l2_name}=[$header, $evalue, $uniprot_id];
-      				}
+          if (! $header =~ m/GN=/){
+            $ostreamLog->print( "No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
+            $candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
+          }
+      		if($header =~ /PE=([1-5])\s/){
+    				if($1 <= $opt_pe){
+    					$candidates{$l2_name}=[$header, $evalue, $uniprot_id];
       			}
-      			else{$ostreamLog->print("No Protein Existence (PE) information in this header: $header\n")if($opt_verbose or $opt_output); }
       		}
-      		else{
-      			$ostreamLog->print( "No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
-      			$candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
-      		}
+      		else{$ostreamLog->print("No Protein Existence (PE) information in this header: $header\n")if($opt_verbose or $opt_output); }
       	}
       	else{
       		$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if($opt_verbose or $opt_output);
@@ -756,19 +754,19 @@ sub parse_blast {
     }
     elsif( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
       my $protID_correct=undef;
+
       if( exists $allIDs{lc($prot_name)}){
         $protID_correct = $allIDs{lc($prot_name)};
         my $header = $db->header( $protID_correct );
-
-        if ($header =~ m/GN=/){
-          if($header =~ /PE=([1-5])\s/){
-            if($1 <= $opt_pe){
-              $candidates{$l2_name}=[$header, $evalue, $uniprot_id];
-            }
-          }
-          else{ $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if($opt_verbose or $opt_output); }
+        if (! $header =~ m/GN=/){
+          $ostreamLog->print("No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
         }
-        else{ $ostreamLog->print("No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output); }
+        if($header =~ /PE=([1-5])\s/){
+          if($1 <= $opt_pe){
+            $candidates{$l2_name}=[$header, $evalue, $uniprot_id];
+          }
+        }
+        else{ $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if($opt_verbose or $opt_output); }
       }
 	    else{ $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if($opt_verbose or $opt_output);}
     }
