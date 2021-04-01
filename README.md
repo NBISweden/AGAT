@@ -43,11 +43,11 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ## What can AGAT do for you?  
 
-It has the power to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
+It has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format.  
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.  
-For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md).
+For a complete overview of the GTF/GFF formats have a look [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md).
 
 Some examples **what AGAT can do**:  
   * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp` prefix):  
