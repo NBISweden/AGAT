@@ -241,6 +241,7 @@ sub get_omniscient_statistics {
 	foreach my $tag_l2 ( sort keys %{$hash_omniscient->{'level2'} }){
 		print "tag_l2 $tag_l2\n" if $verbose;
 		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
+
 		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2);
 		my $info_l2_distri = get_distributions($info_l2, $extra_l2);
 
@@ -385,7 +386,7 @@ sub get_omniscient_statistics_from_l2{
 				$counterL2_match++;
 
 				if($counterL2_match > 0 and $counterL2_match <= $indexLastL2){
-	  			my $intronSize= $sortedList[$counterL2_match]->start - $sortedList[$counterL2_match-1]->end;
+	  			my $intronSize = $sortedList[$counterL2_match]->start - $sortedList[$counterL2_match-1]->end - 1;
 
 	  			#compute feature size
 	  			$all_info{$tag_l2}{'level2'}{'intron'}{'size_feat'}+=$intronSize;
@@ -433,7 +434,7 @@ sub get_omniscient_statistics_from_l2{
 	  				# from the second intron to the last (from index 1 to last index of the table sortedList)
 	  				# We go inside this loop only if we have more than 1 feature.
 	  				if($counterL3 > 0 and $counterL3 <= $indexLast){
-	  					my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
+	  					my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end - 1;
 
 	  					#compute feature size
 	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'}+=$intronSize;
