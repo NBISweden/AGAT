@@ -40,9 +40,9 @@ Total five_prime_utr length                  147
 Total start_codon length                     6
 Total stop_codon length                      6
 Total three_prime_utr length                 85
-Total intron length per cds                  666
-Total intron length per exon                 873
-Total intron length per five_prime_utr       207
+Total intron length per cds                  659
+Total intron length per exon                 865
+Total intron length per five_prime_utr       206
 mean gene length                             1886
 mean mrna length                             1886
 mean cds length                              1338
@@ -54,9 +54,9 @@ mean three_prime_utr length                  42
 mean cds piece length                        297
 mean five_prime_utr piece length             73
 mean three_prime_utr piece length            42
-mean intron in cds length                    95
-mean intron in exon length                   109
-mean intron in five_prime_utr length         207
+mean intron in cds length                    94
+mean intron in exon length                   108
+mean intron in five_prime_utr length         206
 Longest gene                                 2717
 Longest mrna                                 2717
 Longest cds                                  1992
@@ -68,9 +68,9 @@ Longest three_prime_utr                      82
 Longest cds piece                            1652
 Longest five_prime_utr piece                 86
 Longest three_prime_utr piece                82
-Longest intron into cds part                 143
-Longest intron into exon part                207
-Longest intron into five_prime_utr part      207
+Longest intron into cds part                 142
+Longest intron into exon part                206
+Longest intron into five_prime_utr part      206
 Shortest gene                                1056
 Shortest mrna                                1056
 Shortest cds                                 684
@@ -82,9 +82,9 @@ Shortest three_prime_utr                     3
 Shortest cds piece                           29
 Shortest five_prime_utr piece                61
 Shortest three_prime_utr piece               3
-Shortest intron into cds part                56
-Shortest intron into exon part               56
-Shortest intron into five_prime_utr part     207
+Shortest intron into cds part                55
+Shortest intron into exon part               55
+Shortest intron into five_prime_utr part     206
 
 --------------------------------------------------------------------------------
 
