@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 51;
+use Test::More tests => 54;
 
 =head1 DESCRIPTION
 
@@ -171,7 +171,28 @@ $script = $script_prefix."bin/agat_sp_extract_sequences.pl";
 $result = "$output_folder/agat_sp_extract_sequences_1.fa";
 system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -o $outtmp 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output $script test1");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_extract_sequences.pl";
+$result = "$output_folder/agat_sp_extract_sequences_split.fa";
+system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa --split -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script test2");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_extract_sequences.pl";
+$result = "$output_folder/agat_sp_extract_sequences_merge.fa";
+system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa -t exon --merge -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script test3");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_extract_sequences.pl";
+$result = "$output_folder/agat_sp_extract_sequences_full.fa";
+system(" $script --gff $output_folder/1.gff --fasta $output_folder/1.fa --full -o $outtmp 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script test4");
 unlink $outtmp;
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
