@@ -642,7 +642,7 @@ sub  get_sequence{
     if( length($sequence) != abs($end-$start+1) ){
       my $wholeSeq = $db->subseq($seq_id_correct);
       $wholeSeq = length($wholeSeq);
-      warn "Problem ! The size of the sequence extracted ".length($sequence)." is different than the specified span: ".abs($end-$start+1).
+      warn "Problem ! The size of the extracted sequence ".length($sequence)." is different than the specified span: ".abs($end-$start+1).
       ".\nThat often occurs when the fasta file does not correspond to the annotation file. Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
       "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n",
       "Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; $seq_id sequence length: $wholeSeq )\n";
@@ -733,7 +733,13 @@ in a gff file. You can extract the fasta of any type of feature. The feature
 type is defined within the 3rd column in the gff file.
 The result is written to the specified output file, or to STDOUT.
 
-The Header are formated like that:
+Features spanning several locations (e.g. UTR, CDS), are extracted chunk by chunk
+and merged to create the biological feature. If you wish to extract each chunck independently,
+please refer to the --split parameter. To see the list of features that may span over several locations
+within AGAT run: agat_convert_sp_gxf2gxf.pl --expose
+and then look at the file called features_spread.json.
+
+The headers are formated like that:
 >ID gene=gene_ID name=NAME seq_id=Chromosome_ID type=cds 5'extra=VALUE
 
 The ID is the identifier of the feature (ID attribute in the 9th column.
@@ -749,11 +755,15 @@ The OFS of all values can be modified excepted for the ID (see --ofs parameter).
 In such case the tool gives a warning.
 
 Some examples:
-To extract the coding regions (same as using -t cds):
+To extract the coding regions:
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta
-To extract and translate the coding regions (same as using -t cds) :
+or
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds
+To extract and translate the coding regions:
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -p
-To extract the mRNA (biological definition):
+or
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds -p
+To extract the mRNA (biological definition UTR+CDS):
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon --merge
 To extract each cds chunk independently:
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds --split
@@ -770,17 +780,96 @@ agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t gene --upstream 10
 
 =over 8
 
-=item B<-g>, B<--gff> or B<-ref>
+=item B<--alternative_start_codon> or B<--asc>
 
-String - Input GTF/GFF file.
+Bolean - When activated it can affect the translation of the start codon.
+Indeed alternative start codons exist, and are translated by the cells'machinery
+by a Methionine (M). By default AGAT translates the first codon as other codons by the
+corresponding AA. If you wish to translate the first codon by a M when it is a valid
+alternative start codon, activate this parameter.
+If the sequence you try to translate is a CDS (or starting by a CDS), the phase
+is checked and the alternative start codon is accepted only if the phase is 0.
+
+=item B<--cdna>
+
+Boolean - This extract the cdna sequence (i.e reverse complement of the mRNA:
+transcribed sequence (devoid of introns, but containing untranslated exons,
+then reverse complemented). It corresponds to extract the exons sequences,
+merge them, and reverse complement the sequence (--type exon --merge --revcomp).
+
+=item B<--clean_final_stop> or B<--cfs>
+
+Boolean - The Clean Final Stop option allows removing the translation of the
+final stop codons that is represented by the <*> character.
+This character can be disturbing for many programs (e.g interproscan)
+
+=item B<--clean_internal_stop> or B<--cis>
+
+Boolean - The Clean Internal Stop option allows replacing the translation of the
+stop codons present among the sequence that is represented by the <*> character
+by <X>. Indeed the <*> character can be disturbing for many programs
+(e.g interproscan)
+
+=item B<--codon>, B<--table> or B<--ct>
+
+Integer - Allow to choose the codon table for the translation. [default 1]
+
+=item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
+
+Integer - It will take that number of nucleotide in more at the 3' extremity.
+/!\ You must activate the option "--full" if you with to extract only the most downstream part of certain feature (exon,cds,utr)
+otherwise you will extract each downstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
+
+=item B<--eo>
+
+Boolean - Called 'extremity only', this option will extract only the adjacent parts of a feature.
+This option has to be activated with -u and/or -p option.
+/!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
 =item B<-f> or B<--fasta>
 
 String - Input fasta file.
 
-=item B<--codon>, B<--table> or B<--ct>
+=item B<--full>
 
-Integer - Allow to choose the codon table for the translation. [default 1]
+Boolean - This option allows dealing with feature that may span over several locations
+like cds or exon, in order to extract the full sequence from the start extremity
+of the first chunck to the end extremity of the last chunk.
+The use of that option with '--type exon' will extract the pre-mRNA sequence (i.e with introns).
+Use of that option on cds will give the pre-mRNA without the untraslated regions (UTRs).
+(To extract an mRNA as it is defined biologicaly you need to use the
+`-t exon` option with the --merge option)
+
+=item B<-g>, B<--gff> or B<-ref>
+
+String - Input GTF/GFF file.
+
+=item B<-h> or B<--help>
+
+Boolean - Display this helpful text.
+
+=item B<--merge>
+
+Boolean - By default, only features that span several locations (e.g. cds and utr can
+span over several exons) are merged together. In order to merge other
+type of features (e.g. exon) you must activate this parameter.
+
+=item B<--mrna>
+
+Boolean - This extract the mrna sequence (i.e transcribed sequence (devoid of
+introns, but containing untranslated exons)). It corresponds to extract the exon
+sequences and merge them (--type exon --merge).
+
+=item B<--ofs>
+
+String - Output Fields Separator for the description field of the header of the
+created fasta sequences. By default it's a space < > but can be modified by any String or
+character using this option.
+
+=item B<-o> or B<--output>
+
+String - Output fasta file.  If no output file is specified, the output will be
+written to STDOUT.
 
 =item B<--plus_strand_only>
 
@@ -789,12 +878,34 @@ reverse complemented. Activating this option you will always get sequence from p
 strand ( not reverse complemented).
 You can get the opposite (minus strand only) by using --plus_strand_only --revcomp
 
+=item B<-p>, B<--protein> or B<--aa>
+
+Boolean - Will translate the extracted sequence in Amino acid.
+By default the codon table used is the 1 (Standard).
+See --table parameter for more options.
+
+=item B<--remove_orf_offset> or B<--roo>
+
+Boolean - CDS can start with a phase different from 0 when a gene model is fragmented.
+When asking for protein translation this (start) offset is trimmed out automatically.
+But when you extract CDS dna sequences, this  (start) offset is not removed by default.
+To remove it activate this option. If --up or --do option are used too, the (start) offset
+is trimmed first, then is added the piece of sequence asked for.
+
 =item B<--revcomp>
 
 Boolean - To reverse complement the extracted sequence [default - False].
 By default the extrated feature sequences from a minus strand is
 reverse complemented. Consequently, for minus strand features that option will
 extract the sequences from plus strand from left to right.
+
+=item B<--split>
+
+Boolean -  By default, all features that span several locations
+(e.g. cds and utr can span over several exons) are merge together to shape
+the biological feature (e.g. several cds chuncks are merged to create the CDS
+ in its whole).
+If you wish to extract all the chuncks independently activate this option.
 
 =item B<-t> or B<--type>
 
@@ -809,52 +920,6 @@ because it contains the introns if any. It does not actually extract the mRNAs a
 it is defined biologicaly. To extract the mRNA as defined biologicaly you must use `-t exon`.
 *Not a real cdna because it is not reversed
 
-=item B<-p>, B<--protein> or B<--aa>
-
-Boolean - Will translate the extracted sequence in Amino acid.
-By default the codon table used is the 1 (Standard).
-See --table parameter for more options.
-
-=item B<--alternative_start_codon> or B<--asc>
-
-Bolean - When activated it can affect the translation of the start codon.
-Indeed alternative start codons exist, and are translated by the cells'machinery
-by a Methionine (M). By default AGAT translates the first codon as other codons by the
-corresponding AA. If you wish to translate the first codon by a M when it is a valid
-alternative start codon, activate this parameter.
-If the sequence you try to translate is a CDS (or starting by a CDS), the phase
-is checked and the alternative start codon is accepted only if the phase is 0.
-
-=item B<--eo>
-
-Boolean - Called 'extremity only', this option will extract only the adjacent parts of a feature.
-This option has to be activated with -u and/or -p option.
-/!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
-
-=item B<--split>
-
-Boolean -  By default, all features that span several locations
-(e.g. cds and utr can span over several exons) are merge together to shape
-the biological feature (e.g. several cds chuncks are merged to create the CDS
- in its whole).
-If you wish to extract all the chuncks independently activate this option.
-
-=item B<--full>
-
-Boolean - This option allows dealing with feature that span several locations
-like cds or exon, in order to extract the full sequence from the start extremity
-of the first chunck to the end extremity of the last chunk.
-The use of that option with '--type exon' will extract the pre-mRNA sequence (i.e with introns).
-Use of that option on cds will give the pre-mRNA without the untraslated regions (UTRs).
-(To extract an mRNA as it is defined biologicaly you need to use the
-`-t exon` option with the --merge option)
-
-=item B<--merge>
-
-Boolean - By default, only that span several locations (e.g. cds and utr can
-span over several exons) are merged together. In order to merge to merge other
-type of features (e.g. exon) you must activate this parameter.
-
 =item B<--up>, B<-5>, B<--five> or B<-upstream>
 
 Integer - It will take that number of nucleotide in more at the 5' extremity.
@@ -862,61 +927,6 @@ Integer - It will take that number of nucleotide in more at the 5' extremity.
 upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
-
-=item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
-
-Integer - It will take that number of nucleotide in more at the 3' extremity.
-/!\ You must activate the option "--full" if you with to extract only the most downstream part of certain feature (exon,cds,utr)
-otherwise you will extract each downstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
-
-=item B<--cdna>
-
-Boolean - This extract the cdna sequence (i.e reverse complement of the mRNA:
-transcribed sequence (devoid of introns, but containing untranslated exons,
-then reverse complemented). It corresponds to extract the exons sequences,
-merge them, and reverse complement the sequence (--type exon --merge --revcomp).
-
-=item B<--mrna>
-
-Boolean - This extract the mrna sequence (i.e transcribed sequence (devoid of
-introns, but containing untranslated exons)). It corresponds to extract the exon
-sequences and merge them (--type exon --merge).
-
-=item B<--ofs>
-
-String - Output Fields Separator for the description field of the header of the
-created fasta sequences. By default it's a space < > but can be modified by any String or
-character using this option.
-
-=item B<--clean_internal_stop> or B<--cis>
-
-Boolean - The Clean Internal Stop option allows replacing the translation of the
-stop codons present among the sequence that is represented by the <*> character
-by <X>. Indeed the <*> character can be disturbing for many programs
-(e.g interproscan)
-
-=item B<--clean_final_stop> or B<--cfs>
-
-Boolean - The Clean Final Stop option allows removing the translation of the
-final stop codons that is represented by the <*> character.
-This character can be disturbing for many programs (e.g interproscan)
-
-=item B<--remove_orf_offset> or B<--roo>
-
-Boolean - CDS can start with a phase different from 0 when a gene model is fragmented.
-When asking for protein translation this (start) offset is trimmed out automatically.
-But when you extract CDS dna sequences, this  (start) offset is not removed by default.
-To remove it activate this option. If --up or --do option are used too, the (start) offset
-is trimmed first, then is added the piece of sequence asked for.
-
-=item B<-o> or B<--output>
-
-String - Output fasta file.  If no output file is specified, the output will be
-written to STDOUT.
-
-=item B<-h> or B<--help>
-
-Boolean - Display this helpful text.
 
 =back
 
