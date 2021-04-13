@@ -357,7 +357,7 @@ sub slurp_gff3_file_JD {
 	if(! $no_check or	grep( /remove_orphan_l1$/, @$no_check_skip ) ) {
 			#check level1 has subfeature else we remove it
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: remove orphan l1", char => "-", prefix => "\n" }), $verbose );
-			dual_print ($log, "We remove only those not supposed to be orphan\n");
+			dual_print ($log, "We remove only those not supposed to be orphan\n", $verbose );
 			_remove_orphan_l1(\%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, \%mRNAGeneLink, $verbose, $log, $debug); #or fix if level2 is missing (refseq case)
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 			$check_cpt++; $previous_time = time();
