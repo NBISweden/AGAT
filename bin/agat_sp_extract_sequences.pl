@@ -12,9 +12,10 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $DONOTREVCOMP = undef;
+my $opt_plus_strand = undef;
 my $start_run = time();
 my $codonTable=1;
+
 my $opt_gfffile;
 my $opt_fastafile;
 my $opt_output;
@@ -22,40 +23,47 @@ my $opt_AA=undef;
 my $opt_help = 0;
 my $opt_full=undef;
 my $opt_split=undef;
+my $opt_merge=undef;
 my $opt_extremity_only=undef;
 my $opt_upstreamRegion=undef;
 my $opt_downRegion=undef;
 my $opt_cdna=undef;
+my $opt_mrna=undef;
 my $opt_OFS=undef;
 my $opt_type = 'cds';
 my $opt_cleanFinalStop=undef;
 my $opt_cleanInternalStop=undef;
 my $opt_remove_orf_offset = undef;
-my $quiet = undef;
+my $opt_quiet = undef;
+my $opt_plus_strand_only = undef;
+my $opt_revcomp=undef;
 my $opt_alternative_start_codon = undef;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
-                  'f|fa|fasta=s' => \$opt_fastafile,
-                  't=s' => \$opt_type,
-                  'ofs=s' => \$opt_OFS,
-                  'protein|p|aa!' => \$opt_AA,
-                  'cdna' => \$opt_cdna,
-                  'cfs|clean_final_stop!'   => \$opt_cleanFinalStop,
-		              'cis|clean_internal_stop!'   => \$opt_cleanInternalStop,
-									'remove_orf_offset|roo!' => \$opt_remove_orf_offset,
-                  'full!' => \$opt_full,
-                  'split!' => \$opt_split,
-                  'eo!' => \$opt_extremity_only,
-                  'dnrc!' => \$DONOTREVCOMP,
-                  "alternative_start_codon|asc!" => \$opt_alternative_start_codon,
-                  'table|codon|ct=i' => \$codonTable,
-                  'up|5|five|upstream=i'      => \$opt_upstreamRegion,
-                  'do|3|three|down|downstream=i'      => \$opt_downRegion,
-                  'o|output=s'      => \$opt_output,
-                  'q|quiet!'      => \$quiet,
-                  'h|help!'         => \$opt_help ) )
+if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
+                  'cdna!'                        => \$opt_cdna,
+                  'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
+                  'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
+                  'do|3|three|down|downstream=i' => \$opt_downRegion,
+                  'eo!'                          => \$opt_extremity_only,
+                  'f|fa|fasta=s'                 => \$opt_fastafile,
+                  'full!'                        => \$opt_full,
+                  'g|gff=s'                      => \$opt_gfffile,
+                  'h|help!'                      => \$opt_help,
+                  'merge!'                       => \$opt_merge,
+                  'mrna|transcript!'             => \$opt_mrna,
+                  'ofs=s'                        => \$opt_OFS,
+                  'o|output=s'                   => \$opt_output,
+                  'plus_strand_only!'            => \$opt_plus_strand_only,
+                  'p|protein|aa!'                => \$opt_AA,
+                  'q|quiet!'                     => \$opt_quiet,
+                  'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
+                  'revcomp!'                     => \$opt_revcomp,
+                  'split!'                       => \$opt_split,
+                  'table|codon|ct=i'             => \$codonTable,
+                  't|type=s'                     => \$opt_type,
+                  'up|5|five|upstream=i'         => \$opt_upstreamRegion ) )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
@@ -83,10 +91,13 @@ my %warnings;
 activate_warning_limit(\%warnings, 10);
 
 # shortcut for cdna
-if($opt_cdna){$opt_type="exon";}
+if($opt_cdna){$opt_type="exon"; $opt_merge=1; $opt_revcomp=1;}
+# shortcut for mrna/transcript
+if($opt_mrna){$opt_type="exon"; $opt_merge=1;}
 
-if( $opt_full   and $opt_split)
-{print "Options --full and --split cannot be used concomitantly. Please read the help\n"; exit;}
+if( $opt_full   and $opt_split){print "Options --full and --split cannot be used concomitantly.\n"; exit;}
+if( $opt_full   and $opt_merge){print "Options --full and --merge cannot be used concomitantly.\n"; exit;}
+if( $opt_split   and $opt_merge){print "Options --split and --merge cannot be used concomitantly.\n"; exit;}
 
 my $ostream;
 if ($opt_output) {
@@ -100,10 +111,12 @@ else{
 print "We will extract the $opt_type sequences.\n";
 $opt_type=lc($opt_type);
 
+# deal with codon table
 if($codonTable<0 and $codonTable>25){
   print "$codonTable codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
 }
 
+# deal with OFS
 my $OFS=" ";
 if($opt_OFS){
   $OFS = $opt_OFS;
@@ -120,6 +133,8 @@ print "Parsing Finished\n";
 ### END Parse GFF input #
 #########################
 
+# extract level
+my $hash_level = $hash_omniscient->{'other'}{'level'};
 my $hash_l1_grouped = group_l1features_from_omniscient($hash_omniscient);
 
 #### read fasta
@@ -251,12 +266,12 @@ sub clean_string{
       if($string =~ m/\Q$OFS/){
         if ($OFS eq " "){
           warn "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
-          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $quiet;
+          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $opt_quiet;
           $string="\"".$string."\"";
         }
         else{
           warn "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
-          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $quiet;
+          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $opt_quiet;
           eval "\$string =~ tr/\Q$OFS\E/\Q$replaceBy\E/";
         }
       }
@@ -392,70 +407,119 @@ sub extract_sequences{
    # --------------------------------------
 
 
-   # ------ Collapse spreaded features ------
+   # ------ feature natural ------
   else{
-  	my $sequence="";my $info = "";
 
-    # create sequence part 1
-    foreach my $feature ( @sortedList ){
-       $sequence .= get_sequence($db, $feature->seq_id, $feature->start, $feature->end);
+    my $feature_type = $sortedList[0]->primary_tag;
+
+    # ------ SPREDED feature need to be collapsed else only if merge option activated ------
+    if( exists_keys($hash_level,'spreadfeature',lc($feature_type) ) or ( $opt_merge ) ){
+
+    	my $sequence="";my $info = "";
+
+      # create sequence part 1
+      foreach my $feature ( @sortedList ){
+         $sequence .= get_sequence($db, $feature->seq_id, $feature->start, $feature->end);
+      }
+  		# Deal with phase for CDS not starting at 0 when we want to do translation or if asked by activation of $opt_remove_orf_offset parameter
+  		if( ($opt_remove_orf_offset or $opt_AA) and  lc($sortedList[0]->primary_tag) eq "cds" ){
+
+  			if($minus){
+  				if ( $sortedList[$#sortedList]->frame eq "." ){
+  					warn_no_phase();
+  				}
+  			 	elsif ( $sortedList[$#sortedList]->frame != 0 ){
+  					$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
+            $phase = $sortedList[$#sortedList]->frame;
+          }
+  			}
+  			else { # ! minus
+  				if ( $sortedList[0]->frame  eq "." ){
+  					warn_no_phase();
+  				}
+  				elsif( $sortedList[0]->frame != 0 ){
+  					$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
+            $phase = $sortedList[0]->frame;
+  				}
+  			}
+  		}
+
+       # update sequence with extremities if option
+       if($opt_upstreamRegion or $opt_downRegion){
+         my $start = $sortedList[0]->start;
+         my $end = $sortedList[$#sortedList]->end;
+         my $right_piece = ""; my $left_piece = "";
+
+         # take and append the left piece if asked for
+         if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
+           ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+           $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
+         }
+
+         # take and append the right piece if asked for
+         if ( ( $opt_downRegion and !$minus ) or ( $opt_upstreamRegion and $minus ) ){
+           ($right_piece, $info) = get_right_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+         }
+
+         # append only extremities
+         if($opt_extremity_only){
+           print "here\n";
+           $sequence = $left_piece.$right_piece;
+           $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
+         }
+         else{  # append extremity to main sequence even if empty
+           $sequence = $left_piece.$sequence.$right_piece;
+         }
+      }
+
+      #create object
+      my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
+      #print object
+      print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
     }
-		# Deal with phase for CDS not starting at 0 when we want to do translation or if asked by activation of $opt_remove_orf_offset parameter
-		if( ($opt_remove_orf_offset or $opt_AA) and  lc($sortedList[0]->primary_tag) eq "cds" ){
 
-			if($minus){
-				if ( $sortedList[$#sortedList]->frame eq "." ){
-					warn_no_phase();
-				}
-			 	elsif ( $sortedList[$#sortedList]->frame != 0 ){
-					$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
-          $phase = $sortedList[$#sortedList]->frame;
+    # ---- Non spreaded feature extract them one by one
+    else{
+      foreach my $feature ( @sortedList ){
+        my $start = $feature->start;
+        my $end = $feature->end;
+        my $info = ""; my $right_piece = ""; my $left_piece = ""; my $sequence = "";
+
+        # take and append the left piece if asked for
+        if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
+          ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
         }
-			}
-			else { # ! minus
-				if ( $sortedList[0]->frame  eq "." ){
-					warn_no_phase();
-				}
-				elsif( $sortedList[0]->frame != 0 ){
-					$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
-          $phase = $sortedList[0]->frame;
-				}
-			}
-		}
 
-     # update sequence with extremities if option
-     if($opt_upstreamRegion or $opt_downRegion){
-       my $start = $sortedList[0]->start;
-       my $end = $sortedList[$#sortedList]->end;
-       my $right_piece = ""; my $left_piece = "";
+        # take and append the right piece if asked for
+        if ( ( $opt_downRegion and !$minus ) or ( $opt_upstreamRegion and $minus ) ){
+          ($right_piece, $info) = get_right_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+        }
 
-       # take and append the left piece if asked for
-       if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
-         ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
-         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
-       }
+        # append only extremities
+        if($opt_extremity_only){
+          $sequence = $left_piece.$right_piece;
+        }
+        else{  # append extremity to main sequence even if empty
+          $sequence = get_sequence($db, $seq_id, $start, $end);
+          $sequence = $left_piece.$sequence.$right_piece;
+        }
 
-       # take and append the right piece if asked for
-       if ( ( $opt_downRegion and !$minus ) or ( $opt_upstreamRegion and $minus ) ){
-         ($right_piece, $info) = get_right_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
-       }
+        my $seqObj = undef;
+        if($level eq 'level3' ){ #update header's id information
+          my $id_l3  = $feature->_tag_value('ID');
+          my $updated_description="transcript=".$id_seq.$OFS.$description;
+          #create object
+          $seqObj = create_seqObj($sequence, $id_l3, $updated_description, $minus, $info);
+        }
+        else{
+          $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
+        }
 
-       # append only extremities
-       if($opt_extremity_only){
-         $sequence = $left_piece.$right_piece;
-         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
-       }
-       else{  # append extremity to main sequence even if empty
-         $sequence = $left_piece.$sequence.$right_piece;
-       }
-     }
-
-     #create object
-     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
-     #print object
-     print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
-   }
-  # --------------------------------------
+        #print object
+        print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+      }
+    }
+  }
 }
 
 # patch to avoid different warn due to different lines.
@@ -538,8 +602,14 @@ sub create_seqObj{
 
   my $seqObj  = Bio::Seq->new( '-format' => 'fasta' , -seq => $sequence);
 
-  #check if need to be reverse complement
-  $seqObj=$seqObj->revcom if $minus and !$DONOTREVCOMP;
+  #check if need to be reverse complemented (minus strand features)
+  if(! $opt_plus_strand_only){ # with option plus strand you avoid to reverse complement
+    $seqObj=$seqObj->revcom if $minus;
+  }
+  # complement asked
+  if($opt_revcomp){
+    $seqObj=$seqObj->revcom;
+  }
 
   # build description
   if($info){
@@ -684,9 +754,9 @@ agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta
 To extract and translate the coding regions (same as using -t cds) :
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -p
 To extract the mRNA (biological definition):
-agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon
-To extract each exon independently:
-agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon --split
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon --merge
+To extract each cds chunk independently:
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds --split
 To extract 5'UTR with introns:
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t "5'UTR" --full
 To extract 100nt upstream region of a gene:
@@ -708,13 +778,25 @@ String - Input GTF/GFF file.
 
 String - Input fasta file.
 
-=item B<--dnrc>
+=item B<--codon>, B<--table> or B<--ct>
 
-Boolean - dnrc means `do not reverse complement`, by default the extrated sequence of a
-feature on the minus strand is reverse complemented.
-You can deactivate the behavior by using this option.
+Integer - Allow to choose the codon table for the translation. [default 1]
 
-=item B<-t>
+=item B<--plus_strand_only>
+
+Boolean - By default the extrated feature sequences from a minus strand is
+reverse complemented. Activating this option you will always get sequence from plus
+strand ( not reverse complemented).
+You can get the opposite (minus strand only) by using --plus_strand_only --revcomp
+
+=item B<--revcomp>
+
+Boolean - To reverse complement the extracted sequence [default - False].
+By default the extrated feature sequences from a minus strand is
+reverse complemented. Consequently, for minus strand features that option will
+extract the sequences from plus strand from left to right.
+
+=item B<-t> or B<--type>
 
 String - Define the feature you want to extract the sequence from.
 Default 'cds'.
@@ -732,10 +814,6 @@ it is defined biologicaly. To extract the mRNA as defined biologicaly you must u
 Boolean - Will translate the extracted sequence in Amino acid.
 By default the codon table used is the 1 (Standard).
 See --table parameter for more options.
-
-=item B<--codon>, B<--table> or B<--ct>
-
-Integer - Allow to choose the codon table for the translation. [default 1]
 
 =item B<--alternative_start_codon> or B<--asc>
 
@@ -755,27 +833,35 @@ This option has to be activated with -u and/or -p option.
 
 =item B<--split>
 
-Boolean -  By default, all level3 features (exon, cds, utr) collectively linked to a level2
-feature (rna, mRNA) are merge together to shape an entire feature
-(e.g. several cds pieces can be merged to create the CDS in its whole).
-If you wish to extract all the subfeatures independently activate this option.
+Boolean -  By default, all features that span several locations
+(e.g. cds and utr can span over several exons) are merge together to shape
+the biological feature (e.g. several cds chuncks are merged to create the CDS
+ in its whole).
+If you wish to extract all the chuncks independently activate this option.
 
 =item B<--full>
 
-Boolean - This option allows dealing with multifeature like cds or exon, to extract the
-full sequence from start extremity to the end extremity, i.e with introns.
-The use of that option with exon feature will give the same result as extracting
-the mrna sequence (-t mRNA) and corresponds to the cdna*.
-(To actually extract an mRNA as it is defined biologicaly you need to use the
-`-t exon` option wihtout the --full option and wihtout the --split option)
-Use of that option on cds will give the cdna* without the untraslated regions (UTRs).
-*Not a real cdna because it is not reversed
+Boolean - This option allows dealing with feature that span several locations
+like cds or exon, in order to extract the full sequence from the start extremity
+of the first chunck to the end extremity of the last chunk.
+The use of that option with '--type exon' will extract the pre-mRNA sequence (i.e with introns).
+Use of that option on cds will give the pre-mRNA without the untraslated regions (UTRs).
+(To extract an mRNA as it is defined biologicaly you need to use the
+`-t exon` option with the --merge option)
+
+=item B<--merge>
+
+Boolean - By default, only that span several locations (e.g. cds and utr can
+span over several exons) are merged together. In order to merge to merge other
+type of features (e.g. exon) you must activate this parameter.
 
 =item B<--up>, B<-5>, B<--five> or B<-upstream>
 
 Integer - It will take that number of nucleotide in more at the 5' extremity.
-/!\ You must activate the option "--full" if you wish to extract only the most upstream part of certain features (exon,cds,utr)
-otherwise you will extract each upstream parts of the subfeatures (e.g many cds parts may be needed to shape a cds in its whole).
+/!\ You must activate the option "--full" if you wish to extract only the most
+upstream part of certain features (exon,cds,utr)
+otherwise you will extract each upstream parts of the subfeatures
+(e.g many cds parts may be needed to shape a cds in its whole).
 
 =item B<--do>, B<-3>, B<--three>, B<-down> or B<-downstream>
 
@@ -785,9 +871,16 @@ otherwise you will extract each downstream parts of the subfeatures (e.g many cd
 
 =item B<--cdna>
 
-Boolean - This extract the cdna* sequence (i.e transcribed sequence (devoid of
-introns, but containing untranslated exons)). It corresponds to extract the exons sequences.
-*Not a real cdna because it is not reversed
+Boolean - This extract the cdna sequence (i.e reverse complement of the mRNA:
+transcribed sequence (devoid of introns, but containing untranslated exons,
+then reverse complemented). It corresponds to extract the exons sequences,
+merge them, and reverse complement the sequence (--type exon --merge --revcomp).
+
+=item B<--mrna>
+
+Boolean - This extract the mrna sequence (i.e transcribed sequence (devoid of
+introns, but containing untranslated exons)). It corresponds to extract the exon
+sequences and merge them (--type exon --merge).
 
 =item B<--ofs>
 
