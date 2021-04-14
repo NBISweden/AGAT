@@ -1,2 +1,2 @@
-pip
-cython
+sphinx-rtd-theme
+recommonmark
