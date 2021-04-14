@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_sq\_mask.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script masks GFF-denoted segments out of a FASTA format file.
 This script masks (hard or soft) repeats among sequences.
 It needs 3 input parameters: a gff3 file, a fasta file, and a Mask method.
 The result is written to the specified output file, or to STDOUT.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_mask.pl -g infile.gff -f infile.fasta  (-hm or -sm) [ -o outfile ]
 agat_sq_mask.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

@@ -1,19 +1,19 @@
-# NAME
+## NAME
 
 agat\_sp\_fix\_cds\_frame.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script aims to fix the cds phases.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_fix_cds_frame.pl --gff infile.gff -f fasta [ -o outfile ]
 agat_sp_fix_cds_frame.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

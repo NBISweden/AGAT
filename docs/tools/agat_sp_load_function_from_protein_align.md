@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_load\_function\_from\_protein\_align.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes an annotation in gff format, a protein alignment in gff format and a protein fasta file as input. It checks if protein alignement overlap gene models, and will load the gene name and/or the function to the gene model according to the user requirements.
 The script applies the following steps:
@@ -14,14 +14,14 @@ Then it filters them by applying the overlaping score threshold.
 3) If no option or the precedent filtering (1,2.1,2.2)didn't succeed, the best protein will be selected.
 You can flip the 2.1 and 2.2 test using the priority option.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_load_function_from_protein_align.pl -a annotation.gff --pgff protein.gff --pfasta protein.fasta [ -o outfile ]
 agat_sp_load_function_from_protein_align.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-a** or **--annotation**
 

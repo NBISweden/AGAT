@@ -1,18 +1,18 @@
-# NAME
+## NAME
 
 gaas\_converter\_embl2gff.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes an EMBL file as input, and will translate it in gff format.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 gaas_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--embl**
 

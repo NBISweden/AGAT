@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_to\_tabulated.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to convert gtf/gff file into tabulated file.
 Attribute's tags from the 9th column become column titles.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_to_tabulated.pl -gff file.gff [ -o outfile ]
 agat_sp_to_tabulated.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

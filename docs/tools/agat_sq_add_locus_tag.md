@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sq\_add\_locus\_tag.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 Add a shared locus tag per record. A record is all features linked by each other
 by parent/children relationship (e.g Gene,mRNA,exon, CDS).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_add_locus_tag.pl --gff <input file> [-o <output file>]
 agat_sq_add_locus_tag.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **--file** or **--input**
 

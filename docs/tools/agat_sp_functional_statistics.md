@@ -1,19 +1,19 @@
-# NAME
+## NAME
 
 agat\_sp\_functional\_statistics.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to summerize functional information stored in the file.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_functional_statistics.pl --gff file.gff  [ -o outfile ]
 agat_sp_functional_statistics.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

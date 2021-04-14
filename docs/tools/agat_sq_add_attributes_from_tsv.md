@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sq\_add\_attributes\_from\_tsv.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to add info from a tsv/csv file to the attributes of a gff file.
 An attribute looks like that: tag=value1,value2
@@ -27,14 +27,14 @@ chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot\_type1=anot\_x
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot\_type1=anot\_y
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_add_attributes_from_tsv.pl --gff input.gff --tsv input.tsv [ -o output.gff3 ]
 agat_sq_add_attributes_from_tsv.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**
 

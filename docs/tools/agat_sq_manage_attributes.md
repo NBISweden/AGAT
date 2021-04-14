@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_sp\_manage\_attributes.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script removes choosen attributes of selected features. It can also create new
 attribute with 'empty' value, or copy paste an existing attribute using a new specified tag.
 Attribute in a gff file have this shape (2 attributes here): tag=value;tag=value and
 are stored within the 9th column.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_manage_attributes.pl --gff file.gff  --att locus_tag,product,name/NewName -p level2,cds,exon [ -o outfile ]
 agat_sq_manage_attributes.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

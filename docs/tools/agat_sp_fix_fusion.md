@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_fix\_fusion.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script looks for other ORF in UTRs (UTR3 and UTR5) of each gene model described in the gff file.
 Several ouput files will be written if you specify an output.
 One will contain the gene not modified (intact), one the gene models fixed.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_fix_fusion.pl --gff infile.gff --fasta genome.fa [ -o outfile ]
 agat_sp_fix_fusion.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gff**
 

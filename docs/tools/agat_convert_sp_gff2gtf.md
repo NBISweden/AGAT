@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_convert\_sp\_gff2gtf.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to convert any GTF/GFF file into a proper GTF file.
 Full information about the format can be found here: https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md
@@ -20,14 +20,14 @@ used to group transcripts into genes.
 The transcript\_id	is a unique identifier for the predicted transcript,
 which is used to group features into transcripts.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_convert_sp_gff2gtf.pl --gff infile.gtf [ -o outfile ]
 agat_convert_sp_gff2gtf -h
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **--in**
 

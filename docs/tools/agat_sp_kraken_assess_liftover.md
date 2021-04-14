@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_kraken\_assess\_lift\_coverage.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes as input gtf produced by Kraken (lift-over tool).
 It will analyse the kraken\_mapped attributes to calculate the mapped percentage of each mRNA.
@@ -17,14 +17,14 @@ So in this case the result most of time will be 100%.
 As result we could end up with mapping over > 100%. We report them as 100% mapped in the plot
 and a warning is raised to allow to check thoses cases.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_kraken_assess_lift_coverage --gtf infile.gtf [ -o outfile ]
 agat_sp_kraken_assess_lift_coverage --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gtf**
 

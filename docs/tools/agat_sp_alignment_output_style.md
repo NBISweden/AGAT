@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_alignment\_output\_style.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes a normal gtf/gff annotation format file and convert it
 to gff3 alignment format. It means it add a structure of match / match\_part
 as relationship between the different features.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_alignment_output_style.pl -g infile.gff [ -o outfile ]
 agat_sp_alignment_output_style.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

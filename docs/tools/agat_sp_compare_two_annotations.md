@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_compare\_two\_annotations.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to compare two annotation of the same assembly. It provided
 information about split/fusion of genes between the two annotations.
@@ -16,14 +16,14 @@ The most common case are:
 Then you can get more complex cases:
 &lt;many> => &lt;many>  (&lt;many> genes from file 1 overlap &lt;many> genes from file2)
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_compare_two_annotations.pl -gff1 infile.gff [ -o outfile ]
 agat_sp_compare_two_annotations.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gff1**
 

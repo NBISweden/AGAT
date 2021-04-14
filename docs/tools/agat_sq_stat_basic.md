@@ -1,19 +1,19 @@
-# NAME
+## NAME
 
 agat\_sq\_stat\_basic.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to provide basic statistics of a gtf/gff file.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_stat_basic.pl -i <input file> [-g <integer or fasta> -o <output file>]
 agat_sq_stat_basic.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-i**, **--gff**, **--file** or **--input**
 

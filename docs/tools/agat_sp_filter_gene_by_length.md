@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_gene\_by\_length.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to filter level1 feature (e.g. gene, match, etc) by length.
 It will create two files. one with the feature passing the length filter,
@@ -17,14 +17,14 @@ agat\_sp\_filter\_gene\_by\_length.pl --gff infile.gff  --size 1000 --test "<" -
 Select genes longer than 200bp:
 agat\_sp\_filter\_gene\_by\_length.pl --gff infile.gff --size 200 --test ">" -o result.gff
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_gene_by_length.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
 agat_sp_filter_gene_by_length.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**, **--gff**  or **-ref**
 

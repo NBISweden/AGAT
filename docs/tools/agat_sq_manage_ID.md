@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sq\_manage\_ID.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script changes IDs to give uniq one and reflect the change in Parent attribute
 of impacted features.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_manage_ID.pl --gff <input file> [-o <output file>]
 agat_sq_manage_ID.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **--file** or **--input**
 

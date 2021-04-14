@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_manage\_functional\_annotation.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script take a gff3 file as input and blast and/or interpro output in order
 to attach functional annotation to corresponding features within the gff file.
@@ -20,7 +20,7 @@ and the feature number.
 The result is written to the specified output file, or to STDOUT.
 
 About the TSV format from interproscan:
-&#x3d;======================================
+&##x3d;======================================
 
 The TSV format presents the match data in columns as follows:
 
@@ -45,7 +45,7 @@ The TSV format presents the match data in columns as follows:
 P.S: The 9th column contains most of time e-value, but can contain also score (e.g Prosite). To understand the difference: https://myhits.isb-sib.ch/cgi-bin/help?doc=scores.html
 
 About the outfmt 6 from blast:
-&#x3d;=============================
+&##x3d;=============================
 
 ```perl
 1.  qseqid  query (e.g., gene) sequence id
@@ -66,14 +66,14 @@ Currently the best e-value win... That means another hit with a lower e-value
 (but still over the defined threshold anyway) even if it has a better PE value
 will not be reported.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_manage_functional_annotation.pl -f infile.gff [ -b blast_infile --db uniprot.fasta -i interpro_infile.tsv --id ABCDEF --output outfile ]
 agat_sp_manage_functional_annotation.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**,**-ref** , **--gff** or **--gff3**
 

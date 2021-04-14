@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_by\_locus\_distance.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to remove or flag loci that are too close to each other.
 Close loci are important to remove when training abinitio tools in order
@@ -10,14 +10,14 @@ to train intergenic region properly. Indeed if intergenic region
 (surrouneded part of a locus) contain part of another locus,
 the training on intergenic part will be biased.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_by_locus_distance.pl -gff infile.gff [ -o outfile ]
 agat_sp_filter_by_locus_distance.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gff**
 

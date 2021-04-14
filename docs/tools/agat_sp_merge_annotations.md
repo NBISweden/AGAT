@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_merge\_annotations.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script merge different gff annotation files in one.
 It uses the Omniscient parser that takes care of duplicated names and fixes other oddities met in those files.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_merge_annotations.pl --gff infile1 --gff infile2 --out outFile
 agat_sp_merge_annotations.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

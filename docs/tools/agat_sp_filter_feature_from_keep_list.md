@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_feature\_from\_keep\_list.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to keep records based on a keeplist.
 The default behaviour is to look at the features's ID. If the feature has an ID
@@ -10,14 +10,14 @@ The default behaviour is to look at the features's ID. If the feature has an ID
 related features (the whole record is kept. A record repsent all features linked
  by relationship e.g. gene+transcript+exon+cds of a same locus).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_feature_from_keep_list.pl --gff infile.gff --keep_list file.txt  [ --output outfile ]
 agat_sp_filter_feature_from_keep_list.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**, **--gff**  or **-ref**
 

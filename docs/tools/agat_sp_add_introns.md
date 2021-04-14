@@ -1,19 +1,19 @@
-# NAME
+## NAME
 
 agat\_sp\_add\_introns.pl - This script
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to add intron features to gtf/gff file without intron features.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_add_introns.pl --gff infile --out outFile
 agat_sp_add_introns.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f**, **--ref** or **-reffile**
 

@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_remove\_redundant\_entries.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script remove redundant entries: same seq\_id,primary\_tag,start,stop,ID,Parent.
 If ID and Parent attribute is not present, we do no remove the feature. If one of them
 do not exists we use "" instead.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_remove_redundant_entries.pl -i <input file> [-o <output file>]
 agat_remove_redundant_entries.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-i**, **--gff**, **--file** or **--input**
 

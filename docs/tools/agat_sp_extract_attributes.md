@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_sp\_extract\_attributes.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes a gtf/gff file as input.
 The script allows to extract choosen attributes of all or specific feature types.
 The 9th column of a gff/gtf file contains a list of attributes.
 An attribute (gff3) looks like that tag=value
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_extract_attributes.pl -gff file.gff  -att locus_tag,product,name -p level2,cds,exon [ -o outfile ]
 agat_sp_extract_attributes.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

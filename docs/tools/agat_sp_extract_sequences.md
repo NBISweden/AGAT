@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_extract\_sequences.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script extracts sequences in fasta format according to features described
 in a gff file. You can extract the fasta of any type of feature. The feature
@@ -53,7 +53,7 @@ agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta  [ -o outfile ]
 agat_sp_extract_sequences.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--alternative\_start\_codon** or **--asc**
 

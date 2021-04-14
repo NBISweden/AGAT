@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_incomplete\_gene\_coding\_models.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to remove incomplete gene models. An incomplete gene coding model
 is a gene coding with start and/or stop codon missing in its cds.
 You can modify the behavior using the skip\_start\_check or skip\_stop\_check options.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_incomplete_gene_coding_models.pl --gff infile.gff --fasta genome.fa [ -o outfile ]
 agat_sp_filter_incomplete_gene_coding_models.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gff**
 

@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_fix\_longest\_ORF.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to fix the ORFs of gene models described in the gff file.
 By fixing it means replacing the original ORF (defined by the cds)
@@ -14,14 +14,14 @@ Several ouput files will be written if you specify an output.
 One will contain the gene not modified (intact), one with the gene models fixed (modified),
 one will both together (all).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_fix_longest_ORF.pl -gff infile.gff --fasta genome.fa [ -o outfile ]
 agat_sp_fix_longest_ORF.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**
 

@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_webApollo\_compliant.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script aim to remove useless/problematic information for webapollo,
 change some featuree type to avoid problem whem loading them into webapollo,
 and optimize some attribute for a nice displaying.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_webApollo_compliant.pl -g infile.gff [ -o outfile ]
 agat_sp_webApollo_compliant.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

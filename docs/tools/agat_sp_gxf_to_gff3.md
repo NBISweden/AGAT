@@ -1,10 +1,10 @@
-# /!\ replaced by [agat_convert_sp_gxf2gxf](https://github.com/NBISweden/AGAT/wiki/agat_convert_sp_gxf2gxf) since AGAT v0.3.0
+## /!\ replaced by [agat_convert_sp_gxf2gxf](https://github.com/NBISweden/AGAT/wiki/agat_convert_sp_gxf2gxf) since AGAT v0.3.0
 
-# NAME
+## NAME
 
 agat\_sp\_gxf\_to\_gff3.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script fixes and/or standardizes a gtf/gff file into full sorted gff3.
 It will be read by the Omniscient parser, that will first detect automtically
@@ -41,14 +41,14 @@ Parse by Parent/child relationship
     ELSE Parse sequentially (features are grouped in a bucket, and the bucket change at each level2 feature met, and bucket(s) are linked to the first l1 top feature met)
 ```
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_gxf_to_gff3.pl -g infile.gff [ -o outfile ]
 agat_sp_gxf_to_gff3.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

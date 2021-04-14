@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_record\_by\_coordinates.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to filter the records to keep only those contained within coordinates
 defined in an input csv file.
@@ -13,14 +13,14 @@ allows to keep only record fully contained within the coordinates.
 ! With default paramater, an exon out of the coordinates can be kept if the gene
 it is part of is overlaping the coordinates.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_record_by_coordinates.pl --gff infile.gff --tsv coordinates.tsv [ --output outfile ]
 agat_sp_filter_record_by_coordinates.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-i**, **--input**, **--gtf**  or **--gff**
 

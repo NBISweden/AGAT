@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_ensembl\_output\_style.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script takes a normal gff3 annotation format file and convert it to gff3
 like ensembl format.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_ensembl_output_style.pl -g infile.gff [ -o outfile ]
 agat_sp_ensembl_output_style.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

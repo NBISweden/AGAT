@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_add\_start\_and\_stop.pl.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script adds start and stop codons when a CDS feature exists.
 The script looks at the nucleotide sequence and checks the presence of start and stop codons.
 The script works even if the start or stop codon are split over several CDS features.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_add_start_and_stop.pl.pl --gff infile.gff --fasta genome.fa --out outfile.gff
 agat_sp_add_start_and_stop.pl.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-i** or **-g**
 

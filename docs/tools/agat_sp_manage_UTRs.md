@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_sp\_manage\_UTRs.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 Detect the genes containing too much UTR's exon according to a choosen threshold.
 If no UTR option (3, 5, 3 and 5, both) is given the threshold will be not used.
 option 3 and 5 together is different of "both". In the first case the gene is discarded if either the 3' or the 5' UTR contains more exon than the threshold given.
 In the second case, will be discarded only the genes where the addition of UTR's exon of both side is over the threshold given.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_manage_UTRs.pl --ref infile --three --five -p --out outFile
 agat_sp_manage_UTRs.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **--ref**, **--reffile** or **-f**
 

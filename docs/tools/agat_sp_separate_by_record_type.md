@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_separate\_by\_record\_type.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script will separate the features from the gff input file into different files according to
 the record type. A record represent all features linked collectively by Parent/ID relationships.
@@ -12,14 +12,14 @@ a) When the record contains Level2 feature, the record type is the Level2 featur
 b) Some features do not have children (top and standalone level1 features) e.g. location,region,chromosome.
 In such case the record type is the level1 feature type.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_separate_by_record_type.pl -g infile.gff [ -o outfolder ]
 agat_sp_separate_by_record_type.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

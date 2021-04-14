@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sq\_repeats\_analyzer.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script allows to generate a tabulated format report of repeats annotated
 from a gff file containing repeats (feature type must be match or protein\_match).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_repeats_analyzer.pl -i <input file> [-g <integer or fasta> -o <output file>]
 agat_sq_repeats_analyzer.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-i**, **--gff**, **--file** or **--input**
 

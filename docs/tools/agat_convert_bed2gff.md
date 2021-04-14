@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_convert\_bed2gff.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes a bed file as input, and will translate it in gff format.
-The BED format is described here: https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+The BED format is described here: https://genome.ucsc.edu/FAQ/FAQformat.html##format1
 The script converts 0-based, half-open \[start-1, end) bed file to
 1-based, closed \[start, end\] General Feature Format v3 (GFF3).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_convert_bed2gff.pl --bed infile.bed [ -o outfile ]
 agat_convert_bed2gff.pl -h
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--bed**
 

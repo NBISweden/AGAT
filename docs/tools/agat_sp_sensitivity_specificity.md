@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_sensitivity\_specificity.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to compute the Sensitivity and Specificity in order to assess the quality
 of an annotation according to a reference (that is supposed to be true high-quality annotation).
@@ -19,14 +19,14 @@ Sensitivity and Specificity will be computed for each feature types.
 (and computed independentaly if part of different Level2 type. i.e. exons Sn Sp
 for tRNA will not be mixed up with the exon Sn Sp of mRNA exons)
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_sensitivity_specificity.pl --gff1 infile1.gff --gff2 infile2.gff  [ -o outfile ]
 agat_sp_sensitivity_specificity.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-gff1**
 

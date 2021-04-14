@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sq\_list\_attributes.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script take a gff3 file as input. -
 The script give information about attribute tags used within you file.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_list_attributes.pl -gff file.gff -p level2,cds,exon [ -o outfile ]
 agat_sq_list_attributes.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

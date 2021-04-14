@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_flag\_short\_introns.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script flags the short introns with the attribute &lt;pseudo>.
 Is is usefull to avoid ERROR when submiting the data to EBI.
 (Typical EBI error message: \*\*\*\*\*\*\*\*ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy)
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_flag_short_introns.pl --gff infile --out outfile
 agat_sp_flag_short_introns.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f**, **--ref** or **-reffile**
 

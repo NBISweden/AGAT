@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_list\_short\_introns.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to list all the introns inferior to a certain size.
 Introns are calculated on the fly from exons. (intron feature will not be used).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_list_short_introns.pl --gff infile [ --out outFile ]
 agat_sp_list_short_introns.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f**, **--ref** or **-reffile**
 

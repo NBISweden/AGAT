@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_gene\_by\_intron\_numbers.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to filter genes by intron numbers.
 It will create two files. one with the genes passing the intron number filter,
@@ -14,14 +14,14 @@ agat\_sp\_filter\_gene\_by\_intron\_numbers.pl --gff infile.gff -o result.gff
 Select genes with more or equal 10 introns:
 agat\_sp\_filter\_gene\_by\_intron\_numbers.pl --gff infile.gff --test ">=" --nb 10 \[ --output outfile \]
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_gene_by_intron_numbers.pl --gff infile.gff --test ">=" --nb 10 [ --output outfile ]
 agat_sp_filter_gene_by_intron_numbers.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**, **--gff**  or **-ref**
 

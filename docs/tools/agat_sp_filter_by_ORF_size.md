@@ -1,22 +1,22 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_by\_ORF\_size.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script reads a gff annotation file, and create two output files,
 one contains the gene models with ORF passing the test, the other contains the rest.
 By default the test is "> 100" that means all gene models that have ORF longer
 than 100 Amino acids, will pass the test.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_by_ORF_size.pl --gff infile.gff [ -o outfile ]
 agat_sp_filter_by_ORF_size.pl -h
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g** or **--gff**
 

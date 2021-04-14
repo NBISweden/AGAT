@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_convert\_genscan2gff.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes a genscan file as input, and will translate it in gff format.
 The genscan format is described here: http://genome.crg.es/courses/Bioinformatics2003\_genefinding/results/genscan.html
@@ -16,14 +16,14 @@ Then all prediction location are shifted accordingly.
 know if there is the same pronlem elsewhere.)
 /!\\ ^^^ Known problem ^^^^ /!\\
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_convert_genscan2gff.pl --genscan infile.bed [ -o outfile ]
 agat_convert_genscan2gff.pl -h
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--genscan** or **-g**
 

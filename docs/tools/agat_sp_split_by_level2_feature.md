@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_split\_by\_level2\_feature.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script will split the gff input file into different files according to
 the different Level2 feature that it contains.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_split_by_level2_feature.pl -g infile.gff [ -o outfolder ]
 agat_sp_split_by_level2_feature.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

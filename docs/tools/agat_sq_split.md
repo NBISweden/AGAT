@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sq\_split.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 split gff3 file into several files.
 By default we create files containing 1000 genes and all sub-features associated.
 GFF3 input file must be sequential.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sq_split.pl -i <input file> -o <output file>
 agat_sq_split.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **--file** or **--input**
 

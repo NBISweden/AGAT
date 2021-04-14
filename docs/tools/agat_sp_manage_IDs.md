@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_manage\_IDs.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script takes a gff3 file as input and will go through all feature to overwrite
 the value of the ID attribute.
@@ -12,14 +12,14 @@ By default the numbering start at 1, but you can decide to change this value usi
 The $letterCode is the first letter of the feature type (3rd colum). It is uniq for each feature type,
 i.e. when two feature types start with the same letter, the second one met will have the two first letter as $letterCode (and so one).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_manage_IDs.pl --gff file.gff -p level2 -p cds -p exon [ -o outfile ]
 agat_sp_manage_IDs.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

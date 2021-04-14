@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_prokka\_fragmented\_gene\_annotations.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to look at fragmented gene annotations (FRAGS) within prokka annotations.
 The FRAGS represent two (or more) ORFs that are in close proximity and are annotated
@@ -31,14 +31,14 @@ and compute the average length of the reference protein: here 262AA. We add 20% 
 \* Compare the length of the merged proteins (262 AA) against the reference protein length (282).
 If the the expected protein length (282 AA) is longer we have a FRAGS.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_prokka_fragmented_gene_annotations.pl -gff infile.gff --fasta genome.fa --db prokka/prokka_bacteria_sprot.fa  -o outfolder
 agat_sp_prokka_fragmented_gene_annotations.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**
 

@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_manage\_introns.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script provides information about introns (longest, shortest size mean ...) using the statistic method,
 then plot all the intron size values to get an overview of the introns size distribution.
 It gives you as well the value of the longest intron after removing X percent(s) of the longest (removing potential biais / false positive).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_manage_introns.pl --gff infile [--out outFile]
 agat_sp_manage_introns.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f**, **--ref** or **-reffile**
 

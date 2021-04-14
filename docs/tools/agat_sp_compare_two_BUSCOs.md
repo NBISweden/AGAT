@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_compare\_two\_BUSCOs.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The tool compares the results from two BUSCO runs (genome and proteome mode) in order to pinpoint the differences.
 It compares the BUSCOs classification (complete,fragmented, duplicated) of the 1st run (genome mode)
@@ -19,14 +19,14 @@ agat\_sp\_compare\_two\_BUSCOs.pl has been tested with results from BUSCO versio
 as input folder 2. You can also decide to provide twice (--f1 --f2) the same BUSCO run in genome mode,
 the tool will only extract the annotation of the complete,fragmented and duplicated annotated BUSCOs from the 1st run in gff.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_compare_two_BUSCOs.pl --f1 <input busco folder1> --f2 <input busco folder2> [-o <output folder>]
 agat_sp_compare_two_BUSCOs.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--f1**
 

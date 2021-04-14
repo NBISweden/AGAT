@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_filter\_feature\_from\_kill\_list.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to remove features based on a kill list.
 The default behaviour is to look at the features's ID. If the feature has an ID
@@ -10,14 +10,14 @@ The default behaviour is to look at the features's ID. If the feature has an ID
 /!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
 removing all children of a feature will automatically remove this feature too.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_filter_feature_from_kill_list.pl --gff infile.gff --kill_list file.txt  [ --output outfile ]
 agat_sp_filter_feature_from_kill_list.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**, **--gff**  or **-ref**
 

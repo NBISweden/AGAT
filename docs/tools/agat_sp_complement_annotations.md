@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_complement\_annotations.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script allows to complement a reference annotation with other annotations.
 A l1 feature from the addfile.gff that does not overlap a l1 feature from the reference annotation will be added.
@@ -12,14 +12,14 @@ A l1 feature from the addfile.gff with a CDS that overlaps a l1 feature with a C
 A l1 feature from the addfile.gff without a CDS that overlaps a l1 feature without a CDS from the reference annotation will be added only if none of the l3 features overlap.
 /!\\ It is sufficiant that only one isoform is overlapping to prevent the whole gene (l1 feature) from the addfile.gff to be added in the output.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_complement_annotations.pl --ref annotation_ref.gff --add addfile1.gff --add addfile2.gff --out outFile
 agat_sp_complement_annotations.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--ref**,  **-r** or **-i**
 

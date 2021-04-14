@@ -1,21 +1,21 @@
-# NAME
+## NAME
 
 agat\_sp\_Prokka\_inferNameFromAttributes.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to fill a Name attribute based on &lt;gene> attribute in a prokka gff
 annotation file. If no gene attribute is present it take if from the &lt;inference>
 attribute.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_Prokka_inferNameFromAttributes.pl -gff file.gff  [ -o outfile ]
 agat_sp_Prokka_inferNameFromAttributes.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-f**
 

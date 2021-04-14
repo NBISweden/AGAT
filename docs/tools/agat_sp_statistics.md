@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_sp\_statistics.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script provides exhaustive statitics of a gft/gff file.
 /!\\ If you have isoforms in your file, even if correct, some values calculated
@@ -11,14 +11,14 @@ Because all isoforms lengh are aditionned... It is why by deafault
 we always compute the statistics twice when there are isoforms, once with the
 isoforms, once wihtout (In that case we keep the longest isoform per locus).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_statistics.pl --gff file.gff  [ -o outfile ]
 agat_sp_statistics.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff** or **-i**
 

@@ -1,8 +1,8 @@
-# NAME
+## NAME
 
 agat\_convert\_sp\_gxf2gxf.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 This script fixes and/or standardizes any GTF/GFF file into full sorted GFF3 file.
 The output GFF syntax is shaped by bioperl and choose among the versions
@@ -44,14 +44,14 @@ Parse by Parent/child relationship
     ELSE Parse sequentially (features are grouped in a bucket, and the bucket change at each level2 feature met, and bucket(s) are linked to the first l1 top feature met)
 ```
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_convert_sp_gxf2gxf.pl -g infile.gff [ -o outfile ]
 agat_convert_sp_gxf2gxf.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 

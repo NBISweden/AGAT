@@ -1,20 +1,20 @@
-# NAME
+## NAME
 
 agat\_sp\_clipN\_seqExtremities\_and\_fixCoordinates.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to clip the N's extremities of the sequences.
 The annotation from the sequence clipped are modified accrodingly to stay consistent
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_clipN_seqExtremities_and_fixCoordinates.pl -g infile.gff -f infile.fasta  [ -o outfile ]
 agat_sp_clipN_seqExtremities_and_fixCoordinates.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-g**, **--gff** or **-ref**
 
