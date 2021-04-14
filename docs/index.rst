@@ -1,5 +1,44 @@
 Welcome to AGAT's documentation!
 ================================
+<h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>
+Suite of tools to handle gene annotations in any GTF/GFF format.
+
+[<img src="workcloud.png" width="200" height="100" />](https://nbis.se)
+
+# The GTF/GFF format
+
+The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
+The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
+This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.
+For a complete overview of the GTF/GFF formats have a look [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md).
+
+## What can AGAT do for you?
+
+AGAT has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format.
+The toolkit comes with an exhaustive list of tools allowing to perform almost everything you might want to achieve ^^
+
+# Why this tool?
+
+Providing support in genome annotation within [NBIS](https://nbis.se) the GTF/GFF format is the main format I handle. I receive from customers file in GTF/GFF format coming from a broad range of sources. Even sometimes files from mixed sources (concatenated in the same file), or manually edited.
+The problem is that often those files do not follow the official specifications or even if they do, they are not even be sure to be compatible we the inputs expected by the tools.
+
+* The main idea was **first** to be able to **parse all possible cases** that can be met (I listed more than 30 cases). To my knowledge AGAT is the only one able to handle all of them.
+
+* The **second** idea was to be able to **create a full standardised GFF3** file that could actually fit in any tool.
+Once again AGAT is the only one recreating fully the missing information:
+   * missing features (gene, mRNA, tRNA, exon, UTRs, etc...)
+   * missing attributes (ID, Parent).
+
+   and fixing wrong information:
+   * identifier to be uniq.
+   * feature location (e.g mRNA will be stretched if shorter than its exons).
+   * remove duplicated features.
+   * merge overlapping loci (if option activate because for prokaryote is not something we would like)
+
+* The **third** idea was to have a **correct topological sorting output**. To my knowledge AGAT is the only one dealing properly with this task. More information about it [here](https://github.com/NBISweden/AGAT/wiki/Topological-sorting-of-gff-features).
+
+* **Finally**, based on the abilities described previously I have developed a **toolkit to perform different tasks**. Some are originals, some are similar than what other tools could offer, but within AGAT they will always have the strength of the 3 first points.
+
 
 .. toctree::
    :maxdepth: 1
@@ -7,7 +46,7 @@ Welcome to AGAT's documentation!
 
    topological-sorting-of-gff-features.md
    troubleshooting.md
-   
+
    agat_convert_bed2gff.md
    agat_convert_embl2gff.md
    agat_convert_genscan2gff.md
