@@ -1,6 +1,6 @@
 # Troubleshooting
 
-## AGAT throws features out, because the feature type is not yet taken into account
+# AGAT throws features out, because the feature type is not yet taken into account
 Feature types (primary_tag) handled by AGAT are defined within json files. Most common features are already defined in those files. If you encounter files with feature types not accepted, AGAT will inform you and throw the features out. To keep those feature you must inform properly AGAT how to handle them.
 First access the json files by running:
 ```
@@ -31,7 +31,7 @@ Where `bigRNA`is the feature type and `gene`the parent feature type expected.
  * standalone: feature does not expect children
  * other values do not have any meaning but a value is required, write whatever you want.
 
-## AGAT throws features out, because child features are not provided
+# AGAT throws features out, because child features are not provided
 Features level1 (e.g. gene, match, chromosome) may require to have child features or not depending of the information stored into the `features_level1.json` file. If a child is required, and the GFF file does not contain it, the level1 feature will be thrown away. You must modify the json file to add the the term `standalone` to inform AGAT that this feature level1 do not require any child. (This work only on feature level1, not level2 or level3). To access the json files run the following command:
 ```
 # export the json files

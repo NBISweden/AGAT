@@ -13,7 +13,7 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: General:
 
    the_format.md
