@@ -19,8 +19,8 @@ Contents
    the_format.md
    why_this_tool.md
    agat_for_you.md
-   tools
-   gff_sorting
+   tools/tools.rst
+   topological-sorting-of-gff-features.md
    troubleshooting.md
 
 
