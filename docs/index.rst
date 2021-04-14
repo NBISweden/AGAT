@@ -20,7 +20,7 @@ Contents
    why_this_tool.md
    agat_for_you.md
    tools/
-   topological-sorting-of-gff-features.md
+   gff_sorting/
    troubleshooting.md
 
 
