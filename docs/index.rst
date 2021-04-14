@@ -13,7 +13,7 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: General:
 
    the_format.md
@@ -22,8 +22,10 @@ Contents
    topological-sorting-of-gff-features.md
    troubleshooting.md
 
+.. toctree::
    :maxdepth: 0
    :caption: List of tools:
+
    tools/agat_convert_bed2gff.md
    tools/agat_convert_embl2gff.md
    tools/agat_convert_genscan2gff.md
