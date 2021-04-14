@@ -3,9 +3,10 @@ Welcome to AGAT's documentation!
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
-[<img src="workcloud.png" width="200" height="100" />](https://nbis.se)
+[<img src="workcloud.png" width="600" height="300" />]
 
-# The GTF/GFF format
+The GTF/GFF format
+==================
 
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
@@ -17,7 +18,8 @@ For a complete overview of the GTF/GFF formats have a look [here](https://github
 AGAT has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format.
 The toolkit comes with an exhaustive list of tools allowing to perform almost everything you might want to achieve ^^
 
-# Why this tool?
+Why this tool?
+=============
 
 Providing support in genome annotation within [NBIS](https://nbis.se) the GTF/GFF format is the main format I handle. I receive from customers file in GTF/GFF format coming from a broad range of sources. Even sometimes files from mixed sources (concatenated in the same file), or manually edited.
 The problem is that often those files do not follow the official specifications or even if they do, they are not even be sure to be compatible we the inputs expected by the tools.
@@ -39,9 +41,11 @@ Once again AGAT is the only one recreating fully the missing information:
 
 * **Finally**, based on the abilities described previously I have developed a **toolkit to perform different tasks**. Some are originals, some are similar than what other tools could offer, but within AGAT they will always have the strength of the 3 first points.
 
+Contents
+========
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
 
    topological-sorting-of-gff-features.md
