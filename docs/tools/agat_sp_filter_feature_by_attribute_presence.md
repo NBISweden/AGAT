@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_select\_feature\_by\_attribute\_presence.pl
+# agat\_sp\_select\_feature\_by\_attribute\_presence.pl
 
 ## DESCRIPTION
 

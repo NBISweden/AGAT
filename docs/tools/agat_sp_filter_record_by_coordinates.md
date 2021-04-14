@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_record\_by\_coordinates.pl
+# agat\_sp\_filter\_record\_by\_coordinates.pl
 
 ## DESCRIPTION
 

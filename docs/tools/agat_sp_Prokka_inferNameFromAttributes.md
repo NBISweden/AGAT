@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_Prokka\_inferNameFromAttributes.pl
+# agat\_sp\_Prokka\_inferNameFromAttributes.pl
 
 ## DESCRIPTION
 

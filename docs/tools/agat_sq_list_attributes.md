@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_list\_attributes.pl
+# agat\_sq\_list\_attributes.pl
 
 ## DESCRIPTION
 

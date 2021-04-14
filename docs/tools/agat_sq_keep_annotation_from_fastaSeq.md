@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_keep\_annotation\_from\_fastaSeq.pl
+# agat\_sq\_keep\_annotation\_from\_fastaSeq.pl
 
 ## DESCRIPTION
 

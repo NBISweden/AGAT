@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_prokka\_fragmented\_gene\_annotations.pl
+# agat\_sp\_prokka\_fragmented\_gene\_annotations.pl
 
 ## DESCRIPTION
 

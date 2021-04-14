@@ -1,6 +1,4 @@
-## NAME
-
-gaas\_converter\_embl2gff.pl
+# gaas\_converter\_embl2gff.pl
 
 ## DESCRIPTION
 

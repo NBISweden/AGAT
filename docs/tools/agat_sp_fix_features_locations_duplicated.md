@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_fix\_features\_locations\_duplicated.pl
+# agat\_sp\_fix\_features\_locations\_duplicated.pl
 
 ## DESCRIPTION
 

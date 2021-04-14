@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_merge\_annotations.pl
+# agat\_sp\_merge\_annotations.pl
 
 ## DESCRIPTION
 

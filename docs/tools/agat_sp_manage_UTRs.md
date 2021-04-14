@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_manage\_UTRs.pl
+# agat\_sp\_manage\_UTRs.pl
 
 ## DESCRIPTION
 

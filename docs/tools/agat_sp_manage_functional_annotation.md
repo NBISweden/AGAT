@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_manage\_functional\_annotation.pl
+# agat\_sp\_manage\_functional\_annotation.pl
 
 ## DESCRIPTION
 

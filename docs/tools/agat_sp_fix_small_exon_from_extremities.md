@@ -1,6 +1,4 @@
-## NAME
-
-agat\_fix\_small\_exon\_from\_extremities.pl
+# agat\_fix\_small\_exon\_from\_extremities.pl
 
 ## DESCRIPTION
 

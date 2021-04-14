@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_to\_tabulated.pl
+# agat\_sp\_to\_tabulated.pl
 
 ## DESCRIPTION
 

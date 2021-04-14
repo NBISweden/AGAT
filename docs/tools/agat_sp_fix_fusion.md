@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_fix\_fusion.pl
+# agat\_sp\_fix\_fusion.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-gaas\_convert\_mfannot2gff.pl
+# gaas\_convert\_mfannot2gff.pl
 
 ## DESCRIPTION
 

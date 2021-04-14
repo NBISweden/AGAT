@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_add\_start\_and\_stop.pl.pl
+# agat\_sp\_add\_start\_and\_stop.pl.pl
 
 ## DESCRIPTION
 

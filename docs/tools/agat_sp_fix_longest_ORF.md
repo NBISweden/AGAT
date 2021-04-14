@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_fix\_longest\_ORF.pl
+# agat\_sp\_fix\_longest\_ORF.pl
 
 ## DESCRIPTION
 

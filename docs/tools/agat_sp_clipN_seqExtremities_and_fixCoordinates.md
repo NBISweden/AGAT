@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_clipN\_seqExtremities\_and\_fixCoordinates.pl
+# agat\_sp\_clipN\_seqExtremities\_and\_fixCoordinates.pl
 
 ## DESCRIPTION
 

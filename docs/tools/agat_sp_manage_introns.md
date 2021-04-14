@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_manage\_introns.pl
+# agat\_sp\_manage\_introns.pl
 
 ## DESCRIPTION
 

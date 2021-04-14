@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_add\_introns.pl - This script
+# agat\_sp\_add\_introns.pl - This script
 
 ## DESCRIPTION
 

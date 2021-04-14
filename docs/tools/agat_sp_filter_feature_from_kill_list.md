@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_feature\_from\_kill\_list.pl
+# agat\_sp\_filter\_feature\_from\_kill\_list.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_flag\_premature\_stop\_codons.pl
+# agat\_sp\_flag\_premature\_stop\_codons.pl
 
 ## DESCRIPTION
 

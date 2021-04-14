@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_kraken\_assess\_lift\_coverage.pl
+# agat\_sp\_kraken\_assess\_lift\_coverage.pl
 
 ## DESCRIPTION
 

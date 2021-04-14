@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_statistics.pl
+# agat\_sp\_statistics.pl
 
 ## DESCRIPTION
 

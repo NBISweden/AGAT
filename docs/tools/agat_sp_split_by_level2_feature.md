@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_split\_by\_level2\_feature.pl
+# agat\_sp\_split\_by\_level2\_feature.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_add\_locus\_tag.pl
+# agat\_sq\_add\_locus\_tag.pl
 
 ## DESCRIPTION
 

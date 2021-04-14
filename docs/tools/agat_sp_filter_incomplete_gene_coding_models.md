@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_incomplete\_gene\_coding\_models.pl
+# agat\_sp\_filter\_incomplete\_gene\_coding\_models.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_webApollo\_compliant.pl
+# agat\_sp\_webApollo\_compliant.pl
 
 ## DESCRIPTION
 

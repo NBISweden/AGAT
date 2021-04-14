@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_by\_ORF\_size.pl
+# agat\_sp\_filter\_by\_ORF\_size.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_convert\_sp\_minimap2\_bam2gff.pl
+# agat\_convert\_sp\_minimap2\_bam2gff.pl
 
 ## DESCRIPTION
 

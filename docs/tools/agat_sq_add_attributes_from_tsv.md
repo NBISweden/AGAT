@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_add\_attributes\_from\_tsv.pl
+# agat\_sq\_add\_attributes\_from\_tsv.pl
 
 ## DESCRIPTION
 

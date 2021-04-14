@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_extract\_sequences.pl
+# agat\_sp\_extract\_sequences.pl
 
 ## DESCRIPTION
 

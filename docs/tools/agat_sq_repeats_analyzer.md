@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_repeats\_analyzer.pl
+# agat\_sq\_repeats\_analyzer.pl
 
 ## DESCRIPTION
 

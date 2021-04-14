@@ -1,6 +1,4 @@
-## NAME
-
-agat\_convert\_sp\_gxf2gxf.pl
+# agat\_convert\_sp\_gxf2gxf.pl
 
 ## DESCRIPTION
 

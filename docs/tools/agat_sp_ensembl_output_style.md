@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_ensembl\_output\_style.pl
+# agat\_sp\_ensembl\_output\_style.pl
 
 ## DESCRIPTION
 

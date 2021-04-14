@@ -1,6 +1,4 @@
-## NAME
-
-agat\_convert\_genscan2gff.pl
+# agat\_convert\_genscan2gff.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_convert\_bed2gff.pl
+# agat\_convert\_bed2gff.pl
 
 ## DESCRIPTION
 
@@ -55,4 +53,3 @@ agat_convert_bed2gff.pl -h
 - **-h** or **--help**
 
     Display this helpful text.
-

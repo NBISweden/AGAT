@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_manage\_attributes.pl
+# agat\_sp\_manage\_attributes.pl
 
 ## DESCRIPTION
 

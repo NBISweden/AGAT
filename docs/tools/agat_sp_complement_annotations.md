@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_complement\_annotations.pl
+# agat\_sp\_complement\_annotations.pl
 
 ## DESCRIPTION
 

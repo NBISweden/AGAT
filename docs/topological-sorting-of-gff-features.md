@@ -1,4 +1,4 @@
-## Topological sorting of gff features
+# Topological sorting of gff features
 
 It might be critical to have a GFF/GTF file properly sorted:
 
@@ -402,7 +402,7 @@ A01	Cufflinks	exon	5329	5408	.	-	.	Parent=XLOC_001154.41
 A01	Cufflinks	exon	5994	6154	.	-	.	Parent=XLOC_001154.41
 ```
 
-##### gffread 
+##### gffread
 
 gffread v0.11.4
 

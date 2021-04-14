@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_fix\_overlaping\_genes.pl
+# agat\_sp\_fix\_overlaping\_genes.pl
 
 ## DESCRIPTION
 

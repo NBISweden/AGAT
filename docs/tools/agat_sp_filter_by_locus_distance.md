@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_by\_locus\_distance.pl
+# agat\_sp\_filter\_by\_locus\_distance.pl
 
 ## DESCRIPTION
 

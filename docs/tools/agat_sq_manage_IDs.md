@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_manage\_ID.pl
+# agat\_sq\_manage\_ID.pl
 
 ## DESCRIPTION
 

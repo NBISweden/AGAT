@@ -1,6 +1,4 @@
-## /!\ replaced by [agat_convert_sp_gxf2gxf](https://github.com/NBISweden/AGAT/wiki/agat_convert_sp_gxf2gxf) since AGAT v0.3.0
-
-## NAME
+# ## NAME
 
 agat\_sp\_gxf\_to\_gff3.pl
 

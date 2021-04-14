@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_sensitivity\_specificity.pl
+# agat\_sp\_sensitivity\_specificity.pl
 
 ## DESCRIPTION
 

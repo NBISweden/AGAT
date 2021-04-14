@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_fix\_cds\_frame.pl
+# agat\_sp\_fix\_cds\_frame.pl
 
 ## DESCRIPTION
 

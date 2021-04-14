@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_keep\_longest\_isoform.pl
+# agat\_sp\_keep\_longest\_isoform.pl
 
 ## DESCRIPTION
 

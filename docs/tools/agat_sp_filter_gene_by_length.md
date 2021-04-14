@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_gene\_by\_length.pl
+# agat\_sp\_filter\_gene\_by\_length.pl
 
 ## DESCRIPTION
 

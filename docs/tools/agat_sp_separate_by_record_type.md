@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_separate\_by\_record\_type.pl
+# agat\_sp\_separate\_by\_record\_type.pl
 
 ## DESCRIPTION
 

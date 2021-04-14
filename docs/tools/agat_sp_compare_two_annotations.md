@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_compare\_two\_annotations.pl
+# agat\_sp\_compare\_two\_annotations.pl
 
 ## DESCRIPTION
 

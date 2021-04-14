@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_split.pl
+# agat\_sq\_split.pl
 
 ## DESCRIPTION
 

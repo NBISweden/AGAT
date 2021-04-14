@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_gene\_by\_intron\_numbers.pl
+# agat\_sp\_filter\_gene\_by\_intron\_numbers.pl
 
 ## DESCRIPTION
 

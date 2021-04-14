@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_compare\_two\_BUSCOs.pl
+# agat\_sp\_compare\_two\_BUSCOs.pl
 
 ## DESCRIPTION
 

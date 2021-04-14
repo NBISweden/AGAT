@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_filter\_by\_mrnaBlastValue.pl
+# agat\_sp\_filter\_by\_mrnaBlastValue.pl
 
 ## DESCRIPTION
 

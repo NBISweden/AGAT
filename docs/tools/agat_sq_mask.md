@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sq\_mask.pl
+# agat\_sq\_mask.pl
 
 ## DESCRIPTION
 

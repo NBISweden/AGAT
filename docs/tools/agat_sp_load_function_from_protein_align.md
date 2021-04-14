@@ -1,6 +1,4 @@
-## NAME
-
-agat\_sp\_load\_function\_from\_protein\_align.pl
+# agat\_sp\_load\_function\_from\_protein\_align.pl
 
 ## DESCRIPTION
 

@@ -1,6 +1,4 @@
-## NAME
-
-agat\_remove\_redundant\_entries.pl
+# agat\_remove\_redundant\_entries.pl
 
 ## DESCRIPTION
 
