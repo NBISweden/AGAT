@@ -1,2 +1,3 @@
 sphinx-rtd-theme
 recommonmark
+sphinxemoji
