@@ -19,7 +19,7 @@ from recommonmark.parser import CommonMarkParser
 
 # -- Project information -----------------------------------------------------
 
-project = 'AGAT Another GTF/GFF Analysis toolkit'
+project = 'AGAT'
 copyright = '2020, NBIS'
 author = 'Jacques Dainat'
 

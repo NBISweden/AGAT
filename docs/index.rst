@@ -1,10 +1,11 @@
 Welcome to AGAT's documentation!
 ================================
-<h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>
+
+*A*nother *G*TF/GFF *A*nalysis *T*oolkit
+----------------------------------------
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
-[<img src="workcloud.png" width="600" height="300" />]
-
+.. figure:: workcloud.png
 
 
 Contents
