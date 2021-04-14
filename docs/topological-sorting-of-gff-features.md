@@ -1,30 +1,30 @@
-# Topological sorting of gff features
+## Topological sorting of gff features
 
 It might be critical to have a GFF/GTF file properly sorted:
 
- * Not properly sorted, a genome browser can bug or give wrong displays 
+ * Not properly sorted, a genome browser can bug or give wrong displays
  * Some tools require files sorted in a particular way (e.g.tabix tool from htslib need a GFF sorted by chromosomes and positions).
  * It makes it easy to ready for the human eye
 
 Zhigang Lu has made a nice post about his experience trying to find a way to get a correct topological sorting. See [here](https://zhiganglu.com/post/sort-gff-topologically/).
 
-# Table of Contents
+## Table of Contents
 
  * [Tests summary](#test-summary)
  * [Example 1](#example-1)
-   * [The GFF file to sort](#the-gff-file-to-sort) 
+   * [The GFF file to sort](#the-gff-file-to-sort)
    * [Results](results)
      * [AGAT](#agat)
      * [GenomeTools](#genometools)
      * [GFF3sort](#gff3sort)
-     * [gffread](#gffread) 
+     * [gffread](#gffread)
  * [Example 2](#example-2)
-   * [The GFF file to sort](#the-gff-file-to-sort-2) 
+   * [The GFF file to sort](#the-gff-file-to-sort-2)
    * [Results](results-2)
      * [AGAT](#agat-2)
      * [GenomeTools](#genometools-2)
      * [GFF3sort](#gff3sort-2)
-     * [gffread](#gffread-2) 
+     * [gffread](#gffread-2)
 
 
 ### Tests summary
@@ -32,16 +32,16 @@ Zhigang Lu has made a nice post about his experience trying to find a way to get
 tool | option in command line | Type of sorting | Comment
 -- | -- | -- | -- |
 [AGAT](https://github.com/NBISweden/AGAT) | / | by chromosomes, by gene position, by type (mRNAs then exon, then CDS then alphabetical feature types; then mRNA2 then exon2, then CDS2 then alphabetical feature2 types) | Fix GFF/GTF if needed
-[GenomeTools](https://github.com/genometools/genometools) | -sortlines -tidy -retainids | by chromosomes and positions then random feature type | Lines with the same chromosomes and start positions would be placed randomly, so parent feature lines might sometimes be placed after their children lines. 
-[GenomeTools](https://github.com/genometools/genometools) | -retainids | by chromosomes, by gene position, by type (mRNA then children; then mRNA2 then children2), by position (children are sorted by positions) | 
+[GenomeTools](https://github.com/genometools/genometools) | -sortlines -tidy -retainids | by chromosomes and positions then random feature type | Lines with the same chromosomes and start positions would be placed randomly, so parent feature lines might sometimes be placed after their children lines.
+[GenomeTools](https://github.com/genometools/genometools) | -retainids | by chromosomes, by gene position, by type (mRNA then children; then mRNA2 then children2), by position (children are sorted by positions) |
 [GFF3sort](https://github.com/billzt/gff3sort) | --precise | by chromosomes and positions then attribute with Parent attribute first.  | move lines with "Parent=" attributes (case insensitive) behind lines without "Parent=" attributes. The goal of GFF3sort is not to obtain a topological sorting but rather getting something that could be indexed optimally by third part tools.
 [gffread](https://github.com/gpertea/gffread) | | By default, chromosomes are kept in the order they were found. With --sort-alpha parameter the chromosomes (reference sequences) are sorted alphabetically | /!\ Some feature types are lost e.g. `gene`, `three_prime_UTR`, `five_prime_UTR`, etc...
 
-# Example 1
+## Example 1
 
 This test is based on the file used by [Zhigang Lu](https://zhiganglu.com/post/sort-gff-topologically/)
 
-## The GFF file to sort
+### The GFF file to sort
 
 ```
 ##gff-version 3
@@ -76,9 +76,9 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.1
 SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.2
 ```
 
-## Results
+### Results
 
-### AGAT
+#### AGAT
 
 AGAT v0.4.0  
 
@@ -117,7 +117,7 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	ID=five_prime_utr-2;Parent=S
 SM_V7_1	AUGUSTUS	three_prime_UTR	103403	103440	.	-	.	ID=three_prime_utr-2;Parent=Smp_315690.2
 ```
 
-### GenomeTools
+#### GenomeTools
 
 GenomeTools 1.6.1
 
@@ -194,9 +194,9 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.2
 ###
 ```
 
-### GFF3sort 
+#### GFF3sort
 
-GFF3sort 0.1.a1a2bc9 
+GFF3sort 0.1.a1a2bc9
 
 `gff3sort.pl --precise test.gff`
 
@@ -233,7 +233,7 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.1
 SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.2
 ```
 
-### gffread
+#### gffread
 
 gffread v0.11.4
 
@@ -269,11 +269,11 @@ SM_V7_1	AUGUSTUS	CDS	145395	145678	.	-	2	Parent=Smp_315690.2
 SM_V7_1	AUGUSTUS	CDS	151075	151132	.	-	0	Parent=Smp_315690.2
 ```
 
-# Example 2
+## Example 2
 
 This test is based on the file used by [GFF3sort](https://github.com/billzt/gff3sort)
 
-## The GFF file to sort
+### The GFF file to sort
 
 ```
 ##gff-version 3
@@ -293,9 +293,9 @@ A01	Cufflinks	exon	3637	3726	.	-	.	Parent=XLOC_001154.42
 A01	Cufflinks	exon	5329	6386	.	-	.	Parent=XLOC_001154.42
 ```
 
-## Results
+### Results
 
-### AGAT
+#### AGAT
 
 AGAT v0.4.0  
 
@@ -319,7 +319,7 @@ A01	Cufflinks	exon	3637	3726	.	-	.	ID=exon-9;Parent=XLOC_001154.42
 A01	Cufflinks	exon	5329	6386	.	-	.	ID=exon-10;Parent=XLOC_001154.42
 ```
 
-### GenomeTools
+#### GenomeTools
 
 GenomeTools 1.6.1
 
@@ -380,9 +380,9 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.2
 ###
 ```
 
-### GFF3sort 
+#### GFF3sort
 
-GFF3sort 0.1.a1a2bc9 
+GFF3sort 0.1.a1a2bc9
 
 `gff3sort.pl --precise test2.gff`
 
@@ -402,7 +402,7 @@ A01	Cufflinks	exon	5329	5408	.	-	.	Parent=XLOC_001154.41
 A01	Cufflinks	exon	5994	6154	.	-	.	Parent=XLOC_001154.41
 ```
 
-### gffread 
+#### gffread 
 
 gffread v0.11.4
 
