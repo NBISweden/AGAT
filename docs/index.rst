@@ -19,8 +19,8 @@ Contents
    the_format.md
    why_this_tool.md
    agat_for_you.md
-   tools/
-   gff_sorting/
+   tools
+   gff_sorting
    troubleshooting.md
 
 
