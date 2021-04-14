@@ -1,11 +1,12 @@
 Welcome to AGAT's documentation!
 ================================
 
-*A*nother *G*TF/GFF *A*nalysis *T*oolkit
+Another GTF/GFF Analysis Toolkit
 ----------------------------------------
+
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
-.. figure:: workcloud.png
+.. figure:: wordcloud.png
 
 
 Contents
