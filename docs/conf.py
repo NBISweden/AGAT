@@ -40,6 +40,7 @@ release = ''
 # ones.
 extensions = [
 'sphinxemoji.sphinxemoji',
+'recommonmark',
 'sphinx_markdown_tables',
 ]
 
