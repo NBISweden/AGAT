@@ -1,4 +1,4 @@
-# gaas\_convert\_mfannot2gff.pl
+# agat\_convert\_mfannot2gff.pl
 
 ## DESCRIPTION
 
@@ -8,8 +8,8 @@ pipeline (http://megasun.bch.umontreal.ca/RNAweasel/). Reports GFF3 format.
 ## SYNOPSIS
 
 ```
-gaas_convert_mfannot2gff.pl -m <mfannot> -o <gff>
-gaas_convert_mfannot2gff.pl --help
+agat_convert_mfannot2gff.pl -m <mfannot> -o <gff>
+agat_convert_mfannot2gff.pl --help
 ```
 
 ## COPYRIGHT AND LICENSE
@@ -31,4 +31,3 @@ modified by jacques dainat 2017-11
 - **-h** or **--help**
 
     Display this helpful text.
-
