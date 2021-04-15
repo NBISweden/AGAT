@@ -20,7 +20,7 @@ to perform the conversion. We will try to see in this review the main difference
 ## Test summary
 
 tool | respect GTF format | UTR conserved | attribute conserved | Stop codon removed from CDS | Comment
--- | -- | -- | -- | -- | -- |
+-- | -- | -- | -- | -- | --
 [AGAT](https://github.com/NBISweden/AGAT) | Yes - All (default GTF3) | Yes it converts UTR terms to the appropriate ones according to the GTF version selected.| Yes - All | Yes | Can take any GTF GFF as input. The only one keeping comments at the beginning of the file.
 [gffread](https://github.com/gpertea/gffread) | No - They say GTF2.2 but it is not: transcript should be removed; start_codon and stop_codon should stay. | No | No  |  No
 [GenomeTools](https://github.com/genometools/genometools) | No - only CDS and exon kept | No | No |  No | gene_id and transcript_id get new identifiers.
