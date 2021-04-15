@@ -402,7 +402,7 @@ Originally Ensembl has created the GTF format that has been then slightly modifi
 ## Resume
 
 ### Timeline of the different formats  
-<img align="center" src="gff_history.jpg"/>
+![alt text](gff_history.jpg "gff_history")
 
 ### Main points and differences between GFF formats
 

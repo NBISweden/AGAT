@@ -18,10 +18,10 @@ to perform the conversion. We will try to see in this review the main difference
 ## Test summary
 
 tool | Comment
--- | -- 
+-- | --
 [AGAT](https://github.com/NBISweden/AGAT) | default RGB color to 255,0,0
 [PASA](https://github.com/PASApipeline/PASApipeline) | Particular 3rd column that contains a list of names
-[bedops](https://github.com/bedops/bedops) |  each gff feature give one line. Only the 6 first colums are correct
+[bedops](https://github.com/bedops/bedops) | each gff feature give one line. Only the 6 first colums are correct
 [Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | extra coma at the end of 11th and 12th column
 
 ### The GFF file to convert
