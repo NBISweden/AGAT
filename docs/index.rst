@@ -23,6 +23,10 @@ Contents
    troubleshooting.md
 
 .. toctree::
+   :maxdepth: 2
+   :caption: General:
+
+.. toctree::
    :maxdepth: 1
    :caption: List of tools:
 
