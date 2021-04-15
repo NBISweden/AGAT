@@ -22,11 +22,11 @@ to perform the conversion. We will try to see in this review the main difference
 tool | respect GTF format | UTR conserved | attribute conserved | Stop codon removed from CDS | Comment
 -- | -- | -- | -- | -- | --
 [AGAT](https://github.com/NBISweden/AGAT) | Yes - All (default GTF3) | Yes it converts UTR terms to the appropriate ones according to the GTF version selected.| Yes - All | Yes | Can take any GTF GFF as input. The only one keeping comments at the beginning of the file.
-[gffread](https://github.com/gpertea/gffread) | No - They say GTF2.2 but it is not: transcript should be removed; start_codon and stop_codon should stay. | No | No  |  No
+[gffread](https://github.com/gpertea/gffread) | No - They say GTF2.2 but it is not: transcript should be removed; start_codon and stop_codon should stay. | No | No | No
 [GenomeTools](https://github.com/genometools/genometools) | No - only CDS and exon kept | No | No |  No | gene_id and transcript_id get new identifiers.
-[ea-utils](https://github.com/ExpressionAnalysis/ea-utils) |  No - only CDS and exon kept | No | No | No
-[TransDecoder](https://github.com/TransDecoder/TransDecoder) |  No - start and stop codon removed | No | Name only | No | Needs the fasta file for the conversion. Location of the last CDS modified and incorrect
-[Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | No - gene is missing or transcript is superfluous to be compliant to one of the GTF format | No | No |  Yes | Create a new attribute 'gene_name'.
+[ea-utils](https://github.com/ExpressionAnalysis/ea-utils) | No - only CDS and exon kept | No | No | No
+[TransDecoder](https://github.com/TransDecoder/TransDecoder) | No - start and stop codon removed | No | Name only | No | Needs the fasta file for the conversion. Location of the last CDS modified and incorrect
+[Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | No - gene is missing or transcript is superfluous to be compliant to one of the GTF format | No | No | Yes | Create a new attribute 'gene_name'.
 
 ### The GFF file to convert
 
