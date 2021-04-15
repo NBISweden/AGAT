@@ -34,12 +34,12 @@ It's often hard to understand and differentiate all GFF/GTF formats/flavors. Man
         * [Evolution of the 3rd and 9th column](#evolution-of-the-3rd-and-9th-column)
         * [Difference between GENCODE and Ensembl GTF](#difference-between-gencode-and-ensembl-gtf)
 
-## Forewords  
+### Forewords  
 ⇨	When I use the term gff it includes all gff formats/flavors. (The first version of the format was not called gff1 but gff. But to make it easier I will always specify the version of the format saying gff1 when I talk about the first version of it).  
 ⇨	I the same way, when I use the term gtf it includes all gtf formats/flavors.  
 ⇨	I have created the term **gxf** that means all the gff and gtf formats/flavors.
 
-## Introduction  
+### Introduction  
 
 **GFF (Gene-Finding Format)** is a general-purpose genome annotation format. It was conceived during a 1997 meeting on computational genefinding at the Isaac Newton Institute, Cambridge, UK and developed in collaboration between the Sanger Centre, the University of California at Santa Cruz and other participants (_Holmes I: Studies in Probabilistic Sequence Alignment and Evolution. PhD thesis University of Cambridge 1998._). The key players have been **Richard Durbin** and **David Haussler**.  
 
@@ -240,7 +240,7 @@ Here an example of GFF2:
     SEQ3    BLASTX    similarity    235 260 .   +   2   Target "HBA_HUMAN" ; E_value 0.0005
     SEQ3    BLASTX    similarity    360 396 .   +   0   Target "HBA_HUMAN" ; E_value 0.001
 
-## GFF3  
+### GFF3  
 (2004)  
 
 GFF3 addresses several shortcomings in its predecessor GFF2. Actually it addresses the most common extensions to GFF, while preserving back-ward compatibility with previous formats. It has been conceptualized by by **Lincoln Stein**. [The First specification draft](https://web.archive.org/web/20031207182031/http://song.sourceforge.net:80/gff3.shtml) I found is from 10 September 2003 (version 1.00rc1). [The first offical specification](http://rice.bio.indiana.edu:7082/annot/gff3.html) is the version 1 published the 30 September 2004.
