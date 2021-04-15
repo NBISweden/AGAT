@@ -68,7 +68,7 @@ A code review is initiated when someone has made a Pull Request in the appropria
 
 Work should not continue on the branch _unless_ it is a [Draft Pull Request](https://github.blog/2019-02-14-introducing-draft-pull-requests/). Once the PR is marked ready the review can start.
 
-The initiator of the PR should recruit a reviewer that get assigned reviewer duty on the branch. 
+The initiator of the PR should recruit a reviewer that get assigned reviewer duty on the branch.
 
 Other people may also look at and review the code.
 
@@ -85,5 +85,5 @@ Once the review is positive the Pull Request can be _merged_ into `master` and t
 
 Thanks again.
 
-[searching under Issues]: https://github.com/NBISweden/GAAS/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Abug%20%5BBUG%5D%20in%3Atitle
-[open a new one]: https://github.com/NBISweden/GAAS/issues/new?title=%5BBUG%5D
+[searching under Issues]: https://github.com/NBISweden/AGAT/issues?utf8=%E2%9C%93&q=is%3Aissue%20label%3Abug%20%5BBUG%5D%20in%3Atitle
+[open a new one]: https://github.com/NBISweden/AGAT/issues/new?title=%5BBUG%5D
