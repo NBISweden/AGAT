@@ -1,4 +1,4 @@
-# gaas\_converter\_embl2gff.pl
+# agat\_converter\_embl2gff.pl
 
 ## DESCRIPTION
 
@@ -7,7 +7,7 @@ The script takes an EMBL file as input, and will translate it in gff format.
 ## SYNOPSIS
 
 ```
-gaas_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
+agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 ```
 
 ## OPTIONS
@@ -33,4 +33,3 @@ gaas_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 - **-h** or **--help**
 
     Display this helpful text.
-
