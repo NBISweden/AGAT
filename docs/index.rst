@@ -20,6 +20,7 @@ Contents
 .. toctree::
    :maxdepth: 2
    :caption: General:
+   
    gxf.md
    why_this_tool.md
    agat_for_you.md

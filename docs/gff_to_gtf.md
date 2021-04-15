@@ -1,17 +1,16 @@
 # GFF to GTF conversion
-## Review of the main conversion tools
 
-It exists many GFF formats and many GTF formats 
+It exists many GFF formats and many GTF formats
 (see [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md) for a complete review) and many tools
 to perform the conversion. We will try to see in this review the main differences.
 
-# Table of Contents
+## Table of Contents
 
  * [Test summary](#test-summary)
  * [The GFF file to convert](#the-gff-file-to-convert)
  * [The converters](#the-converters)
    * [AGAT](#agat)
-   * [gffread](#gffread) 
+   * [gffread](#gffread)
    * [GenomeTools](#genometools)
    * [ea-utils](#ea-utils)
    * [TransDecoder](#transdecoder)
@@ -23,13 +22,13 @@ to perform the conversion. We will try to see in this review the main difference
 tool | respect GTF format | UTR conserved | attribute conserved | Stop codon removed from CDS | Comment
 -- | -- | -- | -- | -- | -- |
 [AGAT](https://github.com/NBISweden/AGAT) | Yes - All (default GTF3) | Yes it converts UTR terms to the appropriate ones according to the GTF version selected.| Yes - All | Yes | Can take any GTF GFF as input. The only one keeping comments at the beginning of the file.
-[gffread](https://github.com/gpertea/gffread) | No - They say GTF2.2 but it is not: transcript should be removed; start_codon and stop_codon should stay. | No | No  |  No | 
+[gffread](https://github.com/gpertea/gffread) | No - They say GTF2.2 but it is not: transcript should be removed; start_codon and stop_codon should stay. | No | No  |  No |
 [GenomeTools](https://github.com/genometools/genometools) | No - only CDS and exon kept | No | No |  No | gene_id and transcript_id get new identifiers.
-[ea-utils](https://github.com/ExpressionAnalysis/ea-utils) |  No - only CDS and exon kept | No | No | No | 
+[ea-utils](https://github.com/ExpressionAnalysis/ea-utils) |  No - only CDS and exon kept | No | No | No |
 [TransDecoder](https://github.com/TransDecoder/TransDecoder) |  No - start and stop codon removed | No | Name only | No | Needs the fasta file for the conversion. Location of the last CDS modified and incorrect
-[Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | No - gene is missing or transcript is superfluous to be compliant to one of the GTF format | No | No |  Yes | Create a new attribute 'gene_name'. 
+[Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | No - gene is missing or transcript is superfluous to be compliant to one of the GTF format | No | No |  Yes | Create a new attribute 'gene_name'.
 
-## The GFF file to convert
+### The GFF file to convert
 
 The test file is a GFF3 file:
 
@@ -53,9 +52,9 @@ scaffold625	maker	five_prime_utr	337818	337914	.	+	.	ID=CLUHART00000008717:five_
 scaffold625	maker	three_prime_UTR	343034	343277	.	+	.	ID=CLUHART00000008717:three_prime_utr;Parent=CLUHART00000008717
 ```
 
-## The converters
+### The converters
 
-### AGAT
+#### AGAT
 
 AGAT v0.5.1  
 
@@ -80,11 +79,11 @@ scaffold625	maker	stop_codon	343031	343033	.	+	.	gene_id "CLUHARG00000005458"; t
 scaffold625	maker	three_prime_utr	343034	343277	.	+	.	gene_id "CLUHARG00000005458"; transcript_id "CLUHART00000008717"; ID "CLUHART00000008717:three_prime_utr"; Parent "CLUHART00000008717"; original_biotype "three_prime_UTR";
 ```
 
-### gffread
+#### gffread
 
 gffread 0.11.4
 
-`gffread -E 1_test.gff -T -o  1_test_gffread.gtf` 
+`gffread -E 1_test.gff -T -o  1_test_gffread.gtf`
 
 ```
 scaffold625	maker	transcript	337818	343277	.	+	.	transcript_id "CLUHART00000008717"; gene_id "CLUHARG00000005458";
@@ -98,7 +97,7 @@ scaffold625	maker	CDS	341518	341628	.	+	2	transcript_id "CLUHART00000008717"; ge
 scaffold625	maker	CDS	341964	343033	.	+	2	transcript_id "CLUHART00000008717"; gene_id "CLUHARG00000005458";
 ```
 
-### GenomeTools
+#### GenomeTools
 
 GenomeTools 1.6.1  
 The help says it convert into GTF2.2
@@ -116,7 +115,7 @@ scaffold625	maker	CDS	341518	341628	.	+	2	gene_id "1"; transcript_id "1.1";
 scaffold625	maker	CDS	341964	343033	.	+	2	gene_id "1"; transcript_id "1.1";
 ```
 
-### ea-utils
+#### ea-utils
 
 [ea-utils](https://github.com/ExpressionAnalysis/ea-utils) commit 2b3d8c5d148801c98a2b3f3d54009a72c5b99521
 
@@ -133,7 +132,7 @@ scaffold625	maker	CDS	341964	343033	0	+	2	gene_id "CLUHARG00000005458"; transcri
 scaffold625	maker	exon	341964	343277	0	+	.	gene_id "CLUHARG00000005458"; transcript_id "CLUHART00000008717:CLUHARG00000005458";
 ```
 
-### TransDecoder
+#### TransDecoder
 
 Transdecoder  v5.5.0
 
@@ -152,7 +151,7 @@ scaffold625	maker	exon	341964	343277	0	+	.	gene_id "CLUHARG00000005458"; transcr
 scaffold625	maker	CDS	341964	343277	0	+	.	gene_id "CLUHARG00000005458"; transcript_id "CLUHART00000008717"; Name "TUBB3_2";
 ```
 
-### Kent utils
+#### Kent utils
 
 version from 26-Feb-2020
 
@@ -173,13 +172,13 @@ scaffold625	temp.genePred	start_codon	337915	337917	.	+	0	gene_id "CLUHARG000000
 scaffold625	temp.genePred	stop_codon	343031	343033	.	+	0	gene_id "CLUHARG00000005458"; transcript_id "CLUHART00000008717"; exon_number "4"; exon_id "CLUHART00000008717.4"; gene_name "CLUHARG00000005458";
 ```
 
-# Feature types in GTF versions
+## Feature types in GTF versions
 
 GTF version | feature type accepted |
 -- | -- |
-GTF3 | gene,  transcript,  exon,  CDS,  Selenocysteine,  start_codon,  stop_codon,  three_prime_utr,  five_prime_utr 
-GTF2_5 | gene,  transcript,  exon,  CDS,  UTR,  start_codon,  stop_codon,  Selenocysteine 
-GTF2_2 | CDS,  start_codon,  stop_codon,  5UTR,  3UTR,  inter,  inter_CNS,  intron_CNS,  exon 
-GTF2_1 | CDS,  start_codon,  stop_codon,  exon,  5UTR,  3UTR 
-GTF2 | CDS,  start_codon,  stop_codon,  exon 
-GTF1 | CDS,  start_codon,  stop_codon,  exon,  intron 
+GTF3 | gene,  transcript,  exon,  CDS,  Selenocysteine,  start_codon,  stop_codon,  three_prime_utr,  five_prime_utr
+GTF2_5 | gene,  transcript,  exon,  CDS,  UTR,  start_codon,  stop_codon,  Selenocysteine
+GTF2_2 | CDS,  start_codon,  stop_codon,  5UTR,  3UTR,  inter,  inter_CNS,  intron_CNS,  exon
+GTF2_1 | CDS,  start_codon,  stop_codon,  exon,  5UTR,  3UTR
+GTF2 | CDS,  start_codon,  stop_codon,  exon
+GTF1 | CDS,  start_codon,  stop_codon,  exon,  intron

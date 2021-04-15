@@ -1,11 +1,10 @@
 # GFF to BED conversion
-## Review of the main conversion tools
 
-It exists many GFF formats and many GTF formats 
+It exists many GFF formats and many GTF formats
 (see [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md) for a complete review) and many tools
 to perform the conversion. We will try to see in this review the main differences.
 
-# Table of Contents
+## Table of Contents
 
  * [Test resume](#test-resume)
  * [The GFF file to convert](#the-gff-file-to-convert)
@@ -16,13 +15,13 @@ to perform the conversion. We will try to see in this review the main difference
    * [Kent utils](#kent-utils)
  * [The bed format](#the-bed-format)
 
-### Test resume
+## Test summary
 
 tool | Comment
 -- | -- |
 [AGAT](https://github.com/NBISweden/AGAT) | default RGB color to 255,0,0
 [PASA](https://github.com/PASApipeline/PASApipeline) | Particular 3rd column that contains a list of names
-[bedops](https://github.com/bedops/bedops) |  each gff feature give one line. Only the 6 first colums are correct 
+[bedops](https://github.com/bedops/bedops) |  each gff feature give one line. Only the 6 first colums are correct
 [Kent utils](http://hgdownload.cse.ucsc.edu/admin/exe/) | extra coma at the end of 11th and 12th column
 
 ### The GFF file to convert
