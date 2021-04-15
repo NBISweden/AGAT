@@ -104,7 +104,7 @@ version from 26-Feb-2020
 scaffold625	337817	343277	CLUHART00000008717	0	+	337914	343033	0	4	154,109,111,1314,	0,2915,3700,4146,
 ```
 
-# The bed format
+## The bed format
 
 Detailed information can be found here: [https://genome.ucsc.edu/FAQ/FAQformat.html](https://genome.ucsc.edu/FAQ/FAQformat.html)  
 Below a description of the different fields:
