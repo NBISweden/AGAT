@@ -23,7 +23,7 @@ Contents
    troubleshooting.md
 
 .. toctree::
-   :maxdepth: 0
+   :maxdepth: 1
    :caption: List of tools:
 
    tools/agat_convert_bed2gff.md

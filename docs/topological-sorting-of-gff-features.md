@@ -27,7 +27,7 @@ Zhigang Lu has made a nice post about his experience trying to find a way to get
      * [gffread](#gffread-2)
 
 
-#### Tests summary
+## Tests summary
 
 tool | option in command line | Type of sorting | Comment
 -- | -- | -- | -- |
@@ -37,7 +37,7 @@ tool | option in command line | Type of sorting | Comment
 [GFF3sort](https://github.com/billzt/gff3sort) | --precise | by chromosomes and positions then attribute with Parent attribute first.  | move lines with "Parent=" attributes (case insensitive) behind lines without "Parent=" attributes. The goal of GFF3sort is not to obtain a topological sorting but rather getting something that could be indexed optimally by third part tools.
 [gffread](https://github.com/gpertea/gffread) | | By default, chromosomes are kept in the order they were found. With --sort-alpha parameter the chromosomes (reference sequences) are sorted alphabetically | /!\ Some feature types are lost e.g. `gene`, `three_prime_UTR`, `five_prime_UTR`, etc...
 
-### Example 1
+## Example 1
 
 This test is based on the file used by [Zhigang Lu](https://zhiganglu.com/post/sort-gff-topologically/)
 
@@ -269,7 +269,7 @@ SM_V7_1	AUGUSTUS	CDS	145395	145678	.	-	2	Parent=Smp_315690.2
 SM_V7_1	AUGUSTUS	CDS	151075	151132	.	-	0	Parent=Smp_315690.2
 ```
 
-### Example 2
+## Example 2
 
 This test is based on the file used by [GFF3sort](https://github.com/billzt/gff3sort)
 
