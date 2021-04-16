@@ -125,7 +125,7 @@ __END__
 
 =head1 NAME
 
-gaas_converter_embl2gff.pl
+agat_converter_embl2gff.pl
 
 =head1 DESCRIPTION
 
@@ -133,7 +133,7 @@ The script takes an EMBL file as input, and will translate it in gff format.
 
 =head1 SYNOPSIS
 
-    gaas_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
+    agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 
 =head1 OPTIONS
 
@@ -171,7 +171,7 @@ Do not hesitate to report bugs to help us keep track of the bugs and their
 resolution. Please use the GitHub issue tracking system available at this
 address:
 
-            https://github.com/NBISweden/GAAS/issues
+            https://github.com/NBISweden/AGAT/issues
 
  Ensure that the bug was not already reported by searching under Issues.
  If you're unable to find an (open) issue addressing the problem, open a new one.
@@ -185,7 +185,7 @@ address:
 =head2 Do you want to contribute?
 
 You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/GAAS/blob/master/CONTRIBUTING.md
+https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
 
 =cut
 
