@@ -48,7 +48,7 @@ It has the power to check, fix, pad missing information (features/attributes) of
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.  
-For a complete overview of the GTF/GFF formats have a look [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md).
+For a complete overview of the GTF/GFF formats have a look [here](https://agat.readthedocs.io/en/latest/gxf.html).
 
 Some examples **what AGAT can do**:  
   * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp` prefix):  
@@ -92,7 +92,7 @@ Some examples **what AGAT can do**:
 | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
 | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
 | convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
-| ... and much more ...| ... see [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) ...|
+| ... and much more ...| ... see [here](https://agat.readthedocs.io/en/latest/) ...|
 
 
 ## Installation
