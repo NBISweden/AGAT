@@ -15,6 +15,7 @@ use Bio::OntologyIO::obo;
 use Bio::Ontology::OntologyEngineI;
 use Clone 'clone';
 use Exporter;
+use Term::ProgressBar;
 use AGAT::Omniscient;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientJson;
@@ -106,6 +107,7 @@ sub slurp_gff3_file_JD {
 
 	# Declare all variables and fill them
 	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug);
+
 	#first define verbosity
 	if( defined($args->{verbose}) ) {$verbose = $args->{verbose};}
 		else{ $verbose = 1; } # verbose 0 is quite mode.
@@ -224,6 +226,7 @@ sub slurp_gff3_file_JD {
 	dual_print($log, file_text_line({ string => "parse features", char => "-" }), $verbose);
 
 	# ============================> ARRAY CASE <============================
+
 	if(ref($file) eq 'ARRAY'){
 		 foreach my $feature (@{$file}) {
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
@@ -268,6 +271,23 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
+
+		# TRY TO COUNT Number of LINE to make a progress bar using wc -l
+		my $wc_result = undef;
+		my $nb_line_input=undef;
+		my $exit_status   = system("wc -l $file >/dev/null 2>&1");
+		if ($exit_status != 0) {
+			dual_print( $log, "Info: Cannot count total line number with builtin wc".
+			" Consequently progress bar unavailable.\n", $verbose);
+		}
+    else{
+			$wc_result = `wc -l $file`;
+			chomp $wc_result;
+			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
+				$nb_line_input = $1;
+			}
+		}
+
 		# take care of headers
 		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
@@ -280,14 +300,27 @@ sub slurp_gff3_file_JD {
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
 		#read every lines
+		my $progress_bar = Term::ProgressBar->new({
+		name  => 'Parsing',
+		count => $nb_line_input,
+		ETA   => 'linear',
+		term_width => 80 ,
+	}) if  ($nb_line_input);
+
+		my $nb_line_read;
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 					manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
-			}
-
-			#close the file
-			$gffio->close();
+			$progress_bar->update($nb_line_read++) if ($nb_line_input);
+		}
+		# to deal with a nice rendering at the end of the progress bar
+		if ($nb_line_input){
+			$progress_bar->update($nb_line_input) if ($nb_line_input);
+			dual_print ($log, "\n", $verbose ) ;
+		}
+		#close the file
+		$gffio->close();
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
