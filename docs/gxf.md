@@ -370,7 +370,9 @@ Here an example of GTF:
 
 [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF21.html).
 In this version the **feature** field change a little bit and can contain 6 different types:
-```The following feature types are required: "CDS", "start_codon", "stop_codon". The features "5UTR", "3UTR", and "exon" are optional. All other features will be ignored.
+
+```
+The following feature types are required: "CDS", "start_codon", "stop_codon". The features "5UTR", "3UTR", and "exon" are optional. All other features will be ignored.
 ```
 
 ### GTF2.2  
@@ -379,7 +381,9 @@ In this version the **feature** field change a little bit and can contain 6 diff
 In this version they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
 [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
 The **<feature>** field change a little bit and can contain 9 different types:
-```The following feature types are required: "CDS", "start_codon", "stop_codon". The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and "exon" are optional.
+  
+```
+The following feature types are required: "CDS", "start_codon", "stop_codon". The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and "exon" are optional.
 ```
 
  "inter" and "inter_CNS" should have an empty transcript_id and gene_id attribute: **gene_id ""; transcript_id "";**
@@ -387,9 +391,9 @@ The **<feature>** field change a little bit and can contain 9 different types:
 ### GTF2.5  
 (2012)  
 
-This version is unofficial. I call it like that to differentiate it against the other GTF flavors. This GTF flavor has been developed by the GENCODE project.
+This version is unofficial. I call it like that to differentiate it against the other GTF flavors. This GTF flavor has been developed by the GENCODE project.  
 [Here is the first desciption of this format.](https://web.archive.org/web/20130116085529/https://www.gencodegenes.org/gencodeformat.html)  
-[Here is the last desciption of this format.](https://www.gencodegenes.org/pages/data_format.html)   
+[Here is the last desciption of this format.](https://www.gencodegenes.org/pages/data_format.html)  
 The **<feature>** field change a little bit and can contain 8 different types: gene, transcript, exon, CDS, UTR, start_codon, stop_codon, Selenocysteine.
 The tags/key-name of the **<attribute>** field started with 9 mandatories and 34 optionals (30 from Havanna project and 4 specific to Genecode). The most recent description of the format shows that it has existed until 11 different mandatory tags, but depending of the version and the line (feature type) the number of mandatory tags has varied a lot. There is also 76 that are optionals (70 comes from of a special set of tags, and 6 are specifics). For GRCh38 annotation lifted back to GRCh3 there is 6 other optional tags.
 
@@ -432,6 +436,7 @@ The structure of the 9th column is slightly different between the two formats:
 Within that colum the mandatory attributes are differents.
 
 **Feature type limitation wihtin GTF**  
+
 As the feature types of the 3rd column is limited by the GTF format, many groups/infrastrucutre use the 9th column to describe other features like tRNA, pseudogenes, etc. As example, ENSEMBL use the attribute **gene_biotype** to define if a **transcript** feature is coding or non-coding.
 
 ## Extra
