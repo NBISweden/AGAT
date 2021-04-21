@@ -97,6 +97,9 @@ sub slurp_gff3_file_JD {
 	my $previous_time = undef;
 	my %omniscient; #Hast where all the feature will be saved
 
+	# Turn on autoflushing  as by default output is buffered until a newline is seen. (Or until the buffer is full, but that won't happen for a progress meter.)
+	$| = 1;
+
 #	+-----------------------------------------+
 #	|							HANDLE ARGUMENTS						|
 #	+-----------------------------------------+
@@ -192,14 +195,17 @@ sub slurp_gff3_file_JD {
 			$WARNS{$thematic[0]}++;
 			if($nbWarnLimit){
 				if ($WARNS{$thematic[0]} <= $nbWarnLimit){
+					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 					dual_print($log, $message, $verbose);
 				}
 				if($WARNS{$thematic[0]} == $nbWarnLimit){
+					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 					dual_print($log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose);
 				}
 			}
 			# Print all warning
 			else{
+				print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 				dual_print($log, $message, $verbose);
 			}
 		}
