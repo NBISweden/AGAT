@@ -402,6 +402,14 @@ sub slurp_gff3_file_JD {
 			$check_cpt++; $previous_time = time();
 	}
 
+	if(! $no_check or	grep( /check_cds/, $no_check_skip ) ) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }), $verbose );
+			_check_cds($debug, $log, \%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,	\%uniqIDtoType, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
 	if(! $no_check or	grep( /check_exons/, $no_check_skip ) ) {
 			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: check exons", char => "-", prefix => "\n" }), $verbose );
@@ -1676,6 +1684,57 @@ sub _check_l2_linked_to_l3{
 	}
 }
 
+# @Purpose: Check L3 features. If CDS do not contains stop_codon we have to extend the CDS to include it
+sub _check_cds{
+	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
+	my $resume_case=undef;
+
+	if( exists_keys($hash_omniscient,('level3', 'cds')) ){
+		if( exists_keys($hash_omniscient,('level3', 'stop_codon')) ){
+ 			foreach my $id_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{'cds'}} ) {
+				if( exists_keys($hash_omniscient,('level3', 'stop_codon',$id_l2)) ){
+
+					my @list_cds = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$id_l2}};
+					my @list_stop = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'stop_codon'}{$id_l2}};
+					if($#list_stop > 0){
+							dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);
+					}
+
+					my $strand = $list_cds[0]->strand;
+
+					if($strand == 1){
+						my $cds = $list_cds[$#list_cds];
+						my $stop = $list_stop[$#list_stop];
+						if($cds->end +1 != $stop->start){
+							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
+						}
+						else{
+							$cds->end($stop->end);
+							$resume_case++;
+						}
+					}
+					else{
+						my $cds = $list_cds[0];
+						my $stop = $list_stop[0];
+						if($cds->start - 1 != $stop->end){
+							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
+						}
+						else{
+							$cds->start($stop->start);
+							$resume_case++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if( $resume_case ){
+		dual_print($log, "$resume_case CDS extended to include the stop_codon\n", $verbose);
+	}
+	else{ 	dual_print($log, "No problem found\n", $verbose); }
+}
+
 # @Purpose: Check L3 features. If exon are missing we create them. We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).
 # @input: 3 =>	hash(omniscient hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
@@ -2154,7 +2213,6 @@ sub _check_utrs{
 						if($list_utr_to_create){
 								# sort by start position
 					 			foreach my $location (sort {$a->[1] <=> $b->[1]} @{$list_utr_to_create}){
-					 				$resume_case++;
 
 									my $feature_utr = clone($feature_example);#create a copy of a random feature l3;
 									$feature_utr->start($location->[1]);
@@ -2179,7 +2237,11 @@ sub _check_utrs{
 					 						$primary_tag = "five_prime_UTR";
 					 					}
 					 				}
+									else{
+										next; #we are in a case of ribosomal slippage. We do not want to create UTRE in  a middle of CDS.
+									}
 
+									$resume_case++;
 									$feature_utr->primary_tag($primary_tag);
 
 									my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_utr);

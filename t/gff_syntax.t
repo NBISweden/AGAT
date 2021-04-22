@@ -37,16 +37,16 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     # case do not merge loci 8,32,34,36
     if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/ or $file =~ m/^36_/){
-        system("$script --gff t/gff_syntax/$file -o $pathtmp 1>/dev/null");
+        system("$script --gff t/gff_syntax/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 		# peculiar case 28
     elsif($file =~ m/^28_/){
-        system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp 1>/dev/null");
+        system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp  2>&1 1>/dev/null");
     }
 
     # standard cases
     else{
-      system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp 1>/dev/null");
+      system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp  2>&1 1>/dev/null");
     }
 
     my @splitname = split /_/, $file;

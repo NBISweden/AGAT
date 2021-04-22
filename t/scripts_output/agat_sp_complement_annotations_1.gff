@@ -49,8 +49,8 @@ NC_003070.9	RefSeq	CDS	3996	4276	.	+	2	ID=IDmodified-cds-1;Parent=NC_003070.9:NA
 NC_003070.9	RefSeq	CDS	4486	4605	.	+	0	ID=IDmodified-cds-2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
 NC_003070.9	RefSeq	CDS	4706	5095	.	+	0	ID=IDmodified-cds-3;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
 NC_003070.9	RefSeq	CDS	5174	5326	.	+	0	ID=IDmodified-cds-4;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
-NC_003070.9	RefSeq	CDS	5439	5627	.	+	0	ID=IDmodified-cds-5;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
+NC_003070.9	RefSeq	CDS	5439	5630	.	+	0	ID=IDmodified-cds-5;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
 NC_003070.9	RefSeq	five_prime_UTR	3631	3759	.	+	.	ID=nbis-five_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
 NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=nbis-start_codon-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
 NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=nbis-stop_codon-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
-NC_003070.9	RefSeq	three_prime_UTR	5628	5899	.	+	.	ID=nbis-three_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
+NC_003070.9	RefSeq	three_prime_UTR	5631	5899	.	+	.	ID=nbis-three_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
