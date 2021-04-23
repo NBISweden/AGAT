@@ -3193,6 +3193,12 @@ sub select_gff_format{
 					if(length($1) < 1){next;}
 
 					my $Ninethcolum = $1;
+
+					#replace value quoted by a string in case some special character are within the quote e.g. = ; 
+					$_ = $Ninethcolum;
+					s/("([^"]|"")*")/quoted_value/g;
+					$Ninethcolum = $_;
+
 					if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $format{3}++;};
 
 					if($Ninethcolum !~ /=/	and $Ninethcolum !~ /;/ ){
@@ -3222,7 +3228,7 @@ sub select_gff_format{
 				my $stringprint = "There is a problem we found several formats in this file:\n";
 				$stringprint .= join ",", sort keys %format;
 				$stringprint .= "\nLet's see what we can do...\n";
-				print $stringprint if ($verbose);
+				dual_print ($log, $stringprint, $verbose);
 		}
 	}
 	else{
