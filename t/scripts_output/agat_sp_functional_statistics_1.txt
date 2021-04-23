@@ -5,16 +5,16 @@ Compute mrna
 Number of genes                              2
 Number of mrnas                              2
 Number of mrnas with utr both sides          1
-Number of mrnas with at least one utr        2
+Number of mrnas with at least one utr        1
 Number of cdss                               2
 Number of exons                              10
 Number of five_prime_utrs                    1
 Number of start_codons                       2
 Number of stop_codons                        2
-Number of three_prime_utrs                   2
+Number of three_prime_utrs                   1
 Number of exon in cds                        9
 Number of exon in five_prime_utr             2
-Number of exon in three_prime_utr            2
+Number of exon in three_prime_utr            1
 Number of intron in cds                      7
 Number of intron in exon                     8
 Number of intron in five_prime_utr           1
@@ -25,7 +25,7 @@ mean exons per mrna                          5.0
 mean five_prime_utrs per mrna                0.5
 mean start_codons per mrna                   1.0
 mean stop_codons per mrna                    1.0
-mean three_prime_utrs per mrna               1.0
+mean three_prime_utrs per mrna               0.5
 mean exons per cds                           4.5
 mean exons per five_prime_utr                2.0
 mean exons per three_prime_utr               1.0
@@ -34,54 +34,54 @@ mean introns in exons per mrna               4.0
 mean introns in five_prime_utrs per mrna     0.5
 Total gene length                            3773
 Total mrna length                            3773
-Total cds length                             2676
+Total cds length                             2682
 Total exon length                            2908
 Total five_prime_utr length                  147
 Total start_codon length                     6
 Total stop_codon length                      6
-Total three_prime_utr length                 85
+Total three_prime_utr length                 79
 Total intron length per cds                  659
 Total intron length per exon                 865
 Total intron length per five_prime_utr       206
 mean gene length                             1886
 mean mrna length                             1886
-mean cds length                              1338
+mean cds length                              1341
 mean exon length                             290
 mean five_prime_utr length                   147
 mean start_codon length                      3
 mean stop_codon length                       3
-mean three_prime_utr length                  42
-mean cds piece length                        297
+mean three_prime_utr length                  79
+mean cds piece length                        298
 mean five_prime_utr piece length             73
-mean three_prime_utr piece length            42
+mean three_prime_utr piece length            79
 mean intron in cds length                    94
 mean intron in exon length                   108
 mean intron in five_prime_utr length         206
 Longest gene                                 2717
 Longest mrna                                 2717
-Longest cds                                  1992
+Longest cds                                  1995
 Longest exon                                 1713
 Longest five_prime_utr                       147
 Longest start_codon                          3
 Longest stop_codon                           3
-Longest three_prime_utr                      82
+Longest three_prime_utr                      79
 Longest cds piece                            1652
 Longest five_prime_utr piece                 86
-Longest three_prime_utr piece                82
+Longest three_prime_utr piece                79
 Longest intron into cds part                 142
 Longest intron into exon part                206
 Longest intron into five_prime_utr part      206
 Shortest gene                                1056
 Shortest mrna                                1056
-Shortest cds                                 684
+Shortest cds                                 687
 Shortest exon                                29
 Shortest five_prime_utr                      147
 Shortest start_codon                         3
 Shortest stop_codon                          3
-Shortest three_prime_utr                     3
+Shortest three_prime_utr                     79
 Shortest cds piece                           29
 Shortest five_prime_utr piece                61
-Shortest three_prime_utr piece               3
+Shortest three_prime_utr piece               79
 Shortest intron into cds part                55
 Shortest intron into exon part               55
 Shortest intron into five_prime_utr part     206
