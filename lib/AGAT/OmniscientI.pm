@@ -1756,7 +1756,7 @@ sub _check_cds{
 							if($codon_split){
 									if ($cds->start - 1 == ($list_stop[$#list_stop]->end) ){
 										dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
-										$cds->start($list_stop[$#list_stop]->start)
+										$cds->start($list_stop[$#list_stop]->start);
 
 										# create the cds chunk missing
 										my $new_cds = clone($cds);
