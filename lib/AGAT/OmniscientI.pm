@@ -1696,8 +1696,20 @@ sub _check_cds{
 
 					my @list_cds = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$id_l2}};
 					my @list_stop = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'stop_codon'}{$id_l2}};
+
+					my $codon_split=undef;
 					if($#list_stop > 0){
-							dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);
+							my $size_stop=0;
+							foreach my $stop_codon (@list_stop){
+								$size_stop+=$stop_codon->end - $stop_codon->start + 1;
+							}
+							if($size_stop > 3){
+								dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);
+							}
+							else{
+								$codon_split = 1;
+								dual_print($log, "Stop codon split over exons\n", 0); #print log only
+							}
 					}
 
 					my $strand = $list_cds[0]->strand;
@@ -1709,7 +1721,25 @@ sub _check_cds{
 						if($cds->end == $stop->end){next;} # Everything looks fine the stop codon is within the CDS
 
 						if($cds->end +1 != $stop->start){
-							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
+
+							if($codon_split){
+
+								if ($cds->end + 1 == ($list_stop[0]->start) ){
+									dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+									$cds->end($list_stop[0]->end);
+
+									# create the cds chunk missing
+									my $new_cds = clone($cds);
+									$new_cds->start($stop->start);
+									$new_cds->end($stop->end);
+									my $size_stop = $stop->end - $stop->start + 1;
+									$new_cds->frame(3 - $size_stop);
+									my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+									create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+								}
+							}
+							else{dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);}
 						}
 						else{
 							$cds->end($stop->end);
@@ -1723,7 +1753,23 @@ sub _check_cds{
 						if($cds->start == $stop->start){next;} # Everything looks fine the stop codon is within the CDS
 
 						if($cds->start - 1 != $stop->end){
-							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
+							if($codon_split){
+									if ($cds->start - 1 == ($list_stop[$#list_stop]->end) ){
+										dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+										$cds->start($list_stop[$#list_stop]->start)
+
+										# create the cds chunk missing
+										my $new_cds = clone($cds);
+										$new_cds->start($stop->start);
+										$new_cds->end($stop->end);
+										my $size_stop = $stop->end - $stop->start + 1;
+										$new_cds->frame(3 - $size_stop);
+										my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+										create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+									}
+							}
+							else{ dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);}
 						}
 						else{
 							$cds->start($stop->start);
