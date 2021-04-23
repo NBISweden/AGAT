@@ -1705,6 +1705,9 @@ sub _check_cds{
 					if($strand == 1){
 						my $cds = $list_cds[$#list_cds];
 						my $stop = $list_stop[$#list_stop];
+
+						if($cds->end == $stop->end){next;} # Everything looks fine the stop codon is within the CDS
+
 						if($cds->end +1 != $stop->start){
 							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
 						}
@@ -1716,6 +1719,9 @@ sub _check_cds{
 					else{
 						my $cds = $list_cds[0];
 						my $stop = $list_stop[0];
+
+						if($cds->start == $stop->start){next;} # Everything looks fine the stop codon is within the CDS
+
 						if($cds->start - 1 != $stop->end){
 							dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);
 						}
