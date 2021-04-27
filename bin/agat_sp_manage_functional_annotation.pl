@@ -255,7 +255,7 @@ if (defined $opt_BlastFile) {
 ########################
 # Manage Interpro File #
 if (defined $opt_InterproFile) {
-  parse_interpro_tsv($streamInter,$opt_InterproFile);
+  parse_interpro_tsv($streamInter, $opt_InterproFile);
 
   # create streamOutput
   if ($opt_output) {
@@ -427,7 +427,7 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
 
         my $letter_tag = get_letter_tag($primary_tag_level1);
 
-        if (! exists_keys(\%numbering,($letter_tag))) {
+        if (! exists_keys(\%numbering, ($letter_tag))) {
           $numbering{$letter_tag} = $nbIDstart;
         }
         $newID_level1 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag );
@@ -452,10 +452,10 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
               }
 
               my $letter_tag = get_letter_tag($primary_tag_level2);
-              if (! exists_keys(\%numbering,($letter_tag))) {
+              if (! exists_keys(\%numbering, ($letter_tag))) {
                 $numbering{$letter_tag} = $nbIDstart;
               }
-              $newID_level2 = manageID($prefixName, $numbering{$letter_tag},$letter_tag);
+              $newID_level2 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
               $numbering{$letter_tag}++;
               create_or_replace_tag($feature_level2, 'ID', $newID_level2);
               create_or_replace_tag($feature_level2, 'Parent', $newID_level1);
@@ -467,7 +467,7 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
 
               foreach my $primary_tag_level3 (keys %{$hash_omniscient->{'level3'}}) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 
-                  if ( exists_keys ($hash_omniscient,('level3',$primary_tag_level3, lc($level2_ID)) ) ) {
+                  if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_level3, lc($level2_ID)) ) ) {
 
                     foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)}}) {
 
@@ -478,10 +478,10 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
                       }
 
                       my $letter_tag = get_letter_tag($primary_tag_level3);
-                      if (! exists_keys(\%numbering,($letter_tag))) {
+                      if (! exists_keys(\%numbering, ($letter_tag))) {
                         $numbering{$letter_tag} = $nbIDstart;
                       }
-                      my $newID_level3 = manageID($prefixName, $numbering{$letter_tag},$letter_tag);
+                      my $newID_level3 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
                       if ( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) {
                         if ($opt_nameU) {
                           $numbering{$letter_tag}++;
@@ -558,7 +558,7 @@ if ($opt_InterproFile) {
     my $mRNA_type_raw = $functionDataAdded{$type};
     my $mRNA_type = keys %{$mRNAAssociatedToTerm{$type}};
     my $gene_type = keys %{$GeneAssociatedToTerm{$type}};
-    $stringPrint .= "|".sizedPrint(" $type",25)."|".sizedPrint($total_type,25)."|".sizedPrint($mRNA_type_raw,25)."|".sizedPrint($mRNA_type,25)."|".sizedPrint($gene_type,25)."|\n|".$lineB."|\n";
+    $stringPrint .= "|".sizedPrint(" $type", 25)."|".sizedPrint($total_type, 25)."|".sizedPrint($mRNA_type_raw, 25)."|".sizedPrint($mRNA_type, 25)."|".sizedPrint($gene_type, 25)."|\n|".$lineB."|\n";
   }
 
   #RESUME TOTAL OF FUNCTION ATTACHED
@@ -629,7 +629,7 @@ sub get_letter_tag {
   my ($tag) = @_;
 
   $tag = lc($tag);
-  if (! exists_keys (\%tag_hash,( $tag ))) {
+  if (! exists_keys (\%tag_hash, ( $tag ))) {
 
     my $substringLength = 1;
     my $letter = uc(substr($tag, 0, $substringLength));
@@ -684,7 +684,7 @@ sub manageGeneNameBlast {
 
 # creates gene ID correctly formated (PREFIX,TYPE,NUMBER) like HOMSAPG00000000001 for a Homo sapiens gene.
 sub manageID {
-  my ($prefix,$nbName,$type) = @_;
+  my ($prefix, $nbName, $type) = @_;
   my $result = "";
   my $numberNum = 11;
   my $GoodNum = "";
@@ -773,7 +773,7 @@ sub parse_blast {
     print "Evalue: ".$evalue."\n" if ($opt_verbose);
 
     #if does not exist fill it if over the minimum evalue
-    if (! exists_keys(\%candidates,($l2_name)) or @{$candidates{$l2_name}}> 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
+    if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}}> 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
       if ( $evalue <= $opt_blastEvalue ) {
         my $protID_correct = undef;
 
@@ -859,7 +859,7 @@ sub parse_blast {
       my $tuple = undef;
       while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
-        my ($type,$value) = split /=/,$tuple;
+        my ($type, $value) = split /=/, $tuple;
         #print "$protID: type:$type --- value:$value\n";
         $hash_rest{lc($type)} = $value;
       }
@@ -867,7 +867,7 @@ sub parse_blast {
       if (exists($hash_rest{"gn"})) {
         $nameGene = $hash_rest{"gn"};
 
-        if (exists_keys ($hash_mRNAGeneLink,($l2)) ) {
+        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
           my $geneID = $hash_mRNAGeneLink->{$l2};
           #print "push $geneID $nameGene\n";
           push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
@@ -954,7 +954,7 @@ sub stringCatcher {
 
 # method to parse Interpro file
 sub parse_interpro_tsv {
-  my($file_in,$fileName) = @_;
+  my($file_in, $fileName) = @_;
   print("Reading features from $fileName...\n");
 
   while( my $line = <$file_in>) {
@@ -1001,7 +1001,7 @@ sub parse_interpro_tsv {
       my $db_name = "GO";
       my $go_flat_list = $values[13];
       $go_flat_list =~ s/\n//g;
-      my @go_list = split(/\|/,$go_flat_list); #cut at character |
+      my @go_list = split(/\|/, $go_flat_list); #cut at character |
       foreach my $go_tuple (@go_list) {
         print "GO term: ".$go_tuple."\n" if ($opt_verbose);
 
@@ -1021,9 +1021,9 @@ sub parse_interpro_tsv {
       my $pathway_flat_list = $values[14];
       $pathway_flat_list =~ s/\n//g;
       $pathway_flat_list =~ s/ //g;
-      my @pathway_list = split(/\|/,$pathway_flat_list); #cut at character |
+      my @pathway_list = split(/\|/, $pathway_flat_list); #cut at character |
       foreach my $pathway_tuple (@pathway_list) {
-        my @tuple = split(/:/,$pathway_tuple); #cut at character :
+        my @tuple = split(/:/, $pathway_tuple); #cut at character :
         my $db_name = $tuple[0];
         print "pathway info: ".$pathway_tuple."\n" if ($opt_verbose);
 
