@@ -466,43 +466,40 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
               #################
 
               foreach my $primary_tag_level3 (keys %{$hash_omniscient->{'level3'}}) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_level3, lc($level2_ID)) ) ) {
+                  foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)}}) {
+                    #keep track of Maker ID
+                    my $level3_ID = $feature_level3->_tag_value('ID');
+                    if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+                      create_or_replace_tag($feature_level3, 'makerName', $level3_ID);
+                    }
 
-                  if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_level3, lc($level2_ID)) ) ) {
+                    my $letter_tag = get_letter_tag($primary_tag_level3);
+                    if (! exists_keys(\%numbering, ($letter_tag))) {
+                      $numbering{$letter_tag} = $nbIDstart;
+                    }
 
-                    foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)}}) {
-
-                      #keep track of Maker ID
-                      my $level3_ID = $feature_level3->_tag_value('ID');
-                      if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to kee a track
-                        create_or_replace_tag($feature_level3, 'makerName', $level3_ID);
-                      }
-
-                      my $letter_tag = get_letter_tag($primary_tag_level3);
-                      if (! exists_keys(\%numbering, ($letter_tag))) {
-                        $numbering{$letter_tag} = $nbIDstart;
-                      }
-                      my $newID_level3 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
-                      if ( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) {
-                        if ($opt_nameU) {
-                          $numbering{$letter_tag}++;
-                        }
-                      }
-                      else {
+                    my $newID_level3 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
+                    if ( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) {
+                      if ($opt_nameU) {
                         $numbering{$letter_tag}++;
                       }
-                      create_or_replace_tag($feature_level3, 'ID', $newID_level3);
-                      create_or_replace_tag($feature_level3, 'Parent', $newID_level2);
-
-                      $finalID{$level3_ID} = $newID_level3;
                     }
-                    #save the new l3 into the new l2 id name
-                    $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($newID_level2)} = delete $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)} # delete command return the value before deteling it, so we just transfert the value
-                  }
-                  if ($opt_name and mary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ) {
-                    my $letter_tag = get_letter_tag($primary_tag_level3);
-                    $numbering{$letter_tag}++;
-                  } # with this option we increment UTR name only for each UTR (cds also)
+                    else {
+                      $numbering{$letter_tag}++;
+                    }
+                    create_or_replace_tag($feature_level3, 'ID', $newID_level3);
+                    create_or_replace_tag($feature_level3, 'Parent', $newID_level2);
 
+                    $finalID{$level3_ID} = $newID_level3;
+                  }
+                  #save the new l3 into the new l2 id name
+                  $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($newID_level2)} = delete $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)} # delete command return the value before deteling it, so we just transfert the value
+                }
+                if ($opt_name and mary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ) { # JN: Risky test. Need to keep track of operator precedence.
+                  my $letter_tag = get_letter_tag($primary_tag_level3);
+                  $numbering{$letter_tag}++;
+                } # with this option we increment UTR name only for each UTR (cds also)
               }
             }
             if ($newID_level1) {
@@ -644,7 +641,8 @@ sub get_letter_tag {
   return $tag_hash{ $tag };
 }
 
-# each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end. To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).
+# Each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end.
+# To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).
 # If it stay at the end of the process more than one name, they will be concatenated together.
 # It removes redundancy intra name.
 sub manageGeneNameBlast {
@@ -666,7 +664,7 @@ sub manageGeneNameBlast {
 
     my $finalName = "";
     my $cpt = 0;
-    foreach my $name (@unique) { #if several name we will concatenate them together
+    foreach my $name (@unique) { #if several names we will concatenate them together
 
         if ($cpt == 0) {
           $finalName .= "$name";
@@ -781,6 +779,7 @@ sub parse_blast {
           $protID_correct = $allIDs{lc($prot_name)};
           my $header = $db->header( $protID_correct );
           if (! $header =~ m/GN=/) {
+              # JN: No gene name. Should increment a counter here, and/or set gn_missing=yes?
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
@@ -806,6 +805,7 @@ sub parse_blast {
         $protID_correct = $allIDs{lc($prot_name)};
         my $header = $db->header( $protID_correct );
         if (! $header =~ m/GN=/) {
+          # JN: No gene name. Should increment a counter here, and/or set gn_missing=yes?
           $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
         if ($header =~ /PE=([1-5])\s/) {
@@ -864,7 +864,7 @@ sub parse_blast {
         $hash_rest{lc($type)} = $value;
       }
 
-      if (exists($hash_rest{"gn"})) {
+      if (exists($hash_rest{"gn"})) { # JN: Check for Gene name?
         $nameGene = $hash_rest{"gn"};
 
         if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
@@ -878,6 +878,7 @@ sub parse_blast {
         }
       }
       else {
+        # JN: No gene name? Should increment a counter here, and/or set gn_missing=yes?
         $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
       }
       #} else {
@@ -889,7 +890,7 @@ sub parse_blast {
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
   ################# Remove redundancy to have only one name for each gene
 
-  manageGeneNameBlast(\%geneName);
+  manageGeneNameBlast(\%geneName); # JN: check what manageGeneNameBlast will set and report
 
 
   ##########################################################
