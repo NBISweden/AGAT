@@ -70,7 +70,7 @@ if ( !GetOptions( 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
                   'b|blast=s' => \$opt_BlastFile,
                   'd|db=s' => \$opt_dataBase,
                   'be|blast_evalue=i' => \$opt_blastEvalue,
-		              'pe=i' => \$opt_pe,
+                  'pe=i' => \$opt_pe,
                   'i|interpro=s' => \$opt_InterproFile,
                   'id=s' => \$opt_name,
                   'idau=s' => \$opt_nameU,
@@ -104,7 +104,7 @@ if ( ! (defined($opt_reffile)) ){
 #################################################
 
 if($opt_pe>5 or $opt_pe<1){
-	print "Error the Protein Existence (PE) value must be between 1 and 5\n";exit;
+  print "Error the Protein Existence (PE) value must be between 1 and 5\n";exit;
 }
 
 my $streamBlast = IO::File->new();
@@ -193,9 +193,12 @@ print_time("Parsing Finished");
 
 #Print directly what has been read
 print_time("Compute statistics");
-print_omniscient_statistics ({ input => $hash_omniscient,
-															 output => $ostreamReport
-														 });
+print_omniscient_statistics(
+  {
+    input => $hash_omniscient,
+    output => $ostreamReport
+  }
+);
 
 ################################
 # MANAGE FUNCTIONAL INPUT FILE #
@@ -687,14 +690,14 @@ sub addFunctions{
         foreach my $data (@{$functionData{$function_type}{$ID}}){
           $feature->add_tag_value('Ontology_term', $data);
           $data_list.="$data,";
-	  $functionDataAdded{$function_type}++;
+          $functionDataAdded{$function_type}++;
         }
       }
       else{
         foreach my $data (@{$functionData{$function_type}{$ID}}){
           $feature->add_tag_value('Dbxref', $data);
           $data_list.="$data,";
-	  $functionDataAdded{$function_type}++;
+          $functionDataAdded{$function_type}++;
         }
       }
 
@@ -733,23 +736,23 @@ sub parse_blast {
         my $protID_correct=undef;
 
         if( exists $allIDs{lc($prot_name)}){
-        	$protID_correct = $allIDs{lc($prot_name)};
-        	my $header = $db->header( $protID_correct );
+          $protID_correct = $allIDs{lc($prot_name)};
+          my $header = $db->header( $protID_correct );
           if (! $header =~ m/GN=/){
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
             $candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
           }
-      		if($header =~ /PE=([1-5])\s/){
-    				if($1 <= $opt_pe){
-    					$candidates{$l2_name}=[$header, $evalue, $uniprot_id];
-      			}
-      		}
-      		else{$ostreamLog->print("No Protein Existence (PE) information in this header: $header\n")if($opt_verbose or $opt_output); }
-      	}
-      	else{
-      		$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if($opt_verbose or $opt_output);
-      		$candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
-      	}
+          if($header =~ /PE=([1-5])\s/){
+            if($1 <= $opt_pe){
+              $candidates{$l2_name}=[$header, $evalue, $uniprot_id];
+            }
+          }
+          else{$ostreamLog->print("No Protein Existence (PE) information in this header: $header\n")if($opt_verbose or $opt_output); }
+        }
+        else{
+          $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if($opt_verbose or $opt_output);
+          $candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
+        }
       }
     }
     elsif( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
@@ -768,7 +771,7 @@ sub parse_blast {
         }
         else{ $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if($opt_verbose or $opt_output); }
       }
-	    else{ $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if($opt_verbose or $opt_output);}
+      else{ $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if($opt_verbose or $opt_output);}
     }
   }
 
@@ -794,38 +797,38 @@ sub parse_blast {
     print "header: ".$header."\n" if($opt_verbose);
 
     if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/){
-	    my $protID = $1;
-	    my $description = $2;
-	    my $theRest = $3;
-	    $theRest =~ s/\n//g;
-	    $theRest =~ s/\r//g;
-	    my $nameGene = undef;
-	    push ( @{ $mRNAproduct{$l2} }, $description );
+      my $protID = $1;
+      my $description = $2;
+      my $theRest = $3;
+      $theRest =~ s/\n//g;
+      $theRest =~ s/\r//g;
+      my $nameGene = undef;
+      push ( @{ $mRNAproduct{$l2} }, $description );
 
- 	    #deal with the rest
-	    my %hash_rest;
-	    my $tuple=undef;
-	    while ($theRest){
+      #deal with the rest
+      my %hash_rest;
+      my $tuple=undef;
+      while ($theRest){
         ($theRest, $tuple) = stringCatcher($theRest);
         my ($type,$value) = split /=/,$tuple;
-		    #print "$protID: type:$type --- value:$value\n";
-		    $hash_rest{lc($type)}=$value;
-	    }
+        #print "$protID: type:$type --- value:$value\n";
+        $hash_rest{lc($type)}=$value;
+      }
 
       if(exists($hash_rest{"gn"})){
-		    $nameGene=$hash_rest{"gn"};
+        $nameGene=$hash_rest{"gn"};
 
-		    if(exists_keys ($hash_mRNAGeneLink,($l2)) ){
-			    my $geneID = $hash_mRNAGeneLink->{$l2};
-	       	#print "push $geneID $nameGene\n";
-			    push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
-	        push( @{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
-		    }
-		    else{ $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if($opt_verbose or $opt_output); }
-	    }
-	    else{ $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if($opt_verbose or $opt_output); }
-  #  }else{
-  #    print "Nope\s".$candidates{$l2}[0]."\n";
+        if(exists_keys ($hash_mRNAGeneLink,($l2)) ){
+          my $geneID = $hash_mRNAGeneLink->{$l2};
+          #print "push $geneID $nameGene\n";
+          push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
+          push( @{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
+        }
+        else{ $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if($opt_verbose or $opt_output); }
+      }
+      else{ $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if($opt_verbose or $opt_output); }
+      #}else{
+      #  print "Nope\s".$candidates{$l2}[0]."\n";
     }
   }
 
@@ -886,7 +889,7 @@ sub stringCatcher{
 
     if ( $String =~ m/(\w{2}=.+?(?= \w{2}=))(.+)/ ) {
         $newString = substr $String, length($1)+1;
-    	return ($newString, $1);
+        return ($newString, $1);
     }
     else{ return (undef, $String); }
 }
@@ -902,80 +905,80 @@ sub parse_interpro_tsv {
     my $sizeList = @values;
     my $mRNAID=lc($values[0]);
 
-      #Check for the specific DB
-      my $db_name=$values[3];
-      my $db_value=$values[4];
-      my $db_tuple=$db_name.":".$db_value;
-      print "Specific dB: ".$db_tuple."\n" if($opt_verbose);
+    #Check for the specific DB
+    my $db_name=$values[3];
+    my $db_value=$values[4];
+    my $db_tuple=$db_name.":".$db_value;
+    print "Specific dB: ".$db_tuple."\n" if($opt_verbose);
 
-      if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {   #to avoid duplicate
-	      $TotalTerm{$db_name}++;
-	      push ( @{$functionData{$db_name}{$mRNAID}} , $db_tuple );
-	      if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	        $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	        $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	      }
-	}
-
-      #check for interpro
-      if( $sizeList>11 ){
-        my $db_name="InterPro";
-        my $interpro_value=$values[11];
-        $interpro_value=~ s/\n//g;
-	my $interpro_tuple = "InterPro:".$interpro_value;
-        print "interpro dB: ".$interpro_tuple."\n" if($opt_verbose);
-
-	if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {	#to avoid duplicate
-	        $TotalTerm{$db_name}++;
-	        push ( @{$functionData{$db_name}{$mRNAID}} , $interpro_tuple );
-	        if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	          $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	          $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	        }
-	}
+    if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {   #to avoid duplicate
+      $TotalTerm{$db_name}++;
+      push ( @{$functionData{$db_name}{$mRNAID}} , $db_tuple );
+      if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
+        $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+        $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
       }
+    }
 
-      #check for GO
-      if( $sizeList>13 ){
-        my $db_name="GO";
-        my $go_flat_list = $values[13];
-        $go_flat_list=~ s/\n//g;
-        my @go_list = split(/\|/,$go_flat_list); #cut at character |
-        foreach my $go_tuple (@go_list){
-          print "GO term: ".$go_tuple."\n" if($opt_verbose);
+    #check for interpro
+    if( $sizeList>11 ){
+      my $db_name="InterPro";
+      my $interpro_value=$values[11];
+      $interpro_value=~ s/\n//g;
+      my $interpro_tuple = "InterPro:".$interpro_value;
+      print "interpro dB: ".$interpro_tuple."\n" if($opt_verbose);
 
-	if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
-	          $TotalTerm{$db_name}++;
-	          push ( @{$functionData{$db_name}{$mRNAID}} , $go_tuple );
-	          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	          }
-	  }
+      if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {	#to avoid duplicate
+        $TotalTerm{$db_name}++;
+        push ( @{$functionData{$db_name}{$mRNAID}} , $interpro_tuple );
+        if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
+          $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+          $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
         }
       }
+    }
 
-      #check for pathway
-      if( $sizeList>14 ){
-        my $pathway_flat_list = $values[14];
-        $pathway_flat_list=~ s/\n//g;
-        $pathway_flat_list=~ s/ //g;
-        my  @pathway_list = split(/\|/,$pathway_flat_list); #cut at character |
-        foreach my $pathway_tuple (@pathway_list){
-          my @tuple = split(/:/,$pathway_tuple); #cut at character :
-          my $db_name = $tuple[0];
-          print "pathway info: ".$pathway_tuple."\n" if($opt_verbose);
+    #check for GO
+    if( $sizeList>13 ){
+      my $db_name="GO";
+      my $go_flat_list = $values[13];
+      $go_flat_list=~ s/\n//g;
+      my @go_list = split(/\|/,$go_flat_list); #cut at character |
+      foreach my $go_tuple (@go_list){
+        print "GO term: ".$go_tuple."\n" if($opt_verbose);
 
-	  if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
-	          $TotalTerm{$db_name}++;
-	          push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
-	          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	          }
-	  }
+        if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
+          $TotalTerm{$db_name}++;
+          push ( @{$functionData{$db_name}{$mRNAID}} , $go_tuple );
+          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
+            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+          }
         }
       }
+    }
+
+    #check for pathway
+    if( $sizeList>14 ){
+      my $pathway_flat_list = $values[14];
+      $pathway_flat_list=~ s/\n//g;
+      $pathway_flat_list=~ s/ //g;
+      my  @pathway_list = split(/\|/,$pathway_flat_list); #cut at character |
+      foreach my $pathway_tuple (@pathway_list){
+        my @tuple = split(/:/,$pathway_tuple); #cut at character :
+        my $db_name = $tuple[0];
+        print "pathway info: ".$pathway_tuple."\n" if($opt_verbose);
+
+        if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
+          $TotalTerm{$db_name}++;
+          push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
+          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
+            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+          }
+        }
+      }
+    }
   }
 }
 
