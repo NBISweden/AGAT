@@ -1705,6 +1705,7 @@ sub _check_cds{
 							}
 							if($size_stop > 3){
 								dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);
+								next;
 							}
 							else{
 								$codon_split = 1;
@@ -1720,9 +1721,9 @@ sub _check_cds{
 
 						if($cds->end == $stop->end){next;} # Everything looks fine the stop codon is within the CDS
 
-						if($cds->end +1 != $stop->start){
+						if($cds->end +1 != $stop->start){ # Last stop in not adjacent to CDS.
 
-							if($codon_split){
+							if($codon_split){ # Not adjacent because stop splited
 
 								if ($cds->end + 1 == ($list_stop[0]->start) ){
 									dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
@@ -1739,8 +1740,31 @@ sub _check_cds{
 									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 								}
 							}
-							else{dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);}
+							else{
+								# Not adjacent because stop start a new exon
+								my $stop_start_exon=undef;
+								if( exists_keys($hash_omniscient,('level3', 'exon', $id_l2)) ){
+									foreach my $l3_feature ( @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}} ){
+										if ( $l3_feature->start == $stop->start ){
+											if ( $l3_feature->end >= $stop->end ){ # check stop if fully within a CDS
+											# create the cds chunk missing
+												my $new_cds = clone($cds);
+												$new_cds->start($stop->start);
+												$new_cds->end($stop->end);
+												my $size_stop = $stop->end - $stop->start + 1;
+												$new_cds->frame(3 - $size_stop);
+												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+												$stop_start_exon=1;
+											}
+										}
+									}
+								}
+								dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose) if (! $stop_start_exon);
+							}
 						}
+						# stop is adjacent
 						else{
 							$cds->end($stop->end);
 							$resume_case++;
@@ -1769,7 +1793,29 @@ sub _check_cds{
 										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 									}
 							}
-							else{ dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose);}
+							else{
+								# Not adjacent because stop start a new exon
+								my $stop_start_exon=undef;
+								if( exists_keys($hash_omniscient,('level3', 'exon', $id_l2)) ){
+									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{'exon'}{$id_l2}}){
+										if ( $l3_feature->end == $stop->end ){
+											if ( $l3_feature->start <= $stop->start ){ # check stop if fully within a CDS
+												# create the cds chunk missing
+												my $new_cds = clone($cds);
+												$new_cds->start($stop->start);
+												$new_cds->end($stop->end);
+												my $size_stop = $stop->end - $stop->start + 1;
+												$new_cds->frame(3 - $size_stop);
+												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+												$stop_start_exon=1;
+											}
+										}
+									}
+								}
+								dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose) if (! $stop_start_exon);
+							}
 						}
 						else{
 							$cds->start($stop->start);
@@ -3194,7 +3240,7 @@ sub select_gff_format{
 
 					my $Ninethcolum = $1;
 
-					#replace value quoted by a string in case some special character are within the quote e.g. = ; 
+					#replace value quoted by a string in case some special character are within the quote e.g. = ;
 					$_ = $Ninethcolum;
 					s/("([^"]|"")*")/quoted_value/g;
 					$Ninethcolum = $_;
