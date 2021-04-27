@@ -13,6 +13,9 @@ use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
+use Data::Dumper; # JN: dedug
+my $DEBUG = 1; # JN: debug
+
 my $header = get_agat_header();
 # PARAMETERS - OPTION
 my $opt_reffile;
