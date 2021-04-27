@@ -130,7 +130,8 @@ if ( ! (defined($opt_reffile)) ) {
 #################################################
 
 if ($opt_pe>5 or $opt_pe<1) {
-  print "Error the Protein Existence (PE) value must be between 1 and 5\n";exit;
+  print "Error the Protein Existence (PE) value must be between 1 and 5\n";
+  exit;
 }
 
 my $streamBlast = IO::File->new();
@@ -154,7 +155,7 @@ if (defined $opt_InterproFile) {
 my $ostreamReport;
 my $ostreamGFF;
 my $ostreamLog;
-if (defined($opt_output) ) {
+if (defined($opt_output)) {
   if (-f $opt_output) {
     print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
   }
@@ -163,14 +164,14 @@ if (defined($opt_output) ) {
   }
   mkdir $opt_output;
 
-  $ostreamReport = IO::File->new(">".$opt_output."/report.txt" ) or
+  $ostreamReport = IO::File->new(">".$opt_output."/report.txt") or
   croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
 
   my $file_out_name = fileparse($opt_reffile);
   $ostreamGFF = Bio::Tools::GFF->new(-file => ">$opt_output/$file_out_name", -gff_version => 3 ) or
   croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$opt_reffile, $! ));
 
-  $ostreamLog = IO::File->new(">".$opt_output."/error.txt" ) or
+  $ostreamLog = IO::File->new(">".$opt_output."/error.txt") or
   croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/log.txt", $! ));
 }
 else {
@@ -273,7 +274,7 @@ if (defined $opt_InterproFile) {
 
 ###########################
 # change FUNCTIONAL information if asked for
-if ($opt_BlastFile || $opt_InterproFile ) {#|| $opt_BlastFile || $opt_InterproFile) {
+if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproFile) {
   print_time( "load FUNCTIONAL information\n" );
 
   #################
@@ -394,7 +395,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {#|| $opt_BlastFile || $opt_InterproFi
 
 ###########################
 # change names if asked for
-if ($opt_nameU || $opt_name ) {#|| $opt_BlastFile || $opt_InterproFile) {
+if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
   print_time("load new IDs");
 
   my %hash_sortBySeq;
@@ -446,7 +447,7 @@ if ($opt_nameU || $opt_name ) {#|| $opt_BlastFile || $opt_InterproFile) {
               my $newID_level2 = undef;
 
               #keep track of Maker ID
-              if ($opt_InterproFile) {#In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+              if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to kee a track
                 create_or_replace_tag($feature_level2, 'makerName', $level2_ID);
               }
 
@@ -472,7 +473,7 @@ if ($opt_nameU || $opt_name ) {#|| $opt_BlastFile || $opt_InterproFile) {
 
                       #keep track of Maker ID
                       my $level3_ID = $feature_level3->_tag_value('ID');
-                      if ($opt_InterproFile) {#In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+                      if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to kee a track
                         create_or_replace_tag($feature_level3, 'makerName', $level3_ID);
                       }
 
@@ -543,10 +544,10 @@ if ($opt_output) {
 
 
 # NOW summerize
-$stringPrint =""; # reinitialise (use at the beginning)
+$stringPrint = ""; # reinitialise (use at the beginning)
 if ($opt_InterproFile) {
   #print INFO
-  my $lineB=       "_________________________________________________________________________________________________________________________________";
+  my $lineB =      "_________________________________________________________________________________________________________________________________";
   $stringPrint .= " ".$lineB."\n";
   $stringPrint .= "|                         | Nb Total term           | Nb mRNA with term       | Nb mRNA updated by term | Nb gene updated by term |\n";
   $stringPrint .= "|                         | in raw File             |   in raw File           | in our annotation file  | in our annotation file  |\n";
@@ -583,7 +584,7 @@ if ($opt_BlastFile) {
 
   #Lets keep track the duplicated names
   if ($opt_output) {
-    my $duplicatedNameOut = IO::File->new(">".$opt_output."/duplicatedNameFromBlast.txt" );
+    my $duplicatedNameOut = IO::File->new(">".$opt_output."/duplicatedNameFromBlast.txt");
     foreach my $name (sort { $duplicateNameGiven{$b} <=> $duplicateNameGiven{$a} } keys %duplicateNameGiven) {
       print $duplicatedNameOut "$name\t".($duplicateNameGiven{$name}+1)."\n";
     }
@@ -592,7 +593,7 @@ if ($opt_BlastFile) {
 
 if ($opt_name or $opt_nameU) {
   $stringPrint .= "\nList of Letter use to create the uniq ID:\n";
-  foreach my $tag ( keys %tag_hash) {
+  foreach my $tag (keys %tag_hash) {
     $stringPrint .= "$tag => $tag_hash{$tag}\n";
   }
   $stringPrint .= "\n";
@@ -761,7 +762,7 @@ sub parse_blast {
 
   my %candidates;
 
-  while( my $line = <$file_in>) {
+  while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
     my $l2_name = lc($values[0]);
     my $prot_name = $values[1];
@@ -833,7 +834,7 @@ sub parse_blast {
 
   foreach my $l2 (keys %candidates) {
     if ( $candidates{$l2}[0] eq "error" ) {
-      $ostreamLog->print( "error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
+      $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
       next;
     }
 
@@ -870,7 +871,7 @@ sub parse_blast {
           my $geneID = $hash_mRNAGeneLink->{$l2};
           #print "push $geneID $nameGene\n";
           push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
-          push( @{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
+          push(@{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
         }
         else {
           $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
@@ -954,7 +955,7 @@ sub stringCatcher {
 # method to parse Interpro file
 sub parse_interpro_tsv {
   my($file_in,$fileName) = @_;
-  print( "Reading features from $fileName...\n");
+  print("Reading features from $fileName...\n");
 
   while( my $line = <$file_in>) {
 
@@ -968,9 +969,9 @@ sub parse_interpro_tsv {
     my $db_tuple = $db_name.":".$db_value;
     print "Specific dB: ".$db_tuple."\n" if ($opt_verbose);
 
-    if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
+    if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
-      push ( @{$functionData{$db_name}{$mRNAID}} , $db_tuple );
+      push ( @{$functionData{$db_name}{$mRNAID}}, $db_tuple );
       if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
         $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
         $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
@@ -985,9 +986,9 @@ sub parse_interpro_tsv {
       my $interpro_tuple = "InterPro:".$interpro_value;
       print "interpro dB: ".$interpro_tuple."\n" if ($opt_verbose);
 
-      if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
+      if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
         $TotalTerm{$db_name}++;
-        push ( @{$functionData{$db_name}{$mRNAID}} , $interpro_tuple );
+        push ( @{$functionData{$db_name}{$mRNAID}}, $interpro_tuple );
         if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
           $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
           $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
@@ -1004,9 +1005,9 @@ sub parse_interpro_tsv {
       foreach my $go_tuple (@go_list) {
         print "GO term: ".$go_tuple."\n" if ($opt_verbose);
 
-        if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
+        if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
           $TotalTerm{$db_name}++;
-          push ( @{$functionData{$db_name}{$mRNAID}} , $go_tuple );
+          push ( @{$functionData{$db_name}{$mRNAID}}, $go_tuple );
           if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
             $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
             $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
