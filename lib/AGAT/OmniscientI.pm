@@ -555,8 +555,8 @@ sub manage_one_feature{
 				if ($omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'standalone' or
 							$omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'topfeature'){
 
-					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
-					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level1'));
+					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level1')){
 						$omniscient->{"level1"}{$primary_tag}{$id}=$feature;
 						dual_print ($log, "::::::::::0Push-L1-omniscient level1 || $primary_tag || $id = ".$feature->gff_string()."\n", $verbose) if ($debug);
 					}
@@ -565,12 +565,12 @@ sub manage_one_feature{
 
 				##########
 				# get ID #
-				$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
+				$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level1'));
 				_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level1');
 
 				#####################
 				# Ckeck duplication #
-				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level1')){
 
 						################
 						# Save feature #
@@ -610,7 +610,7 @@ sub manage_one_feature{
 
 				##########
 				# get ID #
-				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature);
+				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level2');
 
 				##############
 				# get Parent #
@@ -697,7 +697,7 @@ sub manage_one_feature{
 
 				#####################
 				# Ckeck duplication #
-				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level2')){
 
 						############################################
 						# keep track of link between level2->leve1 #
@@ -719,7 +719,7 @@ sub manage_one_feature{
 		elsif ( get_level($omniscient, $feature) eq 'level3' ){
 
 				# get ID #
-				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature);
+				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level3');
 
 				#		+-------------------------------+
 				#		|					GET PARENT L3					 |
@@ -898,7 +898,7 @@ sub manage_one_feature{
 
 							my $feature_clone=clone($feature);
 							create_or_replace_tag($feature_clone,'Parent',$parent); #modify Parent To keep only one
-							_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone); #Will change the ID if needed
+							_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone, 'level3'); #Will change the ID if needed
 
 							dual_print ($log, "::::::::::Push-L3-omniscient-4 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature_clone);
@@ -925,9 +925,9 @@ sub manage_one_feature{
 
 						my $feature_clone=clone($feature);
 						create_or_replace_tag($feature_clone,'Parent',$parent); #modify Parent To keep only one
-						_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone); #Will change the ID if needed
+						_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone, 'level3'); #Will change the ID if needed
 
-						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature_clone) ){
+						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature_clone, 'level3') ){
 							dual_print ($log, "::::::::::Push-L3-omniscient-8 level3 || $primary_tag || ".lc($parent)." == ".$feature_clone->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature_clone);
 						}
@@ -937,14 +937,14 @@ sub manage_one_feature{
 
 						# It is the first parent. Do not clone the feature
 						create_or_replace_tag($feature,'Parent',$parent); #modify Parent To keep only one
-						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature) ){
+						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level3') ){
 							dual_print ($log, "::::::::::Push-L3-omniscient-9 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature);
 						}
 
 					}
 					#It is not a duplicated feature => save it in omniscient
-					elsif( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature) ){
+					elsif( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level3') ){
  						#the simpliest case. One parent only
 						dual_print ($log, "::::::::::Push-L3-omniscient-10 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 						push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature);
@@ -1062,16 +1062,16 @@ sub _get_comon_tag_value{
 	return $locusName;
 }
 
-#feature is not yet saved in omniscient !
+# feature is not yet saved in omniscient !
+# The ID attribute of the feature has been already processed to be uniq.
+# original ID is in the $uniqID hash
 sub _it_is_duplication{
-	my ($duplicate, $omniscient, $uniqID, $feature)=@_;
+	my ($duplicate, $omniscient, $uniqID, $feature, $level)=@_;
 
 	my $is_dupli=undef;
-	my $potentialList=undef;
+	my @potentialList=();
 
-	my $level = get_level($omniscient, $feature);
 	my $primary_tag = lc($feature->primary_tag);
-
 	my $id = $uniqID->{ lc($feature->_tag_value('ID') ) }; # check the original ID
 
 	if($level eq "level1"){
@@ -1079,7 +1079,8 @@ sub _it_is_duplication{
 			return $is_dupli; #return is not a dupli
 		}
 		else{
-			$potentialList=$omniscient->{$level}{$primary_tag}{lc($id)}; #push the feature L1 in potentialList
+			# To be checked because had same ID as another l1 of the same type
+			push @potentialList, $omniscient->{$level}{$primary_tag}{lc($id)}; #push the feature L1 in potentialList
 		}
 	}
 	else{ #feature l2 or l3
@@ -1092,38 +1093,78 @@ sub _it_is_duplication{
 				$one_parent_uID = lc($uniqID->{ lc($one_parent_ID) } ); # check the original ID
 			}
 
-			foreach my $primary_tag ( keys %{$omniscient->{$level}} ){
-				if (exists_keys($omniscient,($level, $primary_tag, $one_parent_uID))){
-					push @{$potentialList}, @{$omniscient->{$level}{$primary_tag}{$one_parent_uID}};
-				}
+			if (exists_keys($omniscient,($level, $primary_tag, $one_parent_uID))){
+				# To be checked because had same Parent as another feature of the same type
+				push @potentialList, @{$omniscient->{$level}{$primary_tag}{$one_parent_uID}};
 			}
 		}
-		if(! $potentialList){ #potential list empty
+		if(! @potentialList){ #potential list empty
 				return $is_dupli; #return is not a dupli
 		}
 	}
 
+	#Check the list of all putative duplicate already saved in omniscient
+	foreach my $feature_in_omniscient ( @potentialList ){
+		if ($feature->start == $feature_in_omniscient->start){
+			if ($feature->end == $feature_in_omniscient->end){
+				if ($feature->seq_id eq $feature_in_omniscient->seq_id){
+					#primary tag already checked when catching potential
 
-	#check if list is a feature or a reference of a list of feature
-	my @list_feature; # will be a list of feature.
+						# check the original ID
+						my $id_in_omni = $uniqID->{ lc($feature_in_omniscient->_tag_value('ID') ) };
 
-	if(ref($potentialList) eq 'ARRAY'){
-		@list_feature=@$potentialList; #it's a reference of a list of feature
-	}
-	else{push (@list_feature, $potentialList);} # it's a feature
+						if($level eq "level1"){
+							if($id eq $id_in_omni){
+								$is_dupli=1;
+								push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
+								delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
+								last;
+							}
+						}
+						else{
+							# get parent info
+							my $parent = undef;
+							if(exists_keys($uniqID,( lc($feature->_tag_value('Parent') ) ) ) ) {
+								$parent = $uniqID->{ lc($feature->_tag_value('Parent') ) };
+							}
+							else{
+								$parent = $feature->_tag_value('Parent');
+							}
+							my $parent_in_omni = undef;
+							if(exists_keys($uniqID,( lc($feature_in_omniscient->_tag_value('Parent') ) ) ) ){
+								$parent_in_omni = $uniqID->{ lc($feature_in_omniscient->_tag_value('Parent') )};
+							}
+							else{
+								$parent_in_omni = $feature_in_omniscient->_tag_value('Parent');
+							}
 
-	#### PREPARE THE SENTENCE TO CHECK
-	my $current_string=_create_comparison_string($omniscient, $uniqID, $feature);
+							# compare parent for l2/l3 and compare only ID for l2
+							my $test_positive=undef;
+							# check parent and ID
+							if($level eq "level2"){
+								if($id eq $id_in_omni){
+									if($parent eq $parent_in_omni){
+										$test_positive=1;
+									}
+								}
+							}
+							# check parent only
+							if($level eq "level3"){
+								if($parent eq $parent_in_omni){
+									$test_positive=1;
+								}
+							}
+							# if all comparaison where equal
+							if($test_positive){
+								$is_dupli=1;
 
-	#Check all the level2 list element
-	foreach my $feature_in_omniscient ( @list_feature ){
-
-		my $string=_create_comparison_string($omniscient, $uniqID, $feature_in_omniscient);
-		if($current_string eq $string){
-			$is_dupli=1;
-			push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
-			delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # delete uniq ID that has been created for nothing
-			last;
+								push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
+								delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
+								last;
+							}
+						}
+				}
+			}
 		}
 	}
 
@@ -1142,82 +1183,34 @@ sub _it_is_duplication{
 sub get_level{
 	my ($omniscient, $feature)=@_;
 
-	my $source_tag = lc($feature->source_tag);
-	my $primary_tag = lc($feature->primary_tag);
-
-	my $level=undef;
-
 	#########################################
 	## PECULIARITIES FROM HAVANA / ENSEMBL ##
+	my $source_tag = lc($feature->source_tag);
 	if ($source_tag eq "ensembl" ){
-		if ( $primary_tag eq "rna" ) {return 'level1';} #particularity ENSEMBL
+		if ( lc($feature->primary_tag) eq "rna" ) {return 'level1';} #particularity ENSEMBL
 	}
-	if ( ($source_tag =~ "havana" or $source_tag =~ "ensembl") and ($primary_tag eq	"processed_transcript" or $primary_tag eq	"pseudogene" ) ){ #By default processed_transcript is l2 and pseudogene is l1
+	if ( ($source_tag =~ "havana" or $source_tag =~ "ensembl") and (lc($feature->primary_tag) eq	"processed_transcript" or lc($feature->primary_tag) eq	"pseudogene" ) ){ #By default processed_transcript is l2 and pseudogene is l1
 		if ($feature->has_tag('Parent')){return "level2" ;}
 		else{return "level1" ;}
 	}
 	## PECULIARITIES FROM HAVANA / ENSEMBL ##
 	#########################################
 
-	if ( exists_keys($omniscient, ('other','level','level1', $primary_tag) ) ){
+	if ( exists_keys($omniscient, ('other','level','level1', lc($feature->primary_tag) ) ) ){
 		return 'level1';
 	}
-	elsif( exists_keys($omniscient, ('other','level','level2', $primary_tag) ) ){
+	elsif( exists_keys($omniscient, ('other','level','level2', lc($feature->primary_tag) ) ) ){
 		return 'level2';
 	}
-	elsif( exists_keys($omniscient, ('other','level','level3', $primary_tag) ) ){
+	elsif( exists_keys($omniscient, ('other','level','level3', lc($feature->primary_tag) ) ) ){
 		return 'level3';
 	}
-}
-
-# create string that should be uniq by feature
-# will be used to detect duplicated features
-sub _create_comparison_string{
-	my ($omniscient, $uniqID, $feature)=@_;
-
-	my $string=$feature->seq_id().$feature->primary_tag().$feature->start().$feature->end();
-	my $primary_tag = lc($feature->primary_tag);
-
-	# get the ID
-	my $ID=undef;
-	if(exists_keys($uniqID,( lc($feature->_tag_value('ID') ) ) ) ){
-		$ID = $uniqID->{ lc($feature->_tag_value('ID') )};
-	}
-	else{
-		$ID = $feature->_tag_value('ID')
-	}
-
-	# If we are checking a level1 feature no need to go further
-	if ( exists_keys( $omniscient, ('other', 'level', 'level1', $primary_tag) ) ){
-		$string .= $ID; # compare with original ID
-		return $string;
-	}
-
-	# If we are not checking a level1 feature, let's take the parent info too
-	my $Parent=undef;
-
-	if(exists_keys($uniqID,( lc($feature->_tag_value('Parent') ) ) ) ) {
-		$Parent = $uniqID->{ lc($feature->_tag_value('Parent') ) };
-	}
-	else{
-		$Parent = $feature->_tag_value('Parent')
-	}
-
-	if ( exists_keys( $omniscient, ('other', 'level', 'level2', $primary_tag) ) ){
-		$string .= $ID; # compare with original ID
-		$string .= $Parent; # compare with original Parent
-	}
-	if ( exists_keys( $omniscient, ('other', 'level', 'level3', $primary_tag) ) ){
-		$string .= $Parent; # compare with original Parent
-	}
-
-	return $string;
 }
 
 # create an ID uniq. Don't give multi-parent feature !
 # If we have to create new ID for a SPREADFEATURES they will not have a shared ID.
 sub _check_uniq_id{
-	my	($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature)=@_;
+	my	($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, $level)=@_;
 
 	my $uID=undef;
 	my $primary_tag = lc($feature->primary_tag);
@@ -1230,11 +1223,11 @@ sub _check_uniq_id{
 		$id = $feature->_tag_value($primary_tag."_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($omniscient, $feature) eq 'level1' and $feature->has_tag("gene_id") ){
+	elsif( $level eq 'level1' and $feature->has_tag("gene_id") ){
 		$id = $feature->_tag_value("gene_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($omniscient, $feature) eq 'level2' and $feature->has_tag("transcript_id") ){
+	elsif( $level eq 'level2' and $feature->has_tag("transcript_id") ){
 		$id = $feature->_tag_value("transcript_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
@@ -1279,7 +1272,6 @@ sub _check_uniq_id{
 		}
 	}
 	else{ #tag absent
-		my $level = get_level($omniscient, $feature);
 		if($level ne 'level3'){
 			warn "gff3 reader error ".$level .": No ID attribute found".
 			" @ for the feature: ".$feature->gff_string()."\n";
@@ -1658,7 +1650,7 @@ sub _check_l2_linked_to_l3{
 							last;
 						}
 					}
-					$new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature);
+					$new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature, 'level1');
 
 				#finish fill Level2
 					create_or_replace_tag($l2_feature, 'Parent', $new_ID_l1); # remove parent ID because, none.
@@ -2040,7 +2032,7 @@ sub _check_exons{
 					 			$feature_exon->end($location->[2]);
 					 			$feature_exon->frame(".");
 					 			$feature_exon->primary_tag($tag);
-					 			my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_exon);
+					 			my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_exon, 'level3');
 					 			create_or_replace_tag($feature_exon, 'ID', $uID); # remove parent ID because, none.
 								#save new feature L2
 								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 0); #print only in log
@@ -2342,7 +2334,7 @@ sub _check_utrs{
 									$resume_case++;
 									$feature_utr->primary_tag($primary_tag);
 
-									my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_utr);
+									my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_utr,'level3');
 									create_or_replace_tag($feature_utr, 'ID', $uID); # remove parent ID because, none.
 									#save new feature L2
 									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 0); #print only in log
