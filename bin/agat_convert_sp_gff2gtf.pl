@@ -328,6 +328,7 @@ sub convert_feature_type{
 						# get gff3 feature (ID)
 						my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
+
 						foreach my $tag_l3_lc (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 
 							#shortened CDS to remove stop codon if any
@@ -335,17 +336,67 @@ sub convert_feature_type{
 								if (exists_keys($hash_omniscient, ('level3', 'stop_codon', $level2_ID) ) ){
 									my @list_cds = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
 									my $first_cds =  $list_cds[0];
+									my $first_cds_size = $first_cds->end - $first_cds->start + 1;
 									my $last_cds = $list_cds[ $#list_cds ];
+									my $last_cds_size = $last_cds->end - $last_cds->start + 1;
 									my $strand = $first_cds->strand;
-									my $stop_codon = $hash_omniscient->{'level3'}{'stop_codon'}{$level2_ID}->[0];
+
+									my @list_stop = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'stop_codon'}{$level2_ID}};
+
 									if ( ($strand eq "+" ) or ($strand eq "1" ) ) {
+										my $stop_codon = $list_stop[$#list_stop];
+										my $stop_codon_size = ($stop_codon->end - $stop_codon->start + 1);
+
 										if (check_features_overlap($stop_codon, $last_cds) ){
-											$last_cds->end($stop_codon->start-1);
+											if( $stop_codon_size == 3){
+												if($last_cds_size > 3){
+													$last_cds->end($stop_codon->start-1);
+												}
+												else{remove_cds($hash_omniscient, $level2_ID, $last_cds);}
+											}
+											elsif( $stop_codon_size < 3){
+												if($last_cds_size > $stop_codon_size){
+													$last_cds->end($stop_codon->start);
+												}
+												else{remove_cds($hash_omniscient, $level2_ID, $last_cds);}
+												# there is another stop_codon
+												if($#list_stop > 0){
+													$stop_codon = $list_stop[$#list_stop-1];
+													$last_cds = $list_cds[ $#list_cds - 1];
+													$last_cds->end($stop_codon->start - 1);
+												}
+											}
+											else{
+												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+											}
 										}
 									}
 									else{ # minus strand
+										my $stop_codon = $list_stop[0];
+										my $stop_codon_size = ($stop_codon->end - $stop_codon->start + 1);
+
 										if (check_features_overlap($stop_codon, $first_cds) ){
-											$first_cds->start($stop_codon->end+1);
+											if( $stop_codon_size == 3){
+												if($first_cds_size > 3){
+													$first_cds->start($stop_codon->end+1);
+												}
+												else{remove_cds($hash_omniscient, $level2_ID, $first_cds);}
+											}
+											elsif( $stop_codon_size < 3){
+												if($first_cds_size > $stop_codon_size){
+													$last_cds->start($stop_codon->end);
+												}
+												else{remove_cds($hash_omniscient, $level2_ID, $first_cds);}
+												# there is another stop_codon
+												if($#list_stop > 0){
+													$stop_codon = $list_stop[1];
+													$first_cds =  $list_cds[1];
+													$first_cds->start($stop_codon->end+1);
+												}
+											}
+											else{
+												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+											}
 										}
 									}
 								}
@@ -402,6 +453,18 @@ sub convert_feature_type{
 	}
 }
 
+sub remove_cds{
+	my ($hash_omniscient, $id_l2, $cds_feature)=@_;
+
+	my @new_cds_list=();
+	foreach my $feature ( @{$hash_omniscient->{'level3'}{'cds'}{$id_l2}} ) {
+		if( lc($feature->_tag_value('ID')) eq  lc($cds_feature->_tag_value('ID'))){
+			next;
+		}
+		push @new_cds_list, $feature;
+	}
+	@{$hash_omniscient->{'level3'}{'cds'}{$id_l2}} = @new_cds_list;
+}
 
 # filter feature type to remove not expected ones
 sub print_omniscient_filter{

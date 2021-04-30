@@ -1688,6 +1688,7 @@ sub _check_l2_linked_to_l3{
 sub _check_cds{
 	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
 	my $resume_case=undef;
+	my $resume_case2=undef;
 
 	if( exists_keys($hash_omniscient,('level3', 'cds')) ){
 		if( exists_keys($hash_omniscient,('level3', 'stop_codon')) ){
@@ -1738,6 +1739,7 @@ sub _check_cds{
 									my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
 									create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
 									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+									$resume_case2++;
 								}
 							}
 							else{
@@ -1756,7 +1758,7 @@ sub _check_cds{
 												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
 												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
-												$stop_start_exon=1;
+												$stop_start_exon=1;$resume_case2++;
 											}
 										}
 									}
@@ -1770,6 +1772,7 @@ sub _check_cds{
 							$resume_case++;
 						}
 					}
+					# strand is minus
 					else{
 						my $cds = $list_cds[0];
 						my $stop = $list_stop[0];
@@ -1791,6 +1794,7 @@ sub _check_cds{
 										my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
 										create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
 										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+										$resume_case2++;
 									}
 							}
 							else{
@@ -1809,7 +1813,7 @@ sub _check_cds{
 												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
 												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
-												$stop_start_exon=1;
+												$stop_start_exon=1;$resume_case2++;
 											}
 										}
 									}
@@ -1830,7 +1834,12 @@ sub _check_cds{
 	if( $resume_case ){
 		dual_print($log, "$resume_case CDS extended to include the stop_codon\n", $verbose);
 	}
-	else{ 	dual_print($log, "No problem found\n", $verbose); }
+	if($resume_case2){
+		dual_print($log, "$resume_case2 CDS created to include the stop_codon that was on next exon\n", $verbose);
+	}
+	if(!$resume_case and !$resume_case2){
+		dual_print($log, "No problem found\n", $verbose);
+	}
 }
 
 # @Purpose: Check L3 features. If exon are missing we create them. We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).

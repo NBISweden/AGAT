@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 35;
+use Test::More tests => 37;
 
 =head1 DESCRIPTION
 
@@ -54,7 +54,7 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     #run test
     ok( system("diff $pathtmp t/gff_syntax/$correct_output") == 0, "parse $file");
-
+    unlink $pathtmp;
     #--------------- rerun on the first output #---------------
 
      # peculiar case
@@ -75,6 +75,19 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 }
 closedir($dh);
 
-
+#  ---------------------------- special tests ----------------------------
+my $result = "t/gff_syntax/stop_start_an_exon_correct_output.gff";
+system(" $script --gff t/gff_syntax/stop_start_an_exon.gtf -o $pathtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $pathtmp") == 0, "output $script");
 unlink $pathtmp;
+
+$result = "t/gff_syntax/stop_split_over_two_exons_correct_output.gff";
+system(" $script --gff t/gff_syntax/stop_split_over_two_exons.gtf -o $pathtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $pathtmp") == 0, "output $script");
+unlink $pathtmp;
+
+
+
 #unlink $pathtmp2;
