@@ -1570,7 +1570,7 @@ sub _check_l2_linked_to_l3{
 				}
 
 				if(! $has_l1_feature){
-					if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient)} # fill it (only once) because will be needed
+					if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient);	use Data::Dumper; print Dumper($common_tag_in_l1);} # fill it (only once) because will be needed
 
 					# Check if one as a common tag value == to L1 common tag value
 					# (then when creating l2 in check3 add parent for L2 of the L1 Id)
@@ -1581,17 +1581,17 @@ sub _check_l2_linked_to_l3{
 						foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 							if($l3_feature->has_tag($tag) ) {
 								# case where it's linked by comon_tag attribute
-								if (exists_keys($common_tag_in_l1,( lc($l3_feature->_tag_value($tag)) ) ) ){
-									if($#{$common_tag_in_l1->{lc($l3_feature->_tag_value($tag))}} == 0){
-										my $id = $common_tag_in_l1->{lc($l3_feature->_tag_value($tag))}[0]->{'id'};
-										my $ptag = $common_tag_in_l1->{lc($l3_feature->_tag_value($tag))}[0]->{'ptag'};
+
+								if (exists_keys($common_tag_in_l1,( $tag, lc($l3_feature->_tag_value($tag)) ) ) ){
+									if($#{$common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}} == 0){
+										my $id = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'id'};
+										my $ptag = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'ptag'};
 										$has_l1_feature = $hash_omniscient->{'level1'}{$ptag}{$id};
 										$id_l2_to_replace = $l3_feature->_tag_value('Parent');
-										print "\n\n this case\n\n";exit;
 										last;
 									}
 									else{
-										print "\n\nSeveral potential L1 parent with comnon tag $tag with value ".lc($l3_feature->_tag_value($tag))."\n";
+										dual_print($log, "\n\nSeveral potential L1 parent with comnon tag $tag with value ".lc($l3_feature->_tag_value($tag)).". We do not use any\n", 0);
 									}
 								}
 							}
@@ -1601,7 +1601,7 @@ sub _check_l2_linked_to_l3{
 				}
 
 
-				 if ($has_l1_feature){
+				if ($has_l1_feature){
 
 							my $l1_ID = $has_l1_feature->_tag_value('ID');
 							my $l2_feature = clone($has_l1_feature);#create a copy of the first mRNA feature;
