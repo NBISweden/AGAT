@@ -1635,8 +1635,8 @@ sub _check_l2_linked_to_l3{
 							}
 							dual_print($log, "L3 was directly linked to L1. Corrected by creating the intermediate L2 feature from L1 feature:".$l2_feature->gff_string()."\n", 0);
 							last
-						}
-				}
+					}
+
 
 				if (! exists($mRNAGeneLink->{ $id_l2 }) ) { # it was not previous case (L3 linked directly to L1)
 
@@ -1694,7 +1694,7 @@ sub _check_l2_linked_to_l3{
 	 				}
 	 			}
 			}
-
+		}
 	if($resume_case){
  		dual_print($log, "$resume_case cases fixed where L3 features have parent feature(s) missing\n", $verbose);
 	}
