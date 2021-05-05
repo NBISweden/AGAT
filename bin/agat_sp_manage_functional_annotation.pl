@@ -499,8 +499,7 @@ if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
                   #save the new l3 into the new l2 id name
                   $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($newID_level2)} = delete $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)} # delete command return the value before deleting it, so we just transfer the value
                 }
-                #if ($opt_name and mary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ) { # JN: Risky test. Need to keep track of operator precedence.
-                if ( ($opt_name and mary_tag_level3 =~ /cds/) or ($primary_tag_level3 =~ /utr/) ) {
+                if ( $opt_name and ($primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ) {
                   my $letter_tag = get_letter_tag($primary_tag_level3);
                   $numbering{$letter_tag}++;
                 } # with this option we increment UTR name only for each UTR (cds also)
