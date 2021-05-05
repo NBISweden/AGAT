@@ -1120,7 +1120,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [ -b blast_infile --db uniprot.fasta -i interpro_infile.tsv --id ABCDEF --output outfile ]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][--db uniprot.fasta][-i interpro_infile.tsv][--id ABCDEF][--output outfile]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
