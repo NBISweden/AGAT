@@ -83,15 +83,11 @@ GetOptions(
  'v'                        => \$opt_verbose,
  'h|help!'                  => \$opt_help
 )
-or {
-  pod2usage(
-    {
-      -message => 'Failed to parse command line',
-      -verbose => 1,
-      -exitval => 1
-    }
-  );
-}
+or pod2usage( {
+  -message => 'Failed to parse command line',
+  -verbose => 1,
+  -exitval => 1
+});
 #if ( !GetOptions( 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
 #                  'b|blast=s' => \$opt_BlastFile,
 #                  'd|db=s' => \$opt_dataBase,
