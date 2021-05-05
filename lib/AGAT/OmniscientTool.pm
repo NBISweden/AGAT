@@ -2118,7 +2118,7 @@ sub check_all_level2_positions{
 								push @feature_list, @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}};
 							}
 						}
-						if(scalar(@feature_list) > 0){ #could be emtpy like in match match_part features
+						if( @feature_list ){ #could be emtpy like in match match_part features, so avoid this cases
 							 $resume_case++ if( check_mrna_positions({ l2_feature => $mRNA_feature,
 							 																					exon_list => \@feature_list,
 																												log => $log,
