@@ -260,9 +260,9 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
   # == LEVEL 1 == #
   #################
 
-    if ($DEBUG) { # JN: Start DEBUG
-        print Dumper(%{$hash_omniscient->{'level1'}});warn "\n Level 1 (hit return to continue)\n" and getc();
-    } # JN: End DEBUG
+  #if ($DEBUG) { # JN: Start DEBUG
+  #  print Dumper(%{$hash_omniscient->{'level1'}});warn "\n Level 1 (hit return to continue)\n" and getc();
+  #} # JN: End DEBUG
 
 
   foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
@@ -271,18 +271,19 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       #print $feature_level1."\n";
-      if ($DEBUG) { # JN: Start DEBUG
-        print Dumper($feature_level1);warn "\n feature_level1 (hit return to continue)\n" and getc();
-      } # JN: End DEBUG
+      #if ($DEBUG) { # JN: Start DEBUG
+      #  print Dumper($feature_level1);warn "\n feature_level1 (hit return to continue)\n" and getc();
+      #} # JN: End DEBUG
 
       # Clean NAME attribute
+      # JN: Why do we need to remove the tag?
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
-        if (exists ($geneNameBlast{$id_level1})) {
+        if (exists ($geneNameBlast{$id_level1})) { # JN: Does the Name exists in the geneNameBlast hash? If not, no name is stored!
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
           $nbNamedGene++;
 
@@ -308,7 +309,7 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
         }
         else {
           if ($DEBUG) { # JN: Start DEBUG
-            print Dumper();warn "\n id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
+            print Dumper($feature_level1);warn "\n printed feature_level1. AND id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
           } # JN: End DEBUG
         }
 
@@ -317,6 +318,10 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
       #################
       # == LEVEL 2 == #
       #################
+      if ($DEBUG) { # JN: Start DEBUG
+        print Dumper(%{$hash_omniscient->{'level2'}});warn "\n level 2 hash (hit return to continue)\n" and getc();
+      } # JN: End DEBUG
+
       foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}) { # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
         if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_level1) ) ) {
