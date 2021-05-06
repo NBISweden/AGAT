@@ -380,11 +380,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       }
     }
   }
+  # JN: Begin DEBUG
+  if ($DEBUG) {
+    print Dumper($missing_name_counter);warn "\n missing_name_counter (hit return to continue)\n" and getc();
+  } # JN: End DEBUG
 }
-# JN: Begin DEBUG
-if ($DEBUG) {
-  print Dumper($missing_name_counter);warn "\n missing_name_counter (hit return to continue)\n" and getc();
-} # JN: End DEBUG
 
 ###########################
 # change names if asked for
