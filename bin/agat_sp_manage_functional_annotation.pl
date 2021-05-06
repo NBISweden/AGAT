@@ -222,11 +222,8 @@ if (defined $opt_BlastFile) {
   foreach my $id (@ids) {
     $allIDs{lc($id)} = $id;
   }
+  # JN: example in %allIDs: 'sp|a0le17|rbfa_magmm' => 'sp|A0LE17|RBFA_MAGMM'
   print_time("Parsing Finished\n\n");
-  if ($DEBUG) { # JN: begin debug
-      print Dumper(\%allIDs);
-      warn "\n allIDs hash (hit return to continue)\n" and getc();
-  } # JN: end debug
   #print "id.".$id"\t";
 
   # parse blast output
@@ -262,6 +259,12 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
   #################
   # == LEVEL 1 == #
   #################
+
+    if ($DEBUG) { # JN: Start DEBUG
+        print Dumper(%{$hash_omniscient->{'level1'}});warn "\n Level 1 (hit return to continue)\n" and getc();
+    } # JN: End DEBUG
+
+
   foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
 
@@ -587,7 +590,7 @@ $ostreamReport->print("$stringPrint");
 # PRINT IN FILES
 ####################
 print_time("Writing result...");
-print_omniscient($hash_omniscient, $ostreamGFF);
+print_omniscient($hash_omniscient, $ostreamGFF); # JN: check content of $hash_omniscient
 
       #########################
       ######### END ###########
@@ -1101,7 +1104,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-o outfile.gff]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-o output]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
@@ -1157,7 +1160,7 @@ This option is used to define the number that will be used to begin the numberin
 
 =item B<-o> or B<--output>
 
-String - Output GFF file. If no output file is specified, the output will be
+String - Output folder name with summary files. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-v>
