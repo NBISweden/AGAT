@@ -74,9 +74,9 @@ foreach my $next_file (@opt_files){
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
 
-  #merge annotation taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
+  #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  print ("\n$next_file Total raw data:\n");
+  print ("\nTotal raw data of files together:\n");
   info_omniscient($hash_omniscient);
 }
 
