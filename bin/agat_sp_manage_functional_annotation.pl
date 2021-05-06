@@ -271,6 +271,10 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       #print $feature_level1."\n";
+      if ($DEBUG) { # JN: Start DEBUG
+        print Dumper($feature_level1);warn "\n feature_level1 (hit return to continue)\n" and getc();
+      } # JN: End DEBUG
+
       # Clean NAME attribute
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
@@ -302,6 +306,12 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
             $geneNameGiven{$nameToCompare}++;
           } # first time we have given this name
         }
+        else {
+          if ($DEBUG) { # JN: Start DEBUG
+            print Dumper();warn "\n id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
+          } # JN: End DEBUG
+        }
+
       }
 
       #################
