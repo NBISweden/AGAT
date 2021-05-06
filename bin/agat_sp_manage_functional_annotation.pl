@@ -88,23 +88,6 @@ or pod2usage( {
   -verbose => 1,
   -exitval => 1
 });
-#if ( !GetOptions( 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
-#                  'b|blast=s' => \$opt_BlastFile,
-#                  'd|db=s' => \$opt_dataBase,
-#                  'be|blast_evalue=i' => \$opt_blastEvalue,
-#                  'pe=i' => \$opt_pe,
-#                  'i|interpro=s' => \$opt_InterproFile,
-#                  'id=s' => \$opt_name,
-#                  'idau=s' => \$opt_nameU,
-#                  'nb=i' => \$nbIDstart,
-#                  'o|output=s'  => \$opt_output,
-#                  'v' => \$opt_verbose,
-#                  'h|help!' => \$opt_help ) )
-#{
-#  pod2usage( { -message => 'Failed to parse command line',
-#               -verbose => 1,
-#               -exitval => 1 } );
-#}
 
 # Print Help and exit
 if ($opt_help) {
@@ -200,8 +183,6 @@ $ostreamReport->print($stringPrint);
 if ($opt_output) {
   print_time("$stringPrint");
 } # When ostreamReport is a file we have to also display on screen
-
-
 
                   #          +------------------------------------------------------+
                   #          |+----------------------------------------------------+|
@@ -1120,7 +1101,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][--db uniprot.fasta][-i interpro_infile.tsv][--id ABCDEF][--output outfile]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-o outfile.gff]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
