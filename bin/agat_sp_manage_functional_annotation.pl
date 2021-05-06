@@ -253,33 +253,27 @@ if (defined $opt_InterproFile) {
 
 ###########################
 # change FUNCTIONAL information if asked for
-if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproFile) {
+if ($opt_BlastFile || $opt_InterproFile ) {
   print_time( "load FUNCTIONAL information\n" );
 
   #################
   # == LEVEL 1 == #
   #################
-
-  #if ($DEBUG) { # JN: Start DEBUG
-  #  print Dumper(%{$hash_omniscient->{'level1'}});warn "\n Level 1 (hit return to continue)\n" and getc();
-  #} # JN: End DEBUG
-
+  my $missing_name_counter = 0; # JN: DEBUG
 
   foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
 
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
-      #print $feature_level1."\n";
-      #if ($DEBUG) { # JN: Start DEBUG
-      #  print Dumper($feature_level1);warn "\n feature_level1 (hit return to continue)\n" and getc();
-      #} # JN: End DEBUG
-
       # Clean NAME attribute
       # JN: Why do we need to remove the tag?
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
+      elsif($DEBUG) { # JN: Begin DEBUG
+        $missing_name_counter++; 
+      } # JN: End DEBUG
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
@@ -307,21 +301,16 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
             $geneNameGiven{$nameToCompare}++;
           } # first time we have given this name
         }
-        else {
-          if ($DEBUG) { # JN: Start DEBUG
+        else { # JN: Start DEBUG
+          if ($DEBUG) {
             print Dumper($feature_level1);warn "\n printed feature_level1. AND id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
           } # JN: End DEBUG
         }
-
       }
 
       #################
       # == LEVEL 2 == #
       #################
-      if ($DEBUG) { # JN: Start DEBUG
-        print Dumper(%{$hash_omniscient->{'level2'}});warn "\n level 2 hash (hit return to continue)\n" and getc();
-      } # JN: End DEBUG
-
       foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}) { # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
         if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_level1) ) ) {
@@ -392,7 +381,10 @@ if ($opt_BlastFile || $opt_InterproFile ) { #|| $opt_BlastFile || $opt_InterproF
     }
   }
 }
-
+# JN: Begin DEBUG
+if ($DEBUG) {
+  print Dumper($missing_name_counter);warn "\n missing_name_counter (hit return to continue)\n" and getc();
+} # JN: End DEBUG
 
 ###########################
 # change names if asked for
