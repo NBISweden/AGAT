@@ -260,6 +260,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
   # == LEVEL 1 == #
   #################
   my $missing_name_counter = 0; # JN: DEBUG
+  my $missing_name_in_blast_counter = 0; # JN: DEBUG
 
   foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
@@ -303,7 +304,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
         }
         else { # JN: Start DEBUG
           if ($DEBUG) {
-            print Dumper($feature_level1);warn "\n printed feature_level1. AND id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
+              $missing_name_in_blast_counter++;
+              #print Dumper($feature_level1);warn "\n printed feature_level1. AND id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
           } # JN: End DEBUG
         }
       }
@@ -383,6 +385,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
   # JN: Begin DEBUG
   if ($DEBUG) {
     print Dumper($missing_name_counter);warn "\n missing_name_counter (hit return to continue)\n" and getc();
+    print Dumper($missing_name_in_blast_counter);warn "\n missing_name_in_blast_counter (hit return to continue)\n" and getc();
   } # JN: End DEBUG
 }
 
