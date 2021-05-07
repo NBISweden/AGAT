@@ -324,11 +324,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           } # first time we have given this name
         }
         else { # JN: Start DEBUG
-          if ($DEBUG) {
-              $missing_name_in_blast_counter++;
-              #print Dumper($feature_level1);warn "\n printed feature_level1. AND id_level1 does not exist in geneNameBlast hash (hit return to continue)\n" and getc();
-          } # JN: End DEBUG
-        }
+          create_or_replace_tag($feature_level1, 'Name', 'DEBUG_unnamed_gene_level1'); # JN: Debug output
+        } # End DEBUG
       }
 
       #################
@@ -337,7 +334,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}) { # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
         if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_level1) ) ) {
-          foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}}) {
+          foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}} ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
             # Clean NAME attribute
@@ -352,6 +349,10 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
               }
+              else { # JN: Start DEBUG
+                create_or_replace_tag($feature_level2, 'Name', 'DEBUG_unnamed_gene_level2'); # JN: Debug output
+              } # End DEBUG
+
               my $productData = printProductFunct($level2_ID);
 
               #add UniprotID attribute
@@ -374,9 +375,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                   create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
                 }
                 else {
-                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein");
+                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein"); # JN: check Luciles case here?
                 }
-
               } #Case where the protein is not known
             }
 
@@ -403,10 +403,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       }
     }
   }
-  # JN: Begin DEBUG
-  #if ($DEBUG) {
-  #  print Dumper($missing_name_in_blast_counter);warn "\n missing_name_in_blast_counter (hit return to continue)\n" and getc();
-  #} # JN: End DEBUG
 }
 
 ###########################
