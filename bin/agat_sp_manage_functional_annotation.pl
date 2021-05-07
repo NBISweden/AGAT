@@ -117,17 +117,21 @@ my $streamBlast = IO::File->new();
 my $streamInter = IO::File->new();
 
 # Manage Blast File
+# JN: example file maker_evidence_appendedByAbinitio_blast.out
 if (defined $opt_BlastFile) {
   if (! $opt_dataBase) {
     print "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
     exit;
   }
-  $streamBlast->open( $opt_BlastFile, 'r' ) or croak( sprintf( "Can not open '%s' for reading: %s", $opt_BlastFile, $! ) );
+  $streamBlast->open( $opt_BlastFile, 'r' ) or
+    croak( sprintf( "Can not open '%s' for reading: %s", $opt_BlastFile, $! ) );
 }
 
 # Manage Interpro file
+# JN: example file maker_evidence_appendedByAbinitio_interpro.tsv
 if (defined $opt_InterproFile) {
-  $streamInter->open( $opt_InterproFile, 'r' ) or croak( sprintf( "Can not open '%s' for reading: %s", $opt_InterproFile, $! ) );
+  $streamInter->open( $opt_InterproFile, 'r' ) or
+    croak( sprintf( "Can not open '%s' for reading: %s", $opt_InterproFile, $! ) );
 }
 
 ##########################
@@ -213,22 +217,41 @@ print_omniscient_statistics(
 # Manage Blast File #
 my $db;
 my %allIDs;
+my %fasta_id_gn_hash = (); # JN: key: lower case display_id, value: lower case GN
+my $missing_gn_in_fasta_counter = 0; # JN: Count entries in db with no GN
+
 if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
   print ("look at the fasta database\n");
-  $db = Bio::DB::Fasta->new($opt_dataBase);
+  $db = Bio::DB::Fasta->new($opt_dataBase); # JN: example file uniprot_sprot.fasta
   # save ID in lower case to avoid cast problems
-  my @ids = $db->get_all_primary_ids; # JN: here we parse the fasta file
-  foreach my $id (@ids) {
-    $allIDs{lc($id)} = $id;
+  #my @ids = $db->get_all_primary_ids; # JN: here we parse the fasta file
+  #foreach my $id (@ids) {
+  #  $allIDs{lc($id)} = $id;
+  #}
+  # JN: Alternative parsing of fasta. Picking up GNs as we go
+  my $dbstream = $db->get_PrimarySeq_stream;
+  while (my $seqobj = $dbstream->next_seq) {
+    my $display_id = $seqobj->display_id;
+    my $lc_display_id = lc($display_id);
+    $allIDs{$lc_display_id} = $display_id; # JN: example in %allIDs: 'sp|a0le17|rbfa_magmm' => 'sp|A0LE17|RBFA_MAGMM'
+    my $desc = $seqobj->desc;
+    if ($desc =~ /GN=(\S+)/) {
+        my $GN = $1;
+        my $lc_GN = lc($GN);
+        $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
+    }
+    else {
+      $missing_gn_in_fasta_counter++;
+      $fasta_id_gn_hash{$lc_display_id} = "missing_gn";
+    }
   }
-  # JN: example in %allIDs: 'sp|a0le17|rbfa_magmm' => 'sp|A0LE17|RBFA_MAGMM'
   print_time("Parsing Finished\n\n");
-  #print "id.".$id"\t";
 
   # parse blast output
+  # JN: example file maker_evidence_appendedByAbinitio_blast.out
   print( "Reading features from $opt_BlastFile...\n");
-  parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink);
+  parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink); # JN: Need to see how we parse here
 }
 
 ########################
@@ -269,12 +292,10 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
       # Clean NAME attribute
       # JN: Why do we need to remove the tag?
+      # JN: Note: all entries have a Name tag for the debug example I'm using
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
-      elsif($DEBUG) { # JN: Begin DEBUG
-        $missing_name_counter++; 
-      } # JN: End DEBUG
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
@@ -383,10 +404,9 @@ if ($opt_BlastFile || $opt_InterproFile ) {
     }
   }
   # JN: Begin DEBUG
-  if ($DEBUG) {
-    print Dumper($missing_name_counter);warn "\n missing_name_counter (hit return to continue)\n" and getc();
-    print Dumper($missing_name_in_blast_counter);warn "\n missing_name_in_blast_counter (hit return to continue)\n" and getc();
-  } # JN: End DEBUG
+  #if ($DEBUG) {
+  #  print Dumper($missing_name_in_blast_counter);warn "\n missing_name_in_blast_counter (hit return to continue)\n" and getc();
+  #} # JN: End DEBUG
 }
 
 ###########################
@@ -575,6 +595,7 @@ if ($opt_BlastFile) {
   $stringPrint .= "$nbGeneNameInBlast gene names have been retrieved in the blast file. $nbNamedGene gene names have been successfully inferred.\n".
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
   # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
+  $stringPrint .= "$missing_gn_in_fasta_counter entries in db have no GN\n"; # JN: Tentative output
 
   #Lets keep track the duplicated names
   if ($opt_output) {
@@ -652,9 +673,6 @@ sub manageGeneNameBlast {
     my @unique;
     for my $w (@tab) { # remove duplicate in list case insensitive
       $w =~ s/_[0-9]+$// ;
-
-      #print "w".$w."\t";
-
       next if $seen{lc($w)}++;
       push(@unique, $w);
     }
@@ -772,11 +790,11 @@ sub parse_blast {
       if ( $evalue <= $opt_blastEvalue ) {
         my $protID_correct = undef;
 
-        if ( exists $allIDs{lc($prot_name)}) {
+        if ( exists $allIDs{lc($prot_name)}) { # JN: Look for same entry as in fasta file
           $protID_correct = $allIDs{lc($prot_name)};
-          my $header = $db->header( $protID_correct );
+          my $header = $db->header( $protID_correct ); # JN: Get header from fasta db
           if (! $header =~ m/GN=/) {
-            # JN: No gene name. Should increment a counter here, and/or set gn_missing=yes?
+            # JN: No gene name
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
@@ -802,7 +820,7 @@ sub parse_blast {
         $protID_correct = $allIDs{lc($prot_name)};
         my $header = $db->header( $protID_correct );
         if (! $header =~ m/GN=/) {
-          # JN: No gene name. Should increment a counter here, and/or set gn_missing=yes?
+          # JN: No gene name
           $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
         if ($header =~ /PE=([1-5])\s/) {
@@ -864,7 +882,7 @@ sub parse_blast {
       if (exists($hash_rest{"gn"})) { # JN: Check for Gene name?
         $nameGene = $hash_rest{"gn"};
 
-        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
+        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) { # JN: Gene name is only captured if key exists here 
           my $geneID = $hash_mRNAGeneLink->{$l2};
           #print "push $geneID $nameGene\n";
           push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
@@ -875,11 +893,9 @@ sub parse_blast {
         }
       }
       else {
-        # JN: No gene name? Should increment a counter here, and/or set gn_missing=yes?
+        # JN: No gene name
         $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
       }
-      #} else {
-      #  print "Nope\s".$candidates{$l2}[0]."\n";
     }
   }
 
