@@ -617,7 +617,7 @@ sub manage_one_feature{
 				#GFF case
 				if($feature->has_tag('Parent')){
 							$parent = lc($feature->_tag_value('Parent'));
-							$locusTAGvalue=$parent;
+							$locusTAGvalue = $parent;
 							_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
 				}
 
@@ -708,6 +708,7 @@ sub manage_one_feature{
 				 		####################
 				 		# SAVE THE FEATURE #
 				 		dual_print ($log, "::::::::::Push-L2-omniscient-3 level2 || $primary_tag || $parent == ".$feature->gff_string."\n", $verbose) if ($debug);
+						_check_locus_uniqueness($feature, $omniscient, $parent);
 						push (@{$omniscient->{"level2"}{$primary_tag}{lc($parent)}}, $feature);
 				}
 				return $last_locusTAGvalue, $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;
@@ -990,6 +991,23 @@ sub _fix_parent_attribute_when_id_l1_l2_identical{
 	}
 }
 
+# infrom user if 2 features of a same record are on different seq_id
+sub _check_locus_uniqueness{
+	my ($feature, $omniscient, $parent)=@_;
+
+	foreach my $tag_l1 ( sort {$a cmp $b} keys %{$omniscient->{'level1'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+		if ( exists_keys ( $omniscient, ('level1', $tag_l1, lc($parent) ) ) ){
+
+			if( $feature->seq_id() ne $omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id()  )	{
+				warn "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
+				" level2 feature is on ".$feature->seq_id." sequence while ".
+				$omniscient->{'level1'}{$tag_l1}{lc($parent)}->_tag_value("ID").
+				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n";
+			}
+		}
+	}
+}
+
 # /!\ $feature must have a parent if not level1
 # Keep track to recover from sequential locus tag share whith feature saved in Omniscient
 sub _save_common_tag_value_top_feature{
@@ -1003,7 +1021,7 @@ sub _save_common_tag_value_top_feature{
 		if($feature->has_tag($tag)){
 			$locusName=lc($feature->_tag_value($tag)); #get the value
 
-			if ( !( exists_keys ( $locusTAG_uniq, ('topfeature', $locusName, 'level1') ) ) and ($level eq 'level2') ) {
+			if ( !( exists_keys ( $locusTAG_uniq, ('topfeature', $locusName, 'level1') ) ) and ($level eq 'level1') ) {
 				$locusTAG_uniq->{'topfeature'}{$locusName}{'level1'}{'ID'} = lc($feature->_tag_value('ID'));
 				last;
 			}
@@ -1298,7 +1316,7 @@ sub _create_ID{
 		$key=$primary_tag;
 	}
 
-	my $uID= $id ? $id : $key."-1";
+	my $uID = $id ? $id : $key."-1";
 
 	while( exists_keys($uniqID, (lc ($uID) ) )){	 #loop until we found an uniq tag
 		$miscCount->{$key}++;
