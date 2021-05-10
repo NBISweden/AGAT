@@ -2210,8 +2210,9 @@ sub check_level1_positions {
     		$check_existence_feature_l2=1;
 
 	    	my $extrem_start_A=1000000000000;
-			my $extrem_end_A=0;
+		  	my $extrem_end_A=0;
 	   		foreach my $feature ( @{$hash_omniscient->{'level2'}{$tag_level2}{$id_l1}}) {
+          if( $feature->seq_id eq $feature_l1->seq_id ){
 	      		my $start=$feature->start();
 	      		my $end=$feature->end();
 	      		if ($start < $extrem_start_A){
@@ -2220,7 +2221,8 @@ sub check_level1_positions {
 	      		if($end > $extrem_end_A){
 	        		$extrem_end_A=$end;
 	      		}
-	      	}
+          }
+	      }
 
 	    	if ($extrem_start_A < $extrem_start){
 	    		$extrem_start=$extrem_start_A;
