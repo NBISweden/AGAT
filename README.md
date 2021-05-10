@@ -5,7 +5,8 @@
 [![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
 [<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
-[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/downloads.svg)](https://anaconda.org/bioconda/agat)  
+[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)  
+
 AGAT
 =========================================
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
