@@ -65,17 +65,22 @@ my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
 print ("Fasta file parsed\n");
 
+# get all seq id from fasta and convert to hash
+my @ids      = $db->get_all_primary_ids;
+my %hash_id;
+$hash_id{ lc( $_ ) }++ for (@ids);
+
 #time to calcul progression
 my $startP=time;
 my $cpt_removed=0;
 my %seqNameSeen;
 my $cpt_kept=0;
 while (my $feature = $ref_in->next_feature() ) {
-  my $seq_id = $feature->seq_id;
-  if($db->seq($seq_id)){
+  my $seq_id = lc($feature->seq_id);
+  if( exists_keys( \%hash_id, ( $seq_id ) ) ){
     $gffout->write_feature($feature);
     # to count number of sequence with annotation
-    if(! exists_keys(\%seqNameSeen, ($seq_id))){
+    if(! exists_keys(\%seqNameSeen, ( $seq_id ) ) ){
       $seqNameSeen{$seq_id}++;
     }
     $cpt_kept++;
