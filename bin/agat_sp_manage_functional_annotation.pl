@@ -14,7 +14,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 use Data::Dumper; # JN: dedug
-my $DEBUG = 1; # JN: debug
+my $DEBUG = 0; # JN: debug
 
 my $header = get_agat_header();
 # PARAMETERS - OPTION
@@ -324,8 +324,10 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           } # first time we have given this name
         }
         else { # JN: Start DEBUG
-          create_or_replace_tag($feature_level1, 'Name', 'DEBUG_unnamed_gene_level1'); # JN: Debug output
-        } # End DEBUG
+          if ($DEBUG) {
+            create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_level1'); # JN: Debug output
+          } # End DEBUG
+        }
       }
 
       #################
@@ -349,9 +351,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
               }
-              else { # JN: Start DEBUG
-                create_or_replace_tag($feature_level2, 'Name', 'DEBUG_unnamed_gene_level2'); # JN: Debug output
-              } # End DEBUG
+              else {
+                if ($DEBUG) {# JN: Start DEBUG
+                  create_or_replace_tag($feature_level2, 'Name', 'DEBUG_noname_level2'); # JN: Debug output
+                } # End DEBUG
+              }
 
               my $productData = printProductFunct($level2_ID);
 
