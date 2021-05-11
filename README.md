@@ -463,6 +463,7 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
   * [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://www.biorxiv.org/content/10.1101/2021.01.15.426838v1.full.pdf)
   * [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
   * [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
+  * [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
   * [...]
 
 ## Troubleshooting
