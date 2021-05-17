@@ -115,7 +115,7 @@ __END__
 
 =head1 NAME
 
-agat_remove_redundant_entries.pl
+agat_sq_remove_redundant_entries.pl
 
 =head1 DESCRIPTION
 
@@ -125,8 +125,8 @@ do not exists we use "" instead.
 
 =head1 SYNOPSIS
 
-    agat_remove_redundant_entries.pl -i <input file> [-o <output file>]
-    agat_remove_redundant_entries.pl --help
+    agat_sq_remove_redundant_entries.pl -i <input file> [-o <output file>]
+    agat_sq_remove_redundant_entries.pl --help
 
 =head1 OPTIONS
 
