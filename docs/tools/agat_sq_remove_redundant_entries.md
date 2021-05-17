@@ -1,4 +1,4 @@
-# agat\_remove\_redundant\_entries.pl
+# agat\_sq\_remove\_redundant\_entries.pl
 
 ## DESCRIPTION
 
@@ -9,8 +9,8 @@ do not exists we use "" instead.
 ## SYNOPSIS
 
 ```
-agat_remove_redundant_entries.pl -i <input file> [-o <output file>]
-agat_remove_redundant_entries.pl --help
+agat_sq_remove_redundant_entries.pl -i <input file> [-o <output file>]
+agat_sq_remove_redundant_entries.pl --help
 ```
 
 ## OPTIONS
