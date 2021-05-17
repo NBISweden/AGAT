@@ -44,15 +44,6 @@ if ( ! $gff ){
            -exitval => 2 } );
 }
 
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
 
                 #####################
                 #     MAIN          #
@@ -103,38 +94,21 @@ print "$line_cpt features read. Among them, $nb_attributes has the $attribute at
 "There is $result unique value within $attribute attribute\n";
 print "Job done in $run_time seconds\n";
 
-
-#######################################################################################################################
-        ####################
-         #     methods    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
-
-
-
 __END__
 
 =head1 NAME
 
-agat_sp_manage_attributes.pl
+agat_sq_count_attributes.pl
 
 =head1 DESCRIPTION
 
-The script removes choosen attributes of selected features. It can also create new
-attribute with 'empty' value, or copy paste an existing attribute using a new specified tag.
-Attribute in a gff file have this shape (2 attributes here): tag=value;tag=value and
-are stored within the 9th column.
+The script count the number of a choosen attribute and also count the number of
+unique value of this attribute.
 
 =head1 SYNOPSIS
 
-    agat_sq_manage_attributes.pl --gff file.gff  --att locus_tag,product,name/NewName -p level2,cds,exon [ -o outfile ]
-    agat_sq_manage_attributes.pl --help
+    agat_sq_count_attributes.pl --gff file.gff  --att gene_id [ -o outfile ]
+    agat_sq_count_attributes.pl --help
 
 =head1 OPTIONS
 
@@ -146,10 +120,7 @@ Input GTF/GFF file.
 
 =item B<--tag>, B<--att>
 
-Attributes with the tag specified will be removed from the feature type specified by the option p (primary tag). List of tag must be coma separated.
-/!\\ You must use "" if name contains spaces.
-Instead to remove an attribute, you can replace its Tag by a new Tag using this formulation tagName/newTagName.
-To remove all attributes non mandatory (only ID and Parent are mandatory) you can use the option with <all_attributes> parameter.
+The name of the attribute that will be investigated.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 
