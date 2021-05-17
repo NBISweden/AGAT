@@ -1,4 +1,4 @@
-# agat\_sq\_keep\_annotation\_from\_fastaSeq.pl
+# agat\_sq\_filter\_feature\_from\_fasta.pl
 
 ## DESCRIPTION
 
@@ -9,8 +9,8 @@ The match between sequence name in the fasta file and the 1st column of the gff3
 ## SYNOPSIS
 
 ```
-agat_sq_keep_annotation_from_fastaSeq.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
-agat_sq_keep_annotation_from_fastaSeq.pl --help
+agat_sq_filter_feature_from_fasta.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
+agat_sq_filter_feature_from_fasta.pl --help
 ```
 
 ## OPTIONS
@@ -34,4 +34,3 @@ agat_sq_keep_annotation_from_fastaSeq.pl --help
 - **--help** or **-h**
 
     Display this helpful text.
-
