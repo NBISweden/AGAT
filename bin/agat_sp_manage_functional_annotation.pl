@@ -596,7 +596,11 @@ if ($opt_BlastFile) {
   $stringPrint .= "\n$nbGeneNameInBlast gene names have been retrieved in the blast file. $nbNamedGene gene names have been successfully inferred.\n".
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
   # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
-  $stringPrint .= "\n$missing_gn_in_fasta_counter entries in db have no GN\n"; # JN: Tentative output
+
+  # JN: Report number of entries in $opt_dataBase without GN
+  if ($opt_dataBase) {
+      $stringPrint .= "\n$missing_gn_in_fasta_counter entries in $opt_dataBase have no GN\n"; # JN: Tentative output
+  }
 
   #Lets keep track the duplicated names
   if ($opt_output) {
