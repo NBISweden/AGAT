@@ -243,7 +243,7 @@ if (defined $opt_BlastFile) {
     }
     else {
       $missing_gn_in_fasta_counter++;
-      $fasta_id_gn_hash{$lc_display_id} = "missing_gn";
+      $fasta_id_gn_hash{$lc_display_id} = "DEBUG_missing_gn"; # JN: Need a better string
     }
   }
   print_time("Parsing Finished\n\n");
@@ -799,6 +799,11 @@ sub parse_blast {
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
+          else { # JN: Begin DEBUG 
+            if ($DEBUG) {
+              #### JN: LOOK HERE ####
+            }
+          } # JN: End DEBUG
           if ($header =~ /PE=([1-5])\s/) {
             if ($1 <= $opt_pe) {
               $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
@@ -824,6 +829,11 @@ sub parse_blast {
           # JN: No gene name
           $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
+        else { # JN: Begin DEBUG
+          if ($DEBUG) {
+            #### JN: LOOK HERE ####
+          }
+        } # JN: End DEBUG
         if ($header =~ /PE=([1-5])\s/) {
           if ($1 <= $opt_pe) {
             $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
@@ -880,7 +890,7 @@ sub parse_blast {
         $hash_rest{lc($type)} = $value;
       }
 
-      if (exists($hash_rest{"gn"})) { # JN: Check for Gene name?
+      if (exists($hash_rest{"gn"})) { # JN: Check for Gene name? #### JN: LOOK HERE ####
         $nameGene = $hash_rest{"gn"};
 
         if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) { # JN: Gene name is only captured if key exists here 
