@@ -208,13 +208,13 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     my $frame=".";
 
     my $score;
-    if( exists_keys (\%bedOmniscent, ($UniqID, 'score') ) ){
-      $score=$bedOmniscent{$UniqID}{'score'};
+    if( exists_keys (\%bedOmniscent, ($id, 'score') ) ){
+      $score=$bedOmniscent{$id}{'score'};
     }
 
     my $strand;
-    if( exists_keys (\%bedOmniscent, ($UniqID, 'strand') ) ){
-      $strand=$bedOmniscent{$UniqID}{'strand'};
+    if( exists_keys (\%bedOmniscent, ($id, 'strand') ) ){
+      $strand=$bedOmniscent{$id}{'strand'};
     }
 
     my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
