@@ -2,8 +2,7 @@
 
 ## DESCRIPTION
 
-The script masks GFF-denoted segments out of a FASTA format file.
-This script masks (hard or soft) repeats among sequences.
+The script masks (hard or soft) GFF-denoted segments out of a FASTA format file.
 It needs 3 input parameters: a gff3 file, a fasta file, and a Mask method.
 The result is written to the specified output file, or to STDOUT.
 
