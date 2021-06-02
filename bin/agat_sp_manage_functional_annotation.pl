@@ -306,7 +306,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
-        print Dumper(\%geneNameBlast);warn "\n First check of id_level:$id_level1 in hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
+        #print Dumper(\%geneNameBlast);warn "\n First check of id_level:$id_level1 in hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
+        # JN: example: 'maker-bi03_p1mp_000079f-est_gff_stringtie-gene-3.1' => 'tmem259_3'
 
         if (exists ($geneNameBlast{$id_level1})) { # JN: Does the Name exists in the geneNameBlast hash? If not, no name is stored!
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
@@ -338,7 +339,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           } # End DEBUG
         }
       }
-      print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
+
       #################
       # == LEVEL 2 == #
       #################
@@ -360,11 +361,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
               }
-              else {
-                if ($DEBUG) {# JN: Start DEBUG
+              else { # JN: Start DEBUG
+                if ($DEBUG) {
                   create_or_replace_tag($feature_level2, 'Name', 'DEBUG_noname_level2'); # JN: Debug output
-                } # End DEBUG
-              }
+                }
+              } # JN: End DEBUG
 
               my $productData = printProductFunct($level2_ID);
 
@@ -416,6 +417,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       }
     }
   }
+  print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
 }
 
 ###########################
@@ -814,7 +816,7 @@ sub parse_blast {
           }
           else { # JN: Begin DEBUG
             if ($DEBUG) {
-              #### JN: LOOK HERE ####
+              #### JN: 
             }
           } # JN: End DEBUG
           if ($header =~ /PE=([1-5])\s/) {
