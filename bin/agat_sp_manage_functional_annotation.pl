@@ -37,7 +37,7 @@ my @tag_list;
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
-my %nameBlast;
+my %nameBlast; # JN: Where is this hash initiated?
 my %geneNameBlast; # JN: Where is this hash initiated?
 my %mRNANameBlast;
 my %mRNAUniprotIDFromBlast;
@@ -417,7 +417,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       }
     }
   }
-  print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
+  #print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
 }
 
 ###########################
@@ -783,6 +783,7 @@ sub addFunctions {
 }
 
 # method to parse blast file
+# JN: E.g., maker_evidence_appendedByAbinitio_blast.out
 sub parse_blast {
   my($file_in, $opt_blastEvalue, $hash_mRNAGeneLink) = @_;
 
@@ -813,10 +814,12 @@ sub parse_blast {
             # JN: No gene name
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
+            # JN: Here we have a blast hit, but no GN. Instead of "error", use the string `gn_missing=yes`? Check the "check for 'error'" below on line 885
+            #$candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
           else { # JN: Begin DEBUG
             if ($DEBUG) {
-              #### JN: 
+              #### JN: and add info about presence of GN here?
             }
           } # JN: End DEBUG
           if ($header =~ /PE=([1-5])\s/) {
@@ -836,6 +839,7 @@ sub parse_blast {
       else {# JN: Begin DEBUG
         if ($DEBUG) {
           # JN: E-value not below opt_blastEvalue
+          # JN: How can we add info about 'gn_missing=NA'?
         }
       } # JN: End DEBUG
     }
@@ -879,6 +883,10 @@ sub parse_blast {
   my %linkBmRNAandGene;
 
   foreach my $l2 (keys %candidates) {
+    print Dumper($l2);warn "\n l2 (hit return to continue)\n" and getc(); # JN: debug ons  2 jun 2021 18:22:56
+    print Dumper($candidates{$l2}[0]);warn "\n candidates l2 0 header (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
+    print Dumper($candidates{$l2}[1]);warn "\n candidates l2 1 evalue (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
+    print Dumper($candidates{$l2}[2]);warn "\n candidates l2 2 uniprot_id (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
     if ( $candidates{$l2}[0] eq "error" ) {
       $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
       next;
