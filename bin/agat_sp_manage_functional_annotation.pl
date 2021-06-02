@@ -38,7 +38,7 @@ my @tag_list;
 
 # FOR FUNCTIONS BLAST#
 my %nameBlast;
-my %geneNameBlast;
+my %geneNameBlast; # JN: Where is this hash initiated?
 my %mRNANameBlast;
 my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
@@ -70,12 +70,12 @@ my $nbTotalGOterm = 0;
 # OPTION MANAGMENT
 my @copyARGV = @ARGV;
 GetOptions(
- 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
- 'b|blast=s'                => \$opt_BlastFile,
- 'd|db=s'                   => \$opt_dataBase,
+ 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,      # JN: E.g., maker_evidence_appendedByAbinitio.gff
+ 'b|blast=s'                => \$opt_BlastFile,    # JN: E.g., maker_evidence_appendedByAbinitio_blast.out
+ 'd|db=s'                   => \$opt_dataBase,     # JN: E.g., uniprot_sprot.fasta
  'be|blast_evalue=i'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
- 'i|interpro=s'             => \$opt_InterproFile,
+ 'i|interpro=s'             => \$opt_InterproFile, # JN: E.g., maker_evidence_appendedByAbinitio_interpro.tsv
  'id=s'                     => \$opt_name,
  'idau=s'                   => \$opt_nameU,
  'nb=i'                     => \$nbIDstart,
@@ -91,17 +91,24 @@ or pod2usage( {
 
 # Print Help and exit
 if ($opt_help) {
-  pod2usage( { -verbose => 99,
-               -exitval => 0,
-               -message => "$header\n" } );
+  pod2usage(
+    {
+      -verbose => 99,
+      -exitval => 0,
+      -message => "$header\n"
+    }
+  );
 }
 
-if ( ! (defined($opt_reffile)) ) {
-  pod2usage( {
-         -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--f)\n\n".
-         "Many optional parameters are available. Look at the help documentation to know more.\n",
-         -verbose => 0,
-         -exitval => 1 } );
+if ( !( defined($opt_reffile) ) ) {
+  pod2usage(
+    {
+      -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--f)\n\n"
+        . "Many optional parameters are available. Look at the help documentation to know more.\n",
+      -verbose => 0,
+      -exitval => 1
+    }
+  );
 }
 
 #################################################
@@ -145,7 +152,7 @@ if (defined($opt_output)) {
     exit();
   }
   if (-d $opt_output) {
-    print "The output directory choosen already exists. Please geve me another Name.\n";
+    print "The output directory choosen already exists. Please give me another Name.\n";
     exit();
   }
   mkdir $opt_output;
@@ -220,12 +227,12 @@ my %allIDs;
 my %fasta_id_gn_hash = (); # JN: key: lower case display_id, value: lower case GN
 my $missing_gn_in_fasta_counter = 0; # JN: Count entries in db with no GN
 
-if (defined $opt_BlastFile) {
+if (defined $opt_BlastFile) { # JN: example file uniprot_sprot.fasta
   # read fasta file and save info in memory
   print ("look at the fasta database\n");
-  $db = Bio::DB::Fasta->new($opt_dataBase); # JN: example file uniprot_sprot.fasta
+  $db = Bio::DB::Fasta->new($opt_dataBase);
   # save ID in lower case to avoid cast problems
-  #my @ids = $db->get_all_primary_ids; # JN: here we parse the fasta file
+  #my @ids = $db->get_all_primary_ids;
   #foreach my $id (@ids) {
   #  $allIDs{lc($id)} = $id;
   #}
@@ -243,7 +250,7 @@ if (defined $opt_BlastFile) {
     }
     else {
       $missing_gn_in_fasta_counter++;
-      $fasta_id_gn_hash{$lc_display_id} = "DEBUG_missing_gn"; # JN: Need a better string
+      $fasta_id_gn_hash{$lc_display_id} = "DEBUG_missing_GN_in_db"; # JN: Need a better string
     }
   }
   print_time("Parsing Finished\n\n");
@@ -291,7 +298,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       # Clean NAME attribute
-      # JN: Why do we need to remove the tag?
+      # JN: Why do we need to remove the Name tag?
       # JN: Note: all entries have a Name tag for the debug example I'm using
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
@@ -299,6 +306,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
+        print Dumper(\%geneNameBlast);warn "\n First check of id_level:$id_level1 in hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
+
         if (exists ($geneNameBlast{$id_level1})) { # JN: Does the Name exists in the geneNameBlast hash? If not, no name is stored!
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
           $nbNamedGene++;
@@ -325,11 +334,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
         }
         else { # JN: Start DEBUG
           if ($DEBUG) {
-            create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_level1'); # JN: Debug output
+            create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_in_blast_level1'); # JN: Debug output
           } # End DEBUG
         }
       }
-
+      print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
       #################
       # == LEVEL 2 == #
       #################
@@ -782,10 +791,10 @@ sub parse_blast {
 
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
-    my $l2_name = lc($values[0]);
-    my $prot_name = $values[1];
+    my $l2_name = lc($values[0]);  # JN: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1
+    my $prot_name = $values[1]; # JN: sp|Q4FZT2|PPME1_RAT
     my @prot_name_sliced = split(/\|/, $values[1]);
-    my $uniprot_id = $prot_name_sliced[1];
+    my $uniprot_id = $prot_name_sliced[1]; # JN: Q4FZT2
     print "uniprot_id: ".$uniprot_id."\n" if ($opt_verbose);
     my $evalue = $values[10];
     print "Evalue: ".$evalue."\n" if ($opt_verbose);
@@ -803,7 +812,7 @@ sub parse_blast {
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
-          else { # JN: Begin DEBUG 
+          else { # JN: Begin DEBUG
             if ($DEBUG) {
               #### JN: LOOK HERE ####
             }
@@ -822,6 +831,11 @@ sub parse_blast {
           $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
         }
       }
+      else {# JN: Begin DEBUG
+        if ($DEBUG) {
+          # JN: E-value not below opt_blastEvalue
+        }
+      } # JN: End DEBUG
     }
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
       my $protID_correct = undef;
@@ -835,7 +849,7 @@ sub parse_blast {
         }
         else { # JN: Begin DEBUG
           if ($DEBUG) {
-            #### JN: LOOK HERE ####
+            # JN: 
           }
         } # JN: End DEBUG
         if ($header =~ /PE=([1-5])\s/) {
