@@ -883,10 +883,7 @@ sub parse_blast {
   my %linkBmRNAandGene;
 
   foreach my $l2 (keys %candidates) {
-    print Dumper($l2);warn "\n l2 (hit return to continue)\n" and getc(); # JN: debug ons  2 jun 2021 18:22:56
-    print Dumper($candidates{$l2}[0]);warn "\n candidates l2 0 header (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
-    print Dumper($candidates{$l2}[1]);warn "\n candidates l2 1 evalue (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
-    print Dumper($candidates{$l2}[2]);warn "\n candidates l2 2 uniprot_id (hit return to continue)\n" and getc(); # JN:  debug ons  2 jun 2021 18:22:56
+    # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
     if ( $candidates{$l2}[0] eq "error" ) {
       $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
       next;
