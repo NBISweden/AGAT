@@ -806,7 +806,7 @@ sub parse_blast {
 
         my $lc_prot_name = lc($prot_name); # JN: Begin debug HoH
         my $gn_presence = '';
-        if (exists($fasta_id_gn_hash{$lc_prot_name)}) {
+        if (exists($fasta_id_gn_hash{$lc_prot_name})) {
           $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
           $HoH{$l2_name}{$gn_presence}++;
         }
@@ -856,7 +856,7 @@ sub parse_blast {
 
       my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
       my $gn_presence = '';
-      if (exists($fasta_id_gn_hash{$lc_prot_name)}) {
+      if (exists($fasta_id_gn_hash{$lc_prot_name})) {
         $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
         $HoH{$l2_name}{$gn_presence}++;
       }
