@@ -788,7 +788,7 @@ sub parse_blast {
 
   my %candidates;
 
-  my %HoH = (); # JN: Debug
+  my %HoH = (); # JN: Debug HoH
 
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
@@ -804,8 +804,8 @@ sub parse_blast {
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
       if ( $evalue <= $opt_blastEvalue ) {
 
-        my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug
-        $HoH{$l2_name}{$gn_presence}++; # JN: Debug
+        my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug HoH
+        $HoH{$l2_name}{$gn_presence}++; # JN: Debug HoH
 
         my $protID_correct = undef;
 
@@ -941,7 +941,28 @@ sub parse_blast {
     }
   }
 
-  print Dumper(\%HoH);warn "\n HoH (hit return to continue)\n" and getc();
+  # JN: Next step: go through HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
+  # JN: and if so, is "DEBUG_missing_GN_in_db" the only value?
+  # JN: tor  3 jun 2021 14:08:59
+  # JN: Begin gn_missing=yes|no|NA
+  my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes
+  while ( my ($l2, $values) = each %HoH ) {
+    my $size = scalar(%{$values});
+    if ($size == 1) {
+      if (exists($HoH{$l2}{'DEBUG_missing_GN_in_db'})) {
+        $l2_gn_missing_hash{$l2} = "yes";
+      }
+      else {
+        $l2_gn_missing_hash{$l2} = "no";
+      }
+    }
+    else {
+      my (@vals) = keys (%{$values});
+        print "l2 $l2 have several values: @vals\n";
+    }
+  }
+  print Dumper(\%l2_gn_missing_hash);warn "\n l2_gn_missing_hash (hit return to continue)\n" and getc();
+  # JN: End gn_missing=yes|no|NA
 
 
 
