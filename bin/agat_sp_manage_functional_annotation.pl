@@ -804,8 +804,15 @@ sub parse_blast {
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
       if ( $evalue <= $opt_blastEvalue ) {
 
-        my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug HoH
-        $HoH{$l2_name}{$gn_presence}++; # JN: Debug HoH
+        my $lc_prot_name = lc($prot_name); # JN: Begin debug HoH
+        my $gn_presence = '';
+        if (exists($fasta_id_gn_hash{$lc_prot_name)}) {
+          $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
+          $HoH{$l2_name}{$gn_presence}++;
+        }
+        else {
+          warn "\n$lc_prot_name not found in fasta_id_gn_hash (hit return to continue)\n" and getc();
+        } # JN: End Debug HoH
 
         my $protID_correct = undef;
 
@@ -847,8 +854,15 @@ sub parse_blast {
     }
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
 
-      my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug
-      $HoH{$l2_name}{$gn_presence}++; # JN: Debug
+      my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
+      my $gn_presence = '';
+      if (exists($fasta_id_gn_hash{$lc_prot_name)}) {
+        $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
+        $HoH{$l2_name}{$gn_presence}++;
+      }
+      else {
+        warn "\n$lc_prot_name not found in fasta_id_gn_hash (hit return to continue)\n" and getc();
+      }  # JN: End Debug HoH
 
       my $protID_correct = undef;
 
