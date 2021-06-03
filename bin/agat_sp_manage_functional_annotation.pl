@@ -34,6 +34,7 @@ my $nbIDstart = 1;
 my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
+my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes|no|NA
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
@@ -967,7 +968,7 @@ sub parse_blast {
   # JN: Begin gn_missing
   # JN: Go through HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
   # JN: and if so, is "DEBUG_missing_GN_in_db" the only value?
-  my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes
+  #my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes
   while ( my ($l2, $values) = each %HoH ) {
     my $size = scalar(%{$values});
     if ($size == 1) {
