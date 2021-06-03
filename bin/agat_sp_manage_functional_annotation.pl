@@ -294,9 +294,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
   foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
-
-      print Dumper($id_level1);warn "\n id_level1 (hit return to continue)\n" and getc(); # JN: tmp debug print
-
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       # Clean NAME attribute
