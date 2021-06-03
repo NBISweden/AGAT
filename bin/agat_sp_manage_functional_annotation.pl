@@ -351,6 +351,9 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}} ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
+            print Dumper($level2_ID);warn "\n $level2_ID (hit return to continue)\n" and getc(); # JN: tmp debug
+
+
             # Clean NAME attribute
             if ($feature_level2->has_tag('Name')) {
               $feature_level2->remove_tag('Name');
