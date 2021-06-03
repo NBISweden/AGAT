@@ -297,8 +297,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       # Clean NAME attribute
-      # JN: Why do we need to remove the Name tag?
-      # JN: Note: all entries have a Name tag for the debug example I'm using
+      # JN: Why do we need to remove the Name tag? Note: all entries have a Name tag for the debug example I'm using
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
@@ -330,11 +329,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
             $geneNameGiven{$nameToCompare}++;
           } # first time we have given this name
         }
-        else { # JN: Start DEBUG
-          if ($DEBUG > 1) {
-            create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_in_blast_level1'); # JN: Debug output
-          } # End DEBUG
-        }
+        #else { # JN: Start DEBUG
+        #  if ($DEBUG > 1) {
+        #    create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_in_blast_level1'); # JN: Debug output
+        #  }
+        #} # End DEBUG
       }
 
       #################
@@ -346,7 +345,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}} ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
-            print Dumper($level2_ID);warn "\n level2_ID (hit return to continue)\n" and getc(); # JN: tmp debug
 
             # Clean NAME attribute
             if ($feature_level2->has_tag('Name')) {
@@ -790,6 +788,8 @@ sub parse_blast {
 
   my %candidates;
 
+  my %HoH = (); # JN: Debug
+
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
     my $l2_name = lc($values[0]);  # JN: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1
@@ -803,6 +803,10 @@ sub parse_blast {
     #if does not exist fill it if over the minimum evalue
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
       if ( $evalue <= $opt_blastEvalue ) {
+
+        my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug
+        $HoH{$l2_name}{$gn_presence}++; # JN: Debug
+
         my $protID_correct = undef;
 
         if ( exists $allIDs{lc($prot_name)}) { # JN: Look for same entry as in fasta file
@@ -842,6 +846,10 @@ sub parse_blast {
       } # JN: End DEBUG
     }
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
+
+      my $gn_presence = $fasta_id_gn_hash{lc($prot_name)}; # JN: Debug
+      $HoH{$l2_name}{$gn_presence}++; # JN: Debug
+
       my $protID_correct = undef;
 
       if ( exists $allIDs{lc($prot_name)}) {
@@ -932,6 +940,10 @@ sub parse_blast {
       }
     }
   }
+
+  print Dumper(\%HoH);warn "\n HoH (hit return to continue)\n" and getc();
+
+
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
