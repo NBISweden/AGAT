@@ -250,7 +250,7 @@ if (defined $opt_BlastFile) { # JN: example file uniprot_sprot.fasta
     }
     else {
       $missing_gn_in_fasta_counter++;
-      $fasta_id_gn_hash{$lc_display_id} = "DEBUG_missing_GN_in_db"; # JN: Need a better string
+      $fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string
     }
   }
   print_time("Parsing Finished\n\n");
@@ -804,14 +804,16 @@ sub parse_blast {
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
       if ( $evalue <= $opt_blastEvalue ) {
 
-        my $lc_prot_name = lc($prot_name); # JN: Begin debug HoH
-        my $gn_presence = '';
+        my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
+        my $gn_presence = ''; # JN: Consider using 'NA' as default value?
         if (exists($fasta_id_gn_hash{$lc_prot_name})) {
           $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
           $HoH{$l2_name}{$gn_presence}++;
+          # JN: Consider adding a 'NA' for the cases where the id was not in the fasta db?
         }
         else {
-          warn "\n$lc_prot_name not found in fasta_id_gn_hash (hit return to continue)\n" and getc();
+          # JN: In my example file, not all blast hits are in the example fasta db!
+          #$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast.\n" ) if ($opt_verbose or $opt_output);
         } # JN: End Debug HoH
 
         my $protID_correct = undef;
@@ -831,6 +833,7 @@ sub parse_blast {
               #### JN: and add info about presence of GN here?
             }
           } # JN: End DEBUG
+
           if ($header =~ /PE=([1-5])\s/) {
             if ($1 <= $opt_pe) {
               $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
@@ -855,14 +858,16 @@ sub parse_blast {
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
 
       my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
-      my $gn_presence = '';
+      my $gn_presence = ''; # JN: Consider using 'NA' as default value?
       if (exists($fasta_id_gn_hash{$lc_prot_name})) {
         $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
         $HoH{$l2_name}{$gn_presence}++;
+        # JN: Consider adding a 'NA' for the cases where the id was not in the fasta db?
       }
       else {
-        warn "\n$lc_prot_name not found in fasta_id_gn_hash (hit return to continue)\n" and getc();
-      }  # JN: End Debug HoH
+        # JN: In my example file, not all blast hits are in the example fasta db!
+        #$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast.\n" ) if ($opt_verbose or $opt_output);
+      } # JN: End Debug HoH
 
       my $protID_correct = undef;
 
@@ -955,10 +960,9 @@ sub parse_blast {
     }
   }
 
-  # JN: Next step: go through HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
+  # JN: Begin gn_missing
+  # JN: Go through HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
   # JN: and if so, is "DEBUG_missing_GN_in_db" the only value?
-  # JN: tor  3 jun 2021 14:08:59
-  # JN: Begin gn_missing=yes|no|NA
   my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes
   while ( my ($l2, $values) = each %HoH ) {
     my $size = scalar(%{$values});
@@ -970,13 +974,13 @@ sub parse_blast {
         $l2_gn_missing_hash{$l2} = "no";
       }
     }
-    else {
+    else { # JN: Still need to check and handle cases(?) where we have several different hits
       my (@vals) = keys (%{$values});
         print "l2 $l2 have several values: @vals\n";
     }
   }
   print Dumper(\%l2_gn_missing_hash);warn "\n l2_gn_missing_hash (hit return to continue)\n" and getc();
-  # JN: End gn_missing=yes|no|NA
+  # JN: End gn_missing
 
 
 
