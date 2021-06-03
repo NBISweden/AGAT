@@ -351,18 +351,13 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               $feature_level2->remove_tag('Name');
             }
 
-            #Manage Name if option set
+            # Manage Name if option set
             if ($opt_BlastFile) {
               # add gene Name
               if (exists ($mRNANameBlast{$level2_ID})) {
                 my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
               }
-              else { # JN: Start DEBUG
-                if ($DEBUG) {
-                  create_or_replace_tag($feature_level2, 'Name', 'DEBUG_noname_level2'); # JN: Debug output
-                }
-              } # JN: End DEBUG
 
               my $productData = printProductFunct($level2_ID);
 
@@ -370,6 +365,15 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               if (exists ($mRNAUniprotIDFromBlast{$level2_ID})) {
                 my $mRNAUniprotID = $mRNAUniprotIDFromBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
+              }
+
+              # JN: Add info on missing GN in fasta header in blast db file
+              if (exists($l2_gn_missing_hash{$level2_ID})) { # JN: Check lower case or not!
+                my $gn_presence = $l2_gn_missing_hash{$level2_ID};
+                create_or_replace_tag($feature_level2, 'gn_missing', $gn_presence);
+              }
+              else {
+                create_or_replace_tag($feature_level2, 'gn_missing', 'NA');
               }
 
               #add product attribute
@@ -979,10 +983,8 @@ sub parse_blast {
         print "l2 $l2 have several values: @vals\n";
     }
   }
-  print Dumper(\%l2_gn_missing_hash);warn "\n l2_gn_missing_hash (hit return to continue)\n" and getc();
+  #print Dumper(\%l2_gn_missing_hash);warn "\n l2_gn_missing_hash (hit return to continue)\n" and getc();
   # JN: End gn_missing
-
-
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
