@@ -305,8 +305,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
-        #print Dumper(\%geneNameBlast);warn "\n First check of id_level:$id_level1 in hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
-        # JN: example: 'maker-bi03_p1mp_000079f-est_gff_stringtie-gene-3.1' => 'tmem259_3'
 
         if (exists ($geneNameBlast{$id_level1})) { # JN: Does the Name exists in the geneNameBlast hash? If not, no name is stored!
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
@@ -348,8 +346,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}} ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
-            print Dumper($level2_ID);warn "\n $level2_ID (hit return to continue)\n" and getc(); # JN: tmp debug
-
+            print Dumper($level2_ID);warn "\n level2_ID (hit return to continue)\n" and getc(); # JN: tmp debug
 
             # Clean NAME attribute
             if ($feature_level2->has_tag('Name')) {
@@ -391,7 +388,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                   create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
                 }
                 else {
-                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein"); # JN: check Luciles case here?
+                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein");
                 }
               } #Case where the protein is not known
             }
@@ -419,7 +416,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       }
     }
   }
-  #print Dumper(\%geneNameBlast);warn "\n hash geneNameBlast (hit return to continue)\n" and getc(); # JN: Debug
 }
 
 ###########################
