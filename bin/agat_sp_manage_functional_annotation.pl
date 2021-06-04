@@ -576,7 +576,7 @@ if ($opt_InterproFile) {
   my $lineB =      "_________________________________________________________________________________________________________________________________";
   $stringPrint .= " ".$lineB."\n";
   $stringPrint .= "|                         | Nb Total term           | Nb mRNA with term       | Nb mRNA updated by term | Nb gene updated by term |\n";
-  $stringPrint .= "|                         | in raw File             |   in raw File           | in our annotation file  | in our annotation file  |\n";
+  $stringPrint .= "|                         | in raw File             | in raw File             | in our annotation file  | in our annotation file  |\n";
   $stringPrint .= "|".$lineB."|\n";
 
   foreach my $type (sort keys %functionData) {
