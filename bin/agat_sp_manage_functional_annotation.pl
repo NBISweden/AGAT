@@ -13,8 +13,8 @@ use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
-use Data::Dumper; # JN: dedug
-my $DEBUG = 0; # JN: debug
+use Data::Dumper; # JN: for dedug printing
+my $DEBUG = 0; # JN: for dedug printing
 
 my $header = get_agat_header();
 # PARAMETERS - OPTION
@@ -34,12 +34,12 @@ my $nbIDstart = 1;
 my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
-my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes|no|NA
+my %l2_gn_missing_hash = (); # JN: Key: level2 label, value: gn_missing=yes|no|NA
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
-my %nameBlast; # JN: Where is this hash initiated?
-my %geneNameBlast; # JN: Where is this hash initiated?
+my %nameBlast;
+my %geneNameBlast;
 my %mRNANameBlast;
 my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
@@ -71,12 +71,12 @@ my $nbTotalGOterm = 0;
 # OPTION MANAGMENT
 my @copyARGV = @ARGV;
 GetOptions(
- 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,      # JN: E.g., maker_evidence_appendedByAbinitio.gff
- 'b|blast=s'                => \$opt_BlastFile,    # JN: E.g., maker_evidence_appendedByAbinitio_blast.out
- 'd|db=s'                   => \$opt_dataBase,     # JN: E.g., uniprot_sprot.fasta
+ 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
+ 'b|blast=s'                => \$opt_BlastFile,
+ 'd|db=s'                   => \$opt_dataBase,
  'be|blast_evalue=i'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
- 'i|interpro=s'             => \$opt_InterproFile, # JN: E.g., maker_evidence_appendedByAbinitio_interpro.tsv
+ 'i|interpro=s'             => \$opt_InterproFile,
  'id=s'                     => \$opt_name,
  'idau=s'                   => \$opt_nameU,
  'nb=i'                     => \$nbIDstart,
@@ -125,7 +125,6 @@ my $streamBlast = IO::File->new();
 my $streamInter = IO::File->new();
 
 # Manage Blast File
-# JN: example file maker_evidence_appendedByAbinitio_blast.out
 if (defined $opt_BlastFile) {
   if (! $opt_dataBase) {
     print "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
@@ -136,7 +135,6 @@ if (defined $opt_BlastFile) {
 }
 
 # Manage Interpro file
-# JN: example file maker_evidence_appendedByAbinitio_interpro.tsv
 if (defined $opt_InterproFile) {
   $streamInter->open( $opt_InterproFile, 'r' ) or
     croak( sprintf( "Can not open '%s' for reading: %s", $opt_InterproFile, $! ) );
@@ -228,7 +226,7 @@ my %allIDs;
 my %fasta_id_gn_hash = (); # JN: key: lower case display_id, value: lower case GN
 my $missing_gn_in_fasta_counter = 0; # JN: Count entries in db with no GN
 
-if (defined $opt_BlastFile) { # JN: example file uniprot_sprot.fasta
+if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
   print ("look at the fasta database\n");
   $db = Bio::DB::Fasta->new($opt_dataBase);
@@ -242,7 +240,7 @@ if (defined $opt_BlastFile) { # JN: example file uniprot_sprot.fasta
   while (my $seqobj = $dbstream->next_seq) {
     my $display_id = $seqobj->display_id;
     my $lc_display_id = lc($display_id);
-    $allIDs{$lc_display_id} = $display_id; # JN: example in %allIDs: 'sp|a0le17|rbfa_magmm' => 'sp|A0LE17|RBFA_MAGMM'
+    $allIDs{$lc_display_id} = $display_id;
     my $desc = $seqobj->desc;
     if ($desc =~ /GN=(\S+)/) {
         my $GN = $1;
@@ -251,15 +249,15 @@ if (defined $opt_BlastFile) { # JN: example file uniprot_sprot.fasta
     }
     else {
       $missing_gn_in_fasta_counter++;
-      $fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string
+      $fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string, or use undef?
+      #$fasta_id_gn_hash{$lc_display_id} = undef; # JN: Need a better string, or use undef?
     }
   }
   print_time("Parsing Finished\n\n");
 
   # parse blast output
-  # JN: example file maker_evidence_appendedByAbinitio_blast.out
   print( "Reading features from $opt_BlastFile...\n");
-  parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink); # JN: Need to see how we parse here
+  parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink);
 }
 
 ########################
@@ -298,7 +296,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
       # Clean NAME attribute
-      # JN: Why do we need to remove the Name tag? Note: all entries have a Name tag for the debug example I'm using
       if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
@@ -306,7 +303,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       #Manage Name if option setting
       if ( $opt_BlastFile ) {
 
-        if (exists ($geneNameBlast{$id_level1})) { # JN: Does the Name exists in the geneNameBlast hash? If not, no name is stored!
+        if (exists ($geneNameBlast{$id_level1})) {
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
           $nbNamedGene++;
 
@@ -330,11 +327,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
             $geneNameGiven{$nameToCompare}++;
           } # first time we have given this name
         }
-        #else { # JN: Start DEBUG
-        #  if ($DEBUG > 1) {
-        #    create_or_replace_tag($feature_level1, 'Name', 'DEBUG_noname_in_blast_level1'); # JN: Debug output
-        #  }
-        #} # End DEBUG
       }
 
       #################
@@ -368,10 +360,10 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
               }
 
-              # JN: Add info on missing GN in fasta header in blast db file
-              if (exists($l2_gn_missing_hash{$level2_ID})) { # JN: Check lower case or not!
-                my $gn_presence = $l2_gn_missing_hash{$level2_ID};
-                create_or_replace_tag($feature_level2, 'gn_missing', $gn_presence);
+              # JN: Add info on missing GN in fasta header in blast db file: gn_missing=yes|no|NA
+              if (exists($l2_gn_missing_hash{$level2_ID})) {
+                my $gn_status = $l2_gn_missing_hash{$level2_ID};
+                create_or_replace_tag($feature_level2, 'gn_missing', $gn_status);
               }
               else {
                 create_or_replace_tag($feature_level2, 'gn_missing', 'NA');
@@ -568,7 +560,6 @@ if ($opt_output) {
   }
 }
 
-
 # NOW summarize
 $stringPrint = ""; # reinitialise (use at the beginning)
 if ($opt_InterproFile) {
@@ -638,7 +629,7 @@ $ostreamReport->print("$stringPrint");
 # PRINT IN FILES
 ####################
 print_time("Writing result...");
-print_omniscient($hash_omniscient, $ostreamGFF); # JN: check content of $hash_omniscient
+print_omniscient($hash_omniscient, $ostreamGFF);
 
       #########################
       ######### END ###########
@@ -654,7 +645,6 @@ print_omniscient($hash_omniscient, $ostreamGFF); # JN: check content of $hash_om
                ######
                 ####
                  ##
-
 
 #create or take the unique letter TAG
 sub get_letter_tag {
@@ -784,7 +774,6 @@ sub addFunctions {
 }
 
 # method to parse blast file
-# JN: E.g., maker_evidence_appendedByAbinitio_blast.out
 sub parse_blast {
   my($file_in, $opt_blastEvalue, $hash_mRNAGeneLink) = @_;
 
@@ -793,7 +782,7 @@ sub parse_blast {
 
   my %candidates;
 
-  my %HoH = (); # JN: Debug HoH
+  my %gene_name_HoH = (); # JN: key: lc level 2 label, value: gene name hash key, value: count
 
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
@@ -807,37 +796,31 @@ sub parse_blast {
 
     #if does not exist fill it if over the minimum evalue
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
-      if ( $evalue <= $opt_blastEvalue ) {
 
-        my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
-        my $gn_presence = ''; # JN: Consider using 'NA' as default value?
+      if ( $evalue <= $opt_blastEvalue ) {
+        my $lc_prot_name = lc($prot_name); # JN: Begin HoH
+        my $gn = '';
+
         if (exists($fasta_id_gn_hash{$lc_prot_name})) {
-          $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
-          $HoH{$l2_name}{$gn_presence}++;
-          # JN: Consider adding a 'NA' for the cases where the id was not in the fasta db?
+          $gn = $fasta_id_gn_hash{$lc_prot_name};
+          $gene_name_HoH{$l2_name}{$gn}++;
         }
         else {
           # JN: In my example file, not all blast hits are in the example fasta db!
           #$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast.\n" ) if ($opt_verbose or $opt_output);
-        } # JN: End Debug HoH
+        } # JN: End HoH
 
         my $protID_correct = undef;
 
-        if ( exists $allIDs{lc($prot_name)}) { # JN: Look for same entry as in fasta file
+        if ( exists $allIDs{lc($prot_name)}) {
           $protID_correct = $allIDs{lc($prot_name)};
-          my $header = $db->header( $protID_correct ); # JN: Get header from fasta db
+          my $header = $db->header( $protID_correct );
+
           if (! $header =~ m/GN=/) {
-            # JN: No gene name
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
-            # JN: Here we have a blast hit, but no GN. Instead of "error", use the string `gn_missing=yes`? Check the "check for 'error'" below on line 885
-            #$candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
+            # JN: Here we have a blast hit, but no GN. Instead of "error", use the string `gn_missing=yes`? See also the "check for 'error'" below on line 885
           }
-          else { # JN: Begin DEBUG
-            if ($DEBUG) {
-              #### JN: and add info about presence of GN here?
-            }
-          } # JN: End DEBUG
 
           if ($header =~ /PE=([1-5])\s/) {
             if ($1 <= $opt_pe) {
@@ -853,21 +836,15 @@ sub parse_blast {
           $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
         }
       }
-      else {# JN: Begin DEBUG
-        if ($DEBUG) {
-          # JN: E-value not below opt_blastEvalue
-          # JN: How can we add info about 'gn_missing=NA'?
-        }
-      } # JN: End DEBUG
     }
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
 
       my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
-      my $gn_presence = ''; # JN: Consider using 'NA' as default value?
+      my $gn = '';
+
       if (exists($fasta_id_gn_hash{$lc_prot_name})) {
-        $gn_presence = $fasta_id_gn_hash{$lc_prot_name};
-        $HoH{$l2_name}{$gn_presence}++;
-        # JN: Consider adding a 'NA' for the cases where the id was not in the fasta db?
+        $gn = $fasta_id_gn_hash{$lc_prot_name};
+        $gene_name_HoH{$l2_name}{$gn}++;
       }
       else {
         # JN: In my example file, not all blast hits are in the example fasta db!
@@ -877,17 +854,14 @@ sub parse_blast {
       my $protID_correct = undef;
 
       if ( exists $allIDs{lc($prot_name)}) {
+
         $protID_correct = $allIDs{lc($prot_name)};
         my $header = $db->header( $protID_correct );
+
         if (! $header =~ m/GN=/) {
-          # JN: No gene name
           $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
-        else { # JN: Begin DEBUG
-          if ($DEBUG) {
-            # JN: 
-          }
-        } # JN: End DEBUG
+
         if ($header =~ /PE=([1-5])\s/) {
           if ($1 <= $opt_pe) {
             $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
@@ -945,10 +919,10 @@ sub parse_blast {
         $hash_rest{lc($type)} = $value;
       }
 
-      if (exists($hash_rest{"gn"})) { # JN: Check for Gene name? #### JN: LOOK HERE ####
+      if (exists($hash_rest{"gn"})) {
         $nameGene = $hash_rest{"gn"};
 
-        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) { # JN: Gene name is only captured if key exists here 
+        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
           my $geneID = $hash_mRNAGeneLink->{$l2};
           #print "push $geneID $nameGene\n";
           push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
@@ -959,40 +933,39 @@ sub parse_blast {
         }
       }
       else {
-        # JN: No gene name
         $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
       }
     }
   }
 
-  # JN: Begin gn_missing
-  # JN: Go through HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
+  # JN: Begin traversing gene_name_HoH
+  # JN: Here we differentiate between the entries present in the db that has or has not a gene name.
+  # JN: Go through gene_name_HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
   # JN: and if so, is "DEBUG_missing_GN_in_db" the only value?
-  #my %l2_gn_missing_hash = (); # JN: Key: level2, value: gn_missing=yes
-  while ( my ($l2, $values) = each %HoH ) {
+  while ( my ($l2, $values) = each %gene_name_HoH ) {
     my $size = scalar(%{$values});
     if ($size == 1) {
-      if (exists($HoH{$l2}{'DEBUG_missing_GN_in_db'})) {
+      if (exists($gene_name_HoH{$l2}{'DEBUG_missing_GN_in_db'})) {
         $l2_gn_missing_hash{$l2} = "yes";
       }
       else {
         $l2_gn_missing_hash{$l2} = "no";
       }
     }
-    else { # JN: Still need to check and handle cases(?) where we have several different hits
+    else {
+      # JN: TODO: Still need to check and handle cases(?) where we have several different hits.
+      # JN: The assumption is that we may have hits that
+      # JN: either have GN, or have not (then "DEBUG_missing_GN_in_db").
       my (@vals) = keys (%{$values});
-        print "l2 $l2 have several values: @vals\n";
+        print "JN: DEBUG: l2 $l2 have several values: @vals\n" if ($DEBUG);
     }
-  }
-  #print Dumper(\%l2_gn_missing_hash);warn "\n l2_gn_missing_hash (hit return to continue)\n" and getc();
-  # JN: End gn_missing
+  } # JN: End traverse HoH
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
   ################# Remove redundancy to have only one name for each gene
 
-  manageGeneNameBlast(\%geneName); # JN: check what manageGeneNameBlast will set and report
-
+  manageGeneNameBlast(\%geneName);
 
   ##########################################################
   ####### Step 4 : CLEAN NAMES REDUNDANCY inter gene #######
