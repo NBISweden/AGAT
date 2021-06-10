@@ -29,12 +29,13 @@ my $opt_help = 0;
 my $opt_blastEvalue = 1e-6;
 my $opt_dataBase = undef;
 my $opt_pe = 5;
+my $opt_addGnPresentTag = 0; # JN: Optionally add the 'gn_present=yes|no|NA' tag in gff
 my %numbering;
 my $nbIDstart = 1;
 my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
-my %l2_gn_missing_hash = (); # JN: Key: level2 label, value: gn_missing=yes|no|NA
+my %l2_gn_present_hash = (); # JN: Key: level2 label, value: gn_present=yes|no|NA
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
@@ -81,6 +82,7 @@ GetOptions(
  'idau=s'                   => \$opt_nameU,
  'nb=i'                     => \$nbIDstart,
  'o|output=s'               => \$opt_output,
+ 'a|addgntag'               => \$opt_addGnPresentTag,
  'v'                        => \$opt_verbose,
  'h|help!'                  => \$opt_help
 )
@@ -249,8 +251,8 @@ if (defined $opt_BlastFile) {
     }
     else {
       $missing_gn_in_fasta_counter++;
-      $fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string, or use undef?
-      #$fasta_id_gn_hash{$lc_display_id} = undef; # JN: Need a better string, or use undef?
+      #$fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string, or use undef?
+      $fasta_id_gn_hash{$lc_display_id} = undef; # JN: 
     }
   }
   print_time("Parsing Finished\n\n");
@@ -360,13 +362,14 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
               }
 
-              # JN: Add info on missing GN in fasta header in blast db file: gn_missing=yes|no|NA
-              if (exists($l2_gn_missing_hash{$level2_ID})) {
-                my $gn_status = $l2_gn_missing_hash{$level2_ID};
-                create_or_replace_tag($feature_level2, 'gn_missing', $gn_status);
+              # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
+              if (exists($l2_gn_present_hash{$level2_ID})) {
+                my $gn_status = $l2_gn_present_hash{$level2_ID};
+                create_or_replace_tag($feature_level2, 'gn_present', $gn_status);
+                # JN: TODO add a counter here for number of 'no':s
               }
               else {
-                create_or_replace_tag($feature_level2, 'gn_missing', 'NA');
+                create_or_replace_tag($feature_level2, 'gn_present', 'NA');
               }
 
               #add product attribute
@@ -781,8 +784,7 @@ sub parse_blast {
 ####### Step 1 : CATCH all candidates (the better candidate for each mRNA)####### (with a gene name)
 
   my %candidates;
-
-  my %gene_name_HoH = (); # JN: key: lc level 2 label, value: gene name hash key, value: count
+  my %gene_name_HoH = (); # JN: key: lc level 2 label, value: {gene name hash key, value: count}
 
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
@@ -798,17 +800,18 @@ sub parse_blast {
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
 
       if ( $evalue <= $opt_blastEvalue ) {
-        my $lc_prot_name = lc($prot_name); # JN: Begin HoH
-        my $gn = '';
-
-        if (exists($fasta_id_gn_hash{$lc_prot_name})) {
-          $gn = $fasta_id_gn_hash{$lc_prot_name};
-          $gene_name_HoH{$l2_name}{$gn}++;
+        # JN: begin gene_name_Debug HoH
+        my $lc_prot_name = lc($prot_name);
+        if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
+          if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
+            my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
+            $gene_name_HoH{$lc_prot_name}{$gn}++;          # JN: Count the gene name
+          }
+          else {                                           # JN: If not defined, the 'GN=' is missing
+            undef($gene_name_HoH{$lc_prot_name});
+          }
         }
-        else {
-          # JN: In my example file, not all blast hits are in the example fasta db!
-          #$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast.\n" ) if ($opt_verbose or $opt_output);
-        } # JN: End HoH
+        # JN: End Debug gene_name_HoH
 
         my $protID_correct = undef;
 
@@ -839,17 +842,18 @@ sub parse_blast {
     }
     elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
 
-      my $lc_prot_name = lc($prot_name); # JN: begin Debug HoH
-      my $gn = '';
-
-      if (exists($fasta_id_gn_hash{$lc_prot_name})) {
-        $gn = $fasta_id_gn_hash{$lc_prot_name};
-        $gene_name_HoH{$l2_name}{$gn}++;
+      # JN: begin gene_name_Debug HoH
+      my $lc_prot_name = lc($prot_name);
+      if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
+        if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
+          my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
+          $gene_name_HoH{$lc_prot_name}{$gn}++;          # JN: Count the gene name
+        }
+        else {                                           # JN: If not defined, the 'GN=' is missing
+          undef($gene_name_HoH{$lc_prot_name});
+        }
       }
-      else {
-        # JN: In my example file, not all blast hits are in the example fasta db!
-        #$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast.\n" ) if ($opt_verbose or $opt_output);
-      } # JN: End Debug HoH
+      # JN: End Debug gene_name_HoH
 
       my $protID_correct = undef;
 
@@ -939,25 +943,20 @@ sub parse_blast {
   }
 
   # JN: Begin traversing gene_name_HoH
-  # JN: Here we differentiate between the entries present in the db that has or has not a gene name.
-  # JN: Go through gene_name_HoH and see if there are any level2 entries with any "DEBUG_missing_GN_in_db",
-  # JN: and if so, is "DEBUG_missing_GN_in_db" the only value?
-  while ( my ($l2, $values) = each %gene_name_HoH ) {
-    my $size = scalar(%{$values});
-    if ($size == 1) {
-      if (exists($gene_name_HoH{$l2}{'DEBUG_missing_GN_in_db'})) {
-        $l2_gn_missing_hash{$l2} = "yes";
-      }
-      else {
-        $l2_gn_missing_hash{$l2} = "no";
+  while ( my ($l2_key, $values) = each %gene_name_HoH ) {
+    my $size = 0;
+    if (defined($values)) { # JN: If defined, we have at least one GN
+      $size = scalar(%{$values});
+      $l2_gn_present_hash{$l2_key} = "yes"; # JN: gn_present=yes
+      # JN: TODO: need to check and handle(?) cases where we have several different hits
+      if ($size > 1) {
+        my (@vals) = keys (%{$values});
+        #$ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($opt_verbose or $opt_output);
+        print "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n" if ($DEBUG);
       }
     }
     else {
-      # JN: TODO: Still need to check and handle cases(?) where we have several different hits.
-      # JN: The assumption is that we may have hits that
-      # JN: either have GN, or have not (then "DEBUG_missing_GN_in_db").
-      my (@vals) = keys (%{$values});
-        print "JN: DEBUG: l2 $l2 have several values: @vals\n" if ($DEBUG);
+      $l2_gn_present_hash{$l2_key} = "no"; # JN: gn_present=no
     }
   } # JN: End traverse HoH
 
@@ -1191,7 +1190,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-o output]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-a][-o output]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
@@ -1244,6 +1243,11 @@ Boolean - This option (id all uniq) is similar to -id option but Id of features 
 
 Integer - Usefull only if -id is used.
 This option is used to define the number that will be used to begin the numbering. By default begin by 1.
+
+=item B<-a> or B<--addgntag>
+
+Add information in ouptut gff about if gene-name tag ('GN=') is present in blast db fasta ('gn_present=yes')
+or not ('gn_present=no'). Blast hits without entry in blast db will receive 'gn_present=no'.
 
 =item B<-o> or B<--output>
 
