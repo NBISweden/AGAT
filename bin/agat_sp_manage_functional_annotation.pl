@@ -252,11 +252,12 @@ if (defined $opt_BlastFile) {
         $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
     }
     else {
-      #$missing_gn_in_fasta_counter++;
       $nbGnNotPresentInDb++;
       $fasta_id_gn_hash{$lc_display_id} = undef;
     }
   } # JN: End parse fasta
+  print Dumper(\%fasta_id_gn_hash);warn "\n fasta_id_gn_hash (hit return to continue)\n" and getc();
+
   print_time("Parsing Finished\n\n");
 
   # parse blast output
@@ -375,7 +376,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               else {
                 create_or_replace_tag($feature_level2, 'gn_present', 'NA') if ($opt_addGnPresentTag);
               }
-
 
               #add product attribute
               if ($productData ne "") {
