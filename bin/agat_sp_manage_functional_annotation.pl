@@ -45,12 +45,14 @@ my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
 my %geneNameGiven;
 my %duplicateNameGiven;
-my %l2_gn_present_hash = (); # JN: Key: level2 label, value: gn_present=yes|no|NA
+my %l2_gn_present_hash = ();   # JN: Key: level2 label, value: gn_present=yes|no|NA
+my %fasta_id_gn_hash = ();     # JN: key: lower case display_id, value: lower case GN
+my $nbGnNotPresentInDb = 0;    # JN: Count entries without GN in db
+my $nbGnNotPresentForMrna = 0; # JN: Count mRNAs without GN in db
 my $nbDuplicateNameGiven = 0;
 my $nbDuplicateName = 0;
 my $nbNamedGene = 0;
 my $nbGeneNameInBlast = 0;
-my $gn_not_present_counter = 0;
 # END FOR FUNCTION BLAST#
 
 # FOR FUNCTIONS INTERPRO#
@@ -226,8 +228,6 @@ print_omniscient_statistics(
 # Manage Blast File #
 my $db;
 my %allIDs;
-my %fasta_id_gn_hash = (); # JN: key: lower case display_id, value: lower case GN
-my $missing_gn_in_fasta_counter = 0; # JN: Count entries in db with no GN
 
 if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
@@ -239,6 +239,7 @@ if (defined $opt_BlastFile) {
   #  $allIDs{lc($id)} = $id;
   #}
   # JN: Alternative parsing of fasta. Picking up GNs as we go
+  # JN: Begin parse fasta
   my $dbstream = $db->get_PrimarySeq_stream;
   while (my $seqobj = $dbstream->next_seq) {
     my $display_id = $seqobj->display_id;
@@ -251,11 +252,11 @@ if (defined $opt_BlastFile) {
         $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
     }
     else {
-      $missing_gn_in_fasta_counter++;
-      #$fasta_id_gn_hash{$lc_display_id} = 'DEBUG_missing_GN_in_db'; # JN: Need a better string, or use undef?
-      $fasta_id_gn_hash{$lc_display_id} = undef; # JN: 
+      #$missing_gn_in_fasta_counter++;
+      $nbGnNotPresentInDb++;
+      $fasta_id_gn_hash{$lc_display_id} = undef;
     }
-  }
+  } # JN: End parse fasta
   print_time("Parsing Finished\n\n");
 
   # parse blast output
@@ -363,22 +364,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
               }
 
-              #if ($opt_addGnPresentTag) {
-              #  # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
-              #  if (exists($l2_gn_present_hash{$level2_ID})) {
-              #    my $gn_status = $l2_gn_present_hash{$level2_ID};
-              #    create_or_replace_tag($feature_level2, 'gn_present', $gn_status);
-              #    # JN: TODO add a counter here for number of 'no':s
-              #  }
-              #  else {
-              #    create_or_replace_tag($feature_level2, 'gn_present', 'NA');
-              #  }
-              #}
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
               if (exists($l2_gn_present_hash{$level2_ID})) {
                 my $gn_status = $l2_gn_present_hash{$level2_ID};
                 if ($gn_status eq 'no' ) {
-                  $gn_not_present_counter++;
+                  $nbGnNotPresentForMrna++;
                 }
                 create_or_replace_tag($feature_level2, 'gn_present', $gn_status) if ($opt_addGnPresentTag);
               }
@@ -618,11 +608,12 @@ if ($opt_BlastFile) {
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
   # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
 
-  # JN: Report number of entries in $opt_dataBase without GN
+  # JN: Report number of entries in $opt_dataBase without GN. Note: tentative output format
+  # JN: Begin summary
   if ($opt_dataBase) {
-      $stringPrint .= "\n$missing_gn_in_fasta_counter entries in $opt_dataBase have no GN\n"; # JN: Tentative output
-      $stringPrint .= "\n$gn_not_present_counter mRNA entries in gff output have no GN\n"; # JN: Tentative output
-  }
+      $stringPrint .= "\n$nbGnNotPresentInDb entries in $opt_dataBase have no GN\n";
+      $stringPrint .= "\n$nbGnNotPresentForMrna mRNA entries in gff output have no GN\n";
+  } # JN: End summary
 
   #Lets keep track the duplicated names
   if ($opt_output) {
