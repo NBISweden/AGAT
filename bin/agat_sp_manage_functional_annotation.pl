@@ -35,7 +35,6 @@ my $nbIDstart = 1;
 my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
-my %l2_gn_present_hash = (); # JN: Key: level2 label, value: gn_present=yes|no|NA
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
@@ -46,10 +45,12 @@ my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
 my %geneNameGiven;
 my %duplicateNameGiven;
+my %l2_gn_present_hash = (); # JN: Key: level2 label, value: gn_present=yes|no|NA
 my $nbDuplicateNameGiven = 0;
 my $nbDuplicateName = 0;
 my $nbNamedGene = 0;
 my $nbGeneNameInBlast = 0;
+my $gn_not_present_counter = 0;
 # END FOR FUNCTION BLAST#
 
 # FOR FUNCTIONS INTERPRO#
@@ -362,15 +363,29 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
               }
 
+              #if ($opt_addGnPresentTag) {
+              #  # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
+              #  if (exists($l2_gn_present_hash{$level2_ID})) {
+              #    my $gn_status = $l2_gn_present_hash{$level2_ID};
+              #    create_or_replace_tag($feature_level2, 'gn_present', $gn_status);
+              #    # JN: TODO add a counter here for number of 'no':s
+              #  }
+              #  else {
+              #    create_or_replace_tag($feature_level2, 'gn_present', 'NA');
+              #  }
+              #}
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
               if (exists($l2_gn_present_hash{$level2_ID})) {
                 my $gn_status = $l2_gn_present_hash{$level2_ID};
-                create_or_replace_tag($feature_level2, 'gn_present', $gn_status);
-                # JN: TODO add a counter here for number of 'no':s
+                if ($gn_status eq 'no' ) {
+                  $gn_not_present_counter++;
+                }
+                create_or_replace_tag($feature_level2, 'gn_present', $gn_status) if ($opt_addGnPresentTag);
               }
               else {
-                create_or_replace_tag($feature_level2, 'gn_present', 'NA');
+                create_or_replace_tag($feature_level2, 'gn_present', 'NA') if ($opt_addGnPresentTag);
               }
+
 
               #add product attribute
               if ($productData ne "") {
@@ -606,6 +621,7 @@ if ($opt_BlastFile) {
   # JN: Report number of entries in $opt_dataBase without GN
   if ($opt_dataBase) {
       $stringPrint .= "\n$missing_gn_in_fasta_counter entries in $opt_dataBase have no GN\n"; # JN: Tentative output
+      $stringPrint .= "\n$gn_not_present_counter mRNA entries in gff output have no GN\n"; # JN: Tentative output
   }
 
   #Lets keep track the duplicated names
@@ -942,7 +958,7 @@ sub parse_blast {
     }
   }
 
-  # JN: Begin traversing gene_name_HoH
+  # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
   while ( my ($l2_key, $values) = each %gene_name_HoH ) {
     my $size = 0;
     if (defined($values)) { # JN: If defined, we have at least one GN
