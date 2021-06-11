@@ -233,13 +233,10 @@ if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
   print_time("Look at the fasta database");
   $db = Bio::DB::Fasta->new($opt_dataBase);
-  # save ID in lower case to avoid cast problems
-  #my @ids = $db->get_all_primary_ids;
-  #foreach my $id (@ids) {
-  #  $allIDs{lc($id)} = $id;
-  #}
+
   # JN: Begin parse fasta
-  # JN: Alternative parsing of fasta. Picking up GNs as we go
+  # JN: Alternative parsing of fasta. Picking up GNs as we go.
+  # Save ID in lower case to avoid cast problems
   my $dbstream = $db->get_PrimarySeq_stream;
   while (my $seqobj = $dbstream->next_seq) {
     my $display_id = $seqobj->display_id;
@@ -249,11 +246,11 @@ if (defined $opt_BlastFile) {
     if ($desc =~ /GN=(\S+)/) {
         my $GN = $1;
         my $lc_GN = lc($GN);
-        $fasta_id_gn_hash{$lc_display_id} = $lc_GN; # JN: 'sp|a6w1c3|hem1_marms' => 'hema'
+        $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
     }
     else {
       $nbGnNotPresentInDb++;
-      $fasta_id_gn_hash{$lc_display_id} = undef; # JN: 'sp|q8jfe6|bm8a_bommx' => undef
+      $fasta_id_gn_hash{$lc_display_id} = undef;
     }
   } # JN: End parse fasta
 
@@ -287,7 +284,7 @@ if (defined $opt_InterproFile) {
 ###########################
 # change FUNCTIONAL information if asked for
 if ($opt_BlastFile || $opt_InterproFile ) {
-  print_time( "load FUNCTIONAL information\n" );
+  print_time( "load FUNCTIONAL information" );
 
   #################
   # == LEVEL 1 == #
@@ -362,7 +359,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               }
 
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
-              if (exists($l2_gn_present_hash{$level2_ID})) { # JN: level2_ID: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1'
+              if (exists($l2_gn_present_hash{$level2_ID})) {
                 my $gn_status = $l2_gn_present_hash{$level2_ID};
                 if ($gn_status eq 'no' ) {
                   $nbGnNotPresentForMrna++;
@@ -604,8 +601,8 @@ if ($opt_BlastFile) {
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
   # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
 
-  # JN: Report number of entries in $opt_dataBase without GN. Note: tentative output format
   # JN: Begin summary
+  # JN: Report number of entries in $opt_dataBase without GN. Note: tentative output format
   if ($opt_dataBase) {
       $stringPrint .= "\n$nbGnNotPresentInDb entries in $opt_dataBase have no GN\n";
       $stringPrint .= "\n$nbGnNotPresentForMrna mRNA entries in gff output have no GN\n";
@@ -636,6 +633,7 @@ $ostreamReport->print("$stringPrint");
 ####################
 print_time("Writing result...");
 print_omniscient($hash_omniscient, $ostreamGFF);
+print_time("End of script.");
 
       #########################
       ######### END ###########
@@ -787,14 +785,14 @@ sub parse_blast {
 ####### Step 1 : CATCH all candidates (the better candidate for each mRNA)####### (with a gene name)
 
   my %candidates;
-  my %gene_name_HoH = (); # JN: key: lc level 2 label, value: {gene name hash key, value: count}
+  my %gene_name_HoH = (); # JN: key: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1, value: {'genename' => 1}
 
   while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
     my $l2_name = lc($values[0]);  # JN: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1
     my $prot_name = $values[1]; # JN: sp|Q4FZT2|PPME1_RAT
     my @prot_name_sliced = split(/\|/, $values[1]);
-    my $uniprot_id = $prot_name_sliced[1]; # JN: Q4FZT2
+    my $uniprot_id = $prot_name_sliced[1];
     print "uniprot_id: ".$uniprot_id."\n" if ($opt_verbose);
     my $evalue = $values[10];
     print "Evalue: ".$evalue."\n" if ($opt_verbose);
@@ -804,7 +802,7 @@ sub parse_blast {
 
       if ( $evalue <= $opt_blastEvalue ) {
         # JN: begin gene_name_Debug HoH
-        my $lc_prot_name = lc($prot_name);                 # JN: sp|q4fzt2|ppme1_rat
+        my $lc_prot_name = lc($prot_name);
         if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
           if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
             my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
@@ -825,7 +823,6 @@ sub parse_blast {
           if (! $header =~ m/GN=/) {
             $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
-            # JN: Here we have a blast hit, but no GN. Instead of "error", use the string `gn_missing=yes`? See also the "check for 'error'" below on line 885
           }
 
           if ($header =~ /PE=([1-5])\s/) {
@@ -946,8 +943,7 @@ sub parse_blast {
   }
 
   # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
-  print Dumper(\%gene_name_HoH);warn "\n gene_name_HoH. Should have long key and potentially several gene names (hit return to continue)\n" and getc();
-  while ( my ($l2_key, $values) = each %gene_name_HoH ) { # Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1' , value: {'hema' => 1}
+  while ( my ($l2_key, $values) = each %gene_name_HoH ) {
     my $size = 0;
     if (defined($values)) { # JN: If defined, we have at least one GN
       $size = scalar(%{$values});
@@ -956,14 +952,13 @@ sub parse_blast {
       if ($size > 1) {
         my (@vals) = keys (%{$values});
         #$ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($opt_verbose or $opt_output);
-        print "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n" if ($DEBUG); # JN: tmp debug printing
+        $ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($DEBUG); # JN: Debug printing
       }
     }
     else {
       $l2_gn_present_hash{$l2_key} = "no"; # JN: gn_present=no
     }
   }
-  print Dumper(\%l2_gn_present_hash);warn "\n l2_gn_present_hash should have keys:long maker... labels and values: yes or no, and long maker... labels (hit return to continue)\n" and getc();
   # JN: End traversing gene_name_HoH
 
   ####################################################
