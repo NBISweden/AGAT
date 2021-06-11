@@ -811,7 +811,7 @@ sub parse_blast {
             $gene_name_HoH{$l2_name}{$gn}++;               # JN: Count the gene name
           }
           else {                                           # JN: If not defined, the 'GN=' is missing
-            undef($gene_name_HoH{$lc_prot_name});
+            undef($gene_name_HoH{$l2_name});
           }
         }
         # JN: End Debug gene_name_HoH
@@ -850,10 +850,10 @@ sub parse_blast {
       if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
         if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
           my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
-          $gene_name_HoH{$lc_prot_name}{$gn}++;          # JN: Count the gene name
+          $gene_name_HoH{$l2_name}{$gn}++;               # JN: Count the gene name
         }
         else {                                           # JN: If not defined, the 'GN=' is missing
-          undef($gene_name_HoH{$lc_prot_name});
+          undef($gene_name_HoH{$l2_name});
         }
       }
       # JN: End Debug gene_name_HoH
