@@ -366,8 +366,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               }
 
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
-              if (exists($l2_gn_present_hash{$level2_ID})) {
+              print Dumper($level2_ID);warn "\n level2_ID before entering hash l2_gn_present_hash for setting status ( HERE (hit return to continue)\n" and getc();
+
+              if (exists($l2_gn_present_hash{$level2_ID})) { # JN: level2_ID: 
                 my $gn_status = $l2_gn_present_hash{$level2_ID};
+                print Dumper($gn_status);warn "\n gn_status for level2_ID: $level2_ID (hit return to continue)\n" and getc();
                 if ($gn_status eq 'no' ) {
                   $nbGnNotPresentForMrna++;
                 }
@@ -950,7 +953,7 @@ sub parse_blast {
   }
 
   # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
-  while ( my ($l2_key, $values) = each %gene_name_HoH ) {
+  while ( my ($l2_key, $values) = each %gene_name_HoH ) { # Key: sp|q4fzt2|ppme1_rat , value: 
     my $size = 0;
     if (defined($values)) { # JN: If defined, we have at least one GN
       $size = scalar(%{$values});
