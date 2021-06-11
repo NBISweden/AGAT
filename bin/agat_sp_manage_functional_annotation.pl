@@ -45,7 +45,7 @@ my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
 my %geneNameGiven;
 my %duplicateNameGiven;
-my %fasta_id_gn_hash = ();     # JN: key: 'sp|a6w1c3|hem1_marms' , value: 'hema' or undef
+my %fasta_id_gn_hash = ();     # JN: key: 'sp|a6w1c3|hem1_marms' , value: 'hema' etc or undef
 my %l2_gn_present_hash = ();   # JN: Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1', value: 'yes' or 'no'
 my $nbGnNotPresentInDb = 0;    # JN: Count entries without GN in db
 my $nbGnNotPresentForMrna = 0; # JN: Count mRNAs without GN in db
