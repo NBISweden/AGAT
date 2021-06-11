@@ -804,13 +804,13 @@ sub parse_blast {
 
       if ( $evalue <= $opt_blastEvalue ) {
         # JN: begin gene_name_Debug HoH
-        my $lc_prot_name = lc($prot_name);            # JN: sp|q4fzt2|ppme1_rat
-        if (exists($fasta_id_gn_hash{$l2_name})) {    # JN: Key exists if gene name or undef
-          if (defined($fasta_id_gn_hash{$l2_name})) { # JN: Only defined if gene name
-            my $gn = $fasta_id_gn_hash{$l2_name};     # JN: Get the gene name
-            $gene_name_HoH{$l2_name}{$gn}++;          # JN: Count the gene name
+        my $lc_prot_name = lc($prot_name);                 # JN: sp|q4fzt2|ppme1_rat
+        if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
+          if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
+            my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
+            $gene_name_HoH{$l2_name}{$gn}++;               # JN: Count the gene name
           }
-          else {                                      # JN: If not defined, the 'GN=' is missing
+          else {                                           # JN: If not defined, the 'GN=' is missing
             undef($gene_name_HoH{$lc_prot_name});
           }
         }
