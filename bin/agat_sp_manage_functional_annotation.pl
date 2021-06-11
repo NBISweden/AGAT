@@ -962,7 +962,10 @@ sub parse_blast {
     else {
       $l2_gn_present_hash{$l2_key} = "no"; # JN: gn_present=no
     }
-  } # JN: End traverse HoH
+  }
+  print Dumper(\%l2_gn_present_hash);warn "\n l2_gn_present_hash should have yes or no, and long maker... labels (hit return to continue)\n" and getc();
+
+  # JN: End traverse HoH
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
