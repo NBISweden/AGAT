@@ -946,6 +946,8 @@ sub parse_blast {
   }
 
   # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
+  print Debug(\%gene_name_HoH);warn "\n gene_name_HoH. Should have long key and potentially several gene names (hit return to continue)\n" and getc();
+
   # JN: fre 11 jun 2021 10:24:20: the key in the hash l2_gn_present_hash need to be the (e.g.) ''
   while ( my ($l2_key, $values) = each %gene_name_HoH ) { # Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1' , value: {'hema' => 1}
     my $size = 0;
@@ -965,7 +967,7 @@ sub parse_blast {
   }
   print Dumper(\%l2_gn_present_hash);warn "\n l2_gn_present_hash should have yes or no, and long maker... labels (hit return to continue)\n" and getc();
 
-  # JN: End traverse HoH
+  # JN: End traversing gene_name_HoH
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
