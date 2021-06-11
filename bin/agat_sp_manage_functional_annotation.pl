@@ -946,8 +946,7 @@ sub parse_blast {
   }
 
   # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
-  print Debug(\%gene_name_HoH);warn "\n gene_name_HoH. Should have long key and potentially several gene names (hit return to continue)\n" and getc();
-
+  print Dumper(\%gene_name_HoH);warn "\n gene_name_HoH. Should have long key and potentially several gene names (hit return to continue)\n" and getc();
   while ( my ($l2_key, $values) = each %gene_name_HoH ) { # Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1' , value: {'hema' => 1}
     my $size = 0;
     if (defined($values)) { # JN: If defined, we have at least one GN
@@ -964,8 +963,7 @@ sub parse_blast {
       $l2_gn_present_hash{$l2_key} = "no"; # JN: gn_present=no
     }
   }
-  print Dumper(\%l2_gn_present_hash);warn "\n l2_gn_present_hash should have yes or no, and long maker... labels (hit return to continue)\n" and getc();
-
+  print Dumper(\%l2_gn_present_hash);warn "\n l2_gn_present_hash should have keys:long maker... labels and values: yes or no, and long maker... labels (hit return to continue)\n" and getc();
   # JN: End traversing gene_name_HoH
 
   ####################################################
