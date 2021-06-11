@@ -231,15 +231,15 @@ my %allIDs;
 
 if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
-  print ("look at the fasta database\n");
+  print_time("Look at the fasta database\n");
   $db = Bio::DB::Fasta->new($opt_dataBase);
   # save ID in lower case to avoid cast problems
   #my @ids = $db->get_all_primary_ids;
   #foreach my $id (@ids) {
   #  $allIDs{lc($id)} = $id;
   #}
-  # JN: Alternative parsing of fasta. Picking up GNs as we go
   # JN: Begin parse fasta
+  # JN: Alternative parsing of fasta. Picking up GNs as we go
   my $dbstream = $db->get_PrimarySeq_stream;
   while (my $seqobj = $dbstream->next_seq) {
     my $display_id = $seqobj->display_id;
@@ -249,14 +249,13 @@ if (defined $opt_BlastFile) {
     if ($desc =~ /GN=(\S+)/) {
         my $GN = $1;
         my $lc_GN = lc($GN);
-        $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
+        $fasta_id_gn_hash{$lc_display_id} = $lc_GN; # JN: 'sp|a6w1c3|hem1_marms' => 'hema'
     }
     else {
       $nbGnNotPresentInDb++;
-      $fasta_id_gn_hash{$lc_display_id} = undef;
+      $fasta_id_gn_hash{$lc_display_id} = undef; # JN: 'sp|q8jfe6|bm8a_bommx' => undef
     }
   } # JN: End parse fasta
-  print Dumper(\%fasta_id_gn_hash);warn "\n fasta_id_gn_hash (hit return to continue)\n" and getc();
 
   print_time("Parsing Finished\n\n");
 
