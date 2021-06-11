@@ -364,7 +364,6 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
               if (exists($l2_gn_present_hash{$level2_ID})) { # JN: level2_ID: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1'
                 my $gn_status = $l2_gn_present_hash{$level2_ID};
-                print Dumper($gn_status);warn "\n gn_status for level2_ID: $level2_ID (hit return to continue)\n" and getc();
                 if ($gn_status eq 'no' ) {
                   $nbGnNotPresentForMrna++;
                 }
