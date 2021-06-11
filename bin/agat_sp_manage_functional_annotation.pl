@@ -808,7 +808,7 @@ sub parse_blast {
         if (exists($fasta_id_gn_hash{$l2_name})) {    # JN: Key exists if gene name or undef
           if (defined($fasta_id_gn_hash{$l2_name})) { # JN: Only defined if gene name
             my $gn = $fasta_id_gn_hash{$l2_name};     # JN: Get the gene name
-            $gene_name_HoH{$lc_prot_name}{$gn}++;     # JN: Count the gene name
+            $gene_name_HoH{$l2_name}{$gn}++;          # JN: Count the gene name
           }
           else {                                      # JN: If not defined, the 'GN=' is missing
             undef($gene_name_HoH{$lc_prot_name});
@@ -948,7 +948,6 @@ sub parse_blast {
   # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
   print Debug(\%gene_name_HoH);warn "\n gene_name_HoH. Should have long key and potentially several gene names (hit return to continue)\n" and getc();
 
-  # JN: fre 11 jun 2021 10:24:20: the key in the hash l2_gn_present_hash need to be the (e.g.) ''
   while ( my ($l2_key, $values) = each %gene_name_HoH ) { # Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1' , value: {'hema' => 1}
     my $size = 0;
     if (defined($values)) { # JN: If defined, we have at least one GN
