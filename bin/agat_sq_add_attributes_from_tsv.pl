@@ -16,7 +16,7 @@ my $start_run = time();
 my $input_gff;
 my $input_tsv;
 my $outputFile;
-my $verbose = undef;
+my $verbose;
 my $csv;
 my $opt_help = 0;
 
@@ -79,7 +79,9 @@ while (<INPUT>) {
 	if ($csv){
 		@splitline = split /,/, $_;
 	}
-	@splitline = split /\t/, $_; # split at tabulation
+  else{
+	  @splitline = split /\t/, $_; # split at tabulation
+  }
 
 	if ($line == 1){
 		$nb_header = scalar @splitline;
