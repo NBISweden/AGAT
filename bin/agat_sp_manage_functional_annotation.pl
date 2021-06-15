@@ -1191,7 +1191,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][-id ABCDEF][-a][-o output]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][--id ABCDEF][-a][-o output]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
@@ -1248,7 +1248,7 @@ This option is used to define the number that will be used to begin the numberin
 =item B<-a> or B<--addgntag>
 
 Add information in ouptut gff about if gene-name tag ('GN=') is present in blast db fasta ('gn_present=yes')
-or not ('gn_present=no'). Blast hits without entry in blast db will receive 'gn_present=no'.
+or not ('gn_present=no'). Blast hits without an entry in the blast db will receive 'gn_present=NA'.
 
 =item B<-o> or B<--output>
 
