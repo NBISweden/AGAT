@@ -36,5 +36,7 @@ jobs:
             install-modules-with: cpanm
             install-modules-args: --with-develop --with-configure --notest
             install-modules: Devel::Cover::Report::Coveralls
+      - name: install AGAT deps
+        run: cpanm --installdeps .
       - name: run prove
         run: prove -lv t
