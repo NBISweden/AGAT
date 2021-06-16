@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 56;
+use Test::More tests => 57;
 
 =head1 DESCRIPTION
 
@@ -441,8 +441,12 @@ unlink $outtmp;
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
 
-# XXX
-
+$script = $script_prefix."bin/agat_sp_manage_functional_annotation.pl";
+$result = "$output_folder/agat_sp_manage_functional_annotation_1.gff";
+system(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system( "diff $result $outtmp/02413F.gff" ) == 0, "output $script");
+rmtree $outtmp;
 
 # --------check agat_sp_manage_introns.pl-------------
 
