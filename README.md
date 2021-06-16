@@ -7,7 +7,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
 [![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)  
 
-AGAT
+AGAT 
 =========================================
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
