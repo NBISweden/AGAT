@@ -31,9 +31,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Checkout perl env
         uses: shogo82148/actions-setup-perl@v1
-          with:
+        with:
             perl-version: '5.34'
             install-modules-with: cpanm
             install-modules-args: --with-develop --with-configure --notest
             install-modules: Devel::Cover::Report::Coveralls
-        - run: prove -lv t
+      - name: run prove
+        run: prove -lv t
