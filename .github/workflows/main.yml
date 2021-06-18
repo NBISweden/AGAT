@@ -18,24 +18,26 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: continuumio/anaconda3
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+       - name: install dependencies
+         run: conda install r-base libdb perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
+      #- name: Install libdb-dev
+      #  run: sudo apt-get -y install libdb-dev
+      #- name: Install R
+      #  run: sudo apt-get -y install r-base
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout AGAT
         uses: actions/checkout@v2
-      - name: Checkout perl env
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-            perl-version: '5.30'
-            install-modules-with: cpanm
-            install-modules-args: --with-develop --with-configure --notest
-            install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
+      #- name: Checkout perl env
+      #  uses: shogo82148/actions-setup-perl@v1
+      #  with:
+      #      perl-version: '5.30'
+      #      install-modules-with: cpanm
+      #      install-modules-args: --with-develop --with-configure --notest
+      #      install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
 
       # - name: install AGAT deps
       #  run: cpanm --installdeps .
@@ -44,6 +46,6 @@ jobs:
         run: |
           perl Makefile.PL
           make
-         # make test
+     # make test
       - name: run prove
         run: prove -lv t
