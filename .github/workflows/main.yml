@@ -38,5 +38,10 @@ jobs:
             install-modules: Devel::Cover::Report::Coveralls
       - name: install AGAT deps
         run: cpanm --installdeps .
+      - name: Prepare for tests
+        run: |
+          sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
+          perl Makefile.PL
+          make
       - name: run prove
         run: prove -lv t
