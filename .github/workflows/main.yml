@@ -29,13 +29,13 @@ jobs:
         uses: actions/checkout@v2
       - name: install dependencies
         run: |
-        conda config --add channels defaults
-        conda config --add channels bioconda
-        conda config --add channels conda-forge
-        conda install perl>=5.8 perl-bioperl>=1.7 perl-extutils-makemaker r-base libdb perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
+          conda config --add channels defaults
+          conda config --add channels bioconda
+          conda config --add channels conda-forge
+          conda install perl>=5.8 perl-bioperl>=1.7 perl-extutils-makemaker r-base libdb perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
 
-             #conda env create -f conda_environment_AGAT.yml
-             #conda activate agat
+      #conda env create -f conda_environment_AGAT.yml
+      #conda activate agat
              
       #- name: Install libdb-dev
       #  run: sudo apt-get -y install libdb-dev
