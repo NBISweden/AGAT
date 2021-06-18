@@ -20,6 +20,7 @@ my $opt_prefix=undef;
 my $opt_collective=undef;
 my $opt_nbIDstart=1;
 my $opt_type_dependent = undef;
+my $verbose;
 
 if ( !GetOptions(
     "help|h!"    => \$opt_help,
@@ -32,6 +33,7 @@ if ( !GetOptions(
     "p|t|l=s"   => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
 		"collective!" => \$opt_collective,
+    "verbose|v!"  => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -93,7 +95,7 @@ else{
 my %keepTrack;
 my %tag_hash;
 my @tagLetter_list;
-
+my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff
@@ -155,7 +157,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
             ##########
             # Same order as in OmniscientO
             if ( exists_keys($hash_omniscient,('level3','tss',$level2_ID)) ){
-                deal_with_level3(\%ptagList, $level2_ID, 'tss', $l2_ID_modified );
+              deal_with_level3(\%ptagList, $level2_ID, 'tss', $l2_ID_modified );
             }
             if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
               deal_with_level3(\%ptagList, $level2_ID, 'exon', $l2_ID_modified );
@@ -167,8 +169,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
               deal_with_level3(\%ptagList, $level2_ID, 'tts', $l2_ID_modified );
             }
             foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
-              if ( exists_keys($hash_omniscient, ('level3', $tag_l3 , $level2_ID) ) ){
-                deal_with_level3(\%ptagList, $level2_ID, $tag_l3, $l2_ID_modified );
+              if (! grep { $_ eq $tag_l3 } @l3_out_priority){
+                if ( exists_keys($hash_omniscient, ('level3', $tag_l3 , $level2_ID) ) ){
+                  deal_with_level3(\%ptagList, $level2_ID, $tag_l3, $l2_ID_modified );
+                }
               }
             }
           }
@@ -239,7 +243,6 @@ sub  manage_attributes{
   my  ($level, $feature)=@_;
 
   my $result;
-  my $verbose = 0; # for debug purpose
   my $primary_tag = lc($feature->primary_tag);
   my $prefix = undef;
   my $parent_id = undef;
