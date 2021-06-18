@@ -25,8 +25,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Checkout AGAT
+        uses: actions/checkout@v2
       - name: install dependencies
-        run: conda env create -f conda_environment_AGAT.yml
+        run: |
+             conda env create -f conda_environment_AGAT.yml
              conda activate agat
         #conda install r-base libdb perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
       #- name: Install libdb-dev
@@ -34,8 +37,7 @@ jobs:
       #- name: Install R
       #  run: sudo apt-get -y install r-base
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout AGAT
-        uses: actions/checkout@v2
+
       #- name: Checkout perl env
       #  uses: shogo82148/actions-setup-perl@v1
       #  with:
