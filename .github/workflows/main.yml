@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
   #  branches: [ master ]
-  pull_request:
+  #pull_request:
   #  branches: [ master ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -32,7 +32,7 @@ jobs:
       - name: Checkout perl env
         uses: shogo82148/actions-setup-perl@v1
         with:
-            perl-version: '5.34'
+            perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --with-develop --with-configure --notest
             install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
