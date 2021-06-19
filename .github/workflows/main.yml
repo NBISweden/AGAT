@@ -31,10 +31,10 @@ jobs:
         run: apt-get -y install libdb-dev
       #- name: Install R
       #  run: apt-get -y install r-base
-      - name: install dependencies
-        run: |
-          cpanm install Devel::Cover::Report::Coveralls
-      - name: install cpanm and one module
+      #- name: install dependencies
+      #  run: |
+      #    cpanm install Devel::Cover::Report::Coveralls
+      - name: install cpanm and modules
         uses: perl-actions/install-with-cpanm@v1
         with:
           install: |
@@ -49,6 +49,7 @@ jobs:
             Sort::Naturally 
             File::Share 
             File::ShareDir::Install 
+            Devel::Cover::Report::Coveralls
      #     conda config --add channels defaults
      #     conda config --add channels bioconda
      #     conda config --add channels conda-forge
