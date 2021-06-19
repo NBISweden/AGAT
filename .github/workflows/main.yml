@@ -34,22 +34,22 @@ jobs:
       #- name: install dependencies
       #  run: |
       #    cpanm install Devel::Cover::Report::Coveralls
-      - name: install cpanm and modules
-        uses: perl-actions/install-with-cpanm@v1
-        with:
-          install: |
-            Moose
-            bioperl 
-            Clone 
-            Graph::Directed 
-            LWP::UserAgent 
-            Statistics::R 
-            JSON 
-            Carp 
-            Sort::Naturally 
-            File::Share 
-            File::ShareDir::Install 
-            Devel::Cover::Report::Coveralls
+      #- name: install cpanm and modules
+      #  uses: perl-actions/install-with-cpanm@v1
+      #  with:
+      #    install: |
+      #      Moose
+      #      bioperl 
+      #      Clone 
+      #      Graph::Directed 
+      #      LWP::UserAgent 
+      #      Statistics::R 
+      #      JSON 
+      #      Carp 
+      #      Sort::Naturally 
+      #      File::Share 
+      #      File::ShareDir::Install 
+      #      Devel::Cover::Report::Coveralls
      #     conda config --add channels defaults
      #     conda config --add channels bioconda
      #     conda config --add channels conda-forge
