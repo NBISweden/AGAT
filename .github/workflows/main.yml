@@ -28,9 +28,9 @@ jobs:
       - name: Checkout AGAT
         uses: actions/checkout@v2
       - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
+        run: apt-get -y install libdb-dev
       - name: Install R
-        run: sudo apt-get -y install r-base
+        run: apt-get -y install r-base
       - name: install dependencies
         run: |
           cpanm install Devel::Cover::Report::Coveralls
