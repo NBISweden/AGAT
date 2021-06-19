@@ -20,8 +20,8 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    container:
-      image: perl:5.30
+    #container:
+    #  image: perl:5.30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -56,22 +56,21 @@ jobs:
      #     conda install perl>=5.8 perl-bioperl>=1.7 perl-extutils-makemaker r-base libdb perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-
-      #- name: Checkout perl env
-      #  uses: shogo82148/actions-setup-perl@v1
-      #  with:
-      #      perl-version: '5.30'
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+            perl-version: '5.30'
       #      install-modules-with: cpanm
       #      install-modules-args: --with-develop --with-configure --notest
       #      install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
 
       - name: install AGAT deps
         run: cpanm --installdeps .
-      - name: Prepare for tests
+      #- name: Prepare for tests
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
-        run: |
-          perl Makefile.PL
-          make
+      #  run: |
+      #    perl Makefile.PL
+      #    make
      # make test
       - name: run prove
         run: prove -lv t
