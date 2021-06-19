@@ -27,21 +27,33 @@ jobs:
     steps:
       - name: Checkout AGAT
         uses: actions/checkout@v2
+      - name: Install libdb-dev
+        run: sudo apt-get -y install libdb-dev
+      - name: Install R
+        run: sudo apt-get -y install r-base
       - name: install dependencies
         run: |
           cpanm install Devel::Cover::Report::Coveralls
+      - name: install cpanm and one module
+        uses: perl-actions/install-with-cpanm@v1
+        with:
+          install: |
+            Moose
+            bioperl 
+            Clone 
+            Graph::Directed 
+            LWP::UserAgent 
+            Statistics::R 
+            JSON 
+            Carp 
+            Sort::Naturally 
+            File::Share 
+            File::ShareDir::Install 
      #     conda config --add channels defaults
      #     conda config --add channels bioconda
      #     conda config --add channels conda-forge
      #     conda install perl>=5.8 perl-bioperl>=1.7 perl-extutils-makemaker r-base libdb perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
 
-      #conda env create -f conda_environment_AGAT.yml
-      #conda activate agat
-             
-      #- name: Install libdb-dev
-      #  run: sudo apt-get -y install libdb-dev
-      #- name: Install R
-      #  run: sudo apt-get -y install r-base
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
 
       #- name: Checkout perl env
