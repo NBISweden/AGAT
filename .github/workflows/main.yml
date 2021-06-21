@@ -65,7 +65,9 @@ jobs:
       #      install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
 
       - name: install AGAT deps
-        run: cpanm --installdeps .
+        run: |
+          perl Makefile.PL
+          cpanm --installdeps .
       #- name: Prepare for tests
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
       #  run: |
