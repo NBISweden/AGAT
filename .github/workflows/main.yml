@@ -75,7 +75,4 @@ jobs:
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
         run: |
           perl Makefile.PL
-          make
-     # make test 
-      - name: run prove
-        run: prove -lv t
+          make test
