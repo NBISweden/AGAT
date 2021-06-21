@@ -25,10 +25,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: webiny/action-post-run@2.0.1
-        id: post-run-command
-        with:
-          run: sudo cat /root/.cpanm/work/*/build.log
       - name: Install libdb-dev
         run: sudo apt-get -y install libdb-dev
       - name: Install R
@@ -67,9 +63,12 @@ jobs:
       #      install-modules-with: cpanm
       #      install-modules-args: --with-develop --with-configure --notest
       #      install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
-
+      - uses: webiny/action-post-run@2.0.1
+        id: post-run-command
+        with:
+          run: sudo cat /home/runner/.cpanm/work/*/build.log
       - name: install AGAT deps
-        run: cpanm --installdeps --notest .
+        run: cpanm --installdeps --notest --force .
       #- name: Prepare for tests
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
       #  run: |
