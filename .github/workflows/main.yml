@@ -48,10 +48,8 @@ jobs:
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
       - name: test
-         # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          perl Makefile.PL
-          make test
-      - name: The job has succeeded lets run coveralls
-        if: ${{ success() }}
-        run: cover -test -report coveralls
+        # perl Makefile.PL
+          cover -test -report coveralls
