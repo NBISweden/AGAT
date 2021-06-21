@@ -25,6 +25,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - uses: webiny/action-post-run@2.0.1
+        id: post-run-command
+        with:
+          run: cat /home/runner/.cpanm/work/*/build.log
       - name: Install libdb-dev
         run: sudo apt-get -y install libdb-dev
       - name: Install R
