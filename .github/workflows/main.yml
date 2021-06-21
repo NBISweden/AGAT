@@ -71,11 +71,11 @@ jobs:
           # /home/runner/.cpanm/work/1624304717.1957/build.log
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
-      #- name: Prepare for tests
+      - name: Prepare for tests
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
-      #  run: |
-      #    perl Makefile.PL
-      #    make
+        run: |
+          perl Makefile.PL
+          make
      # make test
       - name: run prove
         run: prove -lv t
