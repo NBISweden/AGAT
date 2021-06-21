@@ -66,7 +66,9 @@ jobs:
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         with:
-          run: sudo find / -name build.log
+          run: cat /home/runner/.cpanm/build.log
+          # /home/runner/.cpanm/build.log
+          # /home/runner/.cpanm/work/1624304717.1957/build.log
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
       #- name: Prepare for tests
