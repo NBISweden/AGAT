@@ -61,7 +61,7 @@ jobs:
         with:
             perl-version: '5.30'
             install-modules-with: cpanm
-            install-modules-args: --with-develop --with-configure --notest
+            install-modules-args: --notest --force
             install-modules: File::ShareDir::Install Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
