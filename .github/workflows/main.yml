@@ -28,7 +28,7 @@ jobs:
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         with:
-          run: cat /home/runner/.cpanm/work/*/build.log
+          run: cat /root/.cpanm/work/*/build.log
       - name: Install libdb-dev
         run: sudo apt-get -y install libdb-dev
       - name: Install R
@@ -69,9 +69,7 @@ jobs:
       #      install-modules: Devel::Cover::Report::Coveralls bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
 
       - name: install AGAT deps
-        run: |
-          ls -l
-          cpanm --installdeps .
+        run: cpanm --installdeps --notest .
       #- name: Prepare for tests
          # sudo apt-get install libtest-perl-critic-perl libtest-output-perl libtest-pod-coverage-perl
       #  run: |
