@@ -50,6 +50,4 @@ jobs:
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-        # perl Makefile.PL
-          cover -test -report coveralls
+        run: cover -test -report coveralls
