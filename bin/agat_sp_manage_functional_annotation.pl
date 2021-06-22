@@ -658,7 +658,7 @@ sub printProductFunct{
   my $String="";
   my $first="yes";
   if (exists $mRNAproduct{$refname}){
-    foreach my $element (@{$mRNAproduct{$refname}})
+    foreach my $element (sort @{$mRNAproduct{$refname}})
     {
       if($first eq "yes"){
         $String.="$element";
@@ -675,7 +675,7 @@ sub addFunctions{
 
   my $functionAdded=undef;
   my $ID=lc($feature->_tag_value('ID'));
-  foreach my $function_type (keys %functionData){
+  foreach my $function_type ( sort keys %functionData){
 
 
     if(exists ($functionData{$function_type}{$ID})){
