@@ -13,7 +13,7 @@ use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
-#use Data::Dumper; # JN: for dedug printing
+#use Data::Dumper; # JN: for dedug printing 
 my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
