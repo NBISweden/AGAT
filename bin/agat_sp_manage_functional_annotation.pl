@@ -13,22 +13,26 @@ use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
+#use Data::Dumper; # JN: for dedug printing 
+my $DEBUG = 0;    # JN: for dedug printing
+
 my $header = get_agat_header();
 # PARAMETERS - OPTION
 my $opt_reffile;
 my $opt_output;
 my $opt_BlastFile;
 my $opt_InterproFile;
-my $opt_name=undef;
+my $opt_name = undef;
 my $opt_nameU;
-my $opt_verbose=undef;
+my $opt_verbose = undef;
 my $opt_help = 0;
-my $opt_blastEvalue=1e-6;
+my $opt_blastEvalue = 1e-6;
 my $opt_dataBase = undef;
 my $opt_pe = 5;
+my $opt_addGnPresentTag = 0; # JN: Optionally add the 'gn_present=yes|no|NA' tag in gff
 my %numbering;
-my $nbIDstart=1;
-my $prefixName=undef;
+my $nbIDstart = 1;
+my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
 # END PARAMETERS - OPTION
@@ -41,10 +45,14 @@ my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
 my %geneNameGiven;
 my %duplicateNameGiven;
-my $nbDuplicateNameGiven=0;
-my $nbDuplicateName=0;
-my $nbNamedGene=0;
-my $nbGeneNameInBlast=0;
+my %fasta_id_gn_hash = ();     # JN: key: 'sp|a6w1c3|hem1_marms' , value: 'hema' etc or undef
+my %l2_gn_present_hash = ();   # JN: Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1', value: 'yes' or 'no'
+my $nbGnNotPresentInDb = 0;    # JN: Count entries without GN in db
+my $nbGnNotPresentForMrna = 0; # JN: Count mRNAs without GN in db
+my $nbDuplicateNameGiven = 0;
+my $nbDuplicateName = 0;
+my $nbNamedGene = 0;
+my $nbGeneNameInBlast = 0;
 # END FOR FUNCTION BLAST#
 
 # FOR FUNCTIONS INTERPRO#
@@ -58,69 +66,83 @@ my %functionOutput;
 my %functionStreamOutput;
 my %geneWithoutFunction;
 my %geneWithFunction;
-my $nbmRNAwithoutFunction=0;
-my $nbmRNAwithFunction=0;
-my $nbGeneWithGOterm=0;
-my $nbTotalGOterm=0;
+my $nbmRNAwithoutFunction = 0;
+my $nbmRNAwithFunction = 0;
+my $nbGeneWithGOterm = 0;
+my $nbTotalGOterm = 0;
 # END FOR FUNCTION INTERPRO#
 
 # OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
-                  'b|blast=s' => \$opt_BlastFile,
-                  'd|db=s' => \$opt_dataBase,
-                  'be|blast_evalue=i' => \$opt_blastEvalue,
-		              'pe=i' => \$opt_pe,
-                  'i|interpro=s' => \$opt_InterproFile,
-                  'id=s' => \$opt_name,
-                  'idau=s' => \$opt_nameU,
-                  'nb=i'      => \$nbIDstart,
-                  'o|output=s'      => \$opt_output,
-                  'v'      => \$opt_verbose,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+my @copyARGV = @ARGV;
+GetOptions(
+ 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
+ 'b|blast=s'                => \$opt_BlastFile,
+ 'd|db=s'                   => \$opt_dataBase,
+ 'be|blast_evalue=i'        => \$opt_blastEvalue,
+ 'pe=i'                     => \$opt_pe,
+ 'i|interpro=s'             => \$opt_InterproFile,
+ 'id=s'                     => \$opt_name,
+ 'idau=s'                   => \$opt_nameU,
+ 'nb=i'                     => \$nbIDstart,
+ 'o|output=s'               => \$opt_output,
+ 'a|addgntag'               => \$opt_addGnPresentTag,
+ 'v'                        => \$opt_verbose,
+ 'h|help!'                  => \$opt_help
+)
+or pod2usage( {
+  -message => 'Failed to parse command line',
+  -verbose => 1,
+  -exitval => 1
+});
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage(
+    {
+      -verbose => 99,
+      -exitval => 0,
+      -message => "$header\n"
+    }
+  );
 }
 
-if ( ! (defined($opt_reffile)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--f)\n\n".
-           "Many optional parameters are available. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 1 } );
+if ( !( defined($opt_reffile) ) ) {
+  pod2usage(
+    {
+      -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--f)\n\n"
+        . "Many optional parameters are available. Look at the help documentation to know more.\n",
+      -verbose => 0,
+      -exitval => 1
+    }
+  );
 }
 
 #################################################
 ####### START Manage files (input output) #######
 #################################################
 
-if($opt_pe>5 or $opt_pe<1){
-	print "Error the Protein Existence (PE) value must be between 1 and 5\n";exit;
+if ( ($opt_pe > 5) or ($opt_pe < 1) ) {
+  print "Error the Protein Existence (PE) value must be between 1 and 5\n";
+  exit;
 }
 
 my $streamBlast = IO::File->new();
 my $streamInter = IO::File->new();
 
 # Manage Blast File
-if (defined $opt_BlastFile){
-  if (! $opt_dataBase){
-    print "To use the blast output we also need the fasta of the database used for the blast (--db)\n";exit;
+if (defined $opt_BlastFile) {
+  if (! $opt_dataBase) {
+    print "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
+    exit;
   }
-  $streamBlast->open( $opt_BlastFile, 'r' ) or croak( sprintf( "Can not open '%s' for reading: %s", $opt_BlastFile, $! ) );
+  $streamBlast->open( $opt_BlastFile, 'r' ) or
+    croak( sprintf( "Can not open '%s' for reading: %s", $opt_BlastFile, $! ) );
 }
 
 # Manage Interpro file
-if (defined $opt_InterproFile){
-  $streamInter->open( $opt_InterproFile, 'r' ) or croak( sprintf( "Can not open '%s' for reading: %s", $opt_InterproFile, $! ) );
+if (defined $opt_InterproFile) {
+  $streamInter->open( $opt_InterproFile, 'r' ) or
+    croak( sprintf( "Can not open '%s' for reading: %s", $opt_InterproFile, $! ) );
 }
 
 ##########################
@@ -128,24 +150,26 @@ if (defined $opt_InterproFile){
 my $ostreamReport;
 my $ostreamGFF;
 my $ostreamLog;
-if (defined($opt_output) ) {
-  if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+if (defined($opt_output)) {
+  if (-f $opt_output) {
+    print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
+    exit();
   }
-  if (-d $opt_output){
-      print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+  if (-d $opt_output) {
+    print "The output directory choosen already exists. Please give me another Name.\n";
+    exit();
   }
   mkdir $opt_output;
 
-  $ostreamReport=IO::File->new(">".$opt_output."/report.txt" ) or
-  croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
+  $ostreamReport = IO::File->new(">".$opt_output."/report.txt") or
+    croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
 
   my $file_out_name = fileparse($opt_reffile);
-  $ostreamGFF=Bio::Tools::GFF->new(-file => ">$opt_output/$file_out_name", -gff_version => 3 ) or
-  croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$opt_reffile, $! ));
+  $ostreamGFF = Bio::Tools::GFF->new(-file => ">$opt_output/$file_out_name", -gff_version => 3 ) or
+    croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$opt_reffile, $! ));
 
-  $ostreamLog=IO::File->new(">".$opt_output."/error.txt" ) or
-  croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/log.txt", $! ));
+  $ostreamLog = IO::File->new(">".$opt_output."/error.txt") or
+    croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/log.txt", $! ));
 }
 else {
   $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
@@ -159,23 +183,21 @@ else {
 #my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 my $stringPrint = strftime "%m/%d/%Y", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
-if ($opt_name){
-  $prefixName=$opt_name;
+if ($opt_name) {
+  $prefixName = $opt_name;
   $stringPrint .= "->IDs are changed using <$opt_name> as prefix.\nIn the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines.".
   " All lines that share an ID collectively represent a signle feature.\n";
 }
-if ($opt_nameU){
+if ($opt_nameU) {
   $stringPrint .= "->IDs will be changed using <$opt_nameU> as prefix. Features that shared an ID collectively (e.g. CDS, UTRs, etc...) will now have each an uniq ID.\n";
-  $prefixName=$opt_nameU;
+  $prefixName = $opt_nameU;
 }
-
-
 
 # Display
 $ostreamReport->print($stringPrint);
-if($opt_output){ print_time("$stringPrint");} # When ostreamReport is a file we have to also display on screen
-
-
+if ($opt_output) {
+  print_time("$stringPrint");
+} # When ostreamReport is a file we have to also display on screen
 
                   #          +------------------------------------------------------+
                   #          |+----------------------------------------------------+|
@@ -185,17 +207,19 @@ if($opt_output){ print_time("$stringPrint");} # When ostreamReport is a file we 
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile});
 print_time("Parsing Finished");
 ### END Parse GFF input #
 #########################
 
 #Print directly what has been read
 print_time("Compute statistics");
-print_omniscient_statistics ({ input => $hash_omniscient,
-															 output => $ostreamReport
-														 });
+print_omniscient_statistics(
+  {
+    input => $hash_omniscient,
+    output => $ostreamReport
+  }
+);
 
 ################################
 # MANAGE FUNCTIONAL INPUT FILE #
@@ -204,15 +228,33 @@ print_omniscient_statistics ({ input => $hash_omniscient,
 # Manage Blast File #
 my $db;
 my %allIDs;
-if (defined $opt_BlastFile){
+
+if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
-  print ("look at the fasta database\n");
+  print_time("Look at the fasta database");
   $db = Bio::DB::Fasta->new($opt_dataBase);
-  # save ID in lower case to avoid cast problems
-  my @ids      = $db->get_all_primary_ids;
-  foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-  print_time("Parsing Finished\n\n");
-  #print "id.".$id"\t";
+
+  # JN: Begin parse fasta
+  # JN: Alternative parsing of fasta. Picking up GNs as we go.
+  # Save ID in lower case to avoid cast problems
+  my $dbstream = $db->get_PrimarySeq_stream;
+  while (my $seqobj = $dbstream->next_seq) {
+    my $display_id = $seqobj->display_id;
+    my $lc_display_id = lc($display_id);
+    $allIDs{$lc_display_id} = $display_id;
+    my $desc = $seqobj->desc;
+    if ($desc =~ /GN=(\S+)/) {
+        my $GN = $1;
+        my $lc_GN = lc($GN);
+        $fasta_id_gn_hash{$lc_display_id} = $lc_GN;
+    }
+    else {
+      $nbGnNotPresentInDb++;
+      $fasta_id_gn_hash{$lc_display_id} = undef;
+    }
+  } # JN: End parse fasta
+
+  print_time("Parsing Finished");
 
   # parse blast output
   print( "Reading features from $opt_BlastFile...\n");
@@ -221,18 +263,18 @@ if (defined $opt_BlastFile){
 
 ########################
 # Manage Interpro File #
-if (defined $opt_InterproFile){
-  parse_interpro_tsv($streamInter,$opt_InterproFile);
+if (defined $opt_InterproFile) {
+  parse_interpro_tsv($streamInter, $opt_InterproFile);
 
   # create streamOutput
-  if($opt_output){
-    foreach my $type (keys %functionData){
+  if ($opt_output) {
+    foreach my $type (keys %functionData) {
       my $ostreamFunct = IO::File->new();
       $ostreamFunct->open( $opt_output."/$type.txt", 'w' ) or
-          croak(
-              sprintf( "Can not open '%s' for writing %s", $opt_output."/$type.txt", $! )
-          );
-      $functionStreamOutput{$type}=$ostreamFunct;
+        croak(
+          sprintf( "Can not open '%s' for writing %s", $opt_output."/$type.txt", $! )
+        );
+      $functionStreamOutput{$type} = $ostreamFunct;
     }
   }
 }
@@ -241,109 +283,126 @@ if (defined $opt_InterproFile){
 
 ###########################
 # change FUNCTIONAL information if asked for
-if ($opt_BlastFile || $opt_InterproFile ){#|| $opt_BlastFile || $opt_InterproFile){
-    print_time( "load FUNCTIONAL information\n" );
+if ($opt_BlastFile || $opt_InterproFile ) {
+  print_time( "load FUNCTIONAL information" );
 
   #################
   # == LEVEL 1 == #
   #################
-  foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}){ # primary_tag_level1 = gene or repeat etc...
-    foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}){
+  foreach my $primary_tag_level1 (keys %{$hash_omniscient ->{'level1'}}) { # primary_tag_level1 = gene or repeat etc...
+    foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
+      my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
-      my $feature_level1=$hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
-
-  #    print $feature_level1."\n";
       # Clean NAME attribute
-      if($feature_level1->has_tag('Name')){
+      if ($feature_level1->has_tag('Name')) {
         $feature_level1->remove_tag('Name');
       }
 
-      #Manage Name if otpion setting
-      if( $opt_BlastFile ){
-        if (exists ($geneNameBlast{$id_level1})){
+      #Manage Name if option setting
+      if ( $opt_BlastFile ) {
+
+        if (exists ($geneNameBlast{$id_level1})) {
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
           $nbNamedGene++;
 
           # Check name duplicated given
-          my $nameClean=$geneNameBlast{$id_level1};
+          my $nameClean = $geneNameBlast{$id_level1};
           $nameClean =~ s/_([2-9]{1}[0-9]*|[0-9]{2,})*$//;
 
           my $nameToCompare;
-          if(exists ($nameBlast{$nameClean})){ # We check that is really a name where we added the suffix _1
-            $nameToCompare=$nameClean;
+          if (exists ($nameBlast{$nameClean})) { # We check that is really a name where we added the suffix _1
+            $nameToCompare = $nameClean;
           }
-          else{$nameToCompare=$geneNameBlast{$id_level1};} # it was already a gene_name like BLABLA_12
+          else {
+            $nameToCompare = $geneNameBlast{$id_level1};
+          } # it was already a gene_name like BLABLA_12
 
-          if(exists ($geneNameGiven{$nameToCompare})){
-              $nbDuplicateNameGiven++; # track total
-              $duplicateNameGiven{$nameToCompare}++; # track diversity
+          if (exists ($geneNameGiven{$nameToCompare})) {
+            $nbDuplicateNameGiven++; # track total
+            $duplicateNameGiven{$nameToCompare}++; # track diversity
           }
-          else{$geneNameGiven{$nameToCompare}++;} # first time we have given this name
+          else {
+            $geneNameGiven{$nameToCompare}++;
+          } # first time we have given this name
         }
       }
 
       #################
       # == LEVEL 2 == #
       #################
-      foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+      foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}) { # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-        if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_level1) ) ){
-          foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}}) {
+        if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_level1) ) ) {
+          foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_level1}} ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
+
             # Clean NAME attribute
-            if($feature_level2->has_tag('Name')){
+            if ($feature_level2->has_tag('Name')) {
               $feature_level2->remove_tag('Name');
             }
 
-            #Manage Name if option set
-            if($opt_BlastFile){
+            # Manage Name if option set
+            if ($opt_BlastFile) {
               # add gene Name
-              if (exists ($mRNANameBlast{$level2_ID})){
-                my $mRNABlastName=$mRNANameBlast{$level2_ID};
+              if (exists ($mRNANameBlast{$level2_ID})) {
+                my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
               }
-              my $productData=printProductFunct($level2_ID);
+
+              my $productData = printProductFunct($level2_ID);
 
               #add UniprotID attribute
-              if (exists ($mRNAUniprotIDFromBlast{$level2_ID})){
-                my $mRNAUniprotID=$mRNAUniprotIDFromBlast{$level2_ID};
+              if (exists ($mRNAUniprotIDFromBlast{$level2_ID})) {
+                my $mRNAUniprotID = $mRNAUniprotIDFromBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
               }
 
-              #add product attribute
-              if ($productData ne ""){
-                if($feature_level2->has_tag('pseudo')){
-                    create_or_replace_tag($feature_level2, 'Note', "product:$productData");
+              # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
+              if (exists($l2_gn_present_hash{$level2_ID})) {
+                my $gn_status = $l2_gn_present_hash{$level2_ID};
+                if ($gn_status eq 'no' ) {
+                  $nbGnNotPresentForMrna++;
                 }
-                else{
-                    create_or_replace_tag($feature_level2, 'product', $productData);
+                create_or_replace_tag($feature_level2, 'gn_present', $gn_status) if ($opt_addGnPresentTag);
+              }
+              else {
+                create_or_replace_tag($feature_level2, 'gn_present', 'NA') if ($opt_addGnPresentTag);
+              }
+
+              #add product attribute
+              if ($productData ne "") {
+                if ($feature_level2->has_tag('pseudo')) {
+                  create_or_replace_tag($feature_level2, 'Note', "product:$productData");
+                }
+                else {
+                  create_or_replace_tag($feature_level2, 'product', $productData);
                 }
               }
               else {
-                if($feature_level2->has_tag('pseudo')){
-                    create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
+                if ($feature_level2->has_tag('pseudo')) {
+                  create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
                 }
-                else{
-                    create_or_replace_tag($feature_level2, 'product', "hypothetical protein");
+                else {
+                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein");
                 }
-
               } #Case where the protein is not known
             }
 
             # print function if option
-            if($opt_InterproFile){
-              my $parentID=$feature_level2->_tag_value('Parent');
+            if ($opt_InterproFile) {
+              my $parentID = $feature_level2->_tag_value('Parent');
 
-              if (addFunctions($feature_level2, $opt_output)){
-                $nbmRNAwithFunction++;$geneWithFunction{$parentID}++;
-                if(exists ($geneWithoutFunction{$parentID})){
+              if (addFunctions($feature_level2, $opt_output)) {
+                $nbmRNAwithFunction++;
+                $geneWithFunction{$parentID}++;
+                if (exists ($geneWithoutFunction{$parentID})) {
                   delete $geneWithoutFunction{$parentID};
                 }
               }
-              else{
+              else {
                 $nbmRNAwithoutFunction++;
-                if(! exists ($geneWithFunction{$parentID})){
+                if (! exists ($geneWithFunction{$parentID})) {
                   $geneWithoutFunction{$parentID}++;
                 }
               }
@@ -355,16 +414,15 @@ if ($opt_BlastFile || $opt_InterproFile ){#|| $opt_BlastFile || $opt_InterproFil
   }
 }
 
-
 ###########################
 # change names if asked for
-if ($opt_nameU || $opt_name ){#|| $opt_BlastFile || $opt_InterproFile){
+if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
   print_time("load new IDs");
 
   my %hash_sortBySeq;
-  foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}){
-    foreach my $level1_id ( keys %{$hash_omniscient->{'level1'}{$tag_level1}}){
-      my $position=$hash_omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
+  foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}) {
+    foreach my $level1_id ( keys %{$hash_omniscient->{'level1'}{$tag_level1}}) {
+      my $position = $hash_omniscient->{'level1'}{$tag_level1}{$level1_id}->seq_id;
       push (@{$hash_sortBySeq{$position}{$tag_level1}}, $hash_omniscient->{'level1'}{$tag_level1}{$level1_id});
     }
   }
@@ -373,103 +431,107 @@ if ($opt_nameU || $opt_name ){#|| $opt_BlastFile || $opt_InterproFile){
   # == LEVEL 1 == #
   #################
   #Read by seqId to sort properly the output by seq ID
-  foreach my $seqid (sort alphaNum keys %hash_sortBySeq){ # loop over all the feature level1
+  foreach my $seqid (sort alphaNum keys %hash_sortBySeq) { # loop over all the feature level1
 
-    foreach my $primary_tag_level1 (sort {$a cmp $b} keys %{$hash_sortBySeq{$seqid}}){
+    foreach my $primary_tag_level1 (sort {$a cmp $b} keys %{$hash_sortBySeq{$seqid}}) {
 
-      foreach my $feature_level1 ( sort {$a->start <=> $b->start} @{$hash_sortBySeq{$seqid}{$primary_tag_level1}}){
-        my $level1_ID=$feature_level1->_tag_value('ID');
+      foreach my $feature_level1 ( sort {$a->start <=> $b->start} @{$hash_sortBySeq{$seqid}{$primary_tag_level1}}) {
+        my $level1_ID = $feature_level1->_tag_value('ID');
         my $id_level1 = lc($level1_ID);
-        my $newID_level1=undef;
+        my $newID_level1 = undef;
         #print_time( "Next gene $id_level1\n");
 
         #keep track of Maker ID
-        if($opt_BlastFile){#In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+        if ($opt_BlastFile) { #In that case the name given by Maker is removed from ID and from Name. We have to keep track
           create_or_replace_tag($feature_level1, 'makerName', $level1_ID);
         }
 
         my $letter_tag = get_letter_tag($primary_tag_level1);
 
-        if(! exists_keys(\%numbering,($letter_tag ))){$numbering{$letter_tag }=$nbIDstart;}
-        $newID_level1 = manageID($prefixName, $numbering{$letter_tag }, $letter_tag );
-        $numbering{$letter_tag }++;
+        if (! exists_keys(\%numbering, ($letter_tag))) {
+          $numbering{$letter_tag} = $nbIDstart;
+        }
+        $newID_level1 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag );
+        $numbering{$letter_tag}++;
         create_or_replace_tag($feature_level1, 'ID', $newID_level1);
 
-        $finalID{$feature_level1->_tag_value('ID')}=$newID_level1;
+        $finalID{$feature_level1->_tag_value('ID')} = $newID_level1;
+
         #################
         # == LEVEL 2 == #
         #################
-        foreach my $primary_tag_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_level2 = mrna or mirna or ncrna or trna etc...
+        foreach my $primary_tag_level2 (keys %{$hash_omniscient->{'level2'}}) { # primary_tag_level2 = mrna or mirna or ncrna or trna etc...
 
-          if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_level2, $id_level1) ) ){
+          if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_level2, $id_level1) ) ) {
             foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_level2}{$id_level1}}) {
 
               my $level2_ID = $feature_level2->_tag_value('ID');
-              my $newID_level2=undef;
+              my $newID_level2 = undef;
 
               #keep track of Maker ID
-              if($opt_InterproFile){#In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+              if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to keep track
                 create_or_replace_tag($feature_level2, 'makerName', $level2_ID);
               }
 
               my $letter_tag = get_letter_tag($primary_tag_level2);
-              if(! exists_keys(\%numbering,($letter_tag))){$numbering{$letter_tag}=$nbIDstart;}
-              $newID_level2 = manageID($prefixName, $numbering{$letter_tag},$letter_tag);
+              if (! exists_keys(\%numbering, ($letter_tag))) {
+                $numbering{$letter_tag} = $nbIDstart;
+              }
+              $newID_level2 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
               $numbering{$letter_tag}++;
               create_or_replace_tag($feature_level2, 'ID', $newID_level2);
               create_or_replace_tag($feature_level2, 'Parent', $newID_level1);
 
-              $finalID{$level2_ID}=$newID_level2;
+              $finalID{$level2_ID} = $newID_level2;
+
               #################
               # == LEVEL 3 == #
               #################
+              foreach my $primary_tag_level3 (keys %{$hash_omniscient->{'level3'}}) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_level3, lc($level2_ID)) ) ) {
+                  foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)}}) {
+                    #keep track of Maker ID
+                    my $level3_ID = $feature_level3->_tag_value('ID');
+                    if ($opt_InterproFile) { #In that case the name given by Maker is removed from ID and from Name. We have to kee a track
+                      create_or_replace_tag($feature_level3, 'makerName', $level3_ID);
+                    }
 
-              foreach my $primary_tag_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                    my $letter_tag = get_letter_tag($primary_tag_level3);
+                    if (! exists_keys(\%numbering, ($letter_tag))) {
+                      $numbering{$letter_tag} = $nbIDstart;
+                    }
 
-                  if ( exists_keys ($hash_omniscient,('level3',$primary_tag_level3, lc($level2_ID)) ) ){
-
-                    foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)}}) {
-
-                      #keep track of Maker ID
-                      my $level3_ID = $feature_level3->_tag_value('ID');
-                      if($opt_InterproFile){#In that case the name given by Maker is removed from ID and from Name. We have to kee a track
-                        create_or_replace_tag($feature_level3, 'makerName', $level3_ID);
-                      }
-
-                      my $letter_tag = get_letter_tag($primary_tag_level3);
-                      if(! exists_keys(\%numbering,($letter_tag))){$numbering{$letter_tag}=$nbIDstart;}
-                      my $newID_level3 = manageID($prefixName, $numbering{$letter_tag},$letter_tag);
-                      if( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) {
-                        if($opt_nameU){
-                          $numbering{$letter_tag}++;
-                        }
-                      }
-                      else{
+                    my $newID_level3 = manageID($prefixName, $numbering{$letter_tag}, $letter_tag);
+                    if ( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) {
+                      if ($opt_nameU) {
                         $numbering{$letter_tag}++;
                       }
-                      create_or_replace_tag($feature_level3, 'ID', $newID_level3);
-                      create_or_replace_tag($feature_level3, 'Parent', $newID_level2);
-
-                      $finalID{$level3_ID}=$newID_level3;
                     }
-                    #save the new l3 into the new l2 id name
-                    $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($newID_level2)} = delete $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)} # delete command return the value before deteling it, so we just transfert the value
-                  }
-                  if ($opt_name and  ( $primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ){
-                    my $letter_tag = get_letter_tag($primary_tag_level3);
-                    $numbering{$letter_tag}++;
-                  } # with this option we increment UTR name only for each UTR (cds also)
+                    else {
+                      $numbering{$letter_tag}++;
+                    }
+                    create_or_replace_tag($feature_level3, 'ID', $newID_level3);
+                    create_or_replace_tag($feature_level3, 'Parent', $newID_level2);
 
+                    $finalID{$level3_ID} = $newID_level3;
+                  }
+                  #save the new l3 into the new l2 id name
+                  $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($newID_level2)} = delete $hash_omniscient->{'level3'}{$primary_tag_level3}{lc($level2_ID)} # delete command return the value before deleting it, so we just transfer the value
+                }
+                if ( $opt_name and ($primary_tag_level3 =~ /cds/ or $primary_tag_level3 =~ /utr/ ) ) {
+                  my $letter_tag = get_letter_tag($primary_tag_level3);
+                  $numbering{$letter_tag}++;
+                } # with this option we increment UTR name only for each UTR (cds also)
               }
             }
-            if($newID_level1){
-              $hash_omniscient->{'level2'}{$primary_tag_level2}{lc($newID_level1)} = delete $hash_omniscient->{'level2'}{$primary_tag_level2}{$id_level1}; # modify the id key of the hash. The delete command return the value before deteling it, so we just transfert the value
+            if ($newID_level1) {
+              $hash_omniscient->{'level2'}{$primary_tag_level2}{lc($newID_level1)} = delete $hash_omniscient->{'level2'}{$primary_tag_level2}{$id_level1}; # modify the id key of the hash. The delete command return the value before deleting it, so we just transfer the value
             }
           }
         }
 
-        if($newID_level1){
-          $hash_omniscient->{'level1'}{$primary_tag_level1}{lc($newID_level1)} = delete $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1}; # modify the id key of the hash. The delete command return the value before deteling it, so we just transfert the value
+        if ($newID_level1) {
+          $hash_omniscient->{'level1'}{$primary_tag_level1}{lc($newID_level1)} = delete $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1}; # modify the id key of the hash. The delete command return the value before deleting it, so we just transfer the value
         }
       }
     }
@@ -484,73 +546,80 @@ if ($opt_nameU || $opt_name ){#|| $opt_BlastFile || $opt_InterproFile){
 # print FUNCTIONAL INFORMATION
 
 # first table name\tfunction
-if($opt_output){
-  foreach my $function_type (keys %functionOutput){
-    my $streamOutput=$functionStreamOutput{$function_type};
-    foreach my $ID (keys %{$functionOutput{$function_type}}){
+if ($opt_output) {
+  foreach my $function_type (keys %functionOutput) {
+    my $streamOutput = $functionStreamOutput{$function_type};
+    foreach my $ID (keys %{$functionOutput{$function_type}}) {
 
-      if ($opt_nameU || $opt_name ){
-        print $streamOutput  $finalID{$ID}."\t".$functionOutput{$function_type}{$ID}."\n";
+      if ($opt_nameU || $opt_name ) {
+        print $streamOutput $finalID{$ID}."\t".$functionOutput{$function_type}{$ID}."\n";
       }
-      else{
-        print $streamOutput  $ID."\t".$functionOutput{$function_type}{$ID}."\n";
+      else {
+        print $streamOutput $ID."\t".$functionOutput{$function_type}{$ID}."\n";
       }
     }
   }
 }
 
-
-# NOW summerize
-$stringPrint =""; # reinitialise (use at the beginning)
-if ($opt_InterproFile){
+# NOW summarize
+$stringPrint = ""; # reinitialise (use at the beginning)
+if ($opt_InterproFile) {
   #print INFO
-  my $lineB=       "_________________________________________________________________________________________________________________________________";
+  my $lineB =      "_________________________________________________________________________________________________________________________________";
   $stringPrint .= " ".$lineB."\n";
   $stringPrint .= "|                         | Nb Total term           | Nb mRNA with term       | Nb mRNA updated by term | Nb gene updated by term |\n";
-  $stringPrint .= "|                         | in raw File             |   in raw File           | in our annotation file  | in our annotation file  |\n";
+  $stringPrint .= "|                         | in raw File             | in raw File             | in our annotation file  | in our annotation file  |\n";
   $stringPrint .= "|".$lineB."|\n";
 
-  foreach my $type (sort keys %functionData){
+  foreach my $type (sort keys %functionData) {
     my $total_type = $TotalTerm{$type};
     my $mRNA_type_raw = $functionDataAdded{$type};
     my $mRNA_type = keys %{$mRNAAssociatedToTerm{$type}};
     my $gene_type = keys %{$GeneAssociatedToTerm{$type}};
-    $stringPrint .= "|".sizedPrint(" $type",25)."|".sizedPrint($total_type,25)."|".sizedPrint($mRNA_type_raw,25)."|".sizedPrint($mRNA_type,25)."|".sizedPrint($gene_type,25)."|\n|".$lineB."|\n";
+    $stringPrint .= "|".sizedPrint(" $type", 25)."|".sizedPrint($total_type, 25)."|".sizedPrint($mRNA_type_raw, 25)."|".sizedPrint($mRNA_type, 25)."|".sizedPrint($gene_type, 25)."|\n|".$lineB."|\n";
   }
 
   #RESUME TOTAL OF FUNCTION ATTACHED
   my $listOfFunction;
-  foreach my $funct (sort keys %functionData){
-    $listOfFunction.="$funct,";
+  foreach my $funct (sort keys %functionData) {
+    $listOfFunction .= "$funct,";
   }
   chop $listOfFunction;
-  my $nbGeneWithoutFunction= keys %geneWithoutFunction;
-  my $nbGeneWithFunction= keys %geneWithFunction;
-  $stringPrint .= "nb mRNA without Functional annotation ($listOfFunction) = $nbmRNAwithoutFunction\n".
+  my $nbGeneWithoutFunction = keys %geneWithoutFunction;
+  my $nbGeneWithFunction = keys %geneWithFunction;
+  $stringPrint .= "\n".
+                  "nb mRNA without Functional annotation ($listOfFunction) = $nbmRNAwithoutFunction\n".
                   "nb mRNA with Functional annotation ($listOfFunction) = $nbmRNAwithFunction\n".
                   "nb gene without Functional annotation ($listOfFunction) = $nbGeneWithoutFunction\n".
                   "nb gene with Functional annotation ($listOfFunction) = $nbGeneWithFunction\n";
 }
 
-if($opt_BlastFile){
-  my $nbGeneDuplicated=keys %duplicateNameGiven;
-  $nbDuplicateNameGiven=$nbDuplicateNameGiven+$nbGeneDuplicated; # Until now we have counted only name in more, now we add the original name.
-  $stringPrint .= "$nbGeneNameInBlast gene names have been retrieved in the blast file. $nbNamedGene gene names have been successfully inferred.\n".
+if ($opt_BlastFile) {
+  my $nbGeneDuplicated = keys %duplicateNameGiven;
+  $nbDuplicateNameGiven = $nbDuplicateNameGiven + $nbGeneDuplicated; # Until now we have counted only name in more, now we add the original name.
+  $stringPrint .= "\n$nbGeneNameInBlast gene names have been retrieved in the blast file. $nbNamedGene gene names have been successfully inferred.\n".
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
   # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
 
+  # JN: Begin summary
+  # JN: Report number of entries in $opt_dataBase without GN. Note: tentative output format
+  if ($opt_dataBase) {
+      $stringPrint .= "\n$nbGnNotPresentInDb entries in $opt_dataBase have no GN\n";
+      $stringPrint .= "\n$nbGnNotPresentForMrna mRNA entries in gff output have no GN\n";
+  } # JN: End summary
+
   #Lets keep track the duplicated names
-  if($opt_output){
-    my $duplicatedNameOut=IO::File->new(">".$opt_output."/duplicatedNameFromBlast.txt" );
-    foreach my $name (sort { $duplicateNameGiven{$b} <=> $duplicateNameGiven{$a} } keys %duplicateNameGiven){
-      print $duplicatedNameOut "$name\t".($duplicateNameGiven{$name}+1)."\n";
+  if ($opt_output) {
+    my $duplicatedNameOut = IO::File->new(">".$opt_output."/duplicatedNameFromBlast.txt");
+    foreach my $name (sort { $duplicateNameGiven{$b} <=> $duplicateNameGiven{$a} } keys %duplicateNameGiven) {
+      print $duplicatedNameOut "$name\t".($duplicateNameGiven{$name} + 1)."\n";
     }
   }
 }
 
-if($opt_name or $opt_nameU){
+if ($opt_name or $opt_nameU) {
   $stringPrint .= "\nList of Letter use to create the uniq ID:\n";
-  foreach my $tag ( keys %tag_hash){
+  foreach my $tag (keys %tag_hash) {
     $stringPrint .= "$tag => $tag_hash{$tag}\n";
   }
   $stringPrint .= "\n";
@@ -564,6 +633,7 @@ $ostreamReport->print("$stringPrint");
 ####################
 print_time("Writing result...");
 print_omniscient($hash_omniscient, $ostreamGFF);
+print_time("End of script.");
 
       #########################
       ######### END ###########
@@ -580,128 +650,127 @@ print_omniscient($hash_omniscient, $ostreamGFF);
                 ####
                  ##
 
-
-#create or take the uniq letter TAG
-sub get_letter_tag{
-  my ($tag)=@_;
+#create or take the unique letter TAG
+sub get_letter_tag {
+  my ($tag) = @_;
 
   $tag = lc($tag);
-  if(! exists_keys (\%tag_hash,( $tag ))) {
+  if (! exists_keys (\%tag_hash, ( $tag ))) {
 
-    my $substringLength=1;
+    my $substringLength = 1;
     my $letter = uc(substr($tag, 0, $substringLength));
 
-    while(  grep( /^\Q$letter\E$/, @tag_list) ) { # to avoid duplicate
+    while ( grep( /^\Q$letter\E$/, @tag_list) ) { # to avoid duplicate
       $substringLength++;
       $letter = uc(substr($tag, 0, $substringLength));
     }
-    $tag_hash{ $tag }=uc($letter);
+    $tag_hash{ $tag } = uc($letter);
     push(@tag_list, $letter)
   }
   return $tag_hash{ $tag };
 }
 
-# each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end. To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).
+# Each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end.
+# To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).
 # If it stay at the end of the process more than one name, they will be concatenated together.
 # It removes redundancy intra name.
-sub manageGeneNameBlast{
+sub manageGeneNameBlast {
 
-  my ($geneName)=@_;
-  foreach my $element (keys %$geneName){
-    my @tab=@{$geneName->{$element}};
+  my ($geneName) = @_;
+  foreach my $element (keys %$geneName) {
+    my @tab = @{$geneName->{$element}};
 
     my %seen;
     my @unique;
     for my $w (@tab) { # remove duplicate in list case insensitive
       $w =~ s/_[0-9]+$// ;
-
-#      print "w".$w."\t";
-
       next if $seen{lc($w)}++;
       push(@unique, $w);
     }
 
-    my $finalName="";
-    my $cpt=0;
-    foreach my $name (@unique){  #if several name we will concatenate them together
+    my $finalName = "";
+    my $cpt = 0;
+    foreach my $name (@unique) { #if several names we will concatenate them together
 
-        if ($cpt == 0){
-          $finalName .="$name";
+        if ($cpt == 0) {
+          $finalName .= "$name";
           $cpt++;
         }
-        else{$finalName .="_$name"}
+        else {
+          $finalName .= "_$name";
+        }
 
     }
-    $geneName->{$element}=$finalName;
+    $geneName->{$element} = $finalName;
     $nameBlast{lc($finalName)}++;
   }
 }
 
 # creates gene ID correctly formated (PREFIX,TYPE,NUMBER) like HOMSAPG00000000001 for a Homo sapiens gene.
-sub manageID{
-  my ($prefix,$nbName,$type)=@_;
-  my $result="";
-  my $numberNum=11;
-  my $GoodNum="";
-  for (my $i=0; $i<$numberNum-length($nbName); $i++){
-    $GoodNum.="0";
+sub manageID {
+  my ($prefix, $nbName, $type) = @_;
+  my $result = "";
+  my $numberNum = 11;
+  my $GoodNum = "";
+  for (my $i=0; $i<$numberNum-length($nbName); $i++) {
+    $GoodNum .= "0";
   }
-  $GoodNum.=$nbName;
-  $result="$prefix$type$GoodNum";
+  $GoodNum .= $nbName;
+  $result = "$prefix$type$GoodNum";
 
   return $result;
 }
 
 # Create String containing the product information associated to the mRNA
-sub printProductFunct{
-  my ($refname)=@_;
-  my $String="";
-  my $first="yes";
-  if (exists $mRNAproduct{$refname}){
-    foreach my $element (@{$mRNAproduct{$refname}})
-    {
-      if($first eq "yes"){
-        $String.="$element";
-        $first="no";
+sub printProductFunct {
+  my ($refname) = @_;
+  my $String = "";
+  my $first = "yes";
+  if (exists $mRNAproduct{$refname}) {
+    foreach my $element (@{$mRNAproduct{$refname}}) {
+      if ($first eq "yes") {
+        $String .= "$element";
+        $first = "no";
       }
-      else{$String.=",$element";}
+      else {
+        $String .= ",$element";
+      }
     }
   }
   return $String;
 }
 
-sub addFunctions{
-  my ($feature, $opt_output)=@_;
+sub addFunctions {
+  my ($feature, $opt_output) = @_;
 
-  my $functionAdded=undef;
-  my $ID=lc($feature->_tag_value('ID'));
-  foreach my $function_type (keys %functionData){
+  my $functionAdded = undef;
+  my $ID = lc($feature->_tag_value('ID'));
+  foreach my $function_type (keys %functionData) {
 
-
-    if(exists ($functionData{$function_type}{$ID})){
-      $functionAdded="true";
+    if (exists ($functionData{$function_type}{$ID})) {
+      $functionAdded = "true";
 
       my $data_list;
 
-      if(lc($function_type) eq "go"){
-        foreach my $data (@{$functionData{$function_type}{$ID}}){
+      if (lc($function_type) eq "go") {
+        foreach my $data (@{$functionData{$function_type}{$ID}}) {
           $feature->add_tag_value('Ontology_term', $data);
-          $data_list.="$data,";
-	  $functionDataAdded{$function_type}++;
+          $data_list .= "$data,";
+          $functionDataAdded{$function_type}++;
         }
       }
-      else{
-        foreach my $data (@{$functionData{$function_type}{$ID}}){
+      else {
+        foreach my $data (@{$functionData{$function_type}{$ID}}) {
           $feature->add_tag_value('Dbxref', $data);
-          $data_list.="$data,";
-	  $functionDataAdded{$function_type}++;
+          $data_list .= "$data,";
+          $functionDataAdded{$function_type}++;
         }
       }
 
-      if ($opt_output){
+      if ($opt_output) {
           my $ID = $feature->_tag_value('ID');
           chop $data_list;
-          $functionOutput{$function_type}{$ID}=$data_list;
+          $functionOutput{$function_type}{$ID} = $data_list;
         }
     }
   }
@@ -716,64 +785,104 @@ sub parse_blast {
 ####### Step 1 : CATCH all candidates (the better candidate for each mRNA)####### (with a gene name)
 
   my %candidates;
+  my %gene_name_HoH = (); # JN: key: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1, value: {'genename' => 1}
 
-  while( my $line = <$file_in>)  {
+  while(my $line = <$file_in>) {
     my @values = split(/\t/, $line);
-    my $l2_name = lc($values[0]);
-    my $prot_name = $values[1];
+    my $l2_name = lc($values[0]);  # JN: maker-Bi03_p1mp_000319F-est_gff_StringTie-gene-5.8-mRNA-1
+    my $prot_name = $values[1]; # JN: sp|Q4FZT2|PPME1_RAT
     my @prot_name_sliced = split(/\|/, $values[1]);
     my $uniprot_id = $prot_name_sliced[1];
-    print "uniprot_id: ".$uniprot_id."\n" if($opt_verbose);
+    print "uniprot_id: ".$uniprot_id."\n" if ($opt_verbose);
     my $evalue = $values[10];
-    print "Evalue: ".$evalue."\n" if($opt_verbose);
+    print "Evalue: ".$evalue."\n" if ($opt_verbose);
 
     #if does not exist fill it if over the minimum evalue
-    if (! exists_keys(\%candidates,($l2_name)) or @{$candidates{$l2_name}}> 3 ){ # the second one means we saved an error message as candidates we still have to try to find a proper one
-      if( $evalue <= $opt_blastEvalue ) {
-        my $protID_correct=undef;
+    if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
 
-        if( exists $allIDs{lc($prot_name)}){
-        	$protID_correct = $allIDs{lc($prot_name)};
-        	my $header = $db->header( $protID_correct );
-          if (! $header =~ m/GN=/){
-            $ostreamLog->print( "No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
-            $candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
+      if ( $evalue <= $opt_blastEvalue ) {
+        # JN: begin gene_name_Debug HoH
+        my $lc_prot_name = lc($prot_name);
+        if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
+          if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
+            my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
+            $gene_name_HoH{$l2_name}{$gn}++;               # JN: Count the gene name
           }
-      		if($header =~ /PE=([1-5])\s/){
-    				if($1 <= $opt_pe){
-    					$candidates{$l2_name}=[$header, $evalue, $uniprot_id];
-      			}
-      		}
-      		else{$ostreamLog->print("No Protein Existence (PE) information in this header: $header\n")if($opt_verbose or $opt_output); }
-      	}
-      	else{
-      		$ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if($opt_verbose or $opt_output);
-      		$candidates{$l2_name}=["error", $evalue, $prot_name."-".$l2_name];
-      	}
+          else {                                           # JN: If not defined, the 'GN=' is missing
+            undef($gene_name_HoH{$l2_name});
+          }
+        }
+        # JN: End Debug gene_name_HoH
+
+        my $protID_correct = undef;
+
+        if ( exists $allIDs{lc($prot_name)}) {
+          $protID_correct = $allIDs{lc($prot_name)};
+          my $header = $db->header( $protID_correct );
+
+          if (! $header =~ m/GN=/) {
+            $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
+            $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
+          }
+
+          if ($header =~ /PE=([1-5])\s/) {
+            if ($1 <= $opt_pe) {
+              $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
+            }
+          }
+          else {
+            $ostreamLog->print("No Protein Existence (PE) information in this header: $header\n") if ($opt_verbose or $opt_output);
+          }
+        }
+        else {
+          $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if ($opt_verbose or $opt_output);
+          $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
+        }
       }
     }
-    elsif( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
-      my $protID_correct=undef;
+    elsif ( $evalue < $candidates{$l2_name}[1] ) { # better evalue for this record
 
-      if( exists $allIDs{lc($prot_name)}){
+      # JN: begin gene_name_Debug HoH
+      my $lc_prot_name = lc($prot_name);
+      if (exists($fasta_id_gn_hash{$lc_prot_name})) {    # JN: Key exists if gene name or undef
+        if (defined($fasta_id_gn_hash{$lc_prot_name})) { # JN: Only defined if gene name
+          my $gn = $fasta_id_gn_hash{$lc_prot_name};     # JN: Get the gene name
+          $gene_name_HoH{$l2_name}{$gn}++;               # JN: Count the gene name
+        }
+        else {                                           # JN: If not defined, the 'GN=' is missing
+          undef($gene_name_HoH{$l2_name});
+        }
+      }
+      # JN: End Debug gene_name_HoH
+
+      my $protID_correct = undef;
+
+      if ( exists $allIDs{lc($prot_name)}) {
+
         $protID_correct = $allIDs{lc($prot_name)};
         my $header = $db->header( $protID_correct );
-        if (! $header =~ m/GN=/){
-          $ostreamLog->print("No gene name (GN=) in this header $header\n") if($opt_verbose or $opt_output);
+
+        if (! $header =~ m/GN=/) {
+          $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
-        if($header =~ /PE=([1-5])\s/){
-          if($1 <= $opt_pe){
-            $candidates{$l2_name}=[$header, $evalue, $uniprot_id];
+
+        if ($header =~ /PE=([1-5])\s/) {
+          if ($1 <= $opt_pe) {
+            $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
           }
         }
-        else{ $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if($opt_verbose or $opt_output); }
+        else {
+          $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if ($opt_verbose or $opt_output);
+        }
       }
-	    else{ $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if($opt_verbose or $opt_output);}
+      else {
+        $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if ($opt_verbose or $opt_output);
+      }
     }
   }
 
   my $nb_desc = keys %candidates;
-  $ostreamLog->print( "We have $nb_desc description candidates.\n") if($opt_verbose or $opt_output);
+  $ostreamLog->print( "We have $nb_desc description candidates.\n") if ($opt_verbose or $opt_output);
 
 ##################################################
 ####### Step 2 : go through all candidates ####### report gene name for each mRNA
@@ -781,210 +890,237 @@ sub parse_blast {
   my %geneName;
   my %linkBmRNAandGene;
 
-  foreach my $l2 (keys %candidates){
-    if( $candidates{$l2}[0] eq "error" ){
-      $ostreamLog->print( "error nothing found for $candidates{$l2}[2]\n") if($opt_verbose or $opt_output); next;
+  foreach my $l2 (keys %candidates) {
+    # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
+    if ( $candidates{$l2}[0] eq "error" ) {
+      $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
+      next;
     }
 
     #Save uniprot id of the best match
-    print "save for $l2  ".$candidates{$l2}[2]."\n" if($opt_verbose);
+    print "save for $l2  ".$candidates{$l2}[2]."\n" if ($opt_verbose);
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    print "save for $l2  ".$candidates{$l2}[2]."\n" if($opt_verbose);
+    print "save for $l2  ".$candidates{$l2}[2]."\n" if ($opt_verbose);
     my $header = $candidates{$l2}[0];
-    print "header: ".$header."\n" if($opt_verbose);
+    print "header: ".$header."\n" if ($opt_verbose);
 
-    if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/){
-	    my $protID = $1;
-	    my $description = $2;
-	    my $theRest = $3;
-	    $theRest =~ s/\n//g;
-	    $theRest =~ s/\r//g;
-	    my $nameGene = undef;
-	    push ( @{ $mRNAproduct{$l2} }, $description );
+    if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/) {
+      my $protID = $1;
+      my $description = $2;
+      my $theRest = $3;
+      $theRest =~ s/\n//g;
+      $theRest =~ s/\r//g;
+      my $nameGene = undef;
+      push ( @{ $mRNAproduct{$l2} }, $description );
 
- 	    #deal with the rest
-	    my %hash_rest;
-	    my $tuple=undef;
-	    while ($theRest){
+      #deal with the rest
+      my %hash_rest;
+      my $tuple = undef;
+      while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
-        my ($type,$value) = split /=/,$tuple;
-		    #print "$protID: type:$type --- value:$value\n";
-		    $hash_rest{lc($type)}=$value;
-	    }
+        my ($type, $value) = split /=/, $tuple;
+        #print "$protID: type:$type --- value:$value\n";
+        $hash_rest{lc($type)} = $value;
+      }
 
-      if(exists($hash_rest{"gn"})){
-		    $nameGene=$hash_rest{"gn"};
+      if (exists($hash_rest{"gn"})) {
+        $nameGene = $hash_rest{"gn"};
 
-		    if(exists_keys ($hash_mRNAGeneLink,($l2)) ){
-			    my $geneID = $hash_mRNAGeneLink->{$l2};
-	       	#print "push $geneID $nameGene\n";
-			    push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
-	        push( @{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
-		    }
-		    else{ $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if($opt_verbose or $opt_output); }
-	    }
-	    else{ $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if($opt_verbose or $opt_output); }
-  #  }else{
-  #    print "Nope\s".$candidates{$l2}[0]."\n";
+        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
+          my $geneID = $hash_mRNAGeneLink->{$l2};
+          #print "push $geneID $nameGene\n";
+          push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
+          push(@{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
+        }
+        else {
+          $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
+        }
+      }
+      else {
+        $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
+      }
     }
   }
+
+  # JN: Begin traversing gene_name_HoH, and populate global hash l2_gn_present_hash
+  while ( my ($l2_key, $values) = each %gene_name_HoH ) {
+    my $size = 0;
+    if (defined($values)) { # JN: If defined, we have at least one GN
+      $size = scalar(%{$values});
+      $l2_gn_present_hash{$l2_key} = "yes"; # JN: gn_present=yes
+      # JN: TODO: need to check and handle(?) cases where we have several different hits
+      if ($size > 1) {
+        my (@vals) = keys (%{$values});
+        #$ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($opt_verbose or $opt_output);
+        $ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($DEBUG); # JN: Debug printing
+      }
+    }
+    else {
+      $l2_gn_present_hash{$l2_key} = "no"; # JN: gn_present=no
+    }
+  }
+  # JN: End traversing gene_name_HoH
 
   ####################################################
   ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
   ################# Remove redundancy to have only one name for each gene
 
-   manageGeneNameBlast(\%geneName);
-
+  manageGeneNameBlast(\%geneName);
 
   ##########################################################
   ####### Step 4 : CLEAN NAMES REDUNDANCY inter gene #######
 
-   my %geneNewNameUsed;
-   foreach my $geneID (keys %geneName){
-     $nbGeneNameInBlast++;
-
-     my @mRNAList=@{$linkBmRNAandGene{$geneID}};
-     my $String = $geneName{$geneID};
- #    print "$String\n";
-     if (! exists( $geneNewNameUsed{$String})){
-       $geneNewNameUsed{$String}++;
-       $geneNameBlast{$geneID}=$String;
-       # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
-       my $cptmRNA=1;
-       if ($#mRNAList != 0) {
-         foreach my $mRNA (@mRNAList){
-           $mRNANameBlast{$mRNA}=$String."_iso".$cptmRNA;
-           $cptmRNA++;
-         }
-       }
-       else{$mRNANameBlast{$mRNAList[0]}=$String;}
-     }
-     else{ #in case where name was already used, we will modified it by addind a number like "_2"
-       $nbDuplicateName++;
-       $geneNewNameUsed{$String}++;
-       my $nbFound=$geneNewNameUsed{$String};
-       $String.="_$nbFound";
-       $geneNewNameUsed{$String}++;
-       $geneNameBlast{$geneID}=$String;
-       # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
-       my $cptmRNA=1;
-       if ($#mRNAList != 0) {
-         foreach my $mRNA (@mRNAList){
-           $mRNANameBlast{$mRNA}=$String."_iso".$cptmRNA;
-           $cptmRNA++;
-         }
-       }
-       else{$mRNANameBlast{$mRNAList[0]}=$String;}
-     }
-   }
+  my %geneNewNameUsed;
+  foreach my $geneID (keys %geneName) {
+    $nbGeneNameInBlast++;
+    my @mRNAList = @{$linkBmRNAandGene{$geneID}};
+    my $String = $geneName{$geneID};
+    #print "$String\n";
+    if (! exists( $geneNewNameUsed{$String})) {
+      $geneNewNameUsed{$String}++;
+      $geneNameBlast{$geneID} = $String;
+      # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
+      my $cptmRNA = 1;
+      if ($#mRNAList != 0) {
+        foreach my $mRNA (@mRNAList) {
+          $mRNANameBlast{$mRNA} = $String."_iso".$cptmRNA;
+          $cptmRNA++;
+        }
+      }
+      else {
+        $mRNANameBlast{$mRNAList[0]} = $String;
+      }
+    }
+    else { #in case where name was already used, we will modify it by adding a number like "_2"
+      $nbDuplicateName++;
+      $geneNewNameUsed{$String}++;
+      my $nbFound = $geneNewNameUsed{$String};
+      $String .= "_$nbFound";
+      $geneNewNameUsed{$String}++;
+      $geneNameBlast{$geneID} = $String;
+      # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
+      my $cptmRNA = 1;
+      if ($#mRNAList != 0) {
+        foreach my $mRNA (@mRNAList) {
+          $mRNANameBlast{$mRNA} = $String."_iso".$cptmRNA;
+          $cptmRNA++;
+        }
+      }
+      else {
+        $mRNANameBlast{$mRNAList[0]} = $String;
+      }
+    }
+  }
 }
 
-#uniprotHeader string spliter
-sub stringCatcher{
-    my($String) = @_;
-    my $newString=undef;
+#uniprotHeader string splitter
+sub stringCatcher {
+  my($String) = @_;
+  my $newString = undef;
 
-    if ( $String =~ m/(\w{2}=.+?(?= \w{2}=))(.+)/ ) {
-        $newString = substr $String, length($1)+1;
-    	return ($newString, $1);
-    }
-    else{ return (undef, $String); }
+  if ( $String =~ m/(\w{2}=.+?(?= \w{2}=))(.+)/ ) {
+    $newString = substr $String, length($1) + 1;
+    return ($newString, $1);
+  }
+  else {
+    return (undef, $String);
+  }
 }
 
 # method to parse Interpro file
 sub parse_interpro_tsv {
-  my($file_in,$fileName) = @_;
-  print( "Reading features from $fileName...\n");
+  my($file_in, $fileName) = @_;
+  print("Reading features from $fileName...\n");
 
-  while( my $line = <$file_in>)  {
+  while( my $line = <$file_in>) {
 
     my @values = split(/\t/, $line);
     my $sizeList = @values;
-    my $mRNAID=lc($values[0]);
+    my $mRNAID = lc($values[0]);
 
-      #Check for the specific DB
-      my $db_name=$values[3];
-      my $db_value=$values[4];
-      my $db_tuple=$db_name.":".$db_value;
-      print "Specific dB: ".$db_tuple."\n" if($opt_verbose);
+    #Check for the specific DB
+    my $db_name = $values[3];
+    my $db_value = $values[4];
+    my $db_tuple = $db_name.":".$db_value;
+    print "Specific dB: ".$db_tuple."\n" if ($opt_verbose);
 
-      if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {   #to avoid duplicate
-	      $TotalTerm{$db_name}++;
-	      push ( @{$functionData{$db_name}{$mRNAID}} , $db_tuple );
-	      if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	        $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	        $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	      }
-	}
-
-      #check for interpro
-      if( $sizeList>11 ){
-        my $db_name="InterPro";
-        my $interpro_value=$values[11];
-        $interpro_value=~ s/\n//g;
-	my $interpro_tuple = "InterPro:".$interpro_value;
-        print "interpro dB: ".$interpro_tuple."\n" if($opt_verbose);
-
-	if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) {	#to avoid duplicate
-	        $TotalTerm{$db_name}++;
-	        push ( @{$functionData{$db_name}{$mRNAID}} , $interpro_tuple );
-	        if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	          $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	          $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	        }
-	}
+    if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
+      $TotalTerm{$db_name}++;
+      push ( @{$functionData{$db_name}{$mRNAID}}, $db_tuple );
+      if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+        $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+        $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
       }
+    }
 
-      #check for GO
-      if( $sizeList>13 ){
-        my $db_name="GO";
-        my $go_flat_list = $values[13];
-        $go_flat_list=~ s/\n//g;
-        my @go_list = split(/\|/,$go_flat_list); #cut at character |
-        foreach my $go_tuple (@go_list){
-          print "GO term: ".$go_tuple."\n" if($opt_verbose);
+    #check for interpro
+    if ( $sizeList > 11 ) {
+      my $db_name = "InterPro";
+      my $interpro_value = $values[11];
+      $interpro_value =~ s/\n//g;
+      my $interpro_tuple = "InterPro:".$interpro_value;
+      print "interpro dB: ".$interpro_tuple."\n" if ($opt_verbose);
 
-	if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { #to avoid duplicate
-	          $TotalTerm{$db_name}++;
-	          push ( @{$functionData{$db_name}{$mRNAID}} , $go_tuple );
-	          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	          }
-	  }
+      if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
+        $TotalTerm{$db_name}++;
+        push ( @{$functionData{$db_name}{$mRNAID}}, $interpro_tuple );
+        if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+          $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+          $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
         }
       }
+    }
 
-      #check for pathway
-      if( $sizeList>14 ){
-        my $pathway_flat_list = $values[14];
-        $pathway_flat_list=~ s/\n//g;
-        $pathway_flat_list=~ s/ //g;
-        my  @pathway_list = split(/\|/,$pathway_flat_list); #cut at character |
-        foreach my $pathway_tuple (@pathway_list){
-          my @tuple = split(/:/,$pathway_tuple); #cut at character :
-          my $db_name = $tuple[0];
-          print "pathway info: ".$pathway_tuple."\n" if($opt_verbose);
+    #check for GO
+    if ( $sizeList > 13 ) {
+      my $db_name = "GO";
+      my $go_flat_list = $values[13];
+      $go_flat_list =~ s/\n//g;
+      my @go_list = split(/\|/, $go_flat_list); #cut at character |
+      foreach my $go_tuple (@go_list) {
+        print "GO term: ".$go_tuple."\n" if ($opt_verbose);
 
-	  if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
-	          $TotalTerm{$db_name}++;
-	          push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
-	          if ( exists $hash_mRNAGeneLink->{$mRNAID}){ ## check if exists among our current gff annotation file analyzed
-	            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-	            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
-	          }
-	  }
+        if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
+          $TotalTerm{$db_name}++;
+          push ( @{$functionData{$db_name}{$mRNAID}}, $go_tuple );
+          if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+          }
         }
       }
+    }
+
+    #check for pathway
+    if ( $sizeList > 14 ) {
+      my $pathway_flat_list = $values[14];
+      $pathway_flat_list =~ s/\n//g;
+      $pathway_flat_list =~ s/ //g;
+      my @pathway_list = split(/\|/, $pathway_flat_list); #cut at character |
+      foreach my $pathway_tuple (@pathway_list) {
+        my @tuple = split(/:/, $pathway_tuple); #cut at character :
+        my $db_name = $tuple[0];
+        print "pathway info: ".$pathway_tuple."\n" if ($opt_verbose);
+
+        if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
+          $TotalTerm{$db_name}++;
+          push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
+          if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+            $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+          }
+        }
+      }
+    }
   }
 }
 
 #Sorting mixed strings => Sorting alphabetically first, then numerically
 # how to use: my @y = sort by_number @x;
 sub alphaNum {
-    my ( $alet , $anum ) = $a =~ /([^\d]+)(\d+)/;
-    my ( $blet , $bnum ) = $b =~ /([^\d]+)(\d+)/;
-    ( $alet || "a" ) cmp ( $blet || "a" ) or ( $anum || 0 ) <=> ( $bnum || 0 )
+  my ( $alet , $anum ) = $a =~ /([^\d]+)(\d+)/;
+  my ( $blet , $bnum ) = $b =~ /([^\d]+)(\d+)/;
+  ( $alet || "a" ) cmp ( $blet || "a" ) or ( $anum || 0 ) <=> ( $bnum || 0 )
 }
 
 __END__
@@ -1055,7 +1191,7 @@ will not be reported.
 
 =head1 SYNOPSIS
 
-    agat_sp_manage_functional_annotation.pl -f infile.gff [ -b blast_infile --db uniprot.fasta -i interpro_infile.tsv --id ABCDEF --output outfile ]
+    agat_sp_manage_functional_annotation.pl -f infile.gff [-b blast_infile][-d uniprot.fasta][-i interpro_infile.tsv][--id ABCDEF][-a][-o output]
     agat_sp_manage_functional_annotation.pl --help
 
 =head1 OPTIONS
@@ -1109,9 +1245,14 @@ Boolean - This option (id all uniq) is similar to -id option but Id of features 
 Integer - Usefull only if -id is used.
 This option is used to define the number that will be used to begin the numbering. By default begin by 1.
 
+=item B<-a> or B<--addgntag>
+
+Add information in ouptut gff about if gene-name tag ('GN=') is present in blast db fasta ('gn_present=yes')
+or not ('gn_present=no'). Blast hits without an entry in the blast db will receive 'gn_present=NA'.
+
 =item B<-o> or B<--output>
 
-String - Output GFF file.  If no output file is specified, the output will be
+String - Output folder name with summary files. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-v>
