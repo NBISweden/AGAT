@@ -15,6 +15,7 @@ use Bio::OntologyIO::obo;
 use Bio::Ontology::OntologyEngineI;
 use Clone 'clone';
 use Exporter;
+use Term::ProgressBar;
 use AGAT::Omniscient;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientJson;
@@ -96,6 +97,9 @@ sub slurp_gff3_file_JD {
 	my $previous_time = undef;
 	my %omniscient; #Hast where all the feature will be saved
 
+	# Turn on autoflushing  as by default output is buffered until a newline is seen. (Or until the buffer is full, but that won't happen for a progress meter.)
+	$| = 1;
+
 #	+-----------------------------------------+
 #	|							HANDLE ARGUMENTS						|
 #	+-----------------------------------------+
@@ -106,6 +110,7 @@ sub slurp_gff3_file_JD {
 
 	# Declare all variables and fill them
 	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug);
+
 	#first define verbosity
 	if( defined($args->{verbose}) ) {$verbose = $args->{verbose};}
 		else{ $verbose = 1; } # verbose 0 is quite mode.
@@ -190,14 +195,17 @@ sub slurp_gff3_file_JD {
 			$WARNS{$thematic[0]}++;
 			if($nbWarnLimit){
 				if ($WARNS{$thematic[0]} <= $nbWarnLimit){
+					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 					dual_print($log, $message, $verbose);
 				}
 				if($WARNS{$thematic[0]} == $nbWarnLimit){
+					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 					dual_print($log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose);
 				}
 			}
 			# Print all warning
 			else{
+				print "\r                                                                                \r"; # To clean the line is already used by the progressbar
 				dual_print($log, $message, $verbose);
 			}
 		}
@@ -224,6 +232,7 @@ sub slurp_gff3_file_JD {
 	dual_print($log, file_text_line({ string => "parse features", char => "-" }), $verbose);
 
 	# ============================> ARRAY CASE <============================
+
 	if(ref($file) eq 'ARRAY'){
 		 foreach my $feature (@{$file}) {
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
@@ -268,6 +277,23 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
+
+		# TRY TO COUNT Number of LINE to make a progress bar using wc -l
+		my $wc_result = undef;
+		my $nb_line_input=undef;
+		my $exit_status   = system("wc -l $file >/dev/null 2>&1");
+		if ($exit_status != 0) {
+			dual_print( $log, "Info: Cannot count total line number with builtin wc.".
+			" Consequently progress bar unavailable.\n", $verbose);
+		}
+    else{
+			$wc_result = `wc -l $file`;
+			chomp $wc_result;
+			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
+				$nb_line_input = $1;
+			}
+		}
+
 		# take care of headers
 		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
@@ -280,14 +306,27 @@ sub slurp_gff3_file_JD {
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
 		#read every lines
+		my $progress_bar = Term::ProgressBar->new({
+		name  => 'Parsing',
+		count => $nb_line_input,
+		ETA   => 'linear',
+		term_width => 80 ,
+	}) if  ($nb_line_input);
+
+		my $nb_line_read;
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 					manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
-			}
-
-			#close the file
-			$gffio->close();
+			$progress_bar->update($nb_line_read++) if ($nb_line_input);
+		}
+		# to deal with a nice rendering at the end of the progress bar
+		if ($nb_line_input){
+			$progress_bar->update($nb_line_input) if ($nb_line_input);
+			dual_print ($log, "\n", $verbose ) ;
+		}
+		#close the file
+		$gffio->close();
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
@@ -357,9 +396,17 @@ sub slurp_gff3_file_JD {
 	if(! $no_check or	grep( /remove_orphan_l1$/, @$no_check_skip ) ) {
 			#check level1 has subfeature else we remove it
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: remove orphan l1", char => "-", prefix => "\n" }), $verbose );
-			dual_print ($log, "We remove only those not supposed to be orphan\n");
+			dual_print ($log, "We remove only those not supposed to be orphan\n", $verbose );
 			_remove_orphan_l1(\%omniscient, \%miscCount, \%uniqID, \%uniqIDtoType, \%mRNAGeneLink, $verbose, $log, $debug); #or fix if level2 is missing (refseq case)
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if(! $no_check or	grep( /check_cds/, $no_check_skip ) ) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }), $verbose );
+			_check_cds($debug, $log, \%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,	\%uniqIDtoType, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
 			$check_cpt++; $previous_time = time();
 	}
 
@@ -508,8 +555,8 @@ sub manage_one_feature{
 				if ($omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'standalone' or
 							$omniscient->{'other'}{'level'}{'level1'}{$primary_tag} eq 'topfeature'){
 
-					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
-					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+					$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level1'));
+					if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level1')){
 						$omniscient->{"level1"}{$primary_tag}{$id}=$feature;
 						dual_print ($log, "::::::::::0Push-L1-omniscient level1 || $primary_tag || $id = ".$feature->gff_string()."\n", $verbose) if ($debug);
 					}
@@ -518,12 +565,12 @@ sub manage_one_feature{
 
 				##########
 				# get ID #
-				$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature));
+				$id = lc(_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level1'));
 				_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level1');
 
 				#####################
 				# Ckeck duplication #
-				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level1')){
 
 						################
 						# Save feature #
@@ -563,14 +610,14 @@ sub manage_one_feature{
 
 				##########
 				# get ID #
-				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature);
+				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level2');
 
 				##############
 				# get Parent #
 				#GFF case
 				if($feature->has_tag('Parent')){
 							$parent = lc($feature->_tag_value('Parent'));
-							$locusTAGvalue=$parent;
+							$locusTAGvalue = $parent;
 							_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
 				}
 
@@ -650,7 +697,7 @@ sub manage_one_feature{
 
 				#####################
 				# Ckeck duplication #
-				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature)){
+				if(! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level2')){
 
 						############################################
 						# keep track of link between level2->leve1 #
@@ -661,6 +708,7 @@ sub manage_one_feature{
 				 		####################
 				 		# SAVE THE FEATURE #
 				 		dual_print ($log, "::::::::::Push-L2-omniscient-3 level2 || $primary_tag || $parent == ".$feature->gff_string."\n", $verbose) if ($debug);
+						_check_locus_uniqueness($feature, $omniscient, $parent);
 						push (@{$omniscient->{"level2"}{$primary_tag}{lc($parent)}}, $feature);
 				}
 				return $last_locusTAGvalue, $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;
@@ -672,7 +720,7 @@ sub manage_one_feature{
 		elsif ( get_level($omniscient, $feature) eq 'level3' ){
 
 				# get ID #
-				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature);
+				$id = _check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, 'level3');
 
 				#		+-------------------------------+
 				#		|					GET PARENT L3					 |
@@ -851,7 +899,7 @@ sub manage_one_feature{
 
 							my $feature_clone=clone($feature);
 							create_or_replace_tag($feature_clone,'Parent',$parent); #modify Parent To keep only one
-							_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone); #Will change the ID if needed
+							_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone, 'level3'); #Will change the ID if needed
 
 							dual_print ($log, "::::::::::Push-L3-omniscient-4 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature_clone);
@@ -878,9 +926,9 @@ sub manage_one_feature{
 
 						my $feature_clone=clone($feature);
 						create_or_replace_tag($feature_clone,'Parent',$parent); #modify Parent To keep only one
-						_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone); #Will change the ID if needed
+						_check_uniq_id($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_clone, 'level3'); #Will change the ID if needed
 
-						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature_clone) ){
+						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature_clone, 'level3') ){
 							dual_print ($log, "::::::::::Push-L3-omniscient-8 level3 || $primary_tag || ".lc($parent)." == ".$feature_clone->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature_clone);
 						}
@@ -890,14 +938,14 @@ sub manage_one_feature{
 
 						# It is the first parent. Do not clone the feature
 						create_or_replace_tag($feature,'Parent',$parent); #modify Parent To keep only one
-						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature) ){
+						if( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level3') ){
 							dual_print ($log, "::::::::::Push-L3-omniscient-9 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 							push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature);
 						}
 
 					}
 					#It is not a duplicated feature => save it in omniscient
-					elsif( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature) ){
+					elsif( ! _it_is_duplication($duplicate, $omniscient, $uniqID, $feature, 'level3') ){
  						#the simpliest case. One parent only
 						dual_print ($log, "::::::::::Push-L3-omniscient-10 level3 || $primary_tag || ".lc($parent)." == ".$feature->gff_string."\n", $verbose) if ($debug);
 						push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature);
@@ -943,6 +991,23 @@ sub _fix_parent_attribute_when_id_l1_l2_identical{
 	}
 }
 
+# infrom user if 2 features of a same record are on different seq_id
+sub _check_locus_uniqueness{
+	my ($feature, $omniscient, $parent)=@_;
+
+	foreach my $tag_l1 ( sort {$a cmp $b} keys %{$omniscient->{'level1'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+		if ( exists_keys ( $omniscient, ('level1', $tag_l1, lc($parent) ) ) ){
+
+			if( $feature->seq_id() ne $omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id()  )	{
+				warn "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
+				" level2 feature is on ".$feature->seq_id." sequence while ".
+				$omniscient->{'level1'}{$tag_l1}{lc($parent)}->_tag_value("ID").
+				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n";
+			}
+		}
+	}
+}
+
 # /!\ $feature must have a parent if not level1
 # Keep track to recover from sequential locus tag share whith feature saved in Omniscient
 sub _save_common_tag_value_top_feature{
@@ -956,7 +1021,7 @@ sub _save_common_tag_value_top_feature{
 		if($feature->has_tag($tag)){
 			$locusName=lc($feature->_tag_value($tag)); #get the value
 
-			if ( !( exists_keys ( $locusTAG_uniq, ('topfeature', $locusName, 'level1') ) ) and ($level eq 'level2') ) {
+			if ( !( exists_keys ( $locusTAG_uniq, ('topfeature', $locusName, 'level1') ) ) and ($level eq 'level1') ) {
 				$locusTAG_uniq->{'topfeature'}{$locusName}{'level1'}{'ID'} = lc($feature->_tag_value('ID'));
 				last;
 			}
@@ -1015,16 +1080,16 @@ sub _get_comon_tag_value{
 	return $locusName;
 }
 
-#feature is not yet saved in omniscient !
+# feature is not yet saved in omniscient !
+# The ID attribute of the feature has been already processed to be uniq.
+# original ID is in the $uniqID hash
 sub _it_is_duplication{
-	my ($duplicate, $omniscient, $uniqID, $feature)=@_;
+	my ($duplicate, $omniscient, $uniqID, $feature, $level)=@_;
 
 	my $is_dupli=undef;
-	my $potentialList=undef;
+	my @potentialList=();
 
-	my $level = get_level($omniscient, $feature);
 	my $primary_tag = lc($feature->primary_tag);
-
 	my $id = $uniqID->{ lc($feature->_tag_value('ID') ) }; # check the original ID
 
 	if($level eq "level1"){
@@ -1032,7 +1097,8 @@ sub _it_is_duplication{
 			return $is_dupli; #return is not a dupli
 		}
 		else{
-			$potentialList=$omniscient->{$level}{$primary_tag}{lc($id)}; #push the feature L1 in potentialList
+			# To be checked because had same ID as another l1 of the same type
+			push @potentialList, $omniscient->{$level}{$primary_tag}{lc($id)}; #push the feature L1 in potentialList
 		}
 	}
 	else{ #feature l2 or l3
@@ -1045,38 +1111,78 @@ sub _it_is_duplication{
 				$one_parent_uID = lc($uniqID->{ lc($one_parent_ID) } ); # check the original ID
 			}
 
-			foreach my $primary_tag ( keys %{$omniscient->{$level}} ){
-				if (exists_keys($omniscient,($level, $primary_tag, $one_parent_uID))){
-					push @{$potentialList}, @{$omniscient->{$level}{$primary_tag}{$one_parent_uID}};
-				}
+			if (exists_keys($omniscient,($level, $primary_tag, $one_parent_uID))){
+				# To be checked because had same Parent as another feature of the same type
+				push @potentialList, @{$omniscient->{$level}{$primary_tag}{$one_parent_uID}};
 			}
 		}
-		if(! $potentialList){ #potential list empty
+		if(! @potentialList){ #potential list empty
 				return $is_dupli; #return is not a dupli
 		}
 	}
 
+	#Check the list of all putative duplicate already saved in omniscient
+	foreach my $feature_in_omniscient ( @potentialList ){
+		if ($feature->start == $feature_in_omniscient->start){
+			if ($feature->end == $feature_in_omniscient->end){
+				if ($feature->seq_id eq $feature_in_omniscient->seq_id){
+					#primary tag already checked when catching potential
 
-	#check if list is a feature or a reference of a list of feature
-	my @list_feature; # will be a list of feature.
+						# check the original ID
+						my $id_in_omni = $uniqID->{ lc($feature_in_omniscient->_tag_value('ID') ) };
 
-	if(ref($potentialList) eq 'ARRAY'){
-		@list_feature=@$potentialList; #it's a reference of a list of feature
-	}
-	else{push (@list_feature, $potentialList);} # it's a feature
+						if($level eq "level1"){
+							if($id eq $id_in_omni){
+								$is_dupli=1;
+								push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
+								delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
+								last;
+							}
+						}
+						else{
+							# get parent info
+							my $parent = undef;
+							if(exists_keys($uniqID,( lc($feature->_tag_value('Parent') ) ) ) ) {
+								$parent = $uniqID->{ lc($feature->_tag_value('Parent') ) };
+							}
+							else{
+								$parent = $feature->_tag_value('Parent');
+							}
+							my $parent_in_omni = undef;
+							if(exists_keys($uniqID,( lc($feature_in_omniscient->_tag_value('Parent') ) ) ) ){
+								$parent_in_omni = $uniqID->{ lc($feature_in_omniscient->_tag_value('Parent') )};
+							}
+							else{
+								$parent_in_omni = $feature_in_omniscient->_tag_value('Parent');
+							}
 
-	#### PREPARE THE SENTENCE TO CHECK
-	my $current_string=_create_comparison_string($omniscient, $uniqID, $feature);
+							# compare parent for l2/l3 and compare only ID for l2
+							my $test_positive=undef;
+							# check parent and ID
+							if($level eq "level2"){
+								if($id eq $id_in_omni){
+									if($parent eq $parent_in_omni){
+										$test_positive=1;
+									}
+								}
+							}
+							# check parent only
+							if($level eq "level3"){
+								if($parent eq $parent_in_omni){
+									$test_positive=1;
+								}
+							}
+							# if all comparaison where equal
+							if($test_positive){
+								$is_dupli=1;
 
-	#Check all the level2 list element
-	foreach my $feature_in_omniscient ( @list_feature ){
-
-		my $string=_create_comparison_string($omniscient, $uniqID, $feature_in_omniscient);
-		if($current_string eq $string){
-			$is_dupli=1;
-			push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
-			delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # delete uniq ID that has been created for nothing
-			last;
+								push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
+								delete $uniqID->{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
+								last;
+							}
+						}
+				}
+			}
 		}
 	}
 
@@ -1095,82 +1201,34 @@ sub _it_is_duplication{
 sub get_level{
 	my ($omniscient, $feature)=@_;
 
-	my $source_tag = lc($feature->source_tag);
-	my $primary_tag = lc($feature->primary_tag);
-
-	my $level=undef;
-
 	#########################################
 	## PECULIARITIES FROM HAVANA / ENSEMBL ##
+	my $source_tag = lc($feature->source_tag);
 	if ($source_tag eq "ensembl" ){
-		if ( $primary_tag eq "rna" ) {return 'level1';} #particularity ENSEMBL
+		if ( lc($feature->primary_tag) eq "rna" ) {return 'level1';} #particularity ENSEMBL
 	}
-	if ( ($source_tag =~ "havana" or $source_tag =~ "ensembl") and ($primary_tag eq	"processed_transcript" or $primary_tag eq	"pseudogene" ) ){ #By default processed_transcript is l2 and pseudogene is l1
+	if ( ($source_tag =~ "havana" or $source_tag =~ "ensembl") and (lc($feature->primary_tag) eq	"processed_transcript" or lc($feature->primary_tag) eq	"pseudogene" ) ){ #By default processed_transcript is l2 and pseudogene is l1
 		if ($feature->has_tag('Parent')){return "level2" ;}
 		else{return "level1" ;}
 	}
 	## PECULIARITIES FROM HAVANA / ENSEMBL ##
 	#########################################
 
-	if ( exists_keys($omniscient, ('other','level','level1', $primary_tag) ) ){
+	if ( exists_keys($omniscient, ('other','level','level1', lc($feature->primary_tag) ) ) ){
 		return 'level1';
 	}
-	elsif( exists_keys($omniscient, ('other','level','level2', $primary_tag) ) ){
+	elsif( exists_keys($omniscient, ('other','level','level2', lc($feature->primary_tag) ) ) ){
 		return 'level2';
 	}
-	elsif( exists_keys($omniscient, ('other','level','level3', $primary_tag) ) ){
+	elsif( exists_keys($omniscient, ('other','level','level3', lc($feature->primary_tag) ) ) ){
 		return 'level3';
 	}
-}
-
-# create string that should be uniq by feature
-# will be used to detect duplicated features
-sub _create_comparison_string{
-	my ($omniscient, $uniqID, $feature)=@_;
-
-	my $string=$feature->seq_id().$feature->primary_tag().$feature->start().$feature->end();
-	my $primary_tag = lc($feature->primary_tag);
-
-	# get the ID
-	my $ID=undef;
-	if(exists_keys($uniqID,( lc($feature->_tag_value('ID') ) ) ) ){
-		$ID = $uniqID->{ lc($feature->_tag_value('ID') )};
-	}
-	else{
-		$ID = $feature->_tag_value('ID')
-	}
-
-	# If we are checking a level1 feature no need to go further
-	if ( exists_keys( $omniscient, ('other', 'level', 'level1', $primary_tag) ) ){
-		$string .= $ID; # compare with original ID
-		return $string;
-	}
-
-	# If we are not checking a level1 feature, let's take the parent info too
-	my $Parent=undef;
-
-	if(exists_keys($uniqID,( lc($feature->_tag_value('Parent') ) ) ) ) {
-		$Parent = $uniqID->{ lc($feature->_tag_value('Parent') ) };
-	}
-	else{
-		$Parent = $feature->_tag_value('Parent')
-	}
-
-	if ( exists_keys( $omniscient, ('other', 'level', 'level2', $primary_tag) ) ){
-		$string .= $ID; # compare with original ID
-		$string .= $Parent; # compare with original Parent
-	}
-	if ( exists_keys( $omniscient, ('other', 'level', 'level3', $primary_tag) ) ){
-		$string .= $Parent; # compare with original Parent
-	}
-
-	return $string;
 }
 
 # create an ID uniq. Don't give multi-parent feature !
 # If we have to create new ID for a SPREADFEATURES they will not have a shared ID.
 sub _check_uniq_id{
-	my	($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature)=@_;
+	my	($omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature, $level)=@_;
 
 	my $uID=undef;
 	my $primary_tag = lc($feature->primary_tag);
@@ -1183,11 +1241,11 @@ sub _check_uniq_id{
 		$id = $feature->_tag_value($primary_tag."_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($omniscient, $feature) eq 'level1' and $feature->has_tag("gene_id") ){
+	elsif( $level eq 'level1' and $feature->has_tag("gene_id") ){
 		$id = $feature->_tag_value("gene_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
-	elsif( get_level($omniscient, $feature) eq 'level2' and $feature->has_tag("transcript_id") ){
+	elsif( $level eq 'level2' and $feature->has_tag("transcript_id") ){
 		$id = $feature->_tag_value("transcript_id");
 		create_or_replace_tag($feature, 'ID', $id);
 	}
@@ -1232,7 +1290,6 @@ sub _check_uniq_id{
 		}
 	}
 	else{ #tag absent
-		my $level = get_level($omniscient, $feature);
 		if($level ne 'level3'){
 			warn "gff3 reader error ".$level .": No ID attribute found".
 			" @ for the feature: ".$feature->gff_string()."\n";
@@ -1259,7 +1316,7 @@ sub _create_ID{
 		$key=$primary_tag;
 	}
 
-	my $uID= $id ? $id : $key."-1";
+	my $uID = $id ? $id : $key."-1";
 
 	while( exists_keys($uniqID, (lc ($uID) ) )){	 #loop until we found an uniq tag
 		$miscCount->{$key}++;
@@ -1488,91 +1545,117 @@ sub _remove_orphan_l1{
 	}
 }
 
+# @Purpose: create a hash of common tag for level1 feature.
+# it allows to parse the level1 only once when looking for common tag in L1
+sub _create_hash_common_tag_l1{
+	my ($hash_omniscient)=@_;
+	my %common_tag_in_l1=();
+
+	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
+		foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+			foreach my $tag (@COMONTAG){
+				if($hash_omniscient->{"level1"}{$tag_l1}{$id_l1}->has_tag($tag)){
+					push ( @{$common_tag_in_l1{$tag}{lc($hash_omniscient->{"level1"}{$tag_l1}{$id_l1}->_tag_value($tag))}}, {id => $id_l1, ptag => $tag_l1} );
+				}
+			}
+		}
+	}
+	return \%common_tag_in_l1;
+}
+
 # @Purpose: Check relationship betwwen L3 and L2. If L2 is missing we create it. When creating L2 missing we create as well L1 if missing too.
 # @input: 4 => hash(omniscient hash), hash(mRNAGeneLink hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
 sub _check_l2_linked_to_l3{
 	my ($log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose, $debug)=@_;
 	my $resume_case=undef;
+	my $common_tag_in_l1=undef;
 
  	foreach my $tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
 
- 			foreach my $id_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{$tag_l3}}){
+ 		foreach my $id_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{$tag_l3}}){
 
- 				#check if L2 exits
- 				if (! exists_keys($mRNAGeneLink, ( $id_l2 ) ) ) {
- 					$resume_case++;
+ 			#check if L2 exits
+ 			if (! exists_keys($mRNAGeneLink, ( $id_l2 ) ) ) {
+ 				$resume_case++;
 
-	 				#L3 linked directly to L1
-	 				foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
-						my $has_l1_feature = undef;
-						my $id_l2_to_replace = undef;
+	 			#L3 linked directly to L1
+				my $has_l1_feature = undef;
+				my $id_l2_to_replace = undef;
+	 			foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+					if(exists_keys ($hash_omniscient, ('level1', $tag_l1, $id_l2))){
+						# case where it's linked by parent/ID attribute
+						$has_l1_feature = $hash_omniscient->{"level1"}{$tag_l1}{$id_l2};
+					}
+					else{
+						if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient);} # fill it (only once) because will be needed
 
-						if(exists_keys ($hash_omniscient, ('level1', $tag_l1, $id_l2))){
-							# case where it's linked by parent/ID attribute
-							$has_l1_feature = $hash_omniscient->{"level1"}{$tag_l1}{$id_l2};
-						}
-						else{
-							# Check if one as a common tag value == to L1 common tag value (then when creating l2 in check3 add parent for L2 of the L1 Id)
-							foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
-								my $l1_feature = $hash_omniscient->{"level1"}{$tag_l1}{$id_l1};
-								foreach my $tag (@COMONTAG){
-									#check if we have the tag
-									if($l1_feature->has_tag($tag)){
-										my $l1_ct_value=lc($l1_feature->_tag_value($tag)); #get the value
-										foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-											if($l3_feature->has_tag($tag) and	lc($l3_feature->_tag_value($tag)) eq	$l1_ct_value){
-												$has_l1_feature = $l1_feature;
-												$id_l2_to_replace = $l3_feature->_tag_value('Parent');
-												# case where it's linked by comon_tag attribute
-												last;
-											}
+						# Check if one as a common tag value == to L1 common tag value
+						# (then when creating l2 in check3 add parent for L2 of the L1 Id)
+						foreach my $tag (@COMONTAG){
+							#check if we have the tag
+
+							foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
+								if($l3_feature->has_tag($tag) ) {
+									# case where it's linked by comon_tag attribute
+
+									if (exists_keys($common_tag_in_l1,( $tag, lc($l3_feature->_tag_value($tag)) ) ) ){
+										if($#{$common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}} == 0){
+											my $id = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'id'};
+											my $ptag = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'ptag'};
+											$has_l1_feature = $hash_omniscient->{'level1'}{$ptag}{$id};
+											$id_l2_to_replace = $l3_feature->_tag_value('Parent');
+											last;
+										}
+										else{
+											dual_print($log, "\n\nSeveral potential L1 parent with comnon tag $tag with value ".lc($l3_feature->_tag_value($tag)).". We do not use any\n", 0);
 										}
 									}
-									last if ($has_l1_feature);
 								}
 								last if ($has_l1_feature);
 							}
-				 		}
-
-				 		if ($has_l1_feature){
-
-							my $l1_ID = $has_l1_feature->_tag_value('ID');
-							my $l2_feature = clone($has_l1_feature);#create a copy of the first mRNA feature;
-
-							if (exists_keys($hash_omniscient,("level3",'cds', $id_l2) )	){
-								$l2_feature->primary_tag('mRNA');
-							}
-							else{ #we cannot guess
-								$l2_feature->primary_tag('RNA');
-							}
-
-	 						#Modify parent L2 (and L1 id if necessary)
-	 						create_or_replace_tag($l2_feature,'Parent', $l1_ID); #modify ID to replace by parent value
-	 						create_or_replace_tag($l2_feature,'ID', $id_l2_to_replace) if ($id_l2_to_replace); #modify ID to replace by parent value
-							check_level2_positions($hash_omniscient, $l2_feature);
-
-							if ( exists_keys ($uniqID,(lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
-
-								my $new_l1id = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $has_l1_feature); # to check if ID was already in used by level1 feature
-								create_or_replace_tag($l2_feature,'Parent', $new_l1id); #modify ID to replace by parent value
-								my $primary_tag_l1 =$has_l1_feature->primary_tag();
-								$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_l1id)} = delete $hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($l1_ID)}; # now save it in omniscient
-								#fill the $mRNAGeneLink hash
-								$mRNAGeneLink->{ $id_l2 } = $new_l1id;
-								push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($new_l1id)}}, $l2_feature);
-							}
-	 						else{
-	 							#fill the $mRNAGeneLink hash
-	 							$mRNAGeneLink->{ $id_l2 } = $l1_ID; # Always need to keep track about l2->l1, else the method _check_l2_linked_to_l3 will recreate a l1 thinking this relationship is not fill
-								push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($l1_ID)}}, $l2_feature);
-							}
-							dual_print($log, "L3 was directly linked to L1. Corrected by creating the intermediate L2 feature from L1 feature:".$l2_feature->gff_string()."\n", 0);
-							last
 						}
 					}
 
-				if (! exists($mRNAGeneLink->{ $id_l2 }) ) { # it was not previous case (L3 linked directly to L1)
+
+					if ($has_l1_feature){
+
+						my $l1_ID = $has_l1_feature->_tag_value('ID');
+						my $l2_feature = clone($has_l1_feature);#create a copy of the first mRNA feature;
+
+						if (exists_keys($hash_omniscient,("level3",'cds', $id_l2) )	){
+							$l2_feature->primary_tag('mRNA');
+						}
+						else{ #we cannot guess
+							$l2_feature->primary_tag('RNA');
+						}
+
+						#Modify parent L2 (and L1 id if necessary)
+		 				create_or_replace_tag($l2_feature,'Parent', $l1_ID); #modify ID to replace by parent value
+		 				create_or_replace_tag($l2_feature,'ID', $id_l2_to_replace) if ($id_l2_to_replace); #modify ID to replace by parent value
+						check_level2_positions($hash_omniscient, $l2_feature);
+
+						if ( exists_keys ($uniqID,(lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
+
+							my $new_l1id = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $has_l1_feature); # to check if ID was already in used by level1 feature
+							create_or_replace_tag($l2_feature,'Parent', $new_l1id); #modify ID to replace by parent value
+							my $primary_tag_l1 =$has_l1_feature->primary_tag();
+							$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_l1id)} = delete $hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($l1_ID)}; # now save it in omniscient
+							#fill the $mRNAGeneLink hash
+							$mRNAGeneLink->{ $id_l2 } = $new_l1id;
+							push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($new_l1id)}}, $l2_feature);
+						}
+						else{
+							#fill the $mRNAGeneLink hash
+							$mRNAGeneLink->{ $id_l2 } = $l1_ID; # Always need to keep track about l2->l1, else the method _check_l2_linked_to_l3 will recreate a l1 thinking this relationship is not fill
+							push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($l1_ID)}}, $l2_feature);
+						}
+						dual_print($log, "L3 was directly linked to L1. Corrected by creating the intermediate L2 feature from L1 feature:".$l2_feature->gff_string()."\n", 0);
+						last
+					}
+				}
+
+				if (! exists_keys($mRNAGeneLink,($id_l2 ) ) ) { # it was not previous case (L3 linked directly to L1)
 
 	 				#start fill L2
 	 				my $l2_feature=clone($hash_omniscient->{'level3'}{$tag_l3}{$id_l2}[0]);#create a copy of the first mRNA feature;
@@ -1611,7 +1694,7 @@ sub _check_l2_linked_to_l3{
 							last;
 						}
 					}
-					$new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature);
+					$new_ID_l1 = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $l1_feature, 'level1');
 
 				#finish fill Level2
 					create_or_replace_tag($l2_feature, 'Parent', $new_ID_l1); # remove parent ID because, none.
@@ -1627,12 +1710,170 @@ sub _check_l2_linked_to_l3{
 					dual_print($log, "L1 and L2 created:".$l1_feature->gff_string()."\n".$l2_feature->gff_string()."\n", 0);
 	 				}
 	 			}
- 			}
- 	}
+			}
+		}
 	if($resume_case){
  		dual_print($log, "$resume_case cases fixed where L3 features have parent feature(s) missing\n", $verbose);
 	}
 	else{
+		dual_print($log, "No problem found\n", $verbose);
+	}
+}
+
+# @Purpose: Check L3 features. If CDS do not contains stop_codon we have to extend the CDS to include it
+sub _check_cds{
+	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
+	my $resume_case=undef;
+	my $resume_case2=undef;
+
+	if( exists_keys($hash_omniscient,('level3', 'cds')) ){
+		if( exists_keys($hash_omniscient,('level3', 'stop_codon')) ){
+ 			foreach my $id_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{'cds'}} ) {
+				if( exists_keys($hash_omniscient,('level3', 'stop_codon',$id_l2)) ){
+
+					my @list_cds = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$id_l2}};
+					my @list_stop = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'stop_codon'}{$id_l2}};
+
+					my $codon_split=undef;
+					if($#list_stop > 0){
+							my $size_stop=0;
+							foreach my $stop_codon (@list_stop){
+								$size_stop+=$stop_codon->end - $stop_codon->start + 1;
+							}
+							if($size_stop > 3){
+								dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);
+								next;
+							}
+							else{
+								$codon_split = 1;
+								dual_print($log, "Stop codon split over exons\n", 0); #print log only
+							}
+					}
+
+					my $strand = $list_cds[0]->strand;
+
+					if($strand == 1){
+						my $cds = $list_cds[$#list_cds];
+						my $stop = $list_stop[$#list_stop];
+
+						if($cds->end == $stop->end){next;} # Everything looks fine the stop codon is within the CDS
+
+						if($cds->end +1 != $stop->start){ # Last stop in not adjacent to CDS.
+
+							if($codon_split){ # Not adjacent because stop splited
+
+								if ($cds->end + 1 == ($list_stop[0]->start) ){
+									dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+									$cds->end($list_stop[0]->end);
+
+									# create the cds chunk missing
+									my $new_cds = clone($cds);
+									$new_cds->start($stop->start);
+									$new_cds->end($stop->end);
+									my $size_stop = $stop->end - $stop->start + 1;
+									$new_cds->frame(3 - $size_stop);
+									my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+									create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+									$resume_case2++;
+								}
+							}
+							else{
+								# Not adjacent because stop start a new exon
+								my $stop_start_exon=undef;
+								if( exists_keys($hash_omniscient,('level3', 'exon', $id_l2)) ){
+									foreach my $l3_feature ( @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}} ){
+										if ( $l3_feature->start == $stop->start ){
+											if ( $l3_feature->end >= $stop->end ){ # check stop if fully within a CDS
+											# create the cds chunk missing
+												my $new_cds = clone($cds);
+												$new_cds->start($stop->start);
+												$new_cds->end($stop->end);
+												my $size_stop = $stop->end - $stop->start + 1;
+												$new_cds->frame(3 - $size_stop);
+												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+												$stop_start_exon=1;$resume_case2++;
+											}
+										}
+									}
+								}
+								dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose) if (! $stop_start_exon);
+							}
+						}
+						# stop is adjacent
+						else{
+							$cds->end($stop->end);
+							$resume_case++;
+						}
+					}
+					# strand is minus
+					else{
+						my $cds = $list_cds[0];
+						my $stop = $list_stop[0];
+
+						if($cds->start == $stop->start){next;} # Everything looks fine the stop codon is within the CDS
+
+						if($cds->start - 1 != $stop->end){
+							if($codon_split){
+									if ($cds->start - 1 == ($list_stop[$#list_stop]->end) ){
+										dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+										$cds->start($list_stop[$#list_stop]->start);
+
+										# create the cds chunk missing
+										my $new_cds = clone($cds);
+										$new_cds->start($stop->start);
+										$new_cds->end($stop->end);
+										my $size_stop = $stop->end - $stop->start + 1;
+										$new_cds->frame(3 - $size_stop);
+										my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+										create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+										$resume_case2++;
+									}
+							}
+							else{
+								# Not adjacent because stop start a new exon
+								my $stop_start_exon=undef;
+								if( exists_keys($hash_omniscient,('level3', 'exon', $id_l2)) ){
+									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{'exon'}{$id_l2}}){
+										if ( $l3_feature->end == $stop->end ){
+											if ( $l3_feature->start <= $stop->start ){ # check stop if fully within a CDS
+												# create the cds chunk missing
+												my $new_cds = clone($cds);
+												$new_cds->start($stop->start);
+												$new_cds->end($stop->end);
+												my $size_stop = $stop->end - $stop->start + 1;
+												$new_cds->frame(3 - $size_stop);
+												my $uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, 'cds', $new_cds->_tag_value('ID'), PREFIX_NEW_ID); #method will push the uID
+												create_or_replace_tag($new_cds, 'ID', $uID); # remove parent ID because, none.
+												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
+												$stop_start_exon=1;$resume_case2++;
+											}
+										}
+									}
+								}
+								dual_print($log, "Warning: $id_l2 stop codon not adjacent to the CDS\n", $verbose) if (! $stop_start_exon);
+							}
+						}
+						else{
+							$cds->start($stop->start);
+							$resume_case++;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if( $resume_case ){
+		dual_print($log, "$resume_case CDS extended to include the stop_codon\n", $verbose);
+	}
+	if($resume_case2){
+		dual_print($log, "$resume_case2 CDS created to include the stop_codon that was on next exon\n", $verbose);
+	}
+	if(!$resume_case and !$resume_case2){
 		dual_print($log, "No problem found\n", $verbose);
 	}
 }
@@ -1844,7 +2085,7 @@ sub _check_exons{
 					 			$feature_exon->end($location->[2]);
 					 			$feature_exon->frame(".");
 					 			$feature_exon->primary_tag($tag);
-					 			my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_exon);
+					 			my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_exon, 'level3');
 					 			create_or_replace_tag($feature_exon, 'ID', $uID); # remove parent ID because, none.
 								#save new feature L2
 								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 0); #print only in log
@@ -2115,7 +2356,6 @@ sub _check_utrs{
 						if($list_utr_to_create){
 								# sort by start position
 					 			foreach my $location (sort {$a->[1] <=> $b->[1]} @{$list_utr_to_create}){
-					 				$resume_case++;
 
 									my $feature_utr = clone($feature_example);#create a copy of a random feature l3;
 									$feature_utr->start($location->[1]);
@@ -2140,10 +2380,14 @@ sub _check_utrs{
 					 						$primary_tag = "five_prime_UTR";
 					 					}
 					 				}
+									else{
+										next; #we are in a case of ribosomal slippage. We do not want to create UTRE in  a middle of CDS.
+									}
 
+									$resume_case++;
 									$feature_utr->primary_tag($primary_tag);
 
-									my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_utr);
+									my $uID = _check_uniq_id($hash_omniscient, $miscCount, $uniqID, $uniqIDtoType, $feature_utr,'level3');
 									create_or_replace_tag($feature_utr, 'ID', $uID); # remove parent ID because, none.
 									#save new feature L2
 									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 0); #print only in log
@@ -3040,6 +3284,12 @@ sub select_gff_format{
 					if(length($1) < 1){next;}
 
 					my $Ninethcolum = $1;
+
+					#replace value quoted by a string in case some special character are within the quote e.g. = ;
+					$_ = $Ninethcolum;
+					s/("([^"]|"")*")/quoted_value/g;
+					$Ninethcolum = $_;
+
 					if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $format{3}++;};
 
 					if($Ninethcolum !~ /=/	and $Ninethcolum !~ /;/ ){
@@ -3069,7 +3319,7 @@ sub select_gff_format{
 				my $stringprint = "There is a problem we found several formats in this file:\n";
 				$stringprint .= join ",", sort keys %format;
 				$stringprint .= "\nLet's see what we can do...\n";
-				print $stringprint if ($verbose);
+				dual_print ($log, $stringprint, $verbose);
 		}
 	}
 	else{

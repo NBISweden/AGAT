@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/NBISweden/AGAT.svg?branch=master)](https://travis-ci.org/NBISweden/AGAT)
-[![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg?branch=coveralls)](https://coveralls.io/github/NBISweden/AGAT?branch=coveralls)
+[![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg)](https://coveralls.io/github/NBISweden/AGAT)
+[![Documentation Status](https://readthedocs.org/projects/agat/badge/?version=latest)](https://agat.readthedocs.io/en/latest/?badge=latest)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
 [![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
 [<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
-[![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/downloads.svg)](https://anaconda.org/bioconda/agat)  
+[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)  
+
 AGAT
 =========================================
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
@@ -43,11 +45,11 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ## What can AGAT do for you?  
 
-It has the power to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
+It has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format.  
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.  
-For a complete overview of the formats have a look at [this page](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md).
+For a complete overview of the GTF/GFF formats have a look [here](https://agat.readthedocs.io/en/latest/gxf.html).
 
 Some examples **what AGAT can do**:  
   * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp` prefix):  
@@ -91,7 +93,7 @@ Some examples **what AGAT can do**:
 | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
 | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
 | convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
-| ... and much more ...| ... see [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) ...|
+| ... and much more ...| ... see [here](https://agat.readthedocs.io/en/latest/) ...|
 
 
 ## Installation
@@ -459,8 +461,9 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
   * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.biorxiv.org/content/10.1101/2020.10.26.356485v1.full.pdf)
   * [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://www.biorxiv.org/content/10.1101/2020.12.06.413450v1.full)
   * [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://www.biorxiv.org/content/10.1101/2021.01.15.426838v1.full.pdf)
-  * [Two novel loci underlie natural differences in Caenorhabditis elegans macrocyclic lactone responses](https://www.biorxiv.org/content/10.1101/2021.01.14.426644v1.full)
+  * [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
   * [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
+  * [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
   * [...]
 
 ## Troubleshooting

@@ -1979,24 +1979,24 @@ sub check_gene_overlap_at_CDSthenEXON{
 
 				if(exists_keys($hash_omniscient2,('level2', $l2_type, lc($gene_id2)))){
 
-			    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){ # from here bothe feature level2 are the same type
-					my $mrna_id2 = $mrna_feature2->_tag_value('ID');
+          # from here both feature level2 are the same type
+			    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){
+					  my $mrna_id2 = $mrna_feature2->_tag_value('ID');
 
-				    #check all cds pieces
-				    if(exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1)))){
-				      	if(exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){
-						    foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
-					        foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
+				    #check all cds pieces - CDS against CDS
+				    if(exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1))) and
+				      exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2))) ) {
 
-					        	if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
-					            return "cds";
-					          }
+						  foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
+					      foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
+					        if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
+					          return "cds";
 					        }
-						    }
+					      }
 				      }
-				    }
-				    elsif(! exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2)))){ # No CDS at all, check at exon / match level and if same level2 type
 
+				    }# CDS not in both, check at CDS / exon / match level only if same level2 type
+				    else{
 				    	foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
 
 				    		if(exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1)))){
@@ -2118,7 +2118,7 @@ sub check_all_level2_positions{
 								push @feature_list, @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}};
 							}
 						}
-						if(scalar(@feature_list) > 0){ #could be emtpy like in match match_part features
+						if( @feature_list ){ #could be emtpy like in match match_part features, so avoid this cases
 							 $resume_case++ if( check_mrna_positions({ l2_feature => $mRNA_feature,
 							 																					exon_list => \@feature_list,
 																												log => $log,
@@ -2210,8 +2210,9 @@ sub check_level1_positions {
     		$check_existence_feature_l2=1;
 
 	    	my $extrem_start_A=1000000000000;
-			my $extrem_end_A=0;
+		  	my $extrem_end_A=0;
 	   		foreach my $feature ( @{$hash_omniscient->{'level2'}{$tag_level2}{$id_l1}}) {
+          if( $feature->seq_id eq $feature_l1->seq_id ){
 	      		my $start=$feature->start();
 	      		my $end=$feature->end();
 	      		if ($start < $extrem_start_A){
@@ -2220,7 +2221,8 @@ sub check_level1_positions {
 	      		if($end > $extrem_end_A){
 	        		$extrem_end_A=$end;
 	      		}
-	      	}
+          }
+	      }
 
 	    	if ($extrem_start_A < $extrem_start){
 	    		$extrem_start=$extrem_start_A;

@@ -1,0 +1,12 @@
+##gff-version 3
+chr6	HAVANA	gene	143060901	143061606	.	+	.	ID=ENSG00000146416.19;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	transcript	143060901	143061606	.	+	.	ID=ENST00000367596.5;Parent=ENSG00000146416.19;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	exon	143060901	143061066	.	+	.	ID=exon-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	exon	143061214	143061606	.	+	.	ID=exon-2;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	CDS	143060926	143061066	.	+	0	ID=cds-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	CDS	143061214	143061215	.	+	1	ID=nbis-cds-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	start_codon	143060926	143060928	.	+	0	ID=start_codon-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	stop_codon	143061066	143061066	.	+	0	ID=stop_codon-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	stop_codon	143061214	143061215	.	+	0	ID=stop_codon-2;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	UTR	143060901	143060925	.	+	.	ID=utr-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	HAVANA	UTR	143061216	143061606	.	+	.	ID=utr-2;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5

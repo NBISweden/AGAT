@@ -430,7 +430,7 @@ sub create_uniq_id{
 
 =head1 NAME
 
-gaas_convert_mfannot2gff.pl
+agat_convert_mfannot2gff.pl
 
 =head1 DESCRIPTION
 
@@ -439,8 +439,8 @@ pipeline (http://megasun.bch.umontreal.ca/RNAweasel/). Reports GFF3 format.
 
 =head1 SYNOPSIS
 
-    gaas_convert_mfannot2gff.pl -m <mfannot> -o <gff>
-    gaas_convert_mfannot2gff.pl --help
+    agat_convert_mfannot2gff.pl -m <mfannot> -o <gff>
+    agat_convert_mfannot2gff.pl --help
 
 =head1 COPYRIGHT AND LICENSE
 
