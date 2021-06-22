@@ -47,6 +47,7 @@ sub print_omniscient{
 
 	my ($hash_omniscient, $gffout) = @_  ;
 
+	my @l3_out_priority = ("tss", "exon", "cds", "tts");
 	#uri_decode_omniscient($hash_omniscient);
 
   # --------- deal with header --------------
@@ -89,7 +90,6 @@ sub print_omniscient{
 							# == LEVEL 3 == #
 							#################
 							my $level2_ID = lc($feature_level2->_tag_value('ID'));
-              my @l3_done;
 
               ###########
               # Before tss
@@ -97,7 +97,6 @@ sub print_omniscient{
                 foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
                   #_uri_encode_one_feature($feature_level3);
                   $gffout->write_feature($feature_level3);
-                  push @l3_done, 'tss';
                 }
               }
 
@@ -106,7 +105,6 @@ sub print_omniscient{
 							if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
 								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
 									$gffout->write_feature($feature_level3);
-                  push @l3_done, 'exon';
 								}
 							}
 							###########
@@ -114,7 +112,6 @@ sub print_omniscient{
 							if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
 								foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
 									$gffout->write_feature($feature_level3);
-                  push @l3_done, 'cds';
 								}
 							}
 
@@ -124,14 +121,13 @@ sub print_omniscient{
                 foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
                   #_uri_encode_one_feature($feature_level3);
                   $gffout->write_feature($feature_level3);
-                  push @l3_done, 'tts';
                 }
               }
 
 							############
 							# THEN ALL THE REST
 							foreach my $primary_tag_l3 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-								if (! grep { $_ eq $primary_tag_l3 } @l3_done){
+								if (! grep { $_ eq $primary_tag_l3 } @l3_out_priority){
 									if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
 										foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
 											$gffout->write_feature($feature_level3);
@@ -233,6 +229,7 @@ sub print_omniscient_from_level1_id_list {
 
 	my ($hash_omniscient, $level_id_list, $gffout) = @_  ;
   my %topfeature_printed;
+  my @l3_out_priority = ("tss", "exon", "cds", "tts");
 
   #uri_decode_omniscient($hash_omniscient);
 
@@ -274,7 +271,6 @@ sub print_omniscient_from_level1_id_list {
     							#################
     							# == LEVEL 3 == #
     							#################
-                  my @l3_done;
     							my $level2_ID ;
     							if($feature_level2->has_tag('ID')){
     								$level2_ID = lc($feature_level2->_tag_value('ID'));
@@ -292,7 +288,6 @@ sub print_omniscient_from_level1_id_list {
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tss'}{$level2_ID}}) {
     									#_uri_encode_one_feature($feature_level3);
     									$gffout->write_feature($feature_level3);
-                      push @l3_done, 'tss';
     								}
     							}
 
@@ -302,7 +297,6 @@ sub print_omniscient_from_level1_id_list {
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
     									#_uri_encode_one_feature($feature_level3);
     									$gffout->write_feature($feature_level3);
-                      push @l3_done, 'exon';
     								}
     							}
     							###########
@@ -311,7 +305,6 @@ sub print_omniscient_from_level1_id_list {
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
     									#_uri_encode_one_feature($feature_level3);
     									$gffout->write_feature($feature_level3);
-                      push @l3_done, 'cds';
     								}
     							}
 
@@ -321,14 +314,13 @@ sub print_omniscient_from_level1_id_list {
     								foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'tts'}{$level2_ID}}) {
     									#_uri_encode_one_feature($feature_level3);
     									$gffout->write_feature($feature_level3);
-                      push @l3_done, 'tts';
     								}
     							}
 
     							###########
     							# The rest
     							foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-                    if (! grep { $_ eq $primary_tag_key_level3 } @l3_done){
+                    if (! grep { $_ eq $primary_tag_key_level3 } @l3_out_priority){
                       if ( exists ($hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID} ) ){
     										foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
     											#_uri_encode_one_feature($feature_level3);
