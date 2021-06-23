@@ -33,13 +33,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- name: Checkout AGAT
       - uses: actions/checkout@v2
- #     - name: Setup Perl
- #       uses: shogo82148/actions-setup-perl@v1
- #       with:
- #           perl-version: '5.30'
- #           install-modules-with: cpanm
- #           install-modules-args: --notest --force
- #           install-modules: File::ShareDir::Install Devel::Cover::Report::Coveralls
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+            perl-version: '5.30'
+            install-modules-with: cpanm
+            install-modules-args: --notest --force
+            install-modules: File::ShareDir::Install Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
