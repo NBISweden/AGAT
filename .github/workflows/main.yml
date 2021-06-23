@@ -50,4 +50,4 @@ jobs:
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: cover +ignore local -test -report Coveralls
+        run: cover +ignore "local\b" -test -report Coveralls
