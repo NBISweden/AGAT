@@ -47,7 +47,7 @@ jobs:
           run: cat /home/runner/.cpanm/build.log
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
-      - name: test
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: cover +ignore ^local/ -test -report Coveralls
+#      - name: test
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: cover +ignore ^local/ -test -report Coveralls
