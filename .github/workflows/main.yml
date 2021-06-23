@@ -50,6 +50,5 @@ jobs:
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          perl Makefile.PL
-          cover -test -report coveralls
+          DEVEL_COVER_OPTIONS: "+ignore,^local/"
+        run: cover -test -report Coveralls
