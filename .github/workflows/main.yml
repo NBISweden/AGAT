@@ -51,4 +51,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
-        run: cover +ignore ^local/ -test -report Coveralls
+        run: cover -test -report Coveralls
