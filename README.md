@@ -20,7 +20,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
    * [What can AGAT do for you?](#what-can-agat-do-for-you)
    * [Installation](#installation)  
-       * [Using bioconda](using-bioconda)
+       * [Using Bioconda](#using-bioconda)
           * [Install AGAT](#install-agat)
           * [Update AGAT](#update-agat)
           * [Uninstall AGAT](#uninstall-agat)
@@ -98,7 +98,7 @@ Some examples **what AGAT can do**:
 
 ## Installation
 
-### Using conda
+### Using Bioconda
 
 #### Install AGAT
 
@@ -210,7 +210,7 @@ From the folder where the repository is located.
   ```
 
 ## List of tools
-See [here](https://github.com/NBISweden/AGAT/wiki#list-of-agat-tools-v021) for a list of tools.  
+See [here](https://agat.readthedocs.io/en/latest/?badge=latest) for a list of tools.  
 As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_convert_sp_gxf2gxf.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
 All the installed scripts have the `agat_` prefix.  
 Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
