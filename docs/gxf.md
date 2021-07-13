@@ -381,15 +381,15 @@ The features "5UTR", "3UTR", and "exon" are optional. All other features will be
 (2007)  
 
 In this version they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
- [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
+| [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
 The **<feature>** field change a little bit and can contain 9 different types:
   
 ```
 The following feature types are required: "CDS", "start_codon", "stop_codon".  
-The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and "exon" are optional.
+The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and `exon` are optional.
 ```
 
- "inter" and "inter_CNS" should have an empty transcript_id and gene_id attribute: **gene_id ""; transcript_id "";**
+ `inter` and `inter_CNS` should have an empty transcript_id and gene_id attribute: **gene_id ""; transcript_id "";**
 
 ### GTF2.5  
 (2012)  
