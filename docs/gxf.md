@@ -51,7 +51,7 @@ But its uses go beyond gene-finding purpose and is used as a convenient way of r
 ### GFF0  
 (before 13-11-1997)  
 
-There is no clear information about how look the format at that time but it was close to the GFF1 format specification without the field "source" added the 1997-11-13.
+There is no clear information about how look the format at that time but it was close to the GFF1 format specification without the field `source` added the 1997-11-13.
 
 ### GFF1  
 (13-11-1997)  
@@ -59,7 +59,7 @@ There is no clear information about how look the format at that time but it was 
 For a complete description of the format please refer to this link:
 [https://web.archive.org/web/19980222142332/http://www.sanger.ac.uk:80/~rd/gff.html](https://web.archive.org/web/19980222142332/http://www.sanger.ac.uk:80/~rd/gff.html). This is the oldest description of the format I found (1998-02-22).
 
-I consider the format as GFF1 when they definitly defined the 9th field of the format (1997-11-13 rd: added extra "source" field as discussed at Newton Institute meeting 971029). Before that the format was existing but was at the stage of version 0.
+I consider the format as GFF1 when they definitly defined the 9th field of the format (1997-11-13 rd: added extra `source` field as discussed at Newton Institute meeting 971029). Before that the format was existing but was at the stage of version 0.
 
 This GFF1 format contains 8 madatory fields and 9th one optional. Fields are:  
 
@@ -133,14 +133,14 @@ Here an example of GFF1:
 ### GFF2  
 (29-09-2000)  
 
-/!\ Note: Some of the changes we will see have been implemented before the offical release of the version 2. As consequence, several interemediate states between version 1 and 2 have existed. We can call them GFF1.X. I will not discuss further these intermediate states.
+**/!\ Note**: Some of the changes we will see have been implemented before the offical release of the version 2. As consequence, several interemediate states between version 1 and 2 have existed. We can call them GFF1.X. I will not discuss further these intermediate states.
 
 **16/12/98**: Discussions with **Lincoln Stein** and **others**,the Version 2 format of GFF is proposed.  
 **17/11/99**: **Gene Feature Finding** Version 2 format is conceptually generalized to be the **General Feature Format**
 
 The GFF2 format is conceptualized since the 16/12/98 but becomes officially the default version the 2000-9-29.
 [Here is the official description](snapshots/sanger_gff2.md) which is a snapshot from here: https://web.archive.org/web/20010208224442/http://www.sanger.ac.uk:80/Software/formats/GFF/GFF_Spec.shtml.  
-You can find the first description (03 Feb 2000) of the GFF2 [here](snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
+ You can find the first description (03 Feb 2000) of the GFF2 [here](snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
 
 Here we will review changes occured from the version 1.
 
@@ -149,7 +149,7 @@ Here we will review changes occured from the version 1.
 The main change from Version 1 to Version 2 is the addition of an optional 9th field with tag-value type structure (essentially semicolon-separated .ace format) used for any additional material on the line. Version 2 also allows '.' as a score, for features for which there is no score.
 With the changes taking place to version 2 of the format, we also allow for feature sets to be defined over RNA and Protein sequences, as well as genomic DNA. This is used for example by the EMBOSS project to provide standard format output for all features as an option. In this case the <strand> and <frame> fields should be set to '.'. To assist this transition in specification, a new #Type Meta-Comment has been added.
 
-Definition
+#### Definition
 
 This GFF2 format contains 8 madatory fields and 9th one optional. Fields are:  
 
@@ -297,15 +297,20 @@ From those information we can understand that in ~2000 for the drosophila genome
 
 In another paper [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6): 996–1006. doi:10.1101/gr.229102](https://doi.org/10.1101/gr.229102) the authors say that the GTF format has been designed specifically for the human genome project.
 
-    Since August 2001, it has become possible for users to upload their own annotations for display in the browser. These annotations can be in the standard GFF format (http:// www.sanger.ac.uk/Software/formats/GFF), or in some formats designed specifically for the human genome project including GTF, PSL, and BED. The formats are described in detail in the web page http://genome.cse.ucsc.edu/goldenPath/help/ customTrack.html. Note that the GFF and GTF files must be tab delimited rather than space delimited. Uploaded
-
+```
+  Since August 2001, it has become possible for users to upload their own annotations for display in the browser. 
+  These annotations can be in the standard GFF format (http:// www.sanger.ac.uk/Software/formats/GFF), or in some formats designed specifically for the human genome project including GTF, PSL, and BED. 
+  The formats are described in detail in the web page http://genome.cse.ucsc.edu/goldenPath/help/ customTrack.html. 
+  Note that the GFF and GTF files must be tab delimited rather than space delimited. Uploaded
+```
+      
 With this last paper it's hard to understand from which project the GTF format is finally born.
 
 Until now I havn't find a comprehensive description of the original GTF version (Ensembl version ?) but based some hints from the Masters Project Report of Evan Keibler `Eval: A Gene Set Comparison System` and from other ressources I can say that the GTF1 was similar to GTF2. With few differences listed here:
 
-  * <feature>
-        The <feature> field can take 5 values: `CDS`, `start_codon`, `stop_codon`, `exon` and `intron`.
-  * <strand>
+  * feature
+        The feature field can take 5 values: `CDS`, `start_codon`, `stop_codon`, `exon` and `intron`.
+  * strand
         The strand value must be `+`, `-`, or `.`.
 
 ### GTF2 and GFF2.5  
@@ -381,12 +386,12 @@ The features "5UTR", "3UTR", and "exon" are optional. All other features will be
 (2007)  
 
 In this version they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
-| [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
+ [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
 The **<feature>** field change a little bit and can contain 9 different types:
   
 ```
 The following feature types are required: "CDS", "start_codon", "stop_codon".  
-The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and `exon` are optional.
+The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and "exon" are optional.
 ```
 
  `inter` and `inter_CNS` should have an empty transcript_id and gene_id attribute: **gene_id ""; transcript_id "";**
@@ -447,12 +452,16 @@ As the feature types of the 3rd column is limited by the GTF format, many groups
 ### Problem encountered due to lack of standardization
 
 **Inconsistency in stop codon treatment in GTF tracks** (from https://genome.ucsc.edu/FAQ/FAQtracks.html):  
+
 I've been doing some comparative gene set analysis using the gene annotation tracks and I believe I have run into an inconsistency in the way that stop codons are treated in the annotations. Looking at the Human June 2002 assembly, the annotations for Ensembl, Twinscan, SGP, and Geneid appear to exclude the stop codon in the coding region coordinates. All of the other gene annotation sets include the stop codon as part of the coding region. My guess is that this inconsistency is the result of the gene sets being imported from different file formats. The GTF2 format does not include the stop codon in the terminal exon, while the GenBank format does, and the GFF format does not specify what to do.
+  
 Answer:  
+  
 Your guess is correct. We haven't gotten around to fixing this situation. A while ago, the Twinscan group made a GTF validator. It interpreted the stop codon as not part of the coding region. Prior to that, all GFF and GTF annotations that we received did include the stop codon as part of the coding region; therefore, we didn't have special code in our database to enforce it. In response to the validator, Ensembl, SGP and Geneid switched their handling of stop codons to the way that Twinscan does it, hence the discrepancy.
 
 
 **Inconsistency in GTF format** (reported by Evan Keibler in his Masters Project Report):  
+  
 Although the GTF file format is a fairly simple and well defined format, data is often
 claimed to be in GTF format when it does not comply completely with the specification.
 Most data is generated in some proprietary format specific to the particular program or
