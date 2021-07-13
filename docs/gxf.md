@@ -249,10 +249,10 @@ Last updated the 26 February 2013 with version 1.23.
 Here is the last description of the specifications: [https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)
 
 The majors updates are:  
-* the limitations of the feature type (3rd column) that is constrained to be either a term from the Sequence Ontology or an SO accession number (2278 possibilities).   * Some attribute's tags have predefined meanings: ID, Name, Alias, Parent, Target, Gap, Derives_from, Note, Dbxref, Ontology_term, Is_circular.
-   * Parent, Alias, Note, Dbxref and Ontology_term attributes can have multiple values (separated with the comma "," character).  
-| * The **ID** indicates the ID of the feature. The ID attribute is required for features that have children (e.g. gene and mRNAs), or for those that span multiple lines, but are optional for other features. IDs for each feature must be unique within the scope of the GFF file. In the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID must collectively represent a single feature.  
-|* The reserved Parent attribute can be used to establish a part-of relationship between two features. A feature that has the Parent attribute set is interpreted as asserting that it is a part of the specified Parent feature
+  * the limitations of the feature type (3rd column) that is constrained to be either a term from the Sequence Ontology or an SO accession number (2278 possibilities).  * Some attribute's tags have predefined meanings: ID, Name, Alias, Parent, Target, Gap, Derives_from, Note, Dbxref, Ontology_term, Is_circular.
+  * Parent, Alias, Note, Dbxref and Ontology_term attributes can have multiple values (separated with the comma "," character).  
+  * The **ID** indicates the ID of the feature. The ID attribute is required for features that have children (e.g. gene and mRNAs), or for those that span multiple lines, but are optional for other features. IDs for each feature must be unique within the scope of the GFF file. In the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID must collectively represent a single feature.  
+  * The reserved Parent attribute can be used to establish a part-of relationship between two features. A feature that has the Parent attribute set is interpreted as asserting that it is a part of the specified Parent feature
 
 ## GTF
 
@@ -267,8 +267,10 @@ The structure is similar to GFF, so the fields are: <seqname><source><feature><s
 In this paper from 2003 [(Keibler E, Brent M: Eval: a software package for analysis of genome annotations. BMC Bioinformatics 2003, 4:50.)](https://doi.org/10.1186/1471-2105-4-50)
 they say:
 
-    Annotations are submitted to Eval in GTF file format http://genes.cse.wustl.edu/GTF2.html, a community standard developed in the course of several collaborative genome annotations projects [Reese MG, Hartzell G, Harris NL, Ohler U, Abril JF, Lewis SE. Genome annotation assessment in Drosophila melanogaster. Genome Res. 2000;10:483–501. doi: 10.1101/gr.10.4.483. | Mouse Genome Sequencing Consortium Initial sequencing and comparative analysis of the mouse genome. Nature. 2002;420:520–562. doi: 10.1038/nature01262.]. As such it can be run on the output of any annotation system.
-
+```
+Annotations are submitted to Eval in GTF file format http://genes.cse.wustl.edu/GTF2.html, a community standard developed in the course of several collaborative genome annotations projects [Reese MG, Hartzell G, Harris NL, Ohler U, Abril JF, Lewis SE. Genome annotation assessment in Drosophila melanogaster. Genome Res. 2000;10:483–501. doi: 10.1101/gr.10.4.483. | Mouse Genome Sequencing Consortium Initial sequencing and comparative analysis of the mouse genome. Nature. 2002;420:520–562. doi: 10.1038/nature01262.]. As such it can be run on the output of any annotation system.
+```
+      
 So the oldest paper they point to is the one from [Reese et al. from February 9, 2000 (Genome annotation assessment in Drosophila melanogaster)](https://doi.org/10.1101/gr.10.4.483) that says:
 
     We found that the General Feature Format
@@ -302,9 +304,9 @@ With this last paper it's hard to understand from which project the GTF format i
 Until now I havn't find a comprehensive description of the original GTF version (Ensembl version ?) but based some hints from the Masters Project Report of Evan Keibler `Eval: A Gene Set Comparison System` and from other ressources I can say that the GTF1 was similar to GTF2. With few differences listed here:
 
   * <feature>
-        The <feature> field can take 5 values: "CDS", "start_codon", "stop_codon", "exon" and "intron".
+        The <feature> field can take 5 values: `CDS`, `start_codon`, `stop_codon`, `exon` and `intron`.
   * <strand>
-        The strand value must be “+”, “-“, or “.”.
+        The strand value must be `+`, `-`, or `.`.
 
 ### GTF2 and GFF2.5  
 (2003)  
@@ -379,7 +381,7 @@ The features "5UTR", "3UTR", and "exon" are optional. All other features will be
 (2007)  
 
 In this version they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
-[Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
+ [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
 The **<feature>** field change a little bit and can contain 9 different types:
   
 ```
