@@ -34,9 +34,12 @@ It's often hard to understand and differentiate all GFF/GTF formats/flavors. Man
         * [Evolution of the 3rd and 9th column](#evolution-of-the-3rd-and-9th-column)
         * [Difference between GENCODE and Ensembl GTF](#difference-between-gencode-and-ensembl-gtf)
 
-### Forewords  
+### Forewords 
+
  ⇨	When I use the term gff it includes all gff formats/flavors. (The first version of the format was not called gff1 but gff. But to make it easier I will always specify the version of the format saying gff1 when I talk about the first version of it).  
+ 
  ⇨	I the same way, when I use the term gtf it includes all gtf formats/flavors.  
+ 
  ⇨	I have created the term **gxf** that means all the gff and gtf formats/flavors.
 
 ### Introduction  
@@ -267,9 +270,10 @@ The structure is similar to GFF, so the fields are: <seqname><source><feature><s
 In this paper from 2003 [(Keibler E, Brent M: Eval: a software package for analysis of genome annotations. BMC Bioinformatics 2003, 4:50.)](https://doi.org/10.1186/1471-2105-4-50)
 they say:
 
-.. citation:: 
+```
   Annotations are submitted to Eval in GTF file format http://genes.cse.wustl.edu/GTF2.html, a community standard developed in the course of several collaborative genome annotations projects [Reese MG, Hartzell G, Harris NL, Ohler U, Abril JF, Lewis SE. Genome annotation assessment in Drosophila melanogaster. Genome Res. 2000;10:483–501. doi: 10.1101/gr.10.4.483. | Mouse Genome Sequencing Consortium Initial sequencing and comparative analysis of the mouse genome. Nature. 2002;420:520–562. doi: 10.1038/nature01262.]. As such it can be run on the output of any annotation system.
-
+```
+      
 So the oldest paper they point to is the one from [Reese et al. from February 9, 2000 (Genome annotation assessment in Drosophila melanogaster)](https://doi.org/10.1101/gr.10.4.483) that says:
 
     We found that the General Feature Format
@@ -302,9 +306,12 @@ With this last paper it's hard to understand from which project the GTF format i
 
 Until now I havn't find a comprehensive description of the original GTF version (Ensembl version ?) but based some hints from the Masters Project Report of Evan Keibler `Eval: A Gene Set Comparison System` and from other ressources I can say that the GTF1 was similar to GTF2. With few differences listed here:
 
-  * feature
+  * feature  
+      
         The feature field can take 5 values: `CDS`, `start_codon`, `stop_codon`, `exon` and `intron`.
-  * strand
+      
+  * strand  
+      
         The strand value must be `+`, `-`, or `.`.
 
 ### GTF2 and GFF2.5  
