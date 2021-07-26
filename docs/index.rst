@@ -25,6 +25,7 @@ Contents
    why_this_tool.md
    agat_for_you.md
    troubleshooting.md
+   how_to_cite.md
 
 .. toctree::
    :maxdepth: 2
