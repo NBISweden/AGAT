@@ -8,7 +8,7 @@
 @002413F|arrow|arrow	maker	five_prime_UTR	21263	21283	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:five_prime_utr;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1
 @002413F|arrow|arrow	maker	three_prime_UTR	23400	23877	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:three_prime_utr;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1
 @002413F|arrow|arrow	maker	gene	25567	26182	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1
-@002413F|arrow|arrow	maker	mRNA	25567	26182	2523	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1;_AED=0.32;_QI=96|1|1|1|0|0|2|48|122;_eAED=0.32;product=hypothetical protein
+@002413F|arrow|arrow	maker	mRNA	25567	26182	2523	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1;Dbxref=CDD:cd06093;_AED=0.32;_QI=96|1|1|1|0|0|2|48|122;_eAED=0.32;product=hypothetical protein
 @002413F|arrow|arrow	maker	exon	25567	25720	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1:1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1
 @002413F|arrow|arrow	maker	exon	25824	26182	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1:2;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1
 @002413F|arrow|arrow	maker	CDS	25663	25720	.	+	0	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1:cds;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1

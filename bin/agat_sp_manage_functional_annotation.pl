@@ -1057,9 +1057,10 @@ sub parse_interpro_tsv {
     if ( $sizeList > 11 ) {
       my $db_name = "InterPro";
       my $interpro_value = $values[11];
-      $interpro_value =~ s/\n//g;
+      $interpro_value =~ s/\n//g; 
       my $interpro_tuple = "InterPro:".$interpro_value;
       print "interpro dB: ".$interpro_tuple."\n" if ($opt_verbose);
+      next if $interpro_value eq "-"; #fix 147
 
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
         $TotalTerm{$db_name}++;

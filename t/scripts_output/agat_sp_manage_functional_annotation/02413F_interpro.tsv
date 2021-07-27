@@ -4,3 +4,4 @@ maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a
 maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	136	PANTHER	PTHR10492		1	131	3.6E-19	T	21-03-2019
 snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-1	268d6921ca22d173dfeccde0cf5ed72e	161	PANTHER	PTHR24559:SF193		18	158	1.1E-13	T	21-03-2019
 snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-1	268d6921ca22d173dfeccde0cf5ed72e	161	PANTHER	PTHR24559		18	158	1.1E-13	T	21-03-2019
+maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1	02e711a4621dd8379a18b3d8eb701f9e	410	CDD	cd06093	PX_domain	302	395	4.74892E-6	T	29-06-2021	-	-
