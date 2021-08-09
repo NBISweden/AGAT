@@ -122,40 +122,52 @@ Some examples **what AGAT can do**:
 You will have to install all prerequisites and AGAT manually.
 
 #### Install prerequisites
-  * R  
-    You can install it by conda (`conda install r-base`), through [CRAN](https://cran.r-project.org) ([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions).
+  * R (optional)  
+    You can install it by conda (`conda install r-base`), through [CRAN](https://cran.r-project.org) ([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions). R is optional and can be used to perform some plots. You will need to install the perl depency Statistics::R
+
   * Perl >= 5.8  
-    It should already be available on your computer. If you are unlucky [perl.org](https://www.perl.org/get.html) is the place to go. 
+    It should already be available on your computer. If you are unlucky [perl.org](https://www.perl.org/get.html) is the place to go.
 
   * Perl modules  
     They can be installed in different ways:
-    
+
     * using cpan or cpanm
-  
+
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Statistics::R JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
     ```
-    
+
     * using conda
-    
+
       * using the provided yaml file
-    
+
       ```
       conda env create -f conda_environment_AGAT.yml
       conda activate agat
-      ``` 
-    
+      ```
+
       * manually  
-    
+
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-statistics-r perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
       ```
-      
+
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
-      
+
     ```
     apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libjson-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl
     ```
+
+  * Optional
+    Some scripts offer the possibility to perform plots. You will need R and Statistics::R which are not included by default.
+
+    * R   
+      You can install it by conda (`conda install r-base`), through [CRAN](https://cran.r-project.org) ([See here for a nice tutorial](https://www.datacamp.com/community/tutorials/installing-R-windows-mac-ubuntu)) or using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions).
+
+    * Statistics::R
+        You can install it through conda  (`conda install perl-statistics-r`), using cpan/cpanm (`cpanm install Statistics::R`), or your package management tool  (`apt install libstatistics-r-perl`)
+
+
 
 #### Install AGAT
 
@@ -443,7 +455,7 @@ scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:thre
 
 ## How to cite?
 
-This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used): 
+This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used):
 
 ```
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
@@ -469,5 +481,3 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
 ## Troubleshooting
 
 See Troubleshooting section form the doc [here](https://agat.readthedocs.io/en/latest/troubleshooting.html).
-
-

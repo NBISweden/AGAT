@@ -14,14 +14,12 @@ use Carp;
 use Clone 'clone';
 use File::Basename;
 use Getopt::Long;
-use Statistics::R;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::Omniscient;
-use AGAT::PlotR;
 
 # avoid case of ambiguous start codon (translated into X) -> we accept if the ORF is SIZE_OPT AA longer.
 # Indeed statistically it has more chance to be a real start codon.

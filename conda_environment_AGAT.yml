@@ -6,18 +6,17 @@ channels:
   - defaults
 
 dependencies:
-  - perl
-  - perl-bioperl
+  - perl >=5.8
+  - perl-bioperl >=1.7
   - perl-clone
+  - perl-extutils-makemaker
   - perl-graph
   - perl-lwp-simple
-  - perl-statistics-r
   - perl-json
   - perl-carp
   - perl-sort-naturally
   - perl-file-share
   - perl-file-sharedir-install
-  - perl-term-progressbar 
+  - perl-term-progressbar
   - perl-moose
-  - r-base
   - libdb

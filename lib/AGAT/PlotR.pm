@@ -6,12 +6,15 @@ use strict;
 use warnings;
 use Exporter;
 use Carp;
+use Try::Tiny;
 use Bio::Tools::GFF;
-use Statistics::R;
 use AGAT::Utilities;
 
+# before to call this package You must check the presence of Statistics::R 
+# because it is not included by default. Use may_i_plot for that purpose
+
 our @ISA         = qw(Exporter);
-our @EXPORT   = qw(execute_R_command rcc_density_one_row_per_file rcc_plot_from_list);
+our @EXPORT   = qw(execute_R_command rcc_density_one_row_per_file rcc_plot_from_list may_i_plot);
 sub import {
   AGAT::PlotR->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::PlotR->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -44,6 +47,31 @@ $R->send(
 
 # Close the bridge
 $R->stopR();
+}
+
+# check if dependencies Statistics::R and R are available
+sub may_i_plot {
+
+  my $answer = 1;
+
+  # Check R is available. If not we try to load it through Module software
+  if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
+    try{
+      require Statistics::R;
+      Statistics::R->import;
+    }
+    catch{
+      print "Perl dependency missing: Statistics::R is not installed!\n";
+      $answer = undef;
+    };
+  }
+  else {
+    print "R no available. We cannot perform any plot\n";
+    $answer = undef;
+  }
+
+  print "We cannot perform any plot.\n" if (! $answer);
+  return $answer;
 }
 
 ################## INPUT FROM LIST #######################

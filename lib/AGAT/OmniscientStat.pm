@@ -10,6 +10,7 @@ use AGAT::OmniscientTool;
 use AGAT::OmniscientJson;
 use AGAT::Utilities;
 use AGAT::PlotR;
+use Try::Tiny;
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( print_omniscient_statistics );

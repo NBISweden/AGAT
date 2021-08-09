@@ -6,9 +6,7 @@ use Carp;
 use Getopt::Long;
 use IO::File;
 use Pod::Usage;
-use Statistics::R;
 use Bio::Tools::GFF;
-use AGAT::PlotR;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
@@ -96,15 +94,11 @@ else{
   $outputPDF_prefix="intronPlot_";
 }
 
+# Check if dependencies for plot are available
 if($opt_plot){
-	# Check R is available. If not we try to load it through Module software
-	if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
-	  print "R is available. We can continue\n";
-	}
-	else {
-	  print "R no available. We cannot perform any plot\n";
-	  $opt_plot = undef;
-	}
+  if ( ! may_i_plot() ) {
+    $opt_plot = undef;
+  }
 }
 
 # #####################################

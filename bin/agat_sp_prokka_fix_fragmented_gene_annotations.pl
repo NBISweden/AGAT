@@ -6,7 +6,6 @@ use Carp;
 use Clone 'clone';
 use File::Basename;
 use Getopt::Long;
-use Statistics::R;
 use Pod::Usage;
 use LWP::UserAgent;
 use List::MoreUtils qw(uniq);
@@ -15,7 +14,7 @@ use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::Omniscient;
-use AGAT::PlotR;
+
 BEGIN {
    package case_info;
    use Moose;
