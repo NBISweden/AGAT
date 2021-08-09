@@ -825,7 +825,7 @@ sub parse_blast {
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
 
-          if ($header =~ /PE=([1-5])\s/) {
+          if ($header =~ /PE=([1-5])/) {
             if ($1 <= $opt_pe) {
               $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
             }
@@ -866,7 +866,7 @@ sub parse_blast {
           $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
         }
 
-        if ($header =~ /PE=([1-5])\s/) {
+        if ($header =~ /PE=([1-5])/) {
           if ($1 <= $opt_pe) {
             $candidates{$l2_name} = [$header, $evalue, $uniprot_id];
           }
@@ -937,8 +937,11 @@ sub parse_blast {
         }
       }
       else {
-        $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
+        $ostreamLog->print( "No gene name (GN) tag found in the header: $header\n") if ($opt_verbose or $opt_output);
       }
+    }
+    else {
+      $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
     }
   }
 
