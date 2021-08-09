@@ -5,7 +5,6 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use Getopt::Long;
-use Statistics::R;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
@@ -13,7 +12,7 @@ use Bio::DB::Fasta;
 use Bio::SeqIO;
 use Bio::Tools::CodonTable;
 use AGAT::Omniscient;
-use AGAT::PlotR;
+
 
 my $start_run = time();
 my $startP=time;

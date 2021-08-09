@@ -5,7 +5,6 @@ use warnings;
 use Carp;
 use File::Basename;
 use Getopt::Long;
-use Statistics::R;
 use IO::File;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
@@ -28,12 +27,14 @@ my $gff = undef;
 my $valueK = undef;
 my $verbose = undef;
 my $kraken_tag = "Kraken_mapped";
+my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
     "help|h" => \$help,
     "gtf=s" => \$gff,
     "threshold|t=i" => \$valueK,
+    'p|plot!' => \$opt_plot,
     "verbose|v!" => \$verbose,
     "outfile|output|out|o=s" => \$outfile))
 
@@ -88,7 +89,17 @@ $messageValue.="The kraken attribute tag that will be used is: ".$kraken_tag."\n
 #print info
 if ($outfile) {
   print $outReport $messageValue;
-  }else{print $messageValue;}
+}
+else{
+	print $messageValue;
+}
+
+# Check if dependencies for plot are available
+if($opt_plot){
+	if ( ! may_i_plot() ) {
+		$opt_plot = undef;
+	}
+}
 
                 #####################
                 #     MAIN          #
@@ -469,65 +480,60 @@ print $outReport $messageEnd;
 #PLOT
 #############
 ## -----Manage plot output file-----
-# Check R is available. If not we try to load it through Module software
-my ($pathPlotFile, $pathOutPlot, $ostreamPlotFile);
+if ($opt_plot){
 
-if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
-	print "R is available. We can also provide a plot as result.\n";
+    my ($pathPlotFile, $pathOutPlot, $ostreamPlotFile);
 
-	$ostreamPlotFile = new IO::File;
-	$pathPlotFile="geneMapped.txt";
-	$pathOutPlot="geneMapped_plot.pdf";
-	if ($outfile) {
-	  $pathPlotFile=$outfile_no_extension."-geneMapped.txt";
-	  $pathOutPlot=$outfile_no_extension."-geneMapped_plot.pdf";
-	}
-	$ostreamPlotFile->open($pathPlotFile, 'w' ) or
-        croak(
-          sprintf( "Can not open '%s' for writing %s", $pathPlotFile, $! )
-        );
+  	$ostreamPlotFile = new IO::File;
+  	$pathPlotFile="geneMapped.txt";
+  	$pathOutPlot="geneMapped_plot.pdf";
+  	if ($outfile) {
+  	  $pathPlotFile=$outfile_no_extension."-geneMapped.txt";
+  	  $pathOutPlot=$outfile_no_extension."-geneMapped_plot.pdf";
+  	}
+  	$ostreamPlotFile->open($pathPlotFile, 'w' ) or
+          croak(
+            sprintf( "Can not open '%s' for writing %s", $pathPlotFile, $! )
+          );
 
-	###############
-	# print the value per gene in a temporary file for R plot
-	foreach my $key (keys %mappedPercentPerGene){
-		if ($mappedPercentPerGene{$key} > 100){
-				print $ostreamPlotFile "100\n";
-				warn "Warning: $key mapped value over 100%: ".$mappedPercentPerGene{$key}."%\n";
-		}
-		else{
-	   print $ostreamPlotFile $mappedPercentPerGene{$key}."\n";
-	 	}
-	}
+  	###############
+  	# print the value per gene in a temporary file for R plot
+  	foreach my $key (keys %mappedPercentPerGene){
+  		if ($mappedPercentPerGene{$key} > 100){
+  				print $ostreamPlotFile "100\n";
+  				warn "Warning: $key mapped value over 100%: ".$mappedPercentPerGene{$key}."%\n";
+  		}
+  		else{
+  	   print $ostreamPlotFile $mappedPercentPerGene{$key}."\n";
+  	 	}
+  	}
 
-	my $messagePlot;
-	if ($nbGeneIdUniqMap){
-	  # Create the legend
-	  my $nbOfGeneSelected = $nbGeneIdUniqMap;
-	  # parse file name to remove extension
-	  my ($file1,$dir1,$ext1) = fileparse($gff, qr/\.[^.]*/);
-	  my $legend=$nbOfGeneSelected." genes selected from ".$file1;
+  	my $messagePlot;
+  	if ($nbGeneIdUniqMap){
+  	  # Create the legend
+  	  my $nbOfGeneSelected = $nbGeneIdUniqMap;
+  	  # parse file name to remove extension
+  	  my ($file1,$dir1,$ext1) = fileparse($gff, qr/\.[^.]*/);
+  	  my $legend=$nbOfGeneSelected." genes selected from ".$file1;
 
-	  my @listTuple=([$pathPlotFile,$legend]);
-	  my $R_command=rcc_density_one_row_per_file(\@listTuple,"histogram","Percentage of gene length mapped","10","",$pathOutPlot); # create the R command
-	  execute_R_command($R_command);
+  	  my @listTuple=([$pathPlotFile,$legend]);
+  	  my $R_command=rcc_density_one_row_per_file(\@listTuple,"histogram","Percentage of gene length mapped","10","",$pathOutPlot); # create the R command
+  	  execute_R_command($R_command);
 
-	  $messagePlot = "Plot done in the pdf file named $pathOutPlot\n";
-	}
-	else{
-	  $messagePlot = "Cannot perform any plot without data.\n";
-	}
+  	  $messagePlot = "Plot done in the pdf file named $pathOutPlot\n";
+  	}
+  	else{
+  	  $messagePlot = "Cannot perform any plot without data.\n";
+  	}
 
-	#print info
-	if ($outfile) {
-	  print $outReport $messagePlot;
-	}
-	else{print $messagePlot;}
+  	#print info
+  	if ($outfile) {
+  	  print $outReport $messagePlot;
+  	}
+  	else{print $messagePlot;}
 
-	# Delete temporary file
-	#unlink "$pathPlotFile";
-}
-else {
-	print "R no available. We cannot perform any plot\n";
+  	# Delete temporary file
+  	#unlink "$pathPlotFile";
 }
 #END
 print "We finished !! Bye Bye.\n";
@@ -743,6 +749,10 @@ Gene mapping percentage over which a gene must be reported. By default the value
 =item B<--verbose> or B<-v>
 
 Verbose information.
+
+=item  B<--p> or B<--plot>
+
+Allows to create an histogram in pdf. It shows the distribution of percentage of gene length mapped.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 

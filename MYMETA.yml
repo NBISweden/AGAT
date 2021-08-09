@@ -46,7 +46,6 @@ requires:
   Pod::Usage: '0'
   Scalar::Util: '0'
   Sort::Naturally: '0'
-  Statistics::R: '0'
   Term::ProgressBar: '0'
   Time::Piece: '0'
   Time::Seconds: '0'
@@ -59,5 +58,5 @@ resources:
   bugtracker: https://github.com/NBISweden/AGAT/issues
   homepage: https://nbis.se
   repository: https://github.com/NBISweden/AGAT.git
-version: v0.6.3
+version: v0.7.0
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

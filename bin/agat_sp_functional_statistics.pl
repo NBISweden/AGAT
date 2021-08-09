@@ -5,7 +5,6 @@ use warnings;
 use Getopt::Long;
 use File::Basename;
 use Pod::Usage;
-use Statistics::R;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;

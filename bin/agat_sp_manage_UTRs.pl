@@ -4,11 +4,11 @@ use strict;
 use warnings;
 use POSIX qw(strftime);
 use Carp;
+use Try::Tiny;
 use File::Basename;
 use IO::File;
 use Pod::Usage;
 use Getopt::Long qw(:config no_auto_abbrev);
-use Statistics::R;
 use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
@@ -85,17 +85,12 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
   $string1 .= "Genes with more than $opt_nbUTR UTRs will be reported.\n";
 }
 
-
 print $ostreamReport $string1;
 if($opt_output){print $string1;}
 
-# Check R is available. If not we try to load it through Module software
+# Check if dependencies for plot are available
 if($opt_plot){
-	if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
-		print "R is available. We can continue\n";
-	}
-	else {
-		print "R no available. We cannot perform any plot\n";
+	if ( ! may_i_plot() ) {
 		$opt_plot = undef;
 	}
 }

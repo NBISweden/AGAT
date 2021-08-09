@@ -4,12 +4,11 @@ use strict;
 use warnings;
 use Getopt::Long qw(:config no_auto_abbrev);
 use Pod::Usage;
-use Statistics::R;
 use IO::File;
+use Try::Tiny;
 use List::MoreUtils qw(uniq);
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
-use AGAT::PlotR;
 
 my $header = get_agat_header();
 my $gff = undef;
@@ -24,7 +23,7 @@ if ( !GetOptions(
     'o|output=s'  => \$opt_output,
     'd|p'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,
-    'g|f|gs=s'      => \$opt_genomeSize,
+    'g|f|gs=s'    => \$opt_genomeSize,
     "gff|i=s"     => \$gff))
 
 {
@@ -66,27 +65,25 @@ else{
 
 #Manage plot folder output
 if($opt_plot){
-  if ($opt_output){
-    $opt_plot = $opt_output."_distribution_plots";
+
+  # Check if dependencies for plot are available
+  if ( ! may_i_plot() ) {
+    $opt_plot = undef;
   }
   else{
-    $opt_plot = "distribution_plots";
-
-    if (-f $opt_plot){
-      print "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n";exit();
+    if ($opt_output){
+      $opt_plot = $opt_output."_distribution_plots";
     }
-    if (-d $opt_plot){
-      print "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n";exit();
-    }
-  }
+    else{
+      $opt_plot = "distribution_plots";
 
-  # Check R is available. If not we try to load it through Module software
-  if ( system("R --version 1>/dev/null 2>/dev/null") == 0 ) {
-    print "R is available. We can continue\n";
-  }
-  else {
-    print "R no available. We cannot perform any plot\n";
-    $opt_plot = undef;
+      if (-f $opt_plot){
+        print "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n";exit();
+      }
+      if (-d $opt_plot){
+        print "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n";exit();
+      }
+    }
   }
 }
 
