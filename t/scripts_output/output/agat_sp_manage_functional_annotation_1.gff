@@ -1,6 +1,6 @@
 ##gff-version 3
 @002413F|arrow|arrow	maker	gene	21263	23877	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0
-@002413F|arrow|arrow	maker	mRNA	21263	23877	3839	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0;Dbxref=CDD:cd15574,InterPro:IPR011011,MobiDBLite:mobidb-lite,PANTHER:PTHR10492,SUPERFAMILY:SSF57903;Ontology_term=x@GO:0005525,GO:0007165,GO:0016020;_AED=0.18;_QI=21|1|1|1|0|0|2|478|136;_eAED=0.18;product=hypothetical protein
+@002413F|arrow|arrow	maker	mRNA	21263	23877	3839	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0;Dbxref=CDD:cd15574,InterPro:IPR011011,MobiDBLite:mobidb-lite,PANTHER:PTHR10492,SUPERFAMILY:SSF57903;Ontology_term=GO:0005525,GO:0007165,GO:0016020;_AED=0.18;_QI=21|1|1|1|0|0|2|478|136;_eAED=0.18;product=hypothetical protein
 @002413F|arrow|arrow	maker	exon	21263	21530	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:1;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1
 @002413F|arrow|arrow	maker	exon	23236	23877	.	+	.	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:2;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1
 @002413F|arrow|arrow	maker	CDS	21284	21530	.	+	0	ID=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:cds;Parent=maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1

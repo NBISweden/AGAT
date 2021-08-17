@@ -1,5 +1,5 @@
 maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	1019	MobiDBLite	mobidb-lite	consensus disorder prediction	473	513	-	T	21-03-2019
-maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	1019	SUPERFAMILY	SSF57903		7	72	6.61E-12	T	21-03-2019	IPR011011	Zinc finger, FYVE/PHD-type	x@GO:0005525|GO:0007165|GO:0016020
+maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	1019	SUPERFAMILY	SSF57903		7	72	6.61E-12	T	21-03-2019	IPR011011	Zinc finger, FYVE/PHD-type	GO:0005525|GO:0007165|GO:0016020
 maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	1019	CDD	cd15574	PHD_AF10_AF17	7	54	9.03183E-34	T	21-03-2019
 maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1	f01a6a391a49774a046d070d7954f744	136	PANTHER	PTHR10492		1	131	3.6E-19	T	21-03-2019
 snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-1	268d6921ca22d173dfeccde0cf5ed72e	161	PANTHER	PTHR24559:SF193		18	158	1.1E-13	T	21-03-2019

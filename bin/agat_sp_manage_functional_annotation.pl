@@ -13,7 +13,7 @@ use Bio::DB::Fasta;
 use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
-#use Data::Dumper; # JN: for dedug printing 
+#use Data::Dumper; # JN: for dedug printing
 my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
@@ -24,6 +24,7 @@ my $opt_BlastFile;
 my $opt_InterproFile;
 my $opt_name = undef;
 my $opt_nameU;
+my $opt_populate_cds = undef;
 my $opt_verbose = undef;
 my $opt_help = 0;
 my $opt_blastEvalue = 1e-6;
@@ -80,6 +81,7 @@ GetOptions(
  'd|db=s'                   => \$opt_dataBase,
  'be|blast_evalue=i'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
+ 'pcds!'                     => \$opt_populate_cds,
  'i|interpro=s'             => \$opt_InterproFile,
  'id=s'                     => \$opt_name,
  'idau=s'                   => \$opt_nameU,
@@ -348,14 +350,14 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               if (exists ($mRNANameBlast{$level2_ID})) {
                 my $mRNABlastName = $mRNANameBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'Name', $mRNABlastName);
               }
-
-              my $productData = printProductFunct($level2_ID);
 
               #add UniprotID attribute
               if (exists ($mRNAUniprotIDFromBlast{$level2_ID})) {
                 my $mRNAUniprotID = $mRNAUniprotIDFromBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'uniprot_id', $mRNAUniprotID);
               }
 
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
@@ -370,8 +372,11 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_replace_tag($feature_level2, 'gn_present', 'NA') if ($opt_addGnPresentTag);
               }
 
+              my $productData = printProductFunct($level2_ID);
+
               #add product attribute
               if ($productData ne "") {
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'product', $productData);
                 if ($feature_level2->has_tag('pseudo')) {
                   create_or_replace_tag($feature_level2, 'Note', "product:$productData");
                 }
@@ -380,6 +385,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 }
               }
               else {
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'product', "hypothetical protein");
                 if ($feature_level2->has_tag('pseudo')) {
                   create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
                 }
@@ -393,7 +399,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
             if ($opt_InterproFile) {
               my $parentID = $feature_level2->_tag_value('Parent');
 
-              if (addFunctions($feature_level2, $opt_output)) {
+              if (addFunctions($hash_omniscient, $feature_level2, $opt_output)) {
                 $nbmRNAwithFunction++;
                 $geneWithFunction{$parentID}++;
                 if (exists ($geneWithoutFunction{$parentID})) {
@@ -650,6 +656,18 @@ print_time("End of script.");
                 ####
                  ##
 
+sub add_attribute_to_cds {
+  my ($hash_omniscient, $level2_ID, $tag, $value) = @_;
+
+  if($opt_populate_cds){
+    if ( exists_keys ($hash_omniscient, ('level3', 'cds', lc($level2_ID)) ) ) {
+      foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'cds'}{lc($level2_ID)}}) {
+        $feature_level3->add_tag_value($tag, $value);
+      }
+    }
+  }
+}
+
 #create or take the unique letter TAG
 sub get_letter_tag {
   my ($tag) = @_;
@@ -741,7 +759,7 @@ sub printProductFunct {
 }
 
 sub addFunctions {
-  my ($feature, $opt_output) = @_;
+  my ($hash_omniscient, $feature, $opt_output) = @_;
 
   my $functionAdded = undef;
   my $ID = lc($feature->_tag_value('ID'));
@@ -757,6 +775,7 @@ sub addFunctions {
           $feature->add_tag_value('Ontology_term', $data);
           $data_list .= "$data,";
           $functionDataAdded{$function_type}++;
+          add_attribute_to_cds($hash_omniscient, $ID, 'Ontology_term', $feature->_tag_value('Ontology_term'));
         }
       }
       else {
@@ -764,6 +783,7 @@ sub addFunctions {
           $feature->add_tag_value('Dbxref', $data);
           $data_list .= "$data,";
           $functionDataAdded{$function_type}++;
+          add_attribute_to_cds($hash_omniscient, $ID, 'Dbxref', $feature->_tag_value('Dbxref'));
         }
       }
 
@@ -1060,7 +1080,7 @@ sub parse_interpro_tsv {
     if ( $sizeList > 11 ) {
       my $db_name = "InterPro";
       my $interpro_value = $values[11];
-      $interpro_value =~ s/\n//g; 
+      $interpro_value =~ s/\n//g;
       my $interpro_tuple = "InterPro:".$interpro_value;
       print "interpro dB: ".$interpro_tuple."\n" if ($opt_verbose);
       next if $interpro_value eq "-"; #fix 147
@@ -1258,6 +1278,10 @@ or not ('gn_present=no'). Blast hits without an entry in the blast db will recei
 
 String - Output folder name with summary files. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<--pcds>
+
+Boolean - pcds stands for populate cds. It copies the Name, product, Ontology_term, Dbxref and uniprot_id attributes from mRNA to the CDS.
 
 =item B<-v>
 
