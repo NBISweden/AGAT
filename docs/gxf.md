@@ -270,43 +270,39 @@ The structure is similar to GFF, so the fields are: <seqname><source><feature><s
 In this paper from 2003 [(Keibler E, Brent M: Eval: a software package for analysis of genome annotations. BMC Bioinformatics 2003, 4:50.)](https://doi.org/10.1186/1471-2105-4-50)
 they say:
 
-```
-  Annotations are submitted to Eval in GTF file format http://genes.cse.wustl.edu/GTF2.html, a community standard developed in the course of several collaborative genome annotations projects [Reese MG, Hartzell G, Harris NL, Ohler U, Abril JF, Lewis SE. Genome annotation assessment in Drosophila melanogaster. Genome Res. 2000;10:483–501. doi: 10.1101/gr.10.4.483. | Mouse Genome Sequencing Consortium Initial sequencing and comparative analysis of the mouse genome. Nature. 2002;420:520–562. doi: 10.1038/nature01262.]. As such it can be run on the output of any annotation system.
-```
+
+    Annotations are submitted to Eval in GTF file format http://genes.cse.wustl.edu/GTF2.html, 
+    a community standard developed in the course of several collaborative genome annotations projects 
+    [Reese MG, Hartzell G, Harris NL, Ohler U, Abril JF, Lewis SE. Genome annotation assessment in 
+    Drosophila melanogaster. Genome Res. 2000;10:483–501. doi: 10.1101/gr.10.4.483. | Mouse Genome
+    Sequencing Consortium Initial sequencing and comparative analysis of the mouse genome. Nature. 
+    2002;420:520–562. doi: 10.1038/nature01262.].
+    As such it can be run on the output of any annotation system.
       
 So the oldest paper they point to is the one from [Reese et al. from February 9, 2000 (Genome annotation assessment in Drosophila melanogaster)](https://doi.org/10.1101/gr.10.4.483) that says:
 
-    We found that the General Feature Format
-    (GFF) (formerly known as the Gene Feature Finding
-    format) was an excellent fit to our needs. The GFF
-    format is an extension of a simple name, start, end record
-    that includes some additional information about
-    the sequence being annotated: the source of the feature;
-    the type of feature; the location of the feature in
-    the sequence; and a score, strand, and frame for the
-    feature. It has an optional ninth field that can be used
-    to group multiple predictions into single annotations.
-    More information can be found at the GFF web site:
-    http://www.sanger.ac.uk/Software/formats/GFF/. Our
-    evaluation tools used a GFF parser for the PERL programming
-    language that is also available at the GFF
-    web site.
-    We found that it was necessary to specify a standard
-    set of feature names within the GFF format, for
-    instance, declaring that submitters should describe
-    coding exons with the feature name CDS.
+    We found that the General Feature Format (GFF) (formerly known as the Gene Feature Finding format) 
+    was an excellent fit to our needs. The GFF format is an extension of a simple name, start, end 
+    record that includes some additional information about the sequence being annotated: the source of
+    the feature; the type of feature; the location of the feature in the sequence; and a score, 
+    strand, and frame for the feature. It has an optional ninth field that can be used to group 
+    multiple predictions into single annotations.
+    More information can be found at the GFF web site:  http://www.sanger.ac.uk/Software/formats/GFF/. 
+    Our evaluation tools used a GFF parser for the PERL programming language that is also available at
+    the GFF web site. We found that it was necessary to specify a standard set of feature names within
+    the GFF format, for instance, declaring that submitters should describe coding exons with the 
+    feature name CDS.
 
 From those information we can understand that in ~2000 for the drosophila genome project they have use the GFF format with particuliar specification that leaded to the emergence of the GTF format.
 
 In another paper [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6): 996–1006. doi:10.1101/gr.229102](https://doi.org/10.1101/gr.229102) the authors say that the GTF format has been designed specifically for the human genome project:
 
-`Since August 2001, it has become possible for users to upload their own 
-annotations for display in the browser. These annotations can be in the standard
-GFF format (http://www.sanger.ac.uk/Software/formats/GFF), or in some formats 
-designed specifically for the human genome project including GTF, PSL, and BED. 
-The formats are described in detail in the web page 
-http://genome.cse.ucsc.edu/goldenPath/help/customTrack.html. Note that the GFF 
-and GTF files must be tab delimited rather than space delimited.`
+    Since August 2001, it has become possible for users to upload their own annotations for display
+    in the browser. These annotations can be in the standard GFF format 
+    (http://www.sanger.ac.uk/Software/formats/GFF), or in some formats designed specifically for the 
+    human genome project including GTF, PSL, and BED. The formats are described in detail in the web
+    page http://genome.cse.ucsc.edu/goldenPath/help/customTrack.html. Note that the GFF and GTF files
+    must be tab delimited rather than space delimited.
       
 With this last paper it's hard to understand from which project the GTF format is finally born.
 
