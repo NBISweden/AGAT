@@ -28,24 +28,36 @@ removed or added when using the downstream and/or upstream parameter.
 The OFS of all values can be modified excepted for the ID (see --ofs parameter).
 In such case the tool gives a warning.
 
-Some examples:
-To extract the coding regions:
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta
-or
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t cds
-To extract and translate the coding regions:
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -p
-or
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t cds -p
-To extract the mRNA (biological definition UTR+CDS):
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t exon --merge
-To extract each cds chunk independently:
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t cds --split
-To extract 5'UTR with introns:
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t "5'UTR" --full
-To extract 100nt upstream region of a gene:
-agat\_sp\_extract\_sequences.pl -g infile.gff -f infile.fasta -t gene --upstream 100
-
+**Some examples:**  
+To extract the coding regions:  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta
+# or
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds
+```
+To extract and translate the coding regions:  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -p
+# or
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds -p
+```
+To extract the mRNA (biological definition UTR+CDS):  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t exon --merge
+```
+To extract each cds chunk independently:  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t cds --split
+```
+To extract 5'UTR with introns:  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t "5'UTR" --full
+```
+To extract 100nt upstream region of a gene:  
+```
+agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta -t gene --upstream 100
+```
+General usage:  
 ```
 agat_sp_extract_sequences.pl -g infile.gff -f infile.fasta  [ -o outfile ]
 agat_sp_extract_sequences.pl --help
