@@ -11,7 +11,7 @@ This flexibility has a drawback aspect, there is an incredible amount of flavor 
 It's often hard to understand and differentiate all GFF/GTF formats/flavors. Many tools using GTF/GFF formats fails due to specific expectations.
 AGAT is a suite of tools able to deal with any GTF/GFF formats and perform most of the possible tasks you would need.
 
-.. figure:: wordcloud.png
+.. figure:: img/wordcloud.png
 
 
 Contents

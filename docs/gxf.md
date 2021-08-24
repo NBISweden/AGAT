@@ -300,7 +300,13 @@ From those information we can understand that in ~2000 for the drosophila genome
 
 In another paper [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6): 996–1006. doi:10.1101/gr.229102](https://doi.org/10.1101/gr.229102) the authors say that the GTF format has been designed specifically for the human genome project:
 
-`Since August 2001, it has become possible for users to upload their own annotations for display in the browser. These annotations can be in the standard GFF format (http://www.sanger.ac.uk/Software/formats/GFF), or in some formats designed specifically for the human genome project including GTF, PSL, and BED. The formats are described in detail in the web page http://genome.cse.ucsc.edu/goldenPath/help/customTrack.html. Note that the GFF and GTF files must be tab delimited rather than space delimited.`
+`Since August 2001, it has become possible for users to upload their own 
+annotations for display in the browser. These annotations can be in the standard
+GFF format (http://www.sanger.ac.uk/Software/formats/GFF), or in some formats 
+designed specifically for the human genome project including GTF, PSL, and BED. 
+The formats are described in detail in the web page 
+http://genome.cse.ucsc.edu/goldenPath/help/customTrack.html. Note that the GFF 
+and GTF files must be tab delimited rather than space delimited.`
       
 With this last paper it's hard to understand from which project the GTF format is finally born.
 
@@ -415,7 +421,7 @@ Originally Ensembl has created the GTF format that has been then slightly modifi
 ## Resume
 
 ### Timeline of the different formats  
-![](gff_history.jpg "gff_history")
+![](img/gff_history.jpg "gff_history")
 
 ### Main points and differences between GFF formats
 
