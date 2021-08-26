@@ -2027,7 +2027,9 @@ sub check_gene_overlap_at_CDSthenEXON{
 # @output: none
 sub check_gene_positions {
 
-  my ($hash_omniscient, $gene_id)=@_;
+  my ($hash_omniscient, $gene_feature)=@_;
+
+  my $gene_id=lc($gene_feature->_tag_value('ID'));
 
   #####
   #Modify gene start-end (have to check size of each mRNA)
@@ -2046,12 +2048,12 @@ sub check_gene_positions {
 	        $geneExtremEnd=$end;
 	      }
 	    }
-	}
+		}
   }
-  my $gene_feature=$hash_omniscient->{'level1'}{'gene'}{lc($gene_id)};
+
   if ($gene_feature->start != $geneExtremStart){
-      $gene_feature->start($geneExtremStart);
-   }
+    $gene_feature->start($geneExtremStart);
+  }
   if($gene_feature->end != $geneExtremEnd){
     $gene_feature->end($geneExtremEnd);
   }
