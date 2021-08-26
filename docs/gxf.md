@@ -281,17 +281,17 @@ they say:
       
 So the oldest paper they point to is the one from [Reese et al. from February 9, 2000 (Genome annotation assessment in Drosophila melanogaster)](https://doi.org/10.1101/gr.10.4.483) that says:
 
-    We found that the General Feature Format (GFF) (formerly known as the Gene Feature Finding format) 
-    was an excellent fit to our needs. The GFF format is an extension of a simple name, start, end 
-    record that includes some additional information about the sequence being annotated: the source of
-    the feature; the type of feature; the location of the feature in the sequence; and a score, 
-    strand, and frame for the feature. It has an optional ninth field that can be used to group 
-    multiple predictions into single annotations.
+    We found that the General Feature Format (GFF) (formerly known as the Gene Feature Finding 
+    format) was an excellent fit to our needs. The GFF format is an extension of a simple name, 
+    start, end record that includes some additional information about the sequence being annotated: 
+    the source of the feature; the type of feature; the location of the feature in the sequence; and
+    a score, strand, and frame for the feature. It has an optional ninth field that can be used to 
+    group multiple predictions into single annotations.
     More information can be found at the GFF web site:  http://www.sanger.ac.uk/Software/formats/GFF/. 
-    Our evaluation tools used a GFF parser for the PERL programming language that is also available at
-    the GFF web site. We found that it was necessary to specify a standard set of feature names within
-    the GFF format, for instance, declaring that submitters should describe coding exons with the 
-    feature name CDS.
+    Our evaluation tools used a GFF parser for the PERL programming language that is also available 
+    at the GFF web site. We found that it was necessary to specify a standard set of feature names 
+    within the GFF format, for instance, declaring that submitters should describe coding exons with 
+    the feature name CDS.
 
 From those information we can understand that in ~2000 for the drosophila genome project they have use the GFF format with particuliar specification that leaded to the emergence of the GTF format.
 
