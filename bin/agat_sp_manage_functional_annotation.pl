@@ -775,7 +775,7 @@ sub addFunctions {
           $feature->add_tag_value('Ontology_term', $data);
           $data_list .= "$data,";
           $functionDataAdded{$function_type}++;
-          add_attribute_to_cds($hash_omniscient, $ID, 'Ontology_term', $feature->_tag_value('Ontology_term'));
+          add_attribute_to_cds($hash_omniscient, $ID, 'Ontology_term', $data);
         }
       }
       else {
@@ -783,7 +783,7 @@ sub addFunctions {
           $feature->add_tag_value('Dbxref', $data);
           $data_list .= "$data,";
           $functionDataAdded{$function_type}++;
-          add_attribute_to_cds($hash_omniscient, $ID, 'Dbxref', $feature->_tag_value('Dbxref'));
+          add_attribute_to_cds($hash_omniscient, $ID, 'Dbxref', $data);
         }
       }
 
