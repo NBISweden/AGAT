@@ -19,7 +19,8 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 ## Table of Contents
 
    * [What can AGAT do for you?](#what-can-agat-do-for-you)
-   * [Installation](#installation)  
+   * [Installation](#installation)
+       * [Using Docker](#using-docker)
        * [Using Bioconda](#using-bioconda)
           * [Install AGAT](#install-agat)
           * [Update AGAT](#update-agat)
@@ -97,6 +98,18 @@ Some examples **what AGAT can do**:
 
 
 ## Installation
+
+### Using Docker
+
+First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
+Secondly have look at the availabe AGAT containers at https://quay.io/repository/biocontainers/agat?tab=tags.  
+Then:
+  ```
+# get the chosen AGAT version
+docker pull quay.io/biocontainers/agat:0.6.2--pl5262r35hdfd78af_0
+# use an AGAT's tool e.g. agat_convert_sp_gxf2gxf
+docker run quay.io/biocontainers/agat:0.6.2--pl5262r35hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
+  ```
 
 ### Using Bioconda
 
