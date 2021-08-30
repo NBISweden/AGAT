@@ -157,7 +157,7 @@ foreach my $tag (keys %hash_sortBySeq){ # loop over all the feature level1
         ###
         # check end and start of the new feature
         my $gene_id=lc($reference_feature->_tag_value('ID'));
-        check_gene_positions($hash_omniscient, $gene_id);
+        check_gene_positions($hash_omniscient, $reference_feature);
         print "\n\n";
       }
     }
