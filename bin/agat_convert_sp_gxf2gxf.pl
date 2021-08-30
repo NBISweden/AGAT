@@ -52,8 +52,8 @@ if ($opt_help) {
 
 if (! defined($opt_gfffile) and ! defined($opt_expose_feature_levels)){
     pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (-g).\n\n".
-           "Ouptut is optional. Look at the help documentation to know more.\n",
+           -message => "$header\nAt least 1 parameter is mandatory:\n --gff (Input reference gff file) or --expose parameter.\n\n".
+           "Invoke the help for more information (--help).\n",
            -verbose => 0,
            -exitval => 1 } );
 }
@@ -86,8 +86,11 @@ if($opt_comonTag){
 }
 
 # get log name
-my ($file,$path,$ext) = fileparse($opt_gfffile,qr/\.[^.]*/);
-my $log_name = $file.".agat.log";
+my $log_name;
+if($opt_gfffile){
+    my ($file,$path,$ext) = fileparse($opt_gfffile,qr/\.[^.]*/);
+    $log_name = $file.".agat.log";
+}
 
                 #####################
                 #     MAIN          #
