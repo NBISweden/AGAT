@@ -938,12 +938,20 @@ sub remove_l2_and_relatives{
 
 
     if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-      #The list was empty so l2 has been removed, we can now remove l1
-      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
-        $cases_l1++;
-				print $fh_removed $id_l1."\n" if ($fh_removed);
-        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+      my $anotherL2Linked=0;
+      foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
+      	 if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+      	 	$anotherL2Linked=1;
+      	 }
       }
+      #The list was empty so l2 has been removed, we can now remove l1
+      if(! $anotherL2Linked){
+	      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+	        $cases_l1++;
+					print $fh_removed $id_l1."\n" if ($fh_removed);
+	        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+	      }
+	    }
     }
   }
 
