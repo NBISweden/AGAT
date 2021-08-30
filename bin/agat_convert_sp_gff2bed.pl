@@ -11,12 +11,14 @@ my $header = get_agat_header();
 my $outfile = undef;
 my $gff = undef;
 my $sub = "exon";
+my $opt_nc = "keep";
 my $help;
 
 if( !GetOptions(
     "help|h" => \$help,
     "gff=s" => \$gff,
-		"sub=s" => \$sub,
+	"sub=s" => \$sub,
+	"nc=s" => \$opt_nc,
     "outfile|output|out|o=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line.",
@@ -49,9 +51,13 @@ else{
   $bedout=\*STDOUT ;
 }
 
+if($opt_nc ne "keep" and $opt_nc ne "filter" and $opt_nc ne "transcript"){
+	print "Parameter --nc accepts only [keep,filter,transcript] values.\n"; 
+	exit;
+}
+
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff                                                             });
 # END parsing
 
 
@@ -107,7 +113,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			my $field11_blockSizes = undef;
 			my $field12_blockStarts = undef;
 
-	    foreach my $tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # tag_l2 = mrna or mirna or ncrna or trna etc...
+	    foreach my $tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}) { # tag_l2 = mrna or mirna or ncrna or trna etc...
 				if( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1 ) ) ) {
 	        foreach my $feature_l2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
@@ -138,15 +144,20 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 									$field11_blockSizes .= $size_l3.",";
 
 									$field12_blockStarts .= $start_l3-$field2_chromStart.",";
-	            }
-	          }
+	            			}
+	        		    }
+
 						#add thick if CDS
 						if( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID ) ) ) {
 
 							my @sorted_cds = sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
 							$field7_thickStart = $sorted_cds[0]->start - 1;
 							$field8_thickEnd = $sorted_cds[$#sorted_cds]->end;
-	          }
+	                    }
+	                    elsif($opt_nc eq "transcript"){ # No CDS but option to report transcript RNA activated
+	                    	$field7_thickStart = $field2_chromStart;
+							$field8_thickEnd = $field3_chromEnd;
+	                    }
 
 						if ($field11_blockSizes){
 							$field11_blockSizes=~ s/,+$//; #removing trailing coma
@@ -163,14 +174,22 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							}
 							$line .= "\n";
 
-							print $bedout $line;
+							# keep info to see if we avoid to print the result of this iteration
+							my $test_nc = $field7_thickStart;
 
-						  # reinitialize values
+						    # reinitialize values
 							$field7_thickStart = undef;
 							$field8_thickEnd = undef;
 							$field10_blockCount = undef;
 							$field11_blockSizes = undef;
 							$field12_blockStarts = undef;
+
+							if($test_nc eq "." and $opt_nc eq "filter"){
+								continue; # skip this non-coding feature
+							}
+							# print bed line
+							print $bedout $line;
+
 						}
 					}
 				}
@@ -190,8 +209,9 @@ agat_convert_sp_gff2bed.pl
 
 The script aims to convert GTF/GXF file into bed file.
 It will convert level2 features from gff (mRNA, transcripts) into bed features.
-If  the selected level2 subfeatures (defaut: exon) exist, they will be reported
-in the block fields (9-12th colum in bed).
+If the selected level2 subfeatures (defaut: exon) exist, they are reported
+in the block fields (9-12th colum in bed). CDS Start and End are reported in column
+7 and 8 accordingly.
 
 Definintion of the bed format:
 # 1 chrom - The name of the chromosome (e.g. chr3, chrY, chr2_random) or scaffold (e.g. scaffold10671).
@@ -220,6 +240,13 @@ Definintion of the bed format:
 =item B<--gff>
 
 Input GFF3 file that will be read
+
+=item B<--nc>
+
+STRING - behaviour for non-coding features (e.g. recored wihtout CDS). [keep,filter,transcript]
+keep - Default, they are kept but no CDS position is reported in the 7th and 8th columns (a period is reported instead). 
+filter - We remove them.
+transcript - We keep them but values in 7th and 8th columns will contains transcript's start and stop.
 
 =item B<--sub>
 
