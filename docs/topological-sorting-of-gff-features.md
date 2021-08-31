@@ -30,7 +30,7 @@ Zhigang Lu has made a nice post about his experience trying to find a way to get
 ## Tests summary
 
 tool | option in command line | Type of sorting | Comment
--- | -- | -- | -- |
+-- | -- | -- | -- 
 [AGAT](https://github.com/NBISweden/AGAT) | / | by chromosomes, by gene position, by type (mRNAs then exon, then CDS then alphabetical feature types; then mRNA2 then exon2, then CDS2 then alphabetical feature2 types) | Fix GFF/GTF if needed
 [GenomeTools](https://github.com/genometools/genometools) | -sortlines -tidy -retainids | by chromosomes and positions then random feature type | Lines with the same chromosomes and start positions would be placed randomly, so parent feature lines might sometimes be placed after their children lines.
 [GenomeTools](https://github.com/genometools/genometools) | -retainids | by chromosomes, by gene position, by type (mRNA then children; then mRNA2 then children2), by position (children are sorted by positions)
