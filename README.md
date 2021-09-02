@@ -106,9 +106,9 @@ Secondly have look at the availabe AGAT containers at https://quay.io/repository
 Then:
   ```
 # get the chosen AGAT version
-docker pull quay.io/biocontainers/agat:0.6.2--pl5262r35hdfd78af_0
+docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
 # use an AGAT's tool e.g. agat_convert_sp_gxf2gxf
-docker run quay.io/biocontainers/agat:0.6.2--pl5262r35hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
+docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
 
 ### Using Bioconda
