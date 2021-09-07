@@ -302,7 +302,7 @@ sub slurp_gff3_file_JD {
 		my $format;
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
-		dual_print( $log, "=> GFF version parser used: $format\n", $verbose );
+		dual_print( $log, "=> GFF parser version used: $format\n", $verbose );
 		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
 		#read every lines
@@ -3269,6 +3269,8 @@ sub select_gff_format{
 		my $problem3=undef;
 		my $nbLineChecked=100; #number line to use to check the formnat
 		my $cpt=0;
+		my @col_tab;
+		my @attribute_tab;
 
 		open(my $fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
 		{
@@ -3280,9 +3282,10 @@ sub select_gff_format{
 				if($cpt > $nbLineChecked){
 								last;
 				}
-				if($_ =~ /^.*\t.*\t.*\t.*\t.*\t.*\t.*\t.*\t(.*)/){
+				if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
+					#print "coucou $1\n"; next;
 					if(length($1) < 1){next;}
-
+					#print "coucou2\n";
 					my $Ninethcolum = $1;
 
 					#replace value quoted by a string in case some special character are within the quote e.g. = ;
@@ -3303,7 +3306,9 @@ sub select_gff_format{
 					if($c > 1 and $d > 1	and $Ninethcolum !~ /;/ ){
 								 $problem3=1;
 					}
+					@attribute_tab = split /\t/, $Ninethcolum ;
 	 			}
+			@col_tab = split /\t/, $_ ;
 			}
 		}
 		close($fh);
@@ -3323,9 +3328,23 @@ sub select_gff_format{
 		}
 	}
 	else{
-		dual_print ($log, surround_text("Doesn't look like a GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",100,"!") );
+		my $nb_col = scalar @col_tab;
+		if ($nb_col == 8){
+			dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") );
+			$format{1}++;
+		}
+		else{
+			dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") );
+		}
 		$format{3}++;
 	}
+	my $nb_col_in_attribute = scalar @attribute_tab;
+	if ($nb_col_in_attribute > 0){
+		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
+		$format{1}++;
+	}
+	#use Data::Dumper;
+	#print Dumper(\%format);exit;
 	if($format{3}){return 3;}
 	if($format{2}){return 2;}
 	if($format{1}){return 1;}
