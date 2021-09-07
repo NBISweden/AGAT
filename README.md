@@ -111,6 +111,20 @@ docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
 docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
 
+### Using Singularity (work for uppmax)
+
+
+```
+singularity pull docker://quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 
+
+singularity run agat_0.8.0--pl5262hdfd78af_0.sif
+```
+You are now in the container and can run the tool doing 
+```
+agat_convert_sp_gxf2gxf.pl --help
+```
+
+
 ### Using Bioconda
 
 #### Install AGAT
