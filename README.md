@@ -2,10 +2,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/NBISweden/AGAT/badge.svg)](https://coveralls.io/github/NBISweden/AGAT)
 [![Documentation Status](https://readthedocs.org/projects/agat/badge/?version=latest)](https://agat.readthedocs.io/en/latest/?badge=latest)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/agat/README.html)
-[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)
-[<img alt="docker_agat" src="https://quay.io/repository/biocontainers/agat/status">](https://quay.io/repository/biocontainers/agat)
+[<img alt="docker_agat" src="https://img.shields.io/badge/container-Docker-blue">](https://quay.io/repository/biocontainers/agat)
+[<img alt="singularity_agat" src="https://img.shields.io/badge/container-Singularity-orange">](https://quay.io/repository/biocontainers/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
-[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)  
+[![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)
+[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)  
 
 AGAT
 =========================================
@@ -21,6 +22,7 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
    * [What can AGAT do for you?](#what-can-agat-do-for-you)
    * [Installation](#installation)
        * [Using Docker](#using-docker)
+       * [Using Singularity](#using-singularity)
        * [Using Bioconda](#using-bioconda)
           * [Install AGAT](#install-agat)
           * [Update AGAT](#update-agat)
@@ -46,80 +48,106 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 
 ## What can AGAT do for you?  
 
-It has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format.  
+AGAT has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format. Over the years it has been enriched by many many tools to perform just about any tasks that is possible related to GTF/GFF format files (sanitizing, conversions, merging, modifying, filtering, FASTA sequence extraction, adding information, etc). Comparing to other methods AGAT is robust to even the most despicable GTF/GFF files.
+
+  * Standardize/sanitize any GTF/GFF file into a comprehensive GFF3 format (script with `_sp_` prefix)
+   
+    <details>
+      <summary>See standardization/sanitization tool</summary>
+      
+      | task | tool |
+      | --- | --- |
+      | **check, fix, pad** missing information into sorted and standardised gff3 | `agat_convert_sp_gxf2gxf.pl`  |
+    
+      * add missing parent features (e.g. gene and mRNA if only CDS/exon exists).  
+      * add missing features (e.g. exon and UTR).  
+      * add missing mandatory attributes (i.e. ID, Parent).  
+      * fix identifiers to be uniq.  
+      * fix feature locations.  
+      * remove duplicated features.  
+      * group related features (if spread in different places in the file).  
+      * sort features.  
+      * merge overlapping loci into one single locus (only if option activated).  
+    </details>
+    
+  * Convert many formats
+
+    <details>
+      <summary>See conversion tools</summary>
+  
+      | task | tool |
+      | --- | --- |
+      | convert any **GTF/GFF** into **tabulated format** | `agat_sp_to_tabulated.pl`  |
+      | convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
+      | convert any **GTF/GFF** into **GTF** format | `agat_convert_sp_gff2gtf.pl`  |
+      | convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf2gxf.pl`  |
+      | convert **BED** format into **GFF3** format | `agat_convert_bed2gff.pl`  |
+      | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
+      | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
+      | convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
+    </details>
+  
+  
+  * Perform numerous tasks (Just about anything that is possible)
+
+    <details>
+      <summary>See tools</summary>
+
+      | task | tool |
+      | --- | --- |
+      | make feature **statistics** | `agat_sp_statistics.pl`  |
+      | make **function statistics** | `agat_sp_functional_statistics.pl`  |
+      | **extract** any type of sequence | `agat_sp_extract_sequences.pl`  |
+      | **extract** attributes | `agat_sp_extract_attributes.pl`  |
+      | **complement** annotations (non-overlapping loci) | `agat_sp_complement_annotations.pl`  |
+      | **merge** annotations | `agat_sp_merge_annotations.pl`  |
+      | **filter** gene models by ORF size | `agat_sp_filter_by_ORF_size.pl`  |
+      | **filter** to keep only longest isoforms | `agat_sp_keep_longest_isoform.pl`  |
+      | **create** introns features | `agat_sp_add_introns.pl`  |
+      | **fix** cds phases | `agat_sp_fix_cds_phases.pl`  |
+      | **manage** IDs | `agat_sp_manage_IDs.pl`  |
+      | **manage** UTRs | `agat_sp_manage_UTRs.pl`  |
+      | **manage** introns | `agat_sp_manage_introns.pl`  |
+      | **manage** functional annotation | `agat_sp_manage_functional_annotation.pl`  |
+      | **specificity sensitivity** | `agat_sp_sensitivity_specificity.pl`  |
+      | **fusion / split** analysis between two annotations | `agat_sp_compare_two_annotations.pl`  |
+      | analyze differences between **BUSCO** results | `agat_sp_compare_two_BUSCOs.pl`   |
+      | ... and much more ...| ... see [here](https://agat.readthedocs.io/en/latest/) ...|
+    </details>
+
+**About the GTF/GFF fromat**  
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
 This flexibility has a drawback aspect, there is an incredible amount of flavour of the formats, that can result in problems when using downstream programs.  
 For a complete overview of the GTF/GFF formats have a look [here](https://agat.readthedocs.io/en/latest/gxf.html).
-
-Some examples **what AGAT can do**:  
-  * standardise any GTF/GFF file into a comprehensive GFF3 format (script with `agat_sp` prefix):  
-    * add missing parent features (e.g. gene and mRNA if only CDS/exon exist).  
-    * add missing features (e.g. exon and UTR).  
-    * add missing mandatory attributes (i.e. ID, Parent).  
-    * fix identifier to be uniq.  
-    * fix feature location.  
-    * remove duplicated features.  
-    * group related features (if spread in different places in the file).  
-    * sort features.  
-    * merge overlapping loci into one single locus (only if option activated).  
-
-  * perform different tasks (using different AGAT's tools):
-
-| task | tool |
-| --- | --- |
-| **check, fix, pad** missing information into sorted and standardised gff3 | `agat_convert_sp_gxf2gxf.pl`  |
-| make feature **statistics** | `agat_sp_statistics.pl`  |
-| make **function statistics** | `agat_sp_functional_statistics.pl`  |
-| **extract** any type of sequence | `agat_sp_extract_sequences.pl`  |
-| **extract** attributes | `agat_sp_extract_attributes.pl`  |
-| **complement** annotations (non-overlapping loci) | `agat_sp_complement_annotations.pl`  |
-| **merge** annotations | `agat_sp_merge_annotations.pl`  |
-| **filter** gene models by ORF size | `agat_sp_filter_by_ORF_size.pl`  |
-| **filter** to keep only longest isoforms | `agat_sp_keep_longest_isoform.pl`  |
-| **create** introns features | `agat_sp_add_introns.pl`  |
-| **fix** cds phases | `agat_sp_fix_cds_phases.pl`  |
-| **manage** IDs | `agat_sp_manage_IDs.pl`  |
-| **manage** UTRs | `agat_sp_manage_UTRs.pl`  |
-| **manage** introns | `agat_sp_manage_introns.pl`  |
-| **manage** functional annotation | `agat_sp_manage_functional_annotation.pl`  |
-| **specificity sensitivity** | `agat_sp_sensitivity_specificity.pl`  |
-| **fusion / split** analysis between two annotations | `agat_sp_compare_two_annotations.pl`  |
-| analyze differences between **BUSCO** results | `agat_sp_compare_two_BUSCOs.pl`   |
-| convert any **GTF/GFF** into **tabulated format** | `agat_sp_to_tabulated.pl`  |
-| convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
-| convert any **GTF/GFF** into **GTF** format | `agat_convert_sp_gff2gtf.pl`  |
-| convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf2gxf.pl`  |
-| convert **BED** format into **GFF3** format | `agat_convert_bed2gff.pl`  |
-| convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
-| convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
-| convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
-| ... and much more ...| ... see [here](https://agat.readthedocs.io/en/latest/) ...|
-
 
 ## Installation
 
 ### Using Docker
 
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
-Secondly have look at the availabe AGAT containers at https://quay.io/repository/biocontainers/agat?tab=tags.  
+Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
 Then:
   ```
-# get the chosen AGAT version
+# get the chosen AGAT container version
 docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
-# use an AGAT's tool e.g. agat_convert_sp_gxf2gxf
+# use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl
 docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
 
-### Using Singularity (work for uppmax)
+### Using Singularity
 
-
+First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
+Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
+Then:
 ```
+# get the chosen AGAT container version
 singularity pull docker://quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 
-
+# run the container
 singularity run agat_0.8.0--pl5262hdfd78af_0.sif
 ```
-You are now in the container and can run the tool doing 
+
+You are now in the container. You can use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl doing 
 ```
 agat_convert_sp_gxf2gxf.pl --help
 ```
@@ -312,7 +340,11 @@ The parser may used only one or a mix of these approaches according of the pecul
 AGAT has been tested on 36 different peculiar GTF/GFF formats being different flavours or/and containing errors.
 Below few are listed but you can find the full list of them into the `t/gff_syntax` directory.
 
-example 8 - only CDS defined:  
+##### example 8 - only CDS defined
+  
+<details>
+  <summary>See example</summary>
+ 
 ```
 ##gff-version 3
 Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;locus_tag=Tob1_00001;product=hypothetical protein
@@ -322,9 +354,13 @@ Tob1_contig1	Prodigal:2.60	CDS	35267	37444	.	-	0	ID=Tob1_00025;locus_tag=Tob1_00
 Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 25;product=putative signal peptide
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;locus_tag=Tob1_00026;
 ```
+</details>
+  
+`agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`  
 
-`agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`:  
-
+<details>
+  <summary>See result</summary>
+  
 ```
 ##gff-version 3
 Tob1_contig1	Prodigal:2.60	gene	476	670	.	-	0	ID=nbis_NEW-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
@@ -345,10 +381,14 @@ Tob1_contig1	Prodigal:2.60	gene	38304	39338	.	-	0	ID=nbis_NEW-gene-4;locus_tag=T
 Tob1_contig1	Prodigal:2.60	mRNA	38304	39338	.	-	0	ID=nbis_nol2id-cds-4;Parent=nbis_NEW-gene-4;locus_tag=Tob1_00026
 Tob1_contig1	Prodigal:2.60	exon	38304	39338	.	-	.	ID=nbis_NEW-exon-4;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
-
 ```
-
-example 9 - level2 feature missing (mRNA) and level3 features missing (UTRs):  
+</details>
+    
+##### example 9 - level2 feature missing (mRNA) and level3 features missing (UTRs)
+  
+<details>
+  <summary>See example</summary>
+  
 ```
 ##gff-version 3
 #!gff-spec-version 1.14
@@ -371,9 +411,13 @@ NC_003070.9	RefSeq	CDS	5439	5627	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;
 NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
 NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
 ```
+</details>
+  
+`agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`  
 
-`agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`:  
-
+<details>
+  <summary>See result</summary>
+  
 ```
 ##gff-version 3
 #!gff-spec-version 1.14
@@ -399,8 +443,13 @@ NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=nbis_NEW-start_codon-1;Parent=
 NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=nbis_NEW-stop_codon-1;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010
 NC_003070.9	RefSeq	three_prime_UTR	5628	5899	.	+	.	ID=nbis_NEW-three_prime_utr-1;Parent=NC_003070.9:NAC001;gbkey=mRNA;locus_tag=AT1G01010
 ```
+</details>
 
-example 18 - related features spread within the file:  
+##### example 18 - related features spread within the file  
+
+<details>
+  <summary>See example</summary>
+  
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
@@ -439,8 +488,13 @@ scaffold789	maker	CDS	564372	564588	.	+	1	ID=CLUHART00000006147:cds;Parent=CLUHA
 scaffold789	maker	five_prime_UTR	558184	558190	.	+	.	ID=CLUHART00000006147:five_prime_utr;Parent=CLUHART00000006147
 scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:three_prime_utr;Parent=CLUHART00000006147
 ```
+</details>
 
-`agat_convert_sp_gxf2gxf.pl --gff 18_test.gff`:  
+`agat_convert_sp_gxf2gxf.pl --gff 18_test.gff` 
+  
+<details>
+  <summary>See result</summary>
+  
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
@@ -479,7 +533,8 @@ scaffold789	maker	CDS	564372	564588	.	+	1	ID=CLUHART00000006147:cds;Parent=CLUHA
 scaffold789	maker	five_prime_UTR	558184	558190	.	+	.	ID=CLUHART00000006147:five_prime_utr;Parent=CLUHART00000006147
 scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:three_prime_utr;Parent=CLUHART00000006147
 ```
-
+</details>
+  
 ## How to cite?
 
 This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used):
@@ -506,6 +561,8 @@ chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pd
   * [LGAAP: Leishmaniinae Genome Assembly and Annotation Pipeline](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8297458/)
   * [A Chromosome-level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus) ](https://www.biorxiv.org/content/10.1101/2021.08.02.454714v1.full.pdf)
   * [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
+  * [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
+  * [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
   * [...]
 
 ## Troubleshooting
