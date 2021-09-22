@@ -40,7 +40,7 @@ agat_convert_sp_gxf2gxf.pl --expose
 Then open the `features_level1.json` and put the value `standalone` as value to the required feature.
 Finally run your scripts in the same folder as the modified json files are standing.
 
-### How to use a version of AGAT from a specific branch
+## How to use a version of AGAT from a specific branch
 ```
 # install AGAT dependencies
 conda install -c bioconda agat
@@ -60,7 +60,7 @@ make test
 make install                                    
 ```
 
-### How to fix Bio::Root::Exception met in AGAT
+## How to fix Bio::Root::Exception met in AGAT
 
 They are bioperl error messages. Encountered error can be:  
 ```

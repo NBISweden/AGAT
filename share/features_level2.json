@@ -1,4 +1,5 @@
-{  "_comment": "level2 are features with parent and potentially a child (no child as example for match)",
+{ "_comment": "level2 features are features with parent and potentially a child (e.g. match feature does not expect any child)",
+  "_comment2": "level2 feature values correspond to which parent type (level1 feature type) it is expected to be attached",
   "aberrant_processed_transcript":"gene",
   "antisense_rna":"gene",
   "guide_rna":"gene",
