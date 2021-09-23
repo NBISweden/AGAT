@@ -19,7 +19,7 @@ agat_sp_add_introns.pl --help
 
 - **--out**, **--output** or **-o**
 
-    Output gff3 file where the gene incriminated will be write.
+    Output GFF3 file.
 
 - **--help** or **-h**
 
