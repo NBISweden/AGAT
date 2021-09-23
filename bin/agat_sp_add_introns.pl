@@ -180,7 +180,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_add_introns.pl - This script
+agat_sp_add_introns.pl
 
 =head1 DESCRIPTION
 
