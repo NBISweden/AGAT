@@ -201,7 +201,7 @@ Input GTF/GFF file.
 
 =item  B<--out>, B<--output> or B<-o>
 
-Output gff3 file where the gene incriminated will be write.
+Output GFF3 file.
 
 =item B<--help> or B<-h>
 
