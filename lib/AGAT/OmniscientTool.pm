@@ -30,7 +30,7 @@ remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscien
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
-check_mrna_positions check_features_overlap remove_l2_related_feature);
+check_mrna_positions check_features_overlap remove_l2_related_feature create_omniscient get_cds_from_l2);
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -443,61 +443,6 @@ sub merge_omniscients {
 	}
 	return $hash_omniscient1, $hash_whole_IDs;
 }
-
-# The hash of reference will be hash_omniscient2. We will keep name from this one.
-# When an overlap is found, the ID/parent are fixed
-# Check id are not used twice
-# sub merge_omniscients_properly {
-# 	# $hash_omniscient1 = omniscient to append !!!
-# 	my ($hash_omniscient1, $hash_omniscient2)=@_;
-
-# 	my $hash_whole_IDs1 = get_all_IDs($hash_omniscient1);
-# 	my $hash_sortBySeq1 = gather_and_sort_l1_location_by_seq_id_and_strand($hash_omniscient1);
-
-# 	my $hash_whole_IDs2 = get_all_IDs($hash_omniscient2);
-# 	my $hash_sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand($hash_omniscient2);
-
-# 	my %hash_miscCount;
-# 	my $miscCount = \%hash_miscCount;
-
-# 	#################
-# 	# == LEVEL 1 == #
-# 	#################
-# 	foreach my $position1 ( keys %{$hash_sortBySeq1} ){
-# 		foreach my $tag1 (keys %{$hash_sortBySeq1->{$position1}}){
-# 			if (! exists_keys($hash_sortBySeq2, ($position1, $tag1))){
-# 				foreach my $location1 @{$hash_sortBySeq1->{$position1}{tag1}}{
-# 					my $l1_id1 = $location1->[0];
-# 					my $l1_id_to_use = check_record_ids($l1_id1, $hash_omniscient1, $hash_whole_IDs1, $hash_whole_IDs2, $miscCount);
-# 					my @level_id_list = ($l1_id_to_use);
-# 					fill_omniscient_from_other_omniscient_level1_id(\@level_id_list, $hash_omniscient1, $hash_omniscient2);
-# 				}
-# 			}
-# 			else{ #check if overlap
-# 				# Go through location from left to right ### !!
-#       			for (my $i = 0; $i < scalar @{$sortBySeq->{$locusID}{$tag_l1}}; $i++) {
-# 			        my $location = shift  @{$sortBySeq->{$locusID}{$tag_l1}};# This location will be updated on the fly
-# 			        my $id_l1 = $location->[0];
-
-
-# 				foreach my $location1 @{$hash_sortBySeq1->{$position1}{tag1}}{
-# 					if(check_gene_overlap_at_CDSthenEXON($hash_omniscient1, $hash_omniscient2 , lc($l1_feature1->_tag_value('ID')), lc($id2_l1) )){ #OVERLAP
-
-# 					}
-# 					else{ # feature do not overlap
-# 						my $l1_id1 = $l1_feature1->_tag_value('ID');
-# 						my $l1_id_to_use = check_record_ids($l1_id1, $hash_omniscient1, $hash_whole_IDs1, $hash_whole_IDs2, $miscCount);
-# 						my @level_id_list = ($l1_id_to_use);
-# 						fill_omniscient_from_other_omniscient_level1_id(\@level_id_list, $hash_omniscient1, $hash_omniscient2);
-# 					}
-
-# 				}
-
-# 			}
-
-
-# 	return $hash_omniscient2;
-# }
 
 sub append_omniscient {
 
@@ -1404,7 +1349,6 @@ sub get_feature_l2_from_id_l2_l1 {
 				}
 			}
 		}
-		else{print "element level2 $tag_l2 $id_l1 doesnt exists in omniscient\n";}
 	}
 }
 
@@ -2250,61 +2194,6 @@ sub featuresList_identik {
 	return $identik;
 }
 
-# @Purpose: Check the start and end of l1 l2 features from l3 features.
-# @input: 2 => hash(omniscient hash), string(gene identifier)
-# @output: none
-sub check_record_positions {
-	my ($hash_omniscient, $gene_id_raw)=@_;
-
-	my $gene_id = lc($gene_id_raw);
-	my $ExtremStart=1000000000000;
-	my $ExtremEnd=0;
-
-  	foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}} ){
-	  	if (exists_keys($hash_omniscient, ('level2', $primary_tag_l2, $gene_id ) ) ){
-		    foreach my $mrna_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id}} ) {
-		      	my $l2_id = lc($mrna_feature->_tag_value('ID'));
-		      	my $l2_ExtremStart=1000000000000;
-	  			my $l2_ExtremEnd=0;
-		      	foreach my $tag_l3 ( keys %{$hash_omniscient->{'level3'}} ) {
-	  				if ( exists_keys ( $hash_omniscient, ('level3', $tag_l3, $l2_id ) ) ){
-		    			foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$l2_id}} ) {
-
-						    if ($feature_l3->start() < $l2_ExtremStart){
-						       $l2_ExtremStart = $feature_l3->start();
-						    }
-						    if($feature_l3->end() > $l2_ExtremEnd){
-						       $l2_ExtremEnd = $feature_l3->end();
-			      			}
-			      		}
-		      		}
-		      	}
-		      	if ($mrna_feature->start != $l2_ExtremStart and $l2_ExtremStart != 1000000000000){
-			      $mrna_feature->start($l2_ExtremStart);
-			   	}
-			  	if($mrna_feature->end != $l2_ExtremEnd and $l2_ExtremEnd != 0){
-			   	 $mrna_feature->end($l2_ExtremEnd);
-			  	}
-			  	if ( $l2_ExtremStart < $ExtremStart ){
-			  		$ExtremStart = $l2_ExtremStart;
-			  	}
-			  	if ($l2_ExtremEnd > $ExtremEnd  ){
-			  		$ExtremEnd = $l2_ExtremEnd;
-			  	}
-		    }
-		}
-
-
-	  	my $gene_feature=$hash_omniscient->{'level1'}{'gene'}{$gene_id};
-	  	if ($gene_feature->start != $ExtremStart and $ExtremStart != 1000000000000){
-	      $gene_feature->start($ExtremStart);
-	   	}
-	  	if($gene_feature->end != $ExtremEnd and $ExtremEnd != 0){
-	   	 $gene_feature->end($ExtremEnd);
-	  	}
-	}
-}
-
 # @Purpose: Sort by locusID and location
 # @input: 2 => hash(omniscient hash), optional list or hash of id to filter
 # @output 3: return 3 similar hashes:  LocusID->uniqLocationId = [id => X, tag => Y].
@@ -2550,90 +2439,59 @@ sub get_most_right_left_cds_positions {
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
-# @Purpose: Check the ID of a record and fix it if duplicated.
-# @input: 3 => id from level1 hash1, hash1 omnicient, hash1 of whole_IDs
-# @output: l1_id
-# /!\ Not tested yest
-sub check_record_ids {
-	my ($l1_id1, $hash_omniscient, $hash_whole_IDs, $hash_whole_IDs2, $miscCount)=@_;
+# @Purpose: Check the start and end of l1 l2 features from l3 features.
+# @input: 2 => hash(omniscient hash), string(gene identifier)
+# @output: none
+sub check_record_positions {
+	my ($hash_omniscient, $gene_id_raw)=@_;
 
-	my $l1_id_final = $l1_id1;
-	#################
-	# == LEVEL 1 == #
-	#################
-	my $id_l1 = lc($l1_id1);
-	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # tag_l1 = gene or repeat etc...
-		if (exists_keys ($hash_omniscient, ('level1', $tag_l1, $id_l1) ) ){
+	my $gene_id = lc($gene_id_raw);
+	my $ExtremStart=1000000000000;
+	my $ExtremEnd=0;
 
-			my $new_parent=undef;
-			my $uID = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}->_tag_value('ID');
+  	foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}} ){
+	  	if (exists_keys($hash_omniscient, ('level2', $primary_tag_l2, $gene_id ) ) ){
+		    foreach my $mrna_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id}} ) {
+		      	my $l2_id = lc($mrna_feature->_tag_value('ID'));
+		      	my $l2_ExtremStart=1000000000000;
+	  			my $l2_ExtremEnd=0;
+		      	foreach my $tag_l3 ( keys %{$hash_omniscient->{'level3'}} ) {
+	  				if ( exists_keys ( $hash_omniscient, ('level3', $tag_l3, $l2_id ) ) ){
+		    			foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$l2_id}} ) {
 
-			if ( exists ( $hash_whole_IDs->{$id_l1} ) ){
-				my $feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
-				$uID = replace_by_uniq_ID( $feature, $hash_whole_IDs2, $hash_whole_IDs, $miscCount);
-				$hash_omniscient->{'level1'}{$tag_l1}{lc($uID)} = delete $hash_omniscient->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
-				$new_parent=1;
-				$l1_id_final = $uID ;
-			}
-			else{
-				$hash_whole_IDs2->{lc($uID)}=$uID;
-			}
-			#################
-			# == LEVEL 2 == #
-			#################
-			foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # tag_l2 = mrna or mirna or ncrna or trna etc...
-
-				if (exists_keys ($hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){ #Non present in hash2, we create a list with one element
-
-					foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
-
-						my $new_parent_l2=undef;
-						if($new_parent){
-							create_or_replace_tag($feature_l2, 'Parent', $uID);
-						}
-
-						my $id_l2 = $feature_l2->_tag_value('ID');
-						my $uID_l2 = undef;
-						if ( exists ( $hash_whole_IDs->{lc($id_l2)} ) ){
-							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs2, $hash_whole_IDs, $miscCount);
-							$new_parent_l2=1;
-						}
-						else{$hash_whole_IDs2->{lc($id_l2)} = $id_l2;}
-
-						#################
-						# == LEVEL 3 == #
-						#################
-						foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
-
-							if (exists_keys ($hash_omniscient, ('level3', $tag_l3, lc($id_l2) ) ) ){
-
-								foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{lc($id_l2)}}) {
-
-									if($new_parent_l2){
-										create_or_replace_tag($feature_l3, 'Parent', $uID_l2);
-									}
-
-									my $id_l3 = $feature_l3->_tag_value('ID');
-									my $uID_l3 = undef;
-									if ( exists ( $hash_whole_IDs->{lc($id_l3)} ) ){
-										$uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs2, $hash_whole_IDs, $miscCount);
-									}
-									else{$hash_whole_IDs2->{lc($id_l3)} = $id_l3;}
-								}
-								if($new_parent_l2){
-									$hash_omniscient->{'level3'}{$tag_l3}{lc($uID_l2)} = delete $hash_omniscient->{'level3'}{$tag_l3}{lc($id_l2)}; # save feature level1
-								}
-							}
-						}
-					}
-					if($new_parent){
-							$hash_omniscient->{'level2'}{$tag_l2}{lc($uID)} = delete $hash_omniscient->{'level2'}{$tag_l2}{$id_l1}; # save feature level1
-					}
-				}
-			}
+						    if ($feature_l3->start() < $l2_ExtremStart){
+						       $l2_ExtremStart = $feature_l3->start();
+						    }
+						    if($feature_l3->end() > $l2_ExtremEnd){
+						       $l2_ExtremEnd = $feature_l3->end();
+			      			}
+			      		}
+		      		}
+		      	}
+		      	if ($mrna_feature->start != $l2_ExtremStart and $l2_ExtremStart != 1000000000000){
+			      $mrna_feature->start($l2_ExtremStart);
+			   	}
+			  	if($mrna_feature->end != $l2_ExtremEnd and $l2_ExtremEnd != 0){
+			   	 $mrna_feature->end($l2_ExtremEnd);
+			  	}
+			  	if ( $l2_ExtremStart < $ExtremStart ){
+			  		$ExtremStart = $l2_ExtremStart;
+			  	}
+			  	if ($l2_ExtremEnd > $ExtremEnd  ){
+			  		$ExtremEnd = $l2_ExtremEnd;
+			  	}
+		    }
 		}
+
+	  	my $gene_feature=$hash_omniscient->{'level1'}{'gene'}{$gene_id};
+	  	if ($gene_feature->start != $ExtremStart and $ExtremStart != 1000000000000){
+	      $gene_feature->start($ExtremStart);
+	   	}
+	  	if($gene_feature->end != $ExtremEnd and $ExtremEnd != 0){
+	   	 $gene_feature->end($ExtremEnd);
+	  	}
 	}
-	return $l1_id_final;
+	return 1;
 }
 
 #				   +------------------------------------------------------+
@@ -2652,7 +2510,6 @@ sub l1_has_l3_type {
 	if($part_match){
 		$full_match=undef;
 	}
-
 
 	my $gene_id=undef;
 	if (ref($l1_feature) =~ "::"){
