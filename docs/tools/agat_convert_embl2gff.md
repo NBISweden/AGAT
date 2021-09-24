@@ -1,4 +1,4 @@
-# agat\_converter\_embl2gff.pl
+# agat\_convert\_embl2gff.pl
 
 ## DESCRIPTION
 

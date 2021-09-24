@@ -3276,12 +3276,14 @@ sub select_gff_format{
 		{
 			while(<$fh>){
 
-				if($_ =~ /^#/){next;} #if it is a commented line starting by # we skip it.
+				if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
+				if($_ =~ /^\s+$/){next;} #if it is an empty line, we skip it.
 
 				$cpt++;
 				if($cpt > $nbLineChecked){
 								last;
 				}
+				@col_tab = split /\t/, $_ ;
 				if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
 					#print "coucou $1\n"; next;
 					if(length($1) < 1){next;}
@@ -3307,8 +3309,7 @@ sub select_gff_format{
 								 $problem3=1;
 					}
 					@attribute_tab = split /\t/, $Ninethcolum ;
-	 			}
-			@col_tab = split /\t/, $_ ;
+	 			}		
 			}
 		}
 		close($fh);
@@ -3333,13 +3334,17 @@ sub select_gff_format{
 			dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") );
 			$format{1}++;
 		}
+		elsif ($nb_col < 8){
+			dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!") );
+			exit;
+		}
 		else{
 			dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") );
 		}
 		$format{3}++;
 	}
 	my $nb_col_in_attribute = scalar @attribute_tab;
-	if ($nb_col_in_attribute > 0){
+	if ($nb_col_in_attribute > 1){
 		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
 		$format{1}++;
 	}

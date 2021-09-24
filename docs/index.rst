@@ -19,7 +19,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   :caption: General:
+   :caption: General
    
    gxf.md
    why_this_tool.md
@@ -29,7 +29,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   :caption: Comparison AGAT vs other tools:
+   :caption: Comparison AGAT vs other tools
 
    topological-sorting-of-gff-features.md
    gff_to_bed.md
@@ -38,7 +38,7 @@ Contents
 
 .. toctree::
    :maxdepth: 1
-   :caption: List of tools:
+   :caption: List of tools
 
    tools/agat_convert_bed2gff.md
    tools/agat_convert_embl2gff.md
