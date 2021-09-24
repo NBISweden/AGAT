@@ -29,8 +29,8 @@ fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1
 remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
-remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives
-check_mrna_positions check_features_overlap);
+remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
+check_mrna_positions check_features_overlap remove_l2_related_feature);
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -796,57 +796,6 @@ sub remove_element_from_omniscient {
 						else{ # The list is empty we could remove the key (otherwise we would have saved a emplty list)
 							delete $hash_omniscient->{$level}{$tag_key}{$id_concern};
 						}
-					}
-				}
-			}
-		}
-	}
-}
-
-# $id_concern = ID of parent we will check
-# Go trhough all the element (L1 or L2 list) and check if we find one with the specied tag attribute and value attribute. In that case we remove it from the list
-sub remove_element_from_omniscient_attributeValueBased {
-
-	my ($id_concern_list, $attributeValue, $attributeTag, $hash_omniscient, $level, $bolean, $list_tag_key)=@_;
-
-	# bolean true => we remove if in list_tag_key
-	# bolean false => we remove if is not in list_tag_key
-	my $remove;
-	#Check level and tag
-	foreach my $tag_key  (keys %{$hash_omniscient->{$level}}){
-		if($bolean eq 'true'){
-			$remove="no";
-		}else{$remove="yes";}
-		foreach my $tag_key_to_match (@$list_tag_key){
-
-			if ((lc($tag_key) eq  lc($tag_key_to_match)) and ($bolean eq 'true')){
-				$remove="yes";
-			}
-			if ((lc($tag_key) eq  lc($tag_key_to_match)) and ($bolean eq 'false')){
-				$remove="no";last;
-			}
-		}
-		#Check feature id from list
-		if ($remove eq 'yes'){
-			foreach my $id_concern (@{$id_concern_list}){
-				my $mustModifyList=undef;
-				my @listok;
-
-				if(exists_keys($hash_omniscient, ($level,$tag_key,lc($id_concern)))){
-					foreach my $feature (@{$hash_omniscient->{$level}{$tag_key}{lc($id_concern)}}){
-						my $id  = lc($feature->_tag_value('ID'));
-						my $shouldremoveit=undef;
-
-						if($feature->has_tag($attributeTag)){
-							if( lc($feature->_tag_value($attributeTag)) eq lc($attributeValue) ){
-								$mustModifyList="yes"; $shouldremoveit="yes";
-							}
-							else{push(@listok, $feature);}
-						}
-						else{push(@listok, $feature);}
-					}
-					if($mustModifyList){ # at least one feature has been removed from list. Save the new list
-						@{$hash_omniscient->{$level}{$tag_key}{$id_concern}}=@listok;
 					}
 				}
 			}
@@ -1787,107 +1736,6 @@ sub remove_l2_related_feature{
 		}
 	}
 }
-
-
-
-
-# @Purpose: Copy past an attribute and change its tag
-# @input: 3 =>  omniscient Hash reference, String = attribute tag original, String = attribute tag new
-# @output none =>  The hash itself is modified
-sub create_attribute_from_existing_attribute{
-	my ($omniscient, $original_attribute, $new_attribute) = @_;
-
-	foreach my $primary_tag_l1 (keys %{$omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
-		foreach my $id_l1 (keys %{$omniscient->{'level1'}{$primary_tag_l1}}){
-			my $feature_l1 = $omniscient->{'level1'}{$primary_tag_l1}{$id_l1};
-
-			if( $feature_l1->has_tag($original_attribute)  and ! $feature_l1->has_tag($new_attribute)  ) {
-				create_or_replace_tag($feature_l1,$new_attribute, $feature_l1->get_tag_values($original_attribute));
-			}
-
-			#################
-			# == LEVEL 2 == #
-			#################
-			foreach my $primary_tag_l2 (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-				if ( exists ($omniscient->{'level2'}{$primary_tag_l2}{$id_l1} ) ){
-					foreach my $feature_l2 ( @{$omniscient->{'level2'}{$primary_tag_l2}{$id_l1}}) {
-
-						if( $feature_l2->has_tag($original_attribute)  and ! $feature_l2->has_tag($new_attribute) ){
-							create_or_replace_tag($feature_l2,$new_attribute, $feature_l2->get_tag_values($original_attribute));
-						}
-						#################
-						# == LEVEL 3 == #
-						#################
-						my $level2_ID  = lc($feature_l2->_tag_value('ID'));
-
-						foreach my $primary_tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-							if ( exists ($omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} ) ){
-								foreach my $feature_l3 ( @{$omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
-									if( $feature_l3->has_tag($original_attribute) and ! $feature_l3->has_tag($new_attribute) ){
-										create_or_replace_tag($feature_l3, $new_attribute, $feature_l3->get_tag_values($original_attribute));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-# @Purpose: Create a locus tag for all feature L1 and share it with all children features
-# @input: 3 =>  omniscient Hash reference, String = attribute tag original to  use as locus tag, String = locus_tag attribute tag
-# @output none =>  The hash itself is modified
-sub create_locus_tag{
-	my ($omniscient, $original_attribute, $locus_tag) = @_;
-
-	foreach my $primary_tag_l1 (keys %{$omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
-		foreach my $id_l1 (keys %{$omniscient->{'level1'}{$primary_tag_l1}}){
-			my $feature_l1 = $omniscient->{'level1'}{$primary_tag_l1}{$id_l1};
-
-			my $locus_tag_value=undef;
-			if( $feature_l1->has_tag($original_attribute)  and ! $feature_l1->has_tag($locus_tag)  ) {
-				$locus_tag_value =  $feature_l1->_tag_value($original_attribute);
-				create_or_replace_tag($feature_l1, $locus_tag, $locus_tag_value);
-			}
-			else{
-				$locus_tag_value =  $feature_l1->_tag_value($locus_tag);
-			}
-
-			#################
-			# == LEVEL 2 == #
-			#################
-			foreach my $primary_tag_l2 (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-				if ( exists ($omniscient->{'level2'}{$primary_tag_l2}{$id_l1} ) ){
-					foreach my $feature_l2 ( @{$omniscient->{'level2'}{$primary_tag_l2}{$id_l1}}) {
-
-						if( $feature_l2->has_tag($original_attribute)  and ! $feature_l2->has_tag($locus_tag) ){
-							create_or_replace_tag($feature_l2,$locus_tag, $locus_tag_value);
-						}
-						#################
-						# == LEVEL 3 == #
-						#################
-						my $level2_ID  = lc($feature_l2->_tag_value('ID'));
-
-						foreach my $primary_tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_l3 = cds or exon or start_codon or utr etc...
-							if ( exists ($omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} ) ){
-								foreach my $feature_l3 ( @{$omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
-									if( $feature_l3->has_tag($original_attribute) and ! $feature_l3->has_tag($locus_tag) ){
-										create_or_replace_tag($feature_l3, $locus_tag, $locus_tag_value);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-
-
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
