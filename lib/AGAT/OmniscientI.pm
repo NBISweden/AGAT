@@ -3276,12 +3276,14 @@ sub select_gff_format{
 		{
 			while(<$fh>){
 
-				if($_ =~ /^#/){next;} #if it is a commented line starting by # we skip it.
+				if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
+				if($_ =~ /^\s+$/){next;} #if it is an empty line, we skip it.
 
 				$cpt++;
 				if($cpt > $nbLineChecked){
 								last;
 				}
+				@col_tab = split /\t/, $_ ;
 				if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
 					#print "coucou $1\n"; next;
 					if(length($1) < 1){next;}
@@ -3307,8 +3309,7 @@ sub select_gff_format{
 								 $problem3=1;
 					}
 					@attribute_tab = split /\t/, $Ninethcolum ;
-	 			}
-			@col_tab = split /\t/, $_ ;
+	 			}		
 			}
 		}
 		close($fh);
@@ -3334,7 +3335,7 @@ sub select_gff_format{
 			$format{1}++;
 		}
 		elsif ($nb_col < 8){
-			dual_print ($log, surround_text("Your file has less than 8 columns. It cannot be a GTF/GFF file. Please verify your file",80,"!") );
+			dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!") );
 			exit;
 		}
 		else{
