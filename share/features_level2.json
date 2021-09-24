@@ -11,6 +11,7 @@
   "lnc_rna":"gene",
 	"lncrna":"gene",
   "match_part":"match",
+  "nucleotide_to_protein_match_part":"nucleotide_to_protein_match",
   "mirna":"gene",
   "misc_rna":"gene",
   "mrna":"gene",
