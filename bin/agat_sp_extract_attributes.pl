@@ -54,9 +54,10 @@ if ( ! $gff or ! $attributes ){
 }
 
 # If one output file we can create it here
-my ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+my $outfile_pref; my $path ; my $ext;
 if($one_tsv){
   if ($outfile) {
+    ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
     open($outInOne, '>', $outfile) or die "Could not open file $outfile $!";
   }
   else{
@@ -252,7 +253,7 @@ An attribute (gff3) looks like that tag=value
 
 =head1 SYNOPSIS
 
-    agat_sp_extract_attributes.pl -gff file.gff  -att locus_tag,product,name -p level2,cds,exon [ -o outfile ]
+    agat_sp_extract_attributes.pl --gff file.gff  --att locus_tag,product,name -p level2,cds,exon [ -o outfile ]
     agat_sp_extract_attributes.pl --help
 
 =head1 OPTIONS
