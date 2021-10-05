@@ -55,9 +55,12 @@ if ( ! $gff or ! $attributes ){
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
+if ($outfile) {
+    ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+} 
+
 if($one_tsv){
   if ($outfile) {
-    ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
     open($outInOne, '>', $outfile) or die "Could not open file $outfile $!";
   }
   else{
