@@ -543,27 +543,32 @@ This work has not been published (I will think about it). But if you wish to cit
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
 (Version v0.4.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
-
+  
 ## Publication using AGAT
-Some examples of publications that have used AGAT
-  * [A long read optimized de novo transcriptome pipeline reveals novel ocular developmentally regulated gene isoforms and disease targets](https://www.biorxiv.org/content/10.1101/2020.08.21.261644v2.full.pdf)
-  * [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode
-chromosomes](https://www.biorxiv.org/content/10.1101/2020.09.04.283127v1.full.pdf)
-  * [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
-  * [Application of an optimized annotation pipeline to the Cryptococcus deuterogattii genome reveals dynamic primary metabolic gene clusters and genomic impact of RNAi loss](https://www.biorxiv.org/content/10.1101/2020.09.01.278374v1.full)
-  * [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://www.biorxiv.org/content/10.1101/2020.09.25.314088v1.full)
-  * [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.sciencedirect.com/science/article/pii/S0042682221001148)
-  * [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://academic.oup.com/dnaresearch/article/28/2/dsab002/6182681)
-  * [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07554-w)
-  * [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
-  * [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
-  * [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
-  * [LGAAP: Leishmaniinae Genome Assembly and Annotation Pipeline](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8297458/)
-  * [A Chromosome-level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus) ](https://www.biorxiv.org/content/10.1101/2021.08.02.454714v1.full.pdf)
-  * [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
-  * [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
-  * [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
-  * [...]
+  
+Some examples of publications that have used AGAT  
+  
+| Journal | Title |
+| --- | --- |
+| Genome Biology and Evolution | [Ancestral Physical Stress and Later Immune Gene Family Expansions Shaped Bivalve Mollusc Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8382680/)
+| Preprint | [A long read optimized de novo transcriptome pipeline reveals novel ocular developmentally regulated gene isoforms and disease targets](https://www.biorxiv.org/content/10.1101/2020.08.21.261644v2.full.pdf)
+| G3 Genes Genomes Genetics | [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode chromosomes](https://academic.oup.com/g3journal/article/11/1/jkaa020/6026964)
+| BMC genomics | [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
+| G3 Genes Genomes Genetics | [Application of an optimized annotation pipeline to the Cryptococcus deuterogattii genome reveals dynamic primary metabolic gene clusters and genomic impact of RNAi loss](https://www.biorxiv.org/content/10.1101/2020.09.01.278374v1.full)
+| Mol. Biol. Evol. | [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab277/6372697)
+| Virology | [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.sciencedirect.com/science/article/pii/S0042682221001148)
+| DNA Research | [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://academic.oup.com/dnaresearch/article/28/2/dsab002/6182681)
+| BMC genomics | [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07554-w)
+| Plos pathogens | [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
+| Preprint | [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
+| Preprint | [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
+| Microbiol Resour Announc. | [LGAAP: Leishmaniinae Genome Assembly and Annotation Pipeline](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8297458/)
+| Genome Biology and Evolution | [A Chromosome-level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus) ](https://academic.oup.com/gbe/article/13/9/evab212/6367782)
+| Preprint | [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
+| Gygabyte | [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
+| Nature | [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
+| Elife | [Analysis of meiosis in Pristionchus pacificus reveals plasticity in homolog pairing and synapsis in the nematode lineage](https://elifesciences.org/articles/70990)
+| [...] | [...]
 
 ## Troubleshooting
 
