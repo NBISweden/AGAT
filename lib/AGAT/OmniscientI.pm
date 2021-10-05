@@ -286,7 +286,7 @@ sub slurp_gff3_file_JD {
 			dual_print( $log, "Info: Cannot count total line number with builtin wc.".
 			" Consequently progress bar unavailable.\n", $verbose);
 		}
-    else{
+    	else{
 			$wc_result = `wc -l $file`;
 			chomp $wc_result;
 			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
@@ -311,7 +311,7 @@ sub slurp_gff3_file_JD {
 		count => $nb_line_input,
 		ETA   => 'linear',
 		term_width => 80 ,
-	}) if  ($nb_line_input);
+		}) if  ($nb_line_input);
 
 		my $nb_line_read;
 		while( my $feature = $gffio->next_feature()) {
