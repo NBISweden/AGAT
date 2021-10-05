@@ -242,38 +242,6 @@ sub take_one_as_reference{
 return $reference_feature, $ListOverlapingGene;
 }
 
-sub get_longest_cds_start_end{
-  my  ($hash_omniscient,$gene_id)=@_;
-  my $resu_start=100000000000;
-  my $resu_end=0;
-
-  #check full CDS for each mRNA
-  foreach my $mrna_feature (@{$hash_omniscient->{'level2'}{'mrna'}{lc($gene_id)}}){
-    my @values = $mrna_feature->get_tag_values('ID');
-    my $mrna_id = shift @values;
-    my $extrem_start=100000000000;
-    my $extrem_end=0;
-
-    #check all cds pieces
-    foreach my $cds_feature (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id)}}){
-      if ($cds_feature->start < $extrem_start){
-        $extrem_start=$cds_feature->start;
-      }
-      if($cds_feature->end > $extrem_end){
-              $extrem_end=$cds_feature->end ;
-      }
-    }
-
-    if($extrem_start < $resu_start){
-        $resu_start=$extrem_start;
-    }
-    if($extrem_end > $resu_end){
-      $resu_end=$extrem_end;
-    }
-  }
-  return $resu_start,$resu_end;
-}
-
 #Check if two genes have at least one mRNA isoform which overlap at cds level.
 sub two_features_overlap{
   my  ($hash_omniscient,$gene_id, $gene_id2)=@_;
