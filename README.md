@@ -541,13 +541,16 @@ This work has not been published (I will think about it). But if you wish to cit
 
 ```
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
-(Version v0.4.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
+(Version v0.8.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
   
 ## Publication using AGAT
   
 Some examples of publications that have used AGAT  
-  
+
+<details>
+<summary>See publications</summary>
+    
 | Journal | Title |
 | --- | --- |
 | Genome Biology and Evolution | [Ancestral Physical Stress and Later Immune Gene Family Expansions Shaped Bivalve Mollusc Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8382680/)
@@ -569,6 +572,7 @@ Some examples of publications that have used AGAT
 | Nature | [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
 | Elife | [Analysis of meiosis in Pristionchus pacificus reveals plasticity in homolog pairing and synapsis in the nematode lineage](https://elifesciences.org/articles/70990)
 | [...] | [...]
+</details>
 
 ## Troubleshooting
 
