@@ -231,7 +231,7 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                     if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose )){
                                       print "case2: $id_l2_2 and $id_l2_1 have same CDS list\n" if $verbose;
                                       $nb_case2a++;
-                                      #identik because no CDS, we could remove one randaomly
+                                      #identik because no CDS, we could remove one randomly
 
                                       my $size_cds1 =  cds_size($omniscient, $id_l2_1);
                                       my $size_cds2 =  cds_size($omniscient, $id_l2_2);
@@ -296,12 +296,12 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
   }
 }
 
-my $string_print = "\nWe found $nb_case1 cases where isoforms have identical exon structures (we removed duplicates by keeping the one with longest CDS).\n";
-$string_print .= "We found $nb_case2aa cases where l2 from different gene identifier have identical exon but no CDS at all (we removed one duplicate).\n";
-$string_print .= "We found $nb_case2a cases where l2 from different gene identifier have identical exon and CDS structures (we removed duplicates by keeping the one with longest CDS).\n";
-$string_print .= "We found $nb_case2b cases where l2 from different gene identifier have identical exon structures (we reshaped UTRs to modify gene locations).\n";
-$string_print .= "Whe removed $nb_gene_removed genes because no more l2 were linked to them.\n";
-$string_print .= "We found $nb_case3 cases where 2 genes have same location while CDS are differents. In that case we modified the gene locations by clipping UTRs.\n";
+my $string_print = "\nCase1: We found $nb_case1 cases where isoforms have identical exon structures (we removed duplicates by keeping the one with longest CDS).\n";
+$string_print .= "Case2: We found $nb_case2aa cases where l2 from different gene identifier have identical exon but no CDS at all (we removed one duplicate).\n";
+$string_print .= "Case3: We found $nb_case2a cases where l2 from different gene identifier have identical exon and CDS structures (we removed duplicates by keeping the one with longest CDS).\n";
+$string_print .= "Case4: We found $nb_case2b cases where l2 from different gene identifier have identical exon structures and different CDS structures (we reshaped UTRs to modify gene locations).\n";
+$string_print .= "Case5: We found $nb_case3 cases where 2 genes have same location while their exon/CDS locations are differents. In that case we modified the gene locations by clipping UTRs.\n";
+$string_print .= "We removed $nb_gene_removed genes because no more l2 were linked to them.\n";
 print_omniscient($omniscient, $gffout); #print gene modified
 
 print $reportout $string_print;
@@ -539,9 +539,14 @@ agat_sp_fix_features_locations_duplicated.pl
 
 =head1 DESCRIPTION
 
-The script aims to fix/remove feature with duplicated locations. Even if it
+The script aims to modify/remove feature with duplicated locations. Even if it
 not an error by itself in a gtf/gff file, it becomes problematic when submitting
 the file to ena (after convertion).
+* Case1: When isoforms have identical exon structures we remove duplicates by keeping the one with longest CDS;
+* Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all (we removed one duplicate);
+* Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures (we removed duplicates by keeping the one with longest CDS);
+* Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (we reshape UTRs to modify mRNA and gene locations);
+* Case5: When 2 genes have same locations while their exon/CDS locations are differents. In that case we modified the gene locations by clipping UTRs;
 
 =head1 SYNOPSIS
 
