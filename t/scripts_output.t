@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 57;
+use Test::More tests => 58;
 
 =head1 DESCRIPTION
 
@@ -482,6 +482,13 @@ rmtree $outtmp;
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
 system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
+system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/1.gff --gff2 $input_folder/agat_sp_sensitivity_specificity/2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;

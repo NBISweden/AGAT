@@ -1,0 +1,15 @@
+usage: bin/agat_sp_sensitivity_specificity.pl --gff1 t/scripts_output/agat_sp_sensitivity_specificity/1.gff --gff2 t/scripts_output/agat_sp_sensitivity_specificity/2.gff -o tmp.gff
+Results:
+
+----------------------------------------------------------------
+|    Feature type    |    Sensitivity     |    Specificity     |
+----------------------------------------------------------------
+|        gene        |        1.00        |        0.88        |
+|        mrna        |        1.00        |        0.88        |
+|        cds         |        0.99        |        1.00        |
+|        exon        |        1.00        |        0.94        |
+|   five_prime_utr   |        1.00        |        1.00        |
+|  three_prime_utr   |        1.00        |        0.67        |
+----------------------------------------------------------------
+|    repeat_region   |        1.00        |        1.00        |
+----------------------------------------------------------------
