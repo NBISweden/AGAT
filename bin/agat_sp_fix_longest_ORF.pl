@@ -107,7 +107,7 @@ if(!($model_to_test)){
 }else{
   my @fields= split(',', $model_to_test);
   foreach my $field (@fields){
-    if($field =~ m/^[012345]$/){
+    if($field =~ m/^[123456]$/){
       $ListModel{$field}=0;
     }else{
       print "This model $field is not known. Must be an Integer !\n";exit;
