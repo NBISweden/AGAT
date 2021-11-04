@@ -570,7 +570,12 @@ Some examples of publications that have used AGAT
 | Preprint | [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
 | Gygabyte | [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
 | Nature | [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
+| Preprint |[High quality, phased genomes of Phytophthora ramorum clonal lineages NA1 and EU1](https://www.biorxiv.org/content/10.1101/2021.06.23.449625v1.full)
 | Elife | [Analysis of meiosis in Pristionchus pacificus reveals plasticity in homolog pairing and synapsis in the nematode lineage](https://elifesciences.org/articles/70990)
+| MDPI | [Transcriptome Comparison of Secondary Metabolite Biosynthesis Genes Expressed in Cultured and Lichenized Conditions of Cladonia rangiferina](https://www.mdpi.com/1424-2818/13/11/529/html)
+| MDPI | [FA-nf: A Functional Annotation Pipeline for Proteins from Non-Model Organisms Implemented in Nextflow](https://www.mdpi.com/2073-4425/12/10/1645/htm)
+| Preprint | [De Novo Whole Genome Assembly of the Roborovski Dwarf Hamster (Phodopus roborovskii) Genome, an Animal Model for Severe/Critical COVID-19](https://www.biorxiv.org/content/10.1101/2021.10.02.462569v2.full)
+| Preprint | [Using historical museum samples to examine divergent and parallel evolution in the invasive starling](https://www.biorxiv.org/content/10.1101/2021.08.22.457241v1.full)|
 | [...] | [...]
 </details>
 
