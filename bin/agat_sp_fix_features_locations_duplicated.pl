@@ -11,6 +11,7 @@ use List::MoreUtils qw(uniq);
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $model_to_test = undef;
 my $outfile = undef;
 my $ref = undef;
 my $verbose = undef;
@@ -18,9 +19,10 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "f|file|gff3|gff=s" => \$ref,
-    "v" => \$verbose,
+    "help|h"                 => \$opt_help,
+    "f|file|gff3|gff=s"      => \$ref,
+    "v"                      => \$verbose,
+    "m|model=s"              => \$model_to_test,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -61,6 +63,23 @@ else{
 # END Manage Ouput Directory / File #
 #####################################
 
+my %ListModel;
+if(!($model_to_test)){
+  $ListModel{1}=0;
+  $ListModel{2}=0;
+  $ListModel{3}=0;
+  $ListModel{4}=0;
+  $ListModel{5}=0;
+}else{
+  my @fields= split(',', $model_to_test);
+  foreach my $field (@fields){
+    if($field =~ m/^[12345]$/){
+      $ListModel{$field}=0;
+    }else{
+      print "This model $field is not known. Must be an Integer !\n";exit;
+    }
+  }
+}
 
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
@@ -71,11 +90,6 @@ if($outfile){print $string1;}
                   #        MAIN        #
                   ######################
 
-my $nb_case1=0;
-my $nb_case2aa=0;
-my $nb_case2a=0;
-my $nb_case2b=0;
-my $nb_case3=0;
 my $nb_gene_removed=0;
 
 ### Parse GFF input #
@@ -166,11 +180,13 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
           }
         }
 
-        if(@L2_list_to_remove){
-          my @L2_list_to_remove_filtered = uniq(@L2_list_to_remove);
-          $nb_case1 = $nb_case1 + scalar @L2_list_to_remove_filtered;
-          print "case1 (removing mRNA isoform identic ): ".join(",", @L2_list_to_remove_filtered)."\n";
-          remove_omniscient_elements_from_level2_ID_list($omniscient, \@L2_list_to_remove_filtered);
+        if( @L2_list_to_remove ){
+          if (exists($ListModel{1})){
+            my @L2_list_to_remove_filtered = uniq(@L2_list_to_remove);
+            $ListModel{1} += scalar @L2_list_to_remove_filtered;
+            print "case1 (removing mRNA isoform identic ): ".join(",", @L2_list_to_remove_filtered)."\n";
+            remove_omniscient_elements_from_level2_ID_list($omniscient, \@L2_list_to_remove_filtered);
+          }
         }
         # END Take care of isoforms with duplicated location:
         #######################################################
@@ -221,43 +237,47 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                 #EXON identicals
                                 if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
                                   #EXON CDS
-                                  print "case2: $id_l2_2 and $id_l2_1 have same exon list\n" if $verbose;
+                                  print "$id_l2_2 and $id_l2_1 have same exon list\n" if $verbose;
                                   if ( ! exists_keys($omniscient, ('level3','cds',$id_l2_1)) and  ! exists_keys($omniscient, ('level3','cds',$id_l2_2) ) ) {
-                                       print "case2aa: $id_l2_2 and $id_l2_1 have no CDS\n" if $verbose;
-                                       $nb_case2aa++;
+                                    if (exists($ListModel{2})){
+                                       print "case2: $id_l2_2 and $id_l2_1 have no CDS\n" if $verbose;
+                                       $ListModel{2}++;
                                        push(@L2_list_to_remove, $id_l2_2);
+                                    }
                                   }
                                   else{
-                                    if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose )){
-                                      print "case2: $id_l2_2 and $id_l2_1 have same CDS list\n" if $verbose;
-                                      $nb_case2a++;
-                                      #identik because no CDS, we could remove one randaomly
+                                    if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose ) ){
+                                      if ( exists($ListModel{3}) ){
+                                        print "case3: $id_l2_2 and $id_l2_1 have same CDS list\n" if $verbose;
+                                        $ListModel{3}++;
+                                        #identik because no CDS, we could remove one randomly
 
-                                      my $size_cds1 =  cds_size($omniscient, $id_l2_1);
-                                      my $size_cds2 =  cds_size($omniscient, $id_l2_2);
-                                      if($size_cds1 >= $size_cds2 ){
-                                        push(@L2_list_to_remove, $id_l2_2);
-                                        print "case2: push1 $size_cds1 $size_cds2\n" if $verbose;
-                                      }
-                                      elsif($size_cds1 < $size_cds2){
-                                        push(@L2_list_to_remove, $id_l2_1);
-                                        print "case2: push2\n" if $verbose;
-                                      }
-                                      elsif($size_cds1){
-                                        push(@L2_list_to_remove, $id_l2_2);
-                                        print "case2: push3\n" if $verbose;
-                                      }
-                                      else{
-                                        push(@L2_list_to_remove, $id_l2_1);
-                                        print "case2: push4\n" if $verbose;
+                                        my $size_cds1 =  cds_size($omniscient, $id_l2_1);
+                                        my $size_cds2 =  cds_size($omniscient, $id_l2_2);
+                                        if($size_cds1 >= $size_cds2 ){
+                                          push(@L2_list_to_remove, $id_l2_2);
+                                          print "case3: push1 $size_cds1 $size_cds2\n" if $verbose;
+                                        }
+                                        elsif($size_cds1 < $size_cds2){
+                                          push(@L2_list_to_remove, $id_l2_1);
+                                          print "case3: push2\n" if $verbose;
+                                        }
+                                        elsif($size_cds1){
+                                          push(@L2_list_to_remove, $id_l2_2);
+                                          print "case3: push3\n" if $verbose;
+                                        }
+                                        else{
+                                          push(@L2_list_to_remove, $id_l2_1);
+                                          print "case3: push4\n" if $verbose;
+                                        }
                                       }
                                     }
 
                                     # CDS are not identic Let's reshape UTRS
-                                    else{
-                                      $nb_case2b++;
+                                    elsif ( exists($ListModel{4})){
+                                      $ListModel{4}++;
                                       reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose);
-                                      print "case2-A (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
+                                      print "case4 (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
                                     }
                                   }
                                 }
@@ -283,10 +303,11 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
             if (exists_keys($omniscient, ('level1',$tag,$gene_feature_id2) ) and exists_keys($omniscient, ('level1',$tag,$gene_feature_id) ) ){
 
               if( ($gene_feature2->start == $gene_feature->start) and ($gene_feature2->end == $gene_feature->end) ){
-                print "case3 (reshaping genes): $gene_feature_id2 and $gene_feature_id have same location \n";
-                $nb_case3++;
-
-                reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose);
+                if (exists($ListModel{5})){
+                  print "case5 (reshaping genes): $gene_feature_id2 and $gene_feature_id have same location \n";
+                  $ListModel{5}++;
+                  reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose);
+                }
               }
             }
           }
@@ -296,12 +317,23 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
   }
 }
 
-my $string_print = "\nWe found $nb_case1 cases where isoforms have identical exon structures (we removed duplicates by keeping the one with longest CDS).\n";
-$string_print .= "We found $nb_case2aa cases where l2 from different gene identifier have identical exon but no CDS at all (we removed one duplicate).\n";
-$string_print .= "We found $nb_case2a cases where l2 from different gene identifier have identical exon and CDS structures (we removed duplicates by keeping the one with longest CDS).\n";
-$string_print .= "We found $nb_case2b cases where l2 from different gene identifier have identical exon structures (we reshaped UTRs to modify gene locations).\n";
-$string_print .= "Whe removed $nb_gene_removed genes because no more l2 were linked to them.\n";
-$string_print .= "We found $nb_case3 cases where 2 genes have same location while CDS are differents. In that case we modified the gene locations by clipping UTRs.\n";
+my $string_print = "\n";
+if (exists($ListModel{1})){
+$string_print .= "Case1: AGAT found ".$ListModel{1}." cases where isoforms have identical exon structures (AGAT removed duplicates by keeping the one with longest CDS).\n";
+}
+if (exists($ListModel{2})){
+  $string_print .= "Case2: AGAT found ".$ListModel{2}." cases where l2 from different gene identifier have identical exon but no CDS at all (AGAT removed one duplicate).\n";
+}
+if (exists($ListModel{3})){
+  $string_print .= "Case3: AGAT found ".$ListModel{3}." cases where l2 from different gene identifier have identical exon and CDS structures (AGAT removed duplicates by keeping the one with longest CDS).\n";
+}
+if (exists($ListModel{4})){
+  $string_print .= "Case4: AGAT found ".$ListModel{4}." cases where l2 from different gene identifier have identical exon structures and different CDS structures (AGAT reshaped UTRs to modify gene locations).\n";
+}
+if (exists($ListModel{5})){
+  $string_print .= "Case5: AGAT found ".$ListModel{5}." cases where 2 genes have same location while their exon/CDS locations are differents. In that case AGAT modified the gene locations by clipping UTRs.\n";
+}
+$string_print .= "AGAT removed $nb_gene_removed genes because no more l2 were linked to them.\n";
 print_omniscient($omniscient, $gffout); #print gene modified
 
 print $reportout $string_print;
@@ -539,9 +571,14 @@ agat_sp_fix_features_locations_duplicated.pl
 
 =head1 DESCRIPTION
 
-The script aims to fix/remove feature with duplicated locations. Even if it
+The script aims to modify/remove feature with duplicated locations. Even if it
 not an error by itself in a gtf/gff file, it becomes problematic when submitting
-the file to ena (after convertion).
+the file to ENA (after convertion).
+* Case1: When isoforms have identical exon structures, AGAT removes duplicates by keeping the one with longest CDS;
+* Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all, AGAT removes one duplicate);
+* Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures, AGAT removes duplicates by keeping the one with longest CDS);
+* Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures, AGAT reshapes UTRs to modify mRNA and gene locations);
+* Case5: When 2 genes have same locations while their exon/CDS locations are differents. In that case AGAT modifies the gene locations by clipping UTRs;
 
 =head1 SYNOPSIS
 
@@ -555,6 +592,17 @@ the file to ena (after convertion).
 =item B<-f>, B<--file>, B<--gff3> or B<--gff>
 
 Input GTF/GFF file.
+
+=item B<-m> or B<--model>
+
+To select cases you want to fix. By default all are used.
+To select specific cases writte e.g. --model 1,4,5
+
+Case1: When isoforms have identical exon structures AGAT removes duplicates by keeping the one with longest CDS;
+Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all (AGAT removes one duplicate);
+Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures (AGAT removes duplicates by keeping the one with longest CDS);
+Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (AGAT reshapes UTRs to modify mRNA and gene locations);
+Case5: When 2 genes have same locations while their exon/CDS locations are differents. In that case AGAT modifies the gene locations by clipping UTRs;
 
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
