@@ -51,9 +51,7 @@ my %l2_gn_present_hash = ();   # JN: Key: 'maker-bi03_p1mp_001088f-est_gff_strin
 my $nbGnNotPresentInDb = 0;    # JN: Count entries without GN in db
 my $nbGnNotPresentForMrna = 0; # JN: Count mRNAs without GN in db
 my $nbDuplicateNameGiven = 0;
-my $nbDuplicateName = 0;
 my $nbNamedGene = 0;
-my $nbGeneNameInBlast = 0;
 # END FOR FUNCTION BLAST#
 
 # FOR FUNCTIONS INTERPRO#
@@ -81,7 +79,7 @@ GetOptions(
  'd|db=s'                   => \$opt_dataBase,
  'be|blast_evalue=i'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
- 'pcds!'                     => \$opt_populate_cds,
+ 'pcds!'                    => \$opt_populate_cds,
  'i|interpro=s'             => \$opt_InterproFile,
  'id=s'                     => \$opt_name,
  'idau=s'                   => \$opt_nameU,
@@ -307,25 +305,14 @@ if ($opt_BlastFile || $opt_InterproFile ) {
           create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
           $nbNamedGene++;
 
-          # Check name duplicated given
-          my $nameClean = $geneNameBlast{$id_level1};
-          $nameClean =~ s/_([2-9]{1}[0-9]*|[0-9]{2,})*$//;
-
-          my $nameToCompare;
-          if (exists ($nameBlast{$nameClean})) { # We check that is really a name where we added the suffix _1
-            $nameToCompare = $nameClean;
-          }
-          else {
-            $nameToCompare = $geneNameBlast{$id_level1};
-          } # it was already a gene_name like BLABLA_12
-
-          if (exists ($geneNameGiven{$nameToCompare})) {
-            $nbDuplicateNameGiven++; # track total
-            $duplicateNameGiven{$nameToCompare}++; # track diversity
-          }
-          else {
-            $geneNameGiven{$nameToCompare}++;
-          } # first time we have given this name
+          # Keep track of ducplicated gene names <= Find another way
+          #if (exists ($geneNameGiven{$name_tag})) {
+          #  $nbDuplicateNameGiven++; # track total
+          #  $duplicateNameGiven{$name_tag}++; # track diversity
+          #}
+          #else { # first time we have given this name
+          #  $geneNameGiven{$name_tag}++;
+          #} 
         }
       }
 
@@ -348,9 +335,8 @@ if ($opt_BlastFile || $opt_InterproFile ) {
             if ($opt_BlastFile) {
               # add gene Name
               if (exists ($mRNANameBlast{$level2_ID})) {
-                my $mRNABlastName = $mRNANameBlast{$level2_ID};
-                create_or_replace_tag($feature_level2, 'Name', $mRNABlastName);
-                add_attribute_to_cds($hash_omniscient, $level2_ID, 'Name', $mRNABlastName);
+                create_or_replace_tag($feature_level2, 'Name', $mRNANameBlast{$level2_ID});
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'Name', $mRNANameBlast{$level2_ID});
               }
 
               #add UniprotID attribute
@@ -603,9 +589,9 @@ if ($opt_InterproFile) {
 if ($opt_BlastFile) {
   my $nbGeneDuplicated = keys %duplicateNameGiven;
   $nbDuplicateNameGiven = $nbDuplicateNameGiven + $nbGeneDuplicated; # Until now we have counted only name in more, now we add the original name.
+  my $nbGeneNameInBlast =  keys %geneNameBlast;
   $stringPrint .= "\n$nbGeneNameInBlast gene names have been retrieved in the blast file. $nbNamedGene gene names have been successfully inferred.\n".
   "Among them there are $nbGeneDuplicated names that are shared at least per two genes for a total of $nbDuplicateNameGiven genes.\n";
-  # "We have $nbDuplicateName gene names duplicated ($nbDuplicateNameGiven - $nbGeneDuplicated).";
 
   # JN: Begin summary
   # JN: Report number of entries in $opt_dataBase without GN. Note: tentative output format
@@ -686,42 +672,6 @@ sub get_letter_tag {
     push(@tag_list, $letter)
   }
   return $tag_hash{ $tag };
-}
-
-# Each mRNA of a gene has its proper gene name. Most often is the same, and annie added a number at the end.
-# To provide only one gene name, we remove this number and then remove duplicate name (case insensitive).
-# If it stay at the end of the process more than one name, they will be concatenated together.
-# It removes redundancy intra name.
-sub manageGeneNameBlast {
-
-  my ($geneName) = @_;
-  foreach my $element (keys %$geneName) {
-    my @tab = @{$geneName->{$element}};
-
-    my %seen;
-    my @unique;
-    for my $w (@tab) { # remove duplicate in list case insensitive
-      $w =~ s/_[0-9]+$// ;
-      next if $seen{lc($w)}++;
-      push(@unique, $w);
-    }
-
-    my $finalName = "";
-    my $cpt = 0;
-    foreach my $name (@unique) { #if several names we will concatenate them together
-
-        if ($cpt == 0) {
-          $finalName .= "$name";
-          $cpt++;
-        }
-        else {
-          $finalName .= "_$name";
-        }
-
-    }
-    $geneName->{$element} = $finalName;
-    $nameBlast{lc($finalName)}++;
-  }
 }
 
 # creates gene ID correctly formated (PREFIX,TYPE,NUMBER) like HOMSAPG00000000001 for a Homo sapiens gene.
@@ -907,9 +857,6 @@ sub parse_blast {
 ##################################################
 ####### Step 2 : go through all candidates ####### report gene name for each mRNA
 
-  my %geneName;
-  my %linkBmRNAandGene;
-
   foreach my $l2 (keys %candidates) {
     # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
     if ( $candidates{$l2}[0] eq "error" ) {
@@ -946,11 +893,16 @@ sub parse_blast {
       if (exists($hash_rest{"gn"})) {
         $nameGene = $hash_rest{"gn"};
 
+
         if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
+          # Save mRNA name into mRNA features
+          $mRNANameBlast{$l2} = $nameGene;
+
           my $geneID = $hash_mRNAGeneLink->{$l2};
           #print "push $geneID $nameGene\n";
-          push ( @{ $geneName{lc($geneID)} }, lc($nameGene) );
-          push(@{ $linkBmRNAandGene{lc($geneID)}}, lc($l2)); # save mRNA name for each gene name
+          # Save mRNA name into gene features (a list because we can have several siilar gene names)
+          # <= add way to not add a name alredeay seen
+          push ( @{ $geneNameBlast{lc($geneID)} }, $nameGene );
         }
         else {
           $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
@@ -983,57 +935,6 @@ sub parse_blast {
     }
   }
   # JN: End traversing gene_name_HoH
-
-  ####################################################
-  ####### Step 3 : Manage NAME final gene name ####### several isoforms could have different gene name reported. So we have to keep that information in some way to report only one STRING to gene name attribute of the gene feature.
-  ################# Remove redundancy to have only one name for each gene
-
-  manageGeneNameBlast(\%geneName);
-
-  ##########################################################
-  ####### Step 4 : CLEAN NAMES REDUNDANCY inter gene #######
-
-  my %geneNewNameUsed;
-  foreach my $geneID (keys %geneName) {
-    $nbGeneNameInBlast++;
-    my @mRNAList = @{$linkBmRNAandGene{$geneID}};
-    my $String = $geneName{$geneID};
-    #print "$String\n";
-    if (! exists( $geneNewNameUsed{$String})) {
-      $geneNewNameUsed{$String}++;
-      $geneNameBlast{$geneID} = $String;
-      # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
-      my $cptmRNA = 1;
-      if ($#mRNAList != 0) {
-        foreach my $mRNA (@mRNAList) {
-          $mRNANameBlast{$mRNA} = $String."_iso".$cptmRNA;
-          $cptmRNA++;
-        }
-      }
-      else {
-        $mRNANameBlast{$mRNAList[0]} = $String;
-      }
-    }
-    else { #in case where name was already used, we will modify it by adding a number like "_2"
-      $nbDuplicateName++;
-      $geneNewNameUsed{$String}++;
-      my $nbFound = $geneNewNameUsed{$String};
-      $String .= "_$nbFound";
-      $geneNewNameUsed{$String}++;
-      $geneNameBlast{$geneID} = $String;
-      # link name to mRNA and and isoform name _1 _2 _3 if several mRNA
-      my $cptmRNA = 1;
-      if ($#mRNAList != 0) {
-        foreach my $mRNA (@mRNAList) {
-          $mRNANameBlast{$mRNA} = $String."_iso".$cptmRNA;
-          $cptmRNA++;
-        }
-      }
-      else {
-        $mRNANameBlast{$mRNAList[0]} = $String;
-      }
-    }
-  }
 }
 
 #uniprotHeader string splitter
