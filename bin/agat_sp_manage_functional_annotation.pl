@@ -302,17 +302,21 @@ if ($opt_BlastFile || $opt_InterproFile ) {
       if ( $opt_BlastFile ) {
 
         if (exists ($geneNameBlast{$id_level1})) {
-          create_or_replace_tag($feature_level1, 'Name', $geneNameBlast{$id_level1});
+          my @list_names = @{$geneNameBlast{$id_level1}};
+          create_or_replace_tag($feature_level1, 'Name', \@list_names);
           $nbNamedGene++;
 
           # Keep track of ducplicated gene names <= Find another way
-          #if (exists ($geneNameGiven{$name_tag})) {
-          #  $nbDuplicateNameGiven++; # track total
-          #  $duplicateNameGiven{$name_tag}++; # track diversity
-          #}
-          #else { # first time we have given this name
-          #  $geneNameGiven{$name_tag}++;
-          #} 
+          foreach my $name (@list_names){
+            print $name."\n";
+            if (exists ($geneNameGiven{$name})) {
+              $nbDuplicateNameGiven++; # track total
+              $duplicateNameGiven{$name}++; # track diversity
+            }
+            else { # first time we have given this name
+              $geneNameGiven{$name}++;
+            } 
+          }
         }
       }
 
@@ -856,8 +860,8 @@ sub parse_blast {
 
 ##################################################
 ####### Step 2 : go through all candidates ####### report gene name for each mRNA
-
-  foreach my $l2 (keys %candidates) {
+  my %name_checker;
+  foreach my $l2 (sort keys %candidates) {
     # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
     if ( $candidates{$l2}[0] eq "error" ) {
       $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
@@ -899,10 +903,16 @@ sub parse_blast {
           $mRNANameBlast{$l2} = $nameGene;
 
           my $geneID = $hash_mRNAGeneLink->{$l2};
-          #print "push $geneID $nameGene\n";
-          # Save mRNA name into gene features (a list because we can have several siilar gene names)
-          # <= add way to not add a name alredeay seen
-          push ( @{ $geneNameBlast{lc($geneID)} }, $nameGene );
+
+          # Save mRNA names into gene features (a list because we can have several gene names if mRNA isoorms were refering to different gene names)
+          if (! exists_keys(\%name_checker,(lc($geneID),lc($nameGene) ))){
+            push ( @{ $geneNameBlast{lc($geneID)} }, $nameGene );
+            $name_checker{lc($geneID)}{lc($nameGene)}++
+          }
+          else{
+            $name_checker{lc($geneID)}{lc($nameGene)}++
+          }
+          
         }
         else {
           $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
