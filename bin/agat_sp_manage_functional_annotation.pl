@@ -308,14 +308,14 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
           # Keep track of ducplicated gene names <= Find another way
           foreach my $name (@list_names){
-            print $name."\n";
+
             if (exists ($geneNameGiven{$name})) {
               $nbDuplicateNameGiven++; # track total
               $duplicateNameGiven{$name}++; # track diversity
             }
             else { # first time we have given this name
               $geneNameGiven{$name}++;
-            } 
+            }
           }
         }
       }
@@ -912,7 +912,7 @@ sub parse_blast {
           else{
             $name_checker{lc($geneID)}{lc($nameGene)}++
           }
-          
+
         }
         else {
           $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
