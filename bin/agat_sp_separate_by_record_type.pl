@@ -42,10 +42,7 @@ if (! defined($opt_gfffile) ){
 ######################
 # Manage output file #
 
-if ($opt_output) {
-  $opt_output=~ s/.gff//g;
-  }
-else{
+if (! $opt_output) {
   print "Default output name: split_result\n";
   $opt_output="split_result";
 }

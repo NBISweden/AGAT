@@ -40,8 +40,7 @@ agat_sp_filter_record_by_coordinates.pl --help
 
 - **-o** or **--output**
 
-    Output GFF file.  If no output file is specified, the output will be
-    written to STDOUT.
+    Output folder.
 
 - **-v** or **--verbose**
 
@@ -50,4 +49,3 @@ agat_sp_filter_record_by_coordinates.pl --help
 - **-h** or **--help**
 
     Display this helpful text.
-
