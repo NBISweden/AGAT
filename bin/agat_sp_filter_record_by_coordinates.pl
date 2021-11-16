@@ -282,8 +282,7 @@ ones.
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output folder.
 
 =item B<-v> or B<--verbose>
 
