@@ -14,12 +14,12 @@ that will be used to know to which feature we will add the attributes.
 
 \* input.tsv:  
 ```
-ID	annot\_type1  
-gene1	anot\_x  
-cds1	anot\_y  
+ID	annot_type1  
+gene1	annot_x  
+cds1	annot_y  
 ```
 
-\* gff:  
+\* input.gff:  
 ```
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1  
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1  
@@ -27,8 +27,8 @@ chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1
 
 \* output.gff: 
 ```
-chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot\_type1=anot\_x  
-chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot\_type1=anot\_y  
+chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot_type1=annot_x  
+chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=annot_y  
 ```
 
 ## SYNOPSIS
