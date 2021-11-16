@@ -158,7 +158,7 @@ that will be used to know to which feature we will add the attributes.
 * input.tsv:
 ID	annot_type1
 gene1	anot_x
-cds1	anot_y
+cds1	anot_y  
 
 * gff:
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1
