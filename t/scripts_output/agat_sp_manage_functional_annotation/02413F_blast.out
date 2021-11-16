@@ -1,1 +1,4 @@
 snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-1	sp|P10394|POL4_DROME	30.00	160	104	4	2	156	1077	1233	4e-12	67.8
+snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-2	sp|P04323|POL3_DROME	30.00	160	104	4	2	156	1077	1233	4e-12	67.8
+snap_masked-@002413F|arrow|arrow-processed-gene-0.4-mRNA-3	sp|Q5HRU5|METN1_STAEQ	30.00	160	104	4	2	156	1077	1233	4e-12	67.8 
+maker-@002413F|arrow|arrow-exonerate_est2genome-gene-0.1-mRNA-1	sp|P10394|POL4_DROME	30.00	160	104	4	2	156	1077	1233	4e-12	67.8 	
