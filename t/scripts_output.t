@@ -303,10 +303,8 @@ unlink $outprefix."_incomplete.gff";
 $script = $script_prefix."bin/agat_sp_filter_record_by_coordinates.pl";
 $result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
 system(" $script --gff $input_folder/1.gff --tsv $input_folder/coordinates.tsv -o $outtmp 2>&1 1>/dev/null");
-ok( system("diff $result $outtmp") == 0, "output $script");
-unlink $outtmp;
-unlink $outprefix."_remaining.gff";
-unlink $outprefix."_report.txt";
+ok( system("diff $result $outtmp/remaining.gff3") == 0, "output $script");
+rmtree $outtmp;
 
 # --------check agat_sp_fix_cds_phases.pl-------------
 
@@ -499,8 +497,8 @@ $script = $script_prefix."bin/agat_sp_separate_by_record_type.pl";
 $result = "$output_folder/agat_sp_separate_by_record_type_1.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outprefix/trna.gff") == 0, "output $script");
-rmtree $outprefix;
+ok( system("diff $result $outtmp/trna.gff") == 0, "output $script");
+rmtree $outtmp;
 
 # -------------------------- check agat_sp_statistics --------------------------
 
