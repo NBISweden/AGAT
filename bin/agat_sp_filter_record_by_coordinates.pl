@@ -50,38 +50,36 @@ if ( ! $opt_gff ){
 ###############
 # Manage Output
 
+if (! $opt_output) {
+  print "Default output name: filter_record_by_coordinates\n";
+  $opt_output="filter_record_by_coordinates";
+}
+
+if (-d $opt_output){
+  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+}
+mkdir $opt_output;
+
 ## FOR GFF FILE
 my $gffout_ok ; my $gffout_notok ; my $ostreamReport ;
 
 if ($opt_output) {
-  my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
-  # set file names
-  my $outfile_ok = $path.$outfile.$ext;
-  my $outfile_notok = $path.$outfile."_remaining".$ext;
-  my $outfile_report = $path.$outfile."_report.txt";
-
-  # check existence
-  if(-f $outfile_ok){  print "File $outfile_ok already exist.\n";exit;}
-  if(-f $outfile_notok){  print "File $outfile_notok already exist.\n";exit;}
-  if(-f $outfile_report){  print "File $outfile_report already exist.\n";exit;}
+  #my $outfile_ok = $path.$outfile.$ext;
+  my $outfile_notok = $opt_output."/remaining.gff3";
+  my $outfile_report = $opt_output."/report.txt";
 
   # create fh
-  open( my $fh, '>', $outfile_ok) or die "Could not open file $outfile_ok $!";
-  $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
   open( my $fhnotok, '>', $outfile_notok) or die "Could not open file $outfile_notok $!";
   $gffout_notok = Bio::Tools::GFF->new(-fh => $fhnotok, -gff_version => 3 );
   open($ostreamReport, '>', $outfile_report) or die "Could not open file $outfile_report $!";
-}
-else{
-  $gffout_ok = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $ostreamReport = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
 # Manage ranges
 my %range_hash;
 open my $in_range, "<:encoding(utf8)", $opt_coordinates or die "$opt_coordinates: $!";
 my $cpt_line=0;
+my $nb_ranges = 0;
 while (my $line = <$in_range>) {
     $cpt_line++;
     chomp $line;
@@ -90,13 +88,13 @@ while (my $line = <$in_range>) {
     my $size_array = scalar @array;
     if ( $size_array >= 3){
       push @{$range_hash{lc($array[0])}}, [$array[1], $array[2]];
+      $nb_ranges++;
     }
     else{
       print "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n";
     }
 }
 
-my $nb_ranges = keys %range_hash;
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
@@ -120,7 +118,7 @@ print("Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
-my @listok;
+my %hash_listok;
 my @listNotOk;
 #################
 # == LEVEL 1 == #
@@ -134,32 +132,40 @@ foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] |
 # == LEVEL 1 == #
 #################
   foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
+    my $tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
+    my $id_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
+    my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
-      my $tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
-      my $id_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
-      my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
-      if ( test_overlap_with_ranges( $feature_l1, \%range_hash, $opt_exclude_ov ) ){
-        push @listok, $id_l1;
-      }
-      else{
-        push @listNotOk, $id_l1;
-      }
-
+    my $result = test_overlap_with_ranges( $feature_l1, \%range_hash, $opt_exclude_ov );
+    if ( $result ){
+      push @{$hash_listok{$result}}, $id_l1;
+    }
+    else{
+      push @listNotOk, $id_l1;
+    }
   }
 }
 
 # print ok
-my $hash_ok = subsample_omniscient_from_level1_id_list($hash_omniscient, \@listok);
-print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
-%{$hash_ok} = ();
+my $test_success=0;
+foreach my $location ( sort { ncmp ($a, $b) } keys %hash_listok ){
+  my $listok = $hash_listok{$location};
+  $test_success += scalar @{ $listok };
+  my $hash_ok = subsample_omniscient_from_level1_id_list($hash_omniscient, $listok);
+
+  open( my $fh, '>', "$opt_output/$location.gff3") or die "Could not open file $opt_output/$location.gff3 $!";
+  my $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+
+  print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
+  %{$hash_ok} = (); #clean
+}
+
 # print remaining if an output is provided
 if($opt_output){
   my $hash_remaining = subsample_omniscient_from_level1_id_list($hash_omniscient, \@listNotOk);
   print_omniscient($hash_remaining, $gffout_notok); #print gene modified in file
   %{$hash_remaining} = ();
 }
-
-my $test_success = scalar @listok;
 my $test_fail = scalar @listNotOk;
 
 $stringPrint = "$test_success record(s) selected within the range(s).\n";
@@ -183,7 +189,8 @@ if ($opt_output){
 
 sub test_overlap_with_ranges{
   my ($feature_l1, $range_hash, $opt_exclude_ov) = @_;
-  my $result = undef;
+
+  my $range_string = undef;
   my $start = $feature_l1->start();
   my $end = $feature_l1->end();
   if (exists_keys($range_hash,( lc($feature_l1->seq_id) ) ) ){
@@ -191,18 +198,20 @@ sub test_overlap_with_ranges{
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
           print "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n" if $opt_verbose;
-          return 1;
+          $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
+          return $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
           print "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n" if $opt_verbose;
-          return 1;
+          $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
+          return $range_string;
         }
       }
     }
   }
-  return $result;
+  return $range_string;
 }
 
 # feature must be in the range
