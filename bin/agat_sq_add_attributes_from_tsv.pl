@@ -95,10 +95,6 @@ while (<INPUT>) {
 		my $nb_column = scalar @splitline;
 		if($nb_column != $nb_header) { print "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"; }
 		for(my $i = 1; $i <= $#splitline; $i++){
-
-			print $i ."\n";
-			print $header{0}."\n";
-			print $header{$i}."\n";
 			$tsv{lc($splitline[0])}{$header{$i}} = $splitline[$i];
 		}
 	}
@@ -162,7 +158,7 @@ that will be used to know to which feature we will add the attributes.
 * input.tsv:
 ID	annot_type1
 gene1	anot_x
-cds1	anot_y
+cds1	anot_y  
 
 * gff:
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1
