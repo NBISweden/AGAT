@@ -25,7 +25,8 @@ remove_omniscient_elements_from_level2_ID_list featuresList_identik group_featur
 check_level1_positions check_level2_positions info_omniscient fil_cds_frame
 check_all_level1_positions check_all_level2_positions remove_element_from_omniscient
 append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
-fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list check_if_feature_overlap
+fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list_intact 
+subsample_omniscient_from_level1_id_list_delete check_if_feature_overlap
 remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
@@ -1000,9 +1001,10 @@ sub create_omniscient_from_idlevel2list{
 }
 
 # @Purpose: filter an omniscient to return a new omnicient containing only data related by the list of level1 IDs
+# When take an element it is deleted from reference omniscient
 # @input: 1 =>  omniscient hash reference
 # @output 1 =>  omniscient hash reference
-sub subsample_omniscient_from_level1_id_list {
+sub subsample_omniscient_from_level1_id_list_delete {
 
 	my ($hash_omniscient, $level_id_list) = @_  ;
 
@@ -1037,6 +1039,53 @@ sub subsample_omniscient_from_level1_id_list {
 							}
 						}
 						$new_hash{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} = delete $hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1};
+					}
+				}
+			}
+		}
+	}
+	return \%new_hash;
+}
+
+# @Purpose: filter an omniscient to return a new omnicient containing only data related by the list of level1 IDs
+# When take an element it is kept intact in the reference omniscient
+# @input: 1 =>  omniscient hash reference
+# @output 1 =>  omniscient hash reference
+sub subsample_omniscient_from_level1_id_list_intact {
+
+	my ($hash_omniscient, $level_id_list) = @_  ;
+
+	my %new_hash;
+
+	#################
+	# == LEVEL 1 == #
+	#################
+	foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+
+		foreach my $id_tag_key_level1_raw (@$level_id_list){
+			my $id_tag_key_level1 = lc($id_tag_key_level1_raw);
+			if(exists ($hash_omniscient->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1})){
+
+				$new_hash{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1} = clone($hash_omniscient->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1});
+
+				#################
+				# == LEVEL 2 == #
+				#################
+				foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+					if ( exists ($hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
+						foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+							my $level2_ID = lc($feature_level2->_tag_value('ID'));
+
+							#################
+							# == LEVEL 3 == #
+							#################
+							foreach my $primary_tag_key_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+								if ( exists ($hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID} ) ){
+									$new_hash{'level3'}{$primary_tag_key_level3}{$level2_ID} = clone($hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID});
+								}
+							}
+						}
+						$new_hash{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} = clone($hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1});
 					}
 				}
 			}
