@@ -156,12 +156,12 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # print ok
-my $hash_ok = subsample_omniscient_from_level1_id_list($hash_omniscient, \@listok);
+my $hash_ok = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@listok);
 print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
 %{$hash_ok} = ();
 # print remaining if an output is provided
 if($opt_output){
-  my $hash_remaining = subsample_omniscient_from_level1_id_list($hash_omniscient, \@list2);
+  my $hash_remaining = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@list2);
   print_omniscient($hash_remaining, $gffout_notok); #print gene modified in file
   %{$hash_remaining} = ();
 }
