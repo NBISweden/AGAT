@@ -2098,17 +2098,6 @@ sub check_level2_positions {
     }
 }
 
-# return 1 if feature overlaps
-sub check_features_overlap {
-  my ($feature1, $feature2)=@_;
-  my $result = undef;
-
-  if( ($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start ) ){ # they overlap
-    $result = 1;
-  }
-  return $result;
-}
-
 #calcul the overlaping percentage betwwen 2 CDS list or 2 exon list etc...
 # /!\ Be careful if you test the output, a overlaping gene can have a percentage overlap to 0. And if you test "if(featuresList_overlap)" and you have a 0, it will fail. So you have to check defined(featuresList_overlap)
 sub featuresList_overlap {
@@ -2601,15 +2590,19 @@ sub get_cds_from_l2 {
 # @Purpose: check if two features overlap.
 # @input: 2 => l1 feature, l2 feature
 # @output: bolean
-sub check_if_feature_overlap{
+sub check_features_overlap{
 	my($feature1, $feature2)=@_;
+	
 	my $result=undef;
+
 	if (($feature1->start <= $feature2->end) and ($feature1->end >= $feature2->start)){
 		$result="true";
 	}
 
 return $result
 }
+
+
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|

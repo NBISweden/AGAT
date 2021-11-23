@@ -70,10 +70,11 @@ if(!($model_to_test)){
   $ListModel{3}=0;
   $ListModel{4}=0;
   $ListModel{5}=0;
+  $ListModel{6}=0;
 }else{
   my @fields= split(',', $model_to_test);
   foreach my $field (@fields){
-    if($field =~ m/^[12345]$/){
+    if($field =~ m/^[123456]$/){
       $ListModel{$field}=0;
     }else{
       print "This model $field is not known. Must be an Integer !\n";exit;
@@ -196,6 +197,7 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
         #######################################################
         # START Take care of other gene with duplicated location
         #
+        print "START Take care of other gene with duplicated location\n" if $verbose;
         #foreach my $gene_feature_id2 (@sorted_genefeature_ids){
         foreach my $location2 (@{$hash_sortBySeq->{$seqid}{$tag}}){
           my $gene_feature_id2 = lc($location2->[0]);
@@ -212,7 +214,9 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
             #The two genes overlap
             if( ($gene_feature2->start <= $gene_feature->end() ) and ($gene_feature2->end >= $gene_feature->start) ){
+
               print "$gene_feature_id and $gene_feature_id2 overlap\n" if $verbose;
+
               # Loop over the L2 from the first gene feature
               foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
                 if ( exists ($omniscient->{'level2'}{$l2_type}{$gene_feature_id} ) ){
@@ -230,14 +234,21 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                         #check their position are identical
                         if($l2_2->start().$l2_2->end() eq $l2_1->start().$l2_1->end()){
 
+                          print "$id_l2_2  and $id_l2_1 have same start and stop\n" if $verbose;
+
                           if(exists_keys($omniscient,('level3', 'exon', $id_l2_1))){
                             if(exists_keys($omniscient,('level3', 'exon', $id_l2_2))){
-                              if(scalar @{$omniscient->{'level3'}{'exon'}{$id_l2_1}} ==  scalar @{$omniscient->{'level3'}{'exon'}{$id_l2_2}}){
+
+                              my $resu_overlap = check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , $gene_feature_id, $gene_feature_id2);
+                              if ($resu_overlap){
+
+                                print "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n" if $verbose;
 
                                 #EXON identicals
                                 if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
-                                  #EXON CDS
+
                                   print "$id_l2_2 and $id_l2_1 have same exon list\n" if $verbose;
+                                  # NO CDS
                                   if ( ! exists_keys($omniscient, ('level3','cds',$id_l2_1)) and  ! exists_keys($omniscient, ('level3','cds',$id_l2_2) ) ) {
                                     if (exists($ListModel{2})){
                                        print "case2: $id_l2_2 and $id_l2_1 have no CDS\n" if $verbose;
@@ -245,7 +256,7 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                        push(@L2_list_to_remove, $id_l2_2);
                                     }
                                   }
-                                  else{
+                                  else{ # WITH CDS
                                     if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose ) ){
                                       if ( exists($ListModel{3}) ){
                                         print "case3: $id_l2_2 and $id_l2_1 have same CDS list\n" if $verbose;
@@ -276,11 +287,22 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                     # CDS are not identic Let's reshape UTRS
                                     elsif ( exists($ListModel{4})){
                                       $ListModel{4}++;
-                                      reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose);
                                       print "case4 (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
+                                      reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose, 4);
                                     }
                                   }
                                 }
+                                # Exon structure different inside
+                                elsif ( exists($ListModel{5})) {
+                                  $ListModel{5}++;
+                                  print "case5 (Exons overlap but structure different (Same extremities but different internal locations) Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
+                                  reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose, 5);
+                                }
+                              }
+                              # CDS and Exon does not overlap
+                              else{
+                                print "CDS and Exon does not overlap\n" if ($verbose);
+
                               }
                             }
                           }
@@ -298,15 +320,15 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
             }
 
 
-            # Not identik at exon level but identik a gene level. Whan arriving at this particular case, it means that the CDS do not overlap.
+            # Not identik at exon level but identik a gene level. When arriving at this particular case, it means that the CDS do not overlap.
             # We have to shrink the UTR and reshape gene and mRNA extremities.
             if (exists_keys($omniscient, ('level1',$tag,$gene_feature_id2) ) and exists_keys($omniscient, ('level1',$tag,$gene_feature_id) ) ){
 
               if( ($gene_feature2->start == $gene_feature->start) and ($gene_feature2->end == $gene_feature->end) ){
-                if (exists($ListModel{5})){
-                  print "case5 (reshaping genes): $gene_feature_id2 and $gene_feature_id have same location \n";
-                  $ListModel{5}++;
-                  reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose);
+                if (exists($ListModel{6})){
+                  print "case6 (reshaping genes): $gene_feature_id2 and $gene_feature_id have same location \n";
+                  $ListModel{6}++;
+                  reshape_the_2_gene_models($omniscient, $gene_feature_id, $gene_feature_id2, $verbose, 6);
                 }
               }
             }
@@ -331,7 +353,10 @@ if (exists($ListModel{4})){
   $string_print .= "Case4: AGAT found ".$ListModel{4}." cases where l2 from different gene identifier have identical exon structures and different CDS structures (AGAT reshaped UTRs to modify gene locations).\n";
 }
 if (exists($ListModel{5})){
-  $string_print .= "Case5: AGAT found ".$ListModel{5}." cases where 2 genes have same location while their exon/CDS locations are differents. In that case AGAT modified the gene locations by clipping UTRs.\n";
+  $string_print .= "Case5: AGAT found ".$ListModel{5}." cases where l2 from different gene identifier overlap but have different exon structure. In that case AGAT modified the gene locations by clipping UTRs.\n";
+}
+if (exists($ListModel{6})){
+  $string_print .= "Case6: AGAT found ".$ListModel{6}." cases where 2 genes have same location while their exon/CDS locations do not overlap. In that case AGAT modified the gene locations by clipping UTRs.\n";
 }
 $string_print .= "AGAT removed $nb_gene_removed genes because no more l2 were linked to them.\n";
 print_omniscient($omniscient, $gffout); #print gene modified
@@ -353,12 +378,22 @@ if($outfile){print $string_print;}
 
 
 sub reshape_the_2_gene_models{
-  my ($omniscient, $gene_feature_id, $gene_feature_id2, $verbose)=@_;
+  my ($omniscient, $gene_feature_id, $gene_feature_id2, $verbose, $case)=@_;
 
-  my $extrem_cds_start = get_extrem_cds_start($omniscient, $gene_feature_id);
-  my $extrem_cds_start2 = get_extrem_cds_start($omniscient, $gene_feature_id2);
-  my $extrem_cds_end = get_extrem_cds_end($omniscient, $gene_feature_id);
-  my $extrem_cds_end2 = get_extrem_cds_end($omniscient, $gene_feature_id2);
+
+  # get info about UTRS presence
+  my @UTR_1 = ();
+  my @UTR_2 = ();
+  foreach my $tag ( @{$omniscient->{'level3'}}){
+    if(lc($tag) =~ m/utr/){
+      if(exists_keys($omniscient,('level3', $tag, $id_l2_1))){
+        push @UTR_1, @{$omniscient->{'level3'}{$tag}{$id_l2_1}};
+      }
+      if(exists_keys($omniscient,('level3', $tag, $id_l2_1))){
+        push @UTR_1, @{$omniscient->{'level3'}{$tag}{$id_l2_1}};
+      }
+    }
+  }
 
   if($extrem_cds_start < $extrem_cds_start2){
     print "remove after $gene_feature_id and  before $gene_feature_id2\n" if $verbose;
@@ -372,37 +407,10 @@ sub reshape_the_2_gene_models{
     remodelate_exon_list_right($omniscient, $gene_feature_id2, $extrem_cds_end2);
     remodelate_exon_list_left($omniscient, $gene_feature_id, $extrem_cds_end2);
   }
-  handle_l3_features($omniscient, $gene_feature_id2);
+
   check_record_positions($omniscient, $gene_feature_id2);
-  handle_l3_features($omniscient, $gene_feature_id);
+
   check_record_positions($omniscient, $gene_feature_id);
-}
-
-# We will remodelate the l3 features
-sub handle_l3_features{
-  my ($omniscient, $id_l1)=@_;
-
-  #  Remove all level3 feature execept exon
-  my @tag_list=('exon');
-  my $l2_id_list= get_all_id_l2($omniscient, $id_l1);
-  my %hash_cds_positions; # keep track of start - stop
-  foreach my $l2_id_x (@$l2_id_list){
-      my ($cds_start, $cds_end) = get_cds_positions($omniscient, $id_l1, $l2_id_x);
-      $hash_cds_positions{$l2_id_x} = [$cds_start, $cds_end];
-  }
-  #remove all l3 feature except exon
-  remove_tuple_from_omniscient($l2_id_list, $omniscient, 'level3', 'false', \@tag_list);
-  foreach my $l2_id_x (@$l2_id_list){
-    my $cds_start = $hash_cds_positions{$l2_id_x}[0];
-    my $cds_end = $hash_cds_positions{$l2_id_x}[1];
-
-    my ($utr5_list, $cds_list, $utr3) = modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop($omniscient->{'level3'}{'exon'}{$l2_id_x}, $cds_start, $cds_end);
-    my @level1_list;
-    my @level2_list;
-    my @level3_list=(@$cds_list, @$utr5_list, @$utr3);
-    append_omniscient($omniscient, \@level1_list, \@level2_list, \@level3_list);
-  }
-
 }
 
 sub get_all_id_l2{
@@ -420,95 +428,8 @@ sub get_all_id_l2{
   return \@result;
 }
 
-
-sub remodelate_exon_list_right{
-  my ($omniscient, $id_l1, $limit)=@_;
-
-      foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-        if ( exists ($omniscient->{'level2'}{$l2_type}{$id_l1} ) ){
-          foreach my $feature_level2 ( @{$omniscient->{'level2'}{$l2_type}{$id_l1}}) {
-            my $level2_ID  = lc($feature_level2->_tag_value('ID'));
-
-            if ( exists ($omniscient->{'level3'}{'exon'}{$level2_ID} ) ){
-              my $mustModifyList=undef;
-              my @listok;
-              foreach my $feature_level3 ( @{$omniscient->{'level3'}{'exon'}{$level2_ID}}) {
-                if ($feature_level3->start() >= $limit){
-                  $mustModifyList="yes";
-                }
-                elsif ($feature_level3->end() > $limit){
-                  $feature_level3->end($limit);
-                  push(@listok, $feature_level3);
-                }
-                else{
-                  push(@listok, $feature_level3);
-                }
-              }
-              if($mustModifyList){ # at least one feature has been removed from list. Save the new list
-                @{$omniscient->{'level3'}{'exon'}{$level2_ID} } = @listok;
-              }
-            }
-          }
-        }
-      }
-}
-
-sub remodelate_exon_list_left{
-  my ($omniscient, $id_l1, $limit)=@_;
-
-  foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-    if ( exists ($omniscient->{'level2'}{$l2_type}{$id_l1} ) ){
-      foreach my $feature_level2 ( @{$omniscient->{'level2'}{$l2_type}{$id_l1}}) {
-        my $level2_ID  = lc($feature_level2->_tag_value('ID'));
-
-        if ( exists ($omniscient->{'level3'}{'exon'}{$level2_ID} ) ){
-          my $mustModifyList=undef;
-          my @listok;
-          foreach my $feature_level3 ( @{$omniscient->{'level3'}{'exon'}{$level2_ID}}) {
-            if ($feature_level3->end() <= $limit){
-              $mustModifyList="yes";
-            }
-            elsif ($feature_level3->start() < $limit){
-              $feature_level3->start($limit);
-               push(@listok, $feature_level3);
-            }
-            else{
-               push(@listok, $feature_level3);
-            }
-          }
-          if($mustModifyList){ # at least one feature has been removed from list. Save the new list
-            @{$omniscient->{'level3'}{'exon'}{$level2_ID} } = @listok;
-          }
-        }
-      }
-    }
-  }
-}
-
-sub get_cds_positions{
-  my ($omniscient, $id_l1, $id_l2)=@_;
-  my $start=0;
-  my $end=0;
-
-  foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
-    if ( exists_keys ($omniscient, ('level2', $l2_type, $id_l1) ) ){
-
-      if ( exists_keys ($omniscient, ('level3', 'cds', $id_l2 ) ) ){
-        my  @sorted_cds =  sort { $a->start() <=>  $b->start() } @{$omniscient->{'level3'}{'cds'}{$id_l2}};
-        $start = @{$omniscient->{'level3'}{'cds'}{$id_l2}}[0]->start;
-        $end = @{$omniscient->{'level3'}{'cds'}{$id_l2}}[$#{$omniscient->{'level3'}{'cds'}{$id_l2}}]->end;
-
-      }
-      else{
-        print "WARNING $id_l2 do not exists\n";
-      }
-    }
-  }
-  return $start,$end;
-}
-
-sub get_extrem_cds_start{
-  my ($omniscient, $id_l1)=@_;
+sub get_extremity_feature_l3{
+  my ($omniscient, $id_l1, $tag, $side)=@_;
   my $result=100000000000;
 
       foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
@@ -578,7 +499,8 @@ the file to ENA (after convertion).
 * Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all, AGAT removes one duplicate);
 * Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures, AGAT removes duplicates by keeping the one with longest CDS);
 * Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures, AGAT reshapes UTRs to modify mRNA and gene locations);
-* Case5: When 2 genes have same locations while their exon/CDS locations are differents. In that case AGAT modifies the gene locations by clipping UTRs;
+* Case5: When l2 (e.g. mRNA) from different gene identifier overlap but have different exon structure. In that case AGAT modified the gene locations by clipping UTRs;
+* Case6: When 2 genes have same locations while their exon/CDS locations are differents. In that case AGAT modifies the gene locations by clipping UTRs;
 
 =head1 SYNOPSIS
 
@@ -602,7 +524,8 @@ Case1: When isoforms have identical exon structures AGAT removes duplicates by k
 Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all (AGAT removes one duplicate);
 Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures (AGAT removes duplicates by keeping the one with longest CDS);
 Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (AGAT reshapes UTRs to modify mRNA and gene locations);
-Case5: When 2 genes have same locations while their exon/CDS locations are differents. In that case AGAT modifies the gene locations by clipping UTRs;
+Case5:
+Case6: When 2 genes have same locations while their exon/CDS locations do not overlap. In that case AGAT modifies the gene locations by clipping UTRs;
 
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
