@@ -1,0 +1,6 @@
+##gff-version 3
+Chr01	TEST	gene	49898135	49898559	.	+	.	ID=JI855355.1.path1;Name=JI855355.1
+Chr01	TEST	mRNA	49898135	49898559	.	+	.	ID=JI855355.1.mrna1;Parent=JI855355.1.path1;Name=JI855355.1;coverage=98.4;identity=85.5;indels=6;matches=365;mismatches=56;unknowns=0
+Chr01	TEST	exon	49898135	49898559	.	+	.	ID=JI855355.1.mrna1.exon1;Parent=JI855355.1.mrna1;Target=JI855355.1 3 425 .;Name=JI855355.1
+Chr01	TEST	CDS	49898135	49898557	.	+	0	ID=JI855355.1.mrna1.cds1;Parent=JI855355.1.mrna1;Target=JI855355.1 3 423 .;Name=JI855355.1
+Chr01	TEST	three_prime_UTR	49898558	49898559	.	+	.	ID=nbis-three_prime_utr-157636;Parent=JI855355.1.mrna1;Target=JI855355.1 3 425 .;Name=JI855355.1

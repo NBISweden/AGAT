@@ -248,15 +248,14 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
             # keep track last locationA
             my $last_locationA = undef;
             $last_locationA = 1 if (scalar @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} == 0);
-            print "Last LocationA !!\n" if ( $last_locationA and $verbose);
+            print "Lets go for last LocationA !!\n" if ( $last_locationA and $verbose);
 
             if ( exists_keys ($flattened_locations2, ($locusID,$chimere_type,$level,$type) ) and
                 scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){ # and
 
-              my $previous_overlap = 0;
               while ( scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){
                 if ($verbose) { print " list of location2 $level $type: "; foreach my $array ( @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}}){print "@{$array} - "; } print "\n";}
-                my $shift_it = 1;
+
                 my $location2 = $flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}->[0];
                 print " location2 investigated:  @$location2\n" if ($verbose);
                 print " Original TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
@@ -266,37 +265,40 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 # keep track last locationA
                 my $last_locationB = undef;
                 $last_locationB = 1 if (scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} == 1);
-                print " Last LocationB !!\n" if ($last_locationB and $verbose);
+                print " Lets go for last LocationB !!\n" if ($last_locationB and $verbose);
 
+                # ===================== CASE 1 =====================
                 #  location A                         ----------------
                 #  location B  ---------------
                 if ($location2->[1] < $location1->[0]){
-                  print " shift location2 because before location A!\n" if ($verbose);
                   my $FP = $location2->[1] - $location2->[0] + 1; #size
-                  $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
                   print " +FP => $FP\n" if ($verbose);
-                  $previous_overlap = 0;
+                  $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
+                  print "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
+                  print "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
+                  print "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
+                  print " Case1 - Next location2!\n\n" if ($verbose);
+                  my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                 }
+
 
                 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 #      ------------ OVERLAP -----------
                 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 elsif( ($location1->[0] <= $location2->[1]) and ($location1->[1] >= $location2->[0])){
-                  $previous_overlap = 1;
                   print " location @$location1 and @$location2 overlap !!!!\n" if $verbose;
                   my ($FN, $FP, $TP) = get_snsp_for_overlaps ($location1, $location2);
                   print " FN=$FN, FP=$FP, TP=$TP\n" if $verbose;
 
+
+                  my $locationB_remain = 0 ;
+                  my $locationA_remain = 0 ;
                   # check                  vvvv
                   #  location A    -------
                   #  location B  --------------
                   # but only if not the last location
-                  my $locationB_remain = 0 ;
-                  my $locationA_remain = 0 ;
-                  my $clean_cut = 0 ;
                   if( $location2->[1] > $location1->[1] ){
                     $locationB_remain = $location2->[1] - $location1->[1] + 1;
-                    $shift_it = undef;
                   }
                   # check                       vvvv
                   #  location A          -----------
@@ -304,72 +306,74 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   elsif( $location1->[1] > $location2->[1] ){
                     $locationA_remain = 1;
                   }
-                  #                            v
-                  #  location A        -------- <
-                  #  location B  -------------- <
-                  else{
-                    $clean_cut = 1;
-                  }
-
                   #  location A          -------------
                   #  location B  -----------   --  ------------
+
                   print "locationA_remain $locationA_remain \n" if $verbose;
                   print "locationB_remain $locationB_remain \n" if $verbose;
-                  print "clean_cut $clean_cut \n" if $verbose;
-                  if ($locationA_remain and !$last_locationA){
+
+                  if ($locationA_remain and !$last_locationA and !$last_locationB){
                     # TP must always be added
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} -= $TP;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
+                    print " TP: ADDING ".$TP."\n" if $verbose;
                     print " FN: removing ".$TP."\n" if $verbose;
                     print " FP: ADDING ".$FP."\n" if $verbose;
-                    print " TP: ADDING ".$TP."\n" if $verbose;
+                    print " Case2 A - Next location B \n" if $verbose;
+                    my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                   }
-                  elsif ($locationB_remain and !$last_locationB){
+
+                  elsif ($locationB_remain and !$last_locationA  and !$last_locationB){
                     # TP must always be added
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} -= $TP;
+                    print " TP: ADDING ".$TP."\n" if $verbose;
                     print " FN: ADDING ".$FN."\n" if $verbose;
                     print " FP: removing ".$TP."\n" if $verbose;
-                    print " TP: ADDING ".$TP."\n" if $verbose;
+                    print " Case2 B - Next location A\n" if $verbose;
+                    last;
                   }
-                  else{
+
+                  else{ #clean cut or end of one type of location (1 or 2)
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
+                    print " TP: ADDING ".$TP."\n" if $verbose;
                     print " FN: ADDING ".$FN."\n" if $verbose;
                     print " FP: ADDING ".$FP."\n" if $verbose;
-                    print " TP: ADDING ".$TP."\n" if $verbose;
-                  }
+                    print " Case2 C ------\n" if $verbose;
+                    print " End TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
+                    print " End FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
+                    print " End FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;
 
-                  # From previous locationA analysis
-                  if($locationB_remain){
-                    # No more locationA
-                    if( $last_locationA ){
-                      print " No more location A 1\n" if $verbose;
-                      # No more locationB
-                      if( $last_locationB ){
-                        print " No more location B\n" if $verbose;
+                      if( $last_locationB and !$last_locationA){
+                        print " Case2 C2 - Remove last location B\n" if ($verbose);
+                        my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                       }
-                      print " Next location B\n" if $verbose;
-                      $shift_it = 1;
-                    }
-                    else{
-                      print " Next location A\n" if $verbose;
-                      last; # next locationA
-                    }
-                  }
-                  elsif( $clean_cut ){
-                    print " Clean cut !!! Removing LocationB and next Location A\n" if $verbose;
-                    my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
-                    print " End3 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                    print " End3 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                    print " End3 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;
-                    last; # next locationA
+                      elsif ($last_locationA and !$last_locationB){
+                        print " Case2 C3 - No more location A - LAST\n" if $verbose;
+                        last;
+                      }
+                      elsif ($last_locationA and $last_locationB){
+                        print " Case2 C4 - No more locationA neither locationB. Removing locationB and LAST.\n" if ($verbose);
+                        my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
+                        last;
+                      }
+                      #  clean cut                 v
+                      #  location A        -------- <
+                      #  location B  -------------- <
+                      # No more locationA
+                      elsif(!$locationA_remain and !$locationB_remain){
+                        print " Clean cut !!! Removing LocationB and next Location A\n" if $verbose;
+                        my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
+                        last; # next locationA
+                      }
                   }
                 }
 
+                # ===================== CASE 3 =====================
                 #  location A  -------------------------
                 #  location B                                     -------------------------
                 else{
@@ -378,43 +382,23 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   my $FN = $location1->[1] - $location1->[0] + 1; #size
                   $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                   print " Take into account the current locationA! +FN: $FN;\n" if ($verbose);
-                  $shift_it = undef;
 
-                  print "End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                  print "End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                  print "End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;
-
-
-                  # no more location1
-                  if(scalar @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} == 0 ){
-                    my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
-                    print "No more location A 2\n"  if $verbose;
-                    next;
-                  }
-                  else{
-                    $previous_overlap = 0;
-                    last; # next locationA
-                  }
+                  print " End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
+                  print " End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
+                  print " End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
+                  print " Case3 - Next location A \n\n" if $verbose;
+                  last; # next locationA
                 }
-
-                #
-                # - END -
-                #
-                if ($shift_it){
-                  my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
-                  print " Removing location2: @$tothrow\n" if ($verbose);
-                }
-                print "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                print "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                print "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;
               }# END WHILE until location B is after A
             }
 
+            # ===================== CASE 4 =====================
             # The list of locationB is empty now
             else{
               my $FN += $location1->[1] - $location1->[0] + 1; #size
               print " LocationA only => +FN:$FN\n" if ($verbose);
               $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
+              print " Case4 - Next location A \n\n" if $verbose;
             }
           }
         }
@@ -425,6 +409,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
           my $FN=0;
           foreach my $location ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
             $FN += $location->[1] - $location->[0] + 1; #size
+            print " Case5 - Next location A \n" if $verbose;
           }
           $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
         }
