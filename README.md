@@ -576,6 +576,8 @@ Some examples of publications that have used AGAT
 | MDPI | [FA-nf: A Functional Annotation Pipeline for Proteins from Non-Model Organisms Implemented in Nextflow](https://www.mdpi.com/2073-4425/12/10/1645/htm)
 | Preprint | [De Novo Whole Genome Assembly of the Roborovski Dwarf Hamster (Phodopus roborovskii) Genome, an Animal Model for Severe/Critical COVID-19](https://www.biorxiv.org/content/10.1101/2021.10.02.462569v2.full)
 | Preprint | [Using historical museum samples to examine divergent and parallel evolution in the invasive starling](https://www.biorxiv.org/content/10.1101/2021.08.22.457241v1.full)|
+| GBE | [A Chromosome-Level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus)](https://helda.helsinki.fi/bitstream/handle/10138/336322/evab212.pdf?sequence=1&isAllowed=y)|
+| Preprint | [A genome assembly of the Atlantic chub mackerel (Scomber colias): a valuable teleost fishing resource](https://www.biorxiv.org/content/10.1101/2021.11.19.468211v1.full.pdf)|
 | [...] | [...]
 </details>
 

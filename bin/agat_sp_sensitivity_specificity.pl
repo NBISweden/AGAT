@@ -274,6 +274,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   my $FP = $location2->[1] - $location2->[0] + 1; #size
                   print " +FP => $FP\n" if ($verbose);
                   $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
+
                   print "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
                   print "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
                   print "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
@@ -329,6 +330,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} -= $TP;
+
                     print " TP: ADDING ".$TP."\n" if $verbose;
                     print " FN: ADDING ".$FN."\n" if $verbose;
                     print " FP: removing ".$TP."\n" if $verbose;
