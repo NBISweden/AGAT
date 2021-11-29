@@ -21,7 +21,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions(
     "help|h"                 => \$opt_help,
     "f|file|gff3|gff=s"      => \$ref,
-    "v"                      => \$verbose,
+    "v|verbose!"              => \$verbose,
     "m|model=s"              => \$model_to_test,
     "output|outfile|out|o=s" => \$outfile))
 
@@ -498,7 +498,8 @@ agat_sp_fix_features_locations_duplicated.pl
 The script aims to modify/remove feature with duplicated locations. Even if it
 not an error by itself in a gtf/gff file, it becomes problematic when submitting
 the file to ENA (after convertion).
-When modified UTR is shortened by 1 bp.
+To modify locations, AGAT modify the UTRs (when available) by shortening them by 1 bp (and consequently the Parent features and the exons accordingly)
+
 * Case1: When isoforms have identical exon structures, AGAT removes duplicates by keeping the one with longest CDS;
 * Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all, AGAT removes one duplicate);
 * Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon and CDS structures, AGAT removes duplicates by keeping the one with longest CDS);
@@ -521,7 +522,7 @@ Input GTF/GFF file.
 =item B<-m> or B<--model>
 
 To select cases you want to fix. By default all are used.
-To select specific cases writte e.g. --model 1,4,5
+To select specific cases write e.g. --model 1,4,5
 
 Case1: When isoforms have identical exon structures AGAT removes duplicates by keeping the one with longest CDS;
 Case2: When l2 (e.g. mRNA) from different gene identifier have identical exon but no CDS at all (AGAT removes one duplicate);
@@ -529,6 +530,9 @@ Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon an
 Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (AGAT reshapes UTRs to modify mRNA and gene locations);
 Case5: When l2 (e.g. mRNA) from different gene identifier overlap but have different exon structure. In that case AGAT modified the gene locations by clipping UTRs;
 
+=item B<-v> or B<--verbose>
+
+Add verbosity.
 
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
