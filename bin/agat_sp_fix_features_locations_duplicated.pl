@@ -104,10 +104,10 @@ my $topfeatures = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeat
 
 #find overlap
 my %checked_l1;
-foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
+foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
   if( exists_keys($hash_sortBySeq,($seqid ) ) ){
-    foreach my $tag (keys %{$hash_sortBySeq->{$seqid}}){
+    foreach my $tag (sort keys %{$hash_sortBySeq->{$seqid}}){
 
       #skip top features
       if(exists_keys($topfeatures,($tag))){ next; }
