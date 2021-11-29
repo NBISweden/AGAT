@@ -67,7 +67,7 @@ else{
 print ("Parsing $gff1\n");
 my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1
                                                               });
-print ("\n\nParsing $gff2\n");                                                              
+print ("\n\nParsing $gff2\n");
 my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2
                                                               });
 print ("-- Files parsed --\n");
@@ -274,7 +274,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   print " shift location2 because before location A!\n" if ($verbose);
                   my $FP = $location2->[1] - $location2->[0] + 1; #size
                   $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
-                  print " FP => $FP\n" if ($verbose);
+                  print " +FP => $FP\n" if ($verbose);
                   $previous_overlap = 0;
                 }
 
@@ -330,8 +330,8 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} -= $TP;
-                    print " FN: removing ".$TP."\n" if $verbose;
-                    print " FP: ADDING ".$FP."\n" if $verbose;
+                    print " FN: ADDING ".$FN."\n" if $verbose;
+                    print " FP: removing ".$TP."\n" if $verbose;
                     print " TP: ADDING ".$TP."\n" if $verbose;
                   }
                   else{
@@ -375,19 +375,11 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 else{
                   print " last because location2 after\n" if ($verbose);
 
-                  if($previous_overlap){
-                    my $FP = $location2->[1] - $location2->[0] + 1; #size
-                    $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
-                    print " Take into account the current locationB! +FP FP;\n" if ($verbose);
-                  }
-                  else{
-                    my $FN = $location1->[1] - $location1->[0] + 1; #size
-                    $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
-                    print " Take into account the current locationA! +FN:$FN;\n" if ($verbose);
-                    $shift_it = undef;
-                  }
+                  my $FN = $location1->[1] - $location1->[0] + 1; #size
+                  $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
+                  print " Take into account the current locationA! +FN: $FN;\n" if ($verbose);
+                  $shift_it = undef;
 
-                  # If it was overlaping then we do not count it because it has been already taken into account
                   print "End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
                   print "End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
                   print "End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;

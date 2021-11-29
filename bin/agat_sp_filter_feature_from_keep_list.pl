@@ -199,7 +199,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # create omniscient with only selected recoreds
-my $hash_kept = subsample_omniscient_from_level1_id_list($hash_omniscient, \@keeplist);
+my $hash_kept = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@keeplist);
 print_omniscient($hash_kept, $gffout_ok); #print gene modified in file
 $stringPrint = ($#keeplist+1)." records kept!\n";
 if ($opt_output){

@@ -400,7 +400,7 @@ print_omniscient(\%omniscient_modified_gene, $gffout2); #print gene modified in 
 
 # create a hash containing everything
 print "print all with name of overlapping features resolved...\n";
-my $hash_all = subsample_omniscient_from_level1_id_list($hash_omniscient, \@intact_gene_list);
+my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
 _check_overlap_name_diff($hash_all, undef, $verbose);
 _check_identical_isoforms($hash_all, undef, $verbose);

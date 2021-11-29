@@ -136,9 +136,11 @@ foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] |
     my $id_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
     my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
-    my $result = test_overlap_with_ranges( $feature_l1, \%range_hash, $opt_exclude_ov );
-    if ( $result ){
-      push @{$hash_listok{$result}}, $id_l1;
+    my $list_ranges = test_overlap_with_ranges( $feature_l1, \%range_hash, $opt_exclude_ov );
+    if ( @$list_ranges ){
+      foreach my $range (@$list_ranges){
+        push @{$hash_listok{$range}}, $id_l1;
+      }
     }
     else{
       push @listNotOk, $id_l1;
@@ -146,14 +148,15 @@ foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] |
   }
 }
 
+
 # print ok
 my $test_success=0;
-foreach my $location ( sort { ncmp ($a, $b) } keys %hash_listok ){
-  my $listok = $hash_listok{$location};
+foreach my $range ( sort { ncmp ($a, $b) } keys %hash_listok ){
+  my $listok = $hash_listok{$range};
   $test_success += scalar @{ $listok };
-  my $hash_ok = subsample_omniscient_from_level1_id_list($hash_omniscient, $listok);
+  my $hash_ok = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, $listok);
 
-  open( my $fh, '>', "$opt_output/$location.gff3") or die "Could not open file $opt_output/$location.gff3 $!";
+  open( my $fh, '>', "$opt_output/$range.gff3") or die "Could not open file $opt_output/$range.gff3 $!";
   my $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 
   print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
@@ -162,7 +165,7 @@ foreach my $location ( sort { ncmp ($a, $b) } keys %hash_listok ){
 
 # print remaining if an output is provided
 if($opt_output){
-  my $hash_remaining = subsample_omniscient_from_level1_id_list($hash_omniscient, \@listNotOk);
+  my $hash_remaining = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, \@listNotOk);
   print_omniscient($hash_remaining, $gffout_notok); #print gene modified in file
   %{$hash_remaining} = ();
 }
@@ -190,7 +193,7 @@ if ($opt_output){
 sub test_overlap_with_ranges{
   my ($feature_l1, $range_hash, $opt_exclude_ov) = @_;
 
-  my $range_string = undef;
+  my @list_ranges = (); #  An empty array.  @names = undef will leave the array with a single element which is undef. 
   my $start = $feature_l1->start();
   my $end = $feature_l1->end();
   if (exists_keys($range_hash,( lc($feature_l1->seq_id) ) ) ){
@@ -198,20 +201,20 @@ sub test_overlap_with_ranges{
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
           print "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n" if $opt_verbose;
-          $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
-          return $range_string;
+          my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
+          push @list_ranges, $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
           print "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n" if $opt_verbose;
-          $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
-          return $range_string;
+          my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
+          push @list_ranges, $range_string;
         }
       }
     }
   }
-  return $range_string;
+  return \@list_ranges;
 }
 
 # feature must be in the range
