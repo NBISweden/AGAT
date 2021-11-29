@@ -1,4 +1,0 @@
-11/23/2021 at 09h57m06s
-
-usage: ../bin/agat_sp_fix_features_locations_duplicated.pl -f test.gff -o res -v
-

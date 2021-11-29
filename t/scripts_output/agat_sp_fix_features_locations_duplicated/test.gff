@@ -1,0 +1,17 @@
+##gff-version 3
+1	irgsp	gene	12808	13978	.	-	.	ID=NBISG00000000001;biotype=protein_coding;description=Hypothetical protein. (Os01t0100466-00);gene_id=Os01g0100466;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	12808	13978	.	-	.	ID=NBISM00000000002;Parent=NBISG00000000001;biotype=protein_coding;transcript_id=Os01t0100466-00
+1	irgsp	exon	12808	13782	.	-	.	ID=NBISE00000000003;Parent=NBISM00000000002;Name=Os01t0100466-00.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon2;rank=2
+1	irgsp	exon	13880	13978	.	-	.	ID=NBISE00000000004;Parent=NBISM00000000002;Name=Os01t0100466-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon1;rank=1
+1	irgsp	CDS	12869	13102	.	-	0	ID=NBISC00000000005;Parent=NBISM00000000002;protein_id=Os01t0100466-00
+1	irgsp	five_prime_UTR	13103	13782	.	-	.	ID=NBISF00000000006;Parent=NBISM00000000002
+1	irgsp	five_prime_UTR	13880	13978	.	-	.	ID=NBISF00000000007;Parent=NBISM00000000002
+1	irgsp	three_prime_UTR	12808	12868	.	-	.	ID=NBIST00000000008;Parent=NBISM00000000002
+1	irgsp	gene	12808	13978	.	-	.	ID=gene:Os01g0100466;biotype=protein_coding;description=Hypothetical protein. (Os01t0100466-00);gene_id=Os01g0100466;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	12808	13978	.	-	.	ID=transcript:Os01t0100466-00;Parent=gene:Os01g0100466;biotype=protein_coding;transcript_id=Os01t0100466-00
+1	irgsp	three_prime_UTR	12808	12868	.	-	.	Parent=transcript:Os01t0100466-00
+1	irgsp	exon	12808	13782	.	-	.	Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon2;rank=2
+1	irgsp	CDS	12869	13102	.	-	0	ID=CDS:Os01t0100466-00;Parent=transcript:Os01t0100466-00;protein_id=Os01t0100466-00
+1	irgsp	five_prime_UTR	13103	13782	.	-	.	Parent=transcript:Os01t0100466-00
+1	irgsp	exon	13870	13978	.	-	.	Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon1;rank=1
+1	irgsp	five_prime_UTR	13870	13978	.	-	.	Parent=transcript:Os01t0100466-00
