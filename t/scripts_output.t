@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 59;
+use Test::More tests => 62;
 
 =head1 DESCRIPTION
 
@@ -492,11 +492,31 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
-system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/1.gff --gff2 $input_folder/agat_sp_sensitivity_specificity/2.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
+system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
+system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
+$result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
+system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
 $script = $script_prefix."bin/agat_sp_separate_by_record_type.pl";
