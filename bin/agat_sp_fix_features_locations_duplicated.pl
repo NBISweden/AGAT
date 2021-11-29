@@ -104,7 +104,6 @@ my $topfeatures = get_feature_type_by_agat_value($omniscient, 'level1', 'topfeat
 
 #find overlap
 my %checked_l1;
-my %reshaped;
 foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
   if( exists_keys($hash_sortBySeq,($seqid ) ) ){
@@ -290,8 +289,6 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                       $ListModel{4}++;
                                       print "case4 (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
                                       reshape_the_2_l2_models($omniscient, $gene_feature, $l2_1, $gene_feature2, $l2_2, $verbose, 4);
-                                      $reshaped{$gene_feature_id2}++;
-                                      $reshaped{$gene_feature_id}++;
                                     }
                                   }
                                 }
@@ -300,8 +297,6 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
                                   $ListModel{5}++;
                                   print "case5 (Exons overlap but structure different (Same extremities but different internal locations) Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
                                   reshape_the_2_l2_models($omniscient, $gene_feature, $l2_1, $gene_feature2, $l2_2, $verbose, 5);
-                                  $reshaped{$gene_feature_id2}++;
-                                  $reshaped{$gene_feature_id}++;
                                 }
                               }
                               # CDS and Exon does not overlap
@@ -330,7 +325,7 @@ foreach my $seqid (keys %{$hash_sortBySeq}){ # loop over all the feature level1
   }
 }
 
-my $string_print = "\n";
+my $string_print = "\nresults:\n";
 if (exists($ListModel{1})){
 $string_print .= "Case1: AGAT found ".$ListModel{1}." cases where isoforms have identical exon structures (AGAT removed duplicates by keeping the one with longest CDS).\n";
 }
