@@ -123,7 +123,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
         # START Take care of isoforms with duplicated location:
         print "START Take care of isoforms with duplicated locations\n" if $verbose;
         my @L2_list_to_remove = ();
-        foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+        foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
           if(exists_keys($omniscient,('level2', $l2_type, $gene_feature_id)) and scalar @{$omniscient->{'level2'}{$l2_type}{$gene_feature_id}} > 1){ # more than one l2 feature of that type
             #print "More than 2 mRNA let's check them\n" if $verbose;
@@ -218,7 +218,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
               print "$gene_feature_id and $gene_feature_id2 overlap\n" if $verbose;
 
               # Loop over the L2 from the first gene feature
-              foreach my $l2_type (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+              foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
                 if ( exists ($omniscient->{'level2'}{$l2_type}{$gene_feature_id} ) ){
 
                   foreach my $l2_1 (sort {$b->_tag_value('ID') cmp $a->_tag_value('ID')} @{$omniscient->{'level2'}{$l2_type}{$gene_feature_id}}){
