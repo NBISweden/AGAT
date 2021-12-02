@@ -40,7 +40,7 @@ remove_omniscient_elements_from_level1_id_list($hash_omniscient,["gene:os01g0100
 my $nb_gene3 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
 ok(  $nb_gene2 != $nb_gene3, "remove_omniscient_elements_from_level1_id_list");
 
- 
+
 #run remove_omniscient_elements_from_level2_feature_list test
 $feature2 = @{$hash_omniscient->{"level2"}{"mrna"}{"gene:os01g0100300"}}[0];
 remove_omniscient_elements_from_level2_feature_list($hash_omniscient, [$feature2]);
@@ -50,7 +50,7 @@ ok(  $nb_gene3 != $nb_gene4, "remove_omniscient_elements_from_level2_feature_lis
 # run group_features_from_omniscient test
 ok(  group_features_from_omniscient($hash_omniscient), "group_features_from_omniscient");
 
-  
+
 # run group_l1IDs_from_omniscient test
 ok( group_l1IDs_from_omniscient($hash_omniscient), "group_l1IDs_from_omniscient");
 
@@ -64,7 +64,7 @@ $feature2 = @{$hash_omniscient->{"level2"}{"mrna"}{"gene:os01g0100500"}}[0];
 my $l2_ID = lc($feature2->_tag_value("ID"));
 my $feature3 = @{$hash_omniscient->{"level3"}{"cds"}{$l2_ID}}[0];
 ok( create_omniscient([$feature1], [$feature2], [$feature3]), "create_omniscient");
-    
+
 # run get_feature_l2_from_id_l2_l1
 my $l1_ID = lc($feature1->_tag_value("ID"));
 ok( get_feature_l2_from_id_l2_l1($hash_omniscient, $l2_ID, $l1_ID), "get_feature_l2_from_id_l2_l1");
@@ -78,21 +78,18 @@ ok( check_record_positions($hash_omniscient, $l1_ID), "check_record_positions");
 # run l1_has_l3_type
 ok( l1_has_l3_type ($hash_omniscient, $feature1, "cds", undef), "l1_has_l3_type");
 
-# run l2_has_cds 
+# run l2_has_cds
 ok( l2_has_cds ($hash_omniscient, $feature2), "l2_has_cds");
 
-# run get_cds_from_l2 
+# run get_cds_from_l2
 ok( get_cds_from_l2 ($hash_omniscient, $feature2), "get_cds_from_l2");
 
-# run l2_has_cds 
+# run l2_has_cds
 ok( l2_has_cds ($hash_omniscient, $feature2), "l2_has_cds");
 
-# run check_if_feature_overlap 
-ok( check_if_feature_overlap($feature1, $feature2), "check_if_feature_overlap");
+# run check_if_feature_overlap
+ok( check_features_overlap($feature1, $feature2), "check_features_overlap");
 
-# run is_single_exon_gene 
+# run is_single_exon_gene
 $feature1 = $hash_omniscient->{"level1"}{"gene"}{"gene:os01g0100650"};
 ok( is_single_exon_gene($hash_omniscient, $feature1), "is_single_exon_gene");
-
-
-

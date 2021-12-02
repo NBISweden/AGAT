@@ -316,8 +316,15 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # --------check agat_sp_fix_features_locations_duplicated.pl-------------
+# removed because order can change. So not reproducible at 100%
 
-# XXX
+#$script = $script_prefix."bin/agat_sp_fix_features_locations_duplicated.pl";
+#$result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
+#system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+#ok( system("diff $result $outtmp") == 0, "output $script");
+#unlink $outtmp;
+#unlink $outprefix."_report.txt";
 
 # --------check agat_sp_fix_fusion.pl-------------
 

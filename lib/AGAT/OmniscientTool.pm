@@ -25,9 +25,9 @@ remove_omniscient_elements_from_level2_ID_list featuresList_identik group_featur
 check_level1_positions check_level2_positions info_omniscient fil_cds_frame
 check_all_level1_positions check_all_level2_positions remove_element_from_omniscient
 append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
-fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list_intact 
-subsample_omniscient_from_level1_id_list_delete check_if_feature_overlap
-remove_tuple_from_omniscient create_or_replace_tag remove_element_from_omniscient_attributeValueBased
+fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list_intact
+subsample_omniscient_from_level1_id_list_delete remove_tuple_from_omniscient
+create_or_replace_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
@@ -2147,17 +2147,6 @@ sub check_level2_positions {
     }
 }
 
-# return 1 if feature overlaps
-sub check_features_overlap {
-  my ($feature1, $feature2)=@_;
-  my $result = undef;
-
-  if( ($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start ) ){ # they overlap
-    $result = 1;
-  }
-  return $result;
-}
-
 #calcul the overlaping percentage betwwen 2 CDS list or 2 exon list etc...
 # /!\ Be careful if you test the output, a overlaping gene can have a percentage overlap to 0. And if you test "if(featuresList_overlap)" and you have a 0, it will fail. So you have to check defined(featuresList_overlap)
 sub featuresList_overlap {
@@ -2650,15 +2639,19 @@ sub get_cds_from_l2 {
 # @Purpose: check if two features overlap.
 # @input: 2 => l1 feature, l2 feature
 # @output: bolean
-sub check_if_feature_overlap{
+sub check_features_overlap{
 	my($feature1, $feature2)=@_;
+
 	my $result=undef;
+
 	if (($feature1->start <= $feature2->end) and ($feature1->end >= $feature2->start)){
 		$result="true";
 	}
 
 return $result
 }
+
+
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
