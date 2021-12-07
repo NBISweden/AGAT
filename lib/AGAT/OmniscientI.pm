@@ -101,19 +101,21 @@ sub slurp_gff3_file_JD {
 	$| = 1;
 
 #	+-----------------------------------------+
-#	|							HANDLE ARGUMENTS						|
+#	|              HANDLE ARGUMENTS	          |
 #	+-----------------------------------------+
 	my ($args) = @_	;
 
-	# Check we receive a hash as ref
+	# +----------------- Check we receive a hash as ref ------------------+
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
 
-	# Declare all variables and fill them
-	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug);
+	#  +-----------------  Declare all variables and fill them ------------------+
+	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug, $throw_fasta);
 
-	#first define verbosity
+	# +----------------- first define verbosity ------------------+
 	if( defined($args->{verbose}) ) {$verbose = $args->{verbose};}
 		else{ $verbose = 1; } # verbose 0 is quite mode.
+
+	# +----------------- create a log file  ------------------+
 	if( defined($args->{log})){
 			my $log_name = $args->{log};
 			open($log, '>', $log_name  ) or
@@ -123,17 +125,26 @@ sub slurp_gff3_file_JD {
 																  char => " ",
 																  extra => "\n"});
 	}
+
+	# +----------------- debug param  ------------------+
 	if( defined($args->{debug})) {$debug = $args->{debug};}
 	dual_print ($log, surround_text("- Start parsing -",80,"*"), $verbose);
 	dual_print($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
-	#Secondly check if expose_feature_levels option
+	
+	# +----------------- expose_feature param / json files  ------------------+
 	if( defined($args->{expose_feature_levels})){ $expose_feature_levels = $args->{expose_feature_levels};
 										dual_print ($log, "=> Expose feature level json files\n", $verbose );
-	} # list of check to skip
+	} 
 	dual_print ($log, "=> Accessing the feature level json files\n", $verbose );
 	load_levels( {omniscient => \%omniscient, expose => $expose_feature_levels, verbose => $verbose, log => $log, debug => $debug}); # 	HANDLE feature level
+
+	# +----------------- input param  ------------------+
 	if( defined($args->{input})) {$file = $args->{input};} 					 else{ dual_print($log, "Input data --input is mandatory when using slurp_gff3_file_JD!"); exit;}
+	
+	# +----------------- gff/gtf version param  ------------------+
 	if( defined($args->{gff_version})) { $gff_version = $args->{gff_version}; } # force using gff parser version
+
+	# +----------------- locus_tag / common_tag param  ------------------+
 	if( defined($args->{locus_tag})) {
 		if( ref($args->{locus_tag}) ne 'ARRAY') {
 			@COMONTAG = ($args->{locus_tag});
@@ -141,12 +152,16 @@ sub slurp_gff3_file_JD {
 		else{
 			@COMONTAG = @{$args->{locus_tag}};
 		}
-	} #add a new comon tag to the list if provided.}
+	} #add a new comon tag to the list if provided.
 		dual_print($log, "=> Attribute used to group features when no Parent/ID relationship exists:\n", $verbose);
 		foreach my $comTag (@COMONTAG){
 			dual_print($log, "	* $comTag\n", $verbose);
 		}
+
+	# +----------------- no check param  ------------------+
 	if( defined($args->{no_check})) { $no_check = $args->{no_check}; dual_print($log, "=> no_check option activated\n", $verbose); } # skip checks
+	
+	# +----------------- list of check to skip param  ------------------+
 	if( defined($args->{no_check_skip})) {
 			$no_check_skip = $args->{no_check_skip}	;
 
@@ -160,16 +175,20 @@ sub slurp_gff3_file_JD {
 	}
 	else {$no_check_skip = [];} 	 # arrayref of check to skip
 
+	# +----------------- merge_loci param  ------------------+
 	if( defined($args->{merge_loci})) { $merge_loci = $args->{merge_loci}; dual_print($log, "=> merge_loci option activated\n", $verbose); } # activat merge locus option
 		else{ $merge_loci = undef;	dual_print($log, "=> merge_loci option deactivated\n", $verbose); }
 
+	# +----------------- fasta param------------------+
+	if( defined($args->{throw_fasta})) { $throw_fasta = $args->{throw_fasta}; dual_print($log, "=> FASTA within the file will be thrown away!\n", $verbose); } # skip checks
+
 #	+-----------------------------------------+
-#	|	HANDLE GFF HEADER						|
+#	|            HANDLE GFF HEADER            |
 #	+-----------------------------------------+
 	my $gff3headerInfo = _check_header($file, $log);
 
 #	+-----------------------------------------+
-#	|	HANDLE SOFA (feature-ontology)			|
+#	|     HANDLE SOFA (feature-ontology)      |
 #	+-----------------------------------------+
 	my $ontology = {};
 	my $ontology_obj = _handle_ontology($gff3headerInfo, $verbose, $log);
@@ -178,7 +197,7 @@ sub slurp_gff3_file_JD {
 	}
 
 #	+-----------------------------------------+
-#	|			HANDLE WARNING 					|
+#	|             HANDLE WARNING              |
 #	+-----------------------------------------+
 	my %WARNS;
 	my %globalWARNS;
@@ -317,7 +336,7 @@ sub slurp_gff3_file_JD {
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
-					manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
+			manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 			$progress_bar->update($nb_line_read++) if ($nb_line_input);
 		}
 		# to deal with a nice rendering at the end of the progress bar
@@ -325,8 +344,14 @@ sub slurp_gff3_file_JD {
 			$progress_bar->update($nb_line_input) if ($nb_line_input);
 			dual_print ($log, "\n", $verbose ) ;
 		}
-		#close the file
-		$gffio->close();
+		
+		if ($throw_fasta) {
+			#close the file
+			$gffio->close();
+		}
+		else{
+			$omniscient{'other'}{'fasta'} = $gffio;
+		}		
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
@@ -341,7 +366,7 @@ sub slurp_gff3_file_JD {
 	my $check_time = $previous_time;
 
 	#	+-----------------------------------------+
-	#	|					 	 CHECK OMNISCIENT				 			|
+	#	|           CHECK OMNISCIENT              |
 	#	+-----------------------------------------+
 
 	# -------------------- Mandatory checks --------------------
