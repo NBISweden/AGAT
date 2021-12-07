@@ -4,7 +4,6 @@ package AGAT::OmniscientO;
 
 use strict;
 use warnings;
-use Text::Wrap qw(wrap);
 use Sort::Naturally;
 use Bio::Tools::GFF;
 use URI::Escape;
@@ -350,30 +349,42 @@ sub print_omniscient_from_level1_id_list {
 sub write_fasta {
 	my ($gffout, $hash_omniscient) = @_;
 
-	if ( exists ($hash_omniscient->{'other'}{'fasta'} ) ){
+	if ( exists_keys ($hash_omniscient, ('other','fasta') ) ){
 		$gffout->_print("##FASTA\n");
-		
+
 		my $gffin = $hash_omniscient->{'other'}{'fasta'};
 		my @Bio_Seq_objs =  $gffin->get_seqs();
 
 		for my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
-		
+
 			if( $Bio_Seq_obj->desc ){
 				$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
 			}
 			else{
 				$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
 			}
-			
-			local $Text::Wrap::columns = 80;
-			$gffout->_print(wrap('', '', $Bio_Seq_obj->seq));
-			$gffout->_print("\n");
-		}
 
+      my $str = $Bio_Seq_obj->seq;
+      my $nuc = 80;       # Number of nucleotides per line
+      my $length = length($str);
+
+      # Calculate the number of nucleotides which fit on whole lines
+      my $whole = int($length / $nuc) * $nuc;
+
+      # Print the whole lines
+      my( $i );
+      for ($i = 0; $i < $whole; $i += $nuc) {
+          my $blocks = substr($str, $i, $nuc);
+          $gffout->_print("$blocks\n") || return;
+      }
+      # Print the last line
+      if (my $last = substr($str, $i)) {
+          $gffout->_print("$last\n") || return;
+      }
+		}
 		# Close the gff input FH opened by OmniscientI
 		$gffin->close();
 	}
-
 }
 
 # @Purpose: Print a list of feature simple apporach (not sorting)

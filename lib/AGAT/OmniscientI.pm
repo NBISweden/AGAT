@@ -130,17 +130,17 @@ sub slurp_gff3_file_JD {
 	if( defined($args->{debug})) {$debug = $args->{debug};}
 	dual_print ($log, surround_text("- Start parsing -",80,"*"), $verbose);
 	dual_print($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
-	
+
 	# +----------------- expose_feature param / json files  ------------------+
 	if( defined($args->{expose_feature_levels})){ $expose_feature_levels = $args->{expose_feature_levels};
 										dual_print ($log, "=> Expose feature level json files\n", $verbose );
-	} 
+	}
 	dual_print ($log, "=> Accessing the feature level json files\n", $verbose );
 	load_levels( {omniscient => \%omniscient, expose => $expose_feature_levels, verbose => $verbose, log => $log, debug => $debug}); # 	HANDLE feature level
 
 	# +----------------- input param  ------------------+
 	if( defined($args->{input})) {$file = $args->{input};} 					 else{ dual_print($log, "Input data --input is mandatory when using slurp_gff3_file_JD!"); exit;}
-	
+
 	# +----------------- gff/gtf version param  ------------------+
 	if( defined($args->{gff_version})) { $gff_version = $args->{gff_version}; } # force using gff parser version
 
@@ -160,7 +160,7 @@ sub slurp_gff3_file_JD {
 
 	# +----------------- no check param  ------------------+
 	if( defined($args->{no_check})) { $no_check = $args->{no_check}; dual_print($log, "=> no_check option activated\n", $verbose); } # skip checks
-	
+
 	# +----------------- list of check to skip param  ------------------+
 	if( defined($args->{no_check_skip})) {
 			$no_check_skip = $args->{no_check_skip}	;
@@ -344,14 +344,19 @@ sub slurp_gff3_file_JD {
 			$progress_bar->update($nb_line_input) if ($nb_line_input);
 			dual_print ($log, "\n", $verbose ) ;
 		}
-		
+
+		# User dont want to keep the sequences
 		if ($throw_fasta) {
 			#close the file
 			$gffio->close();
 		}
-		else{
+		elsif($gffio->get_seqs()){
 			$omniscient{'other'}{'fasta'} = $gffio;
-		}		
+		}
+		# No sequence no need to keep it
+		else{
+			$gffio->close();
+		}
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
@@ -3334,7 +3339,7 @@ sub select_gff_format{
 								 $problem3=1;
 					}
 					@attribute_tab = split /\t/, $Ninethcolum ;
-	 			}		
+	 			}
 			}
 		}
 		close($fh);
