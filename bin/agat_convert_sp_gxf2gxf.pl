@@ -16,6 +16,7 @@ my $opt_gfffile;
 my $opt_merge;
 my $opt_comonTag;
 my $opt_verbose = 1;
+my $opt_throw_fasta;
 my $opt_no_check;
 my $opt_output;
 my $opt_debug;
@@ -32,6 +33,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
                   'efl|expose!'      => \$opt_expose_feature_levels,
                   'debug!'           => \$opt_debug,
+                  'throw_fasta!'      => \$opt_throw_fasta,
                   'nc|no_check!'      => \$opt_no_check,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
@@ -105,6 +107,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
+                                                               throw_fasta => $opt_throw_fasta,
                                                                log => $log_name,
                                                                debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
@@ -161,11 +164,11 @@ e.g Level1=gene; Level2=mRNA,tRNA; Level3=exon,cds,utr.
 The feature type information is stored within the 3rd column of a GTF/GFF file.
 The parser need to know to which level a feature type is part of. This information
 is stored by default in a json file coming with the tool. We have implemented the
-most common feature types met in gff/gtf files. If a feature type is not yet handle 
+most common feature types met in gff/gtf files. If a feature type is not yet handle
 by the parser it will throw a warning. You can easily inform the parser how
-to handle it (level1, level2 or level3) by modifying the appropriate json file. 
-How to access the json files? Easy just use the --expose option and the json files 
-will appear in the working folder. By default, the Omniscient parser use 
+to handle it (level1, level2 or level3) by modifying the appropriate json file.
+How to access the json files? Easy just use the --expose option and the json files
+will appear in the working folder. By default, the Omniscient parser use
 the json files from the working directory when any.
 
 Omniscient parser phylosophy:
@@ -216,6 +219,11 @@ Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are incre
 =item B<--nc> or B<--no_check>
 
 To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+
+=item B<--throw_fasta>
+
+Boolean - By default we keep the fasta sequences if present in the file. Activating this
+parameter will get rid of the fasta sequences. Default False.
 
 =item B<--debug>
 
