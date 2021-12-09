@@ -101,19 +101,21 @@ sub slurp_gff3_file_JD {
 	$| = 1;
 
 #	+-----------------------------------------+
-#	|							HANDLE ARGUMENTS						|
+#	|              HANDLE ARGUMENTS	          |
 #	+-----------------------------------------+
 	my ($args) = @_	;
 
-	# Check we receive a hash as ref
+	# +----------------- Check we receive a hash as ref ------------------+
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
 
-	# Declare all variables and fill them
-	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug);
+	#  +-----------------  Declare all variables and fill them ------------------+
+	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug, $throw_fasta);
 
-	#first define verbosity
+	# +----------------- first define verbosity ------------------+
 	if( defined($args->{verbose}) ) {$verbose = $args->{verbose};}
 		else{ $verbose = 1; } # verbose 0 is quite mode.
+
+	# +----------------- create a log file  ------------------+
 	if( defined($args->{log})){
 			my $log_name = $args->{log};
 			open($log, '>', $log_name  ) or
@@ -123,17 +125,26 @@ sub slurp_gff3_file_JD {
 																  char => " ",
 																  extra => "\n"});
 	}
+
+	# +----------------- debug param  ------------------+
 	if( defined($args->{debug})) {$debug = $args->{debug};}
 	dual_print ($log, surround_text("- Start parsing -",80,"*"), $verbose);
 	dual_print($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
-	#Secondly check if expose_feature_levels option
+
+	# +----------------- expose_feature param / json files  ------------------+
 	if( defined($args->{expose_feature_levels})){ $expose_feature_levels = $args->{expose_feature_levels};
 										dual_print ($log, "=> Expose feature level json files\n", $verbose );
-	} # list of check to skip
+	}
 	dual_print ($log, "=> Accessing the feature level json files\n", $verbose );
 	load_levels( {omniscient => \%omniscient, expose => $expose_feature_levels, verbose => $verbose, log => $log, debug => $debug}); # 	HANDLE feature level
+
+	# +----------------- input param  ------------------+
 	if( defined($args->{input})) {$file = $args->{input};} 					 else{ dual_print($log, "Input data --input is mandatory when using slurp_gff3_file_JD!"); exit;}
+
+	# +----------------- gff/gtf version param  ------------------+
 	if( defined($args->{gff_version})) { $gff_version = $args->{gff_version}; } # force using gff parser version
+
+	# +----------------- locus_tag / common_tag param  ------------------+
 	if( defined($args->{locus_tag})) {
 		if( ref($args->{locus_tag}) ne 'ARRAY') {
 			@COMONTAG = ($args->{locus_tag});
@@ -141,12 +152,16 @@ sub slurp_gff3_file_JD {
 		else{
 			@COMONTAG = @{$args->{locus_tag}};
 		}
-	} #add a new comon tag to the list if provided.}
+	} #add a new comon tag to the list if provided.
 		dual_print($log, "=> Attribute used to group features when no Parent/ID relationship exists:\n", $verbose);
 		foreach my $comTag (@COMONTAG){
 			dual_print($log, "	* $comTag\n", $verbose);
 		}
+
+	# +----------------- no check param  ------------------+
 	if( defined($args->{no_check})) { $no_check = $args->{no_check}; dual_print($log, "=> no_check option activated\n", $verbose); } # skip checks
+
+	# +----------------- list of check to skip param  ------------------+
 	if( defined($args->{no_check_skip})) {
 			$no_check_skip = $args->{no_check_skip}	;
 
@@ -160,16 +175,20 @@ sub slurp_gff3_file_JD {
 	}
 	else {$no_check_skip = [];} 	 # arrayref of check to skip
 
+	# +----------------- merge_loci param  ------------------+
 	if( defined($args->{merge_loci})) { $merge_loci = $args->{merge_loci}; dual_print($log, "=> merge_loci option activated\n", $verbose); } # activat merge locus option
 		else{ $merge_loci = undef;	dual_print($log, "=> merge_loci option deactivated\n", $verbose); }
 
+	# +----------------- fasta param------------------+
+	if( defined($args->{throw_fasta})) { $throw_fasta = $args->{throw_fasta}; dual_print($log, "=> FASTA within the file will be thrown away!\n", $verbose); } # skip checks
+
 #	+-----------------------------------------+
-#	|	HANDLE GFF HEADER						|
+#	|            HANDLE GFF HEADER            |
 #	+-----------------------------------------+
 	my $gff3headerInfo = _check_header($file, $log);
 
 #	+-----------------------------------------+
-#	|	HANDLE SOFA (feature-ontology)			|
+#	|     HANDLE SOFA (feature-ontology)      |
 #	+-----------------------------------------+
 	my $ontology = {};
 	my $ontology_obj = _handle_ontology($gff3headerInfo, $verbose, $log);
@@ -178,7 +197,7 @@ sub slurp_gff3_file_JD {
 	}
 
 #	+-----------------------------------------+
-#	|			HANDLE WARNING 					|
+#	|             HANDLE WARNING              |
 #	+-----------------------------------------+
 	my %WARNS;
 	my %globalWARNS;
@@ -277,17 +296,38 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
+		#check it is a file
+		if(! -f $file){
+			dual_print($log, surround_text("$file does not exist. Please verify the input file name/path",80,"!","\n"), $verbose);
+			exit 1;
+		}
+
+		my ($file_ext) = $file =~ /(\.[^.]+)$/;
+		my $exit_status;
+		my $nb_line_input=undef;
 
 		# TRY TO COUNT Number of LINE to make a progress bar using wc -l
-		my $wc_result = undef;
-		my $nb_line_input=undef;
-		my $exit_status   = system("wc -l $file >/dev/null 2>&1");
+		if($file_ext eq ".gz"){
+			$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+		}
+		else{
+			$exit_status   = system("wc -l $file >/dev/null 2>&1");
+		}
+
 		if ($exit_status != 0) {
 			dual_print( $log, "Info: Cannot count total line number with builtin wc.".
 			" Consequently progress bar unavailable.\n", $verbose);
 		}
     	else{
-			$wc_result = `wc -l $file`;
+    		my $wc_result = undef;
+
+    		if($file_ext eq ".gz"){
+    			$wc_result = `zcat $file | wc -l`;
+    		}
+    		else{
+				$wc_result = `wc -l $file`;
+			}
+
 			chomp $wc_result;
 			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
 				$nb_line_input = $1;
@@ -303,7 +343,17 @@ sub slurp_gff3_file_JD {
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
 		dual_print( $log, "=> GFF parser version used: $format\n", $verbose );
-		my $gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
+		
+
+		my $gffio;
+		my ($file_ext) = $file =~ /(\.[^.]+)$/;
+		if($file_ext eq ".gz"){
+			open(my $fh, "zcat $file |");
+			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $format);
+		}
+		else{
+			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
+		}
 
 		#read every lines
 		my $progress_bar = Term::ProgressBar->new({
@@ -317,7 +367,7 @@ sub slurp_gff3_file_JD {
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
-					manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
+			manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 			$progress_bar->update($nb_line_read++) if ($nb_line_input);
 		}
 		# to deal with a nice rendering at the end of the progress bar
@@ -325,8 +375,19 @@ sub slurp_gff3_file_JD {
 			$progress_bar->update($nb_line_input) if ($nb_line_input);
 			dual_print ($log, "\n", $verbose ) ;
 		}
-		#close the file
-		$gffio->close();
+
+		# User dont want to keep the sequences
+		if ($throw_fasta) {
+			#close the file
+			$gffio->close();
+		}
+		elsif($gffio->get_seqs()){
+			$omniscient{'other'}{'fasta'} = $gffio;
+		}
+		# No sequence no need to keep it
+		else{
+			$gffio->close();
+		}
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
@@ -341,7 +402,7 @@ sub slurp_gff3_file_JD {
 	my $check_time = $previous_time;
 
 	#	+-----------------------------------------+
-	#	|					 	 CHECK OMNISCIENT				 			|
+	#	|           CHECK OMNISCIENT              |
 	#	+-----------------------------------------+
 
 	# -------------------- Mandatory checks --------------------
@@ -3240,20 +3301,27 @@ sub get_header_lines{
 	#HANDLE format
 	my @headers;
 
-	open(my $fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
-	{
-		while(<$fh>){
-			if($_ =~ /^#/){
-				if($_ =~ /##gff-version/){next;}# we do not keep the version line because we will write it ourself
-				push @headers, $_;
-				dual_print($log, "catch header line: $_", $verbose) if ($debug);
-			} #if it is a commented line starting by # we skip it.
-			else{
-				close($fh);
-				return \@headers;
-			}
+	my $fh,
+	my ($file_ext) = $file =~ /(\.[^.]+)$/;
+	if($file_ext eq ".gz"){
+		open($fh, "zcat $file |");
+	}
+	else{
+		open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
+	}
+
+	while(<$fh>){
+		if($_ =~ /^#/){
+			if($_ =~ /##gff-version/){next;}# we do not keep the version line because we will write it ourself
+			push @headers, $_;
+			dual_print($log, "catch header line: $_", $verbose) if ($debug);
+		} #if it is a commented line starting by # we skip it.
+		else{
+			close($fh);
+			return \@headers;
 		}
 	}
+
 	close($fh);
 	return \@headers;
 }
@@ -3272,8 +3340,16 @@ sub select_gff_format{
 		my @col_tab;
 		my @attribute_tab;
 
-		open(my $fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
-		{
+		my $fh;
+		my ($file_ext) = $file =~ /(\.[^.]+)$/;
+		if($file_ext eq ".gz"){
+			open($fh, "zcat $file |");
+		}
+		else{
+			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
+		}
+
+
 			while(<$fh>){
 
 				if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
@@ -3309,9 +3385,9 @@ sub select_gff_format{
 								 $problem3=1;
 					}
 					@attribute_tab = split /\t/, $Ninethcolum ;
-	 			}		
+	 			}
 			}
-		}
+
 		close($fh);
 
 	if($problem3){
@@ -3455,48 +3531,55 @@ sub create_term_and_id_hash{
 #@INPUT: 1 => string (a file)
 #@OUPUT: 1 => hash of the different header and their values
 sub _check_header{
-		my ($file, $log) = @_;
+	my ($file, $log) = @_;
 
-		#HANDLE format
-		my %headerInfo;
+	#HANDLE format
+	my %headerInfo;
 
-		#check it is a file
-		if(-f $file){
-			open(my $fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
-			{
-					while(<$fh>){
-							if($_ !~ /^##[^#]/) {
-									 last;
-							}
-							else{
-								my @data = split /\s/, $_ ;
-								my $type = shift @data;
+	#check it is a file
+	if(-f $file){
 
-								if($type eq /^##gff-version/){
-									$headerInfo{$type}=$data[0]; #1 element
-								}
-					if($type eq "##sequence-region"){
-						$headerInfo{$type}=@data; # 3 elements
-					}
-					if($type eq "##feature-ontology"){
-						$headerInfo{$type}=$data[0] #1 element
-					}
-					if($type eq "##attribute-ontology"){
-						$headerInfo{$type}=$data[0]; #1 element
-					}
-					if($type eq "##species"){
-						$headerInfo{$type}=$data[0]; #1 element
-					}
-					if($type eq "##genome-build"){
-						$headerInfo{$type}=@data; #2 elements
-					}
-						}
-					}
+		my $fh;
+		my ($file_ext) = $file =~ /(\.[^.]+)$/;
+		if($file_ext eq ".gz"){
+			open($fh, "zcat $file |");
+		}
+		else{
+			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
+		}
+
+		while(<$fh>){
+			if($_ !~ /^##[^#]/) {
+				last;
 			}
-			close($fh);
+			else{
+				my @data = split /\s/, $_ ;
+				my $type = shift @data;
+
+				if($type eq /^##gff-version/){
+					$headerInfo{$type}=$data[0]; #1 element
+				}
+				if($type eq "##sequence-region"){
+					$headerInfo{$type}=@data; # 3 elements
+				}
+				if($type eq "##feature-ontology"){
+					$headerInfo{$type}=$data[0] #1 element
+				}
+				if($type eq "##attribute-ontology"){
+					$headerInfo{$type}=$data[0]; #1 element
+				}
+				if($type eq "##species"){
+					$headerInfo{$type}=$data[0]; #1 element
+				}
+				if($type eq "##genome-build"){
+					$headerInfo{$type}=@data; #2 elements
+				}
+			}
+		}
+		close($fh);
 	}
 
-		return \%headerInfo;
+	return \%headerInfo;
 }
 
 # @Purpose: Read a file from URL

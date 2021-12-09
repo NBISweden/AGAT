@@ -16,6 +16,7 @@ my $opt_gfffile;
 my $opt_merge;
 my $opt_comonTag;
 my $opt_verbose = 1;
+my $opt_throw_fasta;
 my $opt_no_check;
 my $opt_output;
 my $opt_debug;
@@ -32,6 +33,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
                   'efl|expose!'      => \$opt_expose_feature_levels,
                   'debug!'           => \$opt_debug,
+                  'throw_fasta!'      => \$opt_throw_fasta,
                   'nc|no_check!'      => \$opt_no_check,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
@@ -105,6 +107,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
+                                                               throw_fasta => $opt_throw_fasta,
                                                                log => $log_name,
                                                                debug => $opt_debug,
                                                                expose_feature_levels => $opt_expose_feature_levels
@@ -161,11 +164,11 @@ e.g Level1=gene; Level2=mRNA,tRNA; Level3=exon,cds,utr.
 The feature type information is stored within the 3rd column of a GTF/GFF file.
 The parser need to know to which level a feature type is part of. This information
 is stored by default in a json file coming with the tool. We have implemented the
-most common feature types met in gff/gtf files. If a feature type is not yet handle 
+most common feature types met in gff/gtf files. If a feature type is not yet handle
 by the parser it will throw a warning. You can easily inform the parser how
-to handle it (level1, level2 or level3) by modifying the appropriate json file. 
-How to access the json files? Easy just use the --expose option and the json files 
-will appear in the working folder. By default, the Omniscient parser use 
+to handle it (level1, level2 or level3) by modifying the appropriate json file.
+How to access the json files? Easy just use the --expose option and the json files
+will appear in the working folder. By default, the Omniscient parser use
 the json files from the working directory when any.
 
 Omniscient parser phylosophy:
@@ -186,18 +189,18 @@ Omniscient parser phylosophy:
 
 =item B<-g>, B<--gff> or B<-ref>
 
-Input GTF/GFF file.
+String - Input GTF/GFF file. Compressed file with .gz extension is accepted.
 
 =item B<-c> or B<--ct>
 
-When the features do not have Parent/ID relationships, the parser will try to group
+String - When the features do not have Parent/ID relationships, the parser will try to group
 features using a common/shared attribute (i.e. a locus tag.). By default locus_tag and gene_id.
 You can replace the default common/shared attributes by providing your own(s) using this option.
 Use comma separated list when providing several.
 
 =item B<--efl> or B<--expose>
 
-If you want to see, add or modified the feature relationships you will have to use this option.
+Boolean - If you want to see, add or modified the feature relationships you will have to use this option.
 It will copy past in you working directory the json files used to define the relation between feature types and their level organisation.
 Typical level organisation: Level1 => gene; Level2 => mRNA; level3 => exon,cds,utrs
 If you get warning from the Omniscient parser that a feature relationship is not defined, you can provide information about it within the exposed json files.
@@ -205,37 +208,43 @@ Indeed, if the json files exists in your working directory, they will be used by
 
 =item B<--ml> or B<--merge_loci>
 
-Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
+Boolean - Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
 (at CDS level for mRNA, at exon level for other level2 features. Strand has to be the same). Prokaryote can have overlaping loci so it should not use it for prokaryote annotation.
 In eukaryote, loci rarely overlap. Overlaps could be due to error in the file, mRNA can be merged under the same parent gene if you acticate the option.
 
 =item B<-v>
 
-Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
+Integer - Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
 
 =item B<--nc> or B<--no_check>
 
-To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+Boolean - To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+
+=item B<--throw_fasta>
+
+Boolean - By default we keep the fasta sequences if present in the file. Activating this
+parameter will get rid of the fasta sequences. Default False.
 
 =item B<--debug>
 
-For debug purpose
+Boolean - For debug purpose
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
+String - Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<--gvi> or B<--gff_version_input>
 
-If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
+Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
 =item B<--gvo> or B<--gff_version_output>
 
-If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
+Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
 =item B<-h> or B<--help>
 
+Boolean - Display this helpful text.
 Display this helpful text.
 
 =back
