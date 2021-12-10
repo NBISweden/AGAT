@@ -18,6 +18,7 @@ my $opt_comonTag;
 my $opt_verbose = 1;
 my $opt_throw_fasta;
 my $opt_no_check;
+my $opt_no_progressbar;
 my $opt_output;
 my $opt_debug;
 my $opt_expose_feature_levels;
@@ -35,6 +36,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'debug!'           => \$opt_debug,
                   'throw_fasta!'      => \$opt_throw_fasta,
                   'nc|no_check!'      => \$opt_no_check,
+                  'no_progressbar!'      => \$opt_no_progressbar,
                   'gff_version_input|gvi=f'   => \$opt_version_input,
                   'gff_version_output|gvo=f'   => \$opt_version_output,
                   'ml|merge_loci!'     => \$opt_merge,
@@ -107,6 +109,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                verbose => $opt_verbose,
                                                                merge_loci => $opt_merge,
                                                                no_check => $opt_no_check,
+                                                               no_progressbar => $opt_no_progressbar,
                                                                throw_fasta => $opt_throw_fasta,
                                                                log => $log_name,
                                                                debug => $opt_debug,
@@ -225,6 +228,11 @@ Boolean - To deacticate all check that can be performed by the parser (e.g fixin
 Boolean - By default we keep the fasta sequences if present in the file. Activating this
 parameter will get rid of the fasta sequences. Default False.
 
+=item B<--throw_fasta>
+
+Boolean - By default we keep the fasta sequences if present in the file. Activating this
+parameter will get rid of the fasta sequences. Default False.
+
 =item B<--debug>
 
 Boolean - For debug purpose
@@ -242,10 +250,13 @@ Float - If you don't want to use the autodection of the gff/gft version you give
 
 Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
+=item B<--no_progressbar>
+
+Bolean - To hide the progress bar.
+
 =item B<-h> or B<--help>
 
 Boolean - Display this helpful text.
-Display this helpful text.
 
 =back
 

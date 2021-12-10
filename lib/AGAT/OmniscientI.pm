@@ -109,11 +109,14 @@ sub slurp_gff3_file_JD {
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
 
 	#  +-----------------  Declare all variables and fill them ------------------+
-	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug, $throw_fasta);
+	my ($file, $gff_version, $locus_tag, $verbose, $no_check, $merge_loci, $no_check_skip, $expose_feature_levels, $log, $debug, $throw_fasta, $no_progressbar);
 
 	# +----------------- first define verbosity ------------------+
 	if( defined($args->{verbose}) ) {$verbose = $args->{verbose};}
 		else{ $verbose = 1; } # verbose 0 is quite mode.
+
+	# +----------------- hide progressbar ------------------+
+	if( defined($args->{no_progressbar}) ) {$no_progressbar = $args->{no_progressbar};}
 
 	# +----------------- create a log file  ------------------+
 	if( defined($args->{log})){
@@ -296,57 +299,72 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
-		#check it is a file
+
+		# -------------- check we read a file -----------------------------
 		if(! -f $file){
 			dual_print($log, surround_text("$file does not exist. Please verify the input file name/path",80,"!","\n"), $verbose);
 			exit 1;
 		}
 
+		# -------------- check file extension -----------------------------
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
-		my $exit_status;
+
+
+		# -------------- Set up the Progress bar --------------------------
 		my $nb_line_input=undef;
-
-		# TRY TO COUNT Number of LINE to make a progress bar using wc -l
-		if($file_ext eq ".gz"){
-			$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
-		}
-		else{
-			$exit_status   = system("wc -l $file >/dev/null 2>&1");
-		}
-
-		if ($exit_status != 0) {
-			dual_print( $log, "Info: Cannot count total line number with builtin wc.".
-			" Consequently progress bar unavailable.\n", $verbose);
-		}
-    	else{
-    		my $wc_result = undef;
-
-    		if($file_ext eq ".gz"){
-    			$wc_result = `zcat $file | wc -l`;
-    		}
-    		else{
-				$wc_result = `wc -l $file`;
+		if( ! $no_progressbar){ #Not setting nb_line_input will shut off the progress bar
+			my $exit_status;
+			
+			# TRY TO COUNT Number of LINE to make a progress bar using wc -l
+			if($file_ext eq ".gz"){
+				$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+			}
+			else{
+				$exit_status   = system("wc -l $file >/dev/null 2>&1");
 			}
 
-			chomp $wc_result;
-			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
-				$nb_line_input = $1;
+			if ($exit_status != 0) {
+				dual_print( $log, "Info: Cannot count total line number with builtin wc.".
+				" Consequently progress bar unavailable.\n", $verbose);
+			}
+	    	else{
+	    		my $wc_result = undef;
+
+	    		if($file_ext eq ".gz"){
+	    			$wc_result = `zcat $file | wc -l`;
+	    		}
+	    		else{
+					$wc_result = `wc -l $file`;
+				}
+
+				chomp $wc_result;
+				if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
+					$nb_line_input = $1;
+				}
 			}
 		}
 
-		# take care of headers
+		#read every lines
+		my $progress_bar = Term::ProgressBar->new({
+			name  => 'Parsing',
+			count => $nb_line_input,
+			ETA   => 'linear',
+			term_width => 80 ,
+		}) if  ($nb_line_input);
+
+
+		# -------------- read GFF headers -----------------------------
 		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
 
-		#GFF format used for parser
+		# --------------Select bioperl GFF parser version -------------
 		my $format;
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
 		dual_print( $log, "=> GFF parser version used: $format\n", $verbose );
 		
-
+		# -------------- Create GFF file handler ----------------------
 		my $gffio;
-		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 		if($file_ext eq ".gz"){
 			open(my $fh, "zcat $file |");
 			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $format);
@@ -355,27 +373,22 @@ sub slurp_gff3_file_JD {
 			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 		}
 
-		#read every lines
-		my $progress_bar = Term::ProgressBar->new({
-		name  => 'Parsing',
-		count => $nb_line_input,
-		ETA   => 'linear',
-		term_width => 80 ,
-		}) if  ($nb_line_input);
-
-		my $nb_line_read;
+		# -------------- Read features in GFF file ---------------------
+		my $nb_line_read=0;
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 			manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
-			$progress_bar->update($nb_line_read++) if ($nb_line_input);
+
+			$progress_bar->update($nb_line_read++) if ( $nb_line_input && ($nb_line_read < $nb_line_input) );
 		}
-		# to deal with a nice rendering at the end of the progress bar
+		# to deal with a nice rendering at the end of the progress bar => make it at 100%
 		if ($nb_line_input){
-			$progress_bar->update($nb_line_input) if ($nb_line_input);
+			$progress_bar->update($nb_line_input);
 			dual_print ($log, "\n", $verbose ) ;
 		}
 
+		# -------------- Read fastas in GFF file ------------------------
 		# User dont want to keep the sequences
 		if ($throw_fasta) {
 			#close the file
@@ -1638,18 +1651,21 @@ sub _check_l2_linked_to_l3{
 
  			#check if L2 exits
  			if (! exists_keys($mRNAGeneLink, ( $id_l2 ) ) ) {
+
  				$resume_case++;
 
 	 			#L3 linked directly to L1
 				my $has_l1_feature = undef;
 				my $id_l2_to_replace = undef;
 	 			foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+
 					if(exists_keys ($hash_omniscient, ('level1', $tag_l1, $id_l2))){
 						# case where it's linked by parent/ID attribute
 						$has_l1_feature = $hash_omniscient->{"level1"}{$tag_l1}{$id_l2};
 					}
 					else{
-						if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient);} # fill it (only once) because will be needed
+						
+						if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient); } # fill it (only once) because will be needed
 
 						# Check if one as a common tag value == to L1 common tag value
 						# (then when creating l2 in check3 add parent for L2 of the L1 Id)
@@ -1658,14 +1674,15 @@ sub _check_l2_linked_to_l3{
 
 							foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 								if($l3_feature->has_tag($tag) ) {
+									
 									# case where it's linked by comon_tag attribute
-
 									if (exists_keys($common_tag_in_l1,( $tag, lc($l3_feature->_tag_value($tag)) ) ) ){
 										if($#{$common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}} == 0){
 											my $id = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'id'};
 											my $ptag = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'ptag'};
 											$has_l1_feature = $hash_omniscient->{'level1'}{$ptag}{$id};
 											$id_l2_to_replace = $l3_feature->_tag_value('Parent');
+
 											last;
 										}
 										else{
@@ -1673,7 +1690,7 @@ sub _check_l2_linked_to_l3{
 										}
 									}
 								}
-								last if ($has_l1_feature);
+								if ($has_l1_feature){last;} 
 							}
 						}
 					}
@@ -1734,6 +1751,7 @@ sub _check_l2_linked_to_l3{
 					check_level2_positions($hash_omniscient, $l2_feature);	# check start stop if isoforms exists
 
 					#fill L1
+
 					my $l1_feature=clone($hash_omniscient->{'level3'}{$tag_l3}{$id_l2}[0]);#create a copy of the first mRNA feature;
 					$l1_feature->frame(".") if ($l1_feature->frame ne "."); # If we clone a CDS there will be a frame information to remove.
 					$l1_feature->remove_tag('Parent'); # remove parent ID because, none.
@@ -1747,6 +1765,7 @@ sub _check_l2_linked_to_l3{
 					# -- Create an id for LEVEL1
 					my $new_ID_l1 = undef;
 					# check there are common tags
+					
 					foreach my $tag_common (@COMONTAG){
 						if($l1_feature->has_tag($tag_common)){
 							#save info common tag value and l3 seq_id
@@ -1767,12 +1786,21 @@ sub _check_l2_linked_to_l3{
 					#save new feature L1
 					$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_ID_l1)} = $l1_feature; # now save it in omniscient
 					$mRNAGeneLink->{lc($id_l2)} = $new_ID_l1;
-
 					dual_print($log, "L1 and L2 created:".$l1_feature->gff_string()."\n".$l2_feature->gff_string()."\n", 0);
-	 				}
-	 			}
+
+
+					# Need to update the common_tag_in_l1 hash that parse the L1 only once, so cannot have seen this new L1 if it has a comon tag
+					if($common_tag_in_l1){ # means we are in the case where common_tag_in_l1 is needed. We started to use it so we need to continue to populate it
+						foreach my $tag (@COMONTAG){
+							if($hash_omniscient->{"level1"}{$primary_tag_l1}{lc($new_ID_l1)}->has_tag($tag)){
+								push ( @{$common_tag_in_l1->{$tag}{lc($hash_omniscient->{"level1"}{$primary_tag_l1}{lc($new_ID_l1)}->_tag_value($tag))}}, {id => lc($new_ID_l1), ptag => $primary_tag_l1} );
+							}
+						}
+					}
+				}
 			}
 		}
+	}
 	if($resume_case){
  		dual_print($log, "$resume_case cases fixed where L3 features have parent feature(s) missing\n", $verbose);
 	}
@@ -3424,8 +3452,7 @@ sub select_gff_format{
 		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
 		$format{1}++;
 	}
-	#use Data::Dumper;
-	#print Dumper(\%format);exit;
+
 	if($format{3}){return 3;}
 	if($format{2}){return 2;}
 	if($format{1}){return 1;}

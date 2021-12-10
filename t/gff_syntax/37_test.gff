@@ -1,0 +1,11 @@
+xfSc0000437	protein_coding	CDS	3712	3937	.	-	1	gene_id "BL03702"; transcript_id "BL03702_evm3"; exon_number "2"; status "both"; oldID "Blg03689.3"; gene_name "AHR";
+xfSc0000437	protein_coding	exon	3712	3937	.	-	.	gene_id "BL03702"; transcript_id "BL03702_evm3"; exon_number "3"; status "both"; oldID "Blg03689.3"; gene_name "AHR";
+xfSc0000000	protein_coding	exon	13283	13319	.	-	.	gene_id "BL03703"; transcript_id "BL03703_evm0"; exon_number "1"; status "both"; oldID "Blg02918.0"; gene_name "CHRND";
+xfSc0000000	protein_coding	CDS	13283	13319	.	-	0	gene_id "BL03703"; transcript_id "BL03703_evm0"; exon_number "1"; status "both"; oldID "Blg02918.0"; gene_name "CHRND";
+xfSc0000000	protein_coding	exon	12803	13024	.	-	.	gene_id "BL03703"; transcript_id "BL03703_evm0"; exon_number "2"; status "both"; oldID "Blg02918.0"; gene_name "CHRND";
+xfSc0000000	protein_coding	CDS	12803	13024	.	-	2	gene_id "BL03703"; transcript_id "BL03703_evm0"; exon_number "2"; status "both"; oldID "Blg02918.0"; gene_name "CHRND";
+xfSc0000000	protein_coding	exon	7096	9184	.	-	.	gene_id "BL03703"; transcript_id "BL03703_cuf0"; exon_number "1"; status "both"; oldID "BlTCONS00149300"; gene_name "CHRND";
+xfSc0000000	protein_coding	exon	9847	10149	.	-	.	gene_id "BL03703"; transcript_id "BL03703_cuf1"; exon_number "1"; status "both"; oldID "BlTCONS00149301"; gene_name "CHRND";
+xfSc0000000	protein_coding	CDS	9847	10147	.	-	0	gene_id "BL03703"; transcript_id "BL03703_cuf1"; exon_number "1"; status "both"; oldID "BlTCONS00149301"; gene_name "CHRND";
+xfSc0000000	protein_coding	exon	7096	8697	.	-	.	gene_id "BL03703"; transcript_id "BL03703_cuf1"; exon_number "2"; status "both"; oldID "BlTCONS00149301"; gene_name "CHRND";
+xfSc0000000	protein_coding	CDS	8675	8697	.	-	2	gene_id "BL03703"; transcript_id "BL03703_cuf1"; exon_number "2"; status "both"; oldID "BlTCONS00149301"; gene_name "CHRND";

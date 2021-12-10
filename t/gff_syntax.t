@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 =head1 DESCRIPTION
 
