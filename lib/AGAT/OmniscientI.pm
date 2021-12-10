@@ -299,6 +299,7 @@ sub slurp_gff3_file_JD {
 	}
 	# ============================> FILE CASE <============================
 	else{
+
 		# -------------- check we read a file -----------------------------
 		if(! -f $file){
 			dual_print($log, surround_text("$file does not exist. Please verify the input file name/path",80,"!","\n"), $verbose);

@@ -192,18 +192,18 @@ Omniscient parser phylosophy:
 
 =item B<-g>, B<--gff> or B<-ref>
 
-Input GTF/GFF file.
+String - Input GTF/GFF file. Compressed file with .gz extension is accepted.
 
 =item B<-c> or B<--ct>
 
-When the features do not have Parent/ID relationships, the parser will try to group
+String - When the features do not have Parent/ID relationships, the parser will try to group
 features using a common/shared attribute (i.e. a locus tag.). By default locus_tag and gene_id.
 You can replace the default common/shared attributes by providing your own(s) using this option.
 Use comma separated list when providing several.
 
 =item B<--efl> or B<--expose>
 
-If you want to see, add or modified the feature relationships you will have to use this option.
+Boolean - If you want to see, add or modified the feature relationships you will have to use this option.
 It will copy past in you working directory the json files used to define the relation between feature types and their level organisation.
 Typical level organisation: Level1 => gene; Level2 => mRNA; level3 => exon,cds,utrs
 If you get warning from the Omniscient parser that a feature relationship is not defined, you can provide information about it within the exposed json files.
@@ -211,17 +211,22 @@ Indeed, if the json files exists in your working directory, they will be used by
 
 =item B<--ml> or B<--merge_loci>
 
-Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
+Boolean - Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
 (at CDS level for mRNA, at exon level for other level2 features. Strand has to be the same). Prokaryote can have overlaping loci so it should not use it for prokaryote annotation.
 In eukaryote, loci rarely overlap. Overlaps could be due to error in the file, mRNA can be merged under the same parent gene if you acticate the option.
 
 =item B<-v>
 
-Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
+Integer - Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
 
 =item B<--nc> or B<--no_check>
 
-To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+Boolean - To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
+
+=item B<--throw_fasta>
+
+Boolean - By default we keep the fasta sequences if present in the file. Activating this
+parameter will get rid of the fasta sequences. Default False.
 
 =item B<--throw_fasta>
 
@@ -230,20 +235,20 @@ parameter will get rid of the fasta sequences. Default False.
 
 =item B<--debug>
 
-For debug purpose
+Boolean - For debug purpose
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
+String - Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<--gvi> or B<--gff_version_input>
 
-If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
+Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
 =item B<--gvo> or B<--gff_version_output>
 
-If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
+Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
 =item B<--no_progressbar>
 
@@ -251,7 +256,7 @@ Bolean - To hide the progress bar.
 
 =item B<-h> or B<--help>
 
-Display this helpful text.
+Boolean - Display this helpful text.
 
 =back
 
