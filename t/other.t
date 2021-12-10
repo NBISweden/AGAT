@@ -23,9 +23,9 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/1.gff",
-                                                                  verbose => 0});
-
-
+                                                                 no_progressbar => 1,
+                                                                 verbose => 0
+                                                                });
 
 
 #run remove_l2_related_feature test

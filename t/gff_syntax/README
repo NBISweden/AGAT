@@ -37,6 +37,7 @@ This is an explanations of the different test files used to check the GFF3 parse
 34: L1 and L2 features of a record have the same ID. The parser will modify the ID of the l2 feature and consequently the Parent ID of the L3 features.
 35: One supernumary UTR to remove
 36: No l1 feature and some L2 features do not have parent information. AGAT should check the l3 features to verify which parent is expected.
+37: No l1 feature and No L2 features but common tag present.
 
 /!\ If only level3 features are defined, and no locus tag present (see test 26), the tool cannot deal with it. I will create by default one umbrella level1, or if you on attribute as uniq locus ID, It will create a l1 for each feature => If only exon or only CDS features so the result will be fine, but if there are two different features that has to be linked together (two CDS or a CDS and a signal peptide as in the test case 26) , the tool will not perform properly.
 
