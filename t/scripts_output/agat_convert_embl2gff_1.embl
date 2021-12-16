@@ -1,0 +1,51 @@
+ID   patatrac; SV 1; circular; genomic DNA; XXX; PRO; 317941 BP.
+XX
+AC   XXX; 
+XX
+AC * _ERS324955|SC|contig000001
+XX
+PR   Project:PRJEBNNNN;
+XX
+DE   XXX
+XX
+RN   [1]
+RP   1-2149
+RA   XXX;
+RT   ;
+RL   Submitted {(DD-MMM-YYYY)} to the INSDC.
+XX
+FH   Key           Location/Qualifiers
+FH
+FT   source        1..588788
+FT                 /organism={"scientific organism name"}
+FT                 /mol_type={"in vivo molecule type of sequence"}
+XX
+SQ   Sequence 588788 BP; 101836 A; 193561 C; 192752 G; 100639 T; 0 other;
+     tgcgtactcg aagagacgcg cccagattat ataagggcgt cgtctcgagg ccgacggcgc        60
+     gccggcgagt acgcgtgatc cacaacccga agcgaccgtc gggagaccga gggtcgtcga       120
+     gggtggatac gttcctgcct tcgtgccggg aaacggccga agggaacgtg gcgacctgcg       180
+//
+ID   fdssf; SV 1; circular; genomic DNA; XXX; PRO; 317941 BP.
+XX
+AC   XXX; 
+XX
+AC * _ERS344554
+XX
+PR   Project:PRJEBNNNN;
+XX
+DE   XXX
+XX
+RN   [1]
+RP   1-2149
+RA   XXX;
+RT   ;
+RL   Submitted {(DD-MMM-YYYY)} to the INSDC.
+XX
+FH   Key           Location/Qualifiers
+FH
+FT   source        1..588788
+FT                 /organism={"scientific organism name"}
+FT                 /mol_type={"in vivo molecule type of sequence"}
+XX
+SQ   Sequence 588788 BP; 101836 A; 193561 C; 192752 G; 100639 T; 0 other;
+     TTTTTTTTTT aagagacgcg cccagattat ataagggcgt cgtctcgagg ccgacggcgc        60

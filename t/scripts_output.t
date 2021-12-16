@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 61;
+use Test::More tests => 62;
 
 =head1 DESCRIPTION
 
@@ -40,7 +40,12 @@ unlink $outtmp;
 
 # -------------------------- check agat_convert_embl2gff -------------------------
 
-# Nothing yet
+$script = $script_prefix."bin/agat_convert_embl2gff.pl";
+$result = "$output_folder/agat_convert_embl2gff_1.gff";
+system(" $script --embl $input_folder/agat_convert_embl2gff_1.embl -o $outtmp --emblmygff3 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # -------------------------- check agat_convert_genscan2gff -------------------------
 
