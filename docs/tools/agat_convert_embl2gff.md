@@ -16,6 +16,12 @@ agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 
     Input EMBL file that will be read
 
+- **--emblmygff3**
+
+    Bolean - Means that the EMBL flat file comes from the EMBLmyGFF3 software. 
+    This is an EMBL format dedicated for submission and contains particularity to deal with.
+    This parameter is needed to get a proper sequence id in the GFF3 from an embl made with EMBLmyGFF3.
+
 - **--primary\_tag**, **--pt**, **-t**
 
     List of "primary tag". Useful to discard or keep specific features.
@@ -23,7 +29,11 @@ agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 
 - **-d**
 
-    Means that primary tags provided by the option "primary\_tag" will be discarded.
+    Bolean - Means that primary tags provided by the option "primary_tag" will be discarded.
+
+- **-k**
+
+    Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
 
 - **-o**, **--output**, **--out**, **--outfile** or **--gff**
 
