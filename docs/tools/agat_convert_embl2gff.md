@@ -35,6 +35,10 @@ agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
 
     Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
 
+- **--throw_fasta**
+
+    Bolean - Means that you do not want to keep the fasta sequence at the end of the gff output.
+
 - **-o**, **--output**, **--out**, **--outfile** or **--gff**
 
     Output GFF file. If no output file is specified, the output will be

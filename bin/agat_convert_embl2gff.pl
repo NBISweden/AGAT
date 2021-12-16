@@ -14,6 +14,7 @@ my $header = get_agat_header();
 my $outfile;
 my $embl;
 my $emblmygff3;
+my $throw_fasta;
 my $primaryTags;
 my $discard;
 my $keep;
@@ -24,6 +25,7 @@ if( !GetOptions(
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
     "d!"                         => \$discard,
+    "throw_fasta!"               => \$throw_fasta,
     "k!"                         => \$keep,
     "emblmygff3!"                => \$emblmygff3,
     "outfile|output|o|out|gff=s" => \$outfile))
@@ -141,14 +143,18 @@ while( my $seq_obj = $embl_in->next_seq) {
 # Close the gff input FH opened by OmniscientI
 $embl_in->close();
 
-### Read embl input file to cach the fasta sequences now.
-$embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
+# if user want to keep the fasta file
+if (! $throw_fasta){
+  
+  ### Read embl input file to cach the fasta sequences now.
+  $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
 
-# Print sequences
-write_fasta($gff_out, $embl_in, $emblmygff3);
+  # Print sequences
+  write_fasta($gff_out, $embl_in, $emblmygff3);
 
-# Close the gff input FH opened by OmniscientI
-$embl_in->close();
+  # Close the gff input FH opened by OmniscientI
+  $embl_in->close();
+}
 
 #######################################################################################################################
         ####################
@@ -252,6 +258,10 @@ Bolean - Means that primary tags provided by the option "primary_tag" will be di
 =item B<-k>
 
 Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
+
+=item B<--throw_fasta>
+
+Bolean - Means that you do not want to keep the fasta sequence at the end of the gff output.
 
 =item B<-o>, B<--output>, B<--out>, B<--outfile> or B<--gff>
 
