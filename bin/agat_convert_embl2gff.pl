@@ -11,19 +11,23 @@ use Bio::SeqIO;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $outfile = undef;
-my $embl = undef;
-my $primaryTags = undef;
-my $discard = undef;
-my $keep = undef;
+my $outfile;
+my $embl;
+my $emblmygff3;
+my $throw_fasta;
+my $primaryTags;
+my $discard;
+my $keep;
 my $help;
 
 if( !GetOptions(
-    "help" => \$help,
-    "embl=s" => \$embl,
-    "primary_tag|pt|t=s" => \$primaryTags,
-    "d|s" => \$discard,
-    "k" => \$keep,
+    "help"                       => \$help,
+    "embl=s"                     => \$embl,
+    "primary_tag|pt|t=s"         => \$primaryTags,
+    "d!"                         => \$discard,
+    "throw_fasta!"               => \$throw_fasta,
+    "k!"                         => \$keep,
+    "emblmygff3!"                => \$emblmygff3,
     "outfile|output|o|out|gff=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line\n$header",
@@ -84,12 +88,12 @@ else{
   $gff_out = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 }
 
-### Read gb input file.
+### Read embl input file.
 my $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
 
 
 ### MAIN ###
-
+my $sequence="";
 while( my $seq_obj = $embl_in->next_seq) {
 
   for my $feat_obj ($seq_obj->get_SeqFeatures) {
@@ -116,8 +120,101 @@ while( my $seq_obj = $embl_in->next_seq) {
     }
 
     if(! $skipit){
-        $gff_out->write_feature($feat_obj);
+
+      if($emblmygff3){
+        # ------ Get seqId name when EMBLmyGFF3 file -----
+        # get the second AC line 
+        my @arr = $seq_obj->get_secondary_accessions;
+        my $index = 0;
+        $index++ until $arr[$index] eq '*';
+        splice(@arr, $index, 1);
+        my $seqid_raw = $arr[0];
+        my $seqid_clean = substr $seqid_raw, 1; # remove the _ at the beginning added by EMBLmyGFF3
+        $feat_obj->seq_id($seqid_clean); # replace the default seq_id
+      }
+        
+      $gff_out->write_feature($feat_obj);
+      $sequence.= ">".$seq_obj->seq();
+  
     }
+  }
+}
+
+# Close the gff input FH opened by OmniscientI
+$embl_in->close();
+
+# if user want to keep the fasta file
+if (! $throw_fasta){
+  
+  ### Read embl input file to cach the fasta sequences now.
+  $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
+
+  # Print sequences
+  write_fasta($gff_out, $embl_in, $emblmygff3);
+
+  # Close the gff input FH opened by OmniscientI
+  $embl_in->close();
+}
+
+#######################################################################################################################
+        ####################
+         #     methods    #
+          ################
+           ##############
+            ############
+             ##########
+              ########
+               ######
+                ####
+                 ##
+
+# Catch sequences from embl file and write all of them at the end of the gff file
+sub write_fasta {
+  my ($gffout, $embl_in, $emblmygff3) = @_;
+
+  $gffout->_print("##FASTA\n");
+
+  while( my $Bio_Seq_obj = $embl_in->next_seq ) {
+
+    my $seq_header = ">".$Bio_Seq_obj->display_id();
+    
+    if($emblmygff3){
+      # ------ Get seqId name when EMBLmyGFF3 file -----
+      # get the second AC line 
+      my @arr = $Bio_Seq_obj->get_secondary_accessions;
+      my $index = 0;
+      $index++ until $arr[$index] eq '*';
+      splice(@arr, $index, 1);
+      my $seqid_raw = $arr[0];
+      my $seqid_clean = substr $seqid_raw, 1; # remove the _ at the beginning added by EMBLmyGFF3
+      $seq_header=">".$seqid_clean; # replace the default seq_id
+    }
+
+
+    if( $Bio_Seq_obj->desc ){
+      $gffout->_print($seq_header." ".$Bio_Seq_obj->desc."\n");
+    }
+    else{
+      $gffout->_print($seq_header."\n");
+    }
+
+    my $str = $Bio_Seq_obj->seq;
+    my $nuc = 80;       # Number of nucleotides per line
+    my $length = length($str);
+
+    # Calculate the number of nucleotides which fit on whole lines
+    my $whole = int($length / $nuc) * $nuc;
+
+    # Print the whole lines
+    my( $i );
+    for ($i = 0; $i < $whole; $i += $nuc) {
+        my $blocks = substr($str, $i, $nuc);
+        $gffout->_print("$blocks\n") || return;
+    }
+    # Print the last line
+    if (my $last = substr($str, $i)) {
+        $gffout->_print("$last\n") || return;
+    }   
   }
 }
 
@@ -143,6 +240,12 @@ The script takes an EMBL file as input, and will translate it in gff format.
 
 Input EMBL file that will be read
 
+=item B<--emblmygff3>
+
+Bolean - Means that the EMBL flat file comes from the EMBLmyGFF3 software. 
+This is an EMBL format dedicated for submission and contains particularity to deal with.
+This parameter is needed to get a proper sequence id in the GFF3 from an embl made with EMBLmyGFF3.
+
 =item B<--primary_tag>, B<--pt>, B<-t>
 
 List of "primary tag". Useful to discard or keep specific features.
@@ -150,7 +253,15 @@ Multiple tags must be coma-separated.
 
 =item B<-d>
 
-Means that primary tags provided by the option "primary_tag" will be discarded.
+Bolean - Means that primary tags provided by the option "primary_tag" will be discarded.
+
+=item B<-k>
+
+Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
+
+=item B<--throw_fasta>
+
+Bolean - Means that you do not want to keep the fasta sequence at the end of the gff output.
 
 =item B<-o>, B<--output>, B<--out>, B<--outfile> or B<--gff>
 

@@ -105,6 +105,10 @@ agat_convert_sp_gxf2gxf.pl --help
 
     Float - If you don't want to use the autodection of the gff/gft version you give as input, you can force the tool to use the parser of the gff version you decide to use: 1,2,2.5 or 3. Remind: 2.5 is suposed to be gtf.
 
+- **--no_progressbar**
+
+    Bolean - To hide the progress bar.
+
 - **-h** or **--help**
 
     Boolean - Display this helpful text.
