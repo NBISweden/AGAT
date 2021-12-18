@@ -1282,7 +1282,7 @@ sub info_omniscient {
       				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
         				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
 						if(exists_keys(\%resu,($tag))){
-						        $resu{$tag}=$resu{$tag}+$nb;
+						        $resu{$tag} +=$nb;
 						}
 						else{
 							$resu{$tag}=$nb;
@@ -2168,7 +2168,7 @@ sub featuresList_overlap {
 	my $cds1_size=0;
 	foreach my $cds1 (@listCDS1){
 
-		$cds1_size=$cds1_size+($cds1->end - $cds1->start)+1;
+		$cds1_size +=($cds1->end - $cds1->start)+1;
 		my $starto;
 		my $endo;
 
@@ -2192,7 +2192,7 @@ sub featuresList_overlap {
 				else{$endo=$cds1->end;}
 
 				#calcul overlap;
-				$size_overlap=$size_overlap+($endo - $starto + 1);
+				$size_overlap +=($endo - $starto + 1);
 			}
 		}
 	}

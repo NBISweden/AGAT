@@ -130,8 +130,8 @@ print $ostream "Repeat type\tNumber\tSize total (kb)\tSize mean (bp)\t% of the g
     my $xGenome=sprintf("%0.2f",($type_bp->{$gnx}/$genomeSize)*100);
     print $ostream $gnx,"\t",$type_count->{$gnx},"\t",$Sitotal,"\t",$SizeMean,"\t",$xGenome,"\n";
 
-    $totalNumber=$totalNumber+$type_count->{$gnx};
-    $totalSize=$totalSize+$type_bp->{$gnx};
+    $totalNumber +=$type_count->{$gnx};
+    $totalSize +=$type_bp->{$gnx};
 
   }
 }
@@ -142,8 +142,8 @@ else{
     my $SizeMean=sprintf("%0.2f",($type_bp->{$gnx}/$type_count->{$gnx}));
     print $ostream $gnx,"\t",$type_count->{$gnx},"\t",$Sitotal,"\t",$SizeMean,"\n";
 
-    $totalNumber=$totalNumber+$type_count->{$gnx};
-    $totalSize=$totalSize+$type_bp->{$gnx};
+    $totalNumber +=$type_count->{$gnx};
+    $totalSize +=$type_bp->{$gnx};
 
   }
 }

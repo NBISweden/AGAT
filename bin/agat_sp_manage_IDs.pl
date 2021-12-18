@@ -315,7 +315,7 @@ sub get_id_number{
   # Not first time
   else{# if Gap asked we add this value between to level1 feature
     if ($opt_gap and $level eq 'level1'){
-      $keepTrack{$tag}=$keepTrack{$tag}+$opt_gap+1;
+      $keepTrack{$tag} +=$opt_gap+1;
     } # normal incrementation
     else{
       $keepTrack{$tag}++;

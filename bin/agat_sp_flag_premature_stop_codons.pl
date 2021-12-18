@@ -144,7 +144,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							}
 							elsif ( $sortedList[$#sortedList]->frame != 0 ){
 								$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
-								$start_position = $start_position-$sortedList[$#sortedList]->frame;
+								$start_position -=$sortedList[$#sortedList]->frame;
 							}
 						}
 						else { # ! minus
@@ -155,7 +155,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							}
 							elsif( $sortedList[0]->frame != 0 ){
 								$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
-								$start_position = $start_position+$sortedList[0]->frame;
+								$start_position +=$sortedList[0]->frame;
 							}
 						}
 

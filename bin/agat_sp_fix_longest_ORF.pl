@@ -347,7 +347,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   #    if($mrna_pseudo > 0){
         # all mRNA are pseudogene, we change the gene status to pseudogenes.
   #      if($mrna_pseudo == $number_mrna){
-  #        $mrna_pseudo_suspected=$mrna_pseudo_suspected+$number_mrna;
+  #        $mrna_pseudo_suspected +=$number_mrna;
   #        $gene_pseudo_suspected++;
   #       $gene_feature->primary_tag('pseudogene');
           #transfert the gene and sub-feature to the omniscient_pseudogene hash
@@ -356,7 +356,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   #      }
         #only some of the isoform are pseudo... we remove them
   #      else{
-  #        $mrna_pseudo_removed=$mrna_pseudo_removed+$mrna_pseudo;
+  #        $mrna_pseudo_removed +=$mrna_pseudo;
   #        $gene_pseudo_removed++;
   #        my @tag_list=('all');
   #        my @id_list=($gene_id_tag_key);
@@ -370,7 +370,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     if($one_ORFmodified eq "yes"){
       $geneCounter++;
-      $mRNACounter=$mRNACounter+$number_mrna; #add all the mRNA if at least one modified
+      $mRNACounter +=$number_mrna; #add all the mRNA if at least one modified
       #save remodelate gene name
       push(@modified_gene_list, $gene_id_tag_key);
     }
@@ -485,7 +485,7 @@ sub shrink_cds_offset{
 
 	# in minus strand
 	if($minus and $sortedList->[$#{$sortedList}]->frame != 0){
-		$sortedList->[$#{$sortedList}]->end = $sortedList->[$#{$sortedList}]->end - $sortedList->[$#{$sortedList}]->frame;
+		$sortedList->[$#{$sortedList}]->end -= $sortedList->[$#{$sortedList}]->frame;
 	}
 	# in plus strand
 	elsif (! $minus and $sortedList->[0]->frame != 0){
@@ -762,9 +762,9 @@ sub calcul_real_orf_end_and_start{
     # Allows to follow the path on mRNA
     my $exon_length=($exon_feature->end - $exon_feature->start)+1;
     $total_exon_length_previous_round=$total_exon_length;
-    $total_exon_length=$total_exon_length+$exon_length;
+    $total_exon_length +=$exon_length;
     # Allows to follow the path on the CDS
-    $mapped_length_total=$mapped_length_total+$mapped_length;
+    $mapped_length_total +=$mapped_length;
     $the_rest_to_map=$orf_length-$mapped_length_total;
     # exon overlap CDS
     if($total_exon_length >= $orf_start){ #they begin to overlap

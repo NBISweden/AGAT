@@ -178,7 +178,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
               if($verbose) {print "\nNew round three_prime_utr\n";}
               my ($breakRound, $nbNewUTRgene, $mRNAlistToTakeCare) = take_care_utr('three_prime_utr', $tmpOmniscient, $mRNAlistToTakeCare, $stranded, $gffout);
               $oneRoundAgain =  $breakRound;
-              $nbNewUTR3gene = $nbNewUTR3gene+$nbNewUTRgene;
+              $nbNewUTR3gene +=$nbNewUTRgene;
             }
           }
           ##############################
@@ -191,7 +191,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
                 if($verbose) { print "\nNew round five_prime_utr\n";}
                 my ($breakRound, $nbNewUTRgene, $mRNAlistToTakeCare) = take_care_utr('five_prime_utr', $tmpOmniscient, $mRNAlistToTakeCare, $stranded, $gffout);
                 $oneRoundAgain =  $breakRound;
-                $nbNewUTR5gene = $nbNewUTR5gene+$nbNewUTRgene;
+                $nbNewUTR5gene +=$nbNewUTRgene;
               }
           }
           ##########################
@@ -603,7 +603,7 @@ sub take_care_utr{
                     if ($utr_tag eq 'three_prime_utr' ){
                       if($original_strand == 1 or $original_strand eq "+" ){
                         if(! $oppDir){
-                          $orf_utr_region->[0]=$orf_utr_region->[0]+($startUTRinMRNA);
+                          $orf_utr_region->[0] +=($startUTRinMRNA);
                         }
                         else{ #opposite direction
                           $orf_utr_region->[0]=length($mrna_seq) - $orf_utr_region->[1];
@@ -626,7 +626,7 @@ sub take_care_utr{
                           $orf_utr_region->[0]=(length($utr_seq) - $orf_utr_region->[1])+($startUTRinMRNA);
                         }
                         else{ #opposite direction
-                           $orf_utr_region->[0]=$orf_utr_region->[0]+($startUTRinMRNA);
+                           $orf_utr_region->[0] +=($startUTRinMRNA);
                         }
                       }
                     }
@@ -851,7 +851,7 @@ sub take_care_gene_id{
           if($numberGeneIDToCheck == 1){
             $nbToadd=1;$numberGeneIDToCheck=$numberOfNewGene;
           }
-          $numberGeneIDToCheck=$numberGeneIDToCheck+$nbToadd;}
+          $numberGeneIDToCheck +=$nbToadd;}
       }
       #print "old_gene_id --- $gene_id ***** new_gene_id --- $new_id\n";
 
@@ -902,7 +902,7 @@ sub take_care_mrna_id {
           if($numberMRNA_IDToCheck == 1){
             $nbToadd=1;$numberMRNA_IDToCheck=$PREFIX_CPT_MRNA;
           }
-          $numberMRNA_IDToCheck=$numberMRNA_IDToCheck+$nbToadd;}
+          $numberMRNA_IDToCheck +=$nbToadd;}
       }
       #print "old_mrna_id --- $mRNA_id ***** new_mrna_id --- $new_id\n";
 
@@ -1049,9 +1049,9 @@ sub calcul_real_orf_end_and_start{
     # Allows to follow the path on mRNA
     my $exon_length=($exon_feature->end - $exon_feature->start)+1;
     $total_exon_length_previous_round=$total_exon_length;
-    $total_exon_length=$total_exon_length+$exon_length;
+    $total_exon_length +=$exon_length;
     # Allows to follow the path on the CDS
-    $mapped_length_total=$mapped_length_total+$mapped_length;
+    $mapped_length_total +=$mapped_length;
     $the_rest_to_map=$orf_length-$mapped_length_total;
     # exon overlap CDS
     if($total_exon_length >= $orf_start){ #they begin to overlap
