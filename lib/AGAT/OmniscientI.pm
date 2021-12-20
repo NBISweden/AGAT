@@ -314,10 +314,15 @@ sub slurp_gff3_file_JD {
 		my $nb_line_input=undef;
 		if( ! $no_progressbar){ #Not setting nb_line_input will shut off the progress bar
 			my $exit_status;
-			
+
 			# TRY TO COUNT Number of LINE to make a progress bar using wc -l
 			if($file_ext eq ".gz"){
-				$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+				if ("$^O" eq "darwin"){
+					$exit_status   = system("zcat < $file | wc -l >/dev/null 2>&1");
+				}
+				else{
+					$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+				}
 			}
 			else{
 				$exit_status   = system("wc -l $file >/dev/null 2>&1");
@@ -331,7 +336,12 @@ sub slurp_gff3_file_JD {
 	    		my $wc_result = undef;
 
 	    		if($file_ext eq ".gz"){
-	    			$wc_result = `zcat $file | wc -l`;
+						if ("$^O" eq "darwin"){
+	    				$wc_result = `zcat < $file | wc -l`;
+						}
+						else{
+							$wc_result = `zcat $file | wc -l`;
+						}
 	    		}
 	    		else{
 					$wc_result = `wc -l $file`;
@@ -362,11 +372,17 @@ sub slurp_gff3_file_JD {
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
 		dual_print( $log, "=> GFF parser version used: $format\n", $verbose );
-		
+
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
 		if($file_ext eq ".gz"){
-			open(my $fh, "zcat $file |");
+			my $fh;
+			if ("$^O" eq "darwin"){
+				open( $fh, "zcat < $file |");
+			}
+			else{
+				open( $fh, "zcat $file |");
+			}
 			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $format);
 		}
 		else{
@@ -1664,7 +1680,7 @@ sub _check_l2_linked_to_l3{
 						$has_l1_feature = $hash_omniscient->{"level1"}{$tag_l1}{$id_l2};
 					}
 					else{
-						
+
 						if(! $common_tag_in_l1 ){$common_tag_in_l1 = _create_hash_common_tag_l1($hash_omniscient); } # fill it (only once) because will be needed
 
 						# Check if one as a common tag value == to L1 common tag value
@@ -1674,7 +1690,7 @@ sub _check_l2_linked_to_l3{
 
 							foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 								if($l3_feature->has_tag($tag) ) {
-									
+
 									# case where it's linked by comon_tag attribute
 									if (exists_keys($common_tag_in_l1,( $tag, lc($l3_feature->_tag_value($tag)) ) ) ){
 										if($#{$common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}} == 0){
@@ -1690,7 +1706,7 @@ sub _check_l2_linked_to_l3{
 										}
 									}
 								}
-								if ($has_l1_feature){last;} 
+								if ($has_l1_feature){last;}
 							}
 						}
 					}
@@ -1765,7 +1781,7 @@ sub _check_l2_linked_to_l3{
 					# -- Create an id for LEVEL1
 					my $new_ID_l1 = undef;
 					# check there are common tags
-					
+
 					foreach my $tag_common (@COMONTAG){
 						if($l1_feature->has_tag($tag_common)){
 							#save info common tag value and l3 seq_id
@@ -3332,7 +3348,12 @@ sub get_header_lines{
 	my $fh,
 	my ($file_ext) = $file =~ /(\.[^.]+)$/;
 	if($file_ext eq ".gz"){
-		open($fh, "zcat $file |");
+		if ("$^O" eq "darwin"){
+			open($fh, "zcat < $file |");
+		}
+		else{
+			open($fh, "zcat $file |");
+		}
 	}
 	else{
 		open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
@@ -3371,7 +3392,12 @@ sub select_gff_format{
 		my $fh;
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 		if($file_ext eq ".gz"){
-			open($fh, "zcat $file |");
+			if ("$^O" eq "darwin"){
+				open($fh, "zcat < $file |");
+			}
+			else{
+				open($fh, "zcat $file |");
+			}
 		}
 		else{
 			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
@@ -3569,7 +3595,12 @@ sub _check_header{
 		my $fh;
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 		if($file_ext eq ".gz"){
-			open($fh, "zcat $file |");
+			if ("$^O" eq "darwin"){
+				open($fh, "zcat < $file |");
+			}
+			else{
+				open($fh, "zcat $file |");
+			}
 		}
 		else{
 			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
