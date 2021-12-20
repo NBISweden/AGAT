@@ -1045,7 +1045,7 @@ sub get_absolute_match{
 
         #if nucleotide to shrink is over the size of the piece we skip the piece, and compute the size to shrink left
         if ($nuc_left >= $nuc){
-          $nuc_left -=$nuc;
+          $nuc_left -= $nuc;
           next;
         }
         #if nucleotide to shrink is under the size of the piece we recalculate the piece
@@ -1085,7 +1085,7 @@ sub get_absolute_match{
 
         #if nucleotide to shrink is over the size of the piece we skip the piece, and compute the size to shrink left
         if ($nuc_right >= $nuc){
-          $nuc_right -=$nuc;
+          $nuc_right -= $nuc;
           next;
         }
         #if nucleotide to shrink is under the size of the piece we recalculate the piece
@@ -1114,7 +1114,7 @@ sub get_absolute_match{
 
     my ($match_size, $nuc_polish) = calcul_match_gap(\@gap, $nuc_polish);
 
-    $absMatch+=$match_size;
+    $absMatch += $match_size;
     #print "match_size = $match_size\n";
     #my $plus= int(abs($feature->end - $end)/3);
     #my $modPlus = int(abs($feature->end - $end) % 3);

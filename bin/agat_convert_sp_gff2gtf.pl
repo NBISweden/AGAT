@@ -695,7 +695,7 @@ sub _gff25_string_JD {
     }
 		@firstgroup = sort @firstgroup if @firstgroup;
     $str2 = join('; ', (@firstgroup, @group));
-    $str2 .=";";
+    $str2 .= ";";
     # Add Target information for Feature Pairs
     if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
         ! $feat->has_tag('Group') &&

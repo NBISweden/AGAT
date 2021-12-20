@@ -108,7 +108,7 @@ foreach my $file (@inputFile){
 		# count several time is several parents
 		for (my $i=0; $i<$nb_parent; $i++){
     	$type_count->{$type}++;
-    	$type_bp->{$type}+=($feature->end()-$feature->start())+1;
+    	$type_bp->{$type} += ($feature->end()-$feature->start())+1;
 		}
 
     #Display progression
@@ -133,8 +133,8 @@ print $ostream "Type (3rd column)\tNumber\tSize total (kb)\tSize mean (bp)\t% of
     my $xGenome=sprintf("%0.2f",($type_bp->{$gnx}/$genomeSize)*100);
     print $ostream $gnx,"\t",$type_count->{$gnx},"\t",$Sitotal,"\t",$SizeMean,"\t",$xGenome,"\n";
 
-    $totalNumber +=$type_count->{$gnx};
-    $totalSize +=$type_bp->{$gnx};
+    $totalNumber += $type_count->{$gnx};
+    $totalSize += $type_bp->{$gnx};
 
   }
 }
@@ -145,8 +145,8 @@ else{
     my $SizeMean=sprintf("%0.2f",($type_bp->{$gnx}/$type_count->{$gnx}));
     print $ostream $gnx,"\t",$type_count->{$gnx},"\t",$Sitotal,"\t",$SizeMean,"\n";
 
-    $totalNumber +=$type_count->{$gnx};
-    $totalSize +=$type_bp->{$gnx};
+    $totalNumber += $type_count->{$gnx};
+    $totalSize += $type_bp->{$gnx};
 
   }
 }

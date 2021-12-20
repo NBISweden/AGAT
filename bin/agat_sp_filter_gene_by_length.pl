@@ -133,7 +133,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
   	          if ( exists_keys( $hash_omniscient, ('level3', 'exon', $id_l2) ) ){
                 my $local_size=0;
                 foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}} ) {
-                  $local_size +=$feature_l3->end()-$feature_l3->start()+1;
+                  $local_size += $feature_l3->end()-$feature_l3->start()+1;
                 }
                 if($longer_concat_exon and $longer_concat_exon<$local_size){
                   $longer_concat_exon = $local_size;

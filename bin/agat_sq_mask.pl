@@ -115,11 +115,11 @@ while ($_=$inFasta->next_seq()) {
       else{
 	     substr($sequence,$start-1,$end+1-$start) = $hardMaskChar x ($end+1-$start);
       }
-      $nucl_masked +=($end-$start+1);
+      $nucl_masked += ($end-$start+1);
     }
 
     print $ostream ">$seqname\n";
-    for (my $i=0;$i<length $sequence;$i+=$width) { print $ostream substr($sequence,$i,$width)."\n" }
+    for (my $i=0; $i<length $sequence; $i += $width) { print $ostream substr($sequence,$i,$width)."\n" }
     $nbFastaSeq++;
 }
 $inFasta->close();
