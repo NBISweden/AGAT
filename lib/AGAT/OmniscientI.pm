@@ -317,7 +317,12 @@ sub slurp_gff3_file_JD {
 
 			# TRY TO COUNT Number of LINE to make a progress bar using wc -l
 			if($file_ext eq ".gz"){
-				$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+				if ("$^O" eq "darwin"){
+					$exit_status   = system("zcat < $file | wc -l >/dev/null 2>&1");
+				}
+				else{
+					$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
+				}
 			}
 			else{
 				$exit_status   = system("wc -l $file >/dev/null 2>&1");
@@ -331,7 +336,12 @@ sub slurp_gff3_file_JD {
 	    		my $wc_result = undef;
 
 	    		if($file_ext eq ".gz"){
-	    			$wc_result = `zcat $file | wc -l`;
+						if ("$^O" eq "darwin"){
+	    				$wc_result = `zcat < $file | wc -l`;
+						}
+						else{
+							$wc_result = `zcat $file | wc -l`;
+						}
 	    		}
 	    		else{
 					$wc_result = `wc -l $file`;
@@ -366,7 +376,13 @@ sub slurp_gff3_file_JD {
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
 		if($file_ext eq ".gz"){
-			open(my $fh, "zcat $file |");
+			my $fh;
+			if ("$^O" eq "darwin"){
+				open( $fh, "zcat < $file |");
+			}
+			else{
+				open( $fh, "zcat $file |");
+			}
 			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $format);
 		}
 		else{
@@ -3332,7 +3348,12 @@ sub get_header_lines{
 	my $fh,
 	my ($file_ext) = $file =~ /(\.[^.]+)$/;
 	if($file_ext eq ".gz"){
-		open($fh, "zcat $file |");
+		if ("$^O" eq "darwin"){
+			open($fh, "zcat < $file |");
+		}
+		else{
+			open($fh, "zcat $file |");
+		}
 	}
 	else{
 		open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
@@ -3371,7 +3392,12 @@ sub select_gff_format{
 		my $fh;
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 		if($file_ext eq ".gz"){
-			open($fh, "zcat $file |");
+			if ("$^O" eq "darwin"){
+				open($fh, "zcat < $file |");
+			}
+			else{
+				open($fh, "zcat $file |");
+			}
 		}
 		else{
 			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
@@ -3569,7 +3595,12 @@ sub _check_header{
 		my $fh;
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 		if($file_ext eq ".gz"){
-			open($fh, "zcat $file |");
+			if ("$^O" eq "darwin"){
+				open($fh, "zcat < $file |");
+			}
+			else{
+				open($fh, "zcat $file |");
+			}
 		}
 		else{
 			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
