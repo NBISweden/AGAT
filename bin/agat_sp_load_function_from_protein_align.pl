@@ -870,7 +870,7 @@ sub check_gene_overlap_gffAlign{
                 foreach my $feature2 (@{$prot_omniscient->{'level2'}{$tag_l2}{lc($gene_id2)}}){
                   #print$feature2->end." -  ".$feature2->start."\n";
                   #print $feature2->end - $feature2->start." + 1\n";
-                  $lenght2 = $lenght2 + ($feature2->end - $feature2->start + 1);
+                  $lenght2 += ($feature2->end - $feature2->start + 1);
                 }
               }
             }
@@ -896,7 +896,7 @@ sub check_gene_overlap_gffAlign{
                 foreach my $feature1 ( sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id)}}){
 
                   #print "annot location: ".$feature1->start." ".$feature1->end."\n";
-                  $w_lenght1 = $w_lenght1 + ($feature1->end - $feature1->start + 1);
+                  $w_lenght1 += ($feature1->end - $feature1->start + 1);
                   #print $feature1->gff_string."\n";
 
                   foreach my $tag_l2 (keys %{$prot_omniscient->{'level2'}}){
@@ -943,7 +943,7 @@ sub check_gene_overlap_gffAlign{
               foreach my $feature1 ( sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id)}}){
 
             #     #print "annot location: ".$feature1->start." ".$feature1->end."\n";
-                $lenght1 = $lenght1 + ($feature1->end - $feature1->start + 1);
+                $lenght1 += ($feature1->end - $feature1->start + 1);
             #     print $feature1->gff_string."\n";
 
                 foreach my $tag_l2 (keys %{$prot_omniscient->{'level2'}}){
@@ -1045,7 +1045,7 @@ sub get_absolute_match{
 
         #if nucleotide to shrink is over the size of the piece we skip the piece, and compute the size to shrink left
         if ($nuc_left >= $nuc){
-          $nuc_left=$nuc_left-$nuc;
+          $nuc_left -= $nuc;
           next;
         }
         #if nucleotide to shrink is under the size of the piece we recalculate the piece
@@ -1085,7 +1085,7 @@ sub get_absolute_match{
 
         #if nucleotide to shrink is over the size of the piece we skip the piece, and compute the size to shrink left
         if ($nuc_right >= $nuc){
-          $nuc_right=$nuc_right-$nuc;
+          $nuc_right -= $nuc;
           next;
         }
         #if nucleotide to shrink is under the size of the piece we recalculate the piece
@@ -1114,7 +1114,7 @@ sub get_absolute_match{
 
     my ($match_size, $nuc_polish) = calcul_match_gap(\@gap, $nuc_polish);
 
-    $absMatch+=$match_size;
+    $absMatch += $match_size;
     #print "match_size = $match_size\n";
     #my $plus= int(abs($feature->end - $end)/3);
     #my $modPlus = int(abs($feature->end - $end) % 3);
@@ -1169,14 +1169,14 @@ sub nuc_gap_val{
   my $nuc=0;
   if($gap =~ /^M/){ #MATCH - M1 in a protein space is actually an amino acid match (matches 3 bp in nucleotide space)
     $nuc = substr $gap, 1;
-    $nuc=$nuc*3;
+    $nuc *=3;
   }
   elsif($gap =~ /^D/){  # deletion = insert a gap into the target (delete from reference) - D1 is an amino acid deletion (3bp in nucleotide space)
     $nuc = substr $gap, 1;
   }
   elsif($gap =~ /^I/){ # insert a gap into the reference sequence - I1 is an amino acid insertion (3bp in nucleotide space)
     $nuc = substr $gap, 1;
-    $nuc=$nuc*3;
+    $nuc *=3;
   }
   elsif($gap =~ /^F/){ # frameshift forward in the reference sequence - F and R therefore allow for single bp movement either to the left or right within amino acid space. Sometime this happens in Exonerate where it appears as a slightly shifted codon (codons look stacked ), but it also happens when an amino acid is split across a splice site (1st part of a codon is on one exon and second part on the next exon).
     $nuc = substr $gap, 1;

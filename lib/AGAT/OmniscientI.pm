@@ -1843,7 +1843,7 @@ sub _check_cds{
 					if($#list_stop > 0){
 							my $size_stop=0;
 							foreach my $stop_codon (@list_stop){
-								$size_stop+=$stop_codon->end - $stop_codon->start + 1;
+								$size_stop += $stop_codon->end - $stop_codon->start + 1;
 							}
 							if($size_stop > 3){
 								dual_print($log, "Warning: $id_l2 has several stop_codon\n", $verbose);

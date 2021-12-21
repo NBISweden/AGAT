@@ -279,7 +279,7 @@ sub get_omniscient_statistics_for_topfeature{
 
 		#compute feature size
 		my $sizeFeature=($feature_l1->end-$feature_l1->start)+1;
-		$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_feat'}+=$sizeFeature;
+		$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_feat'} += $sizeFeature;
 
 		#create distribution list
 		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
@@ -334,7 +334,7 @@ sub get_omniscient_statistics_from_l2{
 
 		#compute feature size
 		my $sizeFeature=($feature_l1->end-$feature_l1->start)+1;
-		$all_info{$tag_l2}{'level1'}{$tag_l1}{'size_feat'}+=$sizeFeature;
+		$all_info{$tag_l2}{'level1'}{$tag_l1}{'size_feat'} += $sizeFeature;
 
 		#create distribution list
 		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
@@ -363,7 +363,7 @@ sub get_omniscient_statistics_from_l2{
 
 			#compute feature size
 			my $sizeFeature=($feature_l2->end-$feature_l2->start)+1;
-				$all_info{$tag_l2}{'level2'}{$tag_l2}{'size_feat'}+=$sizeFeature;
+				$all_info{$tag_l2}{'level2'}{$tag_l2}{'size_feat'} += $sizeFeature;
 
 			#create distribution list
 			push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'distribution'}}, $sizeFeature;
@@ -391,7 +391,7 @@ sub get_omniscient_statistics_from_l2{
 	  			my $intronSize = $sortedList[$counterL2_match]->start - $sortedList[$counterL2_match-1]->end - 1;
 
 	  			#compute feature size
-	  			$all_info{$tag_l2}{'level2'}{'intron'}{'size_feat'}+=$intronSize;
+	  			$all_info{$tag_l2}{'level2'}{'intron'}{'size_feat'} += $intronSize;
 
 	  			#create distribution list
 					push @{$all_info{$tag_l2}{'level2'}{'intron'}{'distribution'}}, $sizeFeature;
@@ -405,7 +405,7 @@ sub get_omniscient_statistics_from_l2{
 	    			$all_info{$tag_l2}{'level2'}{'intron'}{'shortest'}=$intronSize;
 	    		}
 	  			#Count number
-	    		$all_info{$tag_l2}{'level2'}{'intron'}{'nb_feat'}+=1;
+	    		$all_info{$tag_l2}{'level2'}{'intron'}{'nb_feat'} += 1;
 				}
 			}
 
@@ -439,7 +439,7 @@ sub get_omniscient_statistics_from_l2{
 	  					my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end - 1;
 
 	  					#compute feature size
-	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'}+=$intronSize;
+	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'} += $intronSize;
 
 	  					#create distribution list
 							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'distribution'}}, $sizeFeature;
@@ -455,18 +455,18 @@ sub get_omniscient_statistics_from_l2{
 	    				}
 
 	  					#Count number
-	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'nb_feat'}+=1;
+	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'nb_feat'} += 1;
 	  				}
 
 	  				#compute cumulative feature size
 	  				my $sizeFeature=($feature_l3->end-$feature_l3->start)+1;
-	  				$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'}+=$sizeFeature;
+	  				$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'} += $sizeFeature;
 
 	  				#-------------------------------------------------
 	  				# MANAGE SPREAD FEATURES (multi exon features)
 	  				#-------------------------------------------------
 	  	  		if(($tag_l3 =~ /cds/) or ($tag_l3 =~ /utr/)){
-	  	  			$sizeMultiFeat+=$sizeFeature;
+	  	  			$sizeMultiFeat += $sizeFeature;
 	  	  			$all_info{$tag_l2}{'level3'}{$tag_l3}{'exon'}{'nb_feat'}++;
 
 	  	  			#### MANAGE piece of multi exon features (spread features)
