@@ -109,7 +109,7 @@ scaffold625	337817	343277	CLUHART00000008717	0	+	337914	343033	0	4	154,109,111,1
 Detailed information can be found here: [https://genome.ucsc.edu/FAQ/FAQformat.html](https://genome.ucsc.edu/FAQ/FAQformat.html)  
 Below a description of the different fields:
 
-column | feature type | mandatory | comment
+column | feature type | mandatory | comment |
 -- | -- | -- | -- |
 1 | chrom | X |  The name of the chromosome (e.g. chr3, chrY, chr2_random) or scaffold (e.g. scaffold10671).
 2 | chromStart | X | The starting position of the feature in the chromosome or scaffold. The first base in a chromosome is numbered 0.
@@ -126,4 +126,5 @@ column | feature type | mandatory | comment
 
 
 /!\ location BED format is 0-based, half-open [start-1, end), while GFF is 1-based, closed [start, end].
-<img align="center" src="pictures/coordinate_systems.jpg"/>
+  
+![](img/coordinate_systems.jpg "coordinate_systems")

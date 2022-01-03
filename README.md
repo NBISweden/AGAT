@@ -77,9 +77,11 @@ AGAT has the power to check, fix, pad missing information (features/attributes) 
   
       | task | tool |
       | --- | --- |
-      | convert any **GTF/GFF** into **tabulated format** | `agat_sp_to_tabulated.pl`  |
       | convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
       | convert any **GTF/GFF** into **GTF** format | `agat_convert_sp_gff2gtf.pl`  |
+      | convert any **GTF/GFF** into **tabulated format** | `agat_sp_gff2tsv.pl`  |
+      | convert any **BAM** from minimap2 into **GFF** format | `agat_convert_sp_minimap2_bam2gff.pl`  |
+      | convert any **GTF/GFF** into **ZFF** format | `agat_sp_gff2zff.pl`  |
       | convert any **GTF/GFF** into any **GTF/GFF** (bioperl) format | `agat_convert_sp_gxf2gxf.pl`  |
       | convert **BED** format into **GFF3** format | `agat_convert_bed2gff.pl`  |
       | convert **EMBL** format into **GFF3** format | `agat_convert_embl2gff.pl`  |
@@ -578,6 +580,7 @@ Some examples of publications that have used AGAT
 | Preprint | [Using historical museum samples to examine divergent and parallel evolution in the invasive starling](https://www.biorxiv.org/content/10.1101/2021.08.22.457241v1.full)|
 | GBE | [A Chromosome-Level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus)](https://helda.helsinki.fi/bitstream/handle/10138/336322/evab212.pdf?sequence=1&isAllowed=y)|
 | Preprint | [A genome assembly of the Atlantic chub mackerel (Scomber colias): a valuable teleost fishing resource](https://www.biorxiv.org/content/10.1101/2021.11.19.468211v1.full.pdf)|
+| Current Protocols | [BUSCO: Assessing Genomic Data Quality and Beyond](https://currentprotocols.onlinelibrary.wiley.com/doi/full/10.1002/cpz1.323)
 | [...] | [...]
 </details>
 
