@@ -7,7 +7,8 @@ It will convert level2 features from gff (mRNA, transcripts) into bed features.
 If  the selected level2 subfeatures (defaut: exon) exist, they will be reported
 in the block fields (9-12th colum in bed).
 
-Definintion of the bed format:  
+Definintion of the bed format:: 
+
 \## 1 chrom - The name of the chromosome (e.g. chr3, chrY, chr2\_random) or scaffold (e.g. scaffold10671).  
 \## 2 chromStart - The starting position of the feature in the chromosome or scaffold. The first base in a chromosome is numbered 0.  
 \## 3 chromEnd - The ending position of the feature in the chromosome or scaffold. The chromEnd base is not included in the display of the feature. For example, the first 100 bases of a chromosome are defined as chromStart=0, chromEnd=100, and span the bases numbered 0-99.  
