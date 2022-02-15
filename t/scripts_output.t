@@ -471,7 +471,7 @@ rmtree $outtmp;
 
 $script = $script_prefix."bin/agat_sp_merge_annotations.pl";
 $result = "$output_folder/agat_sp_merge_annotations_1.gff";
-system(" $script --gff t/gff_syntax/25_test.gff  --gff t/gff_syntax/9_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/agat_sp_merge_annotations/file1.gff  --gff $input_folder/agat_sp_merge_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
