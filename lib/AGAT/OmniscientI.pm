@@ -2985,6 +2985,13 @@ sub _merge_overlap_features{
 							$resume_case++;
 
 							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 0); # print only in log
+							# update atttribute except ID and Parent for L1:
+							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
+							foreach my $tag (@list_tag_l2){
+								if(lc($tag) ne "parent" and lc($tag) ne "id"){
+									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1},$tag ,$omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag));
+								}
+							}
 							# remove the level1 of the ovelaping one
 							delete $omniscient->{'level1'}{$tag_l1}{$id2_l1};
 							# remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
@@ -3004,7 +3011,7 @@ sub _merge_overlap_features{
 									# REMOVE THE IDENTICAL ISOFORMS
 
 									# first list uniqs
-									my $list_of_uniqs	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $verbose); # remove if identical l2 exists
+									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $verbose); # remove if identical l2 exists
 
 
 									#Now manage the rest
@@ -3017,6 +3024,20 @@ sub _merge_overlap_features{
 										# Attach the new parent into the mRNAGeneLink hash
 										$mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
 
+									}
+									
+									# update atttribute except ID and Parent for L1:
+									if(@{$list_commons}){
+										my $kept_l2 = shift @{$list_commons};
+										my $id_l2 = lc($kept_l2->_tag_value('ID'));
+										foreach my $common (@{$list_commons}){
+											my @list_tag_l2 = $common->get_all_tags();
+											foreach my $tag (@list_tag_l2){
+												if(lc($tag) ne "parent" and lc($tag) ne "id"){
+													create_or_append_tag($kept_l2,$tag ,$common->get_tag_values($tag));
+												}
+											}
+										}
 									}
 									# remove the old l2 key
 									delete $omniscient->{'level2'}{$l2_type}{$id2_l1};
