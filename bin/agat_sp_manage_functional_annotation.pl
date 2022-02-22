@@ -77,7 +77,7 @@ GetOptions(
  'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
  'b|blast=s'                => \$opt_BlastFile,
  'd|db=s'                   => \$opt_dataBase,
- 'be|blast_evalue=i'        => \$opt_blastEvalue,
+ 'be|blast_evalue=f'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
  'pcds!'                    => \$opt_populate_cds,
  'i|interpro=s'             => \$opt_InterproFile,
