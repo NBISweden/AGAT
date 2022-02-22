@@ -27,7 +27,7 @@ check_all_level1_positions check_all_level2_positions remove_element_from_omnisc
 append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
 fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list_intact
 subsample_omniscient_from_level1_id_list_delete remove_tuple_from_omniscient
-create_or_replace_tag remove_element_from_omniscient_attributeValueBased
+create_or_replace_tag create_or_append_tag remove_element_from_omniscient_attributeValueBased
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
@@ -1126,6 +1126,39 @@ sub create_or_replace_tag{
 	}
 }
 
+
+# INPUT: feature object, String tag, String or Array ref;
+# Output: None
+sub create_or_append_tag{
+
+	my ($feature, $tag, $value)=@_;
+
+	if ($feature->has_tag($tag) ) {
+			if(ref($value) eq "ARRAY"){
+				my @original_values = $feature->get_tag_values($tag);
+				foreach my $value (@{$value}){
+					if(! grep { $value eq $_ } @original_values){
+						$feature->add_tag_value($tag,@{$value});
+					}
+				}
+			}
+			else{
+						my @original_values = $feature->get_tag_values($tag);
+	        	if(! grep { $value eq $_ } @original_values){
+	        		$feature->add_tag_value($tag,$value);
+  					}
+        	}
+	}
+	else{
+		if(ref($value) eq "ARRAY"){
+			$feature->add_tag_value($tag,@{$value});
+		}
+		else{
+			$feature->add_tag_value($tag,$value);
+		}
+	}
+}
+
 # frame explanation
 # 0 indicates that the feature begins with a whole codon at the 5' most base.
 # 1 means that there is one extra base (the third base of a codon) before the first whole codon
@@ -1646,11 +1679,15 @@ sub keep_only_uniq_from_list2{
 	my ($omniscient, $list1_l2, $list2_l2, $verbose)= @_;
 
 	my @new_list2;
+	my @list_identicals;
 	my $keep = 1;
 
 	foreach my $feature2 ( @{$list2_l2} ){
+		my @identical;
 		foreach my $feature1 ( @{$list1_l2} ){
 			if(l2_identical($omniscient, $feature1, $feature2, $verbose )){
+				push(@identical, $feature1);
+				push(@identical, clone($feature2));
 				$keep = undef; last;
 			}
 		}
@@ -1658,10 +1695,11 @@ sub keep_only_uniq_from_list2{
 			push(@new_list2, $feature2);
 		}
 		else{ # We dont keep the l2 feature so we have to remove all related features
+			push(@list_identicals,@identical);
 			remove_l2_related_feature($omniscient, $feature2, $verbose);
 		}
 	}
-	return \@new_list2;
+	return \@new_list2, \@list_identicals;
 }
 
 # check if l2 are identical. So look recursively at the level under.
