@@ -77,7 +77,7 @@ GetOptions(
  'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
  'b|blast=s'                => \$opt_BlastFile,
  'd|db=s'                   => \$opt_dataBase,
- 'be|blast_evalue=i'        => \$opt_blastEvalue,
+ 'be|blast_evalue=f'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
  'pcds!'                    => \$opt_populate_cds,
  'i|interpro=s'             => \$opt_InterproFile,
@@ -1148,7 +1148,7 @@ String - The fasta file that has been used as DB for the blast. Gene names and p
 
 =item B<--be> or B<--blast_evalue>
 
-Integer - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
+Float - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
 
 =item B<--pe>
 

@@ -88,7 +88,7 @@ agat_sp_manage_functional_annotation.pl --help
 
 - **--be** or **--blast\_evalue**
 
-    Integer - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
+    Float - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
 
 - **--pe**
 
