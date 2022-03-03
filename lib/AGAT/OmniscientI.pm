@@ -72,6 +72,7 @@ use constant PREFIX_NEW_ID => "nbis"; # used when creating a new ID # old nbis_N
 use constant PREFIX_ID_L1_NEW => "nbisL1"; # used when creating a new ID for a new Level1 feature # old nbis_noL1id
 use constant PREFIX_ID_L2_NEW => "nbisL2"; # used when creating a new ID for a new Level2 feature # old nbis_noL2id
 
+
 # Comon_tag is used in old gff format and in gtf (with gene_id) to group features together. Priority to comonTag compare to sequential read
 # COMONTAG is accessible from the whole file. if a tag has been specified by a user, it is added to this list when slurp_gff3_file_JD is called
 my @COMONTAG = ('locus_tag','gene_id');
@@ -95,9 +96,21 @@ sub slurp_gff3_file_JD {
 
 	my $start_run = time();
 	my $previous_time = undef;
-	my %omniscient; #Hast where all the feature will be saved
+	my %omniscient; #Hash where all the features will be saved
 
-	# Turn on autoflushing  as by default output is buffered until a newline is seen. (Or until the buffer is full, but that won't happen for a progress meter.)
+	# -------------- check OS type -----------------------------
+	my $is_linux = undef;
+	my $is_osx = undef;
+	my $is_win = undef;
+	if ("$^O" eq "linux"){
+		$is_linux = 1;
+	} elsif ("$^O" eq "darwin"){
+		$is_osx = 1;
+	} elsif ("$^O" =~ /^MSWin/){
+		$is_win = 1;
+	}
+
+	# Turn on autoflushing as by default output is buffered until a newline is seen. (Or until the buffer is full, but that won't happen for a progress meter.)
 	$| = 1;
 
 #	+-----------------------------------------+
@@ -186,6 +199,14 @@ sub slurp_gff3_file_JD {
 	if( defined($args->{throw_fasta})) { $throw_fasta = $args->{throw_fasta}; dual_print($log, "=> FASTA within the file will be thrown away!\n", $verbose); } # skip checks
 
 #	+-----------------------------------------+
+#	|            PRINT GENERAL INFO           |
+#	+-----------------------------------------+
+	dual_print($log, "=> Machine information:\n", $verbose);
+	dual_print($log, "	This script is being run by perl ".$^V."\n", $verbose);
+	dual_print($log, "	Bioperl location being used: ".substr($INC{"Bio/Tools/GFF.pm"}, 0 , -12)."\n", $verbose);
+	dual_print($log, "	Operating system being used: $^O \n", $verbose);
+
+#	+-----------------------------------------+
 #	|            HANDLE GFF HEADER            |
 #	+-----------------------------------------+
 	my $gff3headerInfo = _check_header($file, $log);
@@ -251,7 +272,7 @@ sub slurp_gff3_file_JD {
 	my $last_f=undef;# last feature handled
 	my $lastL1_new =undef; # Bolean to check if last l1 feature is a newly created one. Important to deal with strict sequential
 
-	dual_print($log, file_text_line({ string => "parse features", char => "-" }), $verbose);
+	dual_print($log, file_text_line({ string => "parsing", char => "-" }), $verbose);
 
 	# ============================> ARRAY CASE <============================
 
@@ -310,58 +331,109 @@ sub slurp_gff3_file_JD {
 		my ($file_ext) = $file =~ /(\.[^.]+)$/;
 
 
-		# -------------- Set up the Progress bar --------------------------
-		my $nb_line_input=undef;
-		if( ! $no_progressbar){ #Not setting nb_line_input will shut off the progress bar
-			my $exit_status;
-
-			# TRY TO COUNT Number of LINE to make a progress bar using wc -l
-			if($file_ext eq ".gz"){
-				if ("$^O" eq "darwin"){
-					$exit_status   = system("zcat < $file | wc -l >/dev/null 2>&1");
-				}
-				else{
-					$exit_status   = system("zcat $file | wc -l >/dev/null 2>&1");
-				}
-			}
-			else{
-				$exit_status   = system("wc -l $file >/dev/null 2>&1");
-			}
-
-			if ($exit_status != 0) {
-				dual_print( $log, "Info: Cannot count total line number with builtin wc.".
-				" Consequently progress bar unavailable.\n", $verbose);
-			}
-	    	else{
-	    		my $wc_result = undef;
-
-	    		if($file_ext eq ".gz"){
-						if ("$^O" eq "darwin"){
-	    				$wc_result = `zcat < $file | wc -l`;
-						}
-						else{
-							$wc_result = `zcat $file | wc -l`;
-						}
-	    		}
-	    		else{
-					$wc_result = `wc -l $file`;
-				}
-
-				chomp $wc_result;
-				if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
-					$nb_line_input = $1;
-				}
-			}
+		# -------------- Get info using bash  -----------------------------
+		# Print info about feature types in file
+		my $nb_line_feature=0;
+		if($is_win){
+			dual_print( $log, "Info: Progress bar unavailable on Windows.\n", $verbose);
 		}
+		if($is_osx or $is_linux){
 
-		#read every lines
-		my $progress_bar = Term::ProgressBar->new({
-			name  => 'Parsing',
-			count => $nb_line_input,
-			ETA   => 'linear',
-			term_width => 80 ,
-		}) if  ($nb_line_input);
+			# linee = error line contain != 9 fields
+			# type = feature types form 3rd column
+			# fasta = if any fasta sequence exist in file [1 or 0]
+			# comment = nb of lines of comment
+			my $info; my $wc_result;
+			if($file_ext eq ".gz"){
+				if ($is_osx){
+					$info   = `zcat < $file | awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}'`;
+					$wc_result = `zcat < $file | wc -l`;
+				}
+				elsif ($is_linux){
+					$info   = `zcat $file | awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}'`;
+					$wc_result = `zcat $file | wc -l`;
+				}
+			}
+			elsif($is_osx or $is_linux){
+				$info   = `awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}' $file`;
+				$wc_result = `wc -l $file`;
+			}			
+			my @info_list  = split /\s/,$info;
+			
+			my $nb_line_input=0;
+			my $nb_line_no_fasta=0;
+			my @feature_types;
+			my $nb_ft;
+			my @field_error;
+			my $fasta_present;
+			my $comment_nb=0;
+			foreach my $element (@info_list){
+				if($element =~ /^type/){
+					my @data  = split /:/,$element;
+					push @feature_types, $data[1];
+					$nb_ft++;
+				}
+				elsif($element =~ /comment/){
+					my @data  = split /:/,$element;
+					$comment_nb = $data[1];
+				}
+				elsif($element =~ /field/){
+					my @data  = split /:/,$element;
+					push @field_error, $data[1];
+				}
+				elsif($element =~ /fasta/){
+					my @data  = split /:/,$element;
+					if($data[1] == 1){
+						$fasta_present = "yes";
+					}else{
+						$fasta_present = "no";
+					}
+				}
+				elsif($element =~ /nbline/){
+					my @data  = split /:/,$element;
+					$nb_line_no_fasta = $data[1];
+				}
+			}
 
+			# Infrom abount number line total
+			chomp $wc_result;
+			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
+				$nb_line_input = $1;
+			}
+			dual_print( $log, "=> Number of line in file: $nb_line_input\n", $verbose);
+			dual_print( $log, "=> Number of comment lines: $comment_nb\n", $verbose);
+			dual_print( $log, "=> Fasta included: $fasta_present\n", $verbose);
+			$nb_line_feature=$nb_line_no_fasta-$comment_nb;
+			dual_print( $log, "=> Number of features in file: $nb_line_feature\n", $verbose);
+			my $nb_field_error = $#field_error+1;
+			dual_print( $log, "=> Number of feature lines wihtout 9 fields: $nb_field_error\n", $verbose);
+			foreach my $element( @field_error){
+				dual_print($log, "WARNING: 9 fields expected line $element\n", 0); # print only in log
+			}	
+
+			my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []); 
+			foreach my $ft (@feature_types){
+				if ( exists_keys(\%omniscient, ('other','level','level1', lc($ft) ) ) ){
+					push (@{$info_levels{"level1"}}, $ft);
+				} elsif  ( exists_keys(\%omniscient, ('other','level','level2', lc($ft) ) ) ){
+					push (@{$info_levels{"level2"}}, $ft);
+				} elsif ( exists_keys(\%omniscient, ('other','level','level3', lc($ft) ) ) ){
+					push (@{$info_levels{"level3"}}, $ft);
+				} else {
+					push (@{$info_levels{"unknown"}}, $ft);
+					$info_levels{"unknown"}++;
+				}
+			}
+			dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
+			my @listL1 = @{$info_levels{"level1"}};
+			dual_print( $log, "	* Level1:".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
+			my @listL2 = @{$info_levels{"level2"}};
+			dual_print( $log, "	* level2:".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
+			my @listL3 = @{$info_levels{"level3"}};
+			dual_print( $log, "	* level3:".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
+			my @listUn = @{$info_levels{"unknown"}};
+			dual_print( $log, "	* unknown:".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+		}
 
 		# -------------- read GFF headers -----------------------------
 		my $header = get_header_lines($file, $verbose, $log, $debug);
@@ -371,7 +443,7 @@ sub slurp_gff3_file_JD {
 		my $format;
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
-		dual_print( $log, "=> GFF parser version used: $format\n", $verbose );
+		dual_print( $log, "=> Version of the Bioperl GFF parser used: $format\n", $verbose );
 
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
@@ -389,18 +461,29 @@ sub slurp_gff3_file_JD {
 			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 		}
 
-		# -------------- Read features in GFF file ---------------------
+		# -------------- Set progress bar ---------------------
 		my $nb_line_read=0;
+		my $progress_bar=undef;
+ 		if  (! $no_progressbar and $nb_line_feature){
+			$progress_bar = Term::ProgressBar->new({
+					name  => 'Parsing',
+					count => $nb_line_feature,
+					ETA   => 'linear',
+					term_width => 80 ,
+				});
+		}
+
+		# -------------- Read features in GFF file ---------------------
 		while( my $feature = $gffio->next_feature()) {
 			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 			manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 
-			$progress_bar->update($nb_line_read++) if ( $nb_line_input && ($nb_line_read < $nb_line_input) );
+			$progress_bar->update($nb_line_read++) if ($progress_bar and $nb_line_feature and ($nb_line_read < $nb_line_feature) );
 		}
 		# to deal with a nice rendering at the end of the progress bar => make it at 100%
-		if ($nb_line_input){
-			$progress_bar->update($nb_line_input);
+		if ($progress_bar){
+			$progress_bar->update($nb_line_feature);
 			dual_print ($log, "\n", $verbose ) ;
 		}
 

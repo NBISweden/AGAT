@@ -62,11 +62,6 @@ if (! defined($opt_gfffile) and ! defined($opt_expose_feature_levels)){
            -exitval => 1 } );
 }
 
-#print perl version
-print "-------------------------------------------------------------------------------\n";
-print "This script is being run by perl ".$^V."\n";
-print "Bioperl location being used: ".substr($INC{"Bio/Tools/GFF.pm"}, 0 , -12)."\n";
-print "-------------------------------------------------------------------------------\n";
 #############################
 # check version input value #
 check_version($opt_version_input);
