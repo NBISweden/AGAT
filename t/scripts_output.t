@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 62;
+use Test::More tests => 64;
 
 =head1 DESCRIPTION
 
@@ -117,6 +117,26 @@ unlink $outprefix.".dna";
 # -------------------------- check agat_convert_sp_gxf2gxf.pl -------------------------
 
 # XXX No need to be tested, it is tested by gff_syntax tests
+
+# -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
+
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_intron_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
+system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
+
+# -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
+
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_exon_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
+system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # -------------------------- check agat_sp_add_introns -------------------------
 
