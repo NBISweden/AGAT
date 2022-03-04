@@ -101,7 +101,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
               #Manage Introns## from the second intron to the last (from index 1 to last index of the table sortedList) ## We go inside this loop only if we have more than 1 feature.
               if($counterL3 > 0 and $counterL3 <= $indexLast){
                 my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
-                print "$intronSize\n";
+
                 if(! $shortest_intron_l2){
                   $shortest_intron_l2 = $intronSize;
                 }
