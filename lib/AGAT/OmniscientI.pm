@@ -421,7 +421,6 @@ sub slurp_gff3_file_JD {
 					push (@{$info_levels{"level3"}}, $ft);
 				} else {
 					push (@{$info_levels{"unknown"}}, $ft);
-					$info_levels{"unknown"}++;
 				}
 			}
 			dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
@@ -433,6 +432,11 @@ sub slurp_gff3_file_JD {
 			dual_print( $log, "	* level3:".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
 			my @listUn = @{$info_levels{"unknown"}};
 			dual_print( $log, "	* unknown:".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+		
+			# ---- infrom single level3 ----
+			if(@listL3 and !(@listL1 and @listL2)){
+				warn("Only level3 features");
+			}
 		}
 
 		# -------------- read GFF headers -----------------------------
