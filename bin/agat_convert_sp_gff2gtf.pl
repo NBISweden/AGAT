@@ -737,7 +737,7 @@ which is used to group features into transcripts.
 
 =head1 SYNOPSIS
 
-    agat_convert_sp_gff2gtf.pl --gff infile.gtf [ -o outfile ]
+    agat_convert_sp_gff2gtf.pl --gff infile.gff [ -o outfile ]
     agat_convert_sp_gff2gtf -h
 
 =head1 OPTIONS
