@@ -169,7 +169,7 @@ sub slurp_gff3_file_JD {
 			@COMONTAG = @{$args->{locus_tag}};
 		}
 	} #add a new comon tag to the list if provided.
-		dual_print($log, "=> Attribute used to group features when no Parent/ID relationship exists:\n", $verbose);
+		dual_print($log, "=> Attribute used to group features when no Parent/ID relationship exists (i.e common tag):\n", $verbose);
 		foreach my $comTag (@COMONTAG){
 			dual_print($log, "	* $comTag\n", $verbose);
 		}
@@ -272,7 +272,7 @@ sub slurp_gff3_file_JD {
 	my $last_f=undef;# last feature handled
 	my $lastL1_new =undef; # Bolean to check if last l1 feature is a newly created one. Important to deal with strict sequential
 
-	dual_print($log, file_text_line({ string => "parsing", char => "-" }), $verbose);
+	dual_print($log, file_text_line({ string => "parsing file", char => "-" }), $verbose);
 
 	# ============================> ARRAY CASE <============================
 
@@ -435,7 +435,45 @@ sub slurp_gff3_file_JD {
 		
 			# ---- infrom single level3 ----
 			if(@listL3 and !(@listL1 and @listL2)){
-				warn("Only level3 features");
+				dual_print( $log, "=>Check due to only level3 features:\n", $verbose);
+				#my $to_print = "- Only level3 features -"; 
+				
+				my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.
+				my $nb_common_tag=0;
+				foreach my $ctag (@COMONTAG){
+					$nb_common_tag += `grep -c $ctag $file`; # Count number of parent attributes.
+				}
+				
+				dual_print( $log, " * Number of feature with Parent attribute:$nb_parent", $verbose);
+				dual_print( $log, " * Number of feature with a common tag attribute:$nb_common_tag\n", $verbose);
+				# Nothing missing
+				if ($nb_parent >= $nb_line_feature and $nb_common_tag >= $nb_line_feature){
+					dual_print( $log, "  => Everything should be fine, we can even reconstruct isoforms if any!\n", $verbose);
+				}
+				# Missing Parent attribute
+				if ($nb_parent <= $nb_line_feature and $nb_common_tag >= $nb_line_feature){
+					dual_print( $log, "  => Parent attributes missing, /!\\ if you expect isoform in your annotation: ".
+						"all level3 features (e.g. CDS, exon) will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n", $verbose);
+				}
+				# Missing common tag
+				if ($nb_parent >= $nb_line_feature and $nb_common_tag <= $nb_line_feature){
+					if ($nb_common_tag == 0 or $nb_common_tag == 1){
+						dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
+							" but they will be attached to a single level1 (e.g. gene) created by AGAT.\n", $verbose);
+					}
+					else{
+						dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
+							" but they will be attached to the last level1 (e.g. gene) created by AGAT using the common tag attribute.\n", $verbose);
+					}
+					dual_print( $log, "  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
+							"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
+				}
+
+				# Missing Parent and common tag attribute
+				if ($nb_parent <= $nb_line_feature and $nb_common_tag <= $nb_line_feature){
+
+				}
+				#dual_print ($log, surround_text("- Only level3 features -",80,"!","\n"), $verbose );
 			}
 		}
 
