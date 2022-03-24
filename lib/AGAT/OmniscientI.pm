@@ -327,156 +327,15 @@ sub slurp_gff3_file_JD {
 			exit 1;
 		}
 
-		# -------------- check file extension -----------------------------
-		my ($file_ext) = $file =~ /(\.[^.]+)$/;
-
-
-		# -------------- Get info using bash  -----------------------------
-		# Print info about feature types in file
 		my $nb_line_feature=0;
-		if($is_win){
-			dual_print( $log, "Info: Progress bar unavailable on Windows.\n", $verbose);
+		# -------------- Get info using perl  -----------------------------
+		try{
+			$nb_line_feature = get_general_info(\%omniscient, $file, $verbose, $log, $debug);
 		}
-		if($is_osx or $is_linux){
-
-			# linee = error line contain != 9 fields
-			# type = feature types form 3rd column
-			# fasta = if any fasta sequence exist in file [1 or 0]
-			# comment = nb of lines of comment
-			my $info; my $wc_result;
-			if($file_ext eq ".gz"){
-				if ($is_osx){
-					$info   = `zcat < $file | awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}'`;
-					$wc_result = `zcat < $file | wc -l`;
-				}
-				elsif ($is_linux){
-					$info   = `zcat $file | awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}'`;
-					$wc_result = `zcat $file | wc -l`;
-				}
-			}
-			elsif($is_osx or $is_linux){
-				$info   = `awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}' $file`;
-				$wc_result = `wc -l $file`;
-			}			
-			my @info_list  = split /\s/,$info;
-			
-			my $nb_line_input=0;
-			my $nb_line_no_fasta=0;
-			my @feature_types;
-			my $nb_ft;
-			my @field_error;
-			my $fasta_present;
-			my $comment_nb=0;
-			foreach my $element (@info_list){
-				if($element =~ /^type/){
-					my @data  = split /:/,$element;
-					push @feature_types, $data[1];
-					$nb_ft++;
-				}
-				elsif($element =~ /comment/){
-					my @data  = split /:/,$element;
-					$comment_nb = $data[1];
-				}
-				elsif($element =~ /field/){
-					my @data  = split /:/,$element;
-					push @field_error, $data[1];
-				}
-				elsif($element =~ /fasta/){
-					my @data  = split /:/,$element;
-					if($data[1] == 1){
-						$fasta_present = "yes";
-					}else{
-						$fasta_present = "no";
-					}
-				}
-				elsif($element =~ /nbline/){
-					my @data  = split /:/,$element;
-					$nb_line_no_fasta = $data[1];
-				}
-			}
-
-			# Infrom abount number line total
-			chomp $wc_result;
-			if( $wc_result =~ /^\s*([0-9]+)\s.*/ ) {
-				$nb_line_input = $1;
-			}
-			dual_print( $log, "=> Number of line in file: $nb_line_input\n", $verbose);
-			dual_print( $log, "=> Number of comment lines: $comment_nb\n", $verbose);
-			dual_print( $log, "=> Fasta included: $fasta_present\n", $verbose);
-			$nb_line_feature=$nb_line_no_fasta-$comment_nb;
-			dual_print( $log, "=> Number of features in file: $nb_line_feature\n", $verbose);
-			my $nb_field_error = $#field_error+1;
-			dual_print( $log, "=> Number of feature lines wihtout 9 fields: $nb_field_error\n", $verbose);
-			foreach my $element( @field_error){
-				dual_print($log, "WARNING: 9 fields expected line $element\n", 0); # print only in log
-			}	
-
-			my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []); 
-			foreach my $ft (@feature_types){
-				if ( exists_keys(\%omniscient, ('other','level','level1', lc($ft) ) ) ){
-					push (@{$info_levels{"level1"}}, $ft);
-				} elsif  ( exists_keys(\%omniscient, ('other','level','level2', lc($ft) ) ) ){
-					push (@{$info_levels{"level2"}}, $ft);
-				} elsif ( exists_keys(\%omniscient, ('other','level','level3', lc($ft) ) ) ){
-					push (@{$info_levels{"level3"}}, $ft);
-				} else {
-					push (@{$info_levels{"unknown"}}, $ft);
-				}
-			}
-			dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
-			my @listL1 = @{$info_levels{"level1"}};
-			dual_print( $log, "	* Level1:".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
-			my @listL2 = @{$info_levels{"level2"}};
-			dual_print( $log, "	* level2:".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
-			my @listL3 = @{$info_levels{"level3"}};
-			dual_print( $log, "	* level3:".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
-			my @listUn = @{$info_levels{"unknown"}};
-			dual_print( $log, "	* unknown:".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+		catch{
+			dual_print( $log, "Info: Extra info and Progress bar unavailable.\n", $verbose);
+		};
 		
-			# ---- infrom single level3 ----
-			if(@listL3 and !(@listL1 and @listL2)){
-				dual_print( $log, "=>Check due to only level3 features:\n", $verbose);
-				#my $to_print = "- Only level3 features -"; 
-				
-				my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.
-				my $nb_common_tag=0;
-				foreach my $ctag (@COMONTAG){
-					$nb_common_tag += `grep -c $ctag $file`; # Count number of parent attributes.
-				}
-				
-				dual_print( $log, " * Number of feature with Parent attribute:$nb_parent", $verbose);
-				dual_print( $log, " * Number of feature with a common tag attribute:$nb_common_tag\n", $verbose);
-				# Nothing missing
-				if ($nb_parent >= $nb_line_feature and $nb_common_tag >= $nb_line_feature){
-					dual_print( $log, "  => Everything should be fine, we can even reconstruct isoforms if any!\n", $verbose);
-				}
-				# Missing Parent attribute
-				if ($nb_parent <= $nb_line_feature and $nb_common_tag >= $nb_line_feature){
-					dual_print( $log, "  => Parent attributes missing, /!\\ if you expect isoform in your annotation: ".
-						"all level3 features (e.g. CDS, exon) will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n", $verbose);
-				}
-				# Missing common tag
-				if ($nb_parent >= $nb_line_feature and $nb_common_tag <= $nb_line_feature){
-					if ($nb_common_tag == 0 or $nb_common_tag == 1){
-						dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
-							" but they will be attached to a single level1 (e.g. gene) created by AGAT.\n", $verbose);
-					}
-					else{
-						dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
-							" but they will be attached to the last level1 (e.g. gene) created by AGAT using the common tag attribute.\n", $verbose);
-					}
-					dual_print( $log, "  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
-							"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
-				}
-
-				# Missing Parent and common tag attribute
-				if ($nb_parent <= $nb_line_feature and $nb_common_tag <= $nb_line_feature){
-
-				}
-				#dual_print ($log, surround_text("- Only level3 features -",80,"!","\n"), $verbose );
-			}
-		}
-
 		# -------------- read GFF headers -----------------------------
 		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
@@ -489,6 +348,7 @@ sub slurp_gff3_file_JD {
 
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
+		my ($file_ext) = $file =~ /(\.[^.]+)$/; # get file extension
 		if($file_ext eq ".gz"){
 			my $fh;
 			if ("$^O" eq "darwin"){
@@ -3482,6 +3342,153 @@ sub _check_duplicates{
 		}
 }
 
+
+# Method to store all headers (before the first feature)
+# Input: filename
+# Output: hash of info (header lines)
+#awk 'BEGIN{fasta=0;comment=0;count=0}{count++;if(\$0 ~ /##FASTA/){fasta=1;exit} if(\$0 ~ /^#/){comment++}else{if(NF != 9){linee[count]++}; type[\$3]++}}END{print \"nbline:\"count\"\\ncomment:\"comment"\\nfasta:\"fasta; for (i in linee){print \"field_error:\"i}; for (i in type){print \"type:\"i}}'`;
+
+sub get_general_info{
+	my ($omniscient, $file, $verbose, $log, $debug) = @_;
+
+	#HANDLE format
+    my $nb_line=0;
+    my $nb_feature_line=0;
+    my $nb_comment_line=0;
+    my %nb_field;
+    my %feature_type;
+	my $fasta_present=0;
+	my %info_feature_type;
+
+	my $fh;
+	my ($file_ext) = $file =~ /(\.[^.]+)$/;
+	if($file_ext eq ".gz"){
+		if ("$^O" eq "darwin"){
+			open($fh, "zcat < $file |");
+		}
+		else{
+			open($fh, "zcat $file |");
+		}
+	}
+	else{
+		open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
+	}
+
+	while(<$fh>){
+
+		$nb_line++;
+		
+		if($_ =~ /^##FASTA/){
+			$fasta_present = 1;
+			next;
+		}
+
+		if($_ =~ /^#/){
+			$nb_comment_line++;
+			next;
+		}
+
+		# After FASTA signal met we do not at feature line anymore
+		if(! $fasta_present){
+			$nb_feature_line++;
+			my @split_line = split /\t/, $_ ;
+			my $size = @split_line;
+			$nb_field{$size}++;
+
+			if($split_line[2]){
+				$feature_type{$split_line[2]}++;
+			}
+		}
+	}
+	close($fh);
+
+	dual_print( $log, "=> Number of line in file: $nb_line\n", $verbose);
+	dual_print( $log, "=> Number of comment lines: $nb_comment_line\n", $verbose);
+	my $fasta_included;
+	$fasta_present ? $fasta_included = "Yes" : $fasta_included="No";
+	dual_print( $log, "=> Fasta included: $fasta_included\n", $verbose);
+	dual_print( $log, "=> Number of features lines: $nb_feature_line\n", $verbose);
+
+	# ----- inform problem of line wihtout the 9 fields expected ----
+	foreach my $size (keys %nb_field){
+		if($size != 9){
+			my $nb_field_error = $nb_field{$size};
+			dual_print( $log, "=> Number of feature lines with $size fields (while 9 expected): $nb_field_error\n", $verbose);
+		}
+	}	
+
+	# ----- inform about feature types ---
+	my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []); 
+	my $nb_ft;
+	foreach my $ft (keys %feature_type){
+		$nb_ft++;
+		if ( exists_keys($omniscient, ('other','level','level1', lc($ft) ) ) ){
+			push (@{$info_levels{"level1"}}, $ft);
+		} elsif  ( exists_keys($omniscient, ('other','level','level2', lc($ft) ) ) ){
+			push (@{$info_levels{"level2"}}, $ft);
+		} elsif ( exists_keys($omniscient, ('other','level','level3', lc($ft) ) ) ){
+			push (@{$info_levels{"level3"}}, $ft);
+		} else {
+			push (@{$info_levels{"unknown"}}, $ft);
+		}
+	}
+	dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
+	my @listL1 = @{$info_levels{"level1"}};
+	dual_print( $log, "	* Level1:".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
+	my @listL2 = @{$info_levels{"level2"}};
+	dual_print( $log, "	* level2:".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
+	my @listL3 = @{$info_levels{"level3"}};
+	dual_print( $log, "	* level3:".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
+	my @listUn = @{$info_levels{"unknown"}};
+	dual_print( $log, "	* unknown:".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+		
+	# ---- info single level3 ----
+	if(@listL3 and !(@listL1 and @listL2)){
+		dual_print( $log, "=>Check due to only level3 features:\n", $verbose);
+		#my $to_print = "- Only level3 features -"; 
+		
+		my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.
+		my $nb_common_tag=0;
+		foreach my $ctag (@COMONTAG){
+			$nb_common_tag += `grep -c $ctag $file`; # Count number of parent attributes.
+		}
+			
+		dual_print( $log, " * Number of feature with Parent attribute:$nb_parent", $verbose);
+		dual_print( $log, " * Number of feature with a common tag attribute:$nb_common_tag\n", $verbose);
+		# Nothing missing
+		if ($nb_parent >= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
+			dual_print( $log, "  => Everything should be fine, we can even reconstruct isoforms if any!\n", $verbose);
+		}
+		# Missing Parent attribute
+		if ($nb_parent <= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
+			dual_print( $log, "  => Parent attributes missing but common attribute present, /!\\ if you expect isoform in your annotation: ".
+				"all level3 features (e.g. CDS, exon) will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n", $verbose);
+		}
+		# Missing common tag
+		if ($nb_parent >= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
+			if ($nb_common_tag == 0 or $nb_common_tag == 1){
+				dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
+					" but they will be attached to a single level1 (e.g. gene) created by AGAT.\n", $verbose);
+			}
+			else{
+				dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
+					" but they will be attached to the last level1 (e.g. gene) created by AGAT using the common tag attribute.\n", $verbose);
+			}
+			dual_print( $log, "  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
+					"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
+		}
+		# Missing Parent and common tag attribute
+		if ($nb_parent <= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
+			dual_print( $log, "  => Common tag and Parent attributes missing, /!\\ A single Level2 features (e.g. mRNA) and a single level1 (e.g. gene) will be created by AGAT,".
+					" and all level3 feautres (e,g, CDS,exon) will be attached to them. This is probably not what you want...".
+					"\nYou might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
+					"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
+		}
+	}
+
+	return $nb_feature_line;
+}
+
 # Method to store all headers (before the first feature)
 # Input: filename
 # Output: string (header lines)
@@ -3561,9 +3568,9 @@ sub select_gff_format{
 				}
 				@col_tab = split /\t/, $_ ;
 				if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
-					#print "coucou $1\n"; next;
+
 					if(length($1) < 1){next;}
-					#print "coucou2\n";
+
 					my $Ninethcolum = $1;
 
 					#replace value quoted by a string in case some special character are within the quote e.g. = ;
