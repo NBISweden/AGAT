@@ -31,6 +31,7 @@
   "polypeptide":"",
   "promoter":"standalone",
   "protein_binding_site":"standalone",
+  "protein_coding_gene":"",
   "protein_match":"",
   "pseudogene":"",
   "region":"topfeature",
