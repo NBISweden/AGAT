@@ -1968,7 +1968,8 @@ sub _check_cds{
 	}
 }
 
-# @Purpose: Check L3 features. If exon are missing we create them. We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).
+# @Purpose: Check L3 features. If exon are missing we create them.
+# We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).
 # @input: 3 =>	hash(omniscient hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
 sub _check_exons{
@@ -1978,55 +1979,57 @@ sub _check_exons{
 	my %checked;
 	foreach my $tag_l3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
 		if ($tag_l3 ne "exon"){
- 				foreach my $id_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{$tag_l3}}){
+				foreach my $id_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{$tag_l3}}){
 
- 					if( ! exists_keys(\%checked,($id_l2)) ){ #l2 already checked
- 						dual_print($log, "Check: $id_l2\n") if ($debug);
- 						my $feature_example=undef; # will be used to create the exon features
-	 					my $list_location_Exon=undef;
-	 					my $list_location_NoExon=undef;
-	 					my $list_location_NoExon_overlap=undef;
-	 					my %createIT; # will be usefull to list the feature to create
+					if( ! exists_keys(\%checked,($id_l2)) ){ #l2 already checked
+						dual_print($log, "Check: $id_l2\n") if ($debug);
+						my $feature_example=undef; # will be used to create the exon features
+						my $list_location_Exon=undef;
+						my $list_location_NoExon=undef;
+						my $list_location_NoExon_overlap=undef;
+						my %createIT; # will be usefull to list the feature to create
 #				 	+-----------------------------------------------------
 #					| 			Go through l3 and save info needed		 |
 #				 	+-----------------------------------------------------
 
-	 					foreach my $tag_l3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
+						foreach my $tag_l3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){
 
-	 						# LIST NON-EXON LOCATIONS THAT NEED TO BE IN AN EXON LOCATION
-	 						if ($tag_l3 ne "exon" and $hash_omniscient->{'other'}{'level'}{'level3'}{$tag_l3} eq "exon" ){
+							# LIST NON-EXON LOCATIONS THAT NEED TO BE IN AN EXON LOCATION
+							if ($tag_l3 ne "exon" and $hash_omniscient->{'other'}{'level'}{'level3'}{$tag_l3} eq "exon" ){
+								print "tag: $tag_l3 $id_l2\n";
+								#use Data::Dumper; print Dumper($hash_omniscient);
+								if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
+									print "tcoucoun\n";
+									my $list_location_l3=[];
+									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 
-				 				if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
+										if(! $feature_example){
+											$feature_example=$l3_feature;
+										}
 
-				 					my $list_location_l3=[];
-				 					foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
+										my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
+										use Data::Dumper;
+										$list_location_l3 = _manage_location($locationRefList, $list_location_l3, 'adjacent', 0); # we check first in overlap mode to check if badly define features exists
+									}
 
-				 						if(! $feature_example){
-				 							$feature_example=$l3_feature;
-				 						}
-
-				 						my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
-				 						$list_location_l3 = _manage_location($locationRefList, $list_location_l3, 'adjacent', 0); # we check first in overlap mode to check if badly define features exists
-				 					}
-
-				 					#Rare case when a feature of the same type is badly defined
-				 					if(@{$list_location_l3} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-				 						my $message = "Peculiar rare case, we found ".@{$list_location_l3}." ".$tag_l3." while ".@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}." expected. Parent feature: $id_l2\n";
+									#Rare case when a feature of the same type is badly defined
+									if(@{$list_location_l3} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
+										my $message = "Peculiar rare case, we found ".@{$list_location_l3}." ".$tag_l3." while ".@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}." expected. Parent feature: $id_l2\n";
 										$message .=	"Either some are supernumerary or some have been merged because they overlap or are adjacent while they are not suppose to.\n";
-				 						$message .= "In case you were using gtf file as input (no parent/id attributes), check you provide the attribute (i.e comon_tag) used to group features together (e.g. locus_tag, gene_id, etc.).\n";
-				 						$message .= "(In case your file contains only CDS features, and your organism is prokaryote (e.g rast file), using ID as comon_tag might be the solution.)\n";
-				 						warn $message;
-				 					}
-				 					push @{$list_location_NoExon_overlap}, @{$list_location_l3}; #list of all feature that has been checked in overlap mode
-				 				}
-				 			}
+										$message .= "In case you were using gtf file as input (no parent/id attributes), check you provide the attribute (i.e comon_tag) used to group features together (e.g. locus_tag, gene_id, etc.).\n";
+										$message .= "(In case your file contains only CDS features, and your organism is prokaryote (e.g rast file), using ID as comon_tag might be the solution.)\n";
+										warn $message;
+									}
+									push @{$list_location_NoExon_overlap}, @{$list_location_l3}; #list of all feature that has been checked in overlap mode
+								}
+							}
 
-				 			# LIST EXON LOCATIONS
-				 			elsif($tag_l3 eq "exon"){
+							# LIST EXON LOCATIONS
+							elsif($tag_l3 eq "exon"){
 
 							if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
 
-				 					foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
+									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 
 				 						if(! $feature_example){
 				 							$feature_example=$l3_feature;
@@ -2542,8 +2545,13 @@ sub _manage_location{
 			else{
 				my $location_back = undef;
 				if($method eq 'adjacent'){
+					print "adjacent method\n";
 					($location_back, $overlap) = _manage_location_lowLevel_adjacent($location1, $location2);
-					if($overlap){$location_modified=$location_back;}
+					if($overlap){
+						print "overlap\n";
+						print Dumper($location_back);
+						$location_modified=$location_back;
+					}
 				}
 				else{
 					($location_back, $overlap) = _manage_location_lowLevel_overlap($location1, $location2);
@@ -2569,7 +2577,9 @@ sub _manage_location{
 #	===================== location1
 #		===================== location2
 #	 ========================= <= New location2 returned
-# @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values. Return the location2 intact if no overlap. /!\ The locations are merged if they are contigu
+# @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values.
+# Return the location2 intact if no overlap.
+# /!\ The locations are merged if they are contigu
 # @input: 2 =>	integer tuple [[ID],X,Y],	list of integer tuple
 # @output: 2 => ref of a list of 2 element, boolean
 sub _manage_location_lowLevel_adjacent{
@@ -2602,7 +2612,9 @@ sub _manage_location_lowLevel_adjacent{
 # ===================== location1
 #		 ===================== location2
 # ========================= <= New location2 returned
-# @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values. Return the location2 intact if no overlap. /!\ We append the ID list by the end (as push) when there is an overlap
+# @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values.
+# Return the location2 intact if no overlap.
+# /!\ We append the ID list by the end (as push) when there is an overlap
 # @input: 2 =>	integer tuple [[ID],X,Y],	list of integer tuple
 # @output: 2 => ref of a list of 2 element, boolean
 sub _manage_location_lowLevel_overlap{
