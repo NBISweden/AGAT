@@ -53,5 +53,8 @@
   "tata_box":"standalone",
   "transcriptional_cis_regulatory_region":"standalone",
   "translated_nucleotide_match":"",
+  "transposable_element":"",
+  "transposable_element_gene":"",
+  "transposon_fragment":"",
   "biological_region":"topfeature"
 }
