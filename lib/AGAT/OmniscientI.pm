@@ -335,7 +335,7 @@ sub slurp_gff3_file_JD {
 		catch{
 			dual_print( $log, "Info: Extra info and Progress bar unavailable.\n", $verbose);
 		};
-		
+
 		# -------------- read GFF headers -----------------------------
 		my $header = get_header_lines($file, $verbose, $log, $debug);
 		$omniscient{'other'}{'header'}=$header if $header;
@@ -344,7 +344,7 @@ sub slurp_gff3_file_JD {
 		my $format;
 		if($gff_version){$format = $gff_version;}
 		else{ $format = select_gff_format($file, $verbose, $log);}
-		dual_print( $log, "=> Version of the Bioperl GFF parser used: $format\n", $verbose );
+		dual_print( $log, "=> Version of the Bioperl GFF parser selected by AGAT: $format\n", $verbose );
 
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
@@ -3022,7 +3022,7 @@ sub _merge_overlap_features{
 										$mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
 
 									}
-									
+
 									# update atttribute except ID and Parent for L1:
 									if(@{$list_commons}){
 										my $kept_l2 = shift @{$list_commons};
@@ -3389,7 +3389,7 @@ sub get_general_info{
 	while(<$fh>){
 
 		$nb_line++;
-		
+
 		if($_ =~ /^##FASTA/){
 			$fasta_present = 1;
 			next;
@@ -3427,10 +3427,10 @@ sub get_general_info{
 			my $nb_field_error = $nb_field{$size};
 			dual_print( $log, "=> Number of feature lines with $size fields (while 9 expected): $nb_field_error\n", $verbose);
 		}
-	}	
+	}
 
 	# ----- inform about feature types ---
-	my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []); 
+	my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []);
 	my $nb_ft;
 	foreach my $ft (keys %feature_type){
 		$nb_ft++;
@@ -3446,25 +3446,25 @@ sub get_general_info{
 	}
 	dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
 	my @listL1 = @{$info_levels{"level1"}};
-	dual_print( $log, "	* Level1:".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
+	dual_print( $log, "	* Level1: ".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
 	my @listL2 = @{$info_levels{"level2"}};
-	dual_print( $log, "	* level2:".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
+	dual_print( $log, "	* level2: ".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
 	my @listL3 = @{$info_levels{"level3"}};
-	dual_print( $log, "	* level3:".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
+	dual_print( $log, "	* level3: ".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
 	my @listUn = @{$info_levels{"unknown"}};
-	dual_print( $log, "	* unknown:".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
-		
+	dual_print( $log, "	* unknown: ".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){
 		dual_print( $log, "=>Check due to only level3 features:\n", $verbose);
-		#my $to_print = "- Only level3 features -"; 
-		
+		#my $to_print = "- Only level3 features -";
+
 		my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.
 		my $nb_common_tag=0;
 		foreach my $ctag (@COMONTAG){
 			$nb_common_tag += `grep -c $ctag $file`; # Count number of parent attributes.
 		}
-			
+
 		dual_print( $log, " * Number of feature with Parent attribute:$nb_parent", $verbose);
 		dual_print( $log, " * Number of feature with a common tag attribute:$nb_common_tag\n", $verbose);
 		# Nothing missing
