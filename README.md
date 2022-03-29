@@ -13,7 +13,7 @@ AGAT
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 Suite of tools to handle gene annotations in any GTF/GFF format.
 
-[<img align="right" src="NBIS.png" width="200" height="100" />](https://nbis.se)
+[<img align="right" src="docs/img/NBIS.png" width="200" height="100" />](https://nbis.se)
 
 ---------------------------
 
@@ -51,14 +51,14 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
 AGAT has the power to check, fix, pad missing information (features/attributes) of any kind of GTF and GFF to create complete, sorted and standardised gff3 format. Over the years it has been enriched by many many tools to perform just about any tasks that is possible related to GTF/GFF format files (sanitizing, conversions, merging, modifying, filtering, FASTA sequence extraction, adding information, etc). Comparing to other methods AGAT is robust to even the most despicable GTF/GFF files.
 
   * Standardize/sanitize any GTF/GFF file into a comprehensive GFF3 format (script with `_sp_` prefix)
-   
+
     <details>
       <summary>See standardization/sanitization tool</summary>
-      
+
       | task | tool |
       | --- | --- |
       | **check, fix, pad** missing information into sorted and standardised gff3 | `agat_convert_sp_gxf2gxf.pl`  |
-    
+
       * add missing parent features (e.g. gene and mRNA if only CDS/exon exists).  
       * add missing features (e.g. exon and UTR).  
       * add missing mandatory attributes (i.e. ID, Parent).  
@@ -69,12 +69,12 @@ AGAT has the power to check, fix, pad missing information (features/attributes) 
       * sort features.  
       * merge overlapping loci into one single locus (only if option activated).  
     </details>
-    
+
   * Convert many formats
 
     <details>
       <summary>See conversion tools</summary>
-  
+
       | task | tool |
       | --- | --- |
       | convert any **GTF/GFF** into **BED** format | `agat_convert_sp_gff2bed.pl`  |
@@ -88,8 +88,8 @@ AGAT has the power to check, fix, pad missing information (features/attributes) 
       | convert **genscan** format into **GFF3** format | `agat_convert_genscan2gff.pl`  |
       | convert **mfannot** format into **GFF3** format | `agat_convert_mfannot2gff.pl`  |
     </details>
-  
-  
+
+
   * Perform numerous tasks (Just about anything that is possible)
 
     <details>
@@ -144,12 +144,12 @@ Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.
 Then:
 ```
 # get the chosen AGAT container version
-singularity pull docker://quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 
+singularity pull docker://quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
 # run the container
 singularity run agat_0.8.0--pl5262hdfd78af_0.sif
 ```
 
-You are now in the container. You can use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl doing 
+You are now in the container. You can use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl doing
 ```
 agat_convert_sp_gxf2gxf.pl --help
 ```
@@ -343,10 +343,10 @@ AGAT has been tested on 36 different peculiar GTF/GFF formats being different fl
 Below few are listed but you can find the full list of them into the `t/gff_syntax` directory.
 
 ##### example 8 - only CDS defined
-  
+
 <details>
   <summary>See example</summary>
- 
+
 ```
 ##gff-version 3
 Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;locus_tag=Tob1_00001;product=hypothetical protein
@@ -357,12 +357,12 @@ Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	inference=ab initio predi
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;locus_tag=Tob1_00026;
 ```
 </details>
-  
+
 `agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`  
 
 <details>
   <summary>See result</summary>
-  
+
 ```
 ##gff-version 3
 Tob1_contig1	Prodigal:2.60	gene	476	670	.	-	0	ID=nbis_NEW-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
@@ -385,12 +385,12 @@ Tob1_contig1	Prodigal:2.60	exon	38304	39338	.	-	.	ID=nbis_NEW-exon-4;Parent=nbis
 Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=nbis_nol2id-cds-4;locus_tag=Tob1_00026
 ```
 </details>
-    
+
 ##### example 9 - level2 feature missing (mRNA) and level3 features missing (UTRs)
-  
+
 <details>
   <summary>See example</summary>
-  
+
 ```
 ##gff-version 3
 #!gff-spec-version 1.14
@@ -414,12 +414,12 @@ NC_003070.9	RefSeq	start_codon	3760	3762	.	+	0	ID=NM_099983.2;Parent=NC_003070.9
 NC_003070.9	RefSeq	stop_codon	5628	5630	.	+	0	ID=NM_099983.2;Parent=NC_003070.9:NAC001;locus_tag=AT1G01010;
 ```
 </details>
-  
+
 `agat_convert_sp_gxf2gxf.pl --gff 8_test.gff`  
 
 <details>
   <summary>See result</summary>
-  
+
 ```
 ##gff-version 3
 #!gff-spec-version 1.14
@@ -451,7 +451,7 @@ NC_003070.9	RefSeq	three_prime_UTR	5628	5899	.	+	.	ID=nbis_NEW-three_prime_utr-1
 
 <details>
   <summary>See example</summary>
-  
+
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
@@ -492,11 +492,11 @@ scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:thre
 ```
 </details>
 
-`agat_convert_sp_gxf2gxf.pl --gff 18_test.gff` 
-  
+`agat_convert_sp_gxf2gxf.pl --gff 18_test.gff`
+
 <details>
   <summary>See result</summary>
-  
+
 ```
 ##gff-version 3
 scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Name=TUBB3_2
@@ -536,7 +536,7 @@ scaffold789	maker	five_prime_UTR	558184	558190	.	+	.	ID=CLUHART00000006147:five_
 scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:three_prime_utr;Parent=CLUHART00000006147
 ```
 </details>
-  
+
 ## How to cite?
 
 This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used):
@@ -545,14 +545,14 @@ This work has not been published (I will think about it). But if you wish to cit
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
 (Version v0.8.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
-  
+
 ## Publication using AGAT
-  
+
 Some examples of publications that have used AGAT  
 
 <details>
 <summary>See publications</summary>
-    
+
 | Journal | Title |
 | --- | --- |
 | Genome Biology and Evolution | [Ancestral Physical Stress and Later Immune Gene Family Expansions Shaped Bivalve Mollusc Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8382680/)
