@@ -477,6 +477,14 @@ sub slurp_gff3_file_JD {
 			$check_cpt++; $previous_time = time();
 	}
 
+	if(! $no_check or	grep( /check_all_level3_locations/, @$no_check_skip ) ) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: all level3 locations", char => "-", prefix => "\n" }), $verbose );
+			_check_all_level3_locations($debug, $log, \%omniscient, \%mRNAGeneLink, \%miscCount, \%uniqID,	\%uniqIDtoType, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
 	if(! $no_check or	grep( /check_cds/, $no_check_skip ) ) {
 			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }), $verbose );
@@ -501,18 +509,18 @@ sub slurp_gff3_file_JD {
 			$check_cpt++; $previous_time = time();
 	}
 
-	if(! $no_check or	grep( /check_all_level2_positions/, @$no_check_skip ) ) {
+	if(! $no_check or	grep( /check_all_level2_locations/, @$no_check_skip ) ) {
 		# Check rna positions compared to its l2 features
 		dual_print ($log, file_text_line({ string => "Check$check_cpt: all level2 locations", char => "-", prefix => "\n" }), $verbose );
-		check_all_level2_positions( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
+		check_all_level2_locations( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 		$check_cpt++; $previous_time = time();
 	}
 
-	if(! $no_check or	grep( /check_all_level1_positions/, @$no_check_skip ) ) {
+	if(! $no_check or	grep( /check_all_level1_locations/, @$no_check_skip ) ) {
 		# Check gene positions compared to its l2 features
 		dual_print ($log, file_text_line({ string => "Check$check_cpt: all level1 locations", char => "-", prefix => "\n" }), $verbose );
-		check_all_level1_positions( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
+		check_all_level1_locations( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
 		$check_cpt++; $previous_time = time();
 	}
@@ -1810,6 +1818,31 @@ sub _check_l2_linked_to_l3{
 	}
 }
 
+# @Purpose: Check L3 features to merge adjacent features of a same type
+# If spread feature merge only when adjacent. If non spreadfeature merge also when overlap XXXX
+sub _check_all_level3_locations{
+	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
+	my %resume_cases;
+	my $nb_merged = 0;
+
+	foreach my $type_l3 (keys %{$hash_omniscient->{'level3'}}){
+		foreach my $id_l2 (keys %{$hash_omniscient->{'level3'}{$type_l3}}){
+			if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
+				#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
+				my $method;
+				exists_keys($hash_omniscient,('other', 'level', 'spreadfeature', $type_l3) ) ? $method = "adjacent" : $method = "all";	
+				$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
+			}
+		}
+		if($nb_merged){
+			$resume_cases{$type_l3}+=$nb_merged;
+		}
+	}
+	foreach my $type (keys %resume_cases){
+		dual_print($log, "$resume_cases{$type} adjacent $type merged\n", $verbose);
+	}
+}
+
 # @Purpose: Check L3 features. If CDS do not contains stop_codon we have to extend the CDS to include it
 sub _check_cds{
 	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
@@ -1817,6 +1850,8 @@ sub _check_cds{
 	my $resume_case2=undef;
 
 	if( exists_keys($hash_omniscient,('level3', 'cds')) ){
+		
+		#
 		if( exists_keys($hash_omniscient,('level3', 'stop_codon')) ){
  			foreach my $id_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{'cds'}} ) {
 				if( exists_keys($hash_omniscient,('level3', 'stop_codon',$id_l2)) ){
@@ -1968,7 +2003,7 @@ sub _check_cds{
 	}
 }
 
-# @Purpose: Check L3 features. If exon are missing we create them.
+# @Purpose: Check L3 features that must be included within exon (seee json file e.g: cds:"exon",). If exon are missing we create them.
 # We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).
 # @input: 3 =>	hash(omniscient hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
@@ -1986,7 +2021,7 @@ sub _check_exons{
 						my $feature_example=undef; # will be used to create the exon features
 						my $list_location_Exon=undef;
 						my $list_location_NoExon=undef;
-						my $list_location_NoExon_overlap=undef;
+						my $list_location_NoExon_tmp=undef;
 						my %createIT; # will be usefull to list the feature to create
 #				 	+-----------------------------------------------------
 #					| 			Go through l3 and save info needed		 |
@@ -1999,28 +2034,16 @@ sub _check_exons{
 								print "tag: $tag_l3 $id_l2\n";
 								#use Data::Dumper; print Dumper($hash_omniscient);
 								if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
-									print "tcoucoun\n";
-									my $list_location_l3=[];
-									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
 
+									# Push a  list of locations
+									foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
+										
 										if(! $feature_example){
 											$feature_example=$l3_feature;
 										}
 
-										my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
-										use Data::Dumper;
-										$list_location_l3 = _manage_location($locationRefList, $list_location_l3, 'adjacent', 0); # we check first in overlap mode to check if badly define features exists
+										push @{$list_location_NoExon_tmp}, [[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]; #list of all feature that has been checked in overlap mode
 									}
-
-									#Rare case when a feature of the same type is badly defined
-									if(@{$list_location_l3} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-										my $message = "Peculiar rare case, we found ".@{$list_location_l3}." ".$tag_l3." while ".@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}." expected. Parent feature: $id_l2\n";
-										$message .=	"Either some are supernumerary or some have been merged because they overlap or are adjacent while they are not suppose to.\n";
-										$message .= "In case you were using gtf file as input (no parent/id attributes), check you provide the attribute (i.e comon_tag) used to group features together (e.g. locus_tag, gene_id, etc.).\n";
-										$message .= "(In case your file contains only CDS features, and your organism is prokaryote (e.g rast file), using ID as comon_tag might be the solution.)\n";
-										warn $message;
-									}
-									push @{$list_location_NoExon_overlap}, @{$list_location_l3}; #list of all feature that has been checked in overlap mode
 								}
 							}
 
@@ -2034,8 +2057,7 @@ sub _check_exons{
 				 						if(! $feature_example){
 				 							$feature_example=$l3_feature;
 				 						}
-				 						my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
-				 						$list_location_Exon = _manage_location($locationRefList, $list_location_Exon , 'adjacent', 0);
+				 						push @{$list_location_Exon}, [ [$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)];
 				 					}
 
 				 					#Rare case when a features are badly defined
@@ -2069,12 +2091,7 @@ sub _check_exons{
 				 	}
 
 				 	## check all NOn-exon in adjacent mater to have the correct list (allows to merge UTR and CDS to recreate exon )
-				 	foreach my $location (@{$list_location_NoExon_overlap}){
-				 		$list_location_NoExon = _manage_location([$location], $list_location_NoExon, 'adjacent', 0);
-				 	}
-
-				 	#print "list_location_Exon: ".Dumper($list_location_Exon) if ($verbose >= 3);
-				 	#print "list_location_NOEXON: ".Dumper($list_location_NoExon) if ($verbose >= 3);
+				 	$list_location_NoExon = _merge_adjacent_and_overlaping_locations($list_location_NoExon_tmp);
 
 #				 	+--------------------------------------------------------------------------------------------------------+
 #					| 				COMPARE EXONS POSITION TO THOSE DESCRIBED BY NON-EXON FEATURES 						 |
@@ -2284,11 +2301,8 @@ sub _check_utrs{
 				 			# LIST CDS LOCATIONS
 	 						if ($tag_l3 eq "cds"){
 				 				if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
-
 				 					foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-
-				 						my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
-				 						$list_location_CDS = _manage_location($locationRefList, $list_location_CDS, 'adjacent', $verbose);
+				 						push @{$list_location_CDS}, [ [$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)];
 				 					}
 				 				}
 				 			}
@@ -2296,11 +2310,8 @@ sub _check_utrs{
 				 			# LIST UTR LOCATIONS
 	 						if ($tag_l3 =~ "utr"){
 				 				if( exists_keys($hash_omniscient,('level3',$tag_l3, $id_l2)) ){
-
 				 					foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-
-				 						my $locationRefList=[[[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]];
-				 						$list_location_UTR = _manage_location($locationRefList, $list_location_UTR, 'adjacent', $verbose);
+				 						push @{$list_location_UTR}, [ [$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)];
 				 					}
 				 				}
 				 			}
@@ -2509,69 +2520,100 @@ sub _check_utrs{
 	else{ dual_print($log, "No supernumerary UTRs removed\n", $verbose);}
 }
 
-# @Purpose: Will merge a list of "location" (tuple of integer), and another list of location.
+# Merge features and remove the merged one from omniscient
+# If method = adjacent => merge only if adjacent otherwise merge also when overlaping
+sub merge_features{
+	my ($hash_omniscient, $level, $tag_l3, $id_l2, $method, $log) = @_;
+
+	# loop sorted
+	my @sorted_features = (sort {$a->start <=> $b->start} @{$hash_omniscient->{$level}{$tag_l3}{$id_l2}} );
+	my @new_feature_list;
+	my $modification_occured=0;
+	my %skip_because_consumed;
+	while( @sorted_features ){
+		my $l3_feature = shift @sorted_features;
+
+		#========           <-
+		#    ==========
+		#         ========= <-
+		# To avoid rare case like this one we need to skip consumed feature that can be not consecutive.
+		if( exists_keys( \%skip_because_consumed, (lc($l3_feature->_tag_value("ID"))) ) ){
+			next;
+		}
+
+		foreach my $l3_feature_next (@sorted_features){
+
+			#Check if adjacent
+			if ($method eq "adjacent"){
+				if ( $l3_feature->end()+1 == $l3_feature_next->start() ){ #locations are consecutives consecutive
+						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
+						dual_print($log, $message, 0); #print log only
+						$l3_feature->end($l3_feature_next->end());
+						$skip_because_consumed{lc($l3_feature_next->_tag_value("ID"))}++; # Save consumed feature ID
+						$modification_occured++;
+				}
+				#if after we stop
+				elsif($l3_feature_next->start() > $l3_feature->end){
+					last;
+				}
+			}
+			else{
+				if ( ($l3_feature_next->start() <= $l3_feature->end()+1) and ($l3_feature_next->end()+1 >= $l3_feature->start() ) ){ #it overlaps or are consecutive/adjacent
+						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
+						dual_print($log, $message, 0); #print log only
+						$l3_feature->end($l3_feature_next->end());
+						$skip_because_consumed{lc($l3_feature_next->_tag_value("ID"))}++; # Save consumed feature ID
+						$modification_occured++;
+				}
+				#if after we stop
+				elsif($l3_feature_next->start() > $l3_feature->end){
+					last;
+				}			
+			}
+
+		}
+		push @new_feature_list, $l3_feature;										
+	}
+	# apply modification if needed
+	if($modification_occured){
+		@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}=@new_feature_list;
+	}
+	return $modification_occured;
+}
+
+# @Purpose: clean a list of "location" (tuple of integer) by merging overlaping and adjacent ones
 #					 If two location overlap or are adjacent, only one location will be kept that represent the most extrem values
 # @input: 3 =>	list of 3 values([[S,X,Y][S,Z,W]] or [[[S],X,Y]]),	list of integer tuple, verbose option for debug
 # @output: list of list
-sub _manage_location{
-	my ($locationRefList, $locationTargetList, $method, $verbose) = @_;
+sub _merge_adjacent_and_overlaping_locations{
+	my ($locations, $verbose) = @_;
 
-	my @new_location_list; #new location list that will be returned once filled
+	my @new_locations;
+	my %skip_because_consumed;
+	my @sorted_locations = sort {$a->[1] <=> $b->[1]} @$locations;
+	while (@sorted_locations){
+		my $location = shift @sorted_locations;
 
-	if ($locationTargetList and @$locationTargetList >= 1){ #check number of location -> List not empty
-
-		my @locations = (@{$locationRefList},@{$locationTargetList});
-		my @locations_sorted = sort {$a->[1] <=> $b->[1]} @locations;
-
-		my $location_modified = undef;
-		my $overlap = undef;
-		my $location1=undef;
-		my $location2 = undef;
-
-		foreach my $i (0 .. $#locations_sorted-1){
-
-			if($location_modified){
-				$location1 = $location_modified;
-				$location_modified = undef;
-			}
-			else{
-				$location1 = $locations_sorted[$i];
-			}
-			$location2 = $locations_sorted[$i+1];
-
-			if ($location2->[1] > $location1->[2]+1 and $i+1 != $#locations_sorted){ #locations do not overlap and not before last of the list
-				push @new_location_list, [@$location1];
-			}
-			else{
-				my $location_back = undef;
-				if($method eq 'adjacent'){
-					print "adjacent method\n";
-					($location_back, $overlap) = _manage_location_lowLevel_adjacent($location1, $location2);
-					if($overlap){
-						print "overlap\n";
-						print Dumper($location_back);
-						$location_modified=$location_back;
-					}
-				}
-				else{
-					($location_back, $overlap) = _manage_location_lowLevel_overlap($location1, $location2);
-					if($overlap){$location_modified=$location_back;}
-				}
-			}
+		if( exists_keys( \%skip_because_consumed, (lc($location->[0])) ) ){
+			next;
 		}
-		#if last round was not overlaping we should add the last value in the list
-		if( $overlap ){
-			push @new_location_list, [@$location_modified];
+
+		foreach my $location_next (@sorted_locations){
+
+			#Check if adjacent
+			if ( ($location_next->[1] <= $location->[2]+1) and ($location_next->[2]+1 >= $location->[1]) ){ #it overlaps or are consecutive/adjacent
+				$location->[2]=$location_next->[2];
+				$skip_because_consumed{lc($location_next->[0])}++; # Save consumed feature ID
+			}
+			#if after we stop
+			elsif($location_next->[1] > $location->[2] ){
+				last;
+			}
+
 		}
-		else{
-			push @new_location_list, [@$location1];
-			push @new_location_list, [@$location2];
-		}
+		push @new_locations, $location;										
 	}
-	else{#check number of location -> none
-		return \@{$locationRefList};
-	}
-	return \@new_location_list;
+	return \@new_locations;
 }
 
 #	===================== location1
@@ -2590,7 +2632,7 @@ sub _manage_location_lowLevel_adjacent{
 
 	if ( ($location2->[1] <= $location->[2]+1) and ($location2->[2]+1 >= $location->[1]) ){ #it overlaps or are consecutive
 
-		#Manage Id to avoid same IDs
+		# Push Id only if new
 		my %params = map { $_ => 1 } @{$new_location->[0]};
 		foreach my $id ( @{$location->[0]}){
 			if(! exists($params{$id})){
@@ -2609,47 +2651,10 @@ sub _manage_location_lowLevel_adjacent{
 	return $new_location, $overlap;
 }
 
-# ===================== location1
-#		 ===================== location2
-# ========================= <= New location2 returned
-# @Purpose: Modify the location2 if it overlap the location1 by keeping the extrem values.
-# Return the location2 intact if no overlap.
-# /!\ We append the ID list by the end (as push) when there is an overlap
-# @input: 2 =>	integer tuple [[ID],X,Y],	list of integer tuple
-# @output: 2 => ref of a list of 2 element, boolean
-sub _manage_location_lowLevel_overlap{
-	my ($location, $location2) = @_;
-
-	my $new_location = [@{$location2}];
-	my $overlap=undef;
-
-	if ( ($location2->[1] <= $location->[2]) and ($location2->[2] >= $location->[1]) ){ #it overlaps or are consecutive
-
-		#Manage Id to avoid same IDs
-		my %params = map { $_ => 1 } @{$new_location->[0]};
-		foreach my $id ( @{$location->[0]}){
-			if(! exists($params{$id})){
-				push	@{$new_location->[0]}, $id ; #append from the end the list of ID
-			}
-		}
-
-		$overlap=1;
-
-		if($location2->[1] > $location->[1]){
-			$new_location->[1]=$location->[1];
-		}
-		if($location->[2] > $location2->[2]){
-			$new_location->[2]=$location->[2];
-		}
-	}
-
-	return $new_location, $overlap;
-}
-
-
 #	================= 			location1 (cds)
 #		===================== location2 (exon)
 #										======== <= New location2 returned
+# Inversed because UTR must be 1 nucleotide outside the CDS
 sub _manage_location_lowLevel_inversed{
 	my ($location, $location2, $verbose) = @_;
 

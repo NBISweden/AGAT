@@ -21,7 +21,7 @@ This is an explanations of the different test files used to check the GFF3 parse
 18: features spread
 19: some have locus tag, some have Parent
 20: 4 Exon are missing
-21: Two exon badly defined, they are overlapping. One has to have its location modified and the other one ahas to be completely removed
+21: Two exon badly defined, they are overlapping. One has to have its location modified and the other one has to be completely removed
 22: case where UTR both side of an exon... nothing to do, just the check has to not perform anything...
 23: Multi-parent for the exon feature
 24: Not correct SOFA feature type => It's normal that there is no correct output to check against.
