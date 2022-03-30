@@ -1,0 +1,6 @@
+chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;locus_id="gene1"
+chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;locus_id="gene1"
+chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;locus_id="gene1"
+chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;locus_id="gene1"
+chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;locus_id="gene2"
+chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;locus_id="gene2"
