@@ -767,24 +767,24 @@ sub manage_one_feature{
 						#################
 		 				# COMON TAG PART2
 						if($locusTAGvalue){ #Previous Level up feature had a comon tag
-								dual_print ($log, "::::::::::Push-L2-Sequential-1 $locusTAGvalue || ".lc($id)." || level2 == ".$feature->gff_string."\n", $verbose ) if ($debug);
+								dual_print ($log, "::::::::::Push-L2-Sequential-1 $locusTAGvalue || ".$id." || level2 == ".$feature->gff_string."\n", $verbose ) if ($debug);
 								$infoSequential->{lc($locusTAGvalue)}{lc($id)}{'level2'} = $feature ;
 
 								return $locusTAGvalue, $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;								#### STOP HERE AND RETURN
 						}
 						else{
 
-								dual_print ($log, "::::::::::Push-L2-omniscient-2: level2 || ".$primary_tag." || ".lc($l1_ID)." == ".$feature->gff_string."\n", $verbose ) if ($debug);
+								dual_print ($log, "::::::::::Push-L2-omniscient-2: level2 || ".$primary_tag." || ".$l1_ID." == ".$feature->gff_string."\n", $verbose ) if ($debug);
 						 		push (@{$omniscient->{"level2"}{$primary_tag}{lc($l1_ID)}}, $feature);
 								# sequential case will have to be extra checked
-								push (@{ $attachedL2Sequential->{lc($l1_ID)}}, lc($id) );
+								push (@{ $attachedL2Sequential->{lc($l1_ID)}}, $id );
 
 								# keep track of link between level2->leve1 #
 								if (! exists ($mRNAGeneLink->{lc($id)})){
 										$mRNAGeneLink->{lc($id)}=$l1_ID;
 				 				}
 
-								return lc($l1_ID) , $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;								#### STOP HERE AND RETURN
+								return $l1_ID , $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;								#### STOP HERE AND RETURN
 						}
 				}
 
@@ -888,7 +888,7 @@ sub manage_one_feature{
 										$l2_id = $last_l2_f->_tag_value('ID');
 										foreach my $tag_l1 (keys %{$omniscient->{'level1'}}){
 												if( exists_keys($omniscient,('level1', $tag_l1, $locusTAG_uniq->{'linkl2l1'}{lc($l2_id)}))){
-														$last_l1_f = $omniscient->{'level1'}{$tag_l1}{$locusTAG_uniq->{'linkl2l1'}{lc($l2_id)}};
+														$last_l1_f = $omniscient->{'level1'}{$tag_l1}{ lc($locusTAG_uniq->{'linkl2l1'}{lc($l2_id)}) };
 												}
 										}
 								}
@@ -1159,6 +1159,7 @@ sub _get_comon_tag_value{
 
 	if($level eq 'level2' and $locusName_lc){
 		if(! exists_keys ($locusTAG_uniq, ('level2',$locusName_lc, lc($feature->_tag_value('ID'))) ) ){
+			print "add $locusName_lc in level2 of locusTAG_uniq\n";
 			push @{$locusTAG_uniq->{'level2'}{$locusName_lc}}, $feature;
 			$locusTAG_uniq->{'linkl2l1'}{lc($feature->_tag_value('ID'))} =	$locusName;
 		}
@@ -1441,7 +1442,7 @@ sub _check_l1_linked_to_l2{
 			# It occurs because l2 do not have common tag neither Parent attributes. But the l3 has the information.
 			# So here we review the attachment between L1 and L2 looking at the information from the l3.
 			if ( exists_keys( $attachedL2Sequential, ( lc($id_l1) ) ) ){
-				my @list_l2_id = @{$attachedL2Sequential->{$id_l1}};
+				my @list_l2_id = @{$attachedL2Sequential->{lc($id_l1)}};
 				foreach my $l2_id (@list_l2_id){
 
 					# Find subfeature l3
@@ -2706,14 +2707,14 @@ sub _manage_location_lowLevel_inversed{
 #
 # HIS<=>Hash InfoSequential
 sub _deinterleave_sequential{
-	my ($infoSequential, $locusTAGuniq, $verbose, $log) = @_;
+	my ($infoSequential, $locusTAG_uniq, $verbose, $log) = @_;
 	my $resume_case=undef;
 
 	foreach my $locusNameHIS (keys %{$infoSequential} ){
 
-	 	if(exists_keys($locusTAGuniq,('level1', $locusNameHIS))){
+	 	if(exists_keys($locusTAG_uniq,('level1', $locusNameHIS))){
 
-	 		my $locusNameUniq = lc($locusTAGuniq->{'level1'}{$locusNameHIS});
+	 		my $locusNameUniq = lc($locusTAG_uniq->{'level1'}{$locusNameHIS});
 	 		if($locusNameHIS ne $locusNameUniq ){
 				dual_print($log, "Locus $locusNameHIS interleaved\n", 0); # print only in log
 				print "Locus $locusNameHIS interleaved\n";
@@ -2730,11 +2731,11 @@ sub _deinterleave_sequential{
 							print "locusNameUniq $locusNameUniq\n";
 	 						my $idok=undef;
 							use Data::Dumper;
-							print Dumper($locusTAGuniq);
-	 						foreach my $feature ( @{$locusTAGuniq->{'level2'}{ $locusNameUniq }}){
+							print Dumper($locusTAG_uniq);
+	 						foreach my $feature ( @{$locusTAG_uniq->{'level2'}{ $locusNameUniq }}){
 								print $feature->gff_string;
 								if(lc($feature->_tag_value('ID')) !~ /^$prefix/i){
-	 								$idok = lc($feature->_tag_value('ID')); # @{$locusTAGuniq->{'level2'}{ $locusNameUniq }}[$cpt] is the first l2 feature that has been realy met
+	 								$idok = lc($feature->_tag_value('ID')); # @{$locusTAG_uniq->{'level2'}{ $locusNameUniq }}[$cpt] is the first l2 feature that has been realy met
 	 								last;
 									# We make the assumption that the pieces of the locus that were lost before to describe its real l2 is part of the first real l2 met.
 	 								# ====================================================================================================================================
@@ -2769,11 +2770,11 @@ sub _deinterleave_sequential{
 # All Level1 feature are for sure in omniscient, we have only the ID in sequential,
 # other level feature are in sequential only if no parent has been found
 sub _check_sequential{ # Goes through from L3 to l1
- 	my ($debug, $log, $infoSequential, $omniscient, $miscCount, $uniqID, $uniqIDtoType, $locusTAGuniq, $mRNAGeneLink, $verbose) = @_;
+ 	my ($debug, $log, $infoSequential, $omniscient, $miscCount, $uniqID, $uniqIDtoType, $locusTAG_uniq, $mRNAGeneLink, $verbose) = @_;
  	my $resume_case_l2 = undef;
 	my %resume_case_l1;
 
- 	_deinterleave_sequential($infoSequential, $locusTAGuniq, $verbose, $log); # PART OF LOCUS LOST BEFORE TO MEET ITS L2 or L1 ... we catch them and re-link everything as it should be
+ 	_deinterleave_sequential($infoSequential, $locusTAG_uniq, $verbose, $log); # PART OF LOCUS LOST BEFORE TO MEET ITS L2 or L1 ... we catch them and re-link everything as it should be
 
  	foreach my $locusNameHIS ( sort { ncmp($a,$b) } keys %{$infoSequential} ){ #comon tag was l1 id when no real comon tag present
 
@@ -2826,7 +2827,7 @@ sub _check_sequential{ # Goes through from L3 to l1
 					if(! $feature_l2){
 	 					if(! exists_keys($infoSequential,($locusNameHIS, $bucket,'level2'))	){
 		 						dual_print($log, "_check_sequential level2 does not exits in sequential !\n", $verbose) if($debug);
-								my $common_tag = _get_comon_tag_value($feature_L3, $locusTAGuniq, 'level1'); # check presence of common_tag, maybe we will play a different game
+								my $common_tag = _get_comon_tag_value($feature_L3, $locusTAG_uniq, 'level1'); # check presence of common_tag, maybe we will play a different game
 
 		 						#take L2 from omniscient if already exits
 		 						if(exists($mRNAGeneLink->{$bucket}) ){
@@ -2847,13 +2848,13 @@ sub _check_sequential{ # Goes through from L3 to l1
 		 							$infoSequential->{$locusNameHIS}{$bucket}{'level2'} = $feature_l2;
 								}
 								#If locus_tag check from omniscient if feature has same locus tag
-								elsif ( $common_tag and ( exists_keys($locusTAGuniq,('topfeature', lc($common_tag) ) ) ) and (! exists_keys($locusTAGuniq,('topfeature', lc($common_tag),'level1') ) ) ) {
+								elsif ( $common_tag and ( exists_keys($locusTAG_uniq,('topfeature', lc($common_tag) ) ) ) and (! exists_keys($locusTAG_uniq,('topfeature', lc($common_tag),'level1') ) ) ) {
 										my $id_level2 = undef;
-										if ( exists_keys($locusTAGuniq,('topfeature', lc($common_tag), 'level2') ) ){
-											$id_level2 = $locusTAGuniq->{'topfeature'}{lc($common_tag)}{'level2'}[0];
+										if ( exists_keys($locusTAG_uniq,('topfeature', lc($common_tag), 'level2') ) ){
+											$id_level2 = $locusTAG_uniq->{'topfeature'}{lc($common_tag)}{'level2'}[0];
 										}
-										elsif ( exists_keys($locusTAGuniq,('topfeature', lc($common_tag), 'level3') ) ){
-											$id_level2 = $locusTAGuniq->{'topfeature'}{lc($common_tag)}{'level3'}[1];
+										elsif ( exists_keys($locusTAG_uniq,('topfeature', lc($common_tag), 'level3') ) ){
+											$id_level2 = $locusTAG_uniq->{'topfeature'}{lc($common_tag)}{'level3'}[1];
 										}
 										dual_print($log, "FeatureA has the common tag value shared with a featureX from omniscient.".
 										" We use same parent ID as featureX, and inject FeatureA in omniscient: $common_tag\n", $verbose) if($debug);
