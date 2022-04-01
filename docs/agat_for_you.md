@@ -50,7 +50,7 @@ To resume by priority of way to parse: **Parent/child relationship > common attr
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 If you need to use the `--ct` option you will have to process the file `agat_convert_sp_gxf2gxf.pl` first  before running any other tool.
 
-  * 1) Parsing approach 1: by Parent/child relationship  
+  1) Parsing approach 1: by Parent/child relationship  
 
 Example of Parent/ID relationship used by the GFF format:
 
@@ -66,7 +66,9 @@ Example of gene_id/transcript_id relationship used by the GTF format:
     chr12	HAVANA	exon	100	500	.	+	.	gene_id "gene1"; transcript_id "transcript1"; exon_id=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	gene_id "gene1"; transcript_id "transcript1"; cds_id=cds-1;
 
-  * 2) ELSE Parsing approach 2: by a common attribute/tag  (an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user using the `--ct` parameter).  
+  2) ELSE Parsing approach 2: by a common attribute/tag  
+
+  a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user using the `--ct` parameter).  
 
 Example of relationship made using a commong tag (here locus_tag):
 
@@ -75,7 +77,9 @@ Example of relationship made using a commong tag (here locus_tag):
     chr12	HAVANA	exon	100	500	.	+	.	locus_tag="gene1";ID=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	locus_tag="gene1";ID=cds-1;
 
-  * 3) ELSE Parsing approach 3: sequentially. Reading from top to th ebotoom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
+  3) ELSE Parsing approach 3: sequentially. 
+
+  Reading from top to th ebotoom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
 
 Example of relationship made sequentially:
 
