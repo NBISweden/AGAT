@@ -186,8 +186,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # Print results
-print_omniscient($hash_omniscient, $opt_gffout); #print gene modified
-
+print_omniscient( {omniscient => $hash_omniscient, output => $opt_gffout} );
 
 #######################################################################################################################
         ####################

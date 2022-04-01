@@ -77,7 +77,7 @@ fil_cds_frame($hash_omniscient, $db, $opt_verbose);
 
 ###
 # Print result
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;

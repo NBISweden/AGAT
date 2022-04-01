@@ -351,7 +351,7 @@ if (exists_keys(\%ListModel,("noclip"))){
 
 $string_print .= "AGAT removed $nb_gene_removed genes because no more l2 were linked to them.\n";
 
-print_omniscient($omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $omniscient, output => $gffout} );
 
 print $reportout $string_print;
 if($outfile){print $string_print;}

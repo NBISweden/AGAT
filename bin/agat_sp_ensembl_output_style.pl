@@ -74,7 +74,7 @@ convert_omniscient_to_ensembl_style($hash_omniscient);
 
 ###
 # Print result
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;

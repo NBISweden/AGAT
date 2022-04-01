@@ -5,6 +5,7 @@
    "stop_codon":"1",
    "three_prime_utr":"1",
    "utr":"1",
-	 "3utr":"1",
-	 "5utr":"1"
+   "uORF":"1",
+   "3utr":"1",
+   "5utr":"1"
 }

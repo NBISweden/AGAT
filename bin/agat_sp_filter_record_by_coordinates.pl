@@ -159,14 +159,14 @@ foreach my $range ( sort { ncmp ($a, $b) } keys %hash_listok ){
   open( my $fh, '>', "$opt_output/$range.gff3") or die "Could not open file $opt_output/$range.gff3 $!";
   my $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
 
-  print_omniscient($hash_ok, $gffout_ok); #print gene modified in file
+  print_omniscient( {omniscient => $hash_ok, output => $gffout_ok} );
   %{$hash_ok} = (); #clean
 }
 
 # print remaining if an output is provided
 if($opt_output){
   my $hash_remaining = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, \@listNotOk);
-  print_omniscient($hash_remaining, $gffout_notok); #print gene modified in file
+  print_omniscient( {omniscient => $hash_remaining, output => $gffout_notok} );
   %{$hash_remaining} = ();
 }
 my $test_fail = scalar @listNotOk;

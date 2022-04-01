@@ -225,7 +225,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
   }
 }
 
-print_omniscient($hash_omniscient, $gffout_ok); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
 
 $stringPrint = $all_cases{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";

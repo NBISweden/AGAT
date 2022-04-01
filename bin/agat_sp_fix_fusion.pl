@@ -239,7 +239,7 @@ delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
 # 2) print the intact one
 print "print intact...\n";
-print_omniscient($hash_omniscient_intact, $gffout); #print intact gene to the file
+print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout} );
 
 # 3) Sort by seq_id - review all newly created gene
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id_and_strand($hash_omniscient_intact);
@@ -276,12 +276,12 @@ foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_ta
 print "print modified...\n";
 if (exists_undef_value(\%omniscient_modified_gene)){print"there is an undef value";exit;}
 
-print_omniscient(\%omniscient_modified_gene, $gffout2); #print gene modified in file
+print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2} );
 
 # 6) Print all together
 merge_omniscients_fuse_l1duplicates($hash_omniscient_intact, \%omniscient_modified_gene);
 print "print all together...\n";
-print_omniscient($hash_omniscient_intact, $gffout3);
+print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout3} );
 
 if ($overlap and $verbose){print "We found $overlap case gene overlapping at CDS level wihout the same ID, we fixed them.\n";}
 # End manage overlaping name

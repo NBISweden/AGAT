@@ -91,7 +91,7 @@ info_omniscient($hash_omniscient);
 
 ########
 # Print results
-print_omniscient($hash_omniscient, $gffout);
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 __END__
 

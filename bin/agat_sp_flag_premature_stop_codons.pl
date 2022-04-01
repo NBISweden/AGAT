@@ -211,7 +211,9 @@ my $toprint = "We found $nb_cases cases where mRNAs contain premature stop codon
 							"$nb_cases_l1 genes have been flagged as pseudogene.\n";
 print $ostreamReport $toprint;
 if($opt_output){print $toprint;}
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
       #########################
       ######### END ###########
       #########################

@@ -162,7 +162,7 @@ foreach my $seq_id (@ids ){
 }
 
 # print annotation whith shifter location
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
 
 print "We found $cpt_Nleft sequence(s) starting with N\n";
 print "We found $cpt_Nright sequence(s) ending with N\n";

@@ -286,7 +286,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
   }
 }
 
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
 print "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n";
 print "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n";
 print "bye bye\n";

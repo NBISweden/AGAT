@@ -6,6 +6,8 @@
   "intron":"",
   "non_canonical_five_prime_splice_site":"",
   "non_canonical_three_prime_splice_site":"",
+  "protein":"",
+  "pseudogenic_exon":"",
   "selenocysteine":"",
   "sig_peptide":"exon",
   "start_codon":"exon",
@@ -17,5 +19,6 @@
   "tts":"exon",
 	"3utr":"exon",
 	"utr":"exon",
+  "uorf":"five_prime_utr",
 	"5utr":"exon"
 }

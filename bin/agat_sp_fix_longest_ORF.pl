@@ -393,10 +393,10 @@ _check_identical_isoforms(\%omniscient_modified_gene, undef, $verbose);
 ########
 # Print results
 print "print intact...\n";
-print_omniscient_from_level1_id_list($hash_omniscient, \@intact_gene_list, $gffout); #print intact gene to the file
+print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@intact_gene_list, output => $gffout} );
 
 print "print modified...\n";
-print_omniscient(\%omniscient_modified_gene, $gffout2); #print gene modified in file
+print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2} );
 
 # create a hash containing everything
 print "print all with name of overlapping features resolved...\n";
@@ -404,7 +404,7 @@ my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient,
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
 _check_overlap_name_diff($hash_all, undef, $verbose);
 _check_identical_isoforms($hash_all, undef, $verbose);
-print_omniscient($hash_all, $gffout3); #print gene modified in file
+print_omniscient( {omniscient => $hash_all, output => $gffout3} );
 
 #print_omniscient(\%omniscient_pseudogene, $gffout4); #print putative pseudogene in file
 
@@ -1201,7 +1201,7 @@ sub _check_overlap_name_diff{
 
               print "$id_l1 and  $id2_l1 same locus. We merge them together. Below the corresponding feature groups in their whole.\n" if ($verbose >= 3);
               print "$id_l1 and  $id2_l1 same locus. We merge them together. Below the corresponding feature groups in their whole.\n";
-              print_omniscient_from_level1_id_list($omniscient, [lc($id_l1),lc($id2_l1)], $fh_error ) if ($verbose >= 3);
+              print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list => [lc($id_l1),lc($id2_l1)], output => $fh_error} ) if ($verbose >= 3);
               # remove the level1 of the ovelaping one
               delete $omniscient->{'level1'}{$tag_l1}{lc($id2_l1)};
               # remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)

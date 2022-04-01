@@ -176,8 +176,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 }
 #print "We added $nbNameAdded Name attributes\n";
 
-print_omniscient($hash_omniscient, $gffout); #print gene modified
-
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 #######################################################################################################################
         ####################

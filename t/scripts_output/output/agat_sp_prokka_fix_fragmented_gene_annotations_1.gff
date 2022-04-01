@@ -124,8 +124,8 @@ NZ_CP006571.1	Prodigal:002006	gene	30834	31250	.	+	0	ID=nbis-gene-31;inference=a
 NZ_CP006571.1	Prodigal:002006	mRNA	30834	31250	.	+	0	ID=nbisL2-cds-31;Parent=nbis-gene-31;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00031;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	30834	31250	.	+	.	ID=nbis-exon-277;Parent=nbisL2-cds-31;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00031;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	30834	31250	.	+	0	ID=DEKMBENF_00031;Parent=nbisL2-cds-31;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00031;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	31336	31410	.	+	.	ID=nbisL1-trna-1;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00032;product=tRNA-Phe(gaa)
-NZ_CP006571.1	Aragorn:001002	tRNA	31336	31410	.	+	.	ID=DEKMBENF_00032;Parent=nbisL1-trna-1;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00032;product=tRNA-Phe(gaa)
+NZ_CP006571.1	Aragorn:001002	gene	31336	31410	.	+	.	ID=nbisL1-gene-4;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00032;product=tRNA-Phe(gaa)
+NZ_CP006571.1	Aragorn:001002	tRNA	31336	31410	.	+	.	ID=DEKMBENF_00032;Parent=nbisL1-gene-4;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00032;product=tRNA-Phe(gaa)
 NZ_CP006571.1	Aragorn:001002	exon	31336	31410	.	+	.	ID=nbis-exon-1;Parent=DEKMBENF_00032;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00032;product=tRNA-Phe(gaa)
 NZ_CP006571.1	Prodigal:002006	gene	31549	31869	.	+	0	ID=nbis-gene-32;Name=rplU;db_xref=COG:COG0261;gene=rplU;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:A2RLA4;locus_tag=DEKMBENF_00033;product=50S ribosomal protein L21
 NZ_CP006571.1	Prodigal:002006	mRNA	31549	31869	.	+	0	ID=nbisL2-cds-32;Parent=nbis-gene-32;Name=rplU;db_xref=COG:COG0261;gene=rplU;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:A2RLA4;locus_tag=DEKMBENF_00033;product=50S ribosomal protein L21
@@ -151,8 +151,8 @@ NZ_CP006571.1	Prodigal:002006	gene	34750	35586	.	-	0	ID=nbis-gene-37;db_xref=COG
 NZ_CP006571.1	Prodigal:002006	mRNA	34750	35586	.	-	0	ID=nbisL2-cds-37;Parent=nbis-gene-37;db_xref=COG:COG0803;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q57449;locus_tag=DEKMBENF_00038;product=putative periplasmic iron-binding protein
 NZ_CP006571.1	Prodigal:002006	exon	34750	35586	.	-	.	ID=nbis-exon-343;Parent=nbisL2-cds-37;db_xref=COG:COG0803;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q57449;locus_tag=DEKMBENF_00038;product=putative periplasmic iron-binding protein
 NZ_CP006571.1	Prodigal:002006	CDS	34750	35586	.	-	0	ID=DEKMBENF_00038;Parent=nbisL2-cds-37;db_xref=COG:COG0803;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q57449;locus_tag=DEKMBENF_00038;product=putative periplasmic iron-binding protein
-NZ_CP006571.1	Aragorn:001002	gene	35768	35854	.	+	.	ID=nbisL1-trna-2;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00039;product=tRNA-Ser(gga)
-NZ_CP006571.1	Aragorn:001002	tRNA	35768	35854	.	+	.	ID=DEKMBENF_00039;Parent=nbisL1-trna-2;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00039;product=tRNA-Ser(gga)
+NZ_CP006571.1	Aragorn:001002	gene	35768	35854	.	+	.	ID=nbisL1-gene-5;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00039;product=tRNA-Ser(gga)
+NZ_CP006571.1	Aragorn:001002	tRNA	35768	35854	.	+	.	ID=DEKMBENF_00039;Parent=nbisL1-gene-5;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00039;product=tRNA-Ser(gga)
 NZ_CP006571.1	Aragorn:001002	exon	35768	35854	.	+	.	ID=nbis-exon-2;Parent=DEKMBENF_00039;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00039;product=tRNA-Ser(gga)
 NZ_CP006571.1	Prodigal:002006	gene	36245	41584	.	-	0	ID=nbis-gene-38;Name=pmpB;gene=pmpB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84418;locus_tag=DEKMBENF_00040;product=putative outer membrane protein PmpB
 NZ_CP006571.1	Prodigal:002006	mRNA	36245	41584	.	-	0	ID=nbisL2-cds-38;Parent=nbis-gene-38;Name=pmpB;gene=pmpB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84418;locus_tag=DEKMBENF_00040;product=putative outer membrane protein PmpB
@@ -474,8 +474,8 @@ NZ_CP006571.1	Prodigal:002006	gene	135385	136299	.	-	0	ID=nbis-gene-118;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	135385	136299	.	-	0	ID=nbisL2-cds-118;Parent=nbis-gene-118;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00120;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	135385	136299	.	-	.	ID=nbis-exon-64;Parent=nbisL2-cds-118;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00120;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	135385	136299	.	-	0	ID=DEKMBENF_00120;Parent=nbisL2-cds-118;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00120;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	137327	137415	.	-	.	ID=nbisL1-trna-3;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00121;product=tRNA-Ser(cga)
-NZ_CP006571.1	Aragorn:001002	tRNA	137327	137415	.	-	.	ID=DEKMBENF_00121;Parent=nbisL1-trna-3;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00121;product=tRNA-Ser(cga)
+NZ_CP006571.1	Aragorn:001002	gene	137327	137415	.	-	.	ID=nbisL1-gene-6;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00121;product=tRNA-Ser(cga)
+NZ_CP006571.1	Aragorn:001002	tRNA	137327	137415	.	-	.	ID=DEKMBENF_00121;Parent=nbisL1-gene-6;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00121;product=tRNA-Ser(cga)
 NZ_CP006571.1	Aragorn:001002	exon	137327	137415	.	-	.	ID=nbis-exon-3;Parent=DEKMBENF_00121;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00121;product=tRNA-Ser(cga)
 NZ_CP006571.1	Prodigal:002006	gene	137741	139414	.	+	0	ID=nbis-gene-119;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00122;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	137741	139414	.	+	0	ID=nbisL2-cds-119;Parent=nbis-gene-119;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00122;product=hypothetical protein
@@ -741,8 +741,8 @@ NZ_CP006571.1	Prodigal:002006	gene	206267	206998	.	+	0	ID=nbis-gene-184;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	206267	206998	.	+	0	ID=nbisL2-cds-184;Parent=nbis-gene-184;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00187;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	206267	206998	.	+	.	ID=nbis-exon-137;Parent=nbisL2-cds-184;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00187;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	206267	206998	.	+	0	ID=DEKMBENF_00187;Parent=nbisL2-cds-184;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00187;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	207016	207091	.	-	.	ID=nbisL1-trna-4;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00188;product=tRNA-Arg(cct)
-NZ_CP006571.1	Aragorn:001002	tRNA	207016	207091	.	-	.	ID=DEKMBENF_00188;Parent=nbisL1-trna-4;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00188;product=tRNA-Arg(cct)
+NZ_CP006571.1	Aragorn:001002	gene	207016	207091	.	-	.	ID=nbisL1-gene-7;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00188;product=tRNA-Arg(cct)
+NZ_CP006571.1	Aragorn:001002	tRNA	207016	207091	.	-	.	ID=DEKMBENF_00188;Parent=nbisL1-gene-7;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00188;product=tRNA-Arg(cct)
 NZ_CP006571.1	Aragorn:001002	exon	207016	207091	.	-	.	ID=nbis-exon-4;Parent=DEKMBENF_00188;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00188;product=tRNA-Arg(cct)
 NZ_CP006571.1	Prodigal:002006	gene	207370	207672	.	+	0	ID=nbis-gene-185;Name=hupA;db_xref=COG:COG0776;gene=hupA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P08821;locus_tag=DEKMBENF_00189;product=DNA-binding protein HU 1
 NZ_CP006571.1	Prodigal:002006	mRNA	207370	207672	.	+	0	ID=nbisL2-cds-185;Parent=nbis-gene-185;Name=hupA;db_xref=COG:COG0776;gene=hupA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P08821;locus_tag=DEKMBENF_00189;product=DNA-binding protein HU 1
@@ -940,8 +940,8 @@ NZ_CP006571.1	Prodigal:002006	gene	251709	251981	.	-	0	ID=nbis-gene-233;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	251709	251981	.	-	0	ID=nbisL2-cds-233;Parent=nbis-gene-233;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00237;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	251709	251981	.	-	.	ID=nbis-exon-192;Parent=nbisL2-cds-233;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00237;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	251709	251981	.	-	0	ID=DEKMBENF_00237;Parent=nbisL2-cds-233;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00237;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	252029	252103	.	-	.	ID=nbisL1-trna-5;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00238;product=tRNA-Pro(tgg)
-NZ_CP006571.1	Aragorn:001002	tRNA	252029	252103	.	-	.	ID=DEKMBENF_00238;Parent=nbisL1-trna-5;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00238;product=tRNA-Pro(tgg)
+NZ_CP006571.1	Aragorn:001002	gene	252029	252103	.	-	.	ID=nbisL1-gene-8;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00238;product=tRNA-Pro(tgg)
+NZ_CP006571.1	Aragorn:001002	tRNA	252029	252103	.	-	.	ID=DEKMBENF_00238;Parent=nbisL1-gene-8;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00238;product=tRNA-Pro(tgg)
 NZ_CP006571.1	Aragorn:001002	exon	252029	252103	.	-	.	ID=nbis-exon-5;Parent=DEKMBENF_00238;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00238;product=tRNA-Pro(tgg)
 NZ_CP006571.1	Prodigal:002006	gene	252269	252619	.	+	0	ID=nbis-gene-234;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00239;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	252269	252619	.	+	0	ID=nbisL2-cds-234;Parent=nbis-gene-234;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00239;product=hypothetical protein
@@ -1315,11 +1315,11 @@ NZ_CP006571.1	Prodigal:002006	gene	353396	353974	.	+	0	ID=nbis-gene-327;Name=ecd
 NZ_CP006571.1	Prodigal:002006	mRNA	353396	353974	.	+	0	ID=nbisL2-cds-327;Parent=nbis-gene-327;Name=ecdB;db_xref=COG:COG0163;eC_number=2.5.1.129;gene=ecdB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P69772;locus_tag=DEKMBENF_00332;product=putative UbiX-like flavin prenyltransferase
 NZ_CP006571.1	Prodigal:002006	exon	353396	353974	.	+	.	ID=nbis-exon-296;Parent=nbisL2-cds-327;Name=ecdB;db_xref=COG:COG0163;eC_number=2.5.1.129;gene=ecdB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P69772;locus_tag=DEKMBENF_00332;product=putative UbiX-like flavin prenyltransferase
 NZ_CP006571.1	Prodigal:002006	CDS	353396	353974	.	+	0	ID=DEKMBENF_00332;Parent=nbisL2-cds-327;Name=ecdB;db_xref=COG:COG0163;eC_number=2.5.1.129;gene=ecdB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P69772;locus_tag=DEKMBENF_00332;product=putative UbiX-like flavin prenyltransferase
-NZ_CP006571.1	Aragorn:001002	gene	354886	354961	.	-	.	ID=nbisL1-trna-6;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00333;product=tRNA-Asp(gtc)
-NZ_CP006571.1	Aragorn:001002	tRNA	354886	354961	.	-	.	ID=DEKMBENF_00333;Parent=nbisL1-trna-6;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00333;product=tRNA-Asp(gtc)
+NZ_CP006571.1	Aragorn:001002	gene	354886	354961	.	-	.	ID=nbisL1-gene-9;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00333;product=tRNA-Asp(gtc)
+NZ_CP006571.1	Aragorn:001002	tRNA	354886	354961	.	-	.	ID=DEKMBENF_00333;Parent=nbisL1-gene-9;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00333;product=tRNA-Asp(gtc)
 NZ_CP006571.1	Aragorn:001002	exon	354886	354961	.	-	.	ID=nbis-exon-6;Parent=DEKMBENF_00333;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00333;product=tRNA-Asp(gtc)
-NZ_CP006571.1	Aragorn:001002	gene	354963	355037	.	-	.	ID=nbisL1-trna-7;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00334;product=tRNA-Val(tac)
-NZ_CP006571.1	Aragorn:001002	tRNA	354963	355037	.	-	.	ID=DEKMBENF_00334;Parent=nbisL1-trna-7;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00334;product=tRNA-Val(tac)
+NZ_CP006571.1	Aragorn:001002	gene	354963	355037	.	-	.	ID=nbisL1-gene-10;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00334;product=tRNA-Val(tac)
+NZ_CP006571.1	Aragorn:001002	tRNA	354963	355037	.	-	.	ID=DEKMBENF_00334;Parent=nbisL1-gene-10;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00334;product=tRNA-Val(tac)
 NZ_CP006571.1	Aragorn:001002	exon	354963	355037	.	-	.	ID=nbis-exon-7;Parent=DEKMBENF_00334;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00334;product=tRNA-Val(tac)
 NZ_CP006571.1	Prodigal:002006	gene	355192	356043	.	-	0	ID=nbis-gene-328;Name=surE;eC_number=3.1.3.5;gene=surE;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00060;locus_tag=DEKMBENF_00335;product=5'/3'-nucleotidase SurE
 NZ_CP006571.1	Prodigal:002006	mRNA	355192	356043	.	-	0	ID=nbisL2-cds-328;Parent=nbis-gene-328;Name=surE;eC_number=3.1.3.5;gene=surE;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00060;locus_tag=DEKMBENF_00335;product=5'/3'-nucleotidase SurE
@@ -1333,11 +1333,11 @@ NZ_CP006571.1	Prodigal:002006	gene	356973	357470	.	+	0	ID=nbis-gene-330;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	356973	357470	.	+	0	ID=nbisL2-cds-330;Parent=nbis-gene-330;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00337;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	356973	357470	.	+	.	ID=nbis-exon-300;Parent=nbisL2-cds-330;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00337;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	356973	357470	.	+	0	ID=DEKMBENF_00337;Parent=nbisL2-cds-330;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00337;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	357532	357604	.	+	.	ID=nbisL1-trna-8;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00338;product=tRNA-Thr(tgt)
-NZ_CP006571.1	Aragorn:001002	tRNA	357532	357604	.	+	.	ID=DEKMBENF_00338;Parent=nbisL1-trna-8;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00338;product=tRNA-Thr(tgt)
+NZ_CP006571.1	Aragorn:001002	gene	357532	357604	.	+	.	ID=nbisL1-gene-11;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00338;product=tRNA-Thr(tgt)
+NZ_CP006571.1	Aragorn:001002	tRNA	357532	357604	.	+	.	ID=DEKMBENF_00338;Parent=nbisL1-gene-11;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00338;product=tRNA-Thr(tgt)
 NZ_CP006571.1	Aragorn:001002	exon	357532	357604	.	+	.	ID=nbis-exon-8;Parent=DEKMBENF_00338;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00338;product=tRNA-Thr(tgt)
-NZ_CP006571.1	Aragorn:001002	gene	357611	357694	.	+	.	ID=nbisL1-trna-9;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00339;product=tRNA-Tyr(gta)
-NZ_CP006571.1	Aragorn:001002	tRNA	357611	357694	.	+	.	ID=DEKMBENF_00339;Parent=nbisL1-trna-9;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00339;product=tRNA-Tyr(gta)
+NZ_CP006571.1	Aragorn:001002	gene	357611	357694	.	+	.	ID=nbisL1-gene-12;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00339;product=tRNA-Tyr(gta)
+NZ_CP006571.1	Aragorn:001002	tRNA	357611	357694	.	+	.	ID=DEKMBENF_00339;Parent=nbisL1-gene-12;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00339;product=tRNA-Tyr(gta)
 NZ_CP006571.1	Aragorn:001002	exon	357611	357694	.	+	.	ID=nbis-exon-9;Parent=DEKMBENF_00339;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00339;product=tRNA-Tyr(gta)
 NZ_CP006571.1	Prodigal:002006	gene	357840	358652	.	+	0	ID=nbis-gene-331;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00340;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	357840	358652	.	+	0	ID=nbisL2-cds-331;Parent=nbis-gene-331;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00340;product=hypothetical protein
@@ -1495,11 +1495,11 @@ NZ_CP006571.1	Prodigal:002006	gene	396762	397466	.	-	0	ID=nbis-gene-369;Name=btu
 NZ_CP006571.1	Prodigal:002006	mRNA	396762	397466	.	-	0	ID=nbisL2-cds-369;Parent=nbis-gene-369;Name=btuD;eC_number=7.6.2.8;gene=btuD;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01005;locus_tag=DEKMBENF_00378;product=Vitamin B12 import ATP-binding protein BtuD
 NZ_CP006571.1	Prodigal:002006	exon	396762	397466	.	-	.	ID=nbis-exon-342;Parent=nbisL2-cds-369;Name=btuD;eC_number=7.6.2.8;gene=btuD;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01005;locus_tag=DEKMBENF_00378;product=Vitamin B12 import ATP-binding protein BtuD
 NZ_CP006571.1	Prodigal:002006	CDS	396762	397466	.	-	0	ID=DEKMBENF_00378;Parent=nbisL2-cds-369;Name=btuD;eC_number=7.6.2.8;gene=btuD;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01005;locus_tag=DEKMBENF_00378;product=Vitamin B12 import ATP-binding protein BtuD
-NZ_CP006571.1	Aragorn:001002	gene	397499	397572	.	-	.	ID=nbisL1-trna-10;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00379;product=tRNA-Ile(gat)
-NZ_CP006571.1	Aragorn:001002	tRNA	397499	397572	.	-	.	ID=DEKMBENF_00379;Parent=nbisL1-trna-10;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00379;product=tRNA-Ile(gat)
+NZ_CP006571.1	Aragorn:001002	gene	397499	397572	.	-	.	ID=nbisL1-gene-13;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00379;product=tRNA-Ile(gat)
+NZ_CP006571.1	Aragorn:001002	tRNA	397499	397572	.	-	.	ID=DEKMBENF_00379;Parent=nbisL1-gene-13;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00379;product=tRNA-Ile(gat)
 NZ_CP006571.1	Aragorn:001002	exon	397499	397572	.	-	.	ID=nbis-exon-10;Parent=DEKMBENF_00379;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00379;product=tRNA-Ile(gat)
-NZ_CP006571.1	Aragorn:001002	gene	397578	397650	.	-	.	ID=nbisL1-trna-11;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00380;product=tRNA-Ala(tgc)
-NZ_CP006571.1	Aragorn:001002	tRNA	397578	397650	.	-	.	ID=DEKMBENF_00380;Parent=nbisL1-trna-11;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00380;product=tRNA-Ala(tgc)
+NZ_CP006571.1	Aragorn:001002	gene	397578	397650	.	-	.	ID=nbisL1-gene-14;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00380;product=tRNA-Ala(tgc)
+NZ_CP006571.1	Aragorn:001002	tRNA	397578	397650	.	-	.	ID=DEKMBENF_00380;Parent=nbisL1-gene-14;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00380;product=tRNA-Ala(tgc)
 NZ_CP006571.1	Aragorn:001002	exon	397578	397650	.	-	.	ID=nbis-exon-11;Parent=DEKMBENF_00380;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00380;product=tRNA-Ala(tgc)
 NZ_CP006571.1	Prodigal:002006	gene	397737	398633	.	-	0	ID=nbis-gene-370;Name=mtnN;eC_number=3.2.2.9;gene=mtnN;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01684;locus_tag=DEKMBENF_00381;product=5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase
 NZ_CP006571.1	Prodigal:002006	mRNA	397737	398633	.	-	0	ID=nbisL2-cds-370;Parent=nbis-gene-370;Name=mtnN;eC_number=3.2.2.9;gene=mtnN;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01684;locus_tag=DEKMBENF_00381;product=5'-methylthioadenosine/S-adenosylhomocysteine nucleosidase
@@ -1565,14 +1565,14 @@ NZ_CP006571.1	Prodigal:002006	gene	414654	416273	.	+	0	ID=nbis-gene-385;Name=pfp
 NZ_CP006571.1	Prodigal:002006	mRNA	414654	416273	.	+	0	ID=nbisL2-cds-385;Parent=nbis-gene-385;Name=pfp_2;db_xref=COG:COG0205;eC_number=2.7.1.90;gene=pfp_2;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q9FAF8;locus_tag=DEKMBENF_00396;product=Pyrophosphate--fructose 6-phosphate 1-phosphotransferase
 NZ_CP006571.1	Prodigal:002006	exon	414654	416273	.	+	.	ID=nbis-exon-360;Parent=nbisL2-cds-385;Name=pfp_2;db_xref=COG:COG0205;eC_number=2.7.1.90;gene=pfp_2;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q9FAF8;locus_tag=DEKMBENF_00396;product=Pyrophosphate--fructose 6-phosphate 1-phosphotransferase
 NZ_CP006571.1	Prodigal:002006	CDS	414654	416273	.	+	0	ID=DEKMBENF_00396;Parent=nbisL2-cds-385;Name=pfp_2;db_xref=COG:COG0205;eC_number=2.7.1.90;gene=pfp_2;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q9FAF8;locus_tag=DEKMBENF_00396;product=Pyrophosphate--fructose 6-phosphate 1-phosphotransferase
-NZ_CP006571.1	Aragorn:001002	gene	416333	416408	.	-	.	ID=nbisL1-trna-12;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00397;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	tRNA	416333	416408	.	-	.	ID=DEKMBENF_00397;Parent=nbisL1-trna-12;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00397;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	gene	416333	416408	.	-	.	ID=nbisL1-gene-15;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00397;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	tRNA	416333	416408	.	-	.	ID=DEKMBENF_00397;Parent=nbisL1-gene-15;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00397;product=tRNA-Met(cat)
 NZ_CP006571.1	Aragorn:001002	exon	416333	416408	.	-	.	ID=nbis-exon-12;Parent=DEKMBENF_00397;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00397;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	gene	416431	416506	.	-	.	ID=nbisL1-trna-13;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00398;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	tRNA	416431	416506	.	-	.	ID=DEKMBENF_00398;Parent=nbisL1-trna-13;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00398;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	gene	416431	416506	.	-	.	ID=nbisL1-gene-16;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00398;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	tRNA	416431	416506	.	-	.	ID=DEKMBENF_00398;Parent=nbisL1-gene-16;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00398;product=tRNA-Met(cat)
 NZ_CP006571.1	Aragorn:001002	exon	416431	416506	.	-	.	ID=nbis-exon-13;Parent=DEKMBENF_00398;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00398;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	gene	416775	416849	.	-	.	ID=nbisL1-trna-14;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00399;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	tRNA	416775	416849	.	-	.	ID=DEKMBENF_00399;Parent=nbisL1-trna-14;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00399;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	gene	416775	416849	.	-	.	ID=nbisL1-gene-17;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00399;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	tRNA	416775	416849	.	-	.	ID=DEKMBENF_00399;Parent=nbisL1-gene-17;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00399;product=tRNA-Met(cat)
 NZ_CP006571.1	Aragorn:001002	exon	416775	416849	.	-	.	ID=nbis-exon-14;Parent=DEKMBENF_00399;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00399;product=tRNA-Met(cat)
 NZ_CP006571.1	Prodigal:002006	gene	416873	418186	.	-	0	ID=nbis-gene-386;Name=waaA;db_xref=COG:COG1519;eC_number=2.4.99.12;gene=waaA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:F0T4D1;locus_tag=DEKMBENF_00400;product=3-deoxy-D-manno-octulosonic acid transferase
 NZ_CP006571.1	Prodigal:002006	mRNA	416873	418186	.	-	0	ID=nbisL2-cds-386;Parent=nbis-gene-386;Name=waaA;db_xref=COG:COG1519;eC_number=2.4.99.12;gene=waaA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:F0T4D1;locus_tag=DEKMBENF_00400;product=3-deoxy-D-manno-octulosonic acid transferase
@@ -1690,8 +1690,8 @@ NZ_CP006571.1	Prodigal:002006	gene	453013	453807	.	+	0	ID=nbis-gene-414;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	453013	453807	.	+	0	ID=nbisL2-cds-414;Parent=nbis-gene-414;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00428;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	453013	453807	.	+	.	ID=nbis-exon-393;Parent=nbisL2-cds-414;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00428;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	453013	453807	.	+	0	ID=DEKMBENF_00428;Parent=nbisL2-cds-414;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00428;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	453900	453973	.	+	.	ID=nbisL1-trna-15;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00429;product=tRNA-Asn(gtt)
-NZ_CP006571.1	Aragorn:001002	tRNA	453900	453973	.	+	.	ID=DEKMBENF_00429;Parent=nbisL1-trna-15;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00429;product=tRNA-Asn(gtt)
+NZ_CP006571.1	Aragorn:001002	gene	453900	453973	.	+	.	ID=nbisL1-gene-18;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00429;product=tRNA-Asn(gtt)
+NZ_CP006571.1	Aragorn:001002	tRNA	453900	453973	.	+	.	ID=DEKMBENF_00429;Parent=nbisL1-gene-18;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00429;product=tRNA-Asn(gtt)
 NZ_CP006571.1	Aragorn:001002	exon	453900	453973	.	+	.	ID=nbis-exon-15;Parent=DEKMBENF_00429;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00429;product=tRNA-Asn(gtt)
 NZ_CP006571.1	Prodigal:002006	gene	454024	455244	.	+	0	ID=nbis-gene-415;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00430;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	454024	455244	.	+	0	ID=nbisL2-cds-415;Parent=nbis-gene-415;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00430;product=hypothetical protein
@@ -1765,8 +1765,8 @@ NZ_CP006571.1	Prodigal:002006	gene	472048	475182	.	-	0	ID=nbis-gene-432;Name=ile
 NZ_CP006571.1	Prodigal:002006	mRNA	472048	475182	.	-	0	ID=nbisL2-cds-432;Parent=nbis-gene-432;Name=ileS;db_xref=COG:COG0060;eC_number=6.1.1.5;gene=ileS;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P9WFV3;locus_tag=DEKMBENF_00447;product=Isoleucine--tRNA ligase
 NZ_CP006571.1	Prodigal:002006	exon	472048	475182	.	-	.	ID=nbis-exon-413;Parent=nbisL2-cds-432;Name=ileS;db_xref=COG:COG0060;eC_number=6.1.1.5;gene=ileS;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P9WFV3;locus_tag=DEKMBENF_00447;product=Isoleucine--tRNA ligase
 NZ_CP006571.1	Prodigal:002006	CDS	472048	475182	.	-	0	ID=DEKMBENF_00447;Parent=nbisL2-cds-432;Name=ileS;db_xref=COG:COG0060;eC_number=6.1.1.5;gene=ileS;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P9WFV3;locus_tag=DEKMBENF_00447;product=Isoleucine--tRNA ligase
-NZ_CP006571.1	Aragorn:001002	gene	475341	475756	.	+	.	ID=nbisL1-tmrna-1;Name=ssrA;gene=ssrA;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00448;product=transfer-messenger RNA%2C SsrA
-NZ_CP006571.1	Aragorn:001002	tmRNA	475341	475756	.	+	.	ID=DEKMBENF_00448;Parent=nbisL1-tmrna-1;Name=ssrA;gene=ssrA;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00448;product=transfer-messenger RNA%2C SsrA
+NZ_CP006571.1	Aragorn:001002	gene	475341	475756	.	+	.	ID=nbisL1-gene-3;Name=ssrA;gene=ssrA;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00448;product=transfer-messenger RNA%2C SsrA
+NZ_CP006571.1	Aragorn:001002	tmRNA	475341	475756	.	+	.	ID=DEKMBENF_00448;Parent=nbisL1-gene-3;Name=ssrA;gene=ssrA;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00448;product=transfer-messenger RNA%2C SsrA
 NZ_CP006571.1	Aragorn:001002	exon	475341	475756	.	+	.	ID=nbis-exon-16;Parent=DEKMBENF_00448;Name=ssrA;gene=ssrA;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00448;product=transfer-messenger RNA%2C SsrA
 NZ_CP006571.1	Prodigal:002006	gene	475906	476412	.	+	0	ID=nbis-gene-433;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00449;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	475906	476412	.	+	0	ID=nbisL2-cds-433;Parent=nbis-gene-433;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00449;product=hypothetical protein
@@ -1908,15 +1908,15 @@ NZ_CP006571.1	Prodigal:002006	gene	520974	521219	.	-	0	ID=nbis-gene-467;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	520974	521219	.	-	0	ID=nbisL2-cds-467;Parent=nbis-gene-467;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00483;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	520974	521219	.	-	.	ID=nbis-exon-451;Parent=nbisL2-cds-467;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00483;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	520974	521219	.	-	0	ID=DEKMBENF_00483;Parent=nbisL2-cds-467;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00483;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	521253	521327	.	-	.	ID=nbisL1-trna-16;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00484;product=tRNA-Trp(cca)
-NZ_CP006571.1	Aragorn:001002	tRNA	521253	521327	.	-	.	ID=DEKMBENF_00484;Parent=nbisL1-trna-16;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00484;product=tRNA-Trp(cca)
+NZ_CP006571.1	Aragorn:001002	gene	521253	521327	.	-	.	ID=nbisL1-gene-19;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00484;product=tRNA-Trp(cca)
+NZ_CP006571.1	Aragorn:001002	tRNA	521253	521327	.	-	.	ID=DEKMBENF_00484;Parent=nbisL1-gene-19;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00484;product=tRNA-Trp(cca)
 NZ_CP006571.1	Aragorn:001002	exon	521253	521327	.	-	.	ID=nbis-exon-17;Parent=DEKMBENF_00484;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00484;product=tRNA-Trp(cca)
 NZ_CP006571.1	Prodigal:002006	gene	521379	522563	.	-	0	ID=nbis-gene-468;Name=tuf;gene=tuf;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:B0B7N8;locus_tag=DEKMBENF_00485;product=Elongation factor Tu
 NZ_CP006571.1	Prodigal:002006	mRNA	521379	522563	.	-	0	ID=nbisL2-cds-468;Parent=nbis-gene-468;Name=tuf;gene=tuf;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:B0B7N8;locus_tag=DEKMBENF_00485;product=Elongation factor Tu
 NZ_CP006571.1	Prodigal:002006	exon	521379	522563	.	-	.	ID=nbis-exon-452;Parent=nbisL2-cds-468;Name=tuf;gene=tuf;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:B0B7N8;locus_tag=DEKMBENF_00485;product=Elongation factor Tu
 NZ_CP006571.1	Prodigal:002006	CDS	521379	522563	.	-	0	ID=DEKMBENF_00485;Parent=nbisL2-cds-468;Name=tuf;gene=tuf;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:B0B7N8;locus_tag=DEKMBENF_00485;product=Elongation factor Tu
-NZ_CP006571.1	Aragorn:001002	gene	522608	522679	.	-	.	ID=nbisL1-trna-17;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00486;product=tRNA-Thr(ggt)
-NZ_CP006571.1	Aragorn:001002	tRNA	522608	522679	.	-	.	ID=DEKMBENF_00486;Parent=nbisL1-trna-17;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00486;product=tRNA-Thr(ggt)
+NZ_CP006571.1	Aragorn:001002	gene	522608	522679	.	-	.	ID=nbisL1-gene-20;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00486;product=tRNA-Thr(ggt)
+NZ_CP006571.1	Aragorn:001002	tRNA	522608	522679	.	-	.	ID=DEKMBENF_00486;Parent=nbisL1-gene-20;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00486;product=tRNA-Thr(ggt)
 NZ_CP006571.1	Aragorn:001002	exon	522608	522679	.	-	.	ID=nbis-exon-18;Parent=DEKMBENF_00486;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00486;product=tRNA-Thr(ggt)
 NZ_CP006571.1	Prodigal:002006	gene	522755	522976	.	-	0	ID=nbis-gene-469;Name=infA;db_xref=COG:COG0361;gene=infA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P69222;locus_tag=DEKMBENF_00487;product=Translation initiation factor IF-1
 NZ_CP006571.1	Prodigal:002006	mRNA	522755	522976	.	-	0	ID=nbisL2-cds-469;Parent=nbis-gene-469;Name=infA;db_xref=COG:COG0361;gene=infA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P69222;locus_tag=DEKMBENF_00487;product=Translation initiation factor IF-1
@@ -1930,8 +1930,8 @@ NZ_CP006571.1	Prodigal:002006	gene	524223	524675	.	+	0	ID=nbis-gene-471;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	524223	524675	.	+	0	ID=nbisL2-cds-471;Parent=nbis-gene-471;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00489;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	524223	524675	.	+	.	ID=nbis-exon-456;Parent=nbisL2-cds-471;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00489;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	524223	524675	.	+	0	ID=DEKMBENF_00489;Parent=nbisL2-cds-471;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00489;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	524732	524806	.	+	.	ID=nbisL1-trna-18;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00490;product=tRNA-Met(cat)
-NZ_CP006571.1	Aragorn:001002	tRNA	524732	524806	.	+	.	ID=DEKMBENF_00490;Parent=nbisL1-trna-18;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00490;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	gene	524732	524806	.	+	.	ID=nbisL1-gene-21;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00490;product=tRNA-Met(cat)
+NZ_CP006571.1	Aragorn:001002	tRNA	524732	524806	.	+	.	ID=DEKMBENF_00490;Parent=nbisL1-gene-21;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00490;product=tRNA-Met(cat)
 NZ_CP006571.1	Aragorn:001002	exon	524732	524806	.	+	.	ID=nbis-exon-19;Parent=DEKMBENF_00490;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00490;product=tRNA-Met(cat)
 NZ_CP006571.1	Prodigal:002006	gene	524885	525481	.	-	0	ID=nbis-gene-472;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00491;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	524885	525481	.	-	0	ID=nbisL2-cds-472;Parent=nbis-gene-472;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00491;product=hypothetical protein
@@ -2061,8 +2061,8 @@ NZ_CP006571.1	Prodigal:002006	gene	554605	554889	.	-	0	ID=nbis-gene-503;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	554605	554889	.	-	0	ID=nbisL2-cds-503;Parent=nbis-gene-503;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00522;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	554605	554889	.	-	.	ID=nbis-exon-492;Parent=nbisL2-cds-503;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00522;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	554605	554889	.	-	0	ID=DEKMBENF_00522;Parent=nbisL2-cds-503;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00522;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	554976	555059	.	-	.	ID=nbisL1-trna-19;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00523;product=tRNA-Leu(tag)
-NZ_CP006571.1	Aragorn:001002	tRNA	554976	555059	.	-	.	ID=DEKMBENF_00523;Parent=nbisL1-trna-19;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00523;product=tRNA-Leu(tag)
+NZ_CP006571.1	Aragorn:001002	gene	554976	555059	.	-	.	ID=nbisL1-gene-22;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00523;product=tRNA-Leu(tag)
+NZ_CP006571.1	Aragorn:001002	tRNA	554976	555059	.	-	.	ID=DEKMBENF_00523;Parent=nbisL1-gene-22;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00523;product=tRNA-Leu(tag)
 NZ_CP006571.1	Aragorn:001002	exon	554976	555059	.	-	.	ID=nbis-exon-20;Parent=DEKMBENF_00523;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00523;product=tRNA-Leu(tag)
 NZ_CP006571.1	Prodigal:002006	gene	555257	556699	.	+	0	ID=nbis-gene-504;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00524;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	555257	556699	.	+	0	ID=nbisL2-cds-504;Parent=nbis-gene-504;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00524;product=hypothetical protein
@@ -2188,8 +2188,8 @@ NZ_CP006571.1	Prodigal:002006	gene	586794	588827	.	-	0	ID=nbis-gene-534;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	586794	588827	.	-	0	ID=nbisL2-cds-534;Parent=nbis-gene-534;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00554;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	586794	588827	.	-	.	ID=nbis-exon-526;Parent=nbisL2-cds-534;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00554;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	586794	588827	.	-	0	ID=DEKMBENF_00554;Parent=nbisL2-cds-534;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00554;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	589039	589123	.	-	.	ID=nbisL1-trna-20;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00555;product=tRNA-Ser(tga)
-NZ_CP006571.1	Aragorn:001002	tRNA	589039	589123	.	-	.	ID=DEKMBENF_00555;Parent=nbisL1-trna-20;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00555;product=tRNA-Ser(tga)
+NZ_CP006571.1	Aragorn:001002	gene	589039	589123	.	-	.	ID=nbisL1-gene-23;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00555;product=tRNA-Ser(tga)
+NZ_CP006571.1	Aragorn:001002	tRNA	589039	589123	.	-	.	ID=DEKMBENF_00555;Parent=nbisL1-gene-23;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00555;product=tRNA-Ser(tga)
 NZ_CP006571.1	Aragorn:001002	exon	589039	589123	.	-	.	ID=nbis-exon-21;Parent=DEKMBENF_00555;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00555;product=tRNA-Ser(tga)
 NZ_CP006571.1	Prodigal:002006	gene	589124	590149	.	-	0	ID=nbis-gene-535;Name=pheS;db_xref=COG:COG0016;eC_number=6.1.1.20;gene=pheS;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q9I0A3;locus_tag=DEKMBENF_00556;product=Phenylalanine--tRNA ligase alpha subunit
 NZ_CP006571.1	Prodigal:002006	mRNA	589124	590149	.	-	0	ID=nbisL2-cds-535;Parent=nbis-gene-535;Name=pheS;db_xref=COG:COG0016;eC_number=6.1.1.20;gene=pheS;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q9I0A3;locus_tag=DEKMBENF_00556;product=Phenylalanine--tRNA ligase alpha subunit
@@ -2219,8 +2219,8 @@ NZ_CP006571.1	Prodigal:002006	gene	593107	593694	.	-	0	ID=nbis-gene-541;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	593107	593694	.	-	0	ID=nbisL2-cds-541;Parent=nbis-gene-541;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00562;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	593107	593694	.	-	.	ID=nbis-exon-534;Parent=nbisL2-cds-541;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00562;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	593107	593694	.	-	0	ID=DEKMBENF_00562;Parent=nbisL2-cds-541;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00562;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	593752	593826	.	+	.	ID=nbisL1-trna-21;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00563;product=tRNA-Val(gac)
-NZ_CP006571.1	Aragorn:001002	tRNA	593752	593826	.	+	.	ID=DEKMBENF_00563;Parent=nbisL1-trna-21;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00563;product=tRNA-Val(gac)
+NZ_CP006571.1	Aragorn:001002	gene	593752	593826	.	+	.	ID=nbisL1-gene-24;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00563;product=tRNA-Val(gac)
+NZ_CP006571.1	Aragorn:001002	tRNA	593752	593826	.	+	.	ID=DEKMBENF_00563;Parent=nbisL1-gene-24;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00563;product=tRNA-Val(gac)
 NZ_CP006571.1	Aragorn:001002	exon	593752	593826	.	+	.	ID=nbis-exon-22;Parent=DEKMBENF_00563;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00563;product=tRNA-Val(gac)
 NZ_CP006571.1	Prodigal:002006	gene	594686	595726	.	-	0	ID=nbis-gene-542;Name=nrdB;db_xref=COG:COG0208;eC_number=1.17.4.1;gene=nrdB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84835;locus_tag=DEKMBENF_00564;product=Ribonucleoside-diphosphate reductase subunit beta
 NZ_CP006571.1	Prodigal:002006	mRNA	594686	595726	.	-	0	ID=nbisL2-cds-542;Parent=nbis-gene-542;Name=nrdB;db_xref=COG:COG0208;eC_number=1.17.4.1;gene=nrdB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84835;locus_tag=DEKMBENF_00564;product=Ribonucleoside-diphosphate reductase subunit beta
@@ -2390,8 +2390,8 @@ NZ_CP006571.1	Prodigal:002006	gene	645442	645999	.	-	0	ID=nbis-gene-583;Name=rpl
 NZ_CP006571.1	Prodigal:002006	mRNA	645442	645999	.	-	0	ID=nbisL2-cds-583;Parent=nbis-gene-583;Name=rplY;gene=rplY;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q02G03;locus_tag=DEKMBENF_00605;product=50S ribosomal protein L25
 NZ_CP006571.1	Prodigal:002006	exon	645442	645999	.	-	.	ID=nbis-exon-580;Parent=nbisL2-cds-583;Name=rplY;gene=rplY;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q02G03;locus_tag=DEKMBENF_00605;product=50S ribosomal protein L25
 NZ_CP006571.1	Prodigal:002006	CDS	645442	645999	.	-	0	ID=DEKMBENF_00605;Parent=nbisL2-cds-583;Name=rplY;gene=rplY;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q02G03;locus_tag=DEKMBENF_00605;product=50S ribosomal protein L25
-NZ_CP006571.1	Aragorn:001002	gene	646231	646302	.	-	.	ID=nbisL1-trna-22;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00606;product=tRNA-Gln(ttg)
-NZ_CP006571.1	Aragorn:001002	tRNA	646231	646302	.	-	.	ID=DEKMBENF_00606;Parent=nbisL1-trna-22;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00606;product=tRNA-Gln(ttg)
+NZ_CP006571.1	Aragorn:001002	gene	646231	646302	.	-	.	ID=nbisL1-gene-25;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00606;product=tRNA-Gln(ttg)
+NZ_CP006571.1	Aragorn:001002	tRNA	646231	646302	.	-	.	ID=DEKMBENF_00606;Parent=nbisL1-gene-25;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00606;product=tRNA-Gln(ttg)
 NZ_CP006571.1	Aragorn:001002	exon	646231	646302	.	-	.	ID=nbis-exon-23;Parent=DEKMBENF_00606;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00606;product=tRNA-Gln(ttg)
 NZ_CP006571.1	Prodigal:002006	gene	646471	647898	.	+	0	ID=nbis-gene-584;Name=glgA1;db_xref=COG:COG0297;eC_number=2.4.1.21;gene=glgA1;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A3F3;locus_tag=DEKMBENF_00607;product=Glycogen synthase 1
 NZ_CP006571.1	Prodigal:002006	mRNA	646471	647898	.	+	0	ID=nbisL2-cds-584;Parent=nbis-gene-584;Name=glgA1;db_xref=COG:COG0297;eC_number=2.4.1.21;gene=glgA1;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A3F3;locus_tag=DEKMBENF_00607;product=Glycogen synthase 1
@@ -2573,8 +2573,8 @@ NZ_CP006571.1	Prodigal:002006	gene	693648	694994	.	-	0	ID=nbis-gene-628;Name=mur
 NZ_CP006571.1	Prodigal:002006	mRNA	693648	694994	.	-	0	ID=nbisL2-cds-628;Parent=nbis-gene-628;Name=murF;db_xref=COG:COG0770;eC_number=6.3.2.10;gene=murF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P11880;locus_tag=DEKMBENF_00651;product=UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase
 NZ_CP006571.1	Prodigal:002006	exon	693648	694994	.	-	.	ID=nbis-exon-630;Parent=nbisL2-cds-628;Name=murF;db_xref=COG:COG0770;eC_number=6.3.2.10;gene=murF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P11880;locus_tag=DEKMBENF_00651;product=UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase
 NZ_CP006571.1	Prodigal:002006	CDS	693648	694994	.	-	0	ID=DEKMBENF_00651;Parent=nbisL2-cds-628;Name=murF;db_xref=COG:COG0770;eC_number=6.3.2.10;gene=murF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P11880;locus_tag=DEKMBENF_00651;product=UDP-N-acetylmuramoyl-tripeptide--D-alanyl-D-alanine ligase
-NZ_CP006571.1	Aragorn:001002	gene	695207	695277	.	+	.	ID=nbisL1-trna-23;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00652;product=tRNA-Cys(gca)
-NZ_CP006571.1	Aragorn:001002	tRNA	695207	695277	.	+	.	ID=DEKMBENF_00652;Parent=nbisL1-trna-23;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00652;product=tRNA-Cys(gca)
+NZ_CP006571.1	Aragorn:001002	gene	695207	695277	.	+	.	ID=nbisL1-gene-26;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00652;product=tRNA-Cys(gca)
+NZ_CP006571.1	Aragorn:001002	tRNA	695207	695277	.	+	.	ID=DEKMBENF_00652;Parent=nbisL1-gene-26;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00652;product=tRNA-Cys(gca)
 NZ_CP006571.1	Aragorn:001002	exon	695207	695277	.	+	.	ID=nbis-exon-24;Parent=DEKMBENF_00652;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00652;product=tRNA-Cys(gca)
 NZ_CP006571.1	Prodigal:002006	gene	695354	696871	.	+	0	ID=nbis-gene-629;Name=groL;gene=groL;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q07201;locus_tag=DEKMBENF_00653;product=60 kDa chaperonin
 NZ_CP006571.1	Prodigal:002006	mRNA	695354	696871	.	+	0	ID=nbisL2-cds-629;Parent=nbis-gene-629;Name=groL;gene=groL;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q07201;locus_tag=DEKMBENF_00653;product=60 kDa chaperonin
@@ -2640,14 +2640,14 @@ NZ_CP006571.1	Prodigal:002006	gene	716690	717985	.	+	0	ID=nbis-gene-645;Name=nqr
 NZ_CP006571.1	Prodigal:002006	mRNA	716690	717985	.	+	0	ID=nbisL2-cds-645;Parent=nbis-gene-645;Name=nqrF;db_xref=COG:COG2871;eC_number=7.2.1.1;gene=nqrF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q56584;locus_tag=DEKMBENF_00669;product=Na(+)-translocating NADH-quinone reductase subunit F
 NZ_CP006571.1	Prodigal:002006	exon	716690	717985	.	+	.	ID=nbis-exon-649;Parent=nbisL2-cds-645;Name=nqrF;db_xref=COG:COG2871;eC_number=7.2.1.1;gene=nqrF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q56584;locus_tag=DEKMBENF_00669;product=Na(+)-translocating NADH-quinone reductase subunit F
 NZ_CP006571.1	Prodigal:002006	CDS	716690	717985	.	+	0	ID=DEKMBENF_00669;Parent=nbisL2-cds-645;Name=nqrF;db_xref=COG:COG2871;eC_number=7.2.1.1;gene=nqrF;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q56584;locus_tag=DEKMBENF_00669;product=Na(+)-translocating NADH-quinone reductase subunit F
-NZ_CP006571.1	barrnap:0.9	gene	718312	721246	0	-	.	ID=nbisL1-rrna-1;locus_tag=DEKMBENF_00670;product=23S ribosomal RNA
-NZ_CP006571.1	barrnap:0.9	rRNA	718312	721246	0	-	.	ID=DEKMBENF_00670;Parent=nbisL1-rrna-1;locus_tag=DEKMBENF_00670;product=23S ribosomal RNA
+NZ_CP006571.1	barrnap:0.9	gene	718312	721246	0	-	.	ID=nbisL1-gene-1;locus_tag=DEKMBENF_00670;product=23S ribosomal RNA
+NZ_CP006571.1	barrnap:0.9	rRNA	718312	721246	0	-	.	ID=DEKMBENF_00670;Parent=nbisL1-gene-1;locus_tag=DEKMBENF_00670;product=23S ribosomal RNA
 NZ_CP006571.1	barrnap:0.9	exon	718312	721246	0	-	.	ID=nbis-exon-25;Parent=DEKMBENF_00670;locus_tag=DEKMBENF_00670;product=23S ribosomal RNA
-NZ_CP006571.1	barrnap:0.9	gene	721475	723020	0	-	.	ID=nbisL1-rrna-2;locus_tag=DEKMBENF_00671;product=16S ribosomal RNA
-NZ_CP006571.1	barrnap:0.9	rRNA	721475	723020	0	-	.	ID=DEKMBENF_00671;Parent=nbisL1-rrna-2;locus_tag=DEKMBENF_00671;product=16S ribosomal RNA
+NZ_CP006571.1	barrnap:0.9	gene	721475	723020	0	-	.	ID=nbisL1-gene-2;locus_tag=DEKMBENF_00671;product=16S ribosomal RNA
+NZ_CP006571.1	barrnap:0.9	rRNA	721475	723020	0	-	.	ID=DEKMBENF_00671;Parent=nbisL1-gene-2;locus_tag=DEKMBENF_00671;product=16S ribosomal RNA
 NZ_CP006571.1	barrnap:0.9	exon	721475	723020	0	-	.	ID=nbis-exon-26;Parent=DEKMBENF_00671;locus_tag=DEKMBENF_00671;product=16S ribosomal RNA
-NZ_CP006571.1	Aragorn:001002	gene	723703	723777	.	+	.	ID=nbisL1-trna-24;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00672;product=tRNA-His(gtg)
-NZ_CP006571.1	Aragorn:001002	tRNA	723703	723777	.	+	.	ID=DEKMBENF_00672;Parent=nbisL1-trna-24;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00672;product=tRNA-His(gtg)
+NZ_CP006571.1	Aragorn:001002	gene	723703	723777	.	+	.	ID=nbisL1-gene-27;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00672;product=tRNA-His(gtg)
+NZ_CP006571.1	Aragorn:001002	tRNA	723703	723777	.	+	.	ID=DEKMBENF_00672;Parent=nbisL1-gene-27;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00672;product=tRNA-His(gtg)
 NZ_CP006571.1	Aragorn:001002	exon	723703	723777	.	+	.	ID=nbis-exon-27;Parent=DEKMBENF_00672;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00672;product=tRNA-His(gtg)
 NZ_CP006571.1	Prodigal:002006	gene	723867	726263	.	+	0	ID=nbis-gene-646;Name=ftsK;db_xref=COG:COG1674;gene=ftsK;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84744;locus_tag=DEKMBENF_00673;product=DNA translocase FtsK
 NZ_CP006571.1	Prodigal:002006	mRNA	723867	726263	.	+	0	ID=nbisL2-cds-646;Parent=nbis-gene-646;Name=ftsK;db_xref=COG:COG1674;gene=ftsK;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:O84744;locus_tag=DEKMBENF_00673;product=DNA translocase FtsK
@@ -2785,8 +2785,8 @@ NZ_CP006571.1	Prodigal:002006	gene	758882	762388	.	-	0	ID=nbis-gene-679;Name=rap
 NZ_CP006571.1	Prodigal:002006	mRNA	758882	762388	.	-	0	ID=nbisL2-cds-679;Parent=nbis-gene-679;Name=rapA;eC_number=3.6.4.-;gene=rapA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01821;locus_tag=DEKMBENF_00706;product=RNA polymerase-associated protein RapA
 NZ_CP006571.1	Prodigal:002006	exon	758882	762388	.	-	.	ID=nbis-exon-686;Parent=nbisL2-cds-679;Name=rapA;eC_number=3.6.4.-;gene=rapA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01821;locus_tag=DEKMBENF_00706;product=RNA polymerase-associated protein RapA
 NZ_CP006571.1	Prodigal:002006	CDS	758882	762388	.	-	0	ID=DEKMBENF_00706;Parent=nbisL2-cds-679;Name=rapA;eC_number=3.6.4.-;gene=rapA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01821;locus_tag=DEKMBENF_00706;product=RNA polymerase-associated protein RapA
-NZ_CP006571.1	Aragorn:001002	gene	762577	762648	.	+	.	ID=nbisL1-trna-25;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00707;product=tRNA-Gly(gcc)
-NZ_CP006571.1	Aragorn:001002	tRNA	762577	762648	.	+	.	ID=DEKMBENF_00707;Parent=nbisL1-trna-25;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00707;product=tRNA-Gly(gcc)
+NZ_CP006571.1	Aragorn:001002	gene	762577	762648	.	+	.	ID=nbisL1-gene-28;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00707;product=tRNA-Gly(gcc)
+NZ_CP006571.1	Aragorn:001002	tRNA	762577	762648	.	+	.	ID=DEKMBENF_00707;Parent=nbisL1-gene-28;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00707;product=tRNA-Gly(gcc)
 NZ_CP006571.1	Aragorn:001002	exon	762577	762648	.	+	.	ID=nbis-exon-28;Parent=DEKMBENF_00707;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00707;product=tRNA-Gly(gcc)
 NZ_CP006571.1	Prodigal:002006	gene	762682	763998	.	+	0	ID=nbis-gene-680;Name=tig;db_xref=COG:COG0544;eC_number=5.2.1.8;gene=tig;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:A0R199;locus_tag=DEKMBENF_00708;product=Trigger factor
 NZ_CP006571.1	Prodigal:002006	mRNA	762682	763998	.	+	0	ID=nbisL2-cds-680;Parent=nbis-gene-680;Name=tig;db_xref=COG:COG0544;eC_number=5.2.1.8;gene=tig;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:A0R199;locus_tag=DEKMBENF_00708;product=Trigger factor
@@ -3056,8 +3056,8 @@ NZ_CP006571.1	Prodigal:002006	gene	834544	835134	.	-	0	ID=nbis-gene-746;Name=ahp
 NZ_CP006571.1	Prodigal:002006	mRNA	834544	835134	.	-	0	ID=nbisL2-cds-746;Parent=nbis-gene-746;Name=ahpC;db_xref=COG:COG0450;eC_number=1.11.1.15;gene=ahpC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P21762;locus_tag=DEKMBENF_00774;product=Alkyl hydroperoxide reductase C
 NZ_CP006571.1	Prodigal:002006	exon	834544	835134	.	-	.	ID=nbis-exon-761;Parent=nbisL2-cds-746;Name=ahpC;db_xref=COG:COG0450;eC_number=1.11.1.15;gene=ahpC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P21762;locus_tag=DEKMBENF_00774;product=Alkyl hydroperoxide reductase C
 NZ_CP006571.1	Prodigal:002006	CDS	834544	835134	.	-	0	ID=DEKMBENF_00774;Parent=nbisL2-cds-746;Name=ahpC;db_xref=COG:COG0450;eC_number=1.11.1.15;gene=ahpC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P21762;locus_tag=DEKMBENF_00774;product=Alkyl hydroperoxide reductase C
-NZ_CP006571.1	Aragorn:001002	gene	835174	835248	.	-	.	ID=nbisL1-trna-26;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00775;product=tRNA-Arg(acg)
-NZ_CP006571.1	Aragorn:001002	tRNA	835174	835248	.	-	.	ID=DEKMBENF_00775;Parent=nbisL1-trna-26;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00775;product=tRNA-Arg(acg)
+NZ_CP006571.1	Aragorn:001002	gene	835174	835248	.	-	.	ID=nbisL1-gene-29;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00775;product=tRNA-Arg(acg)
+NZ_CP006571.1	Aragorn:001002	tRNA	835174	835248	.	-	.	ID=DEKMBENF_00775;Parent=nbisL1-gene-29;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00775;product=tRNA-Arg(acg)
 NZ_CP006571.1	Aragorn:001002	exon	835174	835248	.	-	.	ID=nbis-exon-29;Parent=DEKMBENF_00775;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00775;product=tRNA-Arg(acg)
 NZ_CP006571.1	Prodigal:002006	gene	835358	836968	.	-	0	ID=nbis-gene-747;Name=groL1_2;db_xref=COG:COG0459;gene=groL1_2;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P15599;locus_tag=DEKMBENF_00776;product=60 kDa chaperonin 1
 NZ_CP006571.1	Prodigal:002006	mRNA	835358	836968	.	-	0	ID=nbisL2-cds-747;Parent=nbis-gene-747;Name=groL1_2;db_xref=COG:COG0459;gene=groL1_2;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P15599;locus_tag=DEKMBENF_00776;product=60 kDa chaperonin 1
@@ -3171,8 +3171,8 @@ NZ_CP006571.1	Prodigal:002006	gene	865589	866470	.	+	0	ID=nbis-gene-774;eC_numbe
 NZ_CP006571.1	Prodigal:002006	mRNA	865589	866470	.	+	0	ID=nbisL2-cds-774;Parent=nbis-gene-774;eC_number=2.5.1.10;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q08291;locus_tag=DEKMBENF_00803;product=Farnesyl diphosphate synthase
 NZ_CP006571.1	Prodigal:002006	exon	865589	866470	.	+	.	ID=nbis-exon-792;Parent=nbisL2-cds-774;eC_number=2.5.1.10;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q08291;locus_tag=DEKMBENF_00803;product=Farnesyl diphosphate synthase
 NZ_CP006571.1	Prodigal:002006	CDS	865589	866470	.	+	0	ID=DEKMBENF_00803;Parent=nbisL2-cds-774;eC_number=2.5.1.10;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q08291;locus_tag=DEKMBENF_00803;product=Farnesyl diphosphate synthase
-NZ_CP006571.1	Aragorn:001002	gene	866490	866563	.	-	.	ID=nbisL1-trna-27;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00804;product=tRNA-Pro(ggg)
-NZ_CP006571.1	Aragorn:001002	tRNA	866490	866563	.	-	.	ID=DEKMBENF_00804;Parent=nbisL1-trna-27;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00804;product=tRNA-Pro(ggg)
+NZ_CP006571.1	Aragorn:001002	gene	866490	866563	.	-	.	ID=nbisL1-gene-30;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00804;product=tRNA-Pro(ggg)
+NZ_CP006571.1	Aragorn:001002	tRNA	866490	866563	.	-	.	ID=DEKMBENF_00804;Parent=nbisL1-gene-30;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00804;product=tRNA-Pro(ggg)
 NZ_CP006571.1	Aragorn:001002	exon	866490	866563	.	-	.	ID=nbis-exon-30;Parent=DEKMBENF_00804;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00804;product=tRNA-Pro(ggg)
 NZ_CP006571.1	Prodigal:002006	gene	866574	866828	.	-	0	ID=nbis-gene-775;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00805;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	866574	866828	.	-	0	ID=nbisL2-cds-775;Parent=nbis-gene-775;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00805;product=hypothetical protein
@@ -3198,8 +3198,8 @@ NZ_CP006571.1	Prodigal:002006	gene	871871	873931	.	+	0	ID=nbis-gene-780;Name=gre
 NZ_CP006571.1	Prodigal:002006	mRNA	871871	873931	.	+	0	ID=nbisL2-cds-780;Parent=nbis-gene-780;Name=greA;gene=greA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00105;locus_tag=DEKMBENF_00810;product=Transcription elongation factor GreA
 NZ_CP006571.1	Prodigal:002006	exon	871871	873931	.	+	.	ID=nbis-exon-799;Parent=nbisL2-cds-780;Name=greA;gene=greA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00105;locus_tag=DEKMBENF_00810;product=Transcription elongation factor GreA
 NZ_CP006571.1	Prodigal:002006	CDS	871871	873931	.	+	0	ID=DEKMBENF_00810;Parent=nbisL2-cds-780;Name=greA;gene=greA;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00105;locus_tag=DEKMBENF_00810;product=Transcription elongation factor GreA
-NZ_CP006571.1	Aragorn:001002	gene	873933	874008	.	-	.	ID=nbisL1-trna-28;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00811;product=tRNA-Ala(ggc)
-NZ_CP006571.1	Aragorn:001002	tRNA	873933	874008	.	-	.	ID=DEKMBENF_00811;Parent=nbisL1-trna-28;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00811;product=tRNA-Ala(ggc)
+NZ_CP006571.1	Aragorn:001002	gene	873933	874008	.	-	.	ID=nbisL1-gene-31;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00811;product=tRNA-Ala(ggc)
+NZ_CP006571.1	Aragorn:001002	tRNA	873933	874008	.	-	.	ID=DEKMBENF_00811;Parent=nbisL1-gene-31;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00811;product=tRNA-Ala(ggc)
 NZ_CP006571.1	Aragorn:001002	exon	873933	874008	.	-	.	ID=nbis-exon-31;Parent=DEKMBENF_00811;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00811;product=tRNA-Ala(ggc)
 NZ_CP006571.1	Prodigal:002006	gene	874075	875262	.	+	0	ID=nbis-gene-781;Name=tyrB;db_xref=COG:COG1448;eC_number=2.6.1.57;gene=tyrB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P04693;locus_tag=DEKMBENF_00812;product=Aromatic-amino-acid aminotransferase
 NZ_CP006571.1	Prodigal:002006	mRNA	874075	875262	.	+	0	ID=nbisL2-cds-781;Parent=nbis-gene-781;Name=tyrB;db_xref=COG:COG1448;eC_number=2.6.1.57;gene=tyrB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P04693;locus_tag=DEKMBENF_00812;product=Aromatic-amino-acid aminotransferase
@@ -3269,8 +3269,8 @@ NZ_CP006571.1	Prodigal:002006	gene	899087	899896	.	-	0	ID=nbis-gene-798;Name=kds
 NZ_CP006571.1	Prodigal:002006	mRNA	899087	899896	.	-	0	ID=nbisL2-cds-798;Parent=nbis-gene-798;Name=kdsA;db_xref=COG:COG2877;eC_number=2.5.1.55;gene=kdsA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q5ZWA3;locus_tag=DEKMBENF_00829;product=2-dehydro-3-deoxyphosphooctonate aldolase
 NZ_CP006571.1	Prodigal:002006	exon	899087	899896	.	-	.	ID=nbis-exon-818;Parent=nbisL2-cds-798;Name=kdsA;db_xref=COG:COG2877;eC_number=2.5.1.55;gene=kdsA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q5ZWA3;locus_tag=DEKMBENF_00829;product=2-dehydro-3-deoxyphosphooctonate aldolase
 NZ_CP006571.1	Prodigal:002006	CDS	899087	899896	.	-	0	ID=DEKMBENF_00829;Parent=nbisL2-cds-798;Name=kdsA;db_xref=COG:COG2877;eC_number=2.5.1.55;gene=kdsA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q5ZWA3;locus_tag=DEKMBENF_00829;product=2-dehydro-3-deoxyphosphooctonate aldolase
-NZ_CP006571.1	Aragorn:001002	gene	900095	900169	.	+	.	ID=nbisL1-trna-29;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00830;product=tRNA-Arg(tct)
-NZ_CP006571.1	Aragorn:001002	tRNA	900095	900169	.	+	.	ID=DEKMBENF_00830;Parent=nbisL1-trna-29;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00830;product=tRNA-Arg(tct)
+NZ_CP006571.1	Aragorn:001002	gene	900095	900169	.	+	.	ID=nbisL1-gene-32;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00830;product=tRNA-Arg(tct)
+NZ_CP006571.1	Aragorn:001002	tRNA	900095	900169	.	+	.	ID=DEKMBENF_00830;Parent=nbisL1-gene-32;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00830;product=tRNA-Arg(tct)
 NZ_CP006571.1	Aragorn:001002	exon	900095	900169	.	+	.	ID=nbis-exon-32;Parent=DEKMBENF_00830;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00830;product=tRNA-Arg(tct)
 NZ_CP006571.1	Prodigal:002006	gene	900244	900480	.	-	0	ID=nbis-gene-799;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00831;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	900244	900480	.	-	0	ID=nbisL2-cds-799;Parent=nbis-gene-799;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00831;product=hypothetical protein
@@ -3348,8 +3348,8 @@ NZ_CP006571.1	Prodigal:002006	gene	917454	920168	.	+	0	ID=nbis-gene-818;Name=sct
 NZ_CP006571.1	Prodigal:002006	mRNA	917454	920168	.	+	0	ID=nbisL2-cds-818;Parent=nbis-gene-818;Name=sctC_2;gene=sctC_2;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_02219;locus_tag=DEKMBENF_00850;product=Type 3 secretion system secretin
 NZ_CP006571.1	Prodigal:002006	exon	917454	920168	.	+	.	ID=nbis-exon-841;Parent=nbisL2-cds-818;Name=sctC_2;gene=sctC_2;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_02219;locus_tag=DEKMBENF_00850;product=Type 3 secretion system secretin
 NZ_CP006571.1	Prodigal:002006	CDS	917454	920168	.	+	0	ID=DEKMBENF_00850;Parent=nbisL2-cds-818;Name=sctC_2;gene=sctC_2;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_02219;locus_tag=DEKMBENF_00850;product=Type 3 secretion system secretin
-NZ_CP006571.1	Aragorn:001002	gene	920320	920394	.	+	.	ID=nbisL1-trna-30;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00851;product=tRNA-Thr(cgt)
-NZ_CP006571.1	Aragorn:001002	tRNA	920320	920394	.	+	.	ID=DEKMBENF_00851;Parent=nbisL1-trna-30;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00851;product=tRNA-Thr(cgt)
+NZ_CP006571.1	Aragorn:001002	gene	920320	920394	.	+	.	ID=nbisL1-gene-33;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00851;product=tRNA-Thr(cgt)
+NZ_CP006571.1	Aragorn:001002	tRNA	920320	920394	.	+	.	ID=DEKMBENF_00851;Parent=nbisL1-gene-33;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00851;product=tRNA-Thr(cgt)
 NZ_CP006571.1	Aragorn:001002	exon	920320	920394	.	+	.	ID=nbis-exon-33;Parent=DEKMBENF_00851;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00851;product=tRNA-Thr(cgt)
 NZ_CP006571.1	Prodigal:002006	gene	920498	921571	.	-	0	ID=nbis-gene-819;Name=mcsB;db_xref=COG:COG3869;eC_number=2.7.14.1;gene=mcsB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P37570;locus_tag=DEKMBENF_00852;product=Protein-arginine kinase
 NZ_CP006571.1	Prodigal:002006	mRNA	920498	921571	.	-	0	ID=nbisL2-cds-819;Parent=nbis-gene-819;Name=mcsB;db_xref=COG:COG3869;eC_number=2.7.14.1;gene=mcsB;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P37570;locus_tag=DEKMBENF_00852;product=Protein-arginine kinase
@@ -3359,11 +3359,11 @@ NZ_CP006571.1	Prodigal:002006	gene	921555	922073	.	-	0	ID=nbis-gene-820;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	921555	922073	.	-	0	ID=nbisL2-cds-820;Parent=nbis-gene-820;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00853;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	921555	922073	.	-	.	ID=nbis-exon-844;Parent=nbisL2-cds-820;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00853;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	921555	922073	.	-	0	ID=DEKMBENF_00853;Parent=nbisL2-cds-820;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00853;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	922173	922245	.	-	.	ID=nbisL1-trna-31;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00854;product=tRNA-Lys(ttt)
-NZ_CP006571.1	Aragorn:001002	tRNA	922173	922245	.	-	.	ID=DEKMBENF_00854;Parent=nbisL1-trna-31;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00854;product=tRNA-Lys(ttt)
+NZ_CP006571.1	Aragorn:001002	gene	922173	922245	.	-	.	ID=nbisL1-gene-34;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00854;product=tRNA-Lys(ttt)
+NZ_CP006571.1	Aragorn:001002	tRNA	922173	922245	.	-	.	ID=DEKMBENF_00854;Parent=nbisL1-gene-34;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00854;product=tRNA-Lys(ttt)
 NZ_CP006571.1	Aragorn:001002	exon	922173	922245	.	-	.	ID=nbis-exon-34;Parent=DEKMBENF_00854;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00854;product=tRNA-Lys(ttt)
-NZ_CP006571.1	Aragorn:001002	gene	922273	922349	.	-	.	ID=nbisL1-trna-32;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00855;product=tRNA-Glu(ttc)
-NZ_CP006571.1	Aragorn:001002	tRNA	922273	922349	.	-	.	ID=DEKMBENF_00855;Parent=nbisL1-trna-32;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00855;product=tRNA-Glu(ttc)
+NZ_CP006571.1	Aragorn:001002	gene	922273	922349	.	-	.	ID=nbisL1-gene-35;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00855;product=tRNA-Glu(ttc)
+NZ_CP006571.1	Aragorn:001002	tRNA	922273	922349	.	-	.	ID=DEKMBENF_00855;Parent=nbisL1-gene-35;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00855;product=tRNA-Glu(ttc)
 NZ_CP006571.1	Aragorn:001002	exon	922273	922349	.	-	.	ID=nbis-exon-35;Parent=DEKMBENF_00855;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00855;product=tRNA-Glu(ttc)
 NZ_CP006571.1	Prodigal:002006	gene	922462	923004	.	-	0	ID=nbis-gene-821;Name=frr;db_xref=COG:COG0233;gene=frr;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P81101;locus_tag=DEKMBENF_00856;product=Ribosome-recycling factor
 NZ_CP006571.1	Prodigal:002006	mRNA	922462	923004	.	-	0	ID=nbisL2-cds-821;Parent=nbis-gene-821;Name=frr;db_xref=COG:COG0233;gene=frr;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P81101;locus_tag=DEKMBENF_00856;product=Ribosome-recycling factor
@@ -3381,8 +3381,8 @@ NZ_CP006571.1	Prodigal:002006	gene	924604	925281	.	-	0	ID=nbis-gene-824;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	924604	925281	.	-	0	ID=nbisL2-cds-824;Parent=nbis-gene-824;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00859;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	924604	925281	.	-	.	ID=nbis-exon-848;Parent=nbisL2-cds-824;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00859;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	924604	925281	.	-	0	ID=DEKMBENF_00859;Parent=nbisL2-cds-824;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00859;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	925582	925652	.	-	.	ID=nbisL1-trna-33;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00860;product=tRNA-Gly(tcc)
-NZ_CP006571.1	Aragorn:001002	tRNA	925582	925652	.	-	.	ID=DEKMBENF_00860;Parent=nbisL1-trna-33;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00860;product=tRNA-Gly(tcc)
+NZ_CP006571.1	Aragorn:001002	gene	925582	925652	.	-	.	ID=nbisL1-gene-36;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00860;product=tRNA-Gly(tcc)
+NZ_CP006571.1	Aragorn:001002	tRNA	925582	925652	.	-	.	ID=DEKMBENF_00860;Parent=nbisL1-gene-36;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00860;product=tRNA-Gly(tcc)
 NZ_CP006571.1	Aragorn:001002	exon	925582	925652	.	-	.	ID=nbis-exon-36;Parent=DEKMBENF_00860;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00860;product=tRNA-Gly(tcc)
 NZ_CP006571.1	Prodigal:002006	gene	925868	927046	.	-	0	ID=nbis-gene-825;Name=ompA;gene=ompA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P16567;locus_tag=DEKMBENF_00861;product=Major outer membrane porin
 NZ_CP006571.1	Prodigal:002006	mRNA	925868	927046	.	-	0	ID=nbisL2-cds-825;Parent=nbis-gene-825;Name=ompA;gene=ompA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P16567;locus_tag=DEKMBENF_00861;product=Major outer membrane porin
@@ -3528,8 +3528,8 @@ NZ_CP006571.1	Prodigal:002006	gene	965221	965529	.	-	0	ID=nbis-gene-860;Name=trx
 NZ_CP006571.1	Prodigal:002006	mRNA	965221	965529	.	-	0	ID=nbisL2-cds-860;Parent=nbis-gene-860;Name=trxA;db_xref=COG:COG0526;gene=trxA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A0K6;locus_tag=DEKMBENF_00896;product=Thioredoxin
 NZ_CP006571.1	Prodigal:002006	exon	965221	965529	.	-	.	ID=nbis-exon-888;Parent=nbisL2-cds-860;Name=trxA;db_xref=COG:COG0526;gene=trxA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A0K6;locus_tag=DEKMBENF_00896;product=Thioredoxin
 NZ_CP006571.1	Prodigal:002006	CDS	965221	965529	.	-	0	ID=DEKMBENF_00896;Parent=nbisL2-cds-860;Name=trxA;db_xref=COG:COG0526;gene=trxA;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P0A0K6;locus_tag=DEKMBENF_00896;product=Thioredoxin
-NZ_CP006571.1	Aragorn:001002	gene	965562	965647	.	-	.	ID=nbisL1-trna-34;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00897;product=tRNA-Leu(cag)
-NZ_CP006571.1	Aragorn:001002	tRNA	965562	965647	.	-	.	ID=DEKMBENF_00897;Parent=nbisL1-trna-34;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00897;product=tRNA-Leu(cag)
+NZ_CP006571.1	Aragorn:001002	gene	965562	965647	.	-	.	ID=nbisL1-gene-37;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00897;product=tRNA-Leu(cag)
+NZ_CP006571.1	Aragorn:001002	tRNA	965562	965647	.	-	.	ID=DEKMBENF_00897;Parent=nbisL1-gene-37;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00897;product=tRNA-Leu(cag)
 NZ_CP006571.1	Aragorn:001002	exon	965562	965647	.	-	.	ID=nbis-exon-37;Parent=DEKMBENF_00897;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00897;product=tRNA-Leu(cag)
 NZ_CP006571.1	Prodigal:002006	gene	966107	966823	.	+	0	ID=nbis-gene-861;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00898;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	966107	966823	.	+	0	ID=nbisL2-cds-861;Parent=nbis-gene-861;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00898;product=hypothetical protein
@@ -3667,8 +3667,8 @@ NZ_CP006571.1	Prodigal:002006	gene	987435	988280	.	+	0	ID=nbis-gene-895;inferenc
 NZ_CP006571.1	Prodigal:002006	mRNA	987435	988280	.	+	0	ID=nbisL2-cds-895;Parent=nbis-gene-895;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00932;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	987435	988280	.	+	.	ID=nbis-exon-926;Parent=nbisL2-cds-895;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00932;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	987435	988280	.	+	0	ID=DEKMBENF_00932;Parent=nbisL2-cds-895;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00932;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	988409	988493	.	+	.	ID=nbisL1-trna-35;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00933;product=tRNA-Leu(taa)
-NZ_CP006571.1	Aragorn:001002	tRNA	988409	988493	.	+	.	ID=DEKMBENF_00933;Parent=nbisL1-trna-35;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00933;product=tRNA-Leu(taa)
+NZ_CP006571.1	Aragorn:001002	gene	988409	988493	.	+	.	ID=nbisL1-gene-38;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00933;product=tRNA-Leu(taa)
+NZ_CP006571.1	Aragorn:001002	tRNA	988409	988493	.	+	.	ID=DEKMBENF_00933;Parent=nbisL1-gene-38;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00933;product=tRNA-Leu(taa)
 NZ_CP006571.1	Aragorn:001002	exon	988409	988493	.	+	.	ID=nbis-exon-38;Parent=DEKMBENF_00933;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00933;product=tRNA-Leu(taa)
 NZ_CP006571.1	Prodigal:002006	gene	988706	989452	.	+	0	ID=nbis-gene-896;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00934;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	988706	989452	.	+	0	ID=nbisL2-cds-896;Parent=nbis-gene-896;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00934;product=hypothetical protein
@@ -3698,8 +3698,8 @@ NZ_CP006571.1	Prodigal:002006	gene	994135	995547	.	-	0	ID=nbis-gene-902;Name=dna
 NZ_CP006571.1	Prodigal:002006	mRNA	994135	995547	.	-	0	ID=nbisL2-cds-902;Parent=nbis-gene-902;Name=dnaC;db_xref=COG:COG0305;eC_number=3.6.4.12;gene=dnaC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P37469;locus_tag=DEKMBENF_00940;product=Replicative DNA helicase
 NZ_CP006571.1	Prodigal:002006	exon	994135	995547	.	-	.	ID=nbis-exon-935;Parent=nbisL2-cds-902;Name=dnaC;db_xref=COG:COG0305;eC_number=3.6.4.12;gene=dnaC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P37469;locus_tag=DEKMBENF_00940;product=Replicative DNA helicase
 NZ_CP006571.1	Prodigal:002006	CDS	994135	995547	.	-	0	ID=DEKMBENF_00940;Parent=nbisL2-cds-902;Name=dnaC;db_xref=COG:COG0305;eC_number=3.6.4.12;gene=dnaC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:P37469;locus_tag=DEKMBENF_00940;product=Replicative DNA helicase
-NZ_CP006571.1	Aragorn:001002	gene	995753	995840	.	+	.	ID=nbisL1-trna-36;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00941;product=tRNA-Ser(gct)
-NZ_CP006571.1	Aragorn:001002	tRNA	995753	995840	.	+	.	ID=DEKMBENF_00941;Parent=nbisL1-trna-36;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00941;product=tRNA-Ser(gct)
+NZ_CP006571.1	Aragorn:001002	gene	995753	995840	.	+	.	ID=nbisL1-gene-39;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00941;product=tRNA-Ser(gct)
+NZ_CP006571.1	Aragorn:001002	tRNA	995753	995840	.	+	.	ID=DEKMBENF_00941;Parent=nbisL1-gene-39;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00941;product=tRNA-Ser(gct)
 NZ_CP006571.1	Aragorn:001002	exon	995753	995840	.	+	.	ID=nbis-exon-39;Parent=DEKMBENF_00941;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00941;product=tRNA-Ser(gct)
 NZ_CP006571.1	Prodigal:002006	gene	996017	996523	.	+	0	ID=nbis-gene-903;Name=pgsA_2;eC_number=2.7.8.5;gene=pgsA_2;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01437;locus_tag=DEKMBENF_00942;product=CDP-diacylglycerol--glycerol-3-phosphate 3-phosphatidyltransferase
 NZ_CP006571.1	Prodigal:002006	mRNA	996017	996523	.	+	0	ID=nbisL2-cds-903;Parent=nbis-gene-903;Name=pgsA_2;eC_number=2.7.8.5;gene=pgsA_2;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_01437;locus_tag=DEKMBENF_00942;product=CDP-diacylglycerol--glycerol-3-phosphate 3-phosphatidyltransferase
@@ -3801,8 +3801,8 @@ NZ_CP006571.1	Prodigal:002006	gene	1023685	1024479	.	-	0	ID=nbis-gene-927;infere
 NZ_CP006571.1	Prodigal:002006	mRNA	1023685	1024479	.	-	0	ID=nbisL2-cds-927;Parent=nbis-gene-927;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00966;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	exon	1023685	1024479	.	-	.	ID=nbis-exon-962;Parent=nbisL2-cds-927;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00966;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	CDS	1023685	1024479	.	-	0	ID=DEKMBENF_00966;Parent=nbisL2-cds-927;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00966;product=hypothetical protein
-NZ_CP006571.1	Aragorn:001002	gene	1024587	1024670	.	+	.	ID=nbisL1-trna-37;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00967;product=tRNA-Leu(gag)
-NZ_CP006571.1	Aragorn:001002	tRNA	1024587	1024670	.	+	.	ID=DEKMBENF_00967;Parent=nbisL1-trna-37;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00967;product=tRNA-Leu(gag)
+NZ_CP006571.1	Aragorn:001002	gene	1024587	1024670	.	+	.	ID=nbisL1-gene-40;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00967;product=tRNA-Leu(gag)
+NZ_CP006571.1	Aragorn:001002	tRNA	1024587	1024670	.	+	.	ID=DEKMBENF_00967;Parent=nbisL1-gene-40;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00967;product=tRNA-Leu(gag)
 NZ_CP006571.1	Aragorn:001002	exon	1024587	1024670	.	+	.	ID=nbis-exon-40;Parent=DEKMBENF_00967;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00967;product=tRNA-Leu(gag)
 NZ_CP006571.1	Prodigal:002006	gene	1024794	1025342	.	+	0	ID=nbis-gene-928;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00968;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	1024794	1025342	.	+	0	ID=nbisL2-cds-928;Parent=nbis-gene-928;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00968;product=hypothetical protein
@@ -3820,8 +3820,8 @@ NZ_CP006571.1	Prodigal:002006	gene	1026556	1027314	.	-	0	ID=nbis-gene-931;Name=h
 NZ_CP006571.1	Prodigal:002006	mRNA	1026556	1027314	.	-	0	ID=nbisL2-cds-931;Parent=nbis-gene-931;Name=hpf;gene=hpf;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00839;locus_tag=DEKMBENF_00971;product=Ribosome hibernation promoting factor
 NZ_CP006571.1	Prodigal:002006	exon	1026556	1027314	.	-	.	ID=nbis-exon-967;Parent=nbisL2-cds-931;Name=hpf;gene=hpf;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00839;locus_tag=DEKMBENF_00971;product=Ribosome hibernation promoting factor
 NZ_CP006571.1	Prodigal:002006	CDS	1026556	1027314	.	-	0	ID=DEKMBENF_00971;Parent=nbisL2-cds-931;Name=hpf;gene=hpf;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00839;locus_tag=DEKMBENF_00971;product=Ribosome hibernation promoting factor
-NZ_CP006571.1	Aragorn:001002	gene	1027351	1027424	.	-	.	ID=nbisL1-trna-38;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00972;product=tRNA-Arg(tcg)
-NZ_CP006571.1	Aragorn:001002	tRNA	1027351	1027424	.	-	.	ID=DEKMBENF_00972;Parent=nbisL1-trna-38;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00972;product=tRNA-Arg(tcg)
+NZ_CP006571.1	Aragorn:001002	gene	1027351	1027424	.	-	.	ID=nbisL1-gene-41;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00972;product=tRNA-Arg(tcg)
+NZ_CP006571.1	Aragorn:001002	tRNA	1027351	1027424	.	-	.	ID=DEKMBENF_00972;Parent=nbisL1-gene-41;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00972;product=tRNA-Arg(tcg)
 NZ_CP006571.1	Aragorn:001002	exon	1027351	1027424	.	-	.	ID=nbis-exon-41;Parent=DEKMBENF_00972;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00972;product=tRNA-Arg(tcg)
 NZ_CP006571.1	Prodigal:002006	gene	1027522	1028682	.	-	0	ID=nbis-gene-932;Name=atoC;db_xref=COG:COG2204;gene=atoC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q06065;locus_tag=DEKMBENF_00973;product=Regulatory protein AtoC
 NZ_CP006571.1	Prodigal:002006	mRNA	1027522	1028682	.	-	0	ID=nbisL2-cds-932;Parent=nbis-gene-932;Name=atoC;db_xref=COG:COG2204;gene=atoC;inference=ab initio prediction:Prodigal:002006,similar to AA sequence:UniProtKB:Q06065;locus_tag=DEKMBENF_00973;product=Regulatory protein AtoC
@@ -3835,8 +3835,8 @@ NZ_CP006571.1	Prodigal:002006	gene	1031833	1032894	.	-	0	ID=nbis-gene-934;Name=r
 NZ_CP006571.1	Prodigal:002006	mRNA	1031833	1032894	.	-	0	ID=nbisL2-cds-934;Parent=nbis-gene-934;Name=rcsC;eC_number=2.7.13.3;gene=rcsC;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00979;locus_tag=DEKMBENF_00975;product=Sensor histidine kinase RcsC
 NZ_CP006571.1	Prodigal:002006	exon	1031833	1032894	.	-	.	ID=nbis-exon-970;Parent=nbisL2-cds-934;Name=rcsC;eC_number=2.7.13.3;gene=rcsC;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00979;locus_tag=DEKMBENF_00975;product=Sensor histidine kinase RcsC
 NZ_CP006571.1	Prodigal:002006	CDS	1031833	1032894	.	-	0	ID=DEKMBENF_00975;Parent=nbisL2-cds-934;Name=rcsC;eC_number=2.7.13.3;gene=rcsC;inference=ab initio prediction:Prodigal:002006,protein motif:HAMAP:MF_00979;locus_tag=DEKMBENF_00975;product=Sensor histidine kinase RcsC
-NZ_CP006571.1	Aragorn:001002	gene	1033270	1033354	.	-	.	ID=nbisL1-trna-39;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00976;product=tRNA-Leu(caa)
-NZ_CP006571.1	Aragorn:001002	tRNA	1033270	1033354	.	-	.	ID=DEKMBENF_00976;Parent=nbisL1-trna-39;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00976;product=tRNA-Leu(caa)
+NZ_CP006571.1	Aragorn:001002	gene	1033270	1033354	.	-	.	ID=nbisL1-gene-42;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00976;product=tRNA-Leu(caa)
+NZ_CP006571.1	Aragorn:001002	tRNA	1033270	1033354	.	-	.	ID=DEKMBENF_00976;Parent=nbisL1-gene-42;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00976;product=tRNA-Leu(caa)
 NZ_CP006571.1	Aragorn:001002	exon	1033270	1033354	.	-	.	ID=nbis-exon-42;Parent=DEKMBENF_00976;inference=COORDINATES:profile:Aragorn:001002;locus_tag=DEKMBENF_00976;product=tRNA-Leu(caa)
 NZ_CP006571.1	Prodigal:002006	gene	1033409	1034095	.	-	0	ID=nbis-gene-935;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00977;product=hypothetical protein
 NZ_CP006571.1	Prodigal:002006	mRNA	1033409	1034095	.	-	0	ID=nbisL2-cds-935;Parent=nbis-gene-935;inference=ab initio prediction:Prodigal:002006;locus_tag=DEKMBENF_00977;product=hypothetical protein

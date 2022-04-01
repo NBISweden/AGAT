@@ -23,7 +23,7 @@ gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds
 create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list
 remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap
 check_level1_positions check_level2_positions info_omniscient fil_cds_frame
-check_all_level1_positions check_all_level2_positions remove_element_from_omniscient
+check_all_level1_locations check_all_level2_locations remove_element_from_omniscient
 append_omniscient merge_omniscients remove_omniscient_elements_from_level1_id_list
 fill_omniscient_from_other_omniscient_level1_id subsample_omniscient_from_level1_id_list_intact
 subsample_omniscient_from_level1_id_list_delete remove_tuple_from_omniscient
@@ -1947,16 +1947,16 @@ sub check_gene_positions {
 }
 
 # Check the start and end of level1 feature based on all features level2;
-sub check_all_level1_positions {
+sub check_all_level1_locations {
 	my ($args) = @_;
 
 	my $resume_case=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
 	# -- Declare all variables and fill them --
 	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
 	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 	if( defined($args->{log}) ) { $log = $args->{log}; }
 
@@ -1980,15 +1980,15 @@ sub check_all_level1_positions {
 }
 
 # Purpose: review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-sub check_all_level2_positions{
+sub check_all_level2_locations{
 	my ($args) = @_;
 	my $resume_case=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
 	# -- Declare all variables and fill them --
 	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_positions!"; exit; }
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
 	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 	if( defined($args->{log}) ) { $log = $args->{log}; }
 

@@ -285,7 +285,7 @@ if (-d $augustus_gff_folder){
       }
     }
     my $out = $gff_out{$type};
-    print_omniscient($full_omniscient, $out);
+    print_omniscient( {omniscient => $full_omniscient, output => $out} ); 
     %$full_omniscient = (); # empty hash
     $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};

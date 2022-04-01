@@ -205,10 +205,10 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 }
 
 if($add_flag){
-  print_omniscient($omniscient, $gffout); #print result
+  print_omniscient( {omniscient => $omniscient, output => $gffout} );
 }
 else{
-  print_omniscient_from_level1_id_list ($omniscient, \@gene_id_ok, $gffout); #print result
+  print_omniscient_from_level1_id_list( {omniscient => $omniscient, level_id_list =>\@gene_id_ok, output => $gffout} );
 }
 
 #END
