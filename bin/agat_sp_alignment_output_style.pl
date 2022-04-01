@@ -73,8 +73,7 @@ print ("GFF3 file parsed\n");
 
 ###
 # Print result
-
-print_omniscient_as_match($hash_omniscient, $gffout); #print gene modified
+print_omniscient_as_match( {omniscient => $hash_omniscient, output => $gffout} ); 
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;

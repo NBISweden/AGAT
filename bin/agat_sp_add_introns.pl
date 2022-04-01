@@ -156,7 +156,7 @@ my $intron_added=0;
     }
   }
 
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
 
 print "$intron_added introns added\nBye Bye\n";
       #########################

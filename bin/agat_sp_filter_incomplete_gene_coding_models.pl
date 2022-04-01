@@ -238,11 +238,11 @@ if(! $add_flag){
 }
 
 print "Now printing complete models\n";
-print_omniscient($hash_omniscient, $gffout); #print result
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 if(@incomplete_mRNA){
   print "Now printing incomplete models\n";
-  print_omniscient(\%omniscient_incomplete, $gffout_incomplete); #print result
+  print_omniscient( {omniscient => \%omniscient_incomplete, output => $gffout_incomplete} );
 }
 
 print "Bye Bye.\n";

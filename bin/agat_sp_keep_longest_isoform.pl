@@ -68,7 +68,8 @@ print "Parsing Finished\n";
 my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash_omniscient);
 
 # print omniscientNew containing only the longest isoform per gene
-print_omniscient($hash_omniscient, $gffout);
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
 print $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n";
 print $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n";
 

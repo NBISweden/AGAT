@@ -21,6 +21,7 @@ my $opt_no_check;
 my $opt_no_progressbar;
 my $opt_output;
 my $opt_debug;
+my $opt_tabix;
 my $opt_expose_feature_levels;
 my $opt_help;
 my $opt_version_input;
@@ -28,19 +29,20 @@ my $opt_version_output = 3;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'c|ct=s'          => \$opt_comonTag,
-                  'v=i'             => \$opt_verbose,
-                  'o|output=s'      => \$opt_output,
-                  'efl|expose!'      => \$opt_expose_feature_levels,
-                  'debug!'           => \$opt_debug,
-                  'throw_fasta!'      => \$opt_throw_fasta,
-                  'nc|no_check!'      => \$opt_no_check,
-                  'no_progressbar!'      => \$opt_no_progressbar,
-                  'gff_version_input|gvi=f'   => \$opt_version_input,
-                  'gff_version_output|gvo=f'   => \$opt_version_output,
-                  'ml|merge_loci!'     => \$opt_merge,
-                  'h|help!'         => \$opt_help ) )
+if ( !GetOptions( 'g|gff=s'                  => \$opt_gfffile,
+                  'c|ct=s'                   => \$opt_comonTag,
+                  'v=i'                      => \$opt_verbose,
+                  'o|output=s'               => \$opt_output,
+                  'efl|expose!'              => \$opt_expose_feature_levels,
+                  'debug!'                   => \$opt_debug,
+                  'throw_fasta!'             => \$opt_throw_fasta,
+                  'tabix!'                   => \$opt_tabix,
+                  'nc|no_check!'             => \$opt_no_check,
+                  'no_progressbar!'          => \$opt_no_progressbar,
+                  'gff_version_input|gvi=f'  => \$opt_version_input,
+                  'gff_version_output|gvo=f' => \$opt_version_output,
+                  'ml|merge_loci!'           => \$opt_merge,
+                  'h|help!'                  => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -114,8 +116,10 @@ print ("GFF3 file parsed\n");
 
 ###
 # Print result
-
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, 
+                   output => $gffout,
+                   tabix => $opt_tabix 
+                } ); 
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;

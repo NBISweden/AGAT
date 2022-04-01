@@ -254,7 +254,7 @@ $string_to_print .="nb rna affected: $mrnaCounter\n";
 $string_to_print .="nb exon affected: $exonCounter\n";
 print $string_to_print;
 
-print_omniscient($hash_omniscient, $gffout); #print result
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 print "Bye Bye.\n";
 #######################################################################################################################

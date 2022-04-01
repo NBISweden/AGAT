@@ -166,8 +166,8 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 #resume
 
 my $number_notpass=$#bad_gene_list+1;
-print_omniscient_from_level1_id_list($hash_omniscient, \@good_gene_list, $gffout_pass); #print intact gene to the file
-print_omniscient_from_level1_id_list($hash_omniscient, \@bad_gene_list, $gffout_notpass); #print intact gene to the file
+print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@good_gene_list, output => $gffout_pass} );
+print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@bad_gene_list, output => $gffout_notpass} );
 
 print "$number_pass genes passed the test.\n";
 print "$number_notpass genes didn't pass the test.\n";

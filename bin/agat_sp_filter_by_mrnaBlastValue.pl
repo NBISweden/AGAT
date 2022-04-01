@@ -72,7 +72,7 @@ print ("$gff file parsed\n");
 remove_omniscient_elements_from_level2_ID_list ($hash_omniscient, $killlist);
 
 # Write the remaining things to output
-print_omniscient($hash_omniscient, $out); #print gene modified in file
+print_omniscient( {omniscient => $hash_omniscient, output => $out} );
 
       #########################
       ######### END ###########

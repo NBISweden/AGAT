@@ -139,8 +139,7 @@ foreach my $next_file (@opt_files){
 
 ########
 # Print results
-print_omniscient($hash_omniscient, $gffout);
-
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
 #END
 print "usage: $0 @copyARGV\n";
 my $end_run = time();

@@ -201,7 +201,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 my $toprint = "We found $nb_cases cases where introns were < $Xsize, we flagged them with the attribute $tag. The value of this tag is size of the shortest intron found in this gene.\n";
 print $ostreamReport $toprint;
 if($opt_output){print $toprint;}
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
       #########################
       ######### END ###########
       #########################

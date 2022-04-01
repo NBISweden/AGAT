@@ -628,7 +628,7 @@ $ostreamReport->print("$stringPrint");
 # PRINT IN FILES
 ####################
 print_time("Writing result...");
-print_omniscient($hash_omniscient, $ostreamGFF);
+print_omniscient( {omniscient => $hash_omniscient, output => $ostreamGFF} );
 print_time("End of script.");
 
       #########################

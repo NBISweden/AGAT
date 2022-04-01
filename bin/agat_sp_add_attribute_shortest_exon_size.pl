@@ -125,7 +125,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 my $toprint = "$nb_cases_l1 $tag flags/attributes added to level1 features and $nb_cases_l2 $tag flags/attributes added to level2 features. The value of the attribute is size of the shortest exon found.\n";
 print $ostreamReport $toprint;
 if($opt_output){print $toprint;}
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
       #########################
       ######### END ###########
       #########################

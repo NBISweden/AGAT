@@ -464,7 +464,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
 
 ######################
 ##### Print the result
-print_omniscient($hash_omniscient, $outputTab[2]);
+print_omniscient( {omniscient => $hash_omniscient, output => $outputTab[2]} );
 
 ##########################################
 #### SUMMERIZING##########################

@@ -252,19 +252,19 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 					# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
-																																											 verbose => 2,
-																																											 no_check => 1,
-												                                                               no_check_skip => ["_check_sequential",
-																																																				 "_check_l2_linked_to_l3",
-																																																				 "_check_l1_linked_to_l2",
-																																																				 "_remove_orphan_l1",
-																																																				 "check_all_level2_locations",
-																																																				 "check_all_level1_locations"],
+																						 verbose => 2,
+																						 no_check => 1,
+												                                         no_check_skip => ["_check_sequential",
+																											"_check_l2_linked_to_l3",
+																											"_check_l1_linked_to_l2",
+																											"_remove_orphan_l1",
+																											"check_all_level2_locations",
+																											"check_all_level1_locations"],
 	                                                                                   });
 
 	        if($verbose){
 	          print "\nA proper hash:\n";
-	          print_omniscient($hash_omniscient_clean, $gffout);
+	          print_omniscient( {omniscient => $hash_omniscient_clean, output => $gffout} );
 	          print "\n";
 	        }
 
@@ -445,7 +445,7 @@ if ($nbKey == 0){
 ########
 #print GFF the selected features (over the choosen treshold)
 ########
-print_omniscient($new_omniscient, $gffout);
+print_omniscient( {omniscient => $new_omniscient, output => $gffout} );
 
 my $nbEndGene = nb_feature_level1($new_omniscient);
 my $total_multi_map = $nbEndGene - $nbOriginalL0Map;

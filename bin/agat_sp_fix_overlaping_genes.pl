@@ -169,7 +169,7 @@ if(! $error_found){
 }else{
   print "$total_overlap genes overlap\n";
 }
-print_omniscient($hash_omniscient, $gffout); #print gene modified
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 print "END\n";
 
 #######################################################################################################################

@@ -246,7 +246,6 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}) {
             else{
               $UTRbymRNA{'both'}{$id_l2}+=$nbUTR;
             }
-           #   print_omniscient_from_level1_id_list($hash_omniscient,[$geneID],$utr_gff{$tag_l3});
           }
         }
       }
@@ -349,7 +348,8 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     $stringPrint.= "According to the parameters $sizeList RNA discarded from $nbGene genes\n";
     my @listIDl2discardedUniq = uniq(@listIDl2discarded);
     my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discarded);
-    print_omniscient($omniscient_discarded, $ostreamUTRdiscarded);
+    print_omniscient( {omniscient => $omniscient_discarded, output => $ostreamUTRdiscarded} );
+
   }
   if(@listIDlok){
     my $sizeList= @listIDlok;
@@ -357,7 +357,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     $stringPrint.= "$sizeList RNA from $nbGeneOk genes pass the filter (under the UTR Threshold).\n";
     my @listIDlokUniq = uniq(@listIDlok);
     my $omniscient_ok = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDlokUniq);
-    print_omniscient($omniscient_ok, $ostreamUTR);
+    print_omniscient( {omniscient => $omniscient_ok, output => $ostreamUTR} );
   }
   if(@listIDl2discarded and @listIDlok){
     my $union=0;

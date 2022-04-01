@@ -390,7 +390,7 @@ if($frags){
 
 if($frags or $pseudo){
 	#print gff
-	print_omniscient($hash_omniscient, $gff_out);
+	print_omniscient( {omniscient => $hash_omniscient, output => $gff_out} );
 }
 
 # print results
