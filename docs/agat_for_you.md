@@ -77,7 +77,7 @@ Example of relationship made using a commong tag (here locus_tag):
     chr12	HAVANA	exon	100	500	.	+	.	locus_tag="gene1";ID=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	locus_tag="gene1";ID=cds-1;
 
-  3) ELSE Parsing approach 3: sequentially. 
+  3) ELSE Parsing approach 3: sequentially.
 
   Reading from top to th ebotoom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
 
@@ -97,7 +97,7 @@ Example of relationship made sequentially:
 
 Below you will find more information about peculiarity of the Omniscient structure, and the parsing approach used.
 
-#### Level1 feature type missing and no Parent/gene_id 
+#### Level1 feature type missing and no Parent/gene_id
 
 If you have isoforms (for Eukaryote organism) in your files and the `common attribute` used is not set properly you can end up with isoforms having independent parent gene features. See below for more details.
 
@@ -132,10 +132,11 @@ Here an example of three transcripts from two different genes (isoforms exist):
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
 A way to fix that is to use a common attribute. Here you could use `common_tag`, `transcript_id`, `gene_info`.  
-Example: 
+Example:
 
-   * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct common_tag`   
-   This will use the parsing approach 2 (only using common attribute). This will work even if transcript isoform exists.
+  * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct common_tag`  
+
+  This will use the parsing approach 2 (only using common attribute). This will work even if transcript isoform exists.
 
 Correct output:
 
@@ -151,10 +152,10 @@ Correct output:
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-   * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct transcript_id`  
+  * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct transcript_id`  
 
-   This will use the parsing approach 2 (common attribute transcript_id) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute. 
-   /!\ This will not work properly if you have isoforms. Indeed in the case you have isoforms, each transcript will have its own gene feature.
+  This will use the parsing approach 2 (common attribute transcript_id) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute.
+  /!\ This will not work properly if you have isoforms. Indeed in the case you have isoforms, each transcript will have its own gene feature.
 
     chr12    HAVANA  gene    100 500 .   +   .   ID="transcript1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent="transcript1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
@@ -171,7 +172,7 @@ Correct output:
 
   * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct gene_info`
 
-    This will use the parsing approach 2 (common attribute gene_info) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute. 
+  This will use the parsing approach 2 (common attribute gene_info) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute. 
 
     chr12   HAVANA  gene    100 600 .   +   .   ID="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
@@ -200,7 +201,7 @@ Input:
     chr12   HAVANA  CDS 100 500 .   +   0   ID=cds-1;Parent=transcript1
     chr12   HAVANA  exon    100 600 .   +   .   ID=exon2;Parent=transcript2
     chr12   HAVANA  CDS 100 600 .   +   0   ID=cds-2;Parent=transcript2
-    chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=transcriptb 
+    chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=transcriptb
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb
 
 `agat_convert_sp_gxf2gxf.pl --gff input.gff`
@@ -218,7 +219,7 @@ Input:
     chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=transcriptb
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb
 
-/!\\ This is not correct if transcript1 and transcript2 are isoforms. 
+/!\\ This is not correct if transcript1 and transcript2 are isoforms.
 You need to use a `common attribute` (here `locus_id`) to group the feature properly:
 
 `agat_convert_sp_gxf2gxf.pl --gff testB.gff --ct locus_id`
@@ -238,7 +239,7 @@ You need to use a `common attribute` (here `locus_id`) to group the feature prop
 
 * Case without Parent/ID transcript_id/gene_id relationships. Only `common attribute` approach to parse the file can be used (locus_tag and gene_id by defaut).
 
-/!\\ Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` are absent. 
+/!\\ Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` are absent.
 
 Input:  
 
@@ -264,7 +265,7 @@ Output:
 As the default `common attribute` are absent (gene_id or locus_tag), you have to inform AGAT what attribute to use to group features together properly, here `locus_id`.  
 
 `agat_convert_sp_gxf2gxf.pl --gff testC.gff --ct locus_id`
-Output: 
+Output:
 
     chr12   HAVANA  gene    100 600 .   +   .   ID=nbis-gene-1;locus_id="gene1"
     chr12   HAVANA  mRNA    100 600 .   +   .   ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_id="gene1"
@@ -279,7 +280,7 @@ Output:
 /!\\ In the case of presence of isoforms (for Eukaryote), it will result of isoforms merged in chimeric transcripts (It will be really unlucky to end up in such situation, because even a human cannot resolve such type of situation. There is no information about isoforms structure...).
 In Eukaryote case (multi-exon CDS) and absence of isoform, it will work correctly.
 
-* In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute. 
+* In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute.
 
 Input:
 
