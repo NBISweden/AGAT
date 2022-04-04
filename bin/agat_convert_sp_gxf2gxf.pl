@@ -222,6 +222,10 @@ Integer - Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3
 
 Boolean - To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
 
+=item B<--tabix>
+
+Boolen -  Sort the output for tabix indexing.
+
 =item B<--throw_fasta>
 
 Boolean - By default we keep the fasta sequences if present in the file. Activating this

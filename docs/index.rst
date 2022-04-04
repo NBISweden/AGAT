@@ -21,15 +21,22 @@ Contents
    :maxdepth: 2
    :caption: General
    
-   gxf.md
-   why_this_tool.md
    agat_for_you.md
+   agat_how_does_it_work.md
    troubleshooting.md
    how_to_cite.md
+   why_agat.md
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Knowledge
+
+   gxf.md
 
 .. toctree::
    :maxdepth: 2
-   :caption: Comparison AGAT vs other tools
+   :caption: AGAT vs other tools
 
    topological-sorting-of-gff-features.md
    gff_to_bed.md
