@@ -1,7 +1,7 @@
 Welcome to AGAT's documentation!
 ================================
 
-Another GTF/GFF Analysis Toolkit
+AGAT: Another GTF/GFF Analysis Toolkit
 ----------------------------------------
 
 **A GFF/GTF toolkit allowing you to perform almost everything you might want to achieve ^^**

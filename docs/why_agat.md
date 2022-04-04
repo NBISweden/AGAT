@@ -17,6 +17,6 @@ Once again AGAT is the only one recreating fully the missing information:
    * remove duplicated features.
    * merge overlapping loci (if option activate because for prokaryote is not something we would like)
 
-* The **third** idea was to have a **correct topological sorting output**. To my knowledge AGAT is the only one dealing properly with this task. More information about it [here](https://github.com/NBISweden/AGAT/wiki/Topological-sorting-of-gff-features).
+* The **third** idea was to have a **correct topological sorting output**. The parent features must be mentioned before children features.
 
 * **Finally**, based on the abilities described previously I have developed a **toolkit to perform different tasks**. Some are originals, some are similar than what other tools could offer, but within AGAT they will always have the strength of the 3 first points.
