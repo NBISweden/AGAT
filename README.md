@@ -66,7 +66,7 @@ AGAT has the power to check, fix, pad missing information (features/attributes) 
       * fix feature locations.  
       * remove duplicated features.  
       * group related features (if spread in different places in the file).  
-      * sort features.  
+      * sort features (tabix optional).  
       * merge overlapping loci into one single locus (only if option activated).  
     </details>
 

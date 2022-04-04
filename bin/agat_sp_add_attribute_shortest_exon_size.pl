@@ -18,7 +18,7 @@ my $verbose=undef;
 my $opt_help = 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
+if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
                   'o|out|output=s' => \$opt_output,
                   'v|verbose!'      => \$verbose,
                   'h|help!'         => \$opt_help ) )
@@ -154,7 +154,7 @@ agat_sp_add_attribute_shortest_exon_size.pl
 
 =head1 DESCRIPTION
 
-The script add the attribute <shortest_exon> to each gene and rna.
+The script add the attribute <shortest_exon> to each gene and rna, which will hold the size of the shortest exon in bp.
 
 =head1 SYNOPSIS
 
@@ -165,17 +165,17 @@ The script add the attribute <shortest_exon> to each gene and rna.
 
 =over 8
 
-=item B<--gff>, B<-f>, B<--ref> or B<-reffile>
+=item B<--gff>, B<-f> or B<--ref>
 
-Input GTF/GFF file.
+STRING: Input GTF/GFF file.
 
 =item  B<--out>, B<--output> or B<-o>
 
-Output gff3 file where the result will be printed.
+STRING: Output gff3 file where the result will be printed.
 
 =item B<-v>
 
-Bolean. Verbose for debugging purpose.
+BOLEAN: Verbose for debugging purpose.
 
 =item B<--help> or B<-h>
 

@@ -163,7 +163,7 @@ agat_sp_add_attribute_shortest_intron_size.pl
 
 =head1 DESCRIPTION
 
-The script add the attribute <shortest_intron> to each gene and rna.
+The script add the attribute <shortest_intron> to each gene and rna, which will hold the size of the shortest exon in bp.
 
 =head1 SYNOPSIS
 
@@ -176,15 +176,15 @@ The script add the attribute <shortest_intron> to each gene and rna.
 
 =item B<--gff>, B<-f>, B<--ref> or B<-reffile>
 
-Input GTF/GFF file.
+STRING: Input GTF/GFF file.
 
 =item  B<--out>, B<--output> or B<-o>
 
-Output gff3 file where the result will be printed.
+STRING: Output gff3 file where the result will be printed.
 
 =item B<-v>
 
-Bolean. Verbose for debugging purpose.
+BOLEAN: Verbose for debugging purpose.
 
 =item B<--help> or B<-h>
 

@@ -84,6 +84,10 @@ agat_convert_sp_gxf2gxf.pl --help
 
     Boolean - To deacticate all check that can be performed by the parser (e.g fixing UTR, exon, coordinates etc...)
 
+- **--tabix**
+
+    Boolen -  Sort the output for tabix indexing.
+
 - **--throw_fasta**
 
     Boolean - By default we keep the fasta sequences if present in the file. Activating this parameter will get rid of the fasta sequences. Default False.

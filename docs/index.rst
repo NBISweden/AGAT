@@ -1,8 +1,10 @@
 Welcome to AGAT's documentation!
 ================================
 
-Another GTF/GFF Analysis Toolkit
+AGAT: Another GTF/GFF Analysis Toolkit
 ----------------------------------------
+
+**A GFF/GTF toolkit allowing you to perform almost everything you might want to achieve ^^**
 
 The GTF/GFF formats are 9-column text formats used to describe and represent genomic features.
 The formats have quite evolved since 1997, and despite well-defined specifications existing nowadays they have a great flexibility allowing holding wide variety of information.
@@ -21,15 +23,22 @@ Contents
    :maxdepth: 2
    :caption: General
    
-   gxf.md
-   why_this_tool.md
    agat_for_you.md
+   agat_how_does_it_work.md
    troubleshooting.md
    how_to_cite.md
+   why_agat.md
+
+
+.. toctree::
+   :maxdepth: 3
+   :caption: Knowledge
+
+   gxf.md
 
 .. toctree::
    :maxdepth: 2
-   :caption: Comparison AGAT vs other tools
+   :caption: AGAT vs other tools
 
    topological-sorting-of-gff-features.md
    gff_to_bed.md
