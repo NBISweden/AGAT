@@ -1,3 +1,5 @@
 chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;
+chr12	HAVANA	exon	100	500	.	+	0	ID=exon1;
 chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;
+chr12	HAVANA	exon	100	600	.	+	0	ID=exon-2;
 chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;

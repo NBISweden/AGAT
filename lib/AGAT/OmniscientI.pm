@@ -3506,7 +3506,7 @@ sub get_general_info{
 		}
 		# Missing Parent attribute
 		if ($nb_parent <= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
-			dual_print( $log, "  => Parent attributes missing but common attribute present, /!\\ if you expect isoform in your annotation: ".
+			dual_print( $log, "  => Parent attributes missing but common attribute present, /!\\ In Eukaryote, if you expect isoforms in your annotation: ".
 				"all level3 features (e.g. CDS, exon) will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n", $verbose);
 		}
 		# Missing common tag
