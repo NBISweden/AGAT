@@ -1,0 +1,12 @@
+##gff-version 3
+chr12	HAVANA	gene	100	600	.	+	.	ID="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
+chr12	HAVANA	transcript	100	500	.	+	.	ID="bbb";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
+chr12	HAVANA	exon	100	500	.	+	.	ID="ccc";Parent="bbb";common_tag="gene1"
+chr12	HAVANA	CDS	100	500	.	+	0	ID="ddd";Parent="bbb";common_tag="gene1"
+chr12	HAVANA	transcript	100	600	.	+	.	ID="bbb2";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript2"
+chr12	HAVANA	exon	100	600	.	+	.	ID="ccc2";Parent="bbb2";common_tag="gene1"
+chr12	HAVANA	CDS	100	600	.	+	0	ID="ddd2";Parent="bbb2";common_tag="gene1"
+chr12	HAVANA	gene	1000	5000	.	+	.	ID="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
+chr12	HAVANA	transcript	1000	5000	.	+	.	ID="yyy";Parent="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
+chr12	HAVANA	exon	1000	5000	.	+	.	ID="zzz";Parent="yyy";common_tag="gene2"
+chr12	HAVANA	CDS	1000	5000	.	+	0	ID="www";Parent="yyy";common_tag="gene2"

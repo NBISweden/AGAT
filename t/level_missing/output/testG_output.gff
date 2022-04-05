@@ -1,0 +1,17 @@
+##gff-version 3
+chr12	HAVANA	gene	100	500	.	+	.	ID=nbis-gene-3
+chr12	HAVANA	mRNA	100	500	.	+	.	ID=transcript1;Parent=nbis-gene-3
+chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1
+chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1
+chr12	HAVANA	gene	100	600	.	+	.	ID=nbis-gene-4
+chr12	HAVANA	mRNA	100	600	.	+	.	ID=transcript2;Parent=nbis-gene-4
+chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2
+chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2
+chr12	HAVANA	gene	700	900	.	+	.	ID=nbis-gene-1;locus_tag="gene1"
+chr12	HAVANA	mRNA	700	900	.	+	.	ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_tag="gene1"
+chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=nbisL2-exon-1;locus_tag="gene1"
+chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=nbisL2-exon-1;locus_tag="gene1"
+chr12	HAVANA	gene	1000	1110	.	+	.	ID=nbis-gene-2;locus_tag="gene2"
+chr12	HAVANA	mRNA	1000	1110	.	+	.	ID=nbisL2-exon-2;Parent=nbis-gene-2;locus_tag="gene2"
+chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;Parent=nbisL2-exon-2;locus_tag="gene2"
+chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;Parent=nbisL2-exon-2;locus_tag="gene2"

@@ -979,11 +979,11 @@ sub manage_one_feature{
 			#		+--------------------------------------+
 			#		|					HANDLE PARENT(S) L3					 |
 			#		+--------------------------------------+
-			#	Save feature and check duplicates
-			# (treat also cases where there is multiple parent. => In that case we expand to create a uniq feature for each)
-			my $cptParent=0; # to check if it is a multiple parent case
-					my $allParent = scalar @parentList;
-					foreach my $parent (@parentList){ # first feature level3 with this primary_tag linked to the level2 feature
+				#	Save feature and check duplicates
+				# (treat also cases where there is multiple parent. => In that case we expand to create a uniq feature for each)
+				my $cptParent=0; # to check if it is a multiple parent case
+				my $allParent = scalar @parentList;
+				foreach my $parent (@parentList){ # first feature level3 with this primary_tag linked to the level2 feature
 				$cptParent++;
 
 				#Level3 key doesn't exist
@@ -1049,9 +1049,9 @@ sub manage_one_feature{
 						push (@{$omniscient->{"level3"}{$primary_tag}{lc($parent)}}, $feature);
 					}
 				}
-					}
-					return $last_locusTAGvalue, $last_l1_f, $last_l2_f, $feature, $feature, $lastL1_new;
-				}
+			}
+			return $last_locusTAGvalue, $last_l1_f, $last_l2_f, $feature, $feature, $lastL1_new;
+		}
 
 # +----------------------------------------------------------------------------+
 # |MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
@@ -1062,8 +1062,7 @@ sub manage_one_feature{
 				warn "GLOBAL@"."parser1@".$primary_tag."@";
 				return $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $feature, $lastL1_new;
 		}
-
-			print "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n";exit;
+		print "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n";exit;
 }
 
 ##==============================================================================
@@ -1450,7 +1449,7 @@ sub _check_l1_linked_to_l2{
 					# Find subfeature l3
 					my $stop_loop_tag_l3 = undef;
 					foreach my $primary_tag_l3  (keys %{$hash_omniscient->{'level3'}}){
-						
+
 						# Get list of parent from comon tag
 						my @ParentIDsinfo;
 						if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, lc($l2_id) ) ) ){
@@ -2775,7 +2774,7 @@ sub _check_sequential{ # Goes through from L3 to l1
  	my ($debug, $log, $infoSequential, $omniscient, $miscCount, $uniqID, $uniqIDtoType, $locusTAG_uniq, $mRNAGeneLink, $verbose) = @_;
  	my $resume_case_l2=0;
  	my $resume_case_l3=0;
-	
+
 
  	_deinterleave_sequential($infoSequential, $locusTAG_uniq, $verbose, $log); # PART OF LOCUS LOST BEFORE TO MEET ITS L2 or L1 ... we catch them and re-link everything as it should be
 
@@ -2829,7 +2828,7 @@ sub _check_sequential{ # Goes through from L3 to l1
 
 			else{
  				foreach my $feature_L3 (@{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level3'}} ){
-					
+
 					if(! $feature_l2){
 	 					if(! exists_keys($infoSequential,("locus", $locusNameHIS, $bucket,'level2'))	){
 		 						dual_print($log, "_check_sequential level2 does not exits in sequential !\n", $verbose) if($debug);
@@ -3489,7 +3488,7 @@ sub get_general_info{
 
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){
-		dual_print( $log, "=>Check due to only level3 features:\n", $verbose);
+		dual_print( $log, "=>Check because only level3 features:\n", $verbose);
 		#my $to_print = "- Only level3 features -";
 
 		my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.
@@ -3499,38 +3498,57 @@ sub get_general_info{
 		}
 
 		dual_print( $log, " * Number of feature with Parent attribute:$nb_parent", $verbose);
-		dual_print( $log, " * Number of feature with a common tag attribute:$nb_common_tag\n", $verbose);
+		dual_print( $log, " * Number of feature with a common attribute:$nb_common_tag\n", $verbose);
 		# Nothing missing
 		if ($nb_parent >= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
 			dual_print( $log, "  => Everything should be fine, we can even reconstruct isoforms if any!\n", $verbose);
 		}
+		# Missing Parent and common attribute
+		elsif ($nb_parent == 0 and $nb_common_tag == 0){
+			dual_print( $log, "  => Common attributes and Parent attributes missing.\n".
+			    "  /!\\ A single Level2 features (e.g. mRNA) and a single level1 (e.g. gene) will be created by AGAT,".
+					" and all level3 feautres (e,g, CDS,exon) will be attached to them. This is probably not what you want...\n".
+					"  see B. 2.2 and 3. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n".
+					"  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly ".
+					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
+		}
+		elsif ($nb_parent <= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
+			dual_print( $log, "  => Some common attributes and some Parent attributes missing.\n".
+			    "  /!\\ For features where both are missing A single Level2 features (e.g. mRNA) and a single level1 (e.g. gene) will be created by AGAT,".
+					" and all level3 feautres (e,g, CDS,exon) will be attached to them. This is probably not what you want...\n".
+					"  see B. 2.2 and 3. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n".
+					"  /!\\ For features where the common attribute or the parent attribute is missing, it would be fine as long as you do not expect isoforms in your annotation (Eukaryote).".
+					"  see B. 4. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n".
+					"  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly ".
+					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
+		}
 		# Missing Parent attribute
-		if ($nb_parent <= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
-			dual_print( $log, "  => Parent attributes missing but common attribute present, /!\\ In Eukaryote, if you expect isoforms in your annotation: ".
-				"all level3 features (e.g. CDS, exon) will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n", $verbose);
+		elsif ($nb_parent <= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
+			dual_print( $log, "  => Parent attributes missing but common attributes present.\n".
+			  "  /!\\ In Eukaryote, if you expect isoforms in your annotation: ".
+				"all level3 features (e.g. CDS, exon) of a locus will be collected into a single level2 (e.g mRNA) features and overlaping level3 features will be merged.\n".
+				"  see B. 2.1 at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n", $verbose);
 		}
-		# Missing common tag
-		if ($nb_parent >= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
+		# Missing common attribute
+		elsif ($nb_parent >= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
+			# No common attribute
 			if ($nb_common_tag == 0 or $nb_common_tag == 1){
-				dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
-					" but they will be attached to a single level1 (e.g. gene) created by AGAT.\n", $verbose);
+				dual_print( $log, "  => Common attributes missing.\n".
+				  "  /!\\ In Eukaryote, if you expect isoforms in your annotation: ".
+					"each isoform will have its own gene feature instead to share the same one.\n".
+					"  see B. 1.1. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n", $verbose);
 			}
+			# Some common attribute are missing
 			else{
-				dual_print( $log, "  => Common tag attributes missing, /!\\ Level2 features (e.g. mRNA) will be properly created by AGAT,".
-					" but they will be attached to the last level1 (e.g. gene) created by AGAT using the common tag attribute.\n", $verbose);
+				dual_print( $log, "  => Some common attributes missing.\n".
+				  "  /!\\ In Eukaryote, if you expect isoforms in your annotation: ".
+					"each isoform will have its own gene feature instead to share the same one (only for features without common attributes).\n".
+					"  see B. 1.2. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n", $verbose);
 			}
-			dual_print( $log, "  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
-					"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
-		}
-		# Missing Parent and common tag attribute
-		if ($nb_parent <= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
-			dual_print( $log, "  => Common tag and Parent attributes missing, /!\\ A single Level2 features (e.g. mRNA) and a single level1 (e.g. gene) will be created by AGAT,".
-					" and all level3 feautres (e,g, CDS,exon) will be attached to them. This is probably not what you want...".
-					"\nYou might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly.\n".
-					"See parameter --ct in agat_convert_sp_gxf2gxf.pl\n", $verbose);
+			dual_print( $log, "  !! You might try to fix the issue by choosing a common attribute to use in order to group the features correctly ".
+					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
 		}
 	}
-
 	return $nb_feature_line;
 }
 

@@ -8,7 +8,7 @@ All tools taking GFF/GTF as input can be divided in two groups: \_sp\_ and \_sq\
 Moreover, it allows to fix all potential errors in the limit of the possibilities given by the format itself.
 See the Omniscient section for more information about it.  
 
-* with \_sq\_ prefix 
+* with \_sq\_ prefix
 
  \_sq\_ stands for SEQUENTIAL. Those tools will read and process GFF/GTF files from the top to the bottom, line by line, performing tasks on the fly. This is memory efficient but the sanity check of the file is minimum. Those tools are not intended to perform complex tasks.
 
@@ -45,7 +45,7 @@ To resume by priority of way to parse: **Parent/child relationship > common attr
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 If you need to use the `--ct` option you will have to process the file `agat_convert_sp_gxf2gxf.pl` first  before running any other tool.
 
-  1) Parsing approach 1: by Parent/child relationship  
+  1. Parsing approach 1: by Parent/child relationship  
 
 Example of Parent/ID relationship used by the GFF format:
 
@@ -61,20 +61,20 @@ Example of gene_id/transcript_id relationship used by the GTF format:
     chr12	HAVANA	exon	100	500	.	+	.	gene_id "gene1"; transcript_id "transcript1"; exon_id=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	gene_id "gene1"; transcript_id "transcript1"; cds_id=cds-1;
 
-  2) ELSE Parsing approach 2: by a common attribute/tag  
+  2. ELSE Parsing approach 2: by a common attribute/tag  
 
   a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user using the `--ct` parameter).  
 
-Example of relationship made using a commong tag (here locus_tag):
+Example of relationship made using a common tag (here locus_tag):
 
     chr12	HAVANA	gene	100	500	.	+	.	locus_tag="gene1"
     chr12	HAVANA	transcript	100	500	.	+	.	locus_tag="gene1";ID="transcript1"
     chr12	HAVANA	exon	100	500	.	+	.	locus_tag="gene1";ID=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	locus_tag="gene1";ID=cds-1;
 
-  3) ELSE Parsing approach 3: sequentially.
+  3. ELSE Parsing approach 3: sequentially.
 
-  Reading from top to th ebotoom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
+  Reading from top to the botom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
 
 Example of relationship made sequentially:
 
@@ -92,11 +92,11 @@ Example of relationship made sequentially:
 
 Below you will find more information about peculiarity of the Omniscient structure, and the parsing approach used.
 
-#### Level1 feature type missing and no Parent/gene_id
+#### A. Level1 feature type missing and no Parent/gene_id
 
 If you have isoforms (for Eukaryote organism) in your files and the `common attribute` used is not set properly you can end up with isoforms having independent parent gene features. See below for more details.
 
-Here an example of three transcripts from two different genes (isoforms exist):
+Here an example of three transcripts from two different genes (isoforms exist - testA.gff):
 
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";common_tag="gene1";transcript_id="transcript1";gene_info="gene1"
     chr12   HAVANA  exon    100 500 .   +   .   ID="ccc";common_tag="gene1"
@@ -109,9 +109,9 @@ Here an example of three transcripts from two different genes (isoforms exist):
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";common_tag="gene2"
 
 
-/!\ AGAT will create a gene feature by transcript. This is WRONG here because we have ISOFORMS (transcript1 and transcript2 are from the same gene) that must be attached to the same gene:  
+* /!\ Be careful in Eukaryote annotation containing isoforms. Indeed AGAT will create a gene feature by transcript. As in the example this is wrong because transcript1 and transcript2 should be attached to the same gene:  
 
-`agat_convert_sp_gxf2gxf.pl --gff input.gxf`
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff`
 
     chr12   HAVANA  gene    100 500 .   +   .   ID=nbisL1-transcript-1;common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent=nbisL1-transcript-1;common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
@@ -126,14 +126,11 @@ Here an example of three transcripts from two different genes (isoforms exist):
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-A way to fix that is to use a common attribute. Here you could use `common_tag`, `transcript_id`, `gene_info`.  
-Example:
+* ! A way to fix that is to use a common attribute. Here you could use `common_tag`, `transcript_id`, `gene_info`:
 
-  * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct common_tag`  
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct common_tag`  
 
-  This will use the parsing approach 2 (only using common attribute). This will work even if transcript isoform exists.
-
-Correct output:
+This will work well even if transcript isoforms exist. This will use the parsing approach 2 (only using common attribute).
 
     chr12   HAVANA  gene    100 600 .   +   .   ID=nbisL1-transcript-1;common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent=nbisL1-transcript-1;common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
@@ -147,10 +144,25 @@ Correct output:
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-  * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct transcript_id`  
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct gene_info`
 
-  This will use the parsing approach 2 (common attribute transcript_id) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute.
-  /!\ This will not work properly if you have isoforms. Indeed in the case you have isoforms, each transcript will have its own gene feature.
+This will work well even if transcript isoforms exist. This will use the parsing approach 2 (common attribute gene_info) for transcript features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute.
+
+    chr12   HAVANA  gene    100 600 .   +   .   ID="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
+    chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
+    chr12   HAVANA  exon    100 500 .   +   .   ID="ccc";Parent="bbb";common_tag="gene1"
+    chr12   HAVANA  CDS 100 500 .   +   0   ID="ddd";Parent="bbb";common_tag="gene1"
+    chr12   HAVANA  transcript  100 600 .   +   .   ID="bbb2";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript2"
+    chr12   HAVANA  exon    100 600 .   +   .   ID="ccc2";Parent="bbb2";common_tag="gene1"
+    chr12   HAVANA  CDS 100 600 .   +   0   ID="ddd2";Parent="bbb2";common_tag="gene1"
+    chr12   HAVANA  gene    1000    5000    .   +   .   ID="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
+    chr12   HAVANA  transcript  1000    5000    .   +   .   ID="yyy";Parent="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
+    chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
+    chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
+
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct transcript_id`  
+
+/!\ In our case, using `transcript_id` is not a good choice. Indeed each transcript will have its own gene feature, so isoform will not be linked to the same gene feature as expected. This will use the parsing approach 2 (common attribute transcript_id) for transcript features and approach 3 (sequential) for subfeatures that do not have the transcript_id attribute.
 
     chr12    HAVANA  gene    100 500 .   +   .   ID="transcript1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
     chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent="transcript1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
@@ -165,57 +177,45 @@ Correct output:
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-  * `agat_convert_sp_gxf2gxf.pl --gff input.gxf --ct gene_info`
 
-  This will use the parsing approach 2 (common attribute gene_info) for transcrtipt features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute. 
+#### B. Level1 and Level2 feature types missing (Only Level3 features!)
 
-    chr12   HAVANA  gene    100 600 .   +   .   ID="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
-    chr12   HAVANA  transcript  100 500 .   +   .   ID="bbb";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript1"
-    chr12   HAVANA  exon    100 500 .   +   .   ID="ccc";Parent="bbb";common_tag="gene1"
-    chr12   HAVANA  CDS 100 500 .   +   0   ID="ddd";Parent="bbb";common_tag="gene1"
-    chr12   HAVANA  transcript  100 600 .   +   .   ID="bbb2";Parent="gene1";common_tag="gene1";gene_info="gene1";transcript_id="transcript2"
-    chr12   HAVANA  exon    100 600 .   +   .   ID="ccc2";Parent="bbb2";common_tag="gene1"
-    chr12   HAVANA  CDS 100 600 .   +   0   ID="ddd2";Parent="bbb2";common_tag="gene1"
-    chr12   HAVANA  gene    1000    5000    .   +   .   ID="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
-    chr12   HAVANA  transcript  1000    5000    .   +   .   ID="yyy";Parent="gene2";common_tag="gene2";gene_info="gene2";transcript_id="transcript3"
-    chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
-    chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
+In such case the sequential approach cannot be used (Indeed no level1 (e.g. gene) and no lelve2 (e.g. mrna) feature is present in the file). So the presence of parent/ID transcript_id/gene_id relationships and/or a proper common attribute is crucial.
 
-
-#### Level1 and Level2 feature type missing (Only Level3 features!)
-
-In such case the sequential approach cannot be used (Indeed no level1 (e.g. gene) and no lelve2 (e.g. mrna) feature is present in the file)
-
- * Case with Parent/ID transcript_id/gene_id relationships.
+1. Case with Parent/ID transcript_id/gene_id relationships.
 
 If you have isoforms (for Eukaryote organism) in your files and the `common attribute` used is not set properly you can end up with isoforms having independent parent gene features. See below for more details.
 
-Input:  
+1.1
 
-    chr12   HAVANA  exon    100 500 .   +   .   ID=exon1;Parent=transcript1
-    chr12   HAVANA  CDS 100 500 .   +   0   ID=cds-1;Parent=transcript1
-    chr12   HAVANA  exon    100 600 .   +   .   ID=exon2;Parent=transcript2
-    chr12   HAVANA  CDS 100 600 .   +   0   ID=cds-2;Parent=transcript2
-    chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=transcriptb
-    chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb
+Input (testB.gff):  
 
-`agat_convert_sp_gxf2gxf.pl --gff input.gff`
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1;locus_id="gene1"
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1;locus_id="gene1"
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2;locus_id="gene1"
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2;locus_id="gene1"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_id="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_id="gene2"
 
-    chr12   HAVANA  gene    100 500 .   +   .   ID=nbis-gene-1
-    chr12   HAVANA  mRNA    100 500 .   +   .   ID=transcript1;Parent=nbis-gene-1
-    chr12   HAVANA  exon    100 500 .   +   .   ID=exon1;Parent=transcript1
-    chr12   HAVANA  CDS 100 500 .   +   0   ID=cds-1;Parent=transcript1
-    chr12   HAVANA  gene    100 600 .   +   .   ID=nbis-gene-2
-    chr12   HAVANA  mRNA    100 600 .   +   .   ID=transcript2;Parent=nbis-gene-2
-    chr12   HAVANA  exon    100 600 .   +   .   ID=exon2;Parent=transcript2
-    chr12   HAVANA  CDS 100 600 .   +   0   ID=cds-2;Parent=transcript2
-    chr12   HAVANA  gene    700 900 .   +   .   ID=nbis-gene-3
-    chr12   HAVANA  mRNA    700 900 .   +   .   ID=transcriptb;Parent=nbis-gene-3
-    chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=transcriptb
-    chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb
+* /!\ Be careful in Eukaryote annotation containing isoforms. Indeed there is no Leve2 feature (e.g. mRNA) to indicate to which parental gene to link isoforms to. By default (see below) the result will be wrong because transcript1 and transcript2 should be attached to the same gene:  
 
-/!\\ This is not correct if transcript1 and transcript2 are isoforms.
-You need to use a `common attribute` (here `locus_id`) to group the feature properly:
+`agat_convert_sp_gxf2gxf.pl --gff testB.gff`
+
+		chr12	HAVANA	gene	100	500	.	+	.	ID=nbis-gene-1;locus_id="gene1"
+		chr12	HAVANA	mRNA	100	500	.	+	.	ID=transcript1;Parent=nbis-gene-1;locus_id="gene1"
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1;locus_id="gene1"
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1;locus_id="gene1"
+		chr12	HAVANA	gene	100	600	.	+	.	ID=nbis-gene-2;locus_id="gene1"
+		chr12	HAVANA	mRNA	100	600	.	+	.	ID=transcript2;Parent=nbis-gene-2;locus_id="gene1"
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2;locus_id="gene1"
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2;locus_id="gene1"
+		chr12	HAVANA	gene	700	900	.	+	.	ID=nbis-gene-3;locus_id="gene2"
+		chr12	HAVANA	mRNA	700	900	.	+	.	ID=transcriptb;Parent=nbis-gene-3;locus_id="gene2"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_id="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_id="gene2"
+
+* ! A way to fix that is to use a `common attribute` to group the feature properly:. AGAT uses `locus_tag` and `gene_id` by default.
+If you are lucky those attributes already exist. Here they are absent, you can use `locus_id` instead.
 
 `agat_convert_sp_gxf2gxf.pl --gff testB.gff --ct locus_id`
 
@@ -232,11 +232,78 @@ You need to use a `common attribute` (here `locus_id`) to group the feature prop
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb;locus_id="gene2"
 
 
-* Case without Parent/ID transcript_id/gene_id relationships. Only `common attribute` approach to parse the file can be used (locus_tag and gene_id by defaut).
+1.2.
 
-/!\\ Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` are absent.
+Here we have only level3 features, Parent/ID transcript_id/gene_id relationships present, default `common attributes` ( `locus_tag` or `gene_id`) is set for some features.
 
-Input:  
+Input testF.gff:
+
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1;locus_tag="gene1"
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2;locus_tag="gene1"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_tag="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_tag="gene2"
+		chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;Parent=transcript4
+		chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;Parent=transcript4
+
+`agat_convert_sp_gxf2gxf.pl --gff testF.gff`
+
+		chr12	HAVANA	gene	100	600	.	+	.	ID="gene1";locus_tag="gene1"
+		chr12	HAVANA	mRNA	100	500	.	+	.	ID=transcript1;Parent="gene1";locus_tag="gene1"
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1;locus_tag="gene1"
+		chr12	HAVANA	mRNA	100	600	.	+	.	ID=transcript2;Parent="gene1";locus_tag="gene1"
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2;locus_tag="gene1"
+		chr12	HAVANA	gene	700	900	.	+	.	ID="gene2";locus_tag="gene2"
+		chr12	HAVANA	mRNA	700	900	.	+	.	ID=transcriptb;Parent="gene2";locus_tag="gene2"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_tag="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_tag="gene2"
+		chr12	HAVANA	gene	1000	1110	.	+	.	ID=nbis-gene-1
+		chr12	HAVANA	mRNA	1000	1110	.	+	.	ID=transcript4;Parent=nbis-gene-1
+		chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;Parent=transcript4
+		chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;Parent=transcript4
+
+The `common attributes` is used to attach isoforms to a common gene feature. As transcript4 has no common attribute, it will have its own parent features.
+
+2. Case without Parent/ID transcript_id/gene_id relationships. Only `common attribute` approach to parse the file can be used.
+
+2.1.  
+
+Here we have only level3 features, no Parent/ID transcript_id/gene_id relationships, but a default `common attributes` ( `locus_tag` or `gene_id`) is present.
+
+Input testE.gff:
+
+		chr12	HAVANA	exon	100	300	.	+	.	ID=exon1;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	300	.	+	0	ID=cds-1;locus_tag="gene1"
+		chr12	HAVANA	exon	500	600	.	+	.	ID=exon2;locus_tag="gene1"
+		chr12	HAVANA	CDS	500	600	.	+	0	ID=cds-2;locus_tag="gene1"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;locus_tag="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;locus_tag="gene2"
+
+`agat_convert_sp_gxf2gxf.pl --gff testE.gff`
+
+		chr12	HAVANA	gene	100	600	.	+	.	ID=nbis-gene-1;locus_tag="gene1"
+		chr12	HAVANA	mRNA	100	600	.	+	.	ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_tag="gene1"
+		chr12	HAVANA	exon	100	300	.	+	.	ID=exon1;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	exon	500	600	.	+	.	ID=exon2;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	CDS	100	300	.	+	0	ID=cds-1;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	CDS	500	600	.	+	0	ID=cds-2;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	gene	700	900	.	+	.	ID=nbis-gene-2;locus_tag="gene2"
+		chr12	HAVANA	mRNA	700	900	.	+	.	ID=nbisL2-exon-2;Parent=nbis-gene-2;locus_tag="gene2"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=nbisL2-exon-2;locus_tag="gene2"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=nbisL2-exon-2;locus_tag="gene2"
+
+/!\\ In Eukaryote annotation containing isoforms it will not work properly. Indeed, it will result of isoforms merged in chimeric transcripts (It will be really unlucky to end up in such situation, because even a human cannot resolve such type of situation. There is no information about isoforms structure...).
+In Eukaryote cases (even for multi-exon CDS) with absence of isoforms, it will work correctly.
+
+2.2
+
+Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` ( `locus_tag` and `gene_id`) are absent. Sequential approach will be used by AGAT but as there are only level3 features,
+all will be linked to only one parent. See below for more details.
+
+Input testC.gff:  
 
     chr12   HAVANA  exon    100 500 .   +   .   ID=exon1;locus_id="gene1"
     chr12   HAVANA  CDS 100 500 .   +   0   ID=cds-1;locus_id="gene1"
@@ -245,7 +312,7 @@ Input:
     chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;locus_id="gene2"
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;locus_id="gene2"
 
-Output:  
+`agat_convert_sp_gxf2gxf.pl --gff testC.gff`  
 
     chr12   HAVANA  gene    100 900 .   +   .   ID=nbis-gene-1;locus_id="gene1"
     chr12   HAVANA  mRNA    100 900 .   +   .   ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_id="gene1"
@@ -255,12 +322,11 @@ Output:
     chr12   HAVANA  CDS 100 600 .   +   0   ID=cds-2;Parent=nbisL2-exon-1;locus_id="gene1"
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=nbisL2-exon-1;locus_id="gene2"
 
-/!\\ All features are collected under a single gene and mRNA feature, which is WRONG.
+/!\ All features are collected under a single gene and mRNA feature, which is wrong.
 
-As the default `common attribute` are absent (gene_id or locus_tag), you have to inform AGAT what attribute to use to group features together properly, here `locus_id`.  
+As the default `common attribute` are absent (gene_id or locus_tag), you have to inform AGAT what attribute to use to group features together properly, here `locus_id` is a good choice:  
 
-`agat_convert_sp_gxf2gxf.pl --gff testC.gff --ct locus_id`
-Output:
+`agat_convert_sp_gxf2gxf.pl --gff testC.gff --ct locus_id`  
 
     chr12   HAVANA  gene    100 600 .   +   .   ID=nbis-gene-1;locus_id="gene1"
     chr12   HAVANA  mRNA    100 600 .   +   .   ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_id="gene1"
@@ -272,31 +338,84 @@ Output:
     chr12   HAVANA  exon    700 900 .   +   .   ID=exonb;Parent=nbisL2-exon-2;locus_id="gene2"
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=nbisL2-exon-2;locus_id="gene2"
 
-/!\\ In the case of presence of isoforms (for Eukaryote), it will result of isoforms merged in chimeric transcripts (It will be really unlucky to end up in such situation, because even a human cannot resolve such type of situation. There is no information about isoforms structure...).
-In Eukaryote case (multi-exon CDS) and absence of isoform, it will work correctly.
+/!\\ In Eukaryote annotation containing isoforms it will not work properly. Indeed, it will result of isoforms merged in chimeric transcripts (It will be really unlucky to end up in such situation, because even a human cannot resolve such type of situation. There is no information about isoforms structure...).
+In Eukaryote cases (even for multi-exon CDS) with absence of isoforms, it will work correctly.
 
-* In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute.
+3. In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute.
 
-Input:
+This is the same problem as seen previously. Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` ( `locus_tag` and `gene_id`) are absent. Sequential approach will be used by AGAT but as there are only level3 features,
+all will be linked to only one parent. See below for more details.
 
-    chr12   HAVANA  CDS 100 200 .   +   0   ID=cds-1;
-    chr12   HAVANA  CDS 510 600 .   +   0   ID=cds-2;
-    chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;
+Input (testD.gff):
+
+		chr10	Liftoff	CDS	100	300	.	+	0	ID=cds1
+		chr10	Liftoff	CDS	600	900	.	+	0	ID=cds2
+		chr10	Liftoff	CDS	400	490	.	-	0	ID=cds3
+
+`agat_convert_sp_gxf2gxf.pl --gff testD.gff`  
+
+		chr10	Liftoff	gene	100	900	.	+	.	ID=nbis-gene-1
+		chr10	Liftoff	mRNA	100	900	.	+	.	ID=nbisL2-cds-1;Parent=nbis-gene-1
+		chr10	Liftoff	exon	100	300	.	+	.	ID=nbis-exon-1;Parent=nbisL2-cds-1
+		chr10	Liftoff	exon	400	490	.	+	.	ID=nbis-exon-2;Parent=nbisL2-cds-1
+		chr10	Liftoff	exon	600	900	.	+	.	ID=nbis-exon-3;Parent=nbisL2-cds-1
+		chr10	Liftoff	CDS	100	300	.	+	0	ID=cds1;Parent=nbisL2-cds-1
+		chr10	Liftoff	CDS	400	490	.	-	0	ID=cds3;Parent=nbisL2-cds-1
+		chr10	Liftoff	CDS	600	900	.	+	0	ID=cds2;Parent=nbisL2-cds-1
+
+/!\ All features are collected under a single gene and mRNA feature, which is wrong.
+
+`agat_convert_sp_gxf2gxf.pl --gff testD.gff --ct ID`
+
+		chr10	Liftoff	gene	100	300	.	+	0	ID=nbis-gene-1
+		chr10	Liftoff	mRNA	100	300	.	+	0	ID=nbisL2-cds-1;Parent=nbis-gene-1
+		chr10	Liftoff	exon	100	300	.	+	.	ID=nbis-exon-1;Parent=nbisL2-cds-1
+		chr10	Liftoff	CDS	100	300	.	+	0	ID=cds1;Parent=nbisL2-cds-1
+		chr10	Liftoff	gene	400	490	.	-	0	ID=nbis-gene-3
+		chr10	Liftoff	mRNA	400	490	.	-	0	ID=nbisL2-cds-3;Parent=nbis-gene-3
+		chr10	Liftoff	exon	400	490	.	-	.	ID=nbis-exon-3;Parent=nbisL2-cds-3
+		chr10	Liftoff	CDS	400	490	.	-	0	ID=cds3;Parent=nbisL2-cds-3
+		chr10	Liftoff	gene	600	900	.	+	0	ID=nbis-gene-2
+		chr10	Liftoff	mRNA	600	900	.	+	0	ID=nbisL2-cds-2;Parent=nbis-gene-2
+		chr10	Liftoff	exon	600	900	.	+	.	ID=nbis-exon-2;Parent=nbisL2-cds-2
+		chr10	Liftoff	CDS	600	900	.	+	0	ID=cds2;Parent=nbisL2-cds-2
+
+This case is fine for Prokaryote annotation.  
+/!\ For Eukaryote it might work is some conditions:  
+A) The annotation should not contain isoforms (Indeed, there is no existing information to decipher to which isoform a CDS will be part of. If isoforms are present, each one will be linked to its own gene feature).  
+B) If there are multi-exon CDS, CDS parts must share the same ID (Indeed multi-exon CDS can share or not the same ID. Both way are allowed by the GFF format. If the CDS parts share the same ID, the CDS parts will be collected properly. If the CDS parts do not share the same ID, AGAT will slice it and create a gene/mRNA feature by CDS part!).
+
+4. Case where you have only one type of feature, and some feature have Parent attributes and some other have common attributes.
+
+Input (testG.gff):
+
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;locus_tag="gene1"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;locus_tag="gene1"
+		chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;locus_tag="gene2"
+		chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;locus_tag="gene2"
 
 
-Output:
+`agat_convert_sp_gxf2gxf.pl --gff testG.gff`  
 
-    chr12   HAVANA  gene    100 500 .   +   0   ID=nbis-gene-2
-    chr12   HAVANA  mRNA    100 500 .   +   0   ID=nbisL2-cds-1;Parent=nbis-gene-2
-    chr12   HAVANA  exon    100 500 .   +   .   ID=nbis-exon-1;Parent=nbisL2-cds-1
-    chr12   HAVANA  CDS 100 500 .   +   0   ID=cds-1;Parent=nbisL2-cds-1
-    chr12   HAVANA  gene    100 600 .   +   0   ID=nbis-gene-3
-    chr12   HAVANA  mRNA    100 600 .   +   0   ID=nbisL2-cds-2;Parent=nbis-gene-3
-    chr12   HAVANA  exon    100 600 .   +   .   ID=nbis-exon-2;Parent=nbisL2-cds-2
-    chr12   HAVANA  CDS 100 600 .   +   0   ID=cds-2;Parent=nbisL2-cds-2
-    chr12   HAVANA  gene    700 900 .   +   0   ID=nbis-gene-1
-    chr12   HAVANA  mRNA    700 900 .   +   0   ID=nbisL2-cds-3;Parent=nbis-gene-1
-    chr12   HAVANA  exon    700 900 .   +   .   ID=nbis-exon-3;Parent=nbisL2-cds-3
-    chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=nbisL2-cds-3
+		chr12	HAVANA	gene	100	500	.	+	.	ID=nbis-gene-3
+		chr12	HAVANA	mRNA	100	500	.	+	.	ID=transcript1;Parent=nbis-gene-3
+		chr12	HAVANA	exon	100	500	.	+	.	ID=exon1;Parent=transcript1
+		chr12	HAVANA	CDS	100	500	.	+	0	ID=cds-1;Parent=transcript1
+		chr12	HAVANA	gene	100	600	.	+	.	ID=nbis-gene-4
+		chr12	HAVANA	mRNA	100	600	.	+	.	ID=transcript2;Parent=nbis-gene-4
+		chr12	HAVANA	exon	100	600	.	+	.	ID=exon2;Parent=transcript2
+		chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-2;Parent=transcript2
+		chr12	HAVANA	gene	700	900	.	+	.	ID=nbis-gene-1;locus_tag="gene1"
+		chr12	HAVANA	mRNA	700	900	.	+	.	ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_tag="gene1"
+		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=nbisL2-exon-1;locus_tag="gene1"
+		chr12	HAVANA	gene	1000	1110	.	+	.	ID=nbis-gene-2;locus_tag="gene2"
+		chr12	HAVANA	mRNA	1000	1110	.	+	.	ID=nbisL2-exon-2;Parent=nbis-gene-2;locus_tag="gene2"
+		chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;Parent=nbisL2-exon-2;locus_tag="gene2"
+		chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;Parent=nbisL2-exon-2;locus_tag="gene2"
 
-/!\\ In the case of Eukaryotes, multi-exon CDS can share or not the same ID (both are allowed by the GFF format). If the CDS chunks share the same ID, the CDS part will be collected properly, if the CDS chuncks do not share the same ID the AGAT will slice it and create a gene/mRNA feature by CDS chunk! If you are in this case (not other attribute to use as `common attribute` you are screwed. This is not suppose to append because such type of input is actually not a GFF or GTF compliant format...)
+/!\ For Eukaryote annotation with isoforms, features would need to have the Parent attribute along with a common attribute to help AGAT to properly reconstruct the parental features (a single gene feature for isoforms).
