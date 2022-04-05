@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 38;
+use Test::More tests => 13;
 
 =head1 DESCRIPTION
 
@@ -22,10 +22,8 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $input_folder = "t/level_missing";
 my $output_folder = "t/level_missing/output";
-my $pathtmp = "tmp.gff"; # path file where to save temporary output
-my $script;
+my $outtmp = "tmp.gff"; # path file where to save temporary output
 my $result;
-
 
 # -------------------------- testA -------------------------
 
