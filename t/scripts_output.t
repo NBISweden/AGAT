@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 64;
+use Test::More tests => 66;
 
 =head1 DESCRIPTION
 
@@ -377,7 +377,19 @@ unlink "$outprefix-only_modified.gff";
 
 # --------check agat_sp_fix_overlaping_genes.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_fix_overlaping_genes.pl";
+$result = "$output_folder/agat_sp_fix_overlaping_genes_1.gff";
+system(" $script --gff $input_folder/genes_overlap.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_fix_overlaping_genes.pl";
+$result = "$output_folder/agat_sp_fix_overlaping_genes_2.gff";
+system(" $script --gff $input_folder/genes_overlap.gff -o $outtmp --merge 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # --------check agat_sp_fix_small_exon_from_extremities.pl-------------
 

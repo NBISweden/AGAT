@@ -5,18 +5,23 @@ use warnings;
 use Carp;
 use Getopt::Long;
 use Pod::Usage;
+use Sort::Naturally;
 use List::MoreUtils qw(uniq);
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
 my $outfile = undef;
 my $ref = undef;
-my $opt_help= 0;
+my $opt_merge;
+my $verbose;
+my $opt_help = 0;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "f|file|gff3|gff=s" => \$ref,
-    "output|outfile|out|o=s" => \$outfile))
+		"help|h"                 => \$opt_help,
+		"f|file|gff3|gff=s"      => \$ref,
+		"merge|m!"               => \$opt_merge,
+		"output|outfile|out|o=s" => \$outfile,
+		"verbose|v!"             => \$verbose))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -76,37 +81,44 @@ foreach my $tag_level1 (keys %{$hash_omniscient->{'level1'}}){
 
 my $total_overlap=0;
 #find overlap
-my %feature_studied;
-foreach my $tag (keys %hash_sortBySeq){ # loop over all the feature level1
+foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the feature level1
 
-  foreach my $seqid (keys %{$hash_sortBySeq{$tag}}){
+  foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq{$tag}}){
 
-    foreach my $gene_feature ( @{$hash_sortBySeq{$tag}{$seqid}}){
-     my @values = $gene_feature->get_tag_values('ID');
-     my $gene_id = shift @values;
-     $feature_studied{$gene_id}++;
+		# take copy to not loop over same hash
+		my @list_genes_sorted = sort { ncmp ($a->start.$a->_tag_value('ID'), $b->start.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$tag}{$seqid}};
+
+	  while (@list_genes_sorted){
+			my $gene_feature  = shift @list_genes_sorted;
+    	my $gene_id = lc($gene_feature->_tag_value('ID'));
+
       my @ListOverlapingGene=();
       my $nb_feat_overlap=0;
       my ($start1,$end1) = get_longest_cds_start_end($hash_omniscient,$gene_id); # look at CDS because we want only ioverlapinng CDS
 
-      foreach my $gene_feature2 ( @{$hash_sortBySeq{$tag}{$seqid}}){ # loop over all the level1 feature except the one we are already focusing on
-        my @values2 = $gene_feature2->get_tag_values('ID');
-        my $gene_id2 = shift @values2;
+			# loop over the list of until we are after gene1. Then we can stop because it cannot overlap
+			foreach my $gene_feature2 ( @list_genes_sorted ){ # loop over all the level1 feature except the one we are already focusing on
+				# we are after
+				if ($gene_feature2->start() > $gene_feature->end()){
+					last;
+				}
+				# gene2 is before we can remove it from the list. Will not be usefull because features are sorted
+				if ($gene_feature2->end() < $gene_feature->start()){
+					my $to_throw = shift @list_genes_sorted; # throw the feature.
+				}
+        my $gene_id2 = lc($gene_feature2->_tag_value('ID'));
 
-        if(! exists($feature_studied{$gene_id2}) ){ #we compare different feature
-          my ($start2,$end2) = get_longest_cds_start_end($hash_omniscient,$gene_id2); # look at CDS becaus ewe want only ioverlapinng CDS
+        my ($start2,$end2) = get_longest_cds_start_end($hash_omniscient,$gene_id2); # look at CDS becaus ewe want only ioverlapinng CDS
 
-          if( ($start2 <= $end1) and ($end2 >= $start1) ){ #feature overlap considering extrem start and extrem stop. It's just to optimise the next step. Avoid to do the next step every time. So at the end, that test (current one) could be removed
+        if( ($start2 <= $end1) and ($end2 >= $start1) ){ #feature overlap considering extrem start and extrem stop. It's just to optimise the next step. Avoid to do the next step every time. So at the end, that test (current one) could be removed
 
-            #now check at each CDS feature independently
-            if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
-              print "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n";
-              $error_found="yes";
-              $nb_feat_overlap++;
-              $total_overlap++;
-              $feature_studied{$gene_id2}++;
-              push(@ListOverlapingGene, $gene_feature2);
-            }
+					#now check at each CDS feature independently
+          if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
+            print "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n" if $verbose;
+            $error_found="yes";
+            $nb_feat_overlap++;
+            $total_overlap++;
+            push(@ListOverlapingGene, $gene_feature2);
           }
         }
       }
@@ -114,17 +126,16 @@ foreach my $tag (keys %hash_sortBySeq){ # loop over all the feature level1
       # Now manage name if some feature overlap
       if( $nb_feat_overlap > 0){
         push(@ListOverlapingGene, $gene_feature);
-        print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n";
-        my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene);
-        print "We decided to keep that one: ".$reference_feature->gff_string."\n";
+        print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n" if $verbose;
+        my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene, $opt_merge);
+        print "We decided to keep that one: ".$reference_feature->gff_string."\n" if $verbose;
 
         my $gene_id_ref  = $reference_feature->_tag_value('ID');
 
         #change level2 parent for feature of level2 that have a feature of level1 in $ListToRemove list
         foreach my $featureToRemove (@$ListToRemove){
 
-          my @values_to_remove = $featureToRemove->get_tag_values('ID');
-          my $gene_id_to_remove = lc(shift @values_to_remove);
+          my $gene_id_to_remove = lc($featureToRemove->_tag_value('ID'));
 
           foreach my $tag_level2 (keys %{$hash_omniscient->{'level2'}}){
 
@@ -150,13 +161,13 @@ foreach my $tag (keys %hash_sortBySeq){ # loop over all the feature level1
               }
             }
           }
-          foreach my $tag_level1 (keys %{$hash_omniscient->{'level1'}}){ # remove the old feature level1 now
+					# remove the unwanted feature level1 now
+          foreach my $tag_level1 (keys %{$hash_omniscient->{'level1'}}){
               delete $hash_omniscient->{'level1'}{$tag_level1}{$gene_id_to_remove}; # delete level1
           }
         } #END FEATURE TO HANDLE
         ###
         # check end and start of the new feature
-        my $gene_id=lc($reference_feature->_tag_value('ID'));
         check_gene_positions($hash_omniscient, $reference_feature);
         print "\n\n";
       }
@@ -184,11 +195,12 @@ print "END\n";
                 ####
                  ##
 
+# return the gene to keep and the list of others to remove.
 sub take_one_as_reference{
-  my ($ListOverlapingGene)=@_;
+  my ($ListOverlapingGene, $opt_merge)=@_;
 
   my $reference_feature=undef;
-  foreach my $feature (@$ListOverlapingGene){
+  foreach my $feature (sort { ncmp ($a->start.$a->_tag_value('ID'), $b->start.$b->_tag_value('ID') ) } @$ListOverlapingGene){
     # case of the crow project (We developped this script for this project first of all)
     if ($feature->has_tag('oId')){ #check again that part please
       if ($feature->has_tag('Name')){
@@ -226,13 +238,20 @@ sub take_one_as_reference{
     $reference_feature=shift(@$ListOverlapingGene);
   }
   else{
-    my @values_ref = $reference_feature->get_tag_values('ID');
-    my $id_ref = shift @values_ref;
+    my $id_ref = $reference_feature->_tag_value('ID');
     my @new_list;
-    foreach my $feature (@$ListOverlapingGene){
-      my @values = $feature->get_tag_values('ID');
-      my $id = shift @values;
+    foreach my $feature (sort { ncmp ($a->start.$a->_tag_value('ID'), $b->start.$b->_tag_value('ID') ) } @$ListOverlapingGene){
+      my $id = $feature->_tag_value('ID');
       if($id_ref ne $id){
+				# append attributes
+				if ($opt_merge) {
+					my @list_tags = $feature->get_all_tags();
+					foreach my $tag (@list_tags){
+						if(lc($tag) ne "parent" and lc($tag) ne "id"){
+							create_or_append_tag($reference_feature, $tag ,$feature->get_tag_values($tag));
+						}
+					}
+				}
         push(@new_list, $feature);
       }
     }
@@ -283,9 +302,9 @@ agat_sp_fix_overlaping_genes.pl
 
 =head1 DESCRIPTION
 
-Check a gtf/gff annotation file to find cases where differents gene features
+Check a GTF/GFF annotation file to find cases where different gene features
 have CDS that overlap. In this case the gene features will be merged in only one.
-One gene is choosen as reference, and the mRNA from the other gene will be linked to it.
+One gene is chosen as reference, and the mRNA from the other gene will be linked to it.
 So, it creates isoforms.
 
 =head1 SYNOPSIS
@@ -301,9 +320,17 @@ So, it creates isoforms.
 
 Input GTF/GFF file.
 
+=item B<-m> or B<--merge>
+
+Bolean: Merge/add the attributes of gene feature that are merged (except ID and Parent).
+
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
 Output file. If none given, will be display in standard output.
+
+=item B<-v> or B<--verbose>
+
+BOLEAN: Add verbosity.
 
 =item B<--help> or B<-h>
 

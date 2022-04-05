@@ -2,9 +2,9 @@
 
 ## DESCRIPTION
 
-Check a gtf/gff annotation file to find cases where differents gene features
+Check a GTF/GFF annotation file to find cases where different gene features
 have CDS that overlap. In this case the gene features will be merged in only one.
-One gene is choosen as reference, and the mRNA from the other gene will be linked to it.
+One gene is chosen as reference, and the mRNA from the other gene will be linked to it.
 So, it creates isoforms.
 
 ## SYNOPSIS
@@ -20,11 +20,18 @@ agat_sp_fix_overlaping_genes.pl --help
 
     Input GTF/GFF file.
 
+- **-m** or **--merge**
+
+    Bolean: Merge/add the attributes of gene feature that are merged (except ID and Parent).
+
 - **-o**, **--out**, **--output** or **--outfile**
 
     Output file. If none given, will be display in standard output.
 
+- **-v** or **--verbose**
+
+    BOLEAN: Add verbosity.
+
 - **--help** or **-h**
 
     Display this helpful text.
-
