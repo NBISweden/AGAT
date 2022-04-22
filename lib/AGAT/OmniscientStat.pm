@@ -120,7 +120,8 @@ sub print_omniscient_statistics{
 					my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($omniscient);
 
 					#get stat without isoform
-					$result_by_type2 = get_omniscient_statistics($omniscient, $genome_size, $verbose);
+						my $skip_topfeature = 1;
+						$result_by_type2 = get_omniscient_statistics($omniscient, $genome_size, $verbose, $skip_topfeature);
 				}
 
 				my $stat2 = $result_by_type2->{$by_main_type}{$by_type}{'info'};
@@ -185,7 +186,7 @@ sub _print_distribution{
 # (eg: Gene(l1),mRNA(l2),cds(l3),exon(l3), where the type of level1 and level3 feature are only those linked to mRNA.)
 sub get_omniscient_statistics {
 
-	my ($hash_omniscient, $genome, $verbose) = @_  ;
+	my ($hash_omniscient, $genome, $verbose, $skip_topfeature) = @_  ;
 
 	my %result_by_type;
 
@@ -211,30 +212,32 @@ sub get_omniscient_statistics {
 	my ( $hash_sortBySeq, $hash_sortBySeq_stdf, $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	# --- get statistics from topfeatures -------------------------
-
-	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
-	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
-		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-			print "get_omniscient_statistics_for_topfeature\n" if $verbose;
-			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
-			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
-			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
-
-			$result_by_type{1}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
-		}
-	}
-
-	# --- get statistics from standalone features -------------------------
-
-	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
-	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
-		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-				print "get_omniscient_statistics_for_standalone\n" if $verbose;
-				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
+	if (! $skip_topfeature){
+		my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
+		foreach my $tag_l1 ( sort keys %{ $topfeatures }){
+			if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
+				print "get_omniscient_statistics_for_topfeature for $tag_l1\n" if $verbose;
+				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
+				print "done\n" if $verbose;
 				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
 
-				$result_by_type{2}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
+				$result_by_type{1}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
+			}
+		}
+
+		# --- get statistics from standalone features -------------------------
+
+		my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
+		foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
+			if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
+					print "get_omniscient_statistics_for_standalone\n" if $verbose;
+					my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
+					my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
+					my $info_l1_distri = get_distributions($info_l1, $extra_l1);
+
+					$result_by_type{2}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
+			}
 		}
 	}
 	# ------------------------- get statistic from l2 -------------------------
@@ -270,8 +273,10 @@ sub get_omniscient_statistics_for_topfeature{
 
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
-
+	my $sortBySeqL1 = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, $tag_l1);
+	print "AAAAAAAAAA $tag_l1\n";
 	foreach my $id_l1 ( sort keys %{$omniscient->{'level1'}{$tag_l1}}){
+
 		my $feature_l1=$omniscient->{'level1'}{$tag_l1}{$id_l1};
 
 		#count number of feature
@@ -295,7 +300,7 @@ sub get_omniscient_statistics_for_topfeature{
 		}
 
 		# count how many overlaping genes
-		my $nb_overlap_gene = _detect_overlap_features($omniscient, $tag_l1, 'level1');
+		my $nb_overlap_gene = _detect_overlap_features($omniscient, $sortBySeqL1, 'level1');
 		$extra_info{"overlap"}{$tag_l1}{"level1"}{"gene"} = $nb_overlap_gene;
 	}
 	return \%all_info, \%extra_info;
@@ -308,6 +313,7 @@ sub get_omniscient_statistics_from_l2{
 
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
+	my $sortBySeqL2 = gather_and_sort_l1_by_seq_id_for_l2type($hash_omniscient, $tag_l2);
 
 	foreach my $id_l1 ( sort keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
 	#               +------------------------------------------------------+
@@ -561,7 +567,7 @@ sub get_omniscient_statistics_from_l2{
 	}
 	# count how many overlaping genes
 	print "_detect_overlap_features\n" if ($verbose);
-	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
+	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $sortBySeqL2);
 	$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
 
 	return \%all_info, \%extra_info;
@@ -986,16 +992,8 @@ sub _info_coverage {
 # @input: 3 => hash(omniscient hash), featureL2,  primary tag, if it is for L1 feature only (topfeature and standalone feature)
 # @output: 1 => int (nb feature removed)
 sub _detect_overlap_features{
-	my ($omniscient, $tag, $toplevel) = @_;
+	my ($omniscient, $sortBySeq, $toplevel) = @_;
 	my $resume_case = 0;
-
-	my $sortBySeq;
-	if($toplevel){
-		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, $tag);
-	}
-	else{
-		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l2type($omniscient, $tag);
-	}
 
 	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 		foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
