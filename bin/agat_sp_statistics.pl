@@ -109,7 +109,8 @@ print_omniscient_statistics ({ input => $hash_omniscient,
 															 genome => $opt_genomeSize,
 															 output => $out,
 															 distri => $opt_plot,
-															 isoform => 1
+															 isoform => 1,
+															 verbose => $opt_verbose
 														 });
 # END STATISTICS #
 ##################

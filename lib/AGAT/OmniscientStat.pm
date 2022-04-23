@@ -57,9 +57,29 @@ sub print_omniscient_statistics{
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
 		else{ print "Input omniscient mandatory to use print_omniscient_statistics!"; exit;}
+	
 	#genome size
-	if( ! defined($args->{genome}) ) {$genome_size = undef;}
-		else{ $genome_size = $args->{genome}; }
+	if( ! defined($args->{genome}) ) {
+		$genome_size = undef;
+	}	
+	else{ 
+		my $genome = $args->{genome}; 
+		# --- check genome size ---
+		if($genome){
+			if( $genome =~ /^[0-9]+$/){ #check if it's a number
+				$genome_size = $genome;
+			}
+			elsif($genome){
+				my $seqio = Bio::SeqIO->new(-file => $genome, '-format' => 'Fasta');
+				while(my $seq = $seqio->next_seq) {
+		  		my $string = $seq->seq;
+		  		$genome_size += length($string);
+		  	}
+			}
+			printf("%-45s%d%s", "Total sequence length", $genome_size,"\n");
+		}
+	}
+
 	# statistics output
 	if( ! defined($args->{output}) ) {
 		$output = IO::File->new();
@@ -82,8 +102,9 @@ sub print_omniscient_statistics{
 
 	print $output ("-"x80)."\n\n";
 
-	#print statistics
-	foreach my $by_main_type  ( sort {$a <=> $b } keys %{$result_by_type} ){ # by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
+	# --- print statistics ---
+	# by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
+	foreach my $by_main_type  ( sort {$a <=> $b } keys %{$result_by_type} ){ 
 		my $isoform_type = ($by_main_type eq 3) ? $isoform : undef;
 		foreach my $by_type ( sort keys %{ $result_by_type->{$by_main_type} } ){
 
@@ -115,17 +136,17 @@ sub print_omniscient_statistics{
 				print $output "Re-compute $by_type without isoforms asked. We remove shortest isoforms if any\n\n";
 
 				if(! $omniscientNew){ # re-compute wihtout isoforms only once!
-
 					# create a new omniscient with only one mRNA isoform per gene
 					my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($omniscient);
-
-					#get stat without isoform
-					$result_by_type2 = get_omniscient_statistics($omniscient, $genome_size, $verbose);
+					$omniscientNew = 1;
 				}
 
-				my $stat2 = $result_by_type2->{$by_main_type}{$by_type}{'info'};
-				my $distri2 = $result_by_type2->{$by_main_type}{$by_type}{'distri'};
-				my $isoform2 = $result_by_type->{$by_main_type}{$by_type}{'iso'};
+				#get stat without isoform
+				print "get_omniscient_statistics_from_l2 wihtout iso for $by_type\n" if $verbose;
+				# get nb of each feature in omniscient;
+				my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($omniscient, $by_type, $verbose);
+				my $stat2 = get_info_sentences($info_l2, $extra_l2, $genome_size);
+				my $distri2 = get_distributions($info_l2, $extra_l2);
 
 				# print sentences/info
 				foreach my $infoList2 (@$stat2){
@@ -168,7 +189,7 @@ sub _print_distribution{
 
           #CREATE THE R COMMAND
           my $nbValues = @{$distri->{$type}{$level}{$tag}{'whole'}};
-          my $R_command = rcc_plot_from_list($distri->{$type}{$level}{$tag}{'whole'}, "", "histogram", "$tag"." size (nt)", "Number of $tag", "Distribution of $tag sizes\nMade with $nbValues $tag"."s", $outputPDF);
+          my $R_command = rcc_plot_from_list($distri->{$type}{$level}{$tag}{'whole'}, "", "histogram", "$tag"." size (nt)", "Number of $tag", "Distribution of $tag sizes\nMade with $nbValues $tag", $outputPDF);
           #EXECUTE THE R COMMAND
           execute_R_command($R_command);
         }
@@ -185,58 +206,39 @@ sub _print_distribution{
 # (eg: Gene(l1),mRNA(l2),cds(l3),exon(l3), where the type of level1 and level3 feature are only those linked to mRNA.)
 sub get_omniscient_statistics {
 
-	my ($hash_omniscient, $genome, $verbose) = @_  ;
+	my ($hash_omniscient, $genomeSize, $verbose) = @_  ;
 
 	my %result_by_type;
 
 	#my $out = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 
-	# --- check genome size ---
-	my $genomeSize=undef;
-	if($genome){
-		if( $genome =~ /^[0-9]+$/){ #check if it's a number
-			$genomeSize=$genome;
-		}
-		elsif($genome){
-			my $seqio = Bio::SeqIO->new(-file => $genome, '-format' => 'Fasta');
-			while(my $seq = $seqio->next_seq) {
-	  			my $string = $seq->seq;
-	  			$genomeSize += length($string);
-	  		}
-		}
-	printf("%-45s%d%s", "Total sequence length", $genomeSize,"\n");
-	}
-
 	# --- get features by type ---
 	my ( $hash_sortBySeq, $hash_sortBySeq_stdf, $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
 
 	# --- get statistics from topfeatures -------------------------
-
 	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-			print "get_omniscient_statistics_for_topfeature\n" if $verbose;
+			print "get_omniscient_statistics_for_topfeature for $tag_l1\n" if $verbose;
 			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
-			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
+			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize);
 			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
-
 			$result_by_type{1}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
 		}
 	}
 
 	# --- get statistics from standalone features -------------------------
-
 	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
 				print "get_omniscient_statistics_for_standalone\n" if $verbose;
 				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
-				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1);
+				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
-
 				$result_by_type{2}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
 		}
 	}
+
 	# ------------------------- get statistic from l2 -------------------------
 	print "get_omniscient_statistics_from_l2\n" if $verbose;
 	# get nb of each feature in omniscient;
@@ -244,7 +246,7 @@ sub get_omniscient_statistics {
 		print "tag_l2 $tag_l2\n" if $verbose;
 		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
 
-		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2);
+		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2, $genomeSize);
 		my $info_l2_distri = get_distributions($info_l2, $extra_l2);
 
 
@@ -270,8 +272,10 @@ sub get_omniscient_statistics_for_topfeature{
 
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
+	my $sortBySeqL1 = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, $tag_l1);
 
 	foreach my $id_l1 ( sort keys %{$omniscient->{'level1'}{$tag_l1}}){
+
 		my $feature_l1=$omniscient->{'level1'}{$tag_l1}{$id_l1};
 
 		#count number of feature
@@ -295,8 +299,8 @@ sub get_omniscient_statistics_for_topfeature{
 		}
 
 		# count how many overlaping genes
-		my $nb_overlap_gene = _detect_overlap_features($omniscient, $tag_l1, 'level1');
-		$extra_info{"overlap"}{$tag_l1}{"level1"}{"gene"} = $nb_overlap_gene;
+		my $nb_overlap_gene = _detect_overlap_features($omniscient, $sortBySeqL1, 'level1');
+		$extra_info{"overlap"}{$tag_l1}{"level1"}{$tag_l1} = $nb_overlap_gene;
 	}
 	return \%all_info, \%extra_info;
 }
@@ -308,22 +312,22 @@ sub get_omniscient_statistics_from_l2{
 
 	my %all_info;
 	my %extra_info; #For info not sorted by Level.
+	my $sortBySeqL2 = gather_and_sort_l1_by_seq_id_for_l2type($hash_omniscient, $tag_l2);
+	my %tags_l1; # to hold all tag L1 related to the sutdied L2
 
 	foreach my $id_l1 ( sort keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
-	#               +------------------------------------------------------+
-	#               |+----------------------------------------------------+|
-	#               ||                     FEATURE LEVEL1                 ||
-	#               |+----------------------------------------------------+|
-	#               +------------------------------------------------------+
+	#               +----------------------------------------------------+
+	#               |                     FEATURE LEVEL1                 |
+	#               +----------------------------------------------------+
 
 		my $feature_l1=undef;
-
-		# retrieve the l1 tag
 		my $tag_l1;
+		# retrieve the l1 tag	on the fly because a same L2 type can be attached to several l1 types
 		foreach my $tag_level1 (keys %{$hash_omniscient->{'level1'}}){
 			if ( exists_keys ($hash_omniscient, ('level1', $tag_level1, $id_l1) ) ){
 				$feature_l1=$hash_omniscient->{'level1'}{$tag_level1}{$id_l1};
 				$tag_l1=$tag_level1;
+				$tags_l1{$tag_l1}++; 
 				last;
 			}
 		}
@@ -349,11 +353,9 @@ sub get_omniscient_statistics_from_l2{
 			$all_info{$tag_l2}{'level1'}{$tag_l1}{'shortest'}=$sizeFeature;
 		}
 
-	#               +------------------------------------------------------+
-	#               |+----------------------------------------------------+|
-	#               ||                     FEATURE LEVEL2                 ||
-	#               |+----------------------------------------------------+|
-	#               +------------------------------------------------------+
+	#               +----------------------------------------------------+
+	#               |                     FEATURE LEVEL2                 |
+	#               +----------------------------------------------------+
 		my $counterL2_match=-1;
 		my $All_l2_single=1;
 		foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}} ){
@@ -409,11 +411,9 @@ sub get_omniscient_statistics_from_l2{
 				}
 			}
 
-	#               +------------------------------------------------------+
-	#               |+----------------------------------------------------+|
-	#               ||                     FEATURE LEVEL3                 ||
-	#               |+----------------------------------------------------+|
-	#               +------------------------------------------------------+
+	#               +----------------------------------------------------+
+	#               |                     FEATURE LEVEL3                 |
+	#               f+----------------------------------------------------+
 			my $utr3 = undef;
 			my $utr5 = undef;
 			my $id_l2=lc($feature_l2->_tag_value('ID'));
@@ -560,9 +560,15 @@ sub get_omniscient_statistics_from_l2{
 		}
 	}
 	# count how many overlaping genes
-	print "_detect_overlap_features\n" if ($verbose);
-	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $tag_l2);
-	$extra_info{"overlap"}{$tag_l2}{"level1"}{"gene"} = $nb_overlap_gene;
+	my $nb_overlap_gene = _detect_overlap_features($hash_omniscient, $sortBySeqL2);
+	#One l2 type can be linked to several l1 type. Create a dedicated name
+	my $name;
+	foreach my $oneTag (keys %tags_l1){
+		if (!$name){$name=$oneTag;}
+		else{$name.="..".$oneTag;}
+	}
+	if (!$name){$name="gene";}
+	$extra_info{"overlap"}{$tag_l2}{"level1"}{$name} = $nb_overlap_gene;
 
 	return \%all_info, \%extra_info;
 }
@@ -677,7 +683,7 @@ sub _info_overlap{
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number gene overlapping", $all_info->{'level1'}{$tag_l1},"\n");
+		push @resu, sprintf("%-45s%d%s", "Number $tag_l1 overlapping", $all_info->{'level1'}{$tag_l1},"\n");
 	}
 
 	return \@resu;
@@ -693,12 +699,12 @@ sub _info_number {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number of $tag_l1"."s", $all_info->{'level1'}{$tag_l1}{'nb_feat'},"\n");
+		push @resu, sprintf("%-45s%d%s", "Number of $tag_l1", $all_info->{'level1'}{$tag_l1}{'nb_feat'},"\n");
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l2"."s", $all_info->{'level2'}{$tag_l2}{'nb_feat'},"\n");
+	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l2", $all_info->{'level2'}{$tag_l2}{'nb_feat'},"\n");
 	    #manage utr both side
 	    if(exists ($all_info->{'level2'}{$tag_l2}{'utr_both_side'})){
 			push @resu, sprintf("%-45s%d%s", "Number of mrnas with utr both sides", $all_info->{'level2'}{$tag_l2}{'utr_both_side'},"\n");
@@ -707,11 +713,11 @@ sub _info_number {
 		if(exists ($all_info->{'level2'}{$tag_l2}{'utr_at_least_one_side'})){
 			push @resu, sprintf("%-45s%d%s", "Number of mrnas with at least one utr", $all_info->{'level2'}{$tag_l2}{'utr_at_least_one_side'},"\n");
 		}
-	 }
+	}
 
 	#print level3 -
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l3"."s", $all_info->{'level3'}{$tag_l3}{'nb_feat'},"\n");
+	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l3", $all_info->{'level3'}{$tag_l3}{'nb_feat'},"\n");
 	}
 
  	#print level3 - exon case
@@ -986,16 +992,8 @@ sub _info_coverage {
 # @input: 3 => hash(omniscient hash), featureL2,  primary tag, if it is for L1 feature only (topfeature and standalone feature)
 # @output: 1 => int (nb feature removed)
 sub _detect_overlap_features{
-	my ($omniscient, $tag, $toplevel) = @_;
+	my ($omniscient, $sortBySeq, $toplevel) = @_;
 	my $resume_case = 0;
-
-	my $sortBySeq;
-	if($toplevel){
-		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, $tag);
-	}
-	else{
-		$sortBySeq = gather_and_sort_l1_by_seq_id_for_l2type($omniscient, $tag);
-	}
 
 	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 		foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
