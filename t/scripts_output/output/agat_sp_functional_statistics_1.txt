@@ -2,16 +2,16 @@
 
 Compute mrna
 
-Number of genes                              2
-Number of mrnas                              2
+Number of gene                               2
+Number of mrna                               2
 Number of mrnas with utr both sides          1
 Number of mrnas with at least one utr        1
-Number of cdss                               2
-Number of exons                              10
-Number of five_prime_utrs                    1
-Number of start_codons                       2
-Number of stop_codons                        2
-Number of three_prime_utrs                   1
+Number of cds                                2
+Number of exon                               10
+Number of five_prime_utr                     1
+Number of start_codon                        2
+Number of stop_codon                         2
+Number of three_prime_utr                    1
 Number of exon in cds                        9
 Number of exon in five_prime_utr             2
 Number of exon in three_prime_utr            1

@@ -1,11 +1,11 @@
-usage: bin/agat_sp_manage_introns.pl --gff t/scripts_output/1.gff -o tmp.gff
+usage: bin/agat_sp_manage_introns.pl --gff t/scripts_output/1.gff -o test
 
 --------------------------------------------------------------------------------
 
 Compute chromosome
 
-Number of chromosomes                        1
-Number gene overlapping                      0
+Number of chromosome                         1
+Number chromosome overlapping                0
 Total chromosome length                      43270923
 mean chromosome length                       43270923
 Longest chromosome                           43270923
@@ -15,8 +15,8 @@ Shortest chromosome                          43270923
 
 Compute repeat_region
 
-Number of repeat_regions                     2
-Number gene overlapping                      0
+Number of repeat_region                      2
+Number repeat_region overlapping             0
 Total repeat_region length                   202
 mean repeat_region length                    101
 Longest repeat_region                        101
@@ -26,14 +26,14 @@ Shortest repeat_region                       101
 
 Compute mrna
 
-Number of genes                              52
-Number of mrnas                              65
+Number of gene                               52
+Number of mrna                               65
 Number of mrnas with utr both sides          59
 Number of mrnas with at least one utr        62
-Number of cdss                               64
-Number of exons                              319
-Number of five_prime_utrs                    60
-Number of three_prime_utrs                   61
+Number of cds                                64
+Number of exon                               319
+Number of five_prime_utr                     60
+Number of three_prime_utr                    61
 Number of exon in cds                        290
 Number of exon in five_prime_utr             79
 Number of exon in three_prime_utr            70
@@ -110,10 +110,10 @@ Shortest intron into three_prime_utr part    39
 
 Compute trna
 
-Number of ncrna_genes                        1
-Number of trnas                              1
-Number of exons                              1
-Number gene overlapping                      0
+Number of ncrna_gene                         1
+Number of trna                               1
+Number of exon                               1
+Number ncrna_gene overlapping                0
 Number of single exon ncrna_gene             1
 Number of single exon trna                   1
 mean trnas per ncrna_gene                    1.0
