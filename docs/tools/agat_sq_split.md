@@ -9,7 +9,7 @@ GFF3 input file must be sequential.
 ## SYNOPSIS
 
 ```
-agat_sq_split.pl -i <input file> -o <output file>
+agat_sq_split.pl --input <input file> -o <output file>
 agat_sq_split.pl --help
 ```
 
