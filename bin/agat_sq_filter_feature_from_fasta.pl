@@ -102,7 +102,7 @@ __END__
 
 =head1 NAME
 
-agat_sq_keep_annotation_from_fastaSeq.pl
+agat_sq_filter_feature_from_fasta.pl
 
 =head1 DESCRIPTION
 
@@ -112,8 +112,8 @@ The match between sequence name in the fasta file and the 1st column of the gff3
 
 =head1 SYNOPSIS
 
-    agat_sq_keep_annotation_from_fastaSeq.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
-    agat_sq_keep_annotation_from_fastaSeq.pl --help
+    agat_sq_filter_feature_from_fasta.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
+    agat_sq_filter_feature_from_fasta.pl --help
 
 =head1 OPTIONS
 

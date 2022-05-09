@@ -111,7 +111,7 @@ Contents
    tools/agat_sq_add_attributes_from_tsv.md
    tools/agat_sq_add_hash_tag.md
    tools/agat_sq_add_locus_tag.md
-   tools/agat_sq_keep_annotation_from_fastaSeq.md
+   tools/agat_sq_filter_feature_from_fasta.md
    tools/agat_sq_list_attributes.md
    tools/agat_sq_manage_ID.md
    tools/agat_sq_manage_IDs.md
