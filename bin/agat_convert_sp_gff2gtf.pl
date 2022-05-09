@@ -457,13 +457,24 @@ sub remove_cds{
 	my ($hash_omniscient, $id_l2, $cds_feature)=@_;
 
 	my @new_cds_list=();
+	my $cds_ft_string_comparison = uniq_comparison($cds_feature);
+
 	foreach my $feature ( @{$hash_omniscient->{'level3'}{'cds'}{$id_l2}} ) {
-		if( lc($feature->_tag_value('ID')) eq  lc($cds_feature->_tag_value('ID'))){
+		my $ft_string_comparison = uniq_comparison($feature);
+
+		if( $ft_string_comparison eq  $cds_ft_string_comparison){
 			next;
 		}
 		push @new_cds_list, $feature;
 	}
 	@{$hash_omniscient->{'level3'}{'cds'}{$id_l2}} = @new_cds_list;
+}
+
+# Make a uniq string id for comprison.
+# Needed because ID is not enough because CDS can share identifiers
+sub uniq_comparison{
+	my ($feature)=@_;
+	return lc($feature->_tag_value('ID')).$feature->start().$feature->end()
 }
 
 # filter feature type to remove not expected ones
