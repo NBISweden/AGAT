@@ -31,12 +31,15 @@ my $opt_cdna=undef;
 my $opt_mrna=undef;
 my $opt_OFS=undef;
 my $opt_type = 'cds';
+my $opt_keep_attributes = undef;
+my $opt_keep_parent_attributes = undef;
 my $opt_cleanFinalStop=undef;
 my $opt_cleanInternalStop=undef;
 my $opt_remove_orf_offset = undef;
 my $opt_quiet = undef;
 my $opt_plus_strand_only = undef;
 my $opt_revcomp=undef;
+my $opt_verbose=undef;
 my $opt_alternative_start_codon = undef;
 
 # OPTION MANAGMENT
@@ -61,9 +64,12 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
                   'revcomp!'                     => \$opt_revcomp,
                   'split!'                       => \$opt_split,
+                  'keep_attributes!'             => \$opt_keep_attributes,
+                  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
                   'table|codon|ct=i'             => \$codonTable,
                   't|type=s'                     => \$opt_type,
-                  'up|5|five|upstream=i'         => \$opt_upstreamRegion ) )
+                  'up|5|five|upstream=i'         => \$opt_upstreamRegion,
+                  'verbose|v!'                   => \$opt_verbose ) )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
@@ -122,6 +128,11 @@ if($opt_OFS){
   $OFS = $opt_OFS;
 }
 
+# if parental option activated with must be sure that the default one is activated too.
+if ($opt_keep_parent_attributes){
+	$opt_keep_attributes = 1;
+}
+
 ##### MAIN ####
 #### read gff file and save info in memory
 ######################
@@ -146,7 +157,7 @@ foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
 print ("Fasta file parsed\n");
-
+# ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
   foreach my $feature_l1 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_l1_grouped->{$seqname}}) {
@@ -154,32 +165,22 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
     my $id_l1=$feature_l1->_tag_value('ID');
     my $name=undef;
 
-    if ($feature_l1->has_tag('Name')){
-      $name = $feature_l1->_tag_value('Name');
-    }
-    elsif($feature_l1->has_tag('gene')){
-      $name = $feature_l1->_tag_value('gene');
-    }
-
     if( $opt_type eq lc($feature_l1->primary_tag()) or $opt_type eq "l1" or $opt_type eq "level1" ){
 
       #Handle Header
       my $id_seq = clean_string($id_l1);
-      my $description="";
-      if($name){
-        $description.=clean_tag("name=").clean_string($name).$OFS.clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
-      }
-      else{
-        $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
-      }
+      my $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
+			if($opt_keep_attributes){
+				print "Extract attributes level1\n" if ($opt_verbose);
+				my $attributes = extract_attributes($feature_l1);
+				$description.=$OFS.$attributes;
+			}
 
       my @ListSeq=($feature_l1);
       extract_sequences(\@ListSeq, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, 'level1');
     }
 
-    #################
-    # == LEVEL 2 == #
-    #################
+# ----------------------------------- LEVEL 2 ----------------------------------
     foreach my $ptag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
       if (exists_keys ( $hash_omniscient, ('level2', $ptag_l2, lc($id_l1)) ) ){
@@ -187,35 +188,31 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 
           #For Header
           my $id_l2  = $feature_l2->_tag_value('ID');
-          if ($feature_l2->has_tag('Name') and ! $name){
-            $name = $feature_l2->_tag_value('Name');
-          }
-          elsif($feature_l2->has_tag('gene') and ! $name){
-            $name = $feature_l2->_tag_value('gene');
-          }
 
           #Handle Header
           my $id_seq = clean_string($id_l2);
-          my $description=clean_tag("gene=").clean_string($id_l1);
-          if($name){
-            $description.=$OFS.clean_tag("name=").clean_string($name);
-          }
-
-          $description.=$OFS.clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
+          my $description=clean_tag("gene=").clean_string($id_l1).$OFS.clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
 
           if( $opt_type eq $ptag_l2 or $opt_type eq "l2" or $opt_type eq "level2" ){
+
+						if($opt_keep_attributes ){
+							print "Extract attributes level2\n" if ($opt_verbose);
+							my @List_l1=($feature_l1);
+							my $attributes = extract_attributes( $feature_l2, \@List_l1 );
+							$description.=$OFS.$attributes;
+						}
+
             my @ListSeq=($feature_l2);
             extract_sequences(\@ListSeq, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, 'level2');
           }
 
-          #################
-          # == LEVEL 3 == #
-          #################
+# ----------------------------------- LEVEL 3 ----------------------------------
+          # $opt_keep_attributes will extracted within the extract_sequences function
           foreach my $ptag_l3 (keys %{$hash_omniscient->{'level3'}}){
             if ( exists_keys ( $hash_omniscient, ('level3', $ptag_l3, lc($id_l2)) ) ){
-
               if( $opt_type eq $ptag_l3 or $opt_type eq "l3" or $opt_type eq "level3" ){
-                extract_sequences(\@{$hash_omniscient->{'level3'}{$ptag_l3}{lc($id_l2)}}, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, 'level3');
+                my @list_parent_features = ($feature_l1, $feature_l2);
+                extract_sequences(\@{$hash_omniscient->{'level3'}{$ptag_l3}{lc($id_l2)}}, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, 'level3', \@list_parent_features);
               }
             }
           }
@@ -257,6 +254,85 @@ print "Job done in $run_time seconds\n";
                 ####
                  ##
 
+# $lpa is all parent features
+sub extract_attributes{
+	my ($feature, $lpa) = @_;
+
+	my $hash_attributes;
+	if ($opt_keep_parent_attributes){
+		my @combined;
+		if(ref($feature) eq 'ARRAY'){
+			@combined = (@$feature, @$lpa);
+		} else {
+			@combined = @$lpa;
+			push @combined, $feature;
+		}
+		$hash_attributes = create_attribute_hash(\@combined);
+	} else {
+		$hash_attributes = create_attribute_hash($feature);
+	}
+	my $string = stringify_attribute_hash($hash_attributes);
+
+	return $string;
+}
+
+#stringify my info HASH
+sub stringify_attribute_hash{
+	my ($info) = @_;
+
+	my $string;
+	foreach my $key (sort keys %{$info}){
+		my $values_string=undef;
+		foreach my $value (sort keys %{$info->{$key}}){
+			if(! $values_string){
+				$values_string=$value;
+			}
+			else{
+				$values_string .=",".$value
+			}
+		}
+
+		if(! $string){
+			$string=clean_tag($key."=").clean_string($values_string);
+		}
+		else{
+			$string .= $OFS.clean_tag($key."=").clean_string($values_string);
+		}
+	}
+	return $string;
+}
+
+# read all attribute of a feature or a feature list a make a hash of tag => value
+sub create_attribute_hash{
+	my ($feature) = @_;
+
+	# it a list of feature
+	my %info;
+	if(ref($feature) eq 'ARRAY'){
+		foreach my $ft (@{$feature}){
+			my @list_tag = $ft->get_all_tags();
+			foreach my $tag (@list_tag){
+				my @values = $ft->get_tag_values($tag);
+				foreach my $value (@values){
+					$info{$tag}{$value}++;
+				}
+			}
+		}
+	}
+	# it is a single feature
+	else{
+		my @list_tag = $feature->get_all_tags();
+		foreach my $tag (@list_tag){
+			my @values = $feature->get_tag_values($tag);
+			foreach my $value (@values){
+				$info{$tag}{$value}++;
+			}
+		}
+	}
+	return \%info;
+}
+
+# cleanify the string to be sure to be compliant with OFS
 sub clean_string{
   my ($string) = @_;
 
@@ -266,12 +342,12 @@ sub clean_string{
       if($string =~ m/\Q$OFS/){
         if ($OFS eq " "){
           warn "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
-          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $opt_quiet;
+          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
           $string="\"".$string."\"";
         }
         else{
           warn "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
-          "If you want to keep the string/header intact, please chose another OFS using the option --ofs\n" if ! $opt_quiet;
+          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
           eval "\$string =~ tr/\Q$OFS\E/\Q$replaceBy\E/";
         }
       }
@@ -290,8 +366,10 @@ sub clean_tag{
   return $string
 }
 
+# Main function to extract sequences
+# lpa = list parent attributes
 sub extract_sequences{
-  my($feature_list, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, $level )=@_;
+  my($feature_list, $db, $id_seq, $description, $opt_full, $opt_upstreamRegion, $opt_downRegion, $opt_split, $opt_extremity_only, $level, $lpa )=@_;
 
   #sort the list
   my @sortedList = sort {$a->start <=> $b->start} @$feature_list;
@@ -340,6 +418,13 @@ sub extract_sequences{
       $sequence = $left_piece.$sequence.$right_piece;
     }
 
+		# catch attributes for Level3
+		if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
+			print "Extract attributes level3 full\n" if ($opt_verbose);
+			my $attributes = extract_attributes(\@sortedList, $lpa);
+			$description.=$OFS.$attributes;
+		}
+
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
@@ -349,62 +434,70 @@ sub extract_sequences{
 
 
    # ------ all pieces independently ------
-   elsif($opt_split){
+  elsif($opt_split){
 
-     foreach my $feature ( @sortedList ){
-       my $start = $feature->start;
-       my $end = $feature->end;
-			 # Deal with phase for CDS not starting at 0 when we want to do translation
-			 if( $opt_remove_orf_offset and  lc($feature->primary_tag) eq "cds" ){
-				 if($minus and $feature->frame != 0){
-					 $end = $feature->end - $feature->frame;
-           $phase = $feature->frame;
-				 }
-				 elsif (! $minus and $feature->frame != 0){
-					 $start =$feature->start + $feature->frame;
-           $phase = $feature->frame;
-				 }
-			 }
+    foreach my $feature ( @sortedList ){
+      my $start = $feature->start;
+      my $end = $feature->end;
+			# Deal with phase for CDS not starting at 0 when we want to do translation
+			if( $opt_remove_orf_offset and  lc($feature->primary_tag) eq "cds" ){
+				if($minus and $feature->frame != 0){
+					$end = $feature->end - $feature->frame;
+          $phase = $feature->frame;
+				}
+				elsif (! $minus and $feature->frame != 0){
+					$start =$feature->start + $feature->frame;
+          $phase = $feature->frame;
+				}
+			}
 
-       my $info = ""; my $right_piece = ""; my $left_piece = ""; my $sequence = "";
+      my $info = ""; my $right_piece = ""; my $left_piece = ""; my $sequence = "";
 
-       # take and append the left piece if asked for
-       if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
-         ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
-         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
-       }
+      # take and append the left piece if asked for
+      if ( ( $opt_upstreamRegion and ! $minus ) or ( $opt_downRegion and $minus ) ){
+        ($left_piece, $info) = get_left_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+        $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
+      }
 
-       # take and append the right piece if asked for
-       if ( ( $opt_downRegion and !$minus ) or ( $opt_upstreamRegion and $minus ) ){
-         ($right_piece, $info) = get_right_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
-       }
+      # take and append the right piece if asked for
+      if ( ( $opt_downRegion and !$minus ) or ( $opt_upstreamRegion and $minus ) ){
+        ($right_piece, $info) = get_right_extremity($db, $seq_id, $opt_upstreamRegion, $opt_downRegion, $minus, $start, $end, $info);
+      }
 
-       # append only extremities
-       if($opt_extremity_only){
-         $sequence = $left_piece.$right_piece;
-         $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
-       }
-       else{  # append extremity to main sequence even if empty
-         $sequence = get_sequence($db, $seq_id, $start, $end);
-         $sequence = $left_piece.$sequence.$right_piece;
-       }
+      # append only extremities
+      if($opt_extremity_only){
+        $sequence = $left_piece.$right_piece;
+        $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
+      }
+      else{  # append extremity to main sequence even if empty
+        $sequence = get_sequence($db, $seq_id, $start, $end);
+        $sequence = $left_piece.$sequence.$right_piece;
+      }
 
-       my $seqObj = undef;
-       if($level eq 'level3' ){ #update header's id information
-         my $id_l3  = $feature->_tag_value('ID');
-         my $updated_description="transcript=".$id_seq.$OFS.$description;
-         #create object
-         $seqObj = create_seqObj($sequence, $id_l3, $updated_description, $minus, $info);
-       }
-       else{
-         $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
-       }
+      my $seqObj = undef;
+      if($level eq 'level3' ){ #update header's id information
+        my $id_l3  = $feature->_tag_value('ID');
+        my $updated_description="transcript=".$id_seq.$OFS.$description;
 
-       #print object
-       print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
-     }
-   }
-   # --------------------------------------
+				# catch attributes for Level3
+				if( $opt_keep_attributes ){ #update header's id information
+					print "Extract attributes level3 split\n" if ($opt_verbose);
+					my $attributes = extract_attributes($feature, $lpa);
+					$updated_description.=$OFS.$attributes;
+				}
+
+        #create object
+        $seqObj = create_seqObj($sequence, $id_l3, $updated_description, $minus, $info);
+      }
+      else{
+        $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
+      }
+
+      #print object
+      print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+    }
+  }
+  # --------------------------------------
 
 
    # ------ feature natural ------
@@ -412,7 +505,7 @@ sub extract_sequences{
 
     my $feature_type = $sortedList[0]->primary_tag;
 
-    # ------ SPREDED feature need to be collapsed else only if merge option activated ------
+    # ------ SPREADED feature need to be collapsed else only if merge option activated ------
     if( exists_keys($hash_level,'spreadfeature',lc($feature_type) ) or ( $opt_merge ) ){
 
     	my $sequence="";my $info = "";
@@ -463,7 +556,6 @@ sub extract_sequences{
 
          # append only extremities
          if($opt_extremity_only){
-           print "here\n";
            $sequence = $left_piece.$right_piece;
            $phase = 0; # as we add non cds sequence at the beginning we set the phase to 0
          }
@@ -471,6 +563,13 @@ sub extract_sequences{
            $sequence = $left_piece.$sequence.$right_piece;
          }
       }
+
+			# catch attributes for Level3
+			if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
+				print "Extract attributes level3 natural spread merged\n" if ($opt_verbose);
+				my $attributes = extract_attributes(\@sortedList, $lpa);
+				$description.=$OFS.$attributes;
+			}
 
       #create object
       my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
@@ -508,7 +607,15 @@ sub extract_sequences{
         if($level eq 'level3' ){ #update header's id information
           my $id_l3  = $feature->_tag_value('ID');
           my $updated_description="transcript=".$id_seq.$OFS.$description;
-          #create object
+
+					# catch attributes for Level3
+					if( $opt_keep_attributes ){ #update header's id information
+						print "Extract attributes level3 natural not spread or spread not merged\n" if ($opt_verbose);
+						my $attributes = extract_attributes($feature, $lpa);
+						$updated_description.=$OFS.$attributes;
+					}
+
+					#create object
           $seqObj = create_seqObj($sequence, $id_l3, $updated_description, $minus, $info);
         }
         else{
@@ -740,16 +847,16 @@ within AGAT run: agat_convert_sp_gxf2gxf.pl --expose
 and then look at the file called features_spread.json.
 
 The headers are formated like that:
->ID gene=gene_ID name=NAME seq_id=Chromosome_ID type=cds 5'extra=VALUE
+>ID gene=gene_ID seq_id=Chromosome_ID type=cds 5'extra=VALUE tag=value tag=value
 
 The ID is the identifier of the feature (ID attribute in the 9th column.
 If missing it is created by AGAT)
 The gene value will be the ID of the level1 feature (the top feature of the record)
-The name value is optional and will be written only if the Name attribute exists in the gff.
 The seq_id value is the value from 1st column within the gff.
-The type value holds the information of the feature type extracted.
+The type value holds the information of the feature type extracted (3rd column in the gff).
 5'extra or 3'extra is optional, it holds the information of extra nucleotides
 removed or added when using the downstream and/or upstream parameter.
+The tag=value are optional and represent attributes from the gff (See --keep_attributes parameter).
 
 The OFS of all values can be modified excepted for the ID (see --ofs parameter).
 In such case the tool gives a warning.
@@ -847,6 +954,16 @@ String - Input GTF/GFF file.
 =item B<-h> or B<--help>
 
 Boolean - Display this helpful text.
+
+=item B<--keep_attributes>
+
+Boolean - The value of the attribute tags will be extracted from the feature type
+specified by the option --type and stored in the fasta header.
+
+=item B<--keep_parent_attributes>
+
+Boolean - The value of the attribute tags will be extracted from the feature type
+specified by the option --type along with those from parent features and stored in the fasta header.
 
 =item B<--merge>
 
