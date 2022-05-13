@@ -3,8 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-
-use Test::More tests => 68;
+use Test::More tests => 69;
 
 =head1 DESCRIPTION
 
@@ -75,22 +74,29 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # -------------------------- check agat_convert_sp_gff2gtf -------------------------
+my $convert_sp_gff2gtf_folder = "$input_folder/agat_convert_sp_gff2gtf";
 
 $script = $script_prefix."bin/agat_convert_sp_gff2gtf.pl";
-$result = "$output_folder/agat_convert_sp_gff2gtf_1.gtf";
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-$result = "$output_folder/agat_convert_sp_gff2gtf_2.gtf";
-system(" $script --gff $input_folder/stop_start_an_exon.gff -o $outtmp 2>&1 1>/dev/null");
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_2.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/stop_start_an_exon.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-$result = "$output_folder/agat_convert_sp_gff2gtf_3.gtf";
-system(" $script --gff $input_folder/stop_split_over_two_exons.gff -o $outtmp 2>&1 1>/dev/null");
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_3.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$result = "$convert_sp_gff2gtf_folder/result_issue_245.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/issue_245.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
