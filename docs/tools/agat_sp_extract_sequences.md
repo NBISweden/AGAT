@@ -139,6 +139,16 @@ agat_sp_extract_sequences.pl --help
 
     Boolean - Display this helpful text.
 
+- **--keep_attributes**
+
+    Boolean - The value of the attribute tags will be extracted from the feature type
+    specified by the option --type and stored in the fasta header.
+
+- **--keep_parent_attributes**
+
+    Boolean - The value of the attribute tags will be extracted from the feature type
+    specified by the option --type along with those from parent features and stored in the fasta header.
+
 - **--merge**
 
     Boolean - By default, only features that span several locations (e.g. cds and utr can
@@ -218,4 +228,3 @@ agat_sp_extract_sequences.pl --help
     upstream part of certain features (exon,cds,utr)
     otherwise you will extract each upstream parts of the subfeatures
     (e.g many cds parts may be needed to shape a cds in its whole).
-
