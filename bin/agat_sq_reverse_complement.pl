@@ -67,7 +67,7 @@ else{
 }
 
 
-#### rt fasta 
+#### rt fasta
 my $seqio = Bio::SeqIO->new(-file => $opt_fastafile, -format => "fasta");
 while(my $seqObj = $seqio->next_seq) {
     $seqObj->revcom;
@@ -84,7 +84,7 @@ my @ids      = $db->get_all_primary_ids;
 my %hash_id;
 foreach my $id (@ids){
   my $length = $db->length($id);
-  $hash_id{ lc( $id ) } = $length 
+  $hash_id{ lc( $id ) } = $length
 }
 
 #time to calcul progression
@@ -96,8 +96,8 @@ while (my $feature = $ref_in->next_feature() ) {
 
     # Flip location properly
     my $length_seq = $hash_id{$seq_id};
-    my $start = $feature->start(); 
-    my $end = $feature->end();    
+    my $start = $feature->start();
+    my $end = $feature->end();
     $feature->end($length_seq-$start+1); # set new end
     $feature->start($length_seq-$end+1); # set new start
 
@@ -105,12 +105,14 @@ while (my $feature = $ref_in->next_feature() ) {
     my $strand = $feature->strand;
     if ( ($strand == -1) or ($strand eq "-") ) {
       $strand = "+";
+      $feature->end($strand);
     }
     elsif ( ($strand == 1) or ($strand eq "+") ) {
       $strand = "-";
+      $feature->end($strand);
     }
 
-    $gffout->write_feature($feature); 
+    $gffout->write_feature($feature);
     # to count number of sequence with annotation
     $info{"flip"}{$seq_id}++;
     $info{"all"}{$seq_id}++;
