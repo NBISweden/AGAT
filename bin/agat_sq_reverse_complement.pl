@@ -93,11 +93,23 @@ my %info;
 while (my $feature = $ref_in->next_feature() ) {
   my $seq_id = lc($feature->seq_id);
   if( exists_keys( \%hash_id, ( $seq_id ) ) ){
+
+    # Flip location properly
     my $length_seq = $hash_id{$seq_id};
     my $start = $feature->start(); 
-    my $end = $feature->end();
+    my $end = $feature->end();    
     $feature->end($length_seq-$start+1); # set new end
     $feature->start($length_seq-$end+1); # set new start
+
+    # Flip strand
+    my $strand = $feature->strand;
+    if ( ($strand == -1) or ($strand eq "-") ) {
+      $strand = "+";
+    }
+    else if ( ($strand == 1) or ($strand eq "+") ) {
+      $strand = "-";
+    }
+
     $gffout->write_feature($feature); 
     # to count number of sequence with annotation
     $info{"flip"}{$seq_id}++;
