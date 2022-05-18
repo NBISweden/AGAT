@@ -177,15 +177,15 @@ STRING: fasta file.
 
 =item B<-v> or B<--verbose>
 
-For verbosity
+BOOLEAN: For verbosity.
 
 =item B<-o> or B<--output>
 
-STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
+STRING: Output file.  If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
-Display this helpful text.
+BOOLEAN: Display this helpful text.
 
 =back
 
