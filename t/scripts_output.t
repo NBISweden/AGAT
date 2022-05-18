@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Path;
 
-use Test::More tests => 66;
+use Test::More tests => 67;
 
 =head1 DESCRIPTION
 
