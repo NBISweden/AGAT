@@ -38,8 +38,8 @@ if ($opt_help) {
                  -message => "$header \n" } );
 }
 
-if ((!defined($opt_gfffile)) ){
-   pod2usage( { -message => 'at least 2 parameters are mandatory',
+if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
+   pod2usage( { -message => "At least 2 parameters are mandatory:\n * A gff/gtf file (--gff)\n * A fasta file (--fasta)",
                  -verbose => 0,
                  -exitval => 2 } );
 }
@@ -106,7 +106,7 @@ while (my $feature = $ref_in->next_feature() ) {
     if ( ($strand == -1) or ($strand eq "-") ) {
       $strand = "+";
     }
-    else if ( ($strand == 1) or ($strand eq "+") ) {
+    elsif ( ($strand == 1) or ($strand eq "+") ) {
       $strand = "-";
     }
 
