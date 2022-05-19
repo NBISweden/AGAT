@@ -105,11 +105,11 @@ while (my $feature = $ref_in->next_feature() ) {
     my $strand = $feature->strand;
     if ( ($strand == -1) or ($strand eq "-") ) {
       $strand = "+";
-      $feature->end($strand);
+      $feature->strand($strand);
     }
     elsif ( ($strand == 1) or ($strand eq "+") ) {
       $strand = "-";
-      $feature->end($strand);
+      $feature->strand($strand);
     }
 
     $gffout->write_feature($feature);
