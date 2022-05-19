@@ -3,8 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-
-use Test::More tests => 67;
+use Test::More tests => 70;
 
 =head1 DESCRIPTION
 
@@ -75,22 +74,29 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 # -------------------------- check agat_convert_sp_gff2gtf -------------------------
+my $convert_sp_gff2gtf_folder = "$input_folder/agat_convert_sp_gff2gtf";
 
 $script = $script_prefix."bin/agat_convert_sp_gff2gtf.pl";
-$result = "$output_folder/agat_convert_sp_gff2gtf_1.gtf";
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-$result = "$output_folder/agat_convert_sp_gff2gtf_2.gtf";
-system(" $script --gff $input_folder/stop_start_an_exon.gff -o $outtmp 2>&1 1>/dev/null");
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_2.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/stop_start_an_exon.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-$result = "$output_folder/agat_convert_sp_gff2gtf_3.gtf";
-system(" $script --gff $input_folder/stop_split_over_two_exons.gff -o $outtmp 2>&1 1>/dev/null");
+$result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_3.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$result = "$convert_sp_gff2gtf_folder/result_issue_245.gtf";
+system(" $script --gff $convert_sp_gff2gtf_folder/issue_245.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -206,31 +212,45 @@ unlink $outprefix."_protein_id.gff";
 # --------check agat_sp_extract_sequences.pl-------------
 
 $script = $script_prefix."bin/agat_sp_extract_sequences.pl";
-$result = "$output_folder/agat_sp_extract_sequences_1.fa";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_1.fa";
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script test1");
 unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_extract_sequences.pl";
-$result = "$output_folder/agat_sp_extract_sequences_split.fa";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_split.fa";
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --split -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script test2");
 unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_extract_sequences.pl";
-$result = "$output_folder/agat_sp_extract_sequences_merge.fa";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_merge.fa";
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -t exon --merge -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script test3");
 unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_extract_sequences.pl";
-$result = "$output_folder/agat_sp_extract_sequences_full.fa";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_full.fa";
 system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --full -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script test4");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_extract_sequences.pl";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_attributes_kept.fa";
+system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_attributes -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script test5");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_extract_sequences.pl";
+$result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_parent_attributes_kept.fa";
+system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_parent_attributes -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script test6");
 unlink $outtmp;
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
