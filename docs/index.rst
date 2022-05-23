@@ -22,7 +22,7 @@ Contents
 .. toctree::
    :maxdepth: 2
    :caption: General
-   
+
    agat_for_you.md
    agat_how_does_it_work.md
    troubleshooting.md
@@ -111,7 +111,7 @@ Contents
    tools/agat_sq_add_attributes_from_tsv.md
    tools/agat_sq_add_hash_tag.md
    tools/agat_sq_add_locus_tag.md
-   tools/agat_sq_keep_annotation_from_fastaSeq.md
+   tools/agat_sq_filter_feature_from_fasta.md
    tools/agat_sq_list_attributes.md
    tools/agat_sq_manage_ID.md
    tools/agat_sq_manage_IDs.md
@@ -119,6 +119,7 @@ Contents
    tools/agat_sq_mask.md
    tools/agat_sq_remove_redundant_entries.md
    tools/agat_sq_repeats_analyzer.md
+   tools/agat_sq_reverse_complement.md
    tools/agat_sq_rfam_analyzer.md
    tools/agat_sq_split.md
    tools/agat_sq_stat_basic.md

@@ -8,6 +8,7 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use IO::File ;
 use Bio::Tools::GFF;
+use File::Basename;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
@@ -37,17 +38,23 @@ if ($opt_help) {
                  -message => "$header \n" } );
 }
 
-if ((!defined($opt_gfffile)) ){
-   pod2usage( { -message => 'at least 2 parameters are mandatory',
+if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
+   pod2usage( { -message => "At least 2 parameters are mandatory:\n * A gff/gtf file (--gff)\n * A fasta file (--fasta)",
                  -verbose => 0,
                  -exitval => 2 } );
 }
 
 my $ostream     = IO::File->new();
 
-# Manage input fasta file
+# Manage input gff file
 my $format = select_gff_format($opt_gfffile);
 my $ref_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
+
+# Manage output fasta file
+my ($fasta_in,$path,$ext) = fileparse($opt_fastafile,qr/\.[^.]*/);
+my $fasta_out = $fasta_in."_rt".$ext;
+open(my $fh_fasta, '>', $fasta_out) or die "Could not open file '$fasta_out' $!";
+$fasta_out = Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
 
 # Manage Output
 my $gffout;
@@ -60,7 +67,14 @@ else{
 }
 
 
-#### read fasta
+#### rt fasta
+my $seqio = Bio::SeqIO->new(-file => $opt_fastafile, -format => "fasta");
+while(my $seqObj = $seqio->next_seq) {
+    $seqObj->revcom;
+    $fasta_out->write_seq($seqObj);
+}
+
+#### read fasta again for DB
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
 print ("Fasta file parsed\n");
@@ -68,32 +82,67 @@ print ("Fasta file parsed\n");
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
 my %hash_id;
-$hash_id{ lc( $_ ) }++ for (@ids);
+foreach my $id (@ids){
+  my $length = $db->length($id);
+  $hash_id{ lc( $id ) } = $length
+}
 
 #time to calcul progression
 my $startP=time;
-my $cpt_removed=0;
-my %seqNameSeen;
-my $cpt_kept=0;
+my %info;
 while (my $feature = $ref_in->next_feature() ) {
   my $seq_id = lc($feature->seq_id);
   if( exists_keys( \%hash_id, ( $seq_id ) ) ){
+
+    # Flip location properly
+    my $length_seq = $hash_id{$seq_id};
+    my $start = $feature->start();
+    my $end = $feature->end();
+    $feature->end($length_seq-$start+1); # set new end
+    $feature->start($length_seq-$end+1); # set new start
+
+    # Flip strand
+    my $strand = $feature->strand;
+    if ( ($strand == -1) or ($strand eq "-") ) {
+      $strand = "+";
+      $feature->strand($strand);
+    }
+    elsif ( ($strand == 1) or ($strand eq "+") ) {
+      $strand = "-";
+      $feature->strand($strand);
+    }
+
     $gffout->write_feature($feature);
     # to count number of sequence with annotation
-    if(! exists_keys(\%seqNameSeen, ( $seq_id ) ) ){
-      $seqNameSeen{$seq_id}++;
-    }
-    $cpt_kept++;
+    $info{"flip"}{$seq_id}++;
+    $info{"all"}{$seq_id}++;
   }
   else{
-    print "SequenceID ".$feature->seq_id." is absent from the fasta file\n" if($verbose);
-    $cpt_removed++;
+    $info{"intact"}{$seq_id}++;
+    $info{"all"}{$seq_id}++;
+    $gffout->write_feature($feature);
   }
 }
 
-print "We removed $cpt_removed annotations.\n";
-my $nbSeqWithAnnotation = scalar keys %seqNameSeen;
-print "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n";
+# Check fasta seq not used in gff
+foreach my $seq_id (keys %hash_id){
+  if(! exists_keys( \%info, ( "all", $seq_id ) ) ){
+    $info{"error"}{$seq_id}++;
+  }
+}
+
+my $nb_intact = 0;
+$nb_intact =  keys %{$info{"intact"}};
+my $nb_flip = 0;
+$nb_flip   =  keys %{$info{"flip"}};
+my $nb_error = 0;
+$nb_error  =  keys %{$info{"error"}};
+
+
+print "Annotations on $nb_flip sequences have been reverse complemented.\n";
+print "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n";
+print "$nb_error sequences from the fasta file were absent from the gff.\n";
+
 my $end_run = time();
 my $run_time = $end_run - $start_run;
 print "Job done in $run_time seconds\n";
@@ -102,18 +151,17 @@ __END__
 
 =head1 NAME
 
-agat_sq_filter_feature_from_fasta.pl
+agat_sq_reverse_complement.pl
 
 =head1 DESCRIPTION
 
-This script is a kind of annotation filter by sequence name.
-It goes through the gff annotation features and remove those that are not linked to a sequence from the fasta file provided.
+This script will reverse complement the annotation of all annotation from the gff that are hold by sequences described in the fasta file.
 The match between sequence name in the fasta file and the 1st column of the gff3 file is case sensitive.
 
 =head1 SYNOPSIS
 
-    agat_sq_filter_feature_from_fasta.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
-    agat_sq_filter_feature_from_fasta.pl --help
+    agat_sq_reverse_complement.pl --gff <gff_file.gff> --fasta <fasta_file.fa> [-o <output file>]
+    agat_sq_reverse_complement.pl --help
 
 =head1 OPTIONS
 
@@ -129,15 +177,15 @@ STRING: fasta file.
 
 =item B<-v> or B<--verbose>
 
-For verbosity
+BOOLEAN: For verbosity.
 
 =item B<-o> or B<--output>
 
-STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
+STRING: Output file.  If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
-Display this helpful text.
+BOOLEAN: Display this helpful text.
 
 =back
 

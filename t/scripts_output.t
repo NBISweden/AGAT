@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 69;
+use Test::More tests => 70;
 
 =head1 DESCRIPTION
 
@@ -661,6 +661,15 @@ unlink $outtmp;
 # --------check agat_sq_repeats_analyzer.pl-------------
 
 # XXX
+
+# --------check agat_sq_reverse_complement.pl-------------
+
+$script = $script_prefix."bin/agat_sq_reverse_complement.pl";
+$result = "$output_folder/agat_sq_reverse_complement_1.gff";
+system(" $script --gff $input_folder/1.gff --fasta  $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # --------check agat_sq_rfam_analyzer.pl-------------
 

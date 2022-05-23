@@ -76,12 +76,12 @@ if ( !GetOptions(
     "help|h" => \$opt_help,
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,
-		"db=s" => \$file_db,
-		"frags!" => \$frags,
-		"pseudo!" => \$pseudo,
-		"hamap_size=s" => \$hamap_size,
+	"db=s" => \$file_db,
+	"frags!" => \$frags,
+	"pseudo!" => \$pseudo,
+	"hamap_size=s" => \$hamap_size,
     "table|codon|ct=i" => \$codonTable,
-		"skip_hamap!" => \$skip_hamap,
+	"skip_hamap!" => \$skip_hamap,
     "v=i" => \$verbose,
     "output|out|o=s" => \$outfolder))
 
