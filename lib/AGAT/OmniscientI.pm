@@ -1057,7 +1057,7 @@ sub manage_one_feature{
 # |MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
 # +----------------------------------------------------------------------------+
 		else{
-				warn "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken in account!".
+				warn "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
 				" Please modify the json files to define the feature in one of the levels.\n";
 				warn "GLOBAL@"."parser1@".$primary_tag."@";
 				return $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $feature, $lastL1_new;
@@ -3872,7 +3872,7 @@ sub fetcher_JD {
 					print $OUT $response->decoded_content;	# or whatever
 			}
 			else{
-				my $string = $response->decoded_content;
+				my $string = $response->decoded_content();
 				return $string ;
 			}
 		}
@@ -3891,80 +3891,97 @@ sub _handle_ontology{
 	dual_print( $log, "=> Accessing Ontology\n", $verbose );
 	my $ontology_obj=undef;
 	my $internalO=1;
+	my $sofa_file_path;
 
-		if(exists_keys($gff3headerInfo, ("##feature-ontology"))){
-
-			dual_print( $log, "	feature-ontology URI defined within the file: ".$gff3headerInfo->{'##feature-ontology'}."\n", $verbose);
-			#retrieve the data from URI and save it in a string
-			my $stringFILE=undef;
-			try{
-				$stringFILE = fetcher_JD($gff3headerInfo->{"##feature-ontology"}, undef, $log);
-			}
-			catch{
-				dual_print( $log, "	The URI provided (".$gff3headerInfo->{'##feature-ontology'}.") doesn't work.\n", $verbose);
-				dual_print( $log, "error: $_\n", $verbose);
-			};
-
-			if($stringFILE){
-				#create a filehandler from a string
-				open( my $fh_uriOnto, '<', \$stringFILE) or
-								dual_print( $log, "Cannot read the string: $! :: $?", 1) && die;
-
-				#parse the ontology saved
-		 		my $parser = undef;
-		 		try{
-		 			$parser = Bio::OntologyIO->new(-format => "obo",
-																						 -fh => $fh_uriOnto);
-		 			$ontology_obj = $parser->parse();
-		 			close $fh_uriOnto;
-		 		}
-		 		catch{
-		 			dual_print( $log, "	The URI provided doesn't point to obo ontology format data.\n", $verbose );
-		 			dual_print( $log, "error: $_\n", $verbose);
-		 			$parser = undef;
-		 		};
-
-				if($parser){ #We got ontology at the URI location, no need to use the internal one
-					$internalO=undef;
-					dual_print( $log, "	feature-ontology parsed correctly\n", $verbose );
-				}
-			}
+	if(exists_keys($gff3headerInfo, ("##feature-ontology"))){
+		$sofa_file_path = $gff3headerInfo->{'##feature-ontology'};
+		dual_print( $log, "	feature-ontology URI defined within the file: ".$sofa_file_path."\n", $verbose);
+		#retrieve the data from URI and save it in a string
+		my $stringFILE=undef;
+		try{
+			$stringFILE = fetcher_JD($sofa_file_path, undef, $log);
 		}
+		catch{
+			dual_print( $log, "	The URI provided (".$sofa_file_path.") doesn't work.\n", $verbose);
+			dual_print( $log, "error: $_\n", $verbose);
+		};
+
+		if($stringFILE){
+
+			# To avoid the following error: Strings with code points over 0xFF may not be mapped into in-memory file handles
+			# I print first the result in a tmp file before reading it from the file.
+			my $tmp_onology_file = "ontology_tmp_file_downloaded_from_URI.txt";
+			open(FH, '>:encoding(UTF-8)', $tmp_onology_file) or die $!;
+			print FH $stringFILE;
+
+			#create a filehandler from a string
+			open( my $fh_uriOnto, '<', $tmp_onology_file) or
+							dual_print( $log, "Cannot read the string: $! :: $?", 1) && die;
+
+
+			#parse the ontology saved
+	 		my $parser = undef;
+	 		try{
+	 			$parser = Bio::OntologyIO->new(-format => "obo",
+											   - file => $tmp_onology_file);
+	 			$ontology_obj = $parser->parse();
+
+	 		}
+	 		catch{
+	 			dual_print( $log, "	The URI provided doesn't point to obo ontology format data.\n", $verbose );
+	 			dual_print( $log, "error: $_\n", $verbose);
+	 			$parser = undef;
+	 		};
+
+			if($parser){ #We got ontology at the URI location, no need to use the internal one
+				$internalO=undef;
+				dual_print( $log, "	feature-ontology parsed correctly\n", $verbose );
+			}
+
+			# remove tmp file
+			unlink $tmp_onology_file or
+							dual_print( $log, "Cannot remove the temporary file $tmp_onology_file: $! :: $?", 1) && die;
+
+		}
+	}
 
 	if($internalO){ #No URI provided for the feature-ontology(file case), or doesn't exist (hash / table case) let's use the interal one
 		dual_print( $log, "	No ontology accessible from the gff file header!\n", $verbose);
 		try{
-			my $sofa_file_path = dist_file('AGAT', 'so.obo');
+			$sofa_file_path = dist_file('AGAT', 'so.obo');
 			dual_print( $log, "	We use the SOFA ontology distributed with AGAT:\n		$sofa_file_path\n", $verbose);
 
 			#parse the ontology
 			my $parser = Bio::OntologyIO->new(-format => "obo",
-																				-file => $sofa_file_path);
+											  -file => $sofa_file_path);
 			$ontology_obj = $parser->parse();
-			if($verbose) {
-				my $nbroot_terms =0;
-				foreach my $term ($ontology_obj->get_root_terms) {
-					$nbroot_terms++;
-				}
-				my $nbterms =0;
-				foreach my $term ($ontology_obj->get_all_terms) {
-					$nbterms++;
-				}
-				my $nbleaf_terms =0;
-				foreach my $term ($ontology_obj->get_leaf_terms) {
-					$nbleaf_terms++;
-				}
-				dual_print( $log, "	Read ontology $sofa_file_path:\n".
-						 	"		$nbroot_terms root terms, and ".
-						 	"$nbterms total terms, and ".
-						 	"$nbleaf_terms leaf terms\n", $verbose );
-			}
 		}
 		catch{
 			dual_print($log, "error: $_\n", $verbose );
  			dual_print($log, "	Let's continue without feature-ontology information.\n", $verbose );
 		};
 	}
+
+	# resume information about the ontology being use
+	if($verbose and $ontology_obj) {
+		my $nbroot_terms =0;
+		foreach my $term ($ontology_obj->get_root_terms) {
+			$nbroot_terms++;
+		}
+		my $nbterms =0;
+		foreach my $term ($ontology_obj->get_all_terms) {
+			$nbterms++;
+		}
+		my $nbleaf_terms =0;
+		foreach my $term ($ontology_obj->get_leaf_terms) {
+			$nbleaf_terms++;
+		}
+		dual_print( $log, "	Read ontology $sofa_file_path:\n".
+				 	"		$nbroot_terms root terms, and ".
+				 	"$nbterms total terms, and ".
+				 	"$nbleaf_terms leaf terms\n", $verbose );
+	}
+
 	return $ontology_obj;
 }
 
