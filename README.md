@@ -191,7 +191,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
 
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose LWP::Protocol::https
     ```
 
     * using conda
@@ -206,13 +206,13 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
 
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-lwp-protocol-https
       ```
 
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libjson-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libjson-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libany-moose-perl liblwp-protocol-https-perl
     ```
 
   * Optional
