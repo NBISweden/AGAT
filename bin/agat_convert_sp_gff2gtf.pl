@@ -576,7 +576,7 @@ sub write_headers_gtf{
 		if ($relax){
 			$gffout->_print("##gtf-version X\n");
 			my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
-			print $gffXtra "# GFF-like GTF i.e. not checked against any GTF specification. Conversion based on GFF input, standardised by AGAT.";
+			print $gffXtra "# GFF-like GTF i.e. not checked against any GTF specification. Conversion based on GFF input, standardised by AGAT.\n";
 		}else{
     	$gffout->_print("##gtf-version ".$gtf_version."\n");
 		}
