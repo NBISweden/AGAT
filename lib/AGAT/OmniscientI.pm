@@ -1284,12 +1284,13 @@ sub _it_is_duplication{
 	}
 
 	if(! $is_dupli and $level eq "level1" and $omniscient->{"level1"}{$primary_tag}{$id}){
-		warn "WARNING level1: This feature level1 is not a duplicate".
-		" but has an ID already used (original id: $id).\n".
-		"AGAT does not deal with that currently. @ the feature is:\n".$feature->gff_string()."\n".
-		"Indeed we changed the ID for this feature l1 to be uniq but we do not change\n".
-		"the parent attribute for the subfeatures because we do not know to which L1\n".
-		"they are really linked to. As it is now we will probably end up with chimeric records.\n";
+		warn "WARNING level1: This feature level1 is not a duplicate but has an ID already used.\n".
+		"/!\\ AGAT might mix up the child features and create chimeric records.\n".
+		"Indeed we changed the ID for this L1 feature to be unique but we do not \n".
+		"change the Parent attribute of the child features to reflect this change.\n".
+		"Why? because we do not know to which L1 the child feature was part-of because several Parent have similar ID.\n".
+		" @ the feature is:\n".$feature->gff_string()."\noriginal id: $id\n";
+
 	}
 	return $is_dupli;
 }
