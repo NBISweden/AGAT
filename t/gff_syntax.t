@@ -25,9 +25,11 @@ my $pathtmp = "tmp.gff"; # path file where to save temporary output
 my $dir = "t/gff_syntax"; # folder where the test files are
 opendir my $dh, $dir or die "Could not open '$dir' for reading: $!\n";
 my @files = readdir $dh;
+unlink "config.yaml"; # remove custom config if exists
+
 foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } @files) {
 
-  # for all test files
+  # for all test files	
   if ( $file =~ m/test.gff$/ ){
 
     # skip cases
@@ -41,12 +43,14 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     }
 		# peculiar case 28
     elsif($file =~ m/^28_/){
-        system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp  2>&1 1>/dev/null");
+        system("agat config --expose --locus_tag Name 2>&1 1>/dev/null");
+        system("$script --gff t/gff_syntax/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 
     # standard cases
     else{
-      system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp  2>&1 1>/dev/null");
+			system("agat config --expose --merge_loci 2>&1 1>/dev/null");
+      system("$script --gff t/gff_syntax/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 
     my @splitname = split /_/, $file;
@@ -55,22 +59,7 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     #run test
     ok( system("diff $pathtmp t/gff_syntax/$correct_output") == 0, "parse $file");
     unlink $pathtmp;
-    #--------------- rerun on the first output #---------------
-
-     # peculiar case
-     #if ($file =~ m/^8_/){
-    #     system("$script --gff $pathtmp -o $pathtmp2 ");
-     #}
-     #elsif($file =~ m/^28_/){
-    #     system("$script --gff $pathtmp -c Name -o $pathtmp2 ");
-     #}
-     # standard cases
-     #else{
-    #   system("$script --gff $pathtmp --merge_loci -o $pathtmp2 ");
-     #}
-
-     #run test
-     #ok( system("diff $pathtmp2 t/gff_syntax/$correct_output") == 0, "parse2 $file");
+		unlink "config.yaml";
   }
 }
 closedir($dh);

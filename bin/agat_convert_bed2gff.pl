@@ -9,6 +9,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
@@ -47,14 +48,7 @@ if ( ! (defined($bed)) ){
 }
 
 ## Manage output file
-my $gffout;
-if ($outfile) {
-open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3);
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
 # Ask for specific GFF information
 if (!$source_tag or !$primary_tag){
@@ -224,7 +218,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 																								-end => $end ,
                                                 -frame => $frame ,
                                                 -strand =>$strand,
-                                                tag => {'ID' => $id}
+                                                -tag => {'ID' => $id}
                                                 ) ;
 
     if( exists_keys ( \%bedOmniscent, ($id, 'name') ) ){
@@ -415,7 +409,6 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 			}
 		}
 }
-
 
 close $fh;
 

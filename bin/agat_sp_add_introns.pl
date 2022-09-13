@@ -12,6 +12,7 @@ use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $intronID = 1;
 my $opt_file;
 my $opt_output=undef;
@@ -44,16 +45,7 @@ if ( ! defined( $opt_file) ) {
 # #######################
 # # START Manage Option #
 # #######################
-
-my $gffout;
-if ($opt_output) {
-  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
+my $gffout = prepare_gffout($config, $opt_output);
 
 # #####################################
 # # END Manage OPTION
@@ -70,8 +62,8 @@ else{
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file
-                                                              });
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
+                                                                   config => $config });
   print("Parsing Finished\n\n");
   ### END Parse GFF input #
   #########################
@@ -156,7 +148,7 @@ my $intron_added=0;
     }
   }
 
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 print "$intron_added introns added\nBye Bye\n";
       #########################

@@ -12,7 +12,8 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
-my $outfile = undef;
+my $config = get_agat_config();
+my $opt_output = undef;
 my $gff1 = undef;
 my $gff2 = undef;
 my $verbose = undef;
@@ -24,7 +25,7 @@ if ( !GetOptions(
     "gff1=s"                  => \$gff1,
     "gff2=s"                  => \$gff2,
     "v!"                      => \$verbose,
-    "output|outfile|out|o=s"  => \$outfile))
+    "output|outfile|out|o=s"  => \$opt_output))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -50,13 +51,7 @@ if ( ! $gff1 or ! $gff2){
 
 ######################
 # Manage output file #
-my $report = IO::File->new();
-if ($outfile) {
-  open($report, '>', $outfile) or die "Could not open file $outfile $!";
-}
-else{
-  $report->fdopen( fileno(STDOUT), 'w' );
-}
+my $report = prepare_fileout($opt_output);
 
                 #####################
                 #     MAIN          #
@@ -65,9 +60,11 @@ else{
 
 ######################
 ### Parse GFF input #
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1
+my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
+                                                              config => $config
                                                               });
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2
+my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
+                                                              config => $config
                                                               });
 print ("GFF3 files parsed\n");
 
@@ -324,7 +321,7 @@ foreach my $type_l1 ( sort keys %overlap_info ){
 }
 $string_to_print .= "\n";
 
-if ($outfile){
+if ($opt_output){
   print $report $string_to_print;
 }
 print $string_to_print;

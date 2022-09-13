@@ -13,6 +13,7 @@ use AGAT::Omniscient;
 my %SKIPPED_TAGS = map { $_ => 1 } qw(score); # BIOPERL FIX.
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $gtf_version = 3;
@@ -84,8 +85,8 @@ print "converting to GTF$gtf_version\n";
 ######################
 ### Parse GFF input #
 ### Read gff input file.
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config });
 
 # rebuild gene_id and transcript_id feature;
 my %keep_track_gene_id;

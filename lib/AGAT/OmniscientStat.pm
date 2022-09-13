@@ -49,7 +49,7 @@ sub print_omniscient_statistics{
 	my ($args) = @_	;
 
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
 
 	# Declare all variables and fill them
 	my ($omniscient, $genome_size, $output, $verbose, $distri, $isoform);
@@ -57,13 +57,13 @@ sub print_omniscient_statistics{
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
 		else{ print "Input omniscient mandatory to use print_omniscient_statistics!"; exit;}
-	
+
 	#genome size
 	if( ! defined($args->{genome}) ) {
 		$genome_size = undef;
-	}	
-	else{ 
-		my $genome = $args->{genome}; 
+	}
+	else{
+		my $genome = $args->{genome};
 		# --- check genome size ---
 		if($genome){
 			if( $genome =~ /^[0-9]+$/){ #check if it's a number
@@ -104,7 +104,7 @@ sub print_omniscient_statistics{
 
 	# --- print statistics ---
 	# by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
-	foreach my $by_main_type  ( sort {$a <=> $b } keys %{$result_by_type} ){ 
+	foreach my $by_main_type  ( sort {$a <=> $b } keys %{$result_by_type} ){
 		my $isoform_type = ($by_main_type eq 3) ? $isoform : undef;
 		foreach my $by_type ( sort keys %{ $result_by_type->{$by_main_type} } ){
 
@@ -327,7 +327,7 @@ sub get_omniscient_statistics_from_l2{
 			if ( exists_keys ($hash_omniscient, ('level1', $tag_level1, $id_l1) ) ){
 				$feature_l1=$hash_omniscient->{'level1'}{$tag_level1}{$id_l1};
 				$tag_l1=$tag_level1;
-				$tags_l1{$tag_l1}++; 
+				$tags_l1{$tag_l1}++;
 				last;
 			}
 		}

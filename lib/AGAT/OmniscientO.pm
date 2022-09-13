@@ -15,7 +15,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
 print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
-convert_omniscient_to_ensembl_style write_top_features);
+convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout);
 
 sub import {
   AGAT::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -42,6 +42,55 @@ sub import {
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
+# prepare file handler to print GFF
+sub prepare_gffout{
+	my ($config, $outfile) = @_;
+
+	my $gffout;
+	if ($outfile) {
+		# check existence
+	  if(-f $outfile){
+			print "File $outfile_ok already exist.\n";
+			exit;
+		}
+		else {
+			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+		  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => $config->{gff_output_version});
+		}
+	}
+	else{
+	  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => $config->{gff_output_version});
+	}
+	return $gffout;
+}
+
+
+sub prepare_fileout{
+	my ($outfile) = @_;
+
+	my $fileout;
+	if ($outfile) {
+		if(-f $outfile){
+			print "File $outfile_ok already exist.\n";
+			exit;
+		}
+		else {
+			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+			$fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
+		}
+	}
+	else{
+		$fileout = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
+	}
+	return $fileout;
+}
+
+#				   +------------------------------------------------------+
+#				   |+----------------------------------------------------+|
+#				   || 					          Print Methods 					       ||
+#				   |+----------------------------------------------------+|
+#				   +------------------------------------------------------+
+
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
 sub print_omniscient{
 
@@ -50,10 +99,9 @@ sub print_omniscient{
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient. Please check the call.\n";exit;	}
 	# Fill the parameters
-	my ($omniscient, $gffout, $tabix);
+	my ($omniscient, $gffout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient!"; exit; }
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient!"; exit; }
-	if( defined($args->{tabix}) ) { $tabix = $args->{tabix}; } else { $tabix = 0;}
 	# -----------------------------------
 
 	#uri_decode_omniscient($omniscient);
@@ -62,7 +110,8 @@ sub print_omniscient{
   write_headers($omniscient, $gffout);
 
   # print tabix fashion
-  if($tabix){
+  if($omniscient->{"config"}{"tabix"}){
+
 		my %tabix_hash;
 		my %seq_id;
 		# ------------ LEVEL 1 ------------
@@ -203,10 +252,9 @@ sub print_omniscient_as_match{
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient_as_match. Please check the call.\n";exit;	}
 	# Fill the parameters
-	my ($omniscient, $gffout, $tabix);
+	my ($omniscient, $gffout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient_as_match!"; exit; }
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_as_match!"; exit; }
-	if( defined($args->{tabix}) ) { $tabix = $args->{tabix}; } else { $tabix = 0;}
 	# -----------------------------------
 
 	#uri_decode_omniscient($omniscient);
@@ -296,11 +344,10 @@ sub print_omniscient_from_level1_id_list {
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient_from_level1_id_list. Please check the call.\n";exit;	}
 	# Fill the parameters
-	my ($omniscient, $level_id_list, $gffout, $tabix);
+	my ($omniscient, $level_id_list, $gffout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient_from_level1_id_list!"; exit; }
 	if( defined($args->{level_id_list})) {$level_id_list = $args->{level_id_list};} else{ print "Level_id_list parameter mandatory to use print_omniscient_from_level1_id_list!"; exit; }
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_from_level1_id_list!"; exit; }
-	if( defined($args->{tabix}) ) { $tabix = $args->{tabix}; } else { $tabix = 0;}
 	# -----------------------------------
 
   #uri_decode_omniscient($omniscient);

@@ -11,6 +11,7 @@ use IO::File;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_attribute = undef;
@@ -24,7 +25,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   "p|type|l=s"          => \$primaryTag,
                   'a|att|attribute=s'   => \$opt_attribute,
-                  'flip!'            => \$opt_test,
+                  'flip!'               => \$opt_test,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
                   'h|help!'             => \$opt_help ) )
@@ -52,36 +53,23 @@ if ( ! $opt_gff or ! $opt_attribute ){
 # Manage Output
 
 ## FOR GFF FILE
-my $gffout_ok; my $fhout_discarded ; my $ostreamReport;
+my $gffout_ok_file ;
+my $fhout_discarded_file ;
+my $ostreamReport_file;
 
 if ($opt_output) {
   my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
   # set file names
-  my $outfile_ok = $path.$outfile.$ext;
-  my $outfile_discarded = $path.$outfile."_discarded.txt";
-  my $outfile_report = $path.$outfile."_report.txt";
-
-  # check existence
-  if(-f $outfile_ok){  print "File $outfile_ok already exist.\n";exit;}
-  if(-f $outfile_discarded){  print "File $outfile_discarded already exist.\n";exit;}
-  if(-f $outfile_report){  print "File $outfile_report already exist.\n";exit;}
-
-  # create fh
-  open( my $fh, '>', $outfile_ok) or die "Could not open file $outfile_ok $!";
-  $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-
-  open( $fhout_discarded, '>', $outfile_discarded) or die "Could not open file $outfile_discarded $!";
-
-
-  open($ostreamReport, '>', $outfile_report) or die "Could not open file $outfile_report $!";
-
+  $gffout_ok_file = $path.$outfile.$ext;
+  $fhout_discarded_file = $path.$outfile."_discarded.txt";
+  $ostreamReport_file = $path.$outfile."_report.txt";
 }
-else{
-  $gffout_ok = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $fhout_discarded = \*STDOUT;
-  $ostreamReport = \*STDOUT;
-}
+
+my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $fhout_discarded = prepare_fileout($fhout_discarded_file);
+my $ostreamReport = prepare_fileout($ostreamReport_file);
+
 
 # Manage $primaryTag
 my @ptagList;
@@ -139,7 +127,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  verbose => $opt_verbose
+                                                                  config => $config
                                                                 });
 print("Parsing Finished\n");
 ### END Parse GFF input #

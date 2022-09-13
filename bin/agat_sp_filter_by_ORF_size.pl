@@ -11,6 +11,7 @@ use AGAT::Omniscient;
 
 my $start_run = time();
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $PROT_LENGTH = 100;
 my $file_fasta=undef;
 my $outfile = undef;
@@ -68,25 +69,16 @@ $opt_test_to_print =~ s/</inf/ig;
 
 ######################
 # Manage output file #
-my $gffout_pass;
-my $gffout_notpass;
+my $gffout_pass_file;
+my $gffout_notpass_file;
 if ($outfile) {
   $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile."_".$opt_test_to_print.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
-  $gffout_pass= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout_pass= Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3 );
+  $gffout_pass_file = $outfile."_".$opt_test_to_print.$PROT_LENGTH.".gff";
+  $gffout_notpass_file = $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff";
 }
 
-if ($outfile) {
-  $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff") or die "Could not open file '$outfile' $!";
-  $gffout_notpass= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout_notpass= Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3 );
-}
+my $gffout_pass = prepare_gffout($config, $gffout_pass_file);
+my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
 
 # print usage performed
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
@@ -100,8 +92,9 @@ print $stringPrint;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
+                                                               });
 print ("GFF3 file parsed\n");
 
 my @good_gene_list;

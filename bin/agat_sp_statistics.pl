@@ -95,8 +95,7 @@ if($opt_plot){
 ### Parse GFF input #
 print "Reading file $gff\n";
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               verbose => $opt_verbose
+                                                               input => $gff
                                                                });
 print "Parsing Finished\n";
 ### END Parse GFF input #

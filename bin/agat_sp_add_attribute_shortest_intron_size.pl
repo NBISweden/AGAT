@@ -12,6 +12,7 @@ use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_file;
 my $opt_output=undef;
 my $verbose=undef;
@@ -45,19 +46,14 @@ if ( ! defined($opt_file) ) {
 # #######################
 # # START Manage Option #
 # #######################
-my $gffout;
-my $ostreamReport;
+my $ostreamReport_filename;
 if (defined($opt_output) ) {
   my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
-  $ostreamReport=IO::File->new(">".$path.$filename."_report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $filename."_report.txt", $! ));
+  $ostreamReport_filename=$path.$filename."_report.txt";
+}
+my $gffout = prepare_gffout($config, $opt_output);
+my $ostreamReport = prepare_fileout($ostreamReport_filename);
 
-  open(my $fh, '>', $opt_output) or die "Could not open file $opt_output $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
@@ -71,8 +67,8 @@ if($opt_output){print $string1;}
 ######################
 ### Parse GFF input #
 print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
+                                                                 config => $config });
 print("Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
@@ -134,7 +130,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 my $toprint = "$nb_cases_l1 $tag flags/attributes added to level1 features and $nb_cases_l2 $tag flags/attributes added to level2 features. The value of the attribute is size of the shortest exon found.\n";
 print $ostreamReport $toprint;
 if($opt_output){print $toprint;}
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
       #########################
       ######### END ###########
       #########################

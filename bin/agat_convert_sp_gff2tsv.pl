@@ -12,21 +12,18 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag=undef;
 my $attributes=undef;
-my $opt_merge = undef;
-my $opt_comonTag=undef;
 my $opt_output=undef;
 my $add = undef;
 my $cp = undef;
 
 if ( !GetOptions(
     "help|h"          => \$opt_help,
-    'c|ct=s'          => \$opt_comonTag,
     "gff|f=s"         => \$gff,
-    'ml|merge_loci!'  => \$opt_merge,
     "output|outfile|out|o=s" => \$opt_output))
 
 {
@@ -68,11 +65,8 @@ else{
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               locus_tag => $opt_comonTag,
-                                                               merge_loci => $opt_merge
-                                                               });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config });
 print ("GFF3 file parsed\n");
 
 # ---- List attributes ----
@@ -266,18 +260,6 @@ Attribute's tags from the 9th column become column titles.
 =item B<--gff> or B<-f>
 
 Input GTF/GFF file.
-
-=item B<-c> or B<--ct>
-
-When the features doesn't have Parent/ID relationships, the parser will try to group
-features using a common/shared attribute (i.e. a locus tag.). By default locus_tag and gene_id.
-You can provide another specific common/shared attribute using this option.
-
-=item B<--ml> or B<--merge_loci>
-
-Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
-(at CDS level for mRNA, at exon level for other level2 features. Strand has to be the same). Prokaryote can have overlaping loci so it should not use it for prokaryote annotation.
-In eukaryote, loci rarely overlap. Overlaps could be due to error in the file, mRNA can be merged under the same parent gene if you acticate the option.
 
 =item B<-o> , B<--output> , B<--out> or B<--outfile>
 

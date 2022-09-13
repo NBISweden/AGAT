@@ -9,6 +9,7 @@ use AGAT::Omniscient;
 
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
@@ -17,7 +18,7 @@ my $opt_help = 0;
 
 if ( !GetOptions( 'i|input=s' => \$opt_in,
                   'b|bam!' => \$opt_bam,
-									's|sam!' => \$opt_sam,
+                  's|sam!' => \$opt_sam,
                   'o|out|output=s' => \$opt_output,
                   'h|help!'         => \$opt_help ) )
 {
@@ -41,13 +42,7 @@ if ( ! defined( $opt_in) ) {
 }
 
 # ---- set output -----
-my $out_stream;
-if ($opt_output) {
-	$out_stream=IO::File->new(">".$opt_output ) or croak( sprintf( "Can not open '%s' for writing %s", $opt_output, $! ));
-}
-else{
-	$out_stream = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-}
+my $out_stream = prepare_gffout($config, $opt_output);
 
 # ----- Parse input ------
 my $is_sam=undef;
@@ -197,28 +192,33 @@ while(<FILE>){
   }
 	my ($genome_lend, $genome_rend, $trans_lend, $trans_rend) = @{$merged_coords[0]};
 	my ($genome_lend2, $genome_rend2, $trans_lend2, $trans_rend2) = @{$merged_coords[$#merged_coords]};
-	print $out_stream join("\t",
-						 $scaff_name,
-						 "est2genome",
-						 "cDNA_match",
-						 $genome_lend, $genome_rend2,
-						 $AS,
-						 $strand,
-						 ".",
-						 "ID=$align_counter_l1;aligned_identity=$per_id") . "\n"; # target_length and aligned_coverage attributes cannot be determined
+	my $feature = Bio::SeqFeature::Generic->new(-seq_id => $scaff_name,
+																							-source_tag => "est2genome",
+																							-primary_tag => "cDNA_match",
+																							-start => $genome_lend,
+																							-end => $genome_rend2,
+																							-frame => $AS,
+																							-strand => $strand,
+																							-score => ".",
+																							-tag => {'ID' => $align_counter_l1, 'aligned_identity' => $per_id }
+																							) ;
+
+	$out_stream->write_feature($feature)
 
 	foreach my $coordset_ref (@merged_coords) {
             my ($genome_lend, $genome_rend, $trans_lend, $trans_rend) = @$coordset_ref;
 
-						print $out_stream join("\t",
-	                      $scaff_name,
-	                      "est2genome",
-	                      "cDNA_match_part",
-	                      $genome_lend, $genome_rend,
-	                      $AS,
-	                      $strand,
-	                      ".",
-	                      "ID=$align_counter_l2;Parent=$align_counter_l1;Target=$read_name $trans_lend $trans_rend") . "\n";
+						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $scaff_name,
+																												-source_tag => "est2genome",
+																												-primary_tag => "cDNA_match_part",
+																												-start => $genome_lend,
+																												-end => $genome_rend,
+																												-frame => $AS,
+																												-strand => $strand,
+																												-score => ".",
+																												-tag => {'ID' => $align_counter_l2, 'Parent' => $align_counter_l1, 'Target' => "$read_name $trans_lend $trans_rend" }
+																												) ;
+						$out_stream->write_feature($feature)
 	}
 }
 

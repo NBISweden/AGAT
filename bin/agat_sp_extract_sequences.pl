@@ -12,6 +12,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_plus_strand = undef;
 my $start_run = time();
 my $codonTable=1;
@@ -138,7 +139,8 @@ if ($opt_keep_parent_attributes){
 ######################
 ### Parse GFF input #
 print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
+                                                                 config => $config
                                                               });
 print "Parsing Finished\n";
 ### END Parse GFF input #

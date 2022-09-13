@@ -292,6 +292,7 @@ sub dual_print{
 	if($verbose > 0 ){ #only 0 is quite mode
 		print $string;
 	}
+	# print in log in any provided
 	if($fh){
 		print $fh $string;
 	}

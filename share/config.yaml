@@ -1,0 +1,48 @@
+---
+# this yaml file configure the AGAT omminiscient parser (script with _sp_ that
+# load GFF/GTF into memory)
+
+# Integer - verbosity 0,1,2,3,4. 0 is quiet
+verbose: 1
+# Bolean - To activate / deactivate the progress bar
+progress_bar: true
+# Create a log file while parsing the input file to keep track of modification
+# made by AGAT
+log: true
+# Extra verbosity for debugging
+debug: false
+# Output will be sorted in tabix format
+tabix: false
+# should overlapping loci (at CDS level) be merged in a single locus
+merge_loci: false
+# should fasta embedded in GFF/GTF be thrown away from input?
+throw_fasta: false
+# Force using gff (bioperl) parser input version: 0,1,2,2.5,3
+# 0 means let's AGAT choose automatically
+force_gff_input_version: 0
+# GFF ouput version (bioperl): 1,2,2.5,3)
+gff_output_version: 3
+
+#case 28
+create_l3_for_l2_orphan: true
+
+locus_tag:
+  - locus_tag
+  - gene_id
+
+# prefix used to create feature identifer
+prefix_new_id: nbis
+
+# ----------------------------- Checks made by the parser ----------------------
+# in order of appearance wihtin the parser
+check_sequential: true
+check_l2_linked_to_l3: true
+check_l1_linked_to_l2: true
+remove_orphan_l1: true
+check_all_level3_locations: true
+check_cds: true
+check_exons: true
+check_utrs: true
+check_all_level2_locations: true
+check_all_level1_locations: true
+check_identical_isoforms: true

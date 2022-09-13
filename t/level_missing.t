@@ -24,6 +24,7 @@ my $input_folder = "t/level_missing";
 my $output_folder = "t/level_missing/output";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
 my $result;
+unlink "config.yaml"; # remove custom config if exists
 
 # -------------------------- testA -------------------------
 
@@ -34,22 +35,28 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testA_output2.gff";
-system(" $script --gff $input_folder/testA.gff -o $outtmp --ct common_tag 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag common_tag 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
 $result = "$output_folder/testA_output3.gff";
-system(" $script --gff $input_folder/testA.gff -o $outtmp --ct gene_info 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag gene_info 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
 $result = "$output_folder/testA_output4.gff";
-system(" $script --gff $input_folder/testA.gff -o $outtmp --ct transcript_id 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag transcript_id 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
 # -------------------------- testB -------------------------
 
@@ -60,10 +67,12 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testB_output2.gff";
-system(" $script --gff $input_folder/testB.gff -o $outtmp -ct locus_id 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
 # -------------------------- testC -------------------------
 
@@ -74,12 +83,14 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testC_output2.gff";
-system(" $script --gff $input_folder/testC.gff -o $outtmp --ct locus_id 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testC.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
-# -------------------------- testC -------------------------
+# -------------------------- testD -------------------------
 
 $result = "$output_folder/testD_output.gff";
 system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
@@ -88,10 +99,12 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testD_output2.gff";
-system(" $script --gff $input_folder/testD.gff -o $outtmp --ct ID 2>&1 1>/dev/null");
+system("agat config --expose --locus_tag ID 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "config.yaml";
 
 # -------------------------- testE -------------------------
 

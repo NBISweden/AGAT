@@ -10,6 +10,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $genscan = undef;
 my $seq_id = "unknown";
@@ -45,17 +46,7 @@ if ( ! (defined($genscan)) ){
 }
 
 ## Manage output file
-my $gffout;
-if ($outfile) {
-open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3);
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
-
-
+my $gffout = prepare_gffout($config, $outfile);
 
 ## MAIN ##############################################################
 
@@ -123,7 +114,7 @@ sub convert_genscan{
 																											-frame => ".",
 																											-strand =>$strand,
 																											-score =>$score,
-																											tag => {'ID' => $id, 'Parent' => $mrna_id}
+																											- tag => {'ID' => $id, 'Parent' => $mrna_id}
 																											) ;
 					push @list_exons, $feature;
 				}

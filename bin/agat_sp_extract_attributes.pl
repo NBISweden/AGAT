@@ -13,6 +13,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my %handlers;
 my $gff = undef;
 my $one_tsv = undef;
@@ -57,15 +58,10 @@ if ( ! $gff or ! $attributes ){
 my $outfile_pref; my $path ; my $ext;
 if ($outfile) {
     ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-} 
+}
 
 if($one_tsv){
-  if ($outfile) {
-    open($outInOne, '>', $outfile) or die "Could not open file $outfile $!";
-  }
-  else{
-    $outInOne->fdopen( fileno(STDOUT), 'w' );
-  }
+	$outInOne = prepare_fileout($outfile);
 }
 
 # Manage $primaryTag
@@ -110,7 +106,8 @@ if ($attributes){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
                                                               });
 print ("GFF3 file parsed\n");
 

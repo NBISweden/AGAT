@@ -10,6 +10,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $add_flag=undef;
@@ -48,23 +49,16 @@ if ( ! defined($gff) ){
 
 ######################
 # Manage output file #
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                            config => $config
                                                               });
 print ("GFF3 file parsed\n");
 

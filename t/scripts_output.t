@@ -124,20 +124,20 @@ unlink $outprefix.".dna";
 
 # XXX No need to be tested, it is tested by gff_syntax tests
 
-# -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
+# -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
 
-$script = $script_prefix."bin/agat_sp_add_attribute_shortest_intron_size.pl";
-$result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_exon_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 
-# -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
+# -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
 
-$script = $script_prefix."bin/agat_sp_add_attribute_shortest_exon_size.pl";
-$result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_intron_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -183,6 +183,10 @@ system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outt
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# --------check agat_sp_compare_two_BUSCOs.pl -------------
+
+# XXX
+
 # ------------------- check agat_sp_complement_annotations script-------------------
 $script = $script_prefix."bin/agat_sp_complement_annotations.pl";
 $result = "$output_folder/agat_sp_complement_annotations_1.gff";
@@ -190,6 +194,7 @@ system(" $script --ref t/gff_syntax/25_test.gff  --add t/gff_syntax/9_test.gff -
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+
 
 # --------check agat_sp_ensembl_output_style.pl-------------
 
@@ -282,7 +287,6 @@ unlink $outtmp;
 unlink $outprefix."_discarded.txt";
 unlink $outprefix."_report.txt";
 
-
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 
 $script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
@@ -350,7 +354,7 @@ $result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
 system(" $script --gff $input_folder/1.gff --tsv $input_folder/coordinates.tsv -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp/remaining.gff3") == 0, "output $script");
 rmtree $outtmp;
-
+exit;
 # --------check agat_sp_fix_cds_phases.pl-------------
 
 $script = $script_prefix."bin/agat_sp_fix_cds_phases.pl";

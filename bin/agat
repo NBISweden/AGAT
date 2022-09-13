@@ -1,0 +1,229 @@
+#!/usr/bin/env perl
+use v5.24;
+use warnings;
+use experimental 'signatures';
+no warnings 'experimental::signatures';
+use File::Basename;
+
+use AGAT::AppEaser qw< run d >;
+use AGAT::Omniscient;
+
+# set env variable to save location of this script
+my $agat_bin;
+if( -l __FILE__){
+	$agat_bin = dirname(readlink(__FILE__));
+} else{
+	$agat_bin = dirname(__FILE__);
+}
+$ENV{'AGAT_BIN'}=$agat_bin;
+
+my $APPNAME = 'agat';
+my $header = get_agat_header();
+my $application = {
+   factory       => {prefixes => {'#' => 'AGAT::Omniscient#'}},
+   configuration => {
+
+      # the name of the application, set it above in $APPNAME
+      name               => $APPNAME,
+
+      # figure out names of environment variables automatically
+      #	'auto-environment' => 1,
+
+      # sub-commands without children are leaves (no sub help/commands)
+      'auto-leaves'    => 0,
+
+      # help goes to standard error by default, override to stdout
+      # 'help-on-stderr' => 0,
+
+      # Where to get the specifications for commands
+      # specfetch => '+SpecFromHash',         # default
+      # specfetch => '+SpecFromHashOrModule', # possible alternative
+   },
+   commands => {
+      MAIN => {
+         help        => $header,
+         description =>
+    'AGAT has the power to check, fix, pad missing information (features/
+attributes) of any kind of GTF and GFF to create complete, sorted and
+standardised gff3 format. Over the years it has been enriched by many many
+tools to perform just about any tasks that is possible related to GTF/GFF
+format files (sanitizing, conversions, merging, modifying, filtering, FASTA
+sequence extraction, adding information, etc). Comparing to other methods
+AGAT is robust to even the most despicable GTF/GFF files.',
+				 children => [qw< levels config >],
+
+         # allow for configuration files
+         sources            => '+SourcesWithFiles',
+         # 'config-files' => ["/etc/$APPNAME.json"],
+         options     => [
+            {
+               getopt      => 'help|h!',
+               help        => 'Display the help',
+            },
+						{
+							 getopt      => 'version|v!',
+							 help        => 'Display the AGAT version',
+						},
+						{
+							 getopt      => 'tools|t!',
+							 help        => 'Display the AGAT tools available',
+						},
+         ],
+				 commit	     => '#handle_main',
+      },
+
+# ================================== LEVELS ====================================
+      levels => {
+         help        => 'Handle feature types and relationships',
+         description =>
+'If you want to see, add or modified the feature relationships you will have to
+use this option. It will copy past in you working directory the json files used
+to define the relation between feature types and their level organisation.
+Typical level organisation: Level1 => gene; Level2 => mRNA; level3 => exon,cds,
+utrs. If you get warning from the Omniscient parser that a feature relationship
+is not defined, you can provide information about it within the exposed json
+files. Indeed, if the json files exists in your working directory, they will be
+used by default.',
+         options     => [
+					 {
+							 getopt      => 'help|h!',
+							 help        => 'Display the help',
+						},
+            {
+               getopt      => 'expose|e!',
+               help        => 'Expose the feature level json files.',
+            },
+         ],
+         commit => '#handle_levels',
+      },
+# ================================== CONFIG ====================================
+			config => {
+				 help        => 'Handle agat configuration used by _sp_ scripts',
+				 description =>
+'The _sp_ scripts use the AGAT parser that can be tuned in many way. The
+default parameters are stored within a YAML file. You can see this configuration
+file using the expose command that will copy it in you working directory. You
+are then free to modify it at your convenience. Wen a config YAML file is
+available within the working directory, AGAT will use it in priority. (For
+convenience and automation, the parameters can be modified on the fly when using
+the expose command. In such case you will get a modified copy of the config file.)
+',
+				 options     => [
+					 {
+							getopt      => 'help|h!',
+							help        => 'Display the help',
+					 },
+					 {
+							getopt      => 'expose|e!',
+							help        => 'Expose the config file.',
+					 },
+					 {
+							getopt      => 'verbose=i',
+							help        => 'Verbosity. 0 is quiet. 1,2,3 or 4 to increase verbosity.',
+					 },
+					 {
+							getopt      => 'progress_bar!',
+							help        => 'To activate / deactivate the progress bar.',
+					 },
+					 {
+							getopt      => 'log!',
+							help        => 'To create a log file while parsing the input file to keep track of modification made by AGAT',
+					 },
+					 {
+							getopt      => 'debug!',
+							help        => 'Extra verbosity for debugging',
+					 },
+					 {
+							getopt      => 'tabix!',
+							help        => 'To sort the output in tabix format',
+					 },
+					 {
+							getopt      => 'merge_loci!',
+							help        => 'To merge loci that overlap at CDS level in a single locus.',
+					 },
+					 {
+							getopt      => 'throw_fasta!',
+							help        => 'To throw the fasta embedded in the input file.',
+					 },
+					 {
+							getopt      => 'force_gff_input_version=f',
+							help        => 'To force AGAT to use a specific version of the bioperl parser. Choice:0,1,2,2.5,3. 0 means let AGAT choose automatically',
+					 },
+					 {
+							getopt      => 'gff_output_version=f',
+							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3',
+					 },
+					 {
+							getopt      => 'gff_output_version=f',
+							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3',
+					 },
+					 {
+							getopt      => 'create_l3_for_l2_orphan!',
+							help        => 'To create l3 feature for l2 feature without any',
+					 },
+					 {
+							getopt      => 'locus_tag=s',
+							help        => 'Coma separated list of attribute tag to use to define locus. Will be used if no Parent/id GFF relationship exist or gene_id/transcript_id GTF tag.',
+					 },
+					 {
+							getopt      => 'check_sequential!',
+							help        => 'Expert only - To take care of feature without any proper relationship.',
+					 },
+					 {
+							getopt      => 'check_l2_linked_to_l3!',
+							help        => 'Expert only - To check that all l3 feature has a parental l2 feature. And create one if any missing .',
+					 },
+					 {
+							getopt      => 'check_l1_linked_to_l2!',
+							help        => 'Expert only - To check that all l2 feature has a prental l1 feature. And create one if any missing .',
+					 },
+					 {
+							getopt      => 'remove_orphan_l1!',
+							help        => 'Expert only - To remove level1 feature whithout children features (except top and standalone features that do not have children by definition).',
+					 },
+					 {
+							getopt      => 'check_all_level3_locations!',
+							help        => 'To check location of level3 features: merge overlapping and adjacent exons and adjacent CDS.',
+					 },
+					 {
+							getopt      => 'check_cds!',
+							help        => 'To check when stop codons are definied that they are part of the CDS. If not AGAT extends the CDS to include it.',
+					 },
+					 {
+							getopt      => 'check_exons!',
+							help        => 'To check that exons include all other l3 feature types that are included within exon (see level feature json file e.g: cds:"exon",) .',
+					 },
+					 {
+							getopt      => 'check_utrs!',
+							help        => 'To create UTRs if missing based on CDS and exon features.',
+					 },
+					 {
+							getopt      => 'check_all_level2_locations!',
+							help        => 'To check that l2 feature locations do not span belong their exon locations.',
+					 },
+					 {
+							getopt      => 'check_all_level1_locations!',
+							help        => 'To check that l1 feature locations do not span belong their l2 locations.',
+					 },
+					 {
+							getopt      => 'check_identical_isoforms!',
+							help        => 'To remove identical isoforms (same exon,cds,locations).',
+					 },
+					 {
+							getopt      => 'prefix_new_id=s',
+							help        => 'Prefix to be used for ID of newly created feature.',
+					 },
+				 ],
+				 commit => '#handle_config',
+			},
+   }
+};
+run($application, [@ARGV]);
+exit;
+
+
+# implementation of sub-command bar
+sub cat ($general, $config, $args) {
+    say defined($config->{galook}) ? $config->{galook} : '*undef*';
+    return;
+}

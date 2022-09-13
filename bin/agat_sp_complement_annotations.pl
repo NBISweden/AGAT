@@ -10,8 +10,9 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
-my $outfile = undef;
+my $opt_output = undef;
 my @opt_files;
 my $ref = undef;
 my $size_min = 0;
@@ -24,7 +25,7 @@ if ( !GetOptions(
     "ref|r|i=s" => \$ref,
     "add|a=s" => \@opt_files,
     "size_min|s=i" => \$size_min,
-    "output|outfile|out|o=s" => \$outfile))
+    "output|outfile|out|o=s" => \$opt_output))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,14 +49,7 @@ if (! $ref or ! @opt_files ){
 
 ######################
 # Manage output file #
-my $gffout;
-if ($outfile) {
-open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $opt_output);
 
 
                 #####################
@@ -66,15 +60,17 @@ else{
 ######################
 ### Parse GFF input #
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
+                                                                 config => $config
                                                               });
 print ("$ref GFF3 file parsed\n");
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file
-                                                              });
+  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
+	                                                                   config => $config
+                                                                });
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
 
@@ -139,7 +135,7 @@ foreach my $next_file (@opt_files){
 
 ########
 # Print results
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 #END
 print "usage: $0 @copyARGV\n";
 my $end_run = time();

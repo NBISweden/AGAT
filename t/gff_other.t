@@ -27,22 +27,25 @@ my $input_folder = "t/gff_other";
 my $output_folder = "t/gff_other";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 
-# ---- test gzip file and contain fasta ----
+# -------- test gzip file and contain fasta --------
 $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $correct_output = "$output_folder/zip_and_fasta_correct_output.gff";
 
-system("$script --gff $input_folder/zip_and_fasta.gff.gz --merge_loci -o $pathtmp  2>&1 1>/dev/null");
+unlink "config.yaml"; # remove config in local folder if exists
+system("$script --gff $input_folder/zip_and_fasta.gff.gz -o $pathtmp  2>&1 1>/dev/null");
 
 #run test
 ok( system("diff $pathtmp $correct_output") == 0, "zip_and_fasta check");
 unlink $pathtmp;
 
-# ---- test tabix output sorting ----
+# -------- test tabix output sorting --------
 $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 $correct_output = "$output_folder/1_agat_tabix.gff";
 
-system("$script --gff t/scripts_output/1.gff --tabix -o $pathtmp  2>&1 1>/dev/null");
+system("agat config --expose --tabix 2>&1 1>/dev/null");
+system("$script --gff t/scripts_output/1.gff -o $pathtmp  2>&1 1>/dev/null");
 
 #run test
 ok( system("diff $pathtmp $correct_output") == 0, "tabix check");
 unlink $pathtmp;
+unlink "config.yaml";

@@ -17,7 +17,7 @@ use Exporter;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(get_feature_type_by_agat_value get_levels_info load_levels load_json);
+our @EXPORT = qw(get_feature_type_by_agat_value get_levels_info load_levels load_json expose_levels);
 sub import {
   AGAT::OmniscientJson->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
   AGAT::OmniscientJson->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
@@ -39,6 +39,9 @@ first time.
   Jacques Dainat - jacques.dainat@nbis.se
 
 =cut
+
+# path to json files, order matter!
+my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
@@ -110,11 +113,9 @@ sub load_levels{
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for load_levels. Please check the call.\n";exit;}
 	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $expose_feature_levels, $verbose, $log, $debug);
+	my ($hash_omniscient, $verbose, $log, $debug);
 	# string to print
 	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ warn "Omniscient input is mandatory for load_levels\n"; exit;}
-	#size line
-	if( ! defined($args->{expose}) ) { $expose_feature_levels = undef;} else{ $expose_feature_levels = $args->{expose}; }
 	# character to fill the line with
 	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
 	# log
@@ -122,8 +123,6 @@ sub load_levels{
 	# log
 	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
 
-	#set original path to json files, order matter
-	my @files = ('features_level1.json', 'features_level2.json', 'features_level3.json', 'features_spread.json');
 	my @paths;
 	foreach my $file ( @files ){
 		my $path = dist_file('AGAT', $file);
@@ -133,56 +132,64 @@ sub load_levels{
 
 	#set run directory
 	my $run_dir = cwd;
-	# Check if it is asked to copy the json files locally
-	if ($expose_feature_levels){
-		foreach my $path (@paths) {
-				copy($path, $run_dir) or die dual_print($log,"Copy failed: $!");
-		}
-		dual_print($log, "	All json feature level files copied in your working directory\n", $verbose);
-		exit;
-	}
+	my $cpt=1;
 	# Load the json files
-	else{
-		my $cpt=1;
-		foreach my $file (@files) {
-			#check first if exist locally
-			my $path = $run_dir."/".$file;
-			if (-e $path) {
+	foreach my $file (@files) {
+		#check first if exist locally
+		my $path = $run_dir."/".$file;
+		if (-e $path) {
 
-				dual_print($log, "	Using local $file file\n", $verbose );
+			dual_print($log, "	Using local $file file\n", $verbose );
 
-				if ($cpt == 1){
-					$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($path);
-				}
-				elsif ($cpt == 2){
-					$hash_omniscient->{'other'}{'level'}{'level2'} = load_json($path);
-				}
-				elsif ($cpt == 3){
-					$hash_omniscient->{'other'}{'level'}{'level3'} = load_json($path);;
-				}
-				else {
-					$hash_omniscient->{'other'}{'level'}{'spreadfeature'} = load_json($path);
-				}
+			if ($cpt == 1){
+				$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($path);
 			}
-			else{ #otherwise use the standard location ones
-
-				dual_print($log, "	Using standard ".$paths[$cpt-1]." file\n", $verbose );
-
-				if ($cpt == 1){
-					$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($paths[0]);
-				}
-				elsif ($cpt == 2){
-					$hash_omniscient->{'other'}{'level'}{'level2'} =  load_json($paths[1]);
-				}
-				elsif ($cpt == 3){
-					$hash_omniscient->{'other'}{'level'}{'level3'} = load_json($paths[2]);
-				}
-				else {
-					$hash_omniscient->{'other'}{'level'}{'spreadfeature'} = load_json($paths[3]);
-				}
+			elsif ($cpt == 2){
+				$hash_omniscient->{'other'}{'level'}{'level2'} = load_json($path);
 			}
-			$cpt++;
+			elsif ($cpt == 3){
+				$hash_omniscient->{'other'}{'level'}{'level3'} = load_json($path);;
+			}
+			else {
+				$hash_omniscient->{'other'}{'level'}{'spreadfeature'} = load_json($path);
+			}
 		}
+		else{ #otherwise use the standard location ones
+
+			dual_print($log, "	Using standard ".$paths[$cpt-1]." file\n", $verbose );
+
+			if ($cpt == 1){
+				$hash_omniscient->{'other'}{'level'}{'level1'} = load_json($paths[0]);
+			}
+			elsif ($cpt == 2){
+				$hash_omniscient->{'other'}{'level'}{'level2'} =  load_json($paths[1]);
+			}
+			elsif ($cpt == 3){
+				$hash_omniscient->{'other'}{'level'}{'level3'} = load_json($paths[2]);
+			}
+			else {
+				$hash_omniscient->{'other'}{'level'}{'spreadfeature'} = load_json($paths[3]);
+			}
+		}
+		$cpt++;
+	}
+}
+
+
+sub expose_levels{
+
+	my @paths;
+	foreach my $file ( @files ){
+		my $path = dist_file('AGAT', $file);
+		print "Path where $file is standing according to dist_file: $path\n";
+		push @paths, $path;
+	}
+
+	#set run directory
+	my $run_dir = cwd;
+	# copy the json files locally
+	foreach my $path (@paths) {
+		copy($path, $run_dir) or die print "Copy failed: $!";
 	}
 }
 

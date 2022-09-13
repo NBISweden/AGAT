@@ -12,6 +12,7 @@ use URI::Escape;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff     = undef;
 my $blast   = undef;
@@ -42,20 +43,8 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
            -exitval => 1 } );
 }
 
-
-# Open Input gff3 file #
-my $ref_in = Bio::Tools::GFF->new(-file =>$gff , -gff_version => 3);
-
 # Open Output files #
-my $out;
-if ($outfile) {
-    open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-    $out= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else {
-     $out = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
+my $out = prepare_gffout($config, $outfile);
 
 #### MAIN ####
 
@@ -64,7 +53,8 @@ my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
 print ("Parse file $gff\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
                                                               });
 print ("$gff file parsed\n");
 
