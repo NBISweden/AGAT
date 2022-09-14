@@ -12,6 +12,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my %handlers;
 my $gff = undef;
@@ -59,7 +60,8 @@ else{
 }
 
 # Manage input fasta file
-my $format = select_gff_format($gff);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($gff); }
 my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
 
 
@@ -97,13 +99,8 @@ while (my $feature = $ref_in->next_feature() ) {
 }
 
 #print "We added $nbNameAdded Name attributes\n";
-my $out = IO::File->new();
-if ($outfile) {
-          open($out, '>', $outfile) or die "Could not open file $outfile.txt $!";
-}
-else{
-          $out->fdopen( fileno(STDOUT), 'w' );
-}
+
+my $out = prepare_fileout($outfile);
 
 # Print information by feature
 my $nbFeat = scalar keys %attributes_per_level;

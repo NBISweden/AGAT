@@ -8,6 +8,7 @@ use AGAT::Omniscient;
 use Bio::Tools::GFF;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile;
 my $opt_output;
@@ -58,7 +59,8 @@ mkdir $opt_output;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
+                                                                 config => $config
                                                               });
 print ("GFF3 file parsed\n");
 
@@ -72,8 +74,9 @@ my $gffout;
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 	# deal with topfeatures and standalone feature type
 	if ( exists_keys ($topfeatures, ($tag_l1) ) or  exists_keys ($standalones, ($tag_l1) ) ){
-		open(my $fh, '>', $opt_output."/".$tag_l1.".gff") or die "Could not open file '$tag_l1' $!";
-		$gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+
+		$gffout = prepare_gffout($config, $opt_output."/".$tag_l1.".gff");
+
 		foreach my $key_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			$gffout->write_feature($hash_omniscient->{'level1'}{$tag_l1}{$key_l1});
 		}
@@ -92,8 +95,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_lev
 	        foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$key_l1}}) {
 	          #manage handler
 	          if(! exists_keys ( \%handlers, ($tag_l2) ) ) {
-	            open(my $fh, '>', $opt_output."/".$tag_l2.".gff") or die "Could not open file '$tag_l2' $!";
-	            $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+
+	          $gffout = prepare_gffout($config, $opt_output."/".$tag_l2.".gff");
+
 	            $handlers{$tag_l2}=$gffout;
 	          }
 	          $gffout = $handlers{$tag_l2};

@@ -11,6 +11,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff1 = undef;
 my $gff2 = undef;
@@ -49,26 +50,19 @@ if ( ! $gff1 or ! $gff2){
 
 ######################
 # Manage output file #
-my $report = IO::File->new();
-if ($outfile) {
-  open($report, '>', $outfile) or die "Could not open file $outfile $!";
-}
-else{
-  $report->fdopen( fileno(STDOUT), 'w' );
-}
+my $report = prepare_fileout($outfile);
 
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 print ("Parsing $gff1\n");
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1
+my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
+                                                              config => $config
                                                               });
 print ("\n\nParsing $gff2\n");
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2
+my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
+                                                              config => $config
                                                               });
 print ("-- Files parsed --\n");
 

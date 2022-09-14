@@ -10,6 +10,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_HardMask;
 my $opt_SoftMask;
@@ -53,14 +54,7 @@ if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
   print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
 }
 
-my $ostream           = IO::File->new();
-if (defined($opt_output) ) {
-   $ostream->open( $opt_output, 'w' )
-}
-else{
-  $ostream->fdopen( fileno(STDOUT), 'w' ) or
-  croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-}
+my $ostream = prepare_fileout($opt_output);
 
 if (defined( $opt_HardMask)){
   print "You choose to Hard Mask the genome.\n";
@@ -82,7 +76,8 @@ if (defined( $opt_HardMask)){
 my %gff; my $nbLineRead=0;
 
 # Manage input fasta file
-my $format = select_gff_format($opt_gfffile);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $gff_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 

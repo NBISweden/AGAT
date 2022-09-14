@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 69;
+use Test::More tests => 70;
 
 =head1 DESCRIPTION
 
@@ -354,7 +354,7 @@ $result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
 system(" $script --gff $input_folder/1.gff --tsv $input_folder/coordinates.tsv -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp/remaining.gff3") == 0, "output $script");
 rmtree $outtmp;
-exit;
+
 # --------check agat_sp_fix_cds_phases.pl-------------
 
 $script = $script_prefix."bin/agat_sp_fix_cds_phases.pl";
@@ -367,13 +367,13 @@ unlink $outtmp;
 # --------check agat_sp_fix_features_locations_duplicated.pl-------------
 # removed because order can change. So not reproducible at 100%
 
-#$script = $script_prefix."bin/agat_sp_fix_features_locations_duplicated.pl";
-#$result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
-#system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
+$script = $script_prefix."bin/agat_sp_fix_features_locations_duplicated.pl";
+$result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
+system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-#ok( system("diff $result $outtmp") == 0, "output $script");
-#unlink $outtmp;
-#unlink $outprefix."_report.txt";
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_fix_fusion.pl-------------
 
@@ -458,7 +458,7 @@ $result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
 system(" $script --gtf $input_folder/test_kraken.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-unlink $outprefix;
+unlink $outtmp;
 unlink $outprefix."_report.txt";
 unlink $outprefix."-geneMapped_plot.pdf";
 unlink $outprefix."-geneMapped.txt";
@@ -475,7 +475,6 @@ unlink $outtmp;
 # --------check agat_sp_load_function_from_protein_align.pl-------------
 
 # XXX
-
 
 # --------check agat_sp_manage_IDs.pl-------------
 
@@ -503,7 +502,6 @@ system(" $script --gff $input_folder/1.gff --att protein_id -o $outtmp 2>&1 1>/d
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
 
@@ -605,7 +603,6 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
 
 # --------check agat_sq_add_hash_tag.pl-------------
 

@@ -11,6 +11,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $gff = undef;
 my $opt_output = undef;
 my $opt_genomeSize = undef;
@@ -47,21 +48,7 @@ if ( ! (defined($gff)) ){
 }
 
 #### IN / OUT
-my $out = IO::File->new();
-if ($opt_output) {
-
-  if (-f $opt_output){
-      print "Cannot create a file with the name $opt_output because a file with this name already exists.\n";exit();
-  }
-  if (-d $opt_output){
-      print "The output directory choosen already exists. Please geve me another Name.\n";exit();
-  }
-
-  open($out, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  }
-else{
-  $out->fdopen( fileno(STDOUT), 'w' );
-}
+my $out = prepare_fileout($opt_output);
 
 #Manage plot folder output
 if($opt_plot){
@@ -87,15 +74,14 @@ if($opt_plot){
   }
 }
 
-                #####################
-                #     MAIN          #
-                #####################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 print "Reading file $gff\n";
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff
+                                                               input => $gff,
+                                                               config => $config
                                                                });
 print "Parsing Finished\n";
 ### END Parse GFF input #

@@ -203,7 +203,7 @@ while(<FILE>){
 																							-tag => {'ID' => $align_counter_l1, 'aligned_identity' => $per_id }
 																							) ;
 
-	$out_stream->write_feature($feature)
+	$out_stream->write_feature($feature);
 
 	foreach my $coordset_ref (@merged_coords) {
             my ($genome_lend, $genome_rend, $trans_lend, $trans_rend) = @$coordset_ref;
@@ -218,7 +218,7 @@ while(<FILE>){
 																												-score => ".",
 																												-tag => {'ID' => $align_counter_l2, 'Parent' => $align_counter_l1, 'Target' => "$read_name $trans_lend $trans_rend" }
 																												) ;
-						$out_stream->write_feature($feature)
+						$out_stream->write_feature($feature);
 	}
 }
 

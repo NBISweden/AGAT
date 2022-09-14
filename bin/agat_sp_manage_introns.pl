@@ -24,7 +24,7 @@ if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
                   'o|out|output=s'      => \$opt_output,
                   'w|window|b|break|breaks=i'  => \$opt_breaks,
                   'x|p=f'               => \$Xpercent,
-									'plot!'               => \$opt_plot,
+                  'plot!'               => \$opt_plot,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -239,7 +239,6 @@ foreach  my $tag (sort keys %introns){
 
   print $ostreamReport $stringPrint;
   if($opt_output){print $stringPrint;}
-
 
 
   # Part 4

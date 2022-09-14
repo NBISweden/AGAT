@@ -57,7 +57,7 @@ if ( ! (defined($opt_gff)) ){
            -exitval => 1 } );
 }
 
-my $opt_gffout = prepare_fileout($outfile);
+my $gffout = prepare_gffout($config, $outfile);
 
 # Manage $primaryTag
 my %ptagList;
@@ -181,7 +181,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # Print results
-print_omniscient( {omniscient => $hash_omniscient, output => $opt_gffout} );
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 #######################################################################################################################
         ####################

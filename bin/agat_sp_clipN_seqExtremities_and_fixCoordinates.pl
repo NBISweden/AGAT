@@ -58,7 +58,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout($config, $opt_output_gff);
 
 ##### MAIN ####
 #### read gff file and save info in memory

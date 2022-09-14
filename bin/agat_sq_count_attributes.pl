@@ -11,6 +11,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $gff = undef;
 my $opt_help= 0;
 my $attribute='transcript_id';
@@ -44,14 +45,13 @@ if ( ! $gff ){
            -exitval => 2 } );
 }
 
-
-                #####################
-                #     MAIN          #
-                #####################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 print "Looking to $attribute attribute.\n";
+
 # Manage input fasta file
-my $format = select_gff_format($gff);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($gff); }
 my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
 
 #time to calcul progression

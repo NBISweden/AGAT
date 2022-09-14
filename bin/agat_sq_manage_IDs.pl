@@ -10,6 +10,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $inputFile=undef;
 my $outfile=undef;
@@ -41,24 +42,11 @@ if ((!defined($inputFile)) ){
 
 
 # Manage input fasta file
-my $format = select_gff_format($inputFile);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
 
-
-# Manage Output
-if(! $outformat){
-  $outformat=$format;
-}
-
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => $outformat );
-
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => $outformat);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
 #time to calcul progression
 my $startP=time;

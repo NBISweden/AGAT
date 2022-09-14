@@ -87,7 +87,7 @@ my @COMONTAG;
 # ====== INPUT =======:
 # $file => string (file) / list / hash
 # $locus_tag => tag to consider for gathering features (in top of the default one)
-# $gff_version => Int (if is used, force the parser to use this gff parser instead of guessing)
+# $gff_in_format => Int (if is used, force the parser to use this gff parser instead of guessing)
 # $verbose => define the deepth of verbosity
 sub slurp_gff3_file_JD {
 
@@ -119,7 +119,7 @@ sub slurp_gff3_file_JD {
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
 
 	#  +-----------------  Declare all variables and fill them ------------------+
-	my ( $file, $gff_version, $locus_tag, $verbose, $merge_loci,
+	my ( $file, $gff_in_format, $locus_tag, $verbose, $merge_loci,
 	    $log, $debug, $throw_fasta, $progress_bar);
 
 	# +----------------- first check config ------------------+
@@ -159,7 +159,7 @@ sub slurp_gff3_file_JD {
 	$debug = $config->{debug};
 
 	# +----------------- gff/gtf version param  ------------------+
-	$gff_version = $config->{force_gff_input_version};
+	$gff_in_format = $config->{force_gff_input_version};
 
 	# +----------------- locus_tag / common_tag param  ------------------+
 	foreach my $comTag (@{$config->{locus_tag}}	){
@@ -336,10 +336,8 @@ sub slurp_gff3_file_JD {
 		$omniscient{'other'}{'header'}=$header if $header;
 
 		# --------------Select bioperl GFF parser version -------------
-		my $format;
-		if($gff_version){$format = $gff_version;}
-		else{ $format = select_gff_format($file, $verbose, $log);}
-		dual_print( $log, "=> Version of the Bioperl GFF parser selected by AGAT: $format\n", $verbose );
+		if(! $gff_in_format){ $gff_in_format = select_gff_format($file, $verbose, $log); }
+		dual_print( $log, "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n", $verbose );
 
 		# -------------- Create GFF file handler ----------------------
 		my $gffio;
@@ -352,10 +350,10 @@ sub slurp_gff3_file_JD {
 			else{
 				open( $fh, "zcat $file |");
 			}
-			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $format);
+			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $gff_in_format);
 		}
 		else{
-			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
+			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $gff_in_format);
 		}
 
 		# -------------- Set progress bar ---------------------
@@ -372,7 +370,7 @@ sub slurp_gff3_file_JD {
 
 		# -------------- Read features in GFF file ---------------------
 		while( my $feature = $gffio->next_feature()) {
-			if($format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
+			if($gff_in_format eq "1"){_gff1_corrector($feature, $verbose);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 			manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%miscCount, \%uniqID, \%uniqIDtoType, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 
@@ -3471,7 +3469,7 @@ sub select_gff_format{
 		my ($file, $verbose, $log) = @_;
 
 		#HANDLE format
-		my %format;
+		my %gff_in_format;
 		my $problem3=undef;
 		my $nbLineChecked=100; #number line to use to check the formnat
 		my $cpt=0;
@@ -3514,13 +3512,13 @@ sub select_gff_format{
 					s/("([^"]|"")*")/quoted_value/g;
 					$Ninethcolum = $_;
 
-					if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $format{3}++;};
+					if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $gff_in_format{3}++;};
 
 					if($Ninethcolum !~ /=/	and $Ninethcolum !~ /;/ ){
-									 $format{1}++;
+									 $gff_in_format{1}++;
 					}
 					elsif($Ninethcolum !~ /=/	and $Ninethcolum =~ /;/ ){
-													 $format{2}++;
+													 $gff_in_format{2}++;
 					}
 					my $c = () = $Ninethcolum =~ /=/g;
 					my $d = () = $Ninethcolum =~ /\ /g;
@@ -3535,14 +3533,14 @@ sub select_gff_format{
 
 	if($problem3){
 				dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"));
-			$format{1}++;
+			$gff_in_format{1}++;
 		}
 
-	 if (%format){
-			my $number_of_format = scalar keys %format;
+	 if (%gff_in_format){
+			my $number_of_format = scalar keys %gff_in_format;
 			if ($number_of_format > 1){
 				my $stringprint = "There is a problem we found several formats in this file:\n";
-				$stringprint .= join ",", sort keys %format;
+				$stringprint .= join ",", sort keys %gff_in_format;
 				$stringprint .= "\nLet's see what we can do...\n";
 				dual_print ($log, $stringprint, $verbose);
 		}
@@ -3551,7 +3549,7 @@ sub select_gff_format{
 		my $nb_col = scalar @col_tab;
 		if ($nb_col == 8){
 			dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") );
-			$format{1}++;
+			$gff_in_format{1}++;
 		}
 		elsif ($nb_col < 8){
 			dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!") );
@@ -3560,17 +3558,17 @@ sub select_gff_format{
 		else{
 			dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") );
 		}
-		$format{3}++;
+		$gff_in_format{3}++;
 	}
 	my $nb_col_in_attribute = scalar @attribute_tab;
 	if ($nb_col_in_attribute > 1){
 		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
-		$format{1}++;
+		$gff_in_format{1}++;
 	}
 
-	if($format{3}){return 3;}
-	if($format{2}){return 2;}
-	if($format{1}){return 1;}
+	if($gff_in_format{3}){return 3;}
+	if($gff_in_format{2}){return 2;}
+	if($gff_in_format{1}){return 1;}
 }
 
 # We modify the attributes: group=gene_id "e_gw1.5.2.1" protein_id 335805 exonNumber 1

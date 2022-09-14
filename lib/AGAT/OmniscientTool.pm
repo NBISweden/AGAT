@@ -1850,7 +1850,7 @@ sub l2_identical{
 			}
 		}
 	}
-	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose >= 2 and $result);
+	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose and $verbose >= 2 and $result);
     return $result;
 }
 
