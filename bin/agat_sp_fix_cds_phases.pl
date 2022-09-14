@@ -10,6 +10,7 @@ use AGAT::Omniscient;
 
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_fasta = undef;
 my $opt_gfffile;
@@ -18,10 +19,10 @@ my $opt_output;
 my $opt_help = 0;
 
 # OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
-                  'o|output=s'  => \$opt_output,
-                  "fasta|fa=s" => \$opt_fasta,
-                  "v|vebose!" => \$opt_verbose,
+if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
+                  'o|output=s'      => \$opt_output,
+                  "fasta|fa=s"      => \$opt_fasta,
+                  "v|vebose!"       => \$opt_verbose,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -46,23 +47,14 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 
 ######################
 # Manage output file #
+my $gffout = prepare_gffout($config, $opt_output);
 
-my $gffout;
-if ($opt_output) {
-  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
-                #####################
-                #     MAIN          #
-                #####################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
+                                                                 config => $config
                                                             });
 print ("GFF3 file parsed\n");
 

@@ -26,6 +26,7 @@ use AGAT::Omniscient;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $model_to_test = undef;
@@ -71,30 +72,28 @@ print "Codon table ".$codonTable." in use. You can change it using --table optio
 
 ######################
 # Manage output file #
-
-my $fh_error = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-
-my $gffout; my $gffout2; my $gffout3; my $report; #my $gffout4;
+my $gffout_file; 
+my $gffout2_file; 
+my $gffout3_file;
+#my $gffout4_file;
+my $report_file; 
 
 if ($outfile) {
   my ($path,$ext);
   ($outfile,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-  open(my $fh, '>', $path.$outfile."-intact.gff") or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  open(my $fh2, '>', $path.$outfile."-only_modified.gff") or die "Could not open file '$outfile' $!";
-  $gffout2= Bio::Tools::GFF->new(-fh => $fh2, -gff_version => 3 );
-  open(my $fh3, '>', $path.$outfile."-all.gff") or die "Could not open file '$outfile' $!";
-  $gffout3= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
-  open($report, '>', $path.$outfile."-report.txt") or die "Could not open file '$outfile' $!";
-#open(my $fh3, '>', $path.$outfile."-pseudogenes.gff") or die "Could not open file '$outfile' $!";
-#  $gffout4= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
+
+  $gffout_file  = $path.$outfile."-intact.gff";
+  $gffout2_file = $path.$outfile."-only_modified.gff";
+  $gffout3_file = $path.$outfile."-all.gff";
+  #$gffout4_file = $path.$outfile."-pseudogenes.gff";
+  $report_file  = $path.$outfile."-report.txt";
 }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout2 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout3 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-#  $gffout4 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+
+my $gffout  = prepare_gffout($config, $gffout_file);
+my $gffout2 = prepare_gffout($config, $gffout2_file); 
+my $gffout3 = prepare_gffout($config, $gffout3_file);
+#my $gffout4 = prepare_gffout($config, $gffout4_file);
+my $report  = prepare_fileout($report_file);
 
 my %ListModel;
 if(!($model_to_test)){
@@ -115,14 +114,12 @@ if(!($model_to_test)){
   }
 }
 
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
+                                                                config => $config
                                                               });
 print ("GFF3 file parsed\n");
 
@@ -1201,7 +1198,7 @@ sub _check_overlap_name_diff{
 
               print "$id_l1 and  $id2_l1 same locus. We merge them together. Below the corresponding feature groups in their whole.\n" if ($verbose >= 3);
               print "$id_l1 and  $id2_l1 same locus. We merge them together. Below the corresponding feature groups in their whole.\n";
-              print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list => [lc($id_l1),lc($id2_l1)], output => $fh_error} ) if ($verbose >= 3);
+              #print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list => [lc($id_l1),lc($id2_l1)], output => $fh_gff_log} ) if ($verbose >= 3);
               # remove the level1 of the ovelaping one
               delete $omniscient->{'level1'}{$tag_l1}{lc($id2_l1)};
               # remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)

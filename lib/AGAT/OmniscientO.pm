@@ -50,7 +50,7 @@ sub prepare_gffout{
 	if ($outfile) {
 		# check existence
 	  if(-f $outfile){
-			print "File $outfile_ok already exist.\n";
+			print "File $outfile already exist.\n";
 			exit;
 		}
 		else {
@@ -71,7 +71,7 @@ sub prepare_fileout{
 	my $fileout;
 	if ($outfile) {
 		if(-f $outfile){
-			print "File $outfile_ok already exist.\n";
+			print "File $outfile already exist.\n";
 			exit;
 		}
 		else {

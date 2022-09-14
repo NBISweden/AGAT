@@ -12,6 +12,7 @@ use Clone 'clone';
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 
 #####
 # What we call parial gene (containing "_partial_part-" in the ID) ?
@@ -31,11 +32,11 @@ my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
-    "help|h" => \$help,
-    "gtf=s" => \$gff,
-    "threshold|t=i" => \$valueK,
-    'p|plot!' => \$opt_plot,
-    "verbose|v!" => \$verbose,
+    "help|h"                 => \$help,
+    "gtf=s"                  => \$gff,
+    "threshold|t=i"          => \$valueK,
+    'p|plot!'                => \$opt_plot,
+    "verbose|v!"             => \$verbose,
     "outfile|output|out|o=s" => \$outfile))
 
 {
@@ -58,23 +59,28 @@ if ( ! (defined($gff)) ){
            -exitval => 1 } );
 }
 
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 ## Manage output file
-my $gffout;
-my $outfile_no_extension;
-my $outReport = IO::File->new();
+my $outfile_no_extension ;
+my $outReport_file ;
 if ($outfile) {
 	my ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-	$outfile_no_extension = $path.$outfile_pref;
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-
-  $outReport->open($outfile_no_extension."_report.txt", 'w') or die "Could not open file ".$outfile_no_extension."_report.txt $!";
+	my $outfile_no_extension = $path.$outfile_pref;
+ 	$outReport_file = $outfile_no_extension."_report.txt";
 }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
 
-  $outReport->fdopen( fileno(STDOUT), 'w' ) or die "Could not open file STDOUT $!";
+my $gffout = prepare_gffout($config, $outfile);
+my $outReport = prepare_fileout($outReport_file);
+
+# Check if dependencies for plot are available
+if($opt_plot){
+	if ( ! may_i_plot() ) {
+		$opt_plot = undef;
+	}
 }
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # Message
 my $messageValue;
@@ -94,27 +100,26 @@ else{
 	print $messageValue;
 }
 
-# Check if dependencies for plot are available
-if($opt_plot){
-	if ( ! may_i_plot() ) {
-		$opt_plot = undef;
-	}
-}
-
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 # checks are deactivated except _remove_orphan_l1
-my $verbose_omniscient = -1 if (! $verbose);
+$config->{"check_sequential"} = 0;
+$config->{"check_l2_linked_to_l3"} = 0;
+$config->{"check_l1_linked_to_l2"} = 0;
+$config->{"remove_orphan_l1"} = 1;
+$config->{"check_all_level3_locations"} = 0;
+$config->{"check_cds"} = 0;
+$config->{"check_exons"} = 0;
+$config->{"check_utrs"} = 0;
+$config->{"check_all_level2_locations"} = 0;
+$config->{"check_all_level1_locations"} = 0;
+$config->{"check_identical_isoforms"} = 0;
+
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $gff,
-                                                               no_check => 1,
-                                                               no_check_skip => ["_remove_orphan_l1"],
-																															 verbose =>  2
+                                                               config => $config
                                                                });
 
 #track stats
@@ -250,18 +255,22 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	          $nb_noCaseL3++;
 	        }
 
-					# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
+			# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
+	        $config->{"check_sequential"} = 1;
+			$config->{"check_l2_linked_to_l3"} = 1;
+			$config->{"check_l1_linked_to_l2"} = 1;
+			$config->{"remove_orphan_l1"} = 1;
+			$config->{"check_all_level3_locations"} = 0;
+			$config->{"check_cds"} = 0;
+			$config->{"check_exons"} = 0;
+			$config->{"check_utrs"} = 0;
+			$config->{"check_all_level2_locations"} = 1;
+			$config->{"check_all_level1_locations"} = 1;
+			$config->{"check_identical_isoforms"} = 0;
+			use Data::Dumper; print Dumper($hash);
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
-																						 verbose => 2,
-																						 no_check => 1,
-												                                         no_check_skip => ["_check_sequential",
-																											"_check_l2_linked_to_l3",
-																											"_check_l1_linked_to_l2",
-																											"_remove_orphan_l1",
-																											"check_all_level2_locations",
-																											"check_all_level1_locations"],
+																						 config => $config
 	                                                                                   });
-
 	        if($verbose){
 	          print "\nA proper hash:\n";
 	          print_omniscient( {omniscient => $hash_omniscient_clean, output => $gffout} );
@@ -722,7 +731,7 @@ According to a threshold (0 by default), gene with a mapping percentage over tha
 A plot nammed geneMapped_plot.pdf is performed to visualize the result.
 /!\ The script handles chimeric files (i.e containg gene part mapped on the template genome and others on the de-novo one)
 /!\/!\ If the file is complete (containing kraken_mapped="TRUE" and kraken_mapped="FALSE" attributes),
-the script calcul the real percentage lentgh that has been mapped.
+the script calcul the real percentage length that has been mapped.
 Else the calcul is only based on feature with kraken_mapped="TRUE" attributes.
 So in this case the result most of time will be 100%.
 /!\/!\/!\ We met rare cases where Kraken mapped a feature to several locations of the de-novo genome.

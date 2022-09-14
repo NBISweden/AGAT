@@ -12,6 +12,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_file;
 my $INTRON_LENGTH = 10;
 my $opt_output=undef;
@@ -42,27 +43,11 @@ if ( ! defined( $opt_file) ) {
            -exitval => 1 } );
 }
 
-# #######################
-# # START Manage Option #
-# #######################
-my $fh;
-if ($opt_output) {
-  open($fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  }
-else{
-  $fh = *STDOUT;
-}
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+my $fh = prepare_fileout($opt_output);
 
-# #####################################
-# # END Manage OPTION
-# #####################################
-
-
-
-                                                      #######################
-                                                      #        MAIN         #
-#                     >>>>>>>>>>>>>>>>>>>>>>>>>       #######################       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 #PART 1
 ###################################
@@ -71,7 +56,8 @@ else{
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
+                                                                   config => $config
                                                               });
   print("Parsing Finished\n\n");
   ### END Parse GFF input #

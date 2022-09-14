@@ -11,6 +11,7 @@ use List::MoreUtils qw(uniq);
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $model_to_test = undef;
 my $outfile = undef;
 my $ref = undef;
@@ -47,19 +48,15 @@ if ( ! (defined($ref)) ){
 
 ######################
 # Manage output file #
-my $gffout;
-my $reportout;
+my $reportout_file;
 if ($outfile) {
   my ($filename,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-  $reportout=IO::File->new(">".$path.$filename."_report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $filename."_report.txt", $! ));
+  $reportout_file = $path.$filename."_report.txt" ;
+}
 
-  open(my $fh, '>', $outfile) or die "Could not open file '$filename' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $reportout = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
+my $reportout = prepare_fileout($reportout_file);
+
 # END Manage Ouput Directory / File #
 #####################################
 
@@ -86,15 +83,14 @@ $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 print $reportout $string1;
 if($outfile){print $string1;}
 
-                  ######################
-                  #        MAIN        #
-                  ######################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $nb_gene_removed=0;
 
 ### Parse GFF input #
 print ("Parse file $ref\n");
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref
+my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
+                                                            config => $config
                                                               });
 print ("$ref file parsed\n");
 
@@ -112,7 +108,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
       #skip top features
       if(exists_keys($topfeatures,($tag))){ next; }
 
-      foreach my $location ( @{$hash_sortBySeq->{$seqid}{$tag}}){
+      foreach my $location ( sort {$a->[1].$a->[0] cmp $b->[1].$b->[0]} @{$hash_sortBySeq->{$seqid}{$tag}}){
         my $gene_feature_id = lc($location->[0]);
 
         if (! exists_keys($omniscient, ('level1',$tag,$gene_feature_id) ) ){ next;} #feature has been removed from previous check
@@ -199,7 +195,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
         #
         print "START Take care of gene with duplicated locations\n" if $verbose;
         #foreach my $gene_feature_id2 (@sorted_genefeature_ids){
-        foreach my $location2 (@{$hash_sortBySeq->{$seqid}{$tag}}){
+        foreach my $location2 (sort {$a->[1].$a->[0] cmp $b->[1].$b->[0]}  @{$hash_sortBySeq->{$seqid}{$tag}}){
           my $gene_feature_id2 = lc($location2->[0]);
 
           if (! exists_keys(\%checked_l1,($gene_feature_id,$gene_feature_id2 ) ) ){

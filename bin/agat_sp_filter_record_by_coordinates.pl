@@ -107,9 +107,8 @@ if ($opt_output){
   print $stringPrint;
 }
 else{ print $stringPrint; }
-                          #######################
-# >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                          #######################
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
@@ -159,7 +158,7 @@ foreach my $range ( sort { ncmp ($a, $b) } keys %hash_listok ){
   my $hash_ok = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, $listok);
 
 	$gffout_ok_file = "$opt_output/$range.gff3";
-	my $gffout_ok = prepare_gffout($config, $gffout_notok_file);
+	my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
 
   print_omniscient( {omniscient => $hash_ok, output => $gffout_ok} );
   %{$hash_ok} = (); #clean

@@ -9,6 +9,7 @@ use Bio::Tools::GFF;
 use AGAT::Omniscient;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;
@@ -23,7 +24,7 @@ my $opt_type_dependent = undef;
 my $verbose;
 
 if ( !GetOptions(
-    "help|h!"    => \$opt_help,
+    "help|h!"   => \$opt_help,
     "gff|f=s"   => \$opt_gff,
     "nb=i"      => \$opt_nbIDstart,
     "gap=i"     => \$opt_gap,
@@ -56,14 +57,7 @@ if ( ! (defined($opt_gff)) ){
            -exitval => 1 } );
 }
 
-my $opt_gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $opt_gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $opt_gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $opt_gffout = prepare_fileout($outfile);
 
 # Manage $primaryTag
 my %ptagList;
@@ -98,7 +92,8 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
+                                                                 config => $config
                                                             });
 print ("GFF3 file parsed\n");
 
