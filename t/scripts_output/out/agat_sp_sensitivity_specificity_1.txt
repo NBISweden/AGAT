@@ -1,4 +1,4 @@
-usage: bin/agat_sp_sensitivity_specificity.pl --gff1 t/scripts_output/1.gff --gff2 t/scripts_output/1.gff -o tmp.gff
+usage: bin/agat_sp_sensitivity_specificity.pl --gff1 t/scripts_output/in/1.gff --gff2 t/scripts_output/in/1.gff -o tmp.gff
 Results:
 
 ----------------------------------------------------------------

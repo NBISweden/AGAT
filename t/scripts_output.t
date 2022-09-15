@@ -20,13 +20,16 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # shared variables
-my $input_folder = "t/scripts_output";
-my $output_folder = "t/scripts_output/output";
+my $input_folder = "t/scripts_output/in";
+my $output_folder = "t/scripts_output/out";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
 my $outprefix = "tmp";
 my $script;
 my $result;
 my $result2;
+
+# remove config in local folder if exists
+unlink "config.yaml"; 
 
 # -------------------------- check agat_convert_bed2gff -------------------------
 
@@ -166,7 +169,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_alignment_output_style.pl";
 $result = "$output_folder/agat_sp_alignment_output_style_1.gff";
-system(" $script --gff t/gff_syntax/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -190,7 +193,7 @@ unlink $outtmp;
 # ------------------- check agat_sp_complement_annotations script-------------------
 $script = $script_prefix."bin/agat_sp_complement_annotations.pl";
 $result = "$output_folder/agat_sp_complement_annotations_1.gff";
-system(" $script --ref t/gff_syntax/25_test.gff  --add t/gff_syntax/9_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --ref t/gff_syntax/in/25_test.gff  --add t/gff_syntax/in/9_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -200,7 +203,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_ensembl_output_style.pl";
 $result = "$output_folder/agat_sp_ensembl_output_style_1.gff";
-system("$script --gff t/gff_syntax/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system("$script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -437,7 +440,7 @@ unlink $outtmp."_report.txt";
 
 $script = $script_prefix."bin/agat_sp_functional_statistics.pl";
 $result = "$output_folder/agat_sp_functional_statistics_1.txt";
-system(" $script --gff t/gff_syntax/10_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff t/gff_syntax/in/10_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
 rmtree $outtmp;

@@ -11,7 +11,11 @@ Test to verify the method detecting the gff parser version to use with bioperl.
 
 =cut
 
-opendir (DIR, "t/gff_version") or die $!;
+# remove config in local folder if exists
+unlink "config.yaml"; 
+
+# Loop over test
+opendir (DIR, "t/gff_version/in") or die $!;
 while (my $file = readdir(DIR)) {
 
   # for all test files

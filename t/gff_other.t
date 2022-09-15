@@ -21,10 +21,13 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
   }
 }
 
+# remove config in local folder if exists
+unlink "config.yaml"; 
+
 # script to call to check the parser
 my $script = "";
-my $input_folder = "t/gff_other";
-my $output_folder = "t/gff_other";
+my $input_folder = "t/gff_other/in";
+my $output_folder = "t/gff_other/out";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 
 # -------- test gzip file and contain fasta --------

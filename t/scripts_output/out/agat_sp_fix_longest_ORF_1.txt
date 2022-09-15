@@ -1,4 +1,4 @@
-usage: bin/agat_sp_fix_longest_ORF.pl --gff t/scripts_output/1.gff --fasta t/scripts_output/1.fa -o tmp.gff
+usage: bin/agat_sp_fix_longest_ORF.pl --gff t/scripts_output/in/1.gff --fasta t/scripts_output/in/1.fa -o tmp.gff
 Codon table used:1
 Results:
 26 genes have been modified. These genes have  34 mRNA, and we fixed the ORF of 28 of them.

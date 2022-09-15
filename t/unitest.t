@@ -21,10 +21,18 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
   }
 }
 
+
+# remove config in local folder if exists
+unlink "config.yaml"; 
+
+# get standard config
+my $config = get_agat_config();
+$config->{verbose}=0;
+$config->{progress_bar}=0;
+
 # Get one omnisceint to work with
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/1.gff",
-                                                                 no_progressbar => 1,
-                                                                 verbose => 0
+                                                                config => $config
                                                                 });
 
 #run remove_l2_related_feature test

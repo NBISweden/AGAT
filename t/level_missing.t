@@ -20,11 +20,14 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 # script to call to check the parser
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
-my $input_folder = "t/level_missing";
-my $output_folder = "t/level_missing/output";
+my $input_folder = "t/level_missing/in";
+my $output_folder = "t/level_missing/out";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
+unlink $outtmp; # remove if exists
 my $result;
-unlink "config.yaml"; # remove custom config if exists
+
+# remove config in local folder if exists
+unlink "config.yaml"; 
 
 # -------------------------- testA -------------------------
 
