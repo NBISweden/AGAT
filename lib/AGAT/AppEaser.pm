@@ -66,7 +66,7 @@ sub collect_options ($self, $spec, $args) {
    return $args;
 } ## end sub collect_options
 
-sub commandline_help ($getopt) {
+sub commandline_help ($getopt, $shortbool) {
    my @retval;
 
    my ($mode, $type, $desttype, $min, $max, $default);
@@ -75,6 +75,11 @@ sub commandline_help ($getopt) {
       substr $getopt, -1, 1, '';
       push @retval, 'boolean option';
    }
+	 elsif (substr($getopt, -2, 1) eq '!-') {
+			$type = 'boolshort';
+			substr $getopt, -2, 1, '';
+			push @retval, 'boolean option';
+	 }
    elsif (substr($getopt, -1, 1) eq '+') {
       $mode = 'increment';
       substr $getopt, -1, 1, '';
@@ -137,10 +142,18 @@ sub commandline_help ($getopt) {
 
    my @alternatives = split /\|/, $getopt;
    if ($type eq 'bool') {
+		 if ($shortbool){
+			 push @retval, map {
+					if   (length($_) == 1) { "-$_" }
+					else                   { "--$_" }
+			 } @alternatives;
+		 }
+		 else {
       push @retval, map {
          if   (length($_) == 1) { "-$_" }
          else                   { "--$_ | --no-$_" }
       } @alternatives;
+		 }
    } ## end if ($type eq 'bool')
    elsif ($mode eq 'optional') {
       push @retval, map {
@@ -459,7 +472,8 @@ sub print_help ($self, $target) {
            $option->{help} // '';
 
          if (exists $option->{getopt}) {
-            my @lines = commandline_help($option->{getopt});
+            my $shortbool;  if (exists $option->{shortbool}){$shortbool=1;};
+            my @lines = commandline_help($option->{getopt}, $shortbool);
             printf {$fh} "%15s  command-line: %s\n", '', shift(@lines);
             printf {$fh} "%15s                %s\n", '', $_ for @lines;
          }

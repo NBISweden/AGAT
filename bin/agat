@@ -58,14 +58,17 @@ AGAT is robust to even the most despicable GTF/GFF files.',
          options     => [
             {
                getopt      => 'help|h!',
+							 shortbool   => 1, #shortbool added by JDainat to avoid --no-help
                help        => 'Display the help',
             },
 						{
 							 getopt      => 'version|v!',
+							 shortbool   => 1,
 							 help        => 'Display the AGAT version',
 						},
 						{
 							 getopt      => 'tools|t!',
+							 shortbool   => 1,
 							 help        => 'Display the AGAT tools available',
 						},
          ],
@@ -107,111 +110,111 @@ are then free to modify it at your convenience. Wen a config YAML file is
 available within the working directory, AGAT will use it in priority. (For
 convenience and automation, the parameters can be modified on the fly when using
 the expose command. In such case you will get a modified copy of the config file.)
+The _sq_ scripts can be tuned only by two options of the config file:
+force_gff_input_version and gff_output_version.
 ',
 				 options     => [
 					 {
 							getopt      => 'help|h!',
 							help        => 'Display the help',
+							shortbool   => 1,
 					 },
 					 {
 							getopt      => 'expose|e!',
-							help        => 'Expose the config file.',
+							help        => 'Expose the config file (A config.yaml will be set in your working directory). If any AGAT use the config.yaml from the current directory over the default one.',
+							shortbool   => 1,
 					 },
 					 {
 							getopt      => 'verbose=i',
-							help        => 'Verbosity. 0 is quiet. 1,2,3 or 4 to increase verbosity.',
+							help        => 'Verbosity during the GFF/GTF parsing. 0 is quiet. 1,2,3 or 4 to increase verbosity.[Default 1]',
 					 },
 					 {
 							getopt      => 'progress_bar!',
-							help        => 'To activate / deactivate the progress bar.',
+							help        => 'To activate / deactivate the progress bar. [Default activated]',
 					 },
 					 {
 							getopt      => 'log!',
-							help        => 'To create a log file while parsing the input file to keep track of modification made by AGAT',
+							help        => 'To create a log file while parsing the input file to keep track of modification made by AGAT. [Default activated]',
 					 },
 					 {
 							getopt      => 'debug!',
-							help        => 'Extra verbosity for debugging',
+							help        => 'Extra verbosity for debugging. [Default deactivated]',
 					 },
 					 {
 							getopt      => 'tabix!',
-							help        => 'To sort the output in tabix format',
+							help        => 'To sort the output in tabix format. [Default deactivated]',
 					 },
 					 {
 							getopt      => 'merge_loci!',
-							help        => 'To merge loci that overlap at CDS level in a single locus.',
+							help        => 'To merge loci that overlap at CDS level in a single locus. [Default deactivated]',
 					 },
 					 {
 							getopt      => 'throw_fasta!',
-							help        => 'To throw the fasta embedded in the input file.',
+							help        => 'To throw the fasta embedded in the input file. [Default deactivated]',
 					 },
 					 {
 							getopt      => 'force_gff_input_version=f',
-							help        => 'To force AGAT to use a specific version of the bioperl parser. Choice:0,1,2,2.5,3. 0 means let AGAT choose automatically',
+							help        => 'To force AGAT to use a specific version of the bioperl parser. Choice:0,1,2,2.5,3. 0 means let AGAT choose automatically. [Default 0]',
 					 },
 					 {
 							getopt      => 'gff_output_version=f',
-							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3',
-					 },
-					 {
-							getopt      => 'gff_output_version=f',
-							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3',
+							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3. [Default 3]',
 					 },
 					 {
 							getopt      => 'create_l3_for_l2_orphan!',
-							help        => 'To create l3 feature for l2 feature without any',
+							help        => 'To create l3 feature for l2 feature without any. [Default activated]',
 					 },
 					 {
 							getopt      => 'locus_tag=s',
-							help        => 'Coma separated list of attribute tag to use to define locus. Will be used if no Parent/id GFF relationship exist or gene_id/transcript_id GTF tag.',
-					 },
-					 {
-							getopt      => 'check_sequential!',
-							help        => 'Expert only - To take care of feature without any proper relationship.',
-					 },
-					 {
-							getopt      => 'check_l2_linked_to_l3!',
-							help        => 'Expert only - To check that all l3 feature has a parental l2 feature. And create one if any missing .',
-					 },
-					 {
-							getopt      => 'check_l1_linked_to_l2!',
-							help        => 'Expert only - To check that all l2 feature has a prental l1 feature. And create one if any missing .',
-					 },
-					 {
-							getopt      => 'remove_orphan_l1!',
-							help        => 'Expert only - To remove level1 feature whithout children features (except top and standalone features that do not have children by definition).',
-					 },
-					 {
-							getopt      => 'check_all_level3_locations!',
-							help        => 'To check location of level3 features: merge overlapping and adjacent exons and adjacent CDS.',
-					 },
-					 {
-							getopt      => 'check_cds!',
-							help        => 'To check when stop codons are definied that they are part of the CDS. If not AGAT extends the CDS to include it.',
-					 },
-					 {
-							getopt      => 'check_exons!',
-							help        => 'To check that exons include all other l3 feature types that are included within exon (see level feature json file e.g: cds:"exon",) .',
-					 },
-					 {
-							getopt      => 'check_utrs!',
-							help        => 'To create UTRs if missing based on CDS and exon features.',
-					 },
-					 {
-							getopt      => 'check_all_level2_locations!',
-							help        => 'To check that l2 feature locations do not span belong their exon locations.',
-					 },
-					 {
-							getopt      => 'check_all_level1_locations!',
-							help        => 'To check that l1 feature locations do not span belong their l2 locations.',
-					 },
-					 {
-							getopt      => 'check_identical_isoforms!',
-							help        => 'To remove identical isoforms (same exon,cds,locations).',
+							help        => 'Coma separated list of attribute tag to use to define locus. Will be used if no Parent/id GFF relationship exist or gene_id/transcript_id GTF tag. [Default locus_tag, gene_id ]',
 					 },
 					 {
 							getopt      => 'prefix_new_id=s',
-							help        => 'Prefix to be used for ID of newly created feature.',
+							help        => 'Prefix to be used for ID of newly created feature. [Default nbis]',
+					 },
+					 {
+							getopt      => 'check_sequential!',
+							help        => 'Expert only - To take care of feature without any proper relationship.[Default activated]',
+					 },
+					 {
+							getopt      => 'check_l2_linked_to_l3!',
+							help        => 'Expert only - To check that all l3 feature has a parental l2 feature. And create one if any missing. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_l1_linked_to_l2!',
+							help        => 'Expert only - To check that all l2 feature has a prental l1 feature. And create one if any missing. [Default activated]',
+					 },
+					 {
+							getopt      => 'remove_orphan_l1!',
+							help        => 'Expert only - To remove level1 feature whithout children features (except top and standalone features that do not have children by definition). [Default activated]',
+					 },
+					 {
+							getopt      => 'check_all_level3_locations!',
+							help        => 'To check location of level3 features: merge overlapping and adjacent exons and adjacent CDS. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_cds!',
+							help        => 'To check when stop codons are definied that they are part of the CDS. If not AGAT extends the CDS to include it. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_exons!',
+							help        => 'To check that exons include all other l3 feature types that are included within exon (see level feature json file e.g: cds:"exon"). [Default activated]',
+					 },
+					 {
+							getopt      => 'check_utrs!',
+							help        => 'To create UTRs if missing based on CDS and exon features. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_all_level2_locations!',
+							help        => 'To check that l2 feature locations do not span belong their exon locations. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_all_level1_locations!',
+							help        => 'To check that l1 feature locations do not span belong their l2 locations. [Default activated]',
+					 },
+					 {
+							getopt      => 'check_identical_isoforms!',
+							help        => 'To remove identical isoforms (same exon,cds,locations). [Default activated]',
 					 },
 				 ],
 				 commit => '#handle_config',
