@@ -163,7 +163,9 @@ sub slurp_gff3_file_JD {
 
 	# +----------------- locus_tag / common_tag param  ------------------+
 	foreach my $comTag (@{$config->{locus_tag}}	){
-		push @COMONTAG, $comTag;
+		if ( ! grep( /^$comTag$/, @COMONTAG ) ) {
+			push @COMONTAG, $comTag;
+		}
 	}
 
 	# +----------------- merge_loci param  ------------------+
@@ -3267,11 +3269,11 @@ sub get_general_info{
 	my ($omniscient, $file, $verbose, $log, $debug) = @_;
 
 	#HANDLE format
-    my $nb_line=0;
-    my $nb_feature_line=0;
-    my $nb_comment_line=0;
-    my %nb_field;
-    my %feature_type;
+	my $nb_line=0;
+  my $nb_feature_line=0;
+  my $nb_comment_line=0;
+  my %nb_field;
+  my %feature_type;
 	my $fasta_present=0;
 	my %info_feature_type;
 
@@ -3466,77 +3468,76 @@ sub get_header_lines{
 # Input: filename
 # Output: Integer (1,2 or 3)
 sub select_gff_format{
-		my ($file, $verbose, $log) = @_;
+	my ($file, $verbose, $log) = @_;
 
-		#HANDLE format
-		my %gff_in_format;
-		my $problem3=undef;
-		my $nbLineChecked=100; #number line to use to check the formnat
-		my $cpt=0;
-		my @col_tab;
-		my @attribute_tab;
+	#HANDLE format
+	my %gff_in_format;
+	my $problem3=undef;
+	my $nbLineChecked=100; #number line to use to check the formnat
+	my $cpt=0;
+	my @col_tab;
+	my @attribute_tab;
 
-		my $fh;
-		my ($file_ext) = $file =~ /(\.[^.]+)$/;
-		if($file_ext eq ".gz"){
-			if ("$^O" eq "darwin"){
-				open($fh, "zcat < $file |");
-			}
-			else{
-				open($fh, "zcat $file |");
-			}
+	my $fh;
+	my ($file_ext) = $file =~ /(\.[^.]+)$/;
+	if($file_ext eq ".gz"){
+		if ("$^O" eq "darwin"){
+			open($fh, "zcat < $file |");
 		}
 		else{
-			open($fh, '<', $file) or dual_print($log, "cannot open file $file", 1) && die;
+			open($fh, "zcat $file |");
 		}
+	}
+	else{
+		open($fh, '<', $file) or dual_print($log, "cannot open file $file $!", 1) && die;
+	}
 
+	while(<$fh>){
 
-			while(<$fh>){
+		if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
+		if($_ =~ /^\s+$/){next;} #if it is an empty line, we skip it.
 
-				if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
-				if($_ =~ /^\s+$/){next;} #if it is an empty line, we skip it.
+		$cpt++;
+		if($cpt > $nbLineChecked){
+			last;
+		}
+		@col_tab = split /\t/, $_ ;
+		if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
 
-				$cpt++;
-				if($cpt > $nbLineChecked){
-								last;
-				}
-				@col_tab = split /\t/, $_ ;
-				if($_ =~ /^[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t[^\t]*\t(.*)/){
+			if(length($1) < 1){next;}
 
-					if(length($1) < 1){next;}
+			my $Ninethcolum = $1;
 
-					my $Ninethcolum = $1;
+			#replace value quoted by a string in case some special character are within the quote e.g. = ;
+			$_ = $Ninethcolum;
+			s/("([^"]|"")*")/quoted_value/g;
+			$Ninethcolum = $_;
 
-					#replace value quoted by a string in case some special character are within the quote e.g. = ;
-					$_ = $Ninethcolum;
-					s/("([^"]|"")*")/quoted_value/g;
-					$Ninethcolum = $_;
+			if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $gff_in_format{3}++;};
 
-					if($Ninethcolum =~ /=/	and $Ninethcolum =~ /;/ ){ $gff_in_format{3}++;};
-
-					if($Ninethcolum !~ /=/	and $Ninethcolum !~ /;/ ){
-									 $gff_in_format{1}++;
-					}
-					elsif($Ninethcolum !~ /=/	and $Ninethcolum =~ /;/ ){
-													 $gff_in_format{2}++;
-					}
-					my $c = () = $Ninethcolum =~ /=/g;
-					my $d = () = $Ninethcolum =~ /\ /g;
-					if($c > 1 and $d > 1	and $Ninethcolum !~ /;/ ){
-								 $problem3=1;
-					}
-					@attribute_tab = split /\t/, $Ninethcolum ;
-	 			}
+			if($Ninethcolum !~ /=/	and $Ninethcolum !~ /;/ ){
+				$gff_in_format{1}++;
 			}
+			elsif($Ninethcolum !~ /=/	and $Ninethcolum =~ /;/ ){
+				$gff_in_format{2}++;
+			}
+			my $c = () = $Ninethcolum =~ /=/g;
+			my $d = () = $Ninethcolum =~ /\ /g;
+			if($c > 1 and $d > 1	and $Ninethcolum !~ /;/ ){
+				$problem3=1;
+			}
+			@attribute_tab = split /\t/, $Ninethcolum ;
+		}
+	}
 
-		close($fh);
+	close($fh);
 
 	if($problem3){
-				dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"));
-			$gff_in_format{1}++;
-		}
+		dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"));
+		$gff_in_format{1}++;
+	}
 
-	 if (%gff_in_format){
+	if (%gff_in_format){
 			my $number_of_format = scalar keys %gff_in_format;
 			if ($number_of_format > 1){
 				my $stringprint = "There is a problem we found several formats in this file:\n";
@@ -3723,7 +3724,6 @@ sub _check_header{
 		}
 		close($fh);
 	}
-
 	return \%headerInfo;
 }
 

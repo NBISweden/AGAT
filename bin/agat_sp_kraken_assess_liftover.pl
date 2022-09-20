@@ -267,7 +267,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			$config->{"check_all_level2_locations"} = 1;
 			$config->{"check_all_level1_locations"} = 1;
 			$config->{"check_identical_isoforms"} = 0;
-			use Data::Dumper; print Dumper($hash);
+
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
 																						 config => $config
 	                                                                                   });

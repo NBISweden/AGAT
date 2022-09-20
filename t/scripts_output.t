@@ -28,8 +28,10 @@ my $script;
 my $result;
 my $result2;
 
-# remove config in local folder if exists
-unlink "config.yaml"; 
+# remove config in local folder if exists and potential tmp file already existing
+unlink "config.yaml";
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # -------------------------- check agat_convert_bed2gff -------------------------
 
@@ -434,7 +436,7 @@ system(" $script --gff $input_folder/prokka_fragmented_genes.gff --fasta $input_
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-unlink $outtmp."_report.txt";
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_functional_statistics.pl-------------
 
@@ -461,6 +463,7 @@ $result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
 system(" $script --gtf $input_folder/test_kraken.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 unlink $outprefix."-geneMapped_plot.pdf";

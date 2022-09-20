@@ -12,7 +12,7 @@ Test to verify the method detecting the gff parser version to use with bioperl.
 =cut
 
 # remove config in local folder if exists
-unlink "config.yaml"; 
+unlink "config.yaml";
 
 # Loop over test
 opendir (DIR, "t/gff_version/in") or die $!;
@@ -22,7 +22,7 @@ while (my $file = readdir(DIR)) {
   if ( $file =~ m/test.gff$/ ){
 
     # format detected by select_gff_format
-    my $format = select_gff_format("t/gff_version/$file");
+    my $format = select_gff_format("t/gff_version/in/$file");
     # first character is the format of the file expected
     my $firstchar = substr $file, 0, 1;
 
