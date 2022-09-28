@@ -45,7 +45,7 @@ unlink $pathtmp;
 $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 $correct_output = "$output_folder/1_agat_tabix.gff";
 
-system("agat config --expose --tabix 2>&1 1>/dev/null");
+system("agat config --expose --tabix");
 system("$script --gff t/scripts_output/in/1.gff -o $pathtmp");
 
 #run test
