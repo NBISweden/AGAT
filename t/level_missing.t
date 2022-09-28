@@ -19,6 +19,7 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # script to call to check the parser
+my $script_agat = $script_prefix."bin/agat";
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $input_folder = "t/level_missing/in";
 my $output_folder = "t/level_missing/out";
@@ -38,7 +39,7 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testA_output2.gff";
-system("agat config --expose --locus_tag common_tag 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag common_tag 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -46,7 +47,7 @@ unlink $outtmp;
 unlink "config.yaml";
 
 $result = "$output_folder/testA_output3.gff";
-system("agat config --expose --locus_tag gene_info 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag gene_info 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -54,7 +55,7 @@ unlink $outtmp;
 unlink "config.yaml";
 
 $result = "$output_folder/testA_output4.gff";
-system("agat config --expose --locus_tag transcript_id 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag transcript_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -70,7 +71,7 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testB_output2.gff";
-system("agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -86,7 +87,7 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testC_output2.gff";
-system("agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testC.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -102,7 +103,7 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
 $result = "$output_folder/testD_output2.gff";
-system("agat config --expose --locus_tag ID 2>&1 1>/dev/null");
+system("$script_agat config --expose --locus_tag ID 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
