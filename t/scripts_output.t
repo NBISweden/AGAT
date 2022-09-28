@@ -119,7 +119,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_convert_sp_gff2zff.pl";
 $result = "$output_folder/agat_convert_sp_gff2zff_1.gff";
-system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp ");
+system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outprefix.ann") == 0, "output $script");
 unlink $outprefix.".ann";

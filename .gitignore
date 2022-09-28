@@ -4,8 +4,7 @@ Makefile
 pm_to_blib
 blib
 MANIFEST*
-t/scripts_output/*.index
+t/scripts_output/in/*.index
 t/scripts_output/agat_sp_manage_functional_annotation/*.index
 cover_db
 *.log
-
