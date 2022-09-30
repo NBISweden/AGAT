@@ -98,7 +98,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_g
 print ("GFF3 file parsed\n");
 
 # get spreadfeatire in case of collective option set
-my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spreadfeature'};
+my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
 
 # sort by seq id
 my %hash_sortBySeq;

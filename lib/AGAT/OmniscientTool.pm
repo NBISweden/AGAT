@@ -10,7 +10,7 @@ use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
-use AGAT::OmniscientJson;
+use AGAT::OmniscientYaml;
 
 
 our @ISA = qw(Exporter);

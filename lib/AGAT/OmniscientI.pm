@@ -18,7 +18,7 @@ use Exporter;
 use Term::ProgressBar;
 use AGAT::Omniscient;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientJson;
+use AGAT::OmniscientYaml;
 use AGAT::Utilities;
 
 our @ISA = qw(Exporter);
@@ -178,8 +178,8 @@ sub slurp_gff3_file_JD {
 	dual_print ($log, surround_text("- Start parsing -",80,"*"), $verbose);
 	dual_print ($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
 
-	# +-- expose_feature param / json files --+
-	dual_print ($log, "=> Accessing the feature level json files\n", $verbose );
+	# +-- load files --+
+	dual_print ($log, "=> Accessing the feature_levels YAML file\n", $verbose );
 	load_levels( {omniscient => \%omniscient, verbose => $verbose, log => $log, debug => $debug}); # 	HANDLE feature level
 
 	# +--locus_tag / common_tag param  --+
@@ -1051,7 +1051,7 @@ sub manage_one_feature{
 # +----------------------------------------------------------------------------+
 		else{
 				warn "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken in account!".
-				" Please modify the json files to define the feature in one of the levels.\n";
+				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n";
 				warn "GLOBAL@"."parser1@".$primary_tag."@";
 				return $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $feature, $lastL1_new;
 		}
@@ -1343,13 +1343,13 @@ sub _check_uniq_id_feature{
 	# CHECK THE ID TO SEE IF IT's uniq, otherwise we have to create a new uniq ID
 	if($id){
 		# In case of non-spreadfeature (avoid CDS and UTR that can share identical IDs)
-		if(! exists_keys($omniscient,('other', 'level', 'spreadfeature', $primary_tag) ) ){
+		if(! exists_keys($omniscient,('other', 'level', 'spread', $primary_tag) ) ){
 			$uID = _create_ID($miscCount, $uniqID, $uniqIDtoType, $primary_tag, $id, $config->{"prefix_new_id"}); #method will push the uID
 			if(	$id ne $uID ){ #push the new ID if there is one
 				create_or_replace_tag($feature, 'ID', $uID);
 			}
 		}
-		# In case of spreadfeature ( CDS and UTR that can share identical IDs)
+		# In case of spread feature ( CDS and UTR that can share identical IDs)
 		else{
 			# First time we see this ID => No problem;
 	 		if(! exists($uniqID->{ lc($id) })){
@@ -1363,8 +1363,8 @@ sub _check_uniq_id_feature{
 			elsif( $uniqIDtoType->{lc($id)} eq $primary_tag ){ # Same type, so we can keep this ID, let's continue
 			 	$uID = $id;
 			}
-			else{ # The spreadfeature type is different
-				# Let's check if one of the same type is already in omniscient (THE ID could be linked to a non-spreadfeature), in that case we keep the ID already given.
+			else{ # The spread feature type is different
+				# Let's check if one of the same type is already in omniscient (THE ID could be linked to a non-spread feature), in that case we keep the ID already given.
 				if( $feature->has_tag('Parent') ){
 					if ( exists_keys( $omniscient, ('level3', $primary_tag, lc($feature->_tag_value('Parent')) ) ) ){
 						$uID = 	@{ $omniscient->{'level3'}{$primary_tag}{lc($feature->_tag_value('Parent'))} }[0]->_tag_value('ID');
@@ -1831,7 +1831,7 @@ sub _check_l2_linked_to_l3{
 }
 
 # @Purpose: Check L3 features to merge adjacent features of a same type
-# If spread feature merge only when adjacent. If non spreadfeature merge also when overlap XXXX
+# If spread feature merge only when adjacent. If non spread feature merge also when overlap XXXX
 sub _check_all_level3_locations{
 	my ($debug, $log, $hash_omniscient, $mRNAGeneLink, $miscCount, $uniqID, $uniqIDtoType, $verbose)=@_;
 	my %resume_cases;
@@ -1842,7 +1842,7 @@ sub _check_all_level3_locations{
 			if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
 				#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
 				my $method;
-				exists_keys($hash_omniscient,('other', 'level', 'spreadfeature', $type_l3) ) ? $method = "adjacent" : $method = "all";
+				exists_keys($hash_omniscient,('other', 'level', 'spread', $type_l3) ) ? $method = "adjacent" : $method = "all";
 				$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
 			}
 		}
@@ -2015,7 +2015,7 @@ sub _check_cds{
 	}
 }
 
-# @Purpose: Check L3 features that must be included within exon (seee json file e.g: cds:"exon",). If exon are missing we create them.
+# @Purpose: Check L3 features that must be included within exon (see feature_levels YAML file e.g: cds:"exon",). If exon are missing we create them.
 # We go through all features of level3 and check them by type, if two should be merged, we do it (CDS 1-50 and 51-100, must be CDS 1-100).
 # @input: 3 =>	hash(omniscient hash), hash(miscCount hash), hash(uniqID hash)
 # @output: none
@@ -3897,13 +3897,13 @@ sub _handle_globalWARNS{
 			$string = "WARNING - Feature types not expected by AGAT:\n* ".
 			join("\n* ", @unique).
 			"\nThe feature of these types (3rd column in GFF3) are skipped by the parser!\n".
-			"To take them into account you must update the feature json files. To access the json files run:".
-			"\n			agat_convert_sp_gxf2gxf.pl --expose\n".
+			"To take them into account you must update the feature_levels YAML file. To access this file run:".
+			"\n			agat levels --expose\n".
 			"In which file to add my feature?\n".
-			"* Feature level1 (e.g. gene, match, region):\n  My feature has no parent\n  => features_level1.json\n".
-			"* Feature level2 (e.g. mrna, match_part, trna):\n  My feature has one parent and children\n  => features_level2.json.\n".
-			"* Feature level3 (e.g. exon, intron, cds):\n  My feature has one parent (the parent has also a parent) and no children\n  => features_level3.json.\n".
-			"* Feature level3 discontinuous (e.g. cds, utr):\n  A single feature that exists over multiple genomic locations\n  => features_spread.json.";
+			"* Feature level1 (e.g. gene, match, region):\n  My feature has no parent\n  => level1 section.\n".
+			"* Feature level2 (e.g. mrna, match_part, trna):\n  My feature has one parent and children\n  => level2 section.\n".
+			"* Feature level3 (e.g. exon, intron, cds):\n  My feature has one parent (the parent has also a parent) and no children\n  => level3 section.\n".
+			"* Feature level3 discontinuous (e.g. cds, utr):\n  A single feature that exists over multiple genomic locations\n  => spread section.";
 		}
 		else{
 			$string = "AGAT can deal with all the encountered feature types (3rd column)";
