@@ -282,9 +282,12 @@ From the folder where the repository is located.
 
 As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_convert_sp_gxf2gxf.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.
 All the installed scripts have the `agat_` prefix.  
-  * agat 
-  * See [here](https://agat.readthedocs.io/en/latest/?badge=latest) for a list of tools.  
+
+To have a look to the available tools you have several approaches:  
+  * `agat --tools`
   * Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
+  * [The documentation](https://agat.readthedocs.io/en/latest/?badge=latest).  
+  
 
 ### More about the tools
 
