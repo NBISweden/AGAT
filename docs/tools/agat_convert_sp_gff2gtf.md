@@ -3,7 +3,7 @@
 ## DESCRIPTION
 
 The script aims to convert any GTF/GFF file into a proper GTF file.
-Full information about the format can be found here: https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md
+Full information about the format can be found here: [https://agat.readthedocs.io/en/latest/gxf.html](https://agat.readthedocs.io/en/latest/gxf.html)
 You can choose among 6 different GTF types (1, 2, 2.1, 2.2, 2.5, 3).
 Depending the version selected the script will filter out the features that are not accepted.
 For GTF2.5 and 3, every level1 feature (e.g nc\_gene pseudogene) will be converted into

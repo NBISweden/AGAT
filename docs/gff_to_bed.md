@@ -1,7 +1,7 @@
 # GFF to BED conversion
 
 It exists many GFF formats and many GTF formats
-(see [here](https://github.com/NBISweden/GAAS/blob/master/annotation/knowledge/gxf.md) for a complete review) and many tools
+(see [here](gxf.md) for a complete review) and many tools
 to perform the conversion. We will try to see in this review the main differences.
 
 ## Table of Contents
