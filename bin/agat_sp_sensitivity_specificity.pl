@@ -256,7 +256,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 print " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
                 print " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
 
-                # keep track last locationA
+                # keep track last locationB
                 my $last_locationB = undef;
                 $last_locationB = 1 if (scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} == 1);
                 print " Lets go for last LocationB !!\n" if ($last_locationB and $verbose);
