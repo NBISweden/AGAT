@@ -19,6 +19,7 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # script to call to check the parser
+my $script_agat = $script_prefix."bin/agat";
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 unlink $pathtmp; # remove in case it exists
@@ -48,13 +49,13 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     }
 		# peculiar case 28
     elsif($file =~ m/^28_/){
-        system("agat config --expose --locus_tag Name 2>&1 1>/dev/null"); # set special config for the test
+        system("$script_agat config --expose --locus_tag Name 2>&1 1>/dev/null"); # set special config for the test
         system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 
     # standard cases
     else{
-			system("agat config --expose --merge_loci 2>&1 1>/dev/null"); # set special config for the test
+			system("$script_agat config --expose --merge_loci 2>&1 1>/dev/null"); # set special config for the test
       system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 

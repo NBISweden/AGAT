@@ -9,7 +9,6 @@ use Exporter;
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientJson;
 use AGAT::OmniscientYaml;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
@@ -43,6 +42,9 @@ sub import {
 
 =cut
 
+# ==============================================================================
+#                          			=== MAIN ===
+
 # Provide version
 sub print_agat_version{
  print $VERSION."\n";
@@ -72,7 +74,8 @@ sub get_agat_config{
 	return $config;
 };
 
-# ====================== fonction for agat caller ====================
+# ==============================================================================
+#										=== fonction for agat caller ====
 
 # $general is a hash reference to the overall application
 # $config  is a hash reference with options
@@ -95,8 +98,10 @@ sub handle_main {
 			my @files = readdir $dir;
 			closedir $dir;
 			foreach my $file (sort @files){
-					if ( $file eq "." or $file eq ".."){next;}
+				# only file starting by agat_
+				if ( $file =~ /^agat_/){
 					print $file."\n";
+				}
 			}
 		}
 
@@ -115,7 +120,7 @@ sub handle_levels {
 		# Deal with Expose feature OPTION
 		if($expose){
 			expose_levels();
-			print "All json feature level files copied in your working directory\n";
+			print "Feature_levels YAML file copied in your working directory\n";
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help

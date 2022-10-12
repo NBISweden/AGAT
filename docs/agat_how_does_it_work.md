@@ -74,7 +74,7 @@ Example of relationship made using a common tag (here locus_tag):
 
   3. ELSE Parsing approach 3: sequentially.
 
-  Reading from top to the botom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the corresponding json file (In the share folder in the github repo or using `agat_convert_sp_gxf2gxf.pl --expose`).
+  Reading from top to the botom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the feature_levels.yaml file (In the share folder in the github repo or using `agat levels --expose`).
 
 Example of relationship made sequentially:
 

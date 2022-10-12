@@ -1,0 +1,16 @@
+usage: bin/agat_sp_compare_two_annotations.pl --gff1 t/scripts_output/in/agat_sp_compare_two_annotations/file2.gff --gff2 t/scripts_output/in/agat_sp_compare_two_annotations/file1.gff -o tmp.gff
+Results of number of genes from file1 that overlap genes from file2:
+
+----------------------------------------------------------------------------------------------
+|                                        gene@mrna@cds                                       |
+----------------------------------------------------------------------------------------------
+|          file2.gff           |          file1.gff           |        Number of cases       |
+----------------------------------------------------------------------------------------------
+|              0               |              1               |              7               |
+|              1               |              3               |              1               |
+----------------------------------------------------------------------------------------------
+Number gene in file2: 1
+Number gene in file1: 10
+
+
+

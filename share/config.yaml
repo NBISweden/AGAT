@@ -26,6 +26,10 @@ gff_output_version: 3
 #case 28
 create_l3_for_l2_orphan: true
 
+# Some annotation files use an original attribute to link features to each others 
+# instead of ID/Parent used in GFF or gene_id, transcript_id used in GTF.
+# The attributes used to decipher the relationship between the features
+# when default ones are missing are listed under the locus_tag parameter below.  
 locus_tag:
   - locus_tag
   - gene_id

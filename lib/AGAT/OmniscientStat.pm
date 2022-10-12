@@ -7,7 +7,7 @@ use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientJson;
+use AGAT::OmniscientYaml;
 use AGAT::Utilities;
 use AGAT::PlotR;
 use Try::Tiny;

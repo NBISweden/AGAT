@@ -1,0 +1,192 @@
+# -----------------------------------------------------------------------------
+#                       FEATURE LEVEL DEFINITION FILE
+# -----------------------------------------------------------------------------
+
+# AGAT parser (_sp_ prefix scipts) handles the features (1 line = 1 feature where 
+# the feature type is indicated within the 3rd column) only if the feature type is
+# declared within this file, otherwise it will be skipped.
+# Features must be linked to one and only one of the 3 available levels: leve1, 
+# level2, level3. It depends is Parent or children are expected by the feature.
+# Please find more info in the corresponding section below.
+
+# Few features (e.g. CDS, UTR) can span multiple lines because are spread over
+# multiple locations within the genome while representing only one biological 
+# concept. In such case you must also add the information (only if missing) in
+# the "spread feature "section
+
+# Some feature can require extra information. This extra information is added as
+# follow:
+# -feature: extra_information
+# In order to keep the file consistent, when no information is needed we put 1
+# as default value. This does not have any specific meaning.
+
+# ----------------------------------- LEVEL1 -----------------------------------
+# Level1 features are features without parent.
+# Level1 features with topfeature or standalone value do not expect children. It means they will not be removed if no sub-feature is linked to it.
+# Level1 features with standalone value will be sorted in the same way as other features e.g. by position in the sequence
+# Level1 features with topfeature value will not be sorted in the same way as other features e.g. all topfeature will be printed first in the sequence
+level1:
+  cacta_tir_transposon: standalone
+  cage_cluster: standalone
+  cdna_match: 1
+  centromere: standalone
+  chromosome: topfeature
+  conserved_region: standalone
+  dnasei_hypersensitive_site: standalone
+  enhancer: standalone
+  enhancer_blocking_element: standalone
+  epigenetically_modified_region: standalone
+  est_match: 1
+  gene: 1
+  hat_tir_transposon: standalone
+  helitron: standalone
+  insulator: standalone
+  inverted_repeat: standalone
+  knob: standalone
+  l1_line_retrotransposon: standalone
+  lincrna_gene: 1
+  locus_control_region: standalone
+  match: 1
+  matrix_attachment_site: standalone
+  meiotic_recombination_region: standalone
+  minisatellite: standalone
+  mirna_gene: 1
+  mobile_genetic_element: standalone
+  mutator_tir_transposon: standalone
+  ncrna_gene: 1
+  non_allelic_homologous_recombination_region: standalone
+  nucleotide_motif: 1
+  nucleotide_to_protein_match: 1
+  pif_harbinger_tir_transposon: standalone
+  pirna_gene: 1
+  polypeptide: 1
+  promoter: standalone
+  protein_binding_site: standalone
+  protein_coding_gene: 1
+  protein_match: 1
+  pseudogene: 1
+  region: topfeature
+  regulatory_region: standalone
+  response_element: standalone
+  rrna_gene: 1
+  repeat_instability_region: standalone
+  repeat_region: standalone
+  sequence_alteration: standalone
+  sequence_comparison: standalone
+  sequence_feature: standalone
+  scaffold: topfeature
+  silencer: standalone
+  sirna_gene: 1
+  snorna_gene: 1
+  snrna_gene: 1
+  source: topfeature
+  sts: 1
+  subtelomere: standalone
+  tandem_repeat: standalone
+  tata_box: standalone
+  tc1_mariner_tir_transposon: standalone
+  transcriptional_cis_regulatory_region: standalone
+  translated_nucleotide_match: 1
+  transposable_element: 1
+  transposable_element_gene: 1
+  transposon_fragment: 1
+  biological_region: topfeature
+
+# ----------------------------------- LEVEL2 -----------------------------------
+# Level2 features are features with parent and potentially a child (e.g. match feature does not expect any child
+# Level2 feature values correspond to which parent type (level1 feature type) it is expected to be attached
+level2:
+  aberrant_processed_transcript: gene
+  antisense_rna: gene
+  antisense_lncrna: gene
+  c_gene_segment: gene
+  copia_ltr_retrotransposon: repeat_region
+  d_gene_segment: gene
+  gene_segment: gene
+  guide_rna: gene
+  gypsy_ltr_retrotransposon: repeat_region
+  j_gene_segment: gene
+  lcrna: gene
+  lincrna: gene
+  ltr/copia: repeat_region
+  long_terminal_repeat: repeat_region
+  lnc_rna: gene
+  lncrna: gene
+  ltr/copia: repeat_region
+  ltr_retrotransposon: repeat_region
+  match_part: match
+  nucleotide_to_protein_match_part: nucleotide_to_protein_match
+  mirna: gene
+  mirna_primary_transcript: gene
+  misc_rna: gene
+  mrna: gene
+  nc_primary_transcript: gene
+  ncrna: gene
+  nmd_transcript_variant: gene
+  pirna: pirna_gene
+  pre_mirna: gene
+  primary_transcript: gene
+  processed_pseudogene: pseudogene
+  processed_transcript: gene
+  pseudogenic_transcript: pseudogene
+  pseudogenic_trna: pseudogene
+  rna: gene
+  rnase_mrp_rna: gene
+  rnase_p_rna: gene
+  rrna: gene
+  scrna: gene
+  similarity: match
+  sirna_gene: gene
+  snorna: gene
+  snrna: gene
+  srp_rna: gene
+  target_site_duplication: repeat_region
+  tmrna: gene
+  transcript: gene
+  transcript_region: gene
+  trna: gene
+  trna_pseudogene: pseudogene
+  unconfirmed_transcript: gene
+  unitary_pseudogene: pseudogene
+  v_gene_segment: gene
+  vaultrna: gene
+  vaultrna_primary_transcript: gene
+
+# ----------------------------------- LEVEL3 -----------------------------------
+# Level3 features have parents, but no children.
+# The value <exon> informs AGAT that the feature is part of an exon.
+level3:
+  cds: exon
+  exon: 1
+  five_prime_utr: exon
+  intron: 1
+  non_canonical_five_prime_splice_site: 1
+  non_canonical_three_prime_splice_site: 1
+  protein: 1
+  pseudogenic_exon: 1
+  selenocysteine: 1
+  sig_peptide: exon
+  start_codon: exon
+  stop_codon: exon
+  stop_codon_read_through: exon
+  three_prime_utr: exon
+  tss: exon
+  transcription_end_site: exon
+  tts: exon
+  3utr: exon
+  utr: exon
+  uorf: five_prime_utr
+  5utr: exon
+
+# ------------------------------- SPREAD FEATURES ------------------------------
+# Here are described features that may span over different locations
+spread:
+   cds: 1
+   five_prime_utr: 1
+   start_codon: 1
+   stop_codon: 1
+   three_prime_utr: 1
+   utr: 1
+   uORF: 1
+   3utr: 1
+   5utr: 1

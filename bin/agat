@@ -58,7 +58,7 @@ AGAT is robust to even the most despicable GTF/GFF files.',
          options     => [
             {
                getopt      => 'help|h!',
-							 shortbool   => 1, #shortbool added by JDainat to avoid --no-help
+					shortbool   => 1, #shortbool added by JDainat to avoid --no-help
                help        => 'Display the help',
             },
 						{
@@ -80,21 +80,23 @@ AGAT is robust to even the most despicable GTF/GFF files.',
          help        => 'Handle feature types and relationships',
          description =>
 'If you want to see, add or modified the feature relationships you will have to
-use this option. It will copy past in you working directory the json files used
-to define the relation between feature types and their level organisation.
+use this option. It will copy past in you working directory the feature_levels.yaml file 
+used to define the relationships between feature types and their level organisation.
 Typical level organisation: Level1 => gene; Level2 => mRNA; level3 => exon,cds,
 utrs. If you get warning from the Omniscient parser that a feature relationship
-is not defined, you can provide information about it within the exposed json
-files. Indeed, if the json files exists in your working directory, they will be
+is not defined, you can provide information about it within the exposed feature_levels.yaml
+file. Indeed, if the feature_levels.yaml file exists in your working directory, it will be
 used by default.',
          options     => [
 					 {
 							 getopt      => 'help|h!',
+							 shortbool   => 1,
 							 help        => 'Display the help',
 						},
             {
                getopt      => 'expose|e!',
-               help        => 'Expose the feature level json files.',
+               shortbool   => 1,
+               help        => 'Expose the feature_levels.yaml file.',
             },
          ],
          commit => '#handle_levels',
@@ -198,7 +200,7 @@ force_gff_input_version and gff_output_version.
 					 },
 					 {
 							getopt      => 'check_exons!',
-							help        => 'To check that exons include all other l3 feature types that are included within exon (see level feature json file e.g: cds:"exon"). [Default activated]',
+							help        => 'To check that exons include all other l3 feature types that are included within exon (see feature_levels.yaml file e.g: cds:"exon"). [Default activated]',
 					 },
 					 {
 							getopt      => 'check_utrs!',

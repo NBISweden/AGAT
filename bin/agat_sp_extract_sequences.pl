@@ -508,7 +508,7 @@ sub extract_sequences{
     my $feature_type = $sortedList[0]->primary_tag;
 
     # ------ SPREADED feature need to be collapsed else only if merge option activated ------
-    if( exists_keys($hash_level,'spreadfeature',lc($feature_type) ) or ( $opt_merge ) ){
+    if( exists_keys($hash_level,'spread',lc($feature_type) ) or ( $opt_merge ) ){
 
     	my $sequence="";my $info = "";
 

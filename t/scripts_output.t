@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 70;
+use Test::More tests => 72;
 
 =head1 DESCRIPTION
 
@@ -184,6 +184,20 @@ unlink $outtmp;
 $script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
 $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
 system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
+$result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
+system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
+$result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
+system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
