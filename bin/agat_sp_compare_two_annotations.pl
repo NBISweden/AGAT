@@ -17,15 +17,17 @@ my $opt_output = undef;
 my $gff1 = undef;
 my $gff2 = undef;
 my $verbose = undef;
+my $debug = undef;
 my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"                  => \$opt_help,
-    "gff1=s"                  => \$gff1,
-    "gff2=s"                  => \$gff2,
-    "v!"                      => \$verbose,
-    "output|outfile|out|o=s"  => \$opt_output))
+    "help|h"         => \$opt_help,
+    "gff1=s"         => \$gff1,
+    "gff2=s"         => \$gff2,
+	"debug|d!"       => \$debug,
+    "verbose|v!"     => \$verbose,
+    "output|out|o=s" => \$opt_output))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -53,237 +55,416 @@ if ( ! $gff1 or ! $gff2){
 # Manage output file #
 my $report = prepare_fileout($opt_output);
 
-                #####################
-                #     MAIN          #
-                #####################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+# Activate verbose when debug active
+$verbose=1 if ($debug);
 
 ######################
 ### Parse GFF input #
+print ("Parsing $gff1\n");
 my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
                                                               config => $config
                                                               });
+print ("\n\nParsing $gff2\n");
 my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
                                                               config => $config
                                                               });
-print ("GFF3 files parsed\n");
+print ("-- Files parsed --\n");
 
 
 my $sortBySeq1 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient1);
 my $sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient2);
 print ("GFF3 files sorted\n");
 
-#get top feature first
-my $top_features = get_feature_type_by_agat_value($omniscient1, 'level1', 'topfeature');
+my %overlap_info; # <= Will contain the overlap information
+# ------------------------------------------------------------------------------
+# ---------------------------- COLLECT ALL LOCATIONS ---------------------------
+# ------------------------------------------------------------------------------
+print "COLLECT LOCATIONS\n" if ($verbose);
+my $bucket_locations1 = {};
+my $bucket_locations2 = {};
+my $cpt = 0;
 
-# ----- Remove $top_features ------
 foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
-  foreach my $locusID1 ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 
-    # Skip to features
-    foreach my $type_top_feature (keys %{$top_features}){
-      if (exists_keys( $sortBySeq, ($locusID1, $type_top_feature) ) ){
-        delete  $sortBySeq->{$locusID1}{$type_top_feature};
-      }
-    }
+  # select proper variable to work with (related to annotationA or annotationB)
+  my $bucket_locations;
+  my $omniscient;
+  if(! $cpt){
+    $cpt++;
+    $bucket_locations = $bucket_locations1;
+    $omniscient = $omniscient1;
   }
-}
-# ----- END Remove $top_features ------
+  else{
+    $bucket_locations = $bucket_locations2;
+    $omniscient = $omniscient2;
+  }
+	# create bucket location. A location=[start, end, type, id]
+  foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
+    foreach my $chimere_type_l1l2 ( sort keys %{$sortBySeq->{$locusID}} ) {
+      #
+      # Go through location from left to right ### !! if not empty
+      #
+      my $previous_location_l1 = undef;
+      my $list_of_location_l2 = [];
+      while ( my $location1 = shift @{$sortBySeq->{$locusID}{$chimere_type_l1l2}} ){
 
-# ------------------------------------------------------------------------------
-# ---- NOW COMPARE LOCATIONS from file 1 and file 2
-# ------------------------------------------------------------------------------
-my %overlap_info; # < Will save all results about if it overlap or not
-foreach my $locusID (  keys %{$sortBySeq1} ){
-  foreach my $chimere_type ( keys %{$sortBySeq1->{$locusID}} ){
-    print "\n\n\nFirst round chimere_type location1: <$locusID><$chimere_type>\n" if ($verbose);
-    my $one_more_round_signalA = 0;
-    my $overlap_A = 0;
-    my $overlap_B = 0;
-    my $current_flattened_locations = [];
-    my $locations1;
-    my $type_deeper;
-    my $l2_type1;
-    my $l1_type;
+        # Define location l1
+        my $l1_id = lc($location1->[0]);
+        my $type_l1 = $location1->[3];
+				my $current_location_l1 = [$location1->[1], $location1->[2], $type_l1, $l1_id];
 
-    my $location1_back =[];
+        push @{$bucket_locations->{$locusID}{$chimere_type_l1l2}{$l1_id}{'level1'}}, $current_location_l1 ;
 
-    while ( my $location1 = shift @{$sortBySeq1->{$locusID}{$chimere_type}} ){
-      my $l1_id1 = lc($location1->[0]);
-      $l1_type = lc($location1->[3]);
-      ($locations1, $type_deeper, $l2_type1) = get_locations_deeper($omniscient1, $l1_id1, $location1);
-      if ($verbose) { print "GENERAL list of location1 <$type_deeper>: "; foreach my $array ( @{$locations1}){print "@{$array} - "; } print "\n";}
-      if ($verbose) { print "Lets work with $l2_type1 @$location1\n"};
-      if ($verbose and $current_flattened_locations) { print "current_flattened_locations investigated: "; foreach my $array ( @{$current_flattened_locations}){print "@{$array} - "; } print "\n";}
+        ################
+        # Go to level2 #
+        ################
+        foreach my $type_l2 (keys %{$omniscient->{'level2'}}){
+          if(exists_keys($omniscient,('level2', $type_l2, $l1_id) ) ){
 
-      # First Round
-      if (! @$current_flattened_locations){
-        $overlap_A=1;
-        $current_flattened_locations = $locations1;
-        print "First round location1!\n" if ($verbose);
-      }
+            foreach my $l2_f ( @{$omniscient->{'level2'}{$type_l2}{$l1_id} } ){
 
-      # NOT First Round
-      else{
-        my $continue = 1;
-        $one_more_round_signalA = undef;
-        while ( $continue ){
-          #  location A  -------------------------
-          #  location A bis                                     -------------------------
-          if(  $current_flattened_locations->[$#$current_flattened_locations][1] < $location1->[1] ){ # End Location A < Start Location A bis
-            $continue = undef;
+              # Define location l2
+              my $l2_id = lc($l2_f->_tag_value('ID'));
+              my $current_location_l2 = [int($l2_f->start()), int($l2_f->end()), $type_l1."@".$type_l2, $l1_id];
 
-            if(! $one_more_round_signalA){
-                print "Let save the result 1: ( A $overlap_A => $overlap_B)\n" if ($verbose);
-                $overlap_info{$l1_type}{$l2_type1}{$overlap_A}{$overlap_B}++;
-                $current_flattened_locations = $locations1;
-                $overlap_A=1;
-                $overlap_B=0;
-                print "Re-initialize location A search\n" if ($verbose);
-                if ($verbose and $current_flattened_locations) { print "current_flattened_locations investigated: "; foreach my $array ( @{$current_flattened_locations}){print "@{$array} - "; } print "\n";}
-            }
-            else{
-              print "Push back Location1!!<--------\n" if ($verbose);
-              push @{$location1_back}, $location1;
-            }
+              push @{$bucket_locations->{$locusID}{$chimere_type_l1l2}{$l1_id}{'level2'}}, $current_location_l2 ;
 
-          }
-          else{
-            my ($overlap, $flattened_locations) = flatten_locations_and_merge($current_flattened_locations, $locations1);
-            if( $overlap ){
-              print "Location1 still overlap! Lets append current_flattened_locations with location1\n" if ($verbose);
-              $current_flattened_locations = $flattened_locations;
-              $overlap_A++;
-              $one_more_round_signalA=1;
-
-              print "take next location A\n" if ($verbose);
-
-              if(scalar @{$sortBySeq1->{$locusID}{$chimere_type}} != 0){
-                $location1 = shift @{$sortBySeq1->{$locusID}{$chimere_type}};
+              ################
+              # Go to level3 #
+              ################
+              foreach my $type_l3 (keys %{$omniscient->{'level3'}}){
+                if(exists_keys($omniscient,('level3', $type_l3, $l2_id) ) ){
+                  foreach my $l3_f ( @{$omniscient->{'level3'}{$type_l3}{$l2_id} } ){
+                    # Define location l3
+                    my $current_location_l3 = [int($l3_f->start()), int($l3_f->end()), $type_l1."@".$type_l2."@".$type_l3, $l1_id ];
+                    push @{$bucket_locations->{$locusID}{$chimere_type_l1l2}{$l1_id}{'level3'}{$type_l3}}, $current_location_l3 ;
+                  }
+                }
               }
-              else{print "Print no more location A\n" if ($verbose); $continue = undef;}
-            }
-            else{
-              print "Push back Location1-2!!<--------\n" if ($verbose);
-              print "Get next Location1.\n" if ($verbose);
-
-              push @{$location1_back}, $location1;
-              $location1 = shift @{$sortBySeq1->{$locusID}{$chimere_type}};
             }
           }
         }
       }
-
-      if (@$location1_back){
-          if ($verbose) { print "location A to put back into the list: ";  foreach my $array ( @{$location1_back}){print "@{$array} - "; } print "\n";}
-          unshift @{$sortBySeq1->{$locusID}{$chimere_type}}, @{$location1_back};
-          $location1_back =[];
-      }
-
-#      if ($verbose) { print "current_flattened_locations investigated Again: "; foreach my $array ( @{$current_flattened_locations}){print "@{$array} - "; } print "\n";}
-
-      if ( exists_keys ($sortBySeq2, ($locusID,$chimere_type) ) ){
-
-        # No more locationB, Store the locations A
-        if(scalar @{$sortBySeq2->{$locusID}{$chimere_type}} == 0){
-          print "  no more location B\n" if ($verbose);
-          $overlap_info{$l1_type}{$l2_type1}{$overlap_A}{$overlap_B}++;
-          print "Let save the result 2 ( A $overlap_A => $overlap_B)\n" if ($verbose);
-          $overlap_A = 0;
-          $overlap_B = 0;
-        }
-
-        my $location2_back =[];
-        while ( my $location2 = shift @{$sortBySeq2->{$locusID}{$chimere_type}} ){
-          my $l1_id2 = lc($location2->[0]);
-          print " location2 investigated:  @$location2\n" if ($verbose);
-
-
-          #  flatenned locations A                       ----  -----  -------
-          #  location B             ---------------
-          if ($location2->[2] < $current_flattened_locations->[0][0]) {
-            print " location2 before location1!\n" if ($verbose);
-
-            if($overlap_A == 1){
-              $overlap_info{$l1_type}{$l2_type1}{0}{1}++;
-              print "  Let save the result 3 ( A 0 => 1)\n" if ($verbose); # uniq to annotationB
-            }
-            else{
-              print "  Push back Location2-1!!<--------\n" if ($verbose);
-              push @{$location2_back}, $location2;
-            }
-            next;
-          }
-
-
-          # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-          #      ------------ OVERLAP  AT EXON or CDS level -----------
-          ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-          my ($locations2, $type_deeper2, $l2_type2) = get_locations_deeper($omniscient2, $l1_id2, $location2);
-
-          my ($overlap, $flattened_locations) = flatten_locations_and_merge($current_flattened_locations, $locations2);
-          if( $overlap ){ #This check is a deeplevel location check !!!!
-            print " locations2 overlap current_flattened_locations!\n" if ($verbose);
-            if ($verbose and $current_flattened_locations) { print "current_flattened_locations investigated: "; foreach my $array ( @{$current_flattened_locations}){print "@{$array} - "; } print "\n";}
-            if ($verbose and $current_flattened_locations) { print "locations2 investigated: "; foreach my $array ( @{$locations2}){print "@{$array} - "; } print "\n";}
-            $current_flattened_locations = $flattened_locations;
-            $overlap_B++;
-          }
-          #  location A  -------------------------
-          #  location B                                     -------------------------
-          elsif( $location2->[1] > $current_flattened_locations->[$#$current_flattened_locations][1]  ){
-            print " Location2 after Location1\n" if ($verbose);
-            print " Push back Location2-2!!<--------\n" if ($verbose);
-            push @{$location2_back}, $location2;
-            if ($verbose) { print " location B to put back into the list";  foreach my $array ( @{$location2_back}){print "@{$array} - "; } print "\n";}
-            unshift @{$sortBySeq2->{$locusID}{$chimere_type}}, @{$location2_back};
-            $location2_back =[];
-            last; # Go back to the list of locationA
-          }
-          #  location deeplevel A  ----------             --------                   (deep level means we don't look at top feature but rather at CDS / exons level)
-          #  location deeplevel B                -------             -----------
-          else{
-              push @{$location2_back}, $location2;
-          }
-        }
-      }
-    }
-
-    print "no more location A\n" if ($verbose);
-    if($overlap_A){
-      print "Let save the result 4 (A $overlap_A => $overlap_B)\n" if ($verbose);
-      $overlap_info{$l1_type}{$l2_type1}{$overlap_A}{$overlap_B}++;
-      $overlap_A = 0;
-      $overlap_B = 0;
     }
   }
 }
 
-# ---- NOw deal with what is remaining in annotationB
- foreach my $locusID (  keys %{$sortBySeq2} ){
-   foreach my $chimere_type ( keys %{$sortBySeq2->{$locusID}} ){
-     while ( my $location2 = shift @{$sortBySeq2->{$locusID}{$chimere_type}} ){
-       my $l1_id1 = lc($location2->[0]);
-       my $l1_type = lc($location2->[3]);
-       my ($tothrow1, $tothrow2, $l2_type1) = get_locations_deeper($omniscient2, $l1_id1, $location2);
-       $overlap_info{$l1_type}{$l2_type1}{0}{1}++; # uniq to annotationB
-       print "Let save the result 5 ( A 0 => 1)\n" if ($verbose);
-     }
-   }
- }
 
+# ------------------------------------------------------------------------------
+# ------------------------- FLATTEN OVERLAPPING LOCATIONS ----------------------
+# ------------------------------------------------------------------------------
+# Will merge same location types that overlap
+print "FLATTEN LOCATIONS\n" if ($verbose);
+my $flattened_locations_clean;
+my $flattened_locations1_clean = {};
+my $flattened_locations2_clean = {};
+my $cpt_fl;
+foreach my $bucket_locations ( $bucket_locations1, $bucket_locations2 ){
 
+  	if (! $cpt_fl){
+		$flattened_locations_clean = $flattened_locations1_clean;
+		$cpt_fl++;
+  	}
+  	else {
+		$flattened_locations_clean = $flattened_locations2_clean;
+  	}
+
+  	foreach my $locusID (  keys %{$bucket_locations} ){
+    	foreach my $chimere_type ( keys %{$bucket_locations->{$locusID}}){
+      		foreach my $l1_id ( keys %{$bucket_locations->{$locusID}{$chimere_type}} ){
+				# Try from l3 to l1 and take the first existing
+				foreach my $level ( ("level3","level2","level1") ){
+		  			if ( exists_keys ($bucket_locations, ($locusID,$chimere_type, $l1_id, $level) ) ){
+
+						my @newlocations;
+						# merge L3 locations from a same locus. CDS locations if any or exon if any or the rest if any, in this order
+						if  ($level eq "level3"){
+
+			  				# first get type of l3 to use
+			  				my @types;
+			  				if ( exists_keys ($bucket_locations, ($locusID,$chimere_type, $l1_id, $level, "cds") ) ){
+			  					push @types, "cds";
+			  				}
+			  				elsif ( exists_keys ($bucket_locations, ($locusID,$chimere_type, $l1_id, $level, "exon") ) ){
+								push @types, "exon";
+			  				}
+			  				else{
+			    				foreach my $type ( keys %{$bucket_locations->{$locusID}{$chimere_type}{$l1_id}{$level}} ){
+				  					push @types, $type;
+			    				}
+			  				}
+			  
+			 				foreach my $type (@types){
+								my $previous_location = undef;
+
+								foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$bucket_locations->{$locusID}{$chimere_type}{$l1_id}{$level}{$type}} ){
+									print "investigate location of $l1_id from $chimere_type from $locusID at $level \n" if ($debug);
+				  					# first round
+				  					if (! $previous_location){
+				    					push @newlocations, $location;
+				    					$previous_location = $location;
+				  					}
+				  					# Not first round
+				  					else{
+										#  location A  -------------------------
+										#  location B           -------------------------
+										if ( ($previous_location->[0] <= $location->[1]) and ($previous_location->[1] >= $location->[0])){
+
+											if($previous_location->[1] <= $location->[1]){
+												# take back last location pushed in the array
+												$previous_location = pop @newlocations;
+												$previous_location->[1]  = $location->[1];
+												# push back into the array the previous location that has been modified
+												push @newlocations, $previous_location ;
+											}
+										}
+										else{
+											push @newlocations, $location ;
+											$previous_location = $location;
+										}
+				 					 }
+								}
+							}
+						}
+						# merge L2 or l1 locations from a same locus
+						else {
+							my $previous_location = undef;
+							foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$bucket_locations->{$locusID}{$chimere_type}{$l1_id}{$level}} ){
+								print "investigate location of $l1_id from $chimere_type from $locusID at $level \n" if ($debug);
+								# first round
+								if (! $previous_location){
+									push @newlocations, $location;
+									$previous_location = $location;
+								}
+								# Not first round
+			   					 else{
+									#  location A  -------------------------
+									#  location B           -------------------------
+									if ( ($previous_location->[0] <= $location->[1]) and ($previous_location->[1] >= $location->[0])){
+										if($previous_location->[1] <= $location->[1]){
+										# take back last location pushed in the array
+										$previous_location = pop @newlocations;
+										$previous_location->[1]  = $location->[1];
+										# push back into the array the previous location that has been modified
+										push @newlocations, $previous_location ;
+										}
+									}
+									else{
+										push @newlocations, $location ;
+										$previous_location = $location;
+									}
+								}
+							}
+						}
+						# Save flattened locations either from the deepest level => L3 L2 or L1 in this order
+						push @{$flattened_locations_clean->{$locusID}{$chimere_type}}, [@newlocations] ; # each set of locations must be  kept as separate list
+						last;
+					}
+	    		}
+	  		}
+		}
+ 	}
+}
+
+my $flattened_locations1_clean_sorted;
+foreach my $locusID ( sort  keys %{$flattened_locations1_clean} ){
+  foreach my $chimere_type ( sort keys %{$flattened_locations1_clean->{$locusID}} ){
+	@{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}}	= sort {$a->[0][0] <=> $b->[0][0]} @{$flattened_locations1_clean->{$locusID}{$chimere_type}};
+  }
+}
+my $flattened_locations2_clean_sorted;
+foreach my $locusID ( sort  keys %{$flattened_locations2_clean} ){
+	foreach my $chimere_type ( sort keys %{$flattened_locations2_clean->{$locusID}} ){
+		@{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}}	= sort {$a->[0][0] <=> $b->[0][0]} @{$flattened_locations2_clean->{$locusID}{$chimere_type}};
+	}
+}
+# ------------------------------------------------------------------------------
+# ---- NOW COMPARE FLATENED LOCATIONS OF THE TWO ANNOTAITON sorted by chimere name (l1l2)
+# ------------------------------------------------------------------------------
+
+# When already checked the location is removed from flattened_locationsX_clean_sorted hash
+print "COMPARE LOCATIONS\n" if ($verbose);
+my %seen1;
+my %seen2;
+foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
+  foreach my $chimere_type ( sort keys %{$flattened_locations1_clean_sorted->{$locusID}} ){
+		if ( exists_keys ($flattened_locations2_clean_sorted, ($locusID,$chimere_type) ) ){
+
+			#/!\ MUST SORT LOCATIONS
+			my @copy1 = @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}};
+			print scalar(@copy1)." locations 1\n" if ($debug);
+
+			# With foreach the last location is properly handled automatically
+			foreach my $locations1 (@copy1){
+				if(! exists_keys(\%seen1, ($locations1->[0][3]) ) ) {
+
+					if ( exists_keys ($flattened_locations2_clean_sorted, ($locusID,$chimere_type) ) ) {
+						my @copy2 = @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}};
+						print scalar(@copy2)." locations 2\n" if ($debug);
+
+						# With foreach the last location is properly handled automatically
+						foreach my $locations2 (@copy2){
+							if(! exists_keys(\%seen2, ($locations2->[0][3] ) ) ){
+
+               	# --------------------- OVERLAP --------------------------------
+								if ( locations_overlap($locations1, $locations2) ){
+									print "overlap ".$locations1->[0][3]." ".$locations2->[0][3]."\n" if ($debug);
+
+									remove_loc_by_id($flattened_locations1_clean_sorted, $locusID, $chimere_type, $locations1->[0][3]);
+									$seen1{$locations1->[0][3]}++;
+									remove_loc_by_id($flattened_locations2_clean_sorted, $locusID, $chimere_type, $locations2->[0][3]);
+									$seen2{$locations2->[0][3]}++;
+
+									my $flat_overlap_1 = $locations1;
+									my $flat_overlap_2 = $locations2;
+									my $overlap_A=1;
+									my $overlap_B=1;
+									my $loop="top";
+									my $flip=2;
+									my $current_locs;
+									my $current_hash;
+									my $current_seen;
+									my $current_flat=();
+									my $current_flat_oppo=();
+
+									while ($flip){
+										print "  loop $loop\n" if ($debug);
+										if ($loop eq "top"){
+											$current_locs = $flattened_locations1_clean_sorted->{$locusID}{$chimere_type};
+											$current_hash = $flattened_locations1_clean_sorted;
+											$current_seen = \%seen1;
+											$current_flat = $flat_overlap_1;
+											$current_flat_oppo = $flat_overlap_2;
+										} elsif ($loop eq "bot"){
+											$current_locs = $flattened_locations2_clean_sorted->{$locusID}{$chimere_type};
+											$current_hash = $flattened_locations2_clean_sorted;
+											$current_seen = \%seen2;
+											$current_flat = $flat_overlap_2;
+											$current_flat_oppo = $flat_overlap_1;
+										}
+
+										my @overlap_loc;
+										foreach my $locations (@{$current_locs}){
+											print "  ".scalar(@{$current_locs})." locations $loop\n" if ($debug);
+
+											#  location   -------------------------
+											#  flat                                        -------------------------
+											if ( $locations->[scalar(@{$locations})-1][1] < $current_flat_oppo->[0][0] ){
+												print "  caseX\n" if ($debug);
+												next;
+											}
+											#  location A                         ----------------
+											#  location B  ---------------
+											elsif ($current_flat_oppo->[scalar(@{$current_flat_oppo})-1][1] < $locations->[0][0] ){
+												print "  caseY\n" if ($debug);
+												last;
+											}
+											elsif ( locations_overlap($current_flat_oppo, $locations) ){
+												print "  overlap in overlap ".$current_flat_oppo->[0][3]." ".$locations->[0][3]."\n" if ($debug);
+												# keep track of ID that overlap to remove locations later out of the loop
+												push @overlap_loc, $locations->[0][3];
+												$current_flat = flatten_locations_and_merge($current_flat, $locations);
+
+												if($loop eq "top"){
+													$overlap_A++;
+												}
+												elsif($loop eq "bot"){
+													$overlap_B++;
+												}
+											}
+											else{
+												print "  caseZ overlap in intron\n" if ($debug);
+											}
+										}
+
+										#flip
+										if ($loop and $loop eq "top"){
+											$loop="bot";
+										} elsif ($loop and $loop eq "bot") {
+											$loop="top";
+										}
+
+										if(! @overlap_loc){
+											$flip--;
+										} else {
+											foreach my $id (@overlap_loc){
+												remove_loc_by_id($current_hash, $locusID, $chimere_type, $id);
+												$current_seen->{$id}++;
+											}
+										}
+									}
+									$overlap_info{$locations1->[0][2]}{$overlap_A}{$overlap_B}++;
+								}
+		# ----------------------------------- CASE 1 -----------------------------------
+								#  location A                         ----------------
+								#  location B  ---------------
+								elsif ($locations2->[scalar(@{$locations2})-1][1] < $locations1->[0][0] ){
+
+									$overlap_info{$locations1->[0][2]}{0}{1}++;
+									print "Case1 notoverlap !\n\n" if ($debug);
+									# throw loc2
+									remove_loc_by_id($flattened_locations2_clean_sorted, $locusID, $chimere_type, $locations2->[0][3]);
+									$seen2{$locations2->[0][3]}++;
+									next;
+								}
+
+		# ----------------------------------- CASE 2 -----------------------------------
+								#  location A  -------------------------
+								#  location B                                     -------------------------
+								elsif ($locations1->[scalar(@{$locations1})-1][1] < $locations2->[0][0] ){
+									my $id1 = $locations1->[0][3];
+									print "Case2 notoverlap !\n" if ($debug);
+									if(! exists_keys(\%seen1, ( $id1 ) ) ){ # else it has been dealed by overlap case
+										$overlap_info{$locations1->[0][2]}{1}{0}++;
+										# throw loc1
+										remove_loc_by_id($flattened_locations1_clean_sorted, $locusID, $chimere_type, $id1);
+										$seen1{$id1}++;
+									}
+									last; # next location1
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+  }
+}
+
+# ---- NOw deal with what is remaining in annotationA
+# Gather False positive => seq only annotated in annotationB, or type of feature annotated only in annotationB that was missing in annotatoin A
+print "\nLook now what is specific to annotationA \n" if ($verbose);
+foreach my $locusID (  keys %{$flattened_locations1_clean_sorted} ){
+  foreach my $chimere_type ( keys %{$flattened_locations1_clean_sorted->{$locusID}}){
+    foreach my $locations1 ( @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}} ){
+			$overlap_info{$locations1->[0][2]}{1}{0}++;
+			print " Case3 !\n" if ($debug);
+    }
+  }
+}
+
+# ---- NOw deal with what is remaining in annotationB-
+# Gather False positive => seq only annotated in annotationB, or type of feature annotated only in annotationB that was missing in annotatoin A
+print "\nLook now what is specific to annotationB \n" if ($verbose);
+foreach my $locusID (  keys %{$flattened_locations2_clean_sorted} ){
+  foreach my $chimere_type ( keys %{$flattened_locations2_clean_sorted->{$locusID}}){
+    foreach my $locations2 ( @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}} ){
+			$overlap_info{$locations2->[0][2]}{0}{1}++;
+			print " Case4 !\n" if ($debug);
+    }
+  }
+}
 
 ##############
 # STATISTICS #
 if($verbose){
   print "Compute statistics for $gff1:\n";
-	print_omniscient_statistics ({ input => $omniscient1
-															 });
+	print_omniscient_statistics ({ input => $omniscient1 });
 
 	print "Compute statistics for $gff2:\n";
-	print_omniscient_statistics ({ input => $omniscient2
-															 });
+	print_omniscient_statistics ({ input => $omniscient2 });
 }
 
 # ------------------------------------------------------------------------------
@@ -292,32 +473,34 @@ if($verbose){
 my %total;
 my $separator_table = join('', '-') x 94;
 $separator_table .= "\n";
-my ($filename1) = fileparse($gff1,qr/\.[^.]*/);
-my ($filename2) = fileparse($gff2,qr/\.[^.]*/);
+my ($filename1,$path1,$ext1) = fileparse($gff1,qr/\.[^.]*/);
+my ($filename2,$path2,$ext2) = fileparse($gff2,qr/\.[^.]*/);
+
 my $string_to_print = "usage: $0 @copyARGV\nResults of number of genes from file1 that overlap genes from file2:\n\n";
 
 
 foreach my $type_l1 ( sort keys %overlap_info ){
-  foreach my $type_l2 ( sort keys %{$overlap_info{$type_l1}} ){
 
-    $string_to_print .= "$separator_table|".sizedPrint("$type_l1 with $type_l2",92)."|\n";
-    $string_to_print .= "$separator_table|".sizedPrint($filename1,30)."|".sizedPrint($filename2,30)."|".sizedPrint("Number of cases",30)."|\n$separator_table";
+    $string_to_print .= "$separator_table|".sizedPrint("$type_l1",92)."|\n";
+    $string_to_print .= "$separator_table|".sizedPrint($filename1.$ext1,30)."|".sizedPrint($filename2.$ext2,30)."|".sizedPrint("Number of cases",30)."|\n$separator_table";
 
-    foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}{$type_l2}} ){
-      foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$type_l2}{$value1}} ){
-        $string_to_print .= "|".sizedPrint($value1,30)."|".sizedPrint($value2,30)."|".sizedPrint($overlap_info{$type_l1}{$type_l2}{$value1}{$value2},30)."|\n";
+		$total{$type_l1}{'A'}=0;
+		$total{$type_l1}{'B'}=0;
+    foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}} ){
+      foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$value1}} ){
+        $string_to_print .= "|".sizedPrint($value1,30)."|".sizedPrint($value2,30)."|".sizedPrint($overlap_info{$type_l1}{$value1}{$value2},30)."|\n";
         if ($value1 != 0){
-          $total{$type_l1}{$type_l2}{'A'} += $value1 * $overlap_info{$type_l1}{$type_l2}{$value1}{$value2};
+          $total{$type_l1}{'A'} += $value1 * $overlap_info{$type_l1}{$value1}{$value2};
         }
         if ($value2 != 0){
-          $total{$type_l1}{$type_l2}{'B'} += $value2 * $overlap_info{$type_l1}{$type_l2}{$value1}{$value2};
+          $total{$type_l1}{'B'} += $value2 * $overlap_info{$type_l1}{$value1}{$value2};
         }
       }
     }
     $string_to_print .=  $separator_table;
-    $string_to_print .= "Number gene in $filename1: $total{$type_l1}{$type_l2}{'A'}\nNumber gene in $filename2: $total{$type_l1}{$type_l2}{'B'}\n";
+    $string_to_print .= "Number gene in $filename1: $total{$type_l1}{'A'}\nNumber gene in $filename2: $total{$type_l1}{'B'}\n";
     $string_to_print .= "\n\n"
-  }
+
 }
 $string_to_print .= "\n";
 
@@ -338,70 +521,51 @@ print "Bye Bye.\n";
                 ####
                  ##
 
-# Get location from level3 or level2 is no level3
-sub get_locations_deeper{
-  my ($omniscient, $l1_id, $original_location) = @_;
-  print "get_locations_deeper...\n" if ($verbose);
-  my @locations;
-  my @locations_l2;
-  my $type;
+# locations are sorted by start position
+ # return t1 is location overlap
+sub remove_loc_by_id{
+	my($list_location, $locusID, $chimere_type, $id)=@_;
+	print "Remove $id from locations \n" if ($verbose);
+	my @new_list;
+	foreach my $locations ( @{$list_location->{$locusID}{$chimere_type}} ){
+		if ( lc($locations->[0][3]) ne lc($id) ) {
+			push @new_list, $locations;
+		}
+	}
+	@{$list_location->{$locusID}{$chimere_type}} = @new_list;
+}
 
-  foreach my $type_l2 (keys %{$omniscient->{'level2'}}){
-    print "type_l2 $type_l2\n" if ($verbose);
-    if(exists_keys($omniscient,('level2', $type_l2, $l1_id) ) ){
-      print "exist l2" if ($verbose);
-      foreach my $l2_f ( @{$omniscient->{'level2'}{$type_l2}{$l1_id} } ){
-        # Define location l2
-        my $l2_id = lc($l2_f->_tag_value('ID'));
-        push @locations_l2,[ int($l2_f->start()), int($l2_f->end()) ];
-        ################
-        # Go to level3 #
-        ################
-        if(exists_keys($omniscient,('level3', 'cds', $l2_id) ) ){
-          print "exits cds" if ($verbose);
-          foreach my $l3_f ( @{$omniscient->{'level3'}{'cds'}{$l2_id} } ){
-            # Define location l3
-            my $current_location_l3 = [int($l3_f->start()), int($l3_f->end()) ];
-            push @locations, $current_location_l3 ;
-            $type = 'cds';
-          }
-        }
-        if(! @locations){
-          if(exists_keys($omniscient,('level3', 'exon', $l2_id) ) ){
-            print "exits exon" if ($verbose);
-            foreach my $l3_f ( @{$omniscient->{'level3'}{'exon'}{$l2_id} } ){
-              # Define location l3
-              my $current_location_l3 = [int($l3_f->start()), int($l3_f->end()) ];
-              push @locations, $current_location_l3 ;
-              $type = 'exon';
-            }
-          }
-        }
-      }
-      # No L3 location
-      if(! @locations){
-        @locations = @locations_l2;
-        $type = $type_l2;
-      }
-      my ($tothrow, $locations_fixed) = flatten_locations_and_merge(\@locations, \@locations); # merge (flatten) locations coming from isoforms
-      return $locations_fixed, $type, $type_l2;
-    }
-  }
+# locations are sorted by start position
+# return t1 is location overlap
+sub locations_overlap{
+	my($list_location1, $list_location2)=@_;
+	my $overlap = undef;
 
-	# case where no l2 no l3, we return the l1 location
-	my $location = [ int($original_location->[1]), int($original_location->[2]) ];
-	push @locations, $location;
-	return \@locations, lc($original_location->[3]), lc($original_location->[3]);
+	foreach my $location1 ( @{$list_location1} ){
+		foreach my $location2 ( @{$list_location2} ){
+
+			if (($location1->[0] <= $location2->[1]) and ($location1->[1] >= $location2->[0])){
+				$overlap = 1;
+				return $overlap;
+			}
+			elsif ($location1->[1] < $location2->[0] ){
+				last;
+			}
+			elsif ($location2->[1] < $location1->[0] ){
+				next;
+			}
+		}
+	}
+	return $overlap;
 }
 
 # merge overlapping locations in a list of locations
-# lcation [[int, int],[int, int],[int, int]]
+# lcation [[int, int,id],[int, int,id],[int, int,id]]
 sub flatten_locations_and_merge{
-  my ($locations1, $locations2) = @_;
+  my ($locations1, $locations2, $verbose) = @_;
 
   my $locations = [@$locations1, @$locations2];
   my @newlocations;
-  my $overlap =undef;
   my $previous_location = undef;
   foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$locations} ){
 
@@ -414,7 +578,6 @@ sub flatten_locations_and_merge{
     else{
       #  OVERLAP
       if ( ($previous_location->[0] <= $location->[1]) and ($previous_location->[1] >= $location->[0])){
-        $overlap=1;
         #  location A  -------------------------
         #  location B           -------------------------
         if($previous_location->[1] <= $location->[1]){
@@ -431,14 +594,14 @@ sub flatten_locations_and_merge{
       }
     }
   }
-  return $overlap, \@newlocations ;
+  return \@newlocations ;
 }
 
  # @Purpose: Create a hash of level1 location (location = [level1ID,start,end]) sorted by feature type and localisation. A localisation is the sequence_id appended by the strand
  # @input: 1 => hash omniscient
  # @output: 1 => hash => LocusID->typeFeatureChimere =[ID,start,end, type]
  # TagChimere allows to divide the L1 into relatedted l2 type. (e.g like do split by level 2 feature)
- sub gather_and_sort_l1_location_by_seq_id_and_strand_chimere{
+sub gather_and_sort_l1_location_by_seq_id_and_strand_chimere{
  	my ($omniscient) = @_;
 
  	my %hash_sortBySeq;
@@ -509,14 +672,18 @@ Input GTF/GFF file1.
 
 Input GTF/GFF file2.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o> , B<--output> or B<--out> 
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
+=item  B<--debug> or B<-d>
 
-Verbose option, make it easier to follow what is going on for debugging purpose.
+Debug option, make it easier to follow what is going on for debugging purpose.
+
+=item  B<--verbose> or B<-v>
+
+Verbose option, make it easier to follow what is going on.
 
 =item B<-h> or B<--help>
 
