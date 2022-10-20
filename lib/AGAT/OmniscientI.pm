@@ -5,7 +5,6 @@ package AGAT::OmniscientI;
 use strict;
 use warnings;
 use Try::Tiny;
-use Bio::Tools::GFF;
 use File::Basename;
 use File::ShareDir ':ALL';
 use POSIX qw(strftime);
@@ -16,10 +15,11 @@ use Bio::Ontology::OntologyEngineI;
 use Clone 'clone';
 use Exporter;
 use Term::ProgressBar;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientYaml;
+use AGAT::Levels;
 use AGAT::Utilities;
+use AGAT::BioperlGFF;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format
@@ -148,7 +148,7 @@ sub slurp_gff3_file_JD {
 			my $log_name = $filename.".agat.log";
 			open($log, '>', $log_name  ) or
 						dual_print($log, "Can not open $log_name for printing: $!", 1) && die;
-			print $log AGAT::Omniscient::get_agat_header(); # print AGAT header
+			print $log AGAT::AGAT::get_agat_header(); # print AGAT header
 			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
 																  char => " ",
 																  extra => "\n"});
@@ -338,7 +338,8 @@ sub slurp_gff3_file_JD {
 		$omniscient{'other'}{'header'}=$header if $header;
 
 		# --------------Select bioperl GFF parser version -------------
-		if(! $gff_in_format){ $gff_in_format = select_gff_format($file, $verbose, $log); }
+		if(! $gff_in_format){ $gff_in_format = select_gff_format($file, $verbose, $log);}
+		push @COMONTAG, "common_tag" if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
 		dual_print( $log, "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n", $verbose );
 
 		# -------------- Create GFF file handler ----------------------
@@ -352,10 +353,10 @@ sub slurp_gff3_file_JD {
 			else{
 				open( $fh, "zcat $file |");
 			}
-			 $gffio  = Bio::Tools::GFF->new(-fh => $fh, -gff_version => $gff_in_format);
+			 $gffio  = AGAT::BioperlGFF->new(-fh => $fh, -gff_version => $gff_in_format);
 		}
 		else{
-			$gffio = Bio::Tools::GFF->new(-file => $file, -gff_version => $gff_in_format);
+			$gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
 		}
 
 		# -------------- Set progress bar ---------------------
@@ -3584,55 +3585,62 @@ sub _gff1_corrector{
 		my @parsed;
 		my $flag = 0; # this could be changed to a bit and just be twiddled
 
-			# run through each character one at a time and check it
-			my $previousChar=undef;
-			my $string="";
-			foreach my $a ( split //, $attribs ) {
-					$string.=$a;
+		# run through each character one at a time and check it
+		my $previousChar=undef;
+		my $string="";
+		foreach my $a ( split //, $attribs ) {
+			$string.=$a;
 
-					# flag up on entering quoted text, down on leaving it
-					if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 ;} #active deactive the flag
+			# flag up on entering quoted text, down on leaving it
+			if( $a eq '"') { $flag = ( $flag == 0 ) ? 1:0 ;} #active deactive the flag
 
-					if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
-						chop $string;
-						chop $string;
-						$string = reverse($string);
-						chop($string);
-						$string= reverse($string);
-						push @parsed, $string;
-						$string="";
-					}
-					elsif( ( $a eq " " and $flag == 0) and !($string =~ /^ *$/) ){
-						chop $string;
-						push @parsed, $string;
-						$string="";
-					}
-					$previousChar = $a;
-			}
-			# ---- Check now last string ----
-			# If it was quoted
 			if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
+				chop $string;
 				chop $string;
 				$string = reverse($string);
 				chop($string);
 				$string= reverse($string);
 				push @parsed, $string;
-			}# If it not empty or not only space and not quoted
-			elsif( ($string ne "") and !($string =~ /^ *$/)	){
-				if($previousChar eq " "){
-					chop $string;
-				}
-				push @parsed, $string;
+				$string="";
 			}
+			elsif( ( $a eq " " and $flag == 0) and !($string =~ /^ *$/) ){
+				chop $string;
+				push @parsed, $string;
+				$string="";
+			}
+			$previousChar = $a;
+		}
+		# ---- Check now last string ----
+		# If it was quoted
+		if ($previousChar and $previousChar eq '"' and $flag == 0){ # case we have to strip the " characters
+			chop $string;
+			$string = reverse($string);
+			chop($string);
+			$string= reverse($string);
+			push @parsed, $string;
+		}# If it not empty or not only space and not quoted
+		elsif( ($string ne "") and !($string =~ /^ *$/)	){
+			if($previousChar eq " "){
+				chop $string;
+			}
+			push @parsed, $string;
+		}
 
+		# When only one attribute 9th column, use it as ID and as common_tag
+		if (scalar(@parsed) == 1){
+			my $value = pop @parsed;
+			$feat->add_tag_value("ID", $value);
+			$feat->add_tag_value("common_tag", $value);		
+		} else{
 			while (@parsed){
 				my $value = pop @parsed;
 				my $tag = pop @parsed;
 				$feat->add_tag_value($tag, $value);
 			}
+		}
 		#remove old group attribute
 		$feat->remove_tag('group');
-		}
+	}
 }
 
 # @Purpose: Create a hash containing all the name and identifier of an ontology.

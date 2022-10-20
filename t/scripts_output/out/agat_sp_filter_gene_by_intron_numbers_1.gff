@@ -1,4 +1,9 @@
 ##gff-version 3
+##sequence-region   1 1 43270923
+#!genome-build RAP-DB IRGSP-1.0
+#!genome-version IRGSP-1.0
+#!genome-date 2015-10
+#!genome-build-accession GCA_001433935.1
 1	irgsp	gene	25861	26424	.	-	.	ID=gene:Os01g0100650;biotype=protein_coding;description=Hypothetical gene. (Os01t0100650-00);gene_id=Os01g0100650;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	25861	26424	.	-	.	ID=transcript:Os01t0100650-00;Parent=gene:Os01g0100650;biotype=protein_coding;transcript_id=Os01t0100650-00
 1	irgsp	exon	25861	26424	.	-	.	ID=Os01t0100650-00.exon1;Parent=transcript:Os01t0100650-00;Name=Os01t0100650-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100650-00.exon1;rank=1

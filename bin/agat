@@ -6,7 +6,7 @@ no warnings 'experimental::signatures';
 use File::Basename;
 
 use AGAT::AppEaser qw< run d >;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 # set env variable to save location of this script
 my $agat_bin;
@@ -112,8 +112,8 @@ are then free to modify it at your convenience. Wen a config YAML file is
 available within the working directory, AGAT will use it in priority. (For
 convenience and automation, the parameters can be modified on the fly when using
 the expose command. In such case you will get a modified copy of the config file.)
-The _sq_ scripts can be tuned only by two options of the config file:
-force_gff_input_version and gff_output_version.
+The _sq_ scripts can be tuned only by few options of the config file:
+force_gff_input_version, gtf_output_version, gff_output_version and output_format.
 ',
 				 options     => [
 					 {
@@ -156,11 +156,19 @@ force_gff_input_version and gff_output_version.
 					 },
 					 {
 							getopt      => 'force_gff_input_version=f',
-							help        => 'To force AGAT to use a specific version of the bioperl parser. Choice:0,1,2,2.5,3. 0 means let AGAT choose automatically. [Default 0]',
+							help        => 'To force AGAT to use a specific version of the bioperl parser. Choice: 0, 1, 2, 2.5 or 3. 0 means let AGAT choose automatically. [Default 0]',
+					 },
+					 {
+							getopt      => 'output_format=s',
+							help        => 'Set the output format. Choice GFF or GTF. [Default GFF]',
 					 },
 					 {
 							getopt      => 'gff_output_version=f',
-							help        => 'To force AGAT to use a specific version of the bioperl parser for the output. Choice 1,2,2.5,3. [Default 3]',
+							help        => 'Set the GFF output version. Choice 1, 2, 2.5, 3. [Default 3]',
+					 },
+					 {
+							getopt      => 'gtf_output_version=s',
+							help        => 'Set the GTF output vesion. Choice 1, 2, 2.1, 2.2, 2.5, 3 or relax. [Default relax]',
 					 },
 					 {
 							getopt      => 'create_l3_for_l2_orphan!',

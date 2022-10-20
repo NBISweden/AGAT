@@ -8,11 +8,10 @@ use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use Bio::Tools::CodonTable;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $start_run = time();
@@ -117,7 +116,8 @@ print ("Fasta file parsed\n");
 my $geneCounter=0;
 my $mRNACounter_fixed=0;
 
-my %omniscient_modified_gene;
+my %omniscient_modified_gene; 
+initialize_omni_from(\%omniscient_modified_gene, $hash_omniscient);
 my @intact_gene_list;
 
 # create the hash temp
@@ -230,8 +230,8 @@ fil_cds_frame($hash_omniscient, $db, $opt_codonTableID);
 # Manage modified gene to be sure they not overlap already existing gene. If yes => we give the same gene ID and remove one.
 print "Managing spurious labelling at gene level\n";
 # 1) create a hash omniscient intact
-my $hash_omniscient_intact={};
-fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list,$hash_omniscient,$hash_omniscient_intact);
+my $hash_omniscient_intact={}; initialize_omni_from($hash_omniscient_intact, $hash_omniscient);
+fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list, $hash_omniscient, $hash_omniscient_intact);
 delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
 # 2) print the intact one

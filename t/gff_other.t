@@ -3,9 +3,6 @@
 use strict;
 use warnings;
 use Test::More tests => 2;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
-use AGAT::OmniscientTool;
 
 =head1 DESCRIPTION
 

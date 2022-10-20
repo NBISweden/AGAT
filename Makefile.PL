@@ -72,7 +72,7 @@ my %prereq_hash = ( "Bio::DB::Fasta" => 0,
 my %WriteMakefileArgs = (
   NAME            => 'AGAT',
   AUTHOR          => 'Jacques Dainat <jacques.dainat@nbis.se>',
-  VERSION_FROM    => 'lib/AGAT/Omniscient.pm',
+  VERSION_FROM    => 'lib/AGAT/AGAT.pm',
   ABSTRACT        => 'Module to deal comprehensively with GFF and GTF format',
   LICENSE         => 'gpl_3',
   PREREQ_PM       => \%prereq_hash, # give a ref to the hash

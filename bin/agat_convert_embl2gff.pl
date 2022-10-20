@@ -6,9 +6,8 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
-use Bio::Tools::GFF;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config = get_agat_config();

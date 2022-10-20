@@ -10,8 +10,7 @@ use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
-use AGAT::OmniscientYaml;
-
+use AGAT::Levels;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
@@ -31,8 +30,8 @@ create_or_replace_tag create_or_append_tag remove_element_from_omniscient_attrib
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
-check_mrna_positions check_features_overlap remove_l2_related_feature
-create_omniscient get_cds_from_l2 merge_overlap_features);
+check_mrna_positions check_features_overlap remove_l2_related_feature initialize_omni_from
+create_omniscient get_cds_from_l2 merge_overlap_features );
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -59,7 +58,17 @@ This is the code to handle data store in Omniscient.
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
+# initialize a new omniscient from an existing one. Allow to keep config and other info
+sub	initialize_omni_from{
+	my ($new_omni, $omniscient) = @_;
 
+	if( exists_keys($omniscient, ("config") ) ) {
+		$new_omni->{"config"} = $omniscient->{"config"} ;
+	}
+	if( exists_keys($omniscient, ("other"))){
+		$new_omni->{"other"} = $omniscient->{"other"} ;
+	}
+}
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
 # If a feature/record already exists in omniscient_to_append, it will be replaced by the new one
@@ -1075,6 +1084,7 @@ sub create_omniscient_from_idlevel2list{
 	my ($omniscientref, $hash_mRNAGeneLink, $list_id_l2)=@_;
 
 	my %omniscient_new;
+	initialize_omni_from(\%omniscient_new, $omniscientref);
 
 	foreach my $id_l2 (@$list_id_l2){
 		my  $id_l1 = lc($hash_mRNAGeneLink->{$id_l2});
@@ -1118,6 +1128,7 @@ sub subsample_omniscient_from_level1_id_list_delete {
 	my ($hash_omniscient, $level_id_list) = @_  ;
 
 	my %new_hash;
+	initialize_omni_from(\%new_hash, $hash_omniscient);
 
 	#################
 	# == LEVEL 1 == #
@@ -1165,6 +1176,7 @@ sub subsample_omniscient_from_level1_id_list_intact {
 	my ($hash_omniscient, $level_id_list) = @_  ;
 
 	my %new_hash;
+	initialize_omni_from(\%new_hash, $hash_omniscient);
 
 	#################
 	# == LEVEL 1 == #

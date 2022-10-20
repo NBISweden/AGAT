@@ -11,8 +11,7 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $header = get_agat_header();
