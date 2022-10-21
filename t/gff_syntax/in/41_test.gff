@@ -1,3 +1,4 @@
+#tsebra output example
 scaffold_1	AUGUSTUS	gene	3211	5134	.	+	.	g_19721
 scaffold_1	AUGUSTUS	transcript	3211	5134	0.7	+	.	anno1.g20064.t1
 scaffold_1	AUGUSTUS	start_codon	3211	3213	.	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";

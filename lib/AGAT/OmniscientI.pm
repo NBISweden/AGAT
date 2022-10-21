@@ -3541,7 +3541,7 @@ sub select_gff_format{
 	if (%gff_in_format){
 			my $number_of_format = scalar keys %gff_in_format;
 			if ($number_of_format > 1){
-				my $stringprint = "There is a problem we found several formats in this file:\n";
+				my $stringprint = "There is a problem we found several formats in this file: ";
 				$stringprint .= join ",", sort keys %gff_in_format;
 				$stringprint .= "\nLet's see what we can do...\n";
 				dual_print ($log, $stringprint, $verbose);
