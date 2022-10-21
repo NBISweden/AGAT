@@ -20,7 +20,7 @@ $ENV{'AGAT_BIN'}=$agat_bin;
 my $APPNAME = 'agat';
 my $header = get_agat_header();
 my $application = {
-   factory       => {prefixes => {'#' => 'AGAT::Omniscient#'}},
+   factory       => {prefixes => {'#' => 'AGAT::AGAT#'}},
    configuration => {
 
       # the name of the application, set it above in $APPNAME

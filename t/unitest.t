@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 16;
 use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 use AGAT::OmniscientTool;
 
 =head1 DESCRIPTION
