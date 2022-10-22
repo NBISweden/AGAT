@@ -8,8 +8,7 @@ use Carp;
 use Getopt::Long;
 use Pod::Usage;
 use Clone 'clone';
-use AGAT::Omniscient;
-use Bio::Tools::GFF;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config = get_agat_config();

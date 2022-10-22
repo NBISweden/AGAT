@@ -1,4 +1,9 @@
 ##gff-version 3
+##sequence-region   1 1 43270923
+#!genome-build RAP-DB IRGSP-1.0
+#!genome-version IRGSP-1.0
+#!genome-date 2015-10
+#!genome-build-accession GCA_001433935.1
 1	irgsp	repeat_region	2000	2100	.	+	.	ID=fakeRepeat1
 1	irgsp	gene	11372	12284	.	-	.	ID=gene:Os01g0100300;biotype=protein_coding;description=Cytochrome P450 domain containing protein. (Os01t0100300-00);gene_id=Os01g0100300;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	11372	12284	.	-	.	ID=transcript:Os01t0100300-00;Parent=gene:Os01g0100300;biotype=protein_coding;transcript_id=Os01t0100300-00

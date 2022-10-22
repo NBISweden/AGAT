@@ -10,10 +10,9 @@ use Pod::Usage;
 use LWP::UserAgent;
 use List::MoreUtils qw(uniq);
 use Sort::Naturally;
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 BEGIN {
    package case_info;

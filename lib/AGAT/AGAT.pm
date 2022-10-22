@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package AGAT::Omniscient;
+package AGAT::AGAT;
 
 use strict;
 use warnings;
@@ -9,16 +9,18 @@ use Exporter;
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
-use AGAT::OmniscientYaml;
+use AGAT::Config;
+use AGAT::Levels;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
+use Bio::Tools::GFF;
 
 our $VERSION     = "v1.0.0";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header print_agat_version get_agat_config handle_levels);
 sub import {
-  AGAT::Omniscient->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+  AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
 }
 
 =head1 SYNOPSIS
@@ -110,7 +112,7 @@ sub handle_main {
 		if(! $help and $nb_args != 0){ exit 0;}
 }
 
-
+# Function to manipulate levels from the agat caller
 sub handle_levels {
 		my ($general, $config, $args) = @_;
 
@@ -129,6 +131,7 @@ sub handle_levels {
 
 }
 
+# Function to manipulate config from the agat caller
 sub handle_config {
 		my ($general, $config, $args) = @_;
 
@@ -144,7 +147,9 @@ sub handle_config {
 		my $merge_loci = $general->{configs}[-1]{merge_loci};
 		my $throw_fasta = $general->{configs}[-1]{throw_fasta};
 		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
+		my $output_format = $general->{configs}[-1]{output_format};
 		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
+		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
 		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
 		my $locus_tag = $general->{configs}[-1]{locus_tag};
 		my $check_sequential = $general->{configs}[-1]{check_sequential};
@@ -208,9 +213,20 @@ sub handle_config {
 				$config->{ force_gff_input_version } = $force_gff_input_version;
 				$modified_on_the_fly = 1;
 			}
+			# string
+			if( defined($output_format) ){
+				$config->{ output_format } = lc($output_format);
+				$modified_on_the_fly = 1;
+			}
+			# 
 			# integer
 			if( defined($gff_output_version) ){
 				$config->{ gff_output_version } = $gff_output_version;
+				$modified_on_the_fly = 1;
+			}
+			# string
+			if( defined($gtf_output_version) ){
+				$config->{ gtf_output_version } = lc($gtf_output_version);
 				$modified_on_the_fly = 1;
 			}
 			# bolean

@@ -8,8 +8,7 @@ use Getopt::Long;
 use Sort::Naturally;
 use Bio::SeqIO;
 use Bio::DB::Fasta;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config = get_agat_config();
@@ -845,8 +844,8 @@ The result is written to the specified output file, or to STDOUT.
 Features spanning several locations (e.g. UTR, CDS), are extracted chunk by chunk
 and merged to create the biological feature. If you wish to extract each chunck independently,
 please refer to the --split parameter. To see the list of features that may span over several locations
-within AGAT run: agat_convert_sp_gxf2gxf.pl --expose
-and then look at the file called features_spread.json.
+within AGAT run: agat levels --expose
+and then look at section called spread in the feature_levels.yaml file.
 
 The headers are formated like that:
 >ID gene=gene_ID seq_id=Chromosome_ID type=cds 5'extra=VALUE tag=value tag=value

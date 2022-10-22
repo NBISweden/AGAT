@@ -7,10 +7,9 @@ use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config = get_agat_config();
@@ -99,7 +98,7 @@ print ("Fasta file parsed\n");
 #counters
 my %mrnaCounter=( 0 => 0, 1 => 0, 2 => 0, 3 => 0);
 my $geneCounter=0;
-my %omniscient_incomplete;
+my %omniscient_incomplete; initialize_omni_from(\%omniscient_incomplete, $hash_omniscient);
 my @incomplete_mRNA;
 
 

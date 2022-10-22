@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+	#!/usr/bin/perl -w
 
 package AGAT::OmniscientO;
 
@@ -10,6 +10,7 @@ use URI::Escape;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientI;
 use AGAT::Utilities;
+use AGAT::OmniscientToGTF;
 use Exporter;
 
 our @ISA = qw(Exporter);
@@ -92,6 +93,7 @@ sub prepare_fileout{
 #				   +------------------------------------------------------+
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
+# Will select if output is GTF or GFF
 sub print_omniscient{
 
 	# -------------- INPUT --------------
@@ -99,9 +101,46 @@ sub print_omniscient{
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient. Please check the call.\n";exit;	}
 	# Fill the parameters
-	my ($omniscient, $gffout);
+	my ($omniscient, $gxfout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient!"; exit; }
-	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient!"; exit; }
+	if( defined($args->{output})) {$gxfout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient!"; exit; }
+	my $verbose = $omniscient->{"config"}{"verbose"};
+	# -----------------------------------
+	if ( exists_keys($omniscient, ("config", "output_format") ) ){
+		if ( $omniscient->{"config"}{"output_format"} eq "gff" ){
+			if ($verbose){
+				my $gff_version = $omniscient->{"config"}{"gff_output_version"};
+				print "Formating output to GFF$gff_version\n";
+			}
+			print_omniscient_as_gff( {omniscient => $omniscient, output => $gxfout} );
+		}
+		elsif( $omniscient->{"config"}{"output_format"} eq "gtf" ){
+			if ($verbose){
+				my $gtf_version = $omniscient->{"config"}{"gtf_output_version"};
+				print "Formating output to GTF$gtf_version\n";
+			}
+			print_omniscient_as_gtf( {omniscient => $omniscient, output => $gxfout} );
+		}
+		else{
+			warn $omniscient->{"config"}{"format_output"}." is not a suported format!\n";
+			exit 1;
+		}
+	} else{
+		warn "No value for format_output parameter provided in the config!\n";
+			exit 1;
+	}
+}
+
+sub print_omniscient_as_gff{
+
+	# -------------- INPUT --------------
+	my ($args) = @_;
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient. Please check the call.\n";exit;	}
+	# Fill the parameters
+	my ($omniscient, $gffout);
+	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient_as_gff!"; exit; }
+	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_as_gff!"; exit; }
 	# -----------------------------------
 
 	#uri_decode_omniscient($omniscient);

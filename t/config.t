@@ -3,9 +3,6 @@
 use strict;
 use warnings;
 use Test::More tests => 1;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
-use AGAT::OmniscientTool;
 
 =head1 DESCRIPTION
 
@@ -37,7 +34,9 @@ system("$script config -e \\
 								--no-create_l3_for_l2_orphan  \\
 								--throw_fasta  \\
 								--no-tabix  \\
+								--output_format GTF  \\
 								--gff_output_version 2  \\
+								--gtf_output_version 2  \\
 								--debug  \\
 								--no-check_all_level1_locations  \\
 								--no-check_identical_isoforms  \\

@@ -5,7 +5,7 @@ use Cwd;
 use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $header = get_agat_header();

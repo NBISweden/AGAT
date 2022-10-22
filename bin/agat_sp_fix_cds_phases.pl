@@ -4,9 +4,8 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $header = get_agat_header();

@@ -1,0 +1,41 @@
+##gff-version 3
+4	AUGUSTUS	gene	16086	38972	0.01	+	.	g2
+4	AUGUSTUS	transcript	16086	38972	0.01	+	.	ID=g2.t1;Parent=g2
+4	AUGUSTUS	transcription_start_site	16086	16086	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	16086	16131	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	16441	16574	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	17106	17459	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	18311	19342	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	19567	20525	.	+	.	Parent=g2.t1
+4	AUGUSTUS	exon	21529	23043	.	+	.	Parent=g2.t1
+4	AUGUSTUS	start_codon	22703	22705	.	+	0	Parent=g2.t1
+4	AUGUSTUS	intron	23044	23730	0.37	+	.	Parent=g2.t1
+4	AUGUSTUS	intron	23861	23935	0.61	+	.	Parent=g2.t1
+4	AUGUSTUS	intron	24478	35681	0.01	+	.	Parent=g2.t1
+4	AUGUSTUS	intron	35906	37325	0.17	+	.	Parent=g2.t1
+4	AUGUSTUS	CDS	22703	23043	0.38	+	0	ID=g2.t1.cds;Parent=g2.t1
+4	AUGUSTUS	CDS	23731	23860	0.39	+	1	ID=g2.t1.cds;Parent=g2.t1
+4	AUGUSTUS	exon	23731	23860	.	+	.	Parent=g2.t1
+4	AUGUSTUS	CDS	23936	24477	0.66	+	0	ID=g2.t1.cds;Parent=g2.t1
+4	AUGUSTUS	exon	23936	24477	.	+	.	Parent=g2.t1
+4	AUGUSTUS	CDS	35682	35905	0.02	+	1	ID=g2.t1.cds;Parent=g2.t1
+4	AUGUSTUS	exon	35682	35905	.	+	.	Parent=g2.t1
+4	AUGUSTUS	CDS	37326	37381	0.17	+	2	ID=g2.t1.cds;Parent=g2.t1
+4	AUGUSTUS	exon	37326	38972	.	+	.	Parent=g2.t1
+4	AUGUSTUS	stop_codon	37379	37381	.	+	0	Parent=g2.t1
+4	AUGUSTUS	transcription_end_site	38972	38972	.	+	.	Parent=g2.t1
+###
+# start gene g4
+4	AUGUSTUS	gene	80617	87875	0.02	-	.	g4
+4	AUGUSTUS	transcript	80617	87875	0.02	-	.	ID=g4.t1;Parent=g4
+4	AUGUSTUS	transcription_end_site	80617	80617	.	-	.	Parent=g4.t1
+4	AUGUSTUS	exon	80617	81770	.	-	.	Parent=g4.t1
+4	AUGUSTUS	exon	85857	86147	.	-	.	Parent=g4.t1
+4	AUGUSTUS	exon	86626	87364	.	-	.	Parent=g4.t1
+4	AUGUSTUS	stop_codon	86899	86901	.	-	0	Parent=g4.t1
+4	AUGUSTUS	intron	87365	87465	1	-	.	Parent=g4.t1
+4	AUGUSTUS	CDS	86899	87364	0.99	-	1	ID=g4.t1.cds;Parent=g4.t1
+4	AUGUSTUS	CDS	87466	87806	0.97	-	0	ID=g4.t1.cds;Parent=g4.t1
+4	AUGUSTUS	exon	87466	87875	.	-	.	Parent=g4.t1
+4	AUGUSTUS	start_codon	87804	87806	.	-	0	Parent=g4.t1
+4	AUGUSTUS	transcription_start_site	87875	87875	.	-	.	Parent=g4.t1

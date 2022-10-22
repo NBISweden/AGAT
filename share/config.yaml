@@ -2,28 +2,48 @@
 # this yaml file configure the AGAT omminiscient parser (script with _sp_ that
 # load GFF/GTF into memory)
 
+# --- output ---
+# Format of the output: GFF or GTF 
+output_format: GFF
+# When output_type is GFF, GFF version to use (bioperl): 1, 2, 2.5 or 3
+gff_output_version: 3
+# When output_type is GTF, GTF version to use: 0, 1, 2, 2.1, 2.2, 2.5, 3 or relax
+# 3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
+# 2.5 = ("gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine");
+# 2.2 = ("CDS", "start_codon", "stop_codon", "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS", "exon");
+# 2.1 = ("CDS", "start_codon", "stop_codon", "exon", "5UTR", "3UTR");
+# 2 = ("CDS", "start_codon", "stop_codon", "exon");
+# 1 = ("CDS", "start_codon", "stop_codon", "exon", "intron");
+# relax = all feature types will be accepted
+gtf_output_version: relax
+
 # Integer - verbosity 0,1,2,3,4. 0 is quiet
 verbose: 1
+
 # Bolean - To activate / deactivate the progress bar
 progress_bar: true
+
 # Create a log file while parsing the input file to keep track of modification
 # made by AGAT
 log: true
+
 # Extra verbosity for debugging
 debug: false
+
 # Output will be sorted in tabix format
 tabix: false
+
 # should overlapping loci (at CDS level) be merged in a single locus
 merge_loci: false
+
 # should fasta embedded in GFF/GTF be thrown away from input?
 throw_fasta: false
+
 # Force using gff (bioperl) parser input version: 0,1,2,2.5,3
 # 0 means let's AGAT choose automatically
 force_gff_input_version: 0
-# GFF ouput version (bioperl): 1,2,2.5,3)
-gff_output_version: 3
 
-#case 28
+#create exon when l2 do not have children
 create_l3_for_l2_orphan: true
 
 # Some annotation files use an original attribute to link features to each others 

@@ -1,4 +1,9 @@
 ##gff-version 3
+##sequence-region   1 1 43270923
+#!genome-build RAP-DB IRGSP-1.0
+#!genome-version IRGSP-1.0
+#!genome-date 2015-10
+#!genome-build-accession GCA_001433935.1
 1	irgsp	repeat_region	2000	2100	.	+	.	ID=fakeRepeat1
 1	irgsp	gene	11218	12435	.	+	.	ID=gene:Os01g0100200;biotype=protein_coding;description=Conserved hypothetical protein. (Os01t0100200-01);gene_id=Os01g0100200;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	11218	12435	.	+	.	ID=transcript:Os01t0100200-01;Parent=gene:Os01g0100200;biotype=protein_coding;transcript_id=Os01t0100200-01

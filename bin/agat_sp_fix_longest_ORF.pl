@@ -16,10 +16,9 @@ use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 # avoid case of ambiguous start codon (translated into X) -> we accept if the ORF is SIZE_OPT AA longer.
 # Indeed statistically it has more chance to be a real start codon.
@@ -141,7 +140,7 @@ my $mRNACounter_fixed=0;
 #my $mrna_pseudo_removed=0;
 #my $gene_pseudo_removed=0;
 
-my %omniscient_modified_gene;
+my %omniscient_modified_gene; initialize_omni_from(\%omniscient_modified_gene, $hash_omniscient);
 #my %omniscient_pseudogene;
 my @modified_gene_list;
 my @intact_gene_list;

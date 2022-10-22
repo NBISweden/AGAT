@@ -8,8 +8,7 @@ use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
 use List::Util 'first';
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config = get_agat_config();

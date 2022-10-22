@@ -6,8 +6,7 @@ use Carp;
 use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $start_run = time();
 my $header = get_agat_header();
