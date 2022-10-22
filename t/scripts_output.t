@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 72;
+use Test::More tests => 73;
 
 =head1 DESCRIPTION
 
@@ -691,6 +691,7 @@ system(" $script --gff $input_folder/1.gff --fasta  $input_folder/1.fa -o $outtm
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "1_rt.fa";
 
 # --------check agat_sq_rfam_analyzer.pl-------------
 
