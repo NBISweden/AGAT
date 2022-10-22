@@ -2,15 +2,15 @@
 #                       FEATURE LEVEL DEFINITION FILE
 # -----------------------------------------------------------------------------
 
-# AGAT parser (_sp_ prefix scipts) handles the features (1 line = 1 feature where 
+# AGAT parser (_sp_ prefix scipts) handles the features (1 line = 1 feature where
 # the feature type is indicated within the 3rd column) only if the feature type is
 # declared within this file, otherwise it will be skipped.
-# Features must be linked to one and only one of the 3 available levels: leve1, 
+# Features must be linked to one and only one of the 3 available levels: leve1,
 # level2, level3. It depends is Parent or children are expected by the feature.
 # Please find more info in the corresponding section below.
 
 # Few features (e.g. CDS, UTR) can span multiple lines because are spread over
-# multiple locations within the genome while representing only one biological 
+# multiple locations within the genome while representing only one biological
 # concept. In such case you must also add the information (only if missing) in
 # the "spread feature "section
 
@@ -32,11 +32,13 @@ level1:
   centromere: standalone
   chromosome: topfeature
   conserved_region: standalone
+  contig: topfeature
   dnasei_hypersensitive_site: standalone
   enhancer: standalone
   enhancer_blocking_element: standalone
   epigenetically_modified_region: standalone
   est_match: 1
+  expressed_sequence_match: 1
   gene: 1
   hat_tir_transposon: standalone
   helitron: standalone
