@@ -1015,7 +1015,8 @@ sub parse_interpro_tsv {
       my @go_list = split(/\|/, $go_flat_list); #cut at character |
       foreach my $go_tuple (@go_list) {
         print "GO term: ".$go_tuple."\n" if ($opt_verbose);
-
+        next if $go_tuple eq "-"; #fix kira
+        
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}}, $go_tuple );

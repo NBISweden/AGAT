@@ -39,6 +39,7 @@ requires:
   IO::File: '0'
   IPC::Open2: '0'
   JSON: '0'
+  LWP::Protocol::https: '0'
   LWP::UserAgent: '0'
   List::MoreUtils: '0'
   Moose: '0'

@@ -12,6 +12,7 @@ dependencies:
   - perl-extutils-makemaker
   - perl-graph
   - perl-lwp-simple
+  - perl-lwp-protocol-https
   - perl-json
   - perl-carp
   - perl-sort-naturally

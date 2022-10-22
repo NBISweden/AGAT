@@ -89,7 +89,7 @@ You can choose among 7 different GTF types (1, 2, 2.1, 2.2, 2.5, 3 and relax).
 Depending the version selected the script will filter out the features that are not accepted.
 For GTF2.5 and 3, every level1 feature (e.g nc_gene pseudogene) will be converted into
 gene feature and every level2 feature (e.g mRNA ncRNA) will be converted into
-transcript feature. 
+transcript feature.
 Using the "relax" option you will produce a GTF-like output keeping all
 original feature types (3rd column).
 
