@@ -11,6 +11,7 @@ use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile=undef;
 my $verbose=undef;
@@ -54,7 +55,6 @@ open(my $fh_fasta, '>', $fasta_out) or die "Could not open file '$fasta_out' $!"
 $fasta_out = Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
 
 # Manage Output
-my $gffout;
 my $gffout = prepare_gffout($config, $outfile);
 
 #### rt fasta
