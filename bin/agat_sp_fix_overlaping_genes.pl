@@ -7,9 +7,10 @@ use Getopt::Long;
 use Pod::Usage;
 use Sort::Naturally;
 use List::MoreUtils qw(uniq);
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $ref = undef;
 my $opt_merge;
@@ -45,22 +46,15 @@ if ( ! (defined($ref)) ){
 
 ######################
 # Manage output file #
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file $outfile $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
-#####################################
-# END Manage Ouput Directory / File #
-#####################################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 my $error_found=undef;
 ### Parse GFF input #
 print ("Parse file $ref\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
+                                                                 config => $config
                                                               });
 print ("$ref file parsed\n");
 

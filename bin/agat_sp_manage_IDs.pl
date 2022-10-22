@@ -5,10 +5,10 @@ use warnings;
 use Getopt::Long;
 use Sort::Naturally;
 use Pod::Usage;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;
@@ -23,7 +23,7 @@ my $opt_type_dependent = undef;
 my $verbose;
 
 if ( !GetOptions(
-    "help|h!"    => \$opt_help,
+    "help|h!"   => \$opt_help,
     "gff|f=s"   => \$opt_gff,
     "nb=i"      => \$opt_nbIDstart,
     "gap=i"     => \$opt_gap,
@@ -56,14 +56,7 @@ if ( ! (defined($opt_gff)) ){
            -exitval => 1 } );
 }
 
-my $opt_gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $opt_gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $opt_gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
 # Manage $primaryTag
 my %ptagList;
@@ -98,12 +91,13 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
+                                                                 config => $config
                                                             });
 print ("GFF3 file parsed\n");
 
 # get spreadfeatire in case of collective option set
-my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spreadfeature'};
+my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
 
 # sort by seq id
 my %hash_sortBySeq;
@@ -186,7 +180,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 # Print results
-print_omniscient( {omniscient => $hash_omniscient, output => $opt_gffout} );
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 #######################################################################################################################
         ####################

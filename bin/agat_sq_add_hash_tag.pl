@@ -6,10 +6,10 @@ use Carp;
 use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $inputFile=undef;
 my $outfile=undef;
@@ -46,23 +46,13 @@ if (( $interval > 2 or $interval < 1) ){
                  -exitval => 1 } );
 }
 
-my $ostream     = IO::File->new();
-
-# Manage input fasta file
-my $format = select_gff_format($inputFile);
+# Manage input gff file
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
-my $gffout;
-if ($outfile) {
-  $outfile=~ s/.gff//g;
-  open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
 
 #time to calcul progression

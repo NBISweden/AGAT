@@ -10,9 +10,10 @@ use Pod::Usage;
 use Bio::DB::Fasta;
 use Bio::Tools::CodonTable;
 use Clone 'clone';
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_id = 1;
 my $stop_id = 1;
 
@@ -53,15 +54,7 @@ if(! $opt_file or ! $file_fasta ) {
 # #######################
 # # START Manage Option #
 # #######################
-
-my $gffout;
-if ($opt_output) {
-  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $opt_output);
 
 $codon_table_id = get_proper_codon_table($codon_table_id);
 print "Codon table ".$codon_table_id." in use. You can change it using --table option.\n";
@@ -69,8 +62,6 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id);
 # #####################################
 # # END Manage OPTION
 # #####################################
-
-
 
                                                       #######################
                                                       #        MAIN         #
@@ -83,8 +74,8 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file
-                                                            });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
+                                                                 config => $config });
 print("Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
@@ -286,7 +277,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
   }
 }
 
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 print "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n";
 print "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n";
 print "bye bye\n";

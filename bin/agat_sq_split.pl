@@ -7,10 +7,10 @@ use Pod::Usage;
 use Getopt::Long;
 use File::Basename;
 use IO::File ;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $inputFile=undef;
 my $outfolder=undef;
@@ -43,7 +43,8 @@ if ( !(defined($inputFile)) or !(defined($outfolder)) ){
 }
 
 # Manage input fasta file
-my $format = select_gff_format($inputFile);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
@@ -67,14 +68,11 @@ chomp $nbLine;
 print "$nbLine line to process...\n";
 my $line_cpt=0;
 
-#my $fh=undef;
 my $count_feature=0;
 my $count_file=1;
 my ($file_name,$path,$ext) = fileparse($inputFile,qr/\.[^.]*/);
 
-my $gffout;
-open(my $fh, '>', $outfolder."/".$file_name."_".$count_file.".gff") or die "Could not open file $file_name.'_'.$count_file.'.gff' $!";
-$gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+my $gffout = prepare_gffout($config, $outfolder."/".$file_name."_".$count_file.".gff");
 
 while (my $feature = $ref_in->next_feature() ) {
   $line_cpt++;
@@ -82,16 +80,14 @@ while (my $feature = $ref_in->next_feature() ) {
   #What do we follow
   if($feature->primary_tag eq $feature_type){
     if($count_feature == $interval){
-      close $fh;
+      close $gffout;
       $count_file++;
-      open(my $fh, '>', $outfolder."/".$file_name."_".$count_file.".gff") or die "Could not open file $file_name.'_'.$count_file.'.gff' $!";
-      $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+			$gffout = prepare_gffout($config,  $outfolder."/".$file_name."_".$count_file.".gff");
       $count_feature=0;
     }
     $count_feature++;
   }
   $gffout->write_feature($feature);
-  #print $fh $feature->gff_string()."\n";
 
   #Display progression
   if ((30 - (time - $startP)) < 0) {
@@ -101,7 +97,7 @@ while (my $feature = $ref_in->next_feature() ) {
     $startP= time;
   }
 }
-close $fh;
+close $gffout;
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;

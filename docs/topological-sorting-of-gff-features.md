@@ -30,7 +30,7 @@ Zhigang Lu has made a nice post about his experience trying to find a way to get
 ## Tests summary
 
 tool | option in command line | Type of sorting | Comment
--- | -- | -- | -- 
+-- | -- | -- | --
 [AGAT](https://github.com/NBISweden/AGAT) | --tabix | by chromosomes, by gene position, by type (mRNAs then exon, then CDS then alphabetical feature types; then mRNA2 then exon2, then CDS2 then alphabetical feature2 types) | Fix GFF/GTF if needed
 [GenomeTools](https://github.com/genometools/genometools) | -sortlines -tidy -retainids | by chromosomes and positions then random feature type | Lines with the same chromosomes and start positions would be placed randomly, so parent feature lines might sometimes be placed after their children lines.
 [GenomeTools](https://github.com/genometools/genometools) | -retainids | by chromosomes, by gene position, by type (mRNA then children; then mRNA2 then children2), by position (children are sorted by positions)
@@ -80,7 +80,7 @@ SM_V7_1	AUGUSTUS	five_prime_UTR	151133	151162	.	-	.	Parent=Smp_315690.2
 
 ##### AGAT
 
-AGAT v0.9.0 
+AGAT v1.0.0
 
 * default sorting
 
@@ -121,7 +121,8 @@ SM_V7_1	AUGUSTUS	three_prime_UTR	103403	103440	.	-	.	ID=three_prime_utr-2;Parent
 
 * Tabix sorting
 
-`agat_convert_sp_gxf2gxf.pl --gff test.gff --tabix`
+`agat config --expose --tabix`
+`agat_convert_sp_gxf2gxf.pl --gff test.gff`
 
 ```
 ##gff-version 3
@@ -336,9 +337,9 @@ A01	Cufflinks	exon	5329	6386	.	-	.	Parent=XLOC_001154.42
 
 ##### AGAT
 
-AGAT v0.9.0 
+AGAT v0.9.0
 
-* default sorting 
+* default sorting
 
 `agat_convert_sp_gxf2gxf.pl --gff test2.gff --merge_loci`
 

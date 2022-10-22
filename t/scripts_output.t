@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 70;
+use Test::More tests => 73;
 
 =head1 DESCRIPTION
 
@@ -20,13 +20,18 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # shared variables
-my $input_folder = "t/scripts_output";
-my $output_folder = "t/scripts_output/output";
+my $input_folder = "t/scripts_output/in";
+my $output_folder = "t/scripts_output/out";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
 my $outprefix = "tmp";
 my $script;
 my $result;
 my $result2;
+
+# remove config in local folder if exists and potential tmp file already existing
+unlink "config.yaml";
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # -------------------------- check agat_convert_bed2gff -------------------------
 
@@ -124,20 +129,20 @@ unlink $outprefix.".dna";
 
 # XXX No need to be tested, it is tested by gff_syntax tests
 
-# -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
+# -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
 
-$script = $script_prefix."bin/agat_sp_add_attribute_shortest_intron_size.pl";
-$result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_exon_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 
-# -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
+# -------------------------- check agat_sp_add_attribute_shortest_intron_size -------------------------
 
-$script = $script_prefix."bin/agat_sp_add_attribute_shortest_exon_size.pl";
-$result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
+$script = $script_prefix."bin/agat_sp_add_attribute_shortest_intron_size.pl";
+$result = "$output_folder/agat_sp_add_attribute_shortest_intron_size.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
@@ -166,7 +171,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_alignment_output_style.pl";
 $result = "$output_folder/agat_sp_alignment_output_style_1.gff";
-system(" $script --gff t/gff_syntax/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -183,19 +188,38 @@ system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outt
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-# ------------------- check agat_sp_complement_annotations script-------------------
-$script = $script_prefix."bin/agat_sp_complement_annotations.pl";
-$result = "$output_folder/agat_sp_complement_annotations_1.gff";
-system(" $script --ref t/gff_syntax/25_test.gff  --add t/gff_syntax/9_test.gff -o $outtmp 2>&1 1>/dev/null");
+$script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
+$result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
+system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+
+$script = $script_prefix."bin/agat_sp_compare_two_annotations.pl";
+$result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
+system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
+# --------check agat_sp_compare_two_BUSCOs.pl -------------
+
+# XXX
+
+# ------------------- check agat_sp_complement_annotations script-------------------
+$script = $script_prefix."bin/agat_sp_complement_annotations.pl";
+$result = "$output_folder/agat_sp_complement_annotations_1.gff";
+system(" $script --ref t/gff_syntax/in/25_test.gff  --add t/gff_syntax/in/9_test.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 
 # --------check agat_sp_ensembl_output_style.pl-------------
 
 $script = $script_prefix."bin/agat_sp_ensembl_output_style.pl";
 $result = "$output_folder/agat_sp_ensembl_output_style_1.gff";
-system("$script --gff t/gff_syntax/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system("$script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -282,7 +306,6 @@ unlink $outtmp;
 unlink $outprefix."_discarded.txt";
 unlink $outprefix."_report.txt";
 
-
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 
 $script = $script_prefix."bin/agat_sp_filter_feature_by_attribute_value.pl";
@@ -363,13 +386,13 @@ unlink $outtmp;
 # --------check agat_sp_fix_features_locations_duplicated.pl-------------
 # removed because order can change. So not reproducible at 100%
 
-#$script = $script_prefix."bin/agat_sp_fix_features_locations_duplicated.pl";
-#$result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
-#system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
+$script = $script_prefix."bin/agat_sp_fix_features_locations_duplicated.pl";
+$result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
+system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-#ok( system("diff $result $outtmp") == 0, "output $script");
-#unlink $outtmp;
-#unlink $outprefix."_report.txt";
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_fix_fusion.pl-------------
 
@@ -427,13 +450,13 @@ system(" $script --gff $input_folder/prokka_fragmented_genes.gff --fasta $input_
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-unlink $outtmp."_report.txt";
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_functional_statistics.pl-------------
 
 $script = $script_prefix."bin/agat_sp_functional_statistics.pl";
 $result = "$output_folder/agat_sp_functional_statistics_1.txt";
-system(" $script --gff t/gff_syntax/10_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff t/gff_syntax/in/10_test.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
 rmtree $outtmp;
@@ -454,7 +477,8 @@ $result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
 system(" $script --gtf $input_folder/test_kraken.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-unlink $outprefix;
+
+unlink $outtmp;
 unlink $outprefix."_report.txt";
 unlink $outprefix."-geneMapped_plot.pdf";
 unlink $outprefix."-geneMapped.txt";
@@ -471,7 +495,6 @@ unlink $outtmp;
 # --------check agat_sp_load_function_from_protein_align.pl-------------
 
 # XXX
-
 
 # --------check agat_sp_manage_IDs.pl-------------
 
@@ -499,7 +522,6 @@ system(" $script --gff $input_folder/1.gff --att protein_id -o $outtmp 2>&1 1>/d
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
-
 
 # --------check agat_sp_manage_functional_annotation.pl-------------
 
@@ -602,7 +624,6 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
-
 # --------check agat_sq_add_hash_tag.pl-------------
 
 $script = $script_prefix."bin/agat_sq_add_hash_tag.pl";
@@ -670,6 +691,7 @@ system(" $script --gff $input_folder/1.gff --fasta  $input_folder/1.fa -o $outtm
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+unlink "1_rt.fa";
 
 # --------check agat_sq_rfam_analyzer.pl-------------
 

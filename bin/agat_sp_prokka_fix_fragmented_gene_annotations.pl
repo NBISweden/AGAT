@@ -10,10 +10,9 @@ use Pod::Usage;
 use LWP::UserAgent;
 use List::MoreUtils qw(uniq);
 use Sort::Naturally;
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 BEGIN {
    package case_info;
@@ -59,6 +58,7 @@ use case_info;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfolder = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -128,8 +128,7 @@ if ($outfolder) {
 		# gff out
 		my $gff_out_path = "$outfolder/$file_gff_in$ext_gff";
 
-	  open(my $fh_gff, '>', $gff_out_path) or die "Could not open file '$gff_out_path' $!";
-	  $gff_out= Bio::Tools::GFF->new(-fh => $fh_gff, -gff_version => 3 );
+		$gff_out = prepare_gffout($config, $gff_out_path);
 	}
 	if($frags){
 		# fasta out
@@ -158,7 +157,8 @@ if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
+                                                                config => $config
                                                               });
 print ("GFF3 file parsed\n");
 

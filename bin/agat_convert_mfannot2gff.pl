@@ -8,9 +8,10 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $mfannot_file;
 my $verbose;
 my $gff_file;
@@ -32,12 +33,14 @@ if (!defined $mfannot_file) {
     pod2usage( -message=>"Insufficient options supplied", -exitstatus=>2 );
 }
 
+## Manage output file
+my $gffout = prepare_gffout($config, $gff_file);
 
 ## MAIN ##############################################################
 
 read_mfannot($mfannot_file);
 sort_result();
-write_gff($gff_file);
+write_gff();
 
 ## SUBROUTINES #######################################################
 
@@ -301,15 +304,6 @@ sub sort_result {
 }
 
 sub write_gff {
-		my %id_hash;
-		if ($_[0]){
-	    open(GFF, ">", "$_[0]") or die ("$!\n");
-		}
-		else{ # print to STDOUT
-			*GFF = *STDOUT;
-		}
-  	#use Data::Dumper; print Dumper(\%filtered_result);exit;
-    print GFF "##gff-version 3\n";  # header line
 
 		foreach my $current_contig ( sort keys %filtered_result ){
       foreach my $uniqid ( sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } keys %{$sorted_hash{$current_contig}}) {
@@ -369,8 +363,6 @@ sub write_gff {
 					}
       }
 		}
-
-    close (GFF);
 }
 
 
@@ -395,17 +387,21 @@ sub write_feature{
 			$mandatory = "ID=$uniqID";
 		}
 
-		my @gff3_line = ($contig,
-										 "mfannot",
-										 $hash->{'type'},
-										 $hash->{'start'},
-										 $hash->{'end'},
-										 ".",
-										 $hash->{'strand'},
-										 $frame,
-										 "$mandatory;Name=$hash->{'name'};transl_table=$gencode_hash{$contig};gene=$hash->{'gene_name'}"
-										 );
-		print GFF join ("\t", @gff3_line)."\n";
+		my $feature = Bio::SeqFeature::Generic->new(-seq_id => $contig,
+																								-source_tag => "mfannot",
+																								-primary_tag => $hash->{'type'},
+																								-start => $hash->{'start'},
+																								-end => $hash->{'end'} ,
+																								-frame => $frame,
+																								-strand => $hash->{'strand'},
+																								-score => ".",
+																								-tag => {'ID' => $uniqID, 'Name' => $hash->{'name'}, 'transl_table' => $gencode_hash{$contig}, 'gene' => $hash->{'gene_name'} }
+																								) ;
+		if( defined ($hash->{'parent'} ) ){
+			$feature->add_tag_value("Parent", $hash->{'parent'});
+		}
+
+ 		$gffout->write_feature($feature);
 	}
 }
 

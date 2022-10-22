@@ -1,0 +1,13 @@
+usage: bin/agat_sp_sensitivity_specificity.pl --gff1 t/scripts_output/in/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 t/scripts_output/in/agat_sp_sensitivity_specificity/query1.gff3 -o tmp.gff
+Results:
+
+----------------------------------------------------------------
+|    Feature type    |    Sensitivity     |    Specificity     |
+----------------------------------------------------------------
+|        gene        |        1.00        |        0.51        |
+|        mrna        |        1.00        |        0.51        |
+|        cds         |        0.79        |        0.68        |
+|        exon        |        1.00        |        0.31        |
+|   five_prime_utr   |          0         |          0         |
+|  three_prime_utr   |          0         |          0         |
+----------------------------------------------------------------

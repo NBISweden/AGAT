@@ -8,10 +8,10 @@ use Carp;
 use Getopt::Long;
 use IO::File;
 use Pod::Usage;
-use AGAT::Omniscient;
-use Bio::Tools::GFF;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_file;
 my $opt_output=undef;
 my $verbose=undef;
@@ -44,36 +44,34 @@ if ( ! defined($opt_file) ) {
            -exitval => 1 } );
 }
 
-# #######################
-# # START Manage Option #
-# #######################
-my $gffout;
-my $ostreamReport;
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+my $ostreamReport_file;
 if (defined($opt_output) ) {
   my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
-  $ostreamReport=IO::File->new(">".$path.$filename."_report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $filename."_report.txt", $! ));
+  $ostreamReport_file = $path.$filename."_report.txt";
+}
 
-  open(my $fh, '>', $opt_output) or die "Could not open file $opt_output $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $opt_output);
+my $ostreamReport = prepare_fileout($ostreamReport_file);
+
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+# Print info
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
 if($opt_output){print $string1;}
 
-                                                      #######################
-                                                      #        MAIN         #
-#                     >>>>>>>>>>>>>>>>>>>>>>>>>       #######################       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
+                                                                 config => $config
                                                               });
 print("Parsing Finished\n\n");
 ### END Parse GFF input #

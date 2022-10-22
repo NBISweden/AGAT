@@ -21,4 +21,5 @@ dependencies:
   - perl-file-sharedir-install
   - perl-term-progressbar
   - perl-moose
+  - perl-yaml
   - libdb

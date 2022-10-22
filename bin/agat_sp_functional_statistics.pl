@@ -7,20 +7,20 @@ use File::Basename;
 use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $gff = undef;
 my $opt_output = undef;
 my $opt_genomeSize = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    'g|gs=s' => \$opt_genomeSize,
-    'o|output=s'      => \$opt_output,
-    "gff|f=s" => \$gff))
+    "help|h"     => \$opt_help,
+    'g|gs=s'     => \$opt_genomeSize,
+    'o|output=s' => \$opt_output,
+    "gff|f=s"    => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -42,10 +42,10 @@ if ( ! (defined($gff)) ){
            -exitval => 2 } );
 }
 
-#### IN / OUT
-my $out;
-if ($opt_output) {
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+my $out_file;
+if ($opt_output) {
   if (-f $opt_output){
       print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
   }
@@ -54,22 +54,18 @@ if ($opt_output) {
   }
   mkdir $opt_output;
 
-  $out=IO::File->new(">".$opt_output."/report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
-  }
-else{
-  $out = IO::File->new();
-  $out->fdopen( fileno(STDOUT), 'w' );
+  $out_file = $opt_output."/report.txt";
 }
 
+my $out = prepare_fileout($out_file);
 
-                #####################
-                #     MAIN          #
-                #####################
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 print "Reading file $gff\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
                                                               });
 print "Parsing Finished\n";
 ### END Parse GFF input #
@@ -128,8 +124,6 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
       $name_l1_nb++;
       #print "l1 has tag name with value:".$value."\n";
     }
-
-
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id_tag_key) ) ){
@@ -234,11 +228,13 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 # create streamOutput
 if($opt_output){
   foreach my $type (keys %DB_omni_mrna){
-    my $ostreamFunct = IO::File->new();
-    $ostreamFunct->open( $opt_output."/$type.txt", 'w' ) or
-        croak(
-            sprintf( "Can not open '%s' for writing %s", $opt_output."/$type.txt", $! )
-        );
+
+    my $ostreamFunct_file;
+    if($opt_output){
+      $ostreamFunct_file = $opt_output."/$type.txt";
+    }
+    my $ostreamFunct = prepare_fileout($ostreamFunct_file);
+
     foreach my $seq_id (keys %{$DB_omni_mrna{$type}}){
       print $ostreamFunct $seq_id."\t".join( ',', @{$DB_omni_mrna{$type}{$seq_id}} )."\n";
     }

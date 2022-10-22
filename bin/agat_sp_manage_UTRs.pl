@@ -9,10 +9,10 @@ use File::Basename;
 use IO::File;
 use Pod::Usage;
 use Getopt::Long qw(:config no_auto_abbrev);
-use AGAT::Omniscient;
-use Bio::Tools::GFF;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_reffile;
 my $opt_plot;
 my $opt_nbUTR;
@@ -53,10 +53,8 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
            -exitval => 1 } );
 }
 
-# #######################
-# # START Manage Option #
-# #######################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+my $ostreamReport_file;
 if (defined($opt_output) ) {
   my ($path,$ext);
   ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
@@ -66,15 +64,13 @@ if (defined($opt_output) ) {
   else{
     mkdir $opt_output;
   }
+	$ostreamReport_file = $opt_output."/report.txt";
 }
 
-my $ostreamReport;
-if (defined($opt_output) ) {
-  $ostreamReport=IO::File->new(">".$opt_output."/report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
-}
-else{
-  $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-}
+my $ostreamReport = prepare_fileout($ostreamReport_file);
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
@@ -94,24 +90,14 @@ if($opt_plot){
 		$opt_plot = undef;
 	}
 }
-
-# #####################################
-# # END Manage OPTION
-# #####################################
-
-
-
-                                                      #######################
-                                                      #        MAIN         #
-#                     >>>>>>>>>>>>>>>>>>>>>>>>>       #######################       <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # #################################
 # # Manage Ouput Directory / File #
 # #################################
 
-my $ostreamUTR;
-my $ostreamUTRdiscarded;
+my $ostreamUTR_file;
+my $ostreamUTRdiscarded_file;
 
 if (defined($opt_output) ) {
 
@@ -125,9 +111,7 @@ if (defined($opt_output) ) {
 
     $utr_type_under = $file_in;
     $utr_type_over = $file_in;
-    my $nameUTRok=$opt_output."/".$file_in.".gff";
-    open(my $fhUTRok, '>', $nameUTRok) or die "Could not open file '$nameUTRok' $!";
-    $ostreamUTR = Bio::Tools::GFF->new(-fh => $fhUTRok, -gff_version => 3);
+    $ostreamUTR_file = $opt_output."/".$file_in.".gff";
   }
   else{  # case with filter so we create discarded file output and a of file output.
     if ($opt_utr3){
@@ -154,28 +138,20 @@ if (defined($opt_output) ) {
         $utr_type_over=$file_in."_bothSides_overORequal".$opt_nbUTR;
       }
     }
-
-    my $nameUTRok=$opt_output."/".$utr_type_under.".gff";
-    open(my $fhUTRok, '>', $nameUTRok) or die "Could not open file '$nameUTRok' $!";
-    $ostreamUTR = Bio::Tools::GFF->new(-fh => $fhUTRok, -gff_version => 3);
-
-    my $nameUTRdiscarded=$opt_output."/".$utr_type_over.".gff";
-    open(my $fhUTRdiscarded, '>', $nameUTRdiscarded) or die "Could not open file '$nameUTRdiscarded' $!";
-    $ostreamUTRdiscarded = Bio::Tools::GFF->new(-fh => $fhUTRdiscarded, -gff_version => 3) ;
+    $ostreamUTR_file = $opt_output."/".$utr_type_under.".gff";
+    $ostreamUTRdiscarded_file = $opt_output."/".$utr_type_over.".gff";
   }
 }
-else { # No output provided, we print everything on screen
-  my $ostream  = IO::File->new();
-  $ostream->fdopen( fileno(STDOUT), 'w' ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  $ostreamUTR = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => 3) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  my $ostream_d  = IO::File->new();
-  $ostream_d->fdopen( fileno(STDOUT), 'w' ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  $ostreamUTRdiscarded = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => 3 ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-}
+
+my $ostreamUTR = prepare_gffout($config, $ostreamUTR_file);
+my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
+                                                                 config => $config
                                                               });
 print("Parsing Finished\n\n");
 ### END Parse GFF input #

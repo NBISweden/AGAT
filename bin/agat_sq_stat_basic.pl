@@ -8,10 +8,10 @@ use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
 use Bio::SeqIO;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my @inputFile;
 my $outputFile;
@@ -43,19 +43,8 @@ if (! @inputFile ){
                  -exitval => 1 } );
 }
 
-my $ostream     = IO::File->new();
-
 # Manage Output
-if(defined($outputFile))
-{
-$ostream->open( $outputFile, 'w' ) or
-  croak(
-     sprintf( "Can not open '%s' for reading: %s", $outputFile, $! ) );
-}
-else{
-  $ostream->fdopen( fileno(STDOUT), 'w' ) or
-      croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-}
+my $ostream = prepare_fileout($outputFile);
 
 #check genome size
 my $genomeSize=undef;
@@ -81,7 +70,9 @@ my %check; #track the repeat already annotated to not. Allow to skip already rea
 foreach my $file (@inputFile){
 # Manage input fasta file
   print "Reading $file\n";
-  my $ref_in = Bio::Tools::GFF->new(-file => $file, -gff_version => 3);
+	my $format = $config->{gff_output_version};
+	if(! $format ){ $format = select_gff_format($file); }
+  my $ref_in = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
 
   my $startP=time;
   my $nbLine=`wc -l < $file`;

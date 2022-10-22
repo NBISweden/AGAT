@@ -6,10 +6,10 @@ use Carp;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my @opt_files;
 my $file2 = undef;
@@ -42,35 +42,25 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
 
 ######################
 # Manage output file #
-my $gffout;
-if ($outfile) {
-  $outfile=~ s/.gff//g;
-open(my $fh, '>', $outfile.".gff") or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
-
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 
 my $file1 = shift @opt_files;
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1,
+                                                                 config => $config
                                                               });
 print ("$file1 GFF3 file parsed\n");
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file
-                                                              });
+  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
+	                                                                   config => $config
+                                                                  });
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
 
@@ -81,11 +71,11 @@ foreach my $next_file (@opt_files){
 }
 
 # Now all the feature are in the same omniscient
-# We have to check the omniscient to merge overlaping genes together and remove the identical ones
+# We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
 print ("\nNow merging overlaping loci, and removing identical isoforms\n");
-($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
-                                                              merge_loci => 1
-                                                            });
+my $nb_cases = merge_overlap_features(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
+print "$nb_cases overlapping cases found. For each case 2 loci have been merged within a single locus\n";
+
 print ("\nfinal result:\n");
 info_omniscient($hash_omniscient);
 

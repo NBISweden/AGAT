@@ -7,11 +7,11 @@ use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
 use Pod::Usage;
-use Bio::Tools::GFF;
 use IO::File;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_output = undef;
 my $opt_coordinates = undef ;
 my $opt_exclude_ov = undef ;
@@ -61,19 +61,20 @@ if (-d $opt_output){
 mkdir $opt_output;
 
 ## FOR GFF FILE
-my $gffout_ok ; my $gffout_notok ; my $ostreamReport ;
+my $gffout_ok_file ;
+my $gffout_notok_file ;
+my $ostreamReport_file ;
 
 if ($opt_output) {
 
   #my $outfile_ok = $path.$outfile.$ext;
-  my $outfile_notok = $opt_output."/remaining.gff3";
-  my $outfile_report = $opt_output."/report.txt";
-
-  # create fh
-  open( my $fhnotok, '>', $outfile_notok) or die "Could not open file $outfile_notok $!";
-  $gffout_notok = Bio::Tools::GFF->new(-fh => $fhnotok, -gff_version => 3 );
-  open($ostreamReport, '>', $outfile_report) or die "Could not open file $outfile_report $!";
+  $gffout_notok_file = $opt_output."/remaining.gff3";
+  $ostreamReport_file = $opt_output."/report.txt";
 }
+
+my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
+my $ostreamReport =  prepare_fileout($ostreamReport_file);
+
 
 # Manage ranges
 my %range_hash;
@@ -105,14 +106,13 @@ if ($opt_output){
   print $stringPrint;
 }
 else{ print $stringPrint; }
-                          #######################
-# >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-                          #######################
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  verbose => $opt_verbose
+                                                                  config => $config
                                                                 });
 print("Parsing Finished\n");
 ### END Parse GFF input #
@@ -156,8 +156,8 @@ foreach my $range ( sort { ncmp ($a, $b) } keys %hash_listok ){
   $test_success += scalar @{ $listok };
   my $hash_ok = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, $listok);
 
-  open( my $fh, '>', "$opt_output/$range.gff3") or die "Could not open file $opt_output/$range.gff3 $!";
-  my $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+	$gffout_ok_file = "$opt_output/$range.gff3";
+	my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
 
   print_omniscient( {omniscient => $hash_ok, output => $gffout_ok} );
   %{$hash_ok} = (); #clean
@@ -193,7 +193,7 @@ if ($opt_output){
 sub test_overlap_with_ranges{
   my ($feature_l1, $range_hash, $opt_exclude_ov) = @_;
 
-  my @list_ranges = (); #  An empty array.  @names = undef will leave the array with a single element which is undef. 
+  my @list_ranges = (); #  An empty array.  @names = undef will leave the array with a single element which is undef.
   my $start = $feature_l1->start();
   my $end = $feature_l1->end();
   if (exists_keys($range_hash,( lc($feature_l1->seq_id) ) ) ){

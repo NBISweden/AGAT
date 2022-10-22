@@ -6,11 +6,11 @@ use Pod::Usage;
 use Getopt::Long;
 use Bio::SeqIO ;
 use Bio::DB::Fasta;
-use Bio::Tools::GFF;
 use File::Basename;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile;
 my $opt_fastafile;
@@ -57,21 +57,15 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-my $gffout;
-if ($opt_output_gff) {
-  open(my $fh, '>', $opt_output_gff) or die "Could not open file $opt_output_gff $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $opt_output_gff);
 
 ##### MAIN ####
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
 print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
+                                                                 config => $config
                                                               });
 print "Parsing Finished\n";
 ### END Parse GFF input #
@@ -162,7 +156,7 @@ foreach my $seq_id (@ids ){
 }
 
 # print annotation whith shifter location
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} ); 
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 print "We found $cpt_Nleft sequence(s) starting with N\n";
 print "We found $cpt_Nright sequence(s) ending with N\n";

@@ -7,10 +7,10 @@ use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Sort::Naturally;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff1 = undef;
 my $gff2 = undef;
@@ -49,26 +49,19 @@ if ( ! $gff1 or ! $gff2){
 
 ######################
 # Manage output file #
-my $report = IO::File->new();
-if ($outfile) {
-  open($report, '>', $outfile) or die "Could not open file $outfile $!";
-}
-else{
-  $report->fdopen( fileno(STDOUT), 'w' );
-}
+my $report = prepare_fileout($outfile);
 
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
 print ("Parsing $gff1\n");
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1
+my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
+                                                              config => $config
                                                               });
 print ("\n\nParsing $gff2\n");
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2
+my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
+                                                              config => $config
                                                               });
 print ("-- Files parsed --\n");
 
@@ -262,7 +255,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 print " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
                 print " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
 
-                # keep track last locationA
+                # keep track last locationB
                 my $last_locationB = undef;
                 $last_locationB = 1 if (scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} == 1);
                 print " Lets go for last LocationB !!\n" if ($last_locationB and $verbose);

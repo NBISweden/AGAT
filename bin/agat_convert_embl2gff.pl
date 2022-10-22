@@ -6,15 +6,15 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
-use Bio::Tools::GFF;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile;
 my $embl;
 my $emblmygff3;
-my $throw_fasta;
+my $throw_fasta=$config->{"throw_fasta"};
 my $primaryTags;
 my $discard;
 my $keep;
@@ -25,7 +25,6 @@ if( !GetOptions(
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
     "d!"                         => \$discard,
-    "throw_fasta!"               => \$throw_fasta,
     "k!"                         => \$keep,
     "emblmygff3!"                => \$emblmygff3,
     "outfile|output|o|out|gff=s" => \$outfile))
@@ -79,14 +78,7 @@ if ($primaryTags){
 
 ##################
 # MANAGE OUTPUT  #
-my $gff_out;
-if ($outfile) {
-open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gff_out= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3);
-}
-else{
-  $gff_out = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gff_out = prepare_gffout($config, $outfile);
 
 ### Read embl input file.
 my $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
@@ -123,7 +115,7 @@ while( my $seq_obj = $embl_in->next_seq) {
 
       if($emblmygff3){
         # ------ Get seqId name when EMBLmyGFF3 file -----
-        # get the second AC line 
+        # get the second AC line
         my @arr = $seq_obj->get_secondary_accessions;
         my $index = 0;
         $index++ until $arr[$index] eq '*';
@@ -132,10 +124,10 @@ while( my $seq_obj = $embl_in->next_seq) {
         my $seqid_clean = substr $seqid_raw, 1; # remove the _ at the beginning added by EMBLmyGFF3
         $feat_obj->seq_id($seqid_clean); # replace the default seq_id
       }
-        
+
       $gff_out->write_feature($feat_obj);
       $sequence.= ">".$seq_obj->seq();
-  
+
     }
   }
 }
@@ -145,7 +137,7 @@ $embl_in->close();
 
 # if user want to keep the fasta file
 if (! $throw_fasta){
-  
+
   ### Read embl input file to cach the fasta sequences now.
   $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
 
@@ -177,10 +169,10 @@ sub write_fasta {
   while( my $Bio_Seq_obj = $embl_in->next_seq ) {
 
     my $seq_header = ">".$Bio_Seq_obj->display_id();
-    
+
     if($emblmygff3){
       # ------ Get seqId name when EMBLmyGFF3 file -----
-      # get the second AC line 
+      # get the second AC line
       my @arr = $Bio_Seq_obj->get_secondary_accessions;
       my $index = 0;
       $index++ until $arr[$index] eq '*';
@@ -214,7 +206,7 @@ sub write_fasta {
     # Print the last line
     if (my $last = substr($str, $i)) {
         $gffout->_print("$last\n") || return;
-    }   
+    }
   }
 }
 
@@ -242,7 +234,7 @@ Input EMBL file that will be read
 
 =item B<--emblmygff3>
 
-Bolean - Means that the EMBL flat file comes from the EMBLmyGFF3 software. 
+Bolean - Means that the EMBL flat file comes from the EMBLmyGFF3 software.
 This is an EMBL format dedicated for submission and contains particularity to deal with.
 This parameter is needed to get a proper sequence id in the GFF3 from an embl made with EMBLmyGFF3.
 

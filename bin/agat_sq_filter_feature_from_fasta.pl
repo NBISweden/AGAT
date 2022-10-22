@@ -7,10 +7,10 @@ use Pod::Usage;
 use Getopt::Long;
 use Bio::DB::Fasta;
 use IO::File ;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile=undef;
 my $verbose=undef;
@@ -43,22 +43,13 @@ if ((!defined($opt_gfffile)) ){
                  -exitval => 2 } );
 }
 
-my $ostream     = IO::File->new();
-
 # Manage input fasta file
-my $format = select_gff_format($opt_gfffile);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $ref_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 # Manage Output
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
+my $gffout = prepare_gffout($config, $outfile);
 
 #### read fasta
 my $nbFastaSeq=0;

@@ -8,10 +8,10 @@ use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
 use Bio::SeqIO;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $input_gff;
 my $input_tsv;
@@ -46,20 +46,15 @@ if (! $input_gff or ! $input_tsv){
                  -exitval => 1 } );
 }
 
-my $ostream = IO::File->new();
-
 # Manage Output
-my $gffout;
-if ($outputFile) {
-  open(my $fh, '>', $outputFile) or die "Could not open file '$outputFile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
+my $gffout = prepare_gffout($config, $outputFile);
 
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+# Manage GFF Input
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($input_gff); }
+my $gff_in = Bio::Tools::GFF->new(-file => $input_gff, -gff_version => $format);
 
-# parse tsv file
+# Manage tsv input
 open(INPUT, "<", $input_tsv) or die ("$!\n");
 
 # Open Mfannot file for reading
@@ -99,8 +94,6 @@ while (<INPUT>) {
 		}
 	}
 }
-
-my $gff_in = Bio::Tools::GFF->new(-file => $input_gff, -gff_version => 3);
 
 my $cpt_line = 0;
 while (my $feature = $gff_in->next_feature() ) {
@@ -158,7 +151,7 @@ that will be used to know to which feature we will add the attributes.
 * input.tsv:
 ID	annot_type1
 gene1	anot_x
-cds1	anot_y  
+cds1	anot_y
 
 * gff:
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1

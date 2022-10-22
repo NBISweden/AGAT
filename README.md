@@ -191,7 +191,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
 
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent JSON Carp Sort::Naturally File::Share File::ShareDir::Install Moose LWP::Protocol::https
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https
     ```
 
     * using conda
@@ -206,13 +206,13 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
 
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-json perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-lwp-protocol-https
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https
       ```
 
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libjson-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libany-moose-perl liblwp-protocol-https-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl
     ```
 
   * Optional
@@ -279,10 +279,15 @@ From the folder where the repository is located.
   ```
 
 ## List of tools
-See [here](https://agat.readthedocs.io/en/latest/?badge=latest) for a list of tools.  
-As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_convert_sp_gxf2gxf.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.  
+
+As AGAT is a toolkit, it contains a lot of tools. The main one is `agat_convert_sp_gxf2gxf.pl` that allows to check, fix, pad missing information (features/attributes) of any kind of gtf and gff to create complete, sorted and standardised gff3 format.
 All the installed scripts have the `agat_` prefix.  
-Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
+
+To have a look to the available tools you have several approaches:  
+  * `agat --tools`
+  * Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
+  * [The documentation](https://agat.readthedocs.io/en/latest/?badge=latest).  
+
 
 ### More about the tools
 
@@ -308,8 +313,8 @@ and the parsing approach used.
 The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
 ```
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
-$omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureList is a list to be able to manage isoform cases.  
-$omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureList is a list to be able to put all the feature of a same tag together.  
+$omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureListL2 is a list to be able to manage isoform cases.  
+$omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureListL3 is a list to be able to put all the feature of a same tag together.  
 ```
 
 #### How does the Omniscient parser work

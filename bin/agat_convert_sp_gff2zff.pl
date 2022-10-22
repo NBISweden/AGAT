@@ -3,14 +3,14 @@
 use strict;
 use warnings;
 use Getopt::Long;
-use Bio::Tools::GFF;
 use Pod::Usage;
 use Bio::DB::Fasta;
 use File::Basename;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $model_id = -1;
@@ -66,8 +66,8 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config });
 # END parsing
 
 # sort by seq id

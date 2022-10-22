@@ -28,6 +28,8 @@ BEGIN{
 
 use Test::More tests => $nb_test ;
 
+# remove config in local folder if exists
+unlink "config.yaml"; 
 
 # foreach script in the bin, let run the test
 opendir (DIR, "bin") or die $!;

@@ -7,11 +7,11 @@ use Pod::Usage;
 use Getopt::Long;
 use Bio::DB::Fasta;
 use IO::File ;
-use Bio::Tools::GFF;
 use File::Basename;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile=undef;
 my $verbose=undef;
@@ -22,10 +22,10 @@ my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
-      'f|fasta=s' => \$opt_fastafile,
-      'o|output=s' => \$outfile,
-      'v|verbose!' => \$verbose,
-      'h|help!'         => \$opt_help )  )
+                        'f|fasta=s'  => \$opt_fastafile,
+                        'o|output=s' => \$outfile,
+                        'v|verbose!' => \$verbose,
+                        'h|help!'    => \$opt_help )  )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
@@ -44,8 +44,6 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
                  -exitval => 2 } );
 }
 
-my $ostream     = IO::File->new();
-
 # Manage input gff file
 my $format = select_gff_format($opt_gfffile);
 my $ref_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
@@ -57,15 +55,7 @@ open(my $fh_fasta, '>', $fasta_out) or die "Could not open file '$fasta_out' $!"
 $fasta_out = Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
 
 # Manage Output
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
-
+my $gffout = prepare_gffout($config, $outfile);
 
 #### rt fasta
 my $seqio = Bio::SeqIO->new(-file => $opt_fastafile, -format => "fasta");

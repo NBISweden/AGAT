@@ -7,10 +7,10 @@ use Clone 'clone';
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag="all";
@@ -57,14 +57,7 @@ if ( ! $gff or ! $attributes){
            -exitval => 2 } );
 }
 
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $outfile);
 
 # deal with strategy input
 $strategy=lc($strategy);
@@ -155,8 +148,9 @@ my $hash_level = $hash_info->{'other'}{'level'};
                 #####################
 
 
-# Manage input fasta file
-my $format = select_gff_format($gff);
+# Manage gff fasta file
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($gff); }
 my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
 
 #time to calcul progression

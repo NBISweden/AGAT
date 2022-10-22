@@ -11,11 +11,12 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $header = get_agat_header();
+my $config = get_agat_config();
+
 #The cases are exclusive, one result could not be part of several cases.
 my %cases_explanation = (
   -1  => "No protein alignement overlap the gene model.",
@@ -26,7 +27,7 @@ my %cases_explanation = (
   3   => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined."
 );
 
-my $opt_output                 = undef;
+my $opt_output             = undef;
 my $annotation_gff         = undef;
 my $protein_gff            = undef;
 my $protein_fasta          = undef;
@@ -137,7 +138,7 @@ if (defined($opt_output) ) {
   push (@outputTab, $ostreamFAadded);
   _print("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
   #2 gff
-  my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => 3 ) or
+  my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $config->{gff_output_version} ) or
   croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$outfile_gff, $! ));
   push (@outputTab, $ostreamCoding);
 
@@ -149,9 +150,11 @@ else{
   push (@outputTab, $ostreamFAadded);
    my $ostream  = IO::File->new();
   $ostream->fdopen( fileno(STDOUT), 'w' ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  my $outputGFF = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => 3) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
+  my $outputGFF = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => $config->{gff_output_version} ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
   push (@outputTab, $outputGFF);
 }
+
+
 
 # Manage species names
 my $db = Bio::DB::Taxonomy->new(-source => 'entrez');
@@ -215,10 +218,12 @@ _print($stringPrint, 0);
 ######################
 ### Parse GFF input #
 _print( "Parsing file $annotation_gff\n",0);
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $annotation_gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $annotation_gff,
+                                                                 config => $config
                                                               });
 _print( "Done\nParsing file $protein_gff\n",0);
-my ($prot_omniscient, $prot_mRNAGeneLink) = slurp_gff3_file_JD({ input => $protein_gff
+my ($prot_omniscient, $prot_mRNAGeneLink) = slurp_gff3_file_JD({ input => $protein_gff,
+                                                                 config => $config
                                                               });
 _print( "Done\n",0);
 

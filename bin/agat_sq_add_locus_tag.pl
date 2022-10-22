@@ -6,14 +6,13 @@ use Carp;
 use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $start_run = time();
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $inputFile=undef;
 my $outfile=undef;
-my $outformat=undef;
 my $primaryTag=undef;
 my $opt_help = 0;
 my $locus_tag="locus";
@@ -27,8 +26,7 @@ if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
                   'ti|li=s'           => \$tag_in,
                   "p|type|l=s"        => \$primaryTag,
                   'o|output=s'        => \$outfile,
-                  'of=i'              => \$outformat,
-                  'q|quiet!'              => \$quiet,
+                  'q|quiet!'          => \$quiet,
                   'h|help!'           => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,27 +46,13 @@ if ((!defined($inputFile)) ){
                  -exitval => 1 } );
 }
 
-my $ostream     = IO::File->new();
-
 # Manage input fasta file
-my $format = select_gff_format($inputFile);
+my $format = $config->{gff_output_version};
+if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
-if(! $outformat){
-  $outformat=$format;
-}
-
-# Manage Output
-my $gffout;
-if ($outfile) {
-  open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => $outformat );
-
-}
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => $outformat );
-}
+my $gffout = prepare_gffout($config, $outfile);
 
 #define the locus tag
 if(! $locus_tag){
@@ -216,11 +200,6 @@ Locus tag output, by defaut it will be called locus_tag, but using this option y
 
 Tag input, by default the value of the locus tag attribute will be locusX where X is an incremented number.
 You can use the values of an existing attribute instead e.g the ID value: --li ID.
-
-=item B<--of>
-
-Output format, if no ouput format is given, the same as the input one detected will be used.
-Otherwise you can force to have a gff version 1 or 2 or 3 by giving the corresponding number.
 
 =item B<-o> or B<--output>
 

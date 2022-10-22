@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
+use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use Bio::Tools::CodonTable;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 
 my $start_run = time();
@@ -21,6 +21,7 @@ my $PREFIX_CPT_EXON=1;
 my $PREFIX_CPT_MRNA=1;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -32,13 +33,13 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa=s" => \$file_fasta,
-    "stranded|s" => \$stranded,
+    "help|h"           => \$opt_help,
+    "gff=s"            => \$gff,
+    "fasta|fa=s"       => \$file_fasta,
+    "stranded|s"       => \$stranded,
     "table|codon|ct=i" => \$opt_codonTableID,
-    "verbose|v" => \$verbose,
-    "threshold|t=i" => \$threshold,
+    "verbose|v"        => \$verbose,
+    "threshold|t=i"    => \$threshold,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -63,26 +64,23 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 
 ######################
 # Manage output file #
-my $gffout;
-my $gffout2;
-my $gffout3;
-my $gffout4;
+my $gffout_file;
+my $gffout2_file;
+my $gffout3_file;
+my $logout_file;
 if ($outfile) {
-  $outfile=~ s/.gff//g;
-open(my $fh, '>', $outfile."-intact.gff") or die "Could not open file '$outfile' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-open(my $fh2, '>', $outfile."-only_modified.gff") or die "Could not open file '$outfile' $!";
-  $gffout2= Bio::Tools::GFF->new(-fh => $fh2, -gff_version => 3 );
-open(my $fh3, '>', $outfile."-all.gff") or die "Could not open file '$outfile' $!";
-  $gffout3= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
-open($gffout4, '>', $outfile."-report.txt") or die "Could not open file '$outfile' $!";
+  my ($filename,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+
+  $gffout_file  = $path.$filename."-intact.gff";
+  $gffout2_file = $path.$filename."-only_modified.gff";
+  $gffout3_file = $path.$filename."-all.gff";
+  $logout_file = $path.$filename."-report.txt";
 }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout2 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout3 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout4 = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+
+my $gffout  = prepare_gffout($config, $gffout_file);
+my $gffout2 = prepare_gffout($config, $gffout2_file);
+my $gffout3 = prepare_gffout($config, $gffout3_file);
+my $logout = prepare_fileout($logout_file);
 
 $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
 print "Codon table ".$opt_codonTableID." in use. You can change it using --table option.\n";
@@ -98,14 +96,12 @@ if($stranded){
 }
 else{ print "You didn't use the option stranded. We will look for fusion in all strand (+ and -)!\n";}
 
-                #####################
-                #     MAIN          #
-                #####################
-
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
                                                               });
 print ("GFF3 file parsed\n");
 
@@ -120,7 +116,8 @@ print ("Fasta file parsed\n");
 my $geneCounter=0;
 my $mRNACounter_fixed=0;
 
-my %omniscient_modified_gene;
+my %omniscient_modified_gene; 
+initialize_omni_from(\%omniscient_modified_gene, $hash_omniscient);
 my @intact_gene_list;
 
 # create the hash temp
@@ -233,8 +230,8 @@ fil_cds_frame($hash_omniscient, $db, $opt_codonTableID);
 # Manage modified gene to be sure they not overlap already existing gene. If yes => we give the same gene ID and remove one.
 print "Managing spurious labelling at gene level\n";
 # 1) create a hash omniscient intact
-my $hash_omniscient_intact={};
-fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list,$hash_omniscient,$hash_omniscient_intact);
+my $hash_omniscient_intact={}; initialize_omni_from($hash_omniscient_intact, $hash_omniscient);
+fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list, $hash_omniscient, $hash_omniscient_intact);
 delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
 # 2) print the intact one
@@ -296,7 +293,7 @@ my $run_time = $end_run - $start_run;
 $string_to_print .= "Job done in $run_time seconds\n";
 
 if($outfile){
-  print $gffout4 $string_to_print
+  print $logout $string_to_print
 }
 print $string_to_print;
 print "Bye Bye.\n";

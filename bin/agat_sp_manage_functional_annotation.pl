@@ -10,13 +10,14 @@ use IO::File;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::DB::Fasta;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 #use Data::Dumper; # JN: for dedug printing
 my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
+my $config = get_agat_config();
+
 # PARAMETERS - OPTION
 my $opt_reffile;
 my $opt_output;
@@ -147,9 +148,10 @@ if (defined $opt_InterproFile) {
 
 ##########################
 ##### Manage Output ######
-my $ostreamReport;
-my $ostreamGFF;
-my $ostreamLog;
+
+my $ostreamGFF_file;
+my $ostreamLog_file;
+my $ostreamReport_file;
 if (defined($opt_output)) {
   if (-f $opt_output) {
     print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
@@ -161,21 +163,18 @@ if (defined($opt_output)) {
   }
   mkdir $opt_output;
 
-  $ostreamReport = IO::File->new(">".$opt_output."/report.txt") or
-    croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
-
   my $file_out_name = fileparse($opt_reffile);
-  $ostreamGFF = Bio::Tools::GFF->new(-file => ">$opt_output/$file_out_name", -gff_version => 3 ) or
-    croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$opt_reffile, $! ));
+  
+  $ostreamGFF_file    = "$opt_output/$file_out_name";
+  $ostreamLog_file    = $opt_output."/error.txt";
+  $ostreamReport_file = $opt_output."/report.txt";
+}
 
-  $ostreamLog = IO::File->new(">".$opt_output."/error.txt") or
-    croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/log.txt", $! ));
-}
-else {
-  $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-  $ostreamLog = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-  $ostreamGFF = Bio::Tools::GFF->new( -fh => \*STDOUT, -gff_version => 3) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-}
+my $ostreamGFF    = prepare_gffout($config, $ostreamGFF_file);
+my $ostreamLog    = prepare_fileout($ostreamLog_file);
+my $ostreamReport = prepare_fileout($ostreamReport_file);
+
+
 
 ###############################################
 ####### END Manage files (input output) #######
@@ -207,7 +206,9 @@ if ($opt_output) {
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile});
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
+                                                                 config => $config
+                                                                });
 print_time("Parsing Finished");
 ### END Parse GFF input #
 #########################

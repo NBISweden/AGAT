@@ -10,8 +10,7 @@ use Clone 'clone';
 use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
-use AGAT::OmniscientJson;
-
+use AGAT::Levels;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
@@ -31,7 +30,8 @@ create_or_replace_tag create_or_append_tag remove_element_from_omniscient_attrib
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
-check_mrna_positions check_features_overlap remove_l2_related_feature create_omniscient get_cds_from_l2);
+check_mrna_positions check_features_overlap remove_l2_related_feature initialize_omni_from
+create_omniscient get_cds_from_l2 merge_overlap_features );
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -58,7 +58,17 @@ This is the code to handle data store in Omniscient.
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
+# initialize a new omniscient from an existing one. Allow to keep config and other info
+sub	initialize_omni_from{
+	my ($new_omni, $omniscient) = @_;
 
+	if( exists_keys($omniscient, ("config") ) ) {
+		$new_omni->{"config"} = $omniscient->{"config"} ;
+	}
+	if( exists_keys($omniscient, ("other"))){
+		$new_omni->{"other"} = $omniscient->{"other"} ;
+	}
+}
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
 # If a feature/record already exists in omniscient_to_append, it will be replaced by the new one
@@ -503,6 +513,114 @@ sub append_omniscient {
 			}
 		}
 	}
+}
+
+sub merge_overlap_features{
+	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
+	my $resume_case=undef;
+
+	my $sortBySeq = gather_and_sort_l1_by_seq_id_and_strand($omniscient);
+
+	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
+		foreach my $tag_l1 ( keys %{$sortBySeq->{$locusID}} ) {
+
+			#create list to keep track of l1
+			my %to_check;
+			foreach my $feature_l1 ( @{$sortBySeq->{$locusID}{$tag_l1}} ) {
+				my $id_l1 = lc($feature_l1->_tag_value('ID'));
+				$to_check{$id_l1}++;
+			}
+
+			# Go through location from left to right ###
+			while ( @{$sortBySeq->{$locusID}{$tag_l1}} ){
+
+				my $feature_l1 = shift @{$sortBySeq->{$locusID}{$tag_l1}};
+				my $id_l1 = lc($feature_l1->_tag_value('ID'));
+				my @location = ($id_l1, int($feature_l1->start()), int($feature_l1->end())); # This location will be updated on the fly
+
+				# Go through location from left to right ### !!
+				foreach my $l1_feature2 ( @{$sortBySeq->{$locusID}{$tag_l1}} ) {
+					my $id2_l1 = lc($l1_feature2->_tag_value('ID'));
+					my @location_to_check = ($id2_l1, int($l1_feature2->start()), int($l1_feature2->end()));
+
+					#If location_to_check start if over the end of the reference location, we stop
+					if($location_to_check[1] > $location[2]) {last;}
+
+					# Let's check at Gene LEVEL
+					if(location_overlap(\@location, \@location_to_check)){
+
+						#let's check at CDS level
+						if(check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , $id_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
+							#they overlap in the CDS we should give them the same name
+							$resume_case++;
+
+							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 0); # print only in log
+							# update atttribute except ID and Parent for L1:
+							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
+							foreach my $tag (@list_tag_l2){
+								if(lc($tag) ne "parent" and lc($tag) ne "id"){
+									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1},$tag ,$omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag));
+								}
+							}
+							# remove the level1 of the ovelaping one
+							delete $omniscient->{'level1'}{$tag_l1}{$id2_l1};
+							# remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
+							foreach my $l2_type (%{$omniscient->{'level2'}}){
+								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
+									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$id2_l1}}){
+										delete $mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))};
+									}
+								}
+							}
+
+							# Let's change the parent of all the L2 features
+							foreach my $l2_type ( keys	%{$omniscient->{'level2'}} ){
+
+								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
+									###############################
+									# REMOVE THE IDENTICAL ISOFORMS
+
+									# first list uniqs
+									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $verbose); # remove if identical l2 exists
+
+
+									#Now manage the rest
+									foreach my $feature_l2 (@{$list_of_uniqs}){
+
+										create_or_replace_tag($feature_l2,'Parent', $feature_l1->_tag_value('ID')); #change the parent
+										# Add the corrected feature to its new L2 bucket
+										push (@{$omniscient->{'level2'}{$l2_type}{$id_l1}}, $feature_l2);
+
+										# Attach the new parent into the mRNAGeneLink hash
+										$mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
+
+									}
+
+									# update atttribute except ID and Parent for L1:
+									if(@{$list_commons}){
+										my $kept_l2 = shift @{$list_commons};
+										my $id_l2 = lc($kept_l2->_tag_value('ID'));
+										foreach my $common (@{$list_commons}){
+											my @list_tag_l2 = $common->get_all_tags();
+											foreach my $tag (@list_tag_l2){
+												if(lc($tag) ne "parent" and lc($tag) ne "id"){
+													create_or_append_tag($kept_l2,$tag ,$common->get_tag_values($tag));
+												}
+											}
+										}
+									}
+									# remove the old l2 key
+									delete $omniscient->{'level2'}{$l2_type}{$id2_l1};
+								}
+							}
+							check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$tag_l1}{$id_l1} } );
+						}
+					}
+				}
+	 		}
+	 	}
+	}
+	return $resume_case;
 }
 
 #				   +------------------------------------------------------+
@@ -966,6 +1084,7 @@ sub create_omniscient_from_idlevel2list{
 	my ($omniscientref, $hash_mRNAGeneLink, $list_id_l2)=@_;
 
 	my %omniscient_new;
+	initialize_omni_from(\%omniscient_new, $omniscientref);
 
 	foreach my $id_l2 (@$list_id_l2){
 		my  $id_l1 = lc($hash_mRNAGeneLink->{$id_l2});
@@ -1009,6 +1128,7 @@ sub subsample_omniscient_from_level1_id_list_delete {
 	my ($hash_omniscient, $level_id_list) = @_  ;
 
 	my %new_hash;
+	initialize_omni_from(\%new_hash, $hash_omniscient);
 
 	#################
 	# == LEVEL 1 == #
@@ -1056,6 +1176,7 @@ sub subsample_omniscient_from_level1_id_list_intact {
 	my ($hash_omniscient, $level_id_list) = @_  ;
 
 	my %new_hash;
+	initialize_omni_from(\%new_hash, $hash_omniscient);
 
 	#################
 	# == LEVEL 1 == #
@@ -1310,7 +1431,7 @@ sub info_omniscient {
 	}
 
 	foreach my $level (keys %{$hash_omniscient}){
-  		if ($level ne 'level1' and $level ne 'other'){
+  		if ($level eq 'level2' or $level eq 'level3'){
     			foreach my $tag (keys %{$hash_omniscient->{$level}}){
       				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
         				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
@@ -1741,7 +1862,7 @@ sub l2_identical{
 			}
 		}
 	}
-	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose >= 2 and $result);
+	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose and $verbose >= 2 and $result);
     return $result;
 }
 

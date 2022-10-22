@@ -6,11 +6,11 @@ use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
 use Pod::Usage;
-use Bio::Tools::GFF;
 use IO::File;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_test="=";
 my $opt_output= undef;
 my $opt_nb = 0;
@@ -49,32 +49,22 @@ if ( ! $opt_gff ){
 # Manage Output
 
 ## FOR GFF FILE
-my $gffout_ok ; my $gffout_notok ; my $ostreamReport ;
+my $gffout_ok_file ;
+my $gffout_notok_file ;
+my $ostreamReport_file ;
 
 if ($opt_output) {
   my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
   # set file names
-  my $outfile_ok = $path.$outfile.$ext;
-  my $outfile_notok = $path.$outfile."_remaining".$ext;
-  my $outfile_report = $path.$outfile."_report.txt";
-
-  # check existence
-  if(-f $outfile_ok){  print "File $outfile_ok already exist.\n";exit;}
-  if(-f $outfile_notok){  print "File $outfile_notok already exist.\n";exit;}
-  if(-f $outfile_report){  print "File $outfile_report already exist.\n";exit;}
-
-  # create fh
-  open( my $fh, '>', $outfile_ok) or die "Could not open file $outfile_ok $!";
-  $gffout_ok = Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  open( my $fhnotok, '>', $outfile_notok) or die "Could not open file $outfile_notok $!";
-  $gffout_notok = Bio::Tools::GFF->new(-fh => $fhnotok, -gff_version => 3 );
-  open($ostreamReport, '>', $outfile_report) or die "Could not open file $outfile_report $!";
+  $gffout_ok_file = $path.$outfile.$ext;
+  $gffout_notok_file = $path.$outfile."_remaining".$ext;
+  $ostreamReport_file = $path.$outfile."_report.txt";
 }
-else{
-  $gffout_ok = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $ostreamReport = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+
+my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
+my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 #Manage test option
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
@@ -98,7 +88,7 @@ else{ print $stringPrint; }
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  verbose => $opt_verbose
+                                                                  config => $config
                                                                 });
 print("Parsing Finished\n");
 ### END Parse GFF input #

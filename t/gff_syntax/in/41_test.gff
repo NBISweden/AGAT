@@ -1,0 +1,31 @@
+#tsebra output example
+scaffold_1	AUGUSTUS	gene	3211	5134	.	+	.	g_19721
+scaffold_1	AUGUSTUS	transcript	3211	5134	0.7	+	.	anno1.g20064.t1
+scaffold_1	AUGUSTUS	start_codon	3211	3213	.	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	CDS	3211	3288	0.79	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	exon	3211	3288	.	+	.	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	intron	3289	4205	1	+	.	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	CDS	4206	4292	1	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	exon	4206	4292	.	+	.	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	intron	4293	5095	1	+	.	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	CDS	5096	5134	0.87	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	exon	5096	5134	.	+	.	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	stop_codon	5132	5134	.	+	0	transcript_id "anno1.g20064.t1"; gene_id "g_19721";
+scaffold_1	AUGUSTUS	gene	11256	13613	.	+	.	g_19722
+scaffold_1	AUGUSTUS	transcript	11256	13613	0.72	+	.	anno1.g20065.t1
+scaffold_1	AUGUSTUS	CDS	11256	11258	0.75	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	exon	11256	11258	.	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	start_codon	11256	11258	.	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	intron	11259	12280	1	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	CDS	12281	12320	0.95	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	exon	12281	12320	.	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	intron	12321	12382	0.95	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	CDS	12383	12429	0.96	+	2	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	exon	12383	12429	.	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	intron	12430	12615	1	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	CDS	12616	12744	0.96	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	exon	12616	12744	.	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	intron	12745	13595	1	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	CDS	13596	13613	1	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	exon	13596	13613	.	+	.	transcript_id "anno1.g20065.t1"; gene_id "g_19722";
+scaffold_1	AUGUSTUS	stop_codon	13611	13613	.	+	0	transcript_id "anno1.g20065.t1"; gene_id "g_19722";	

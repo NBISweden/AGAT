@@ -3,11 +3,11 @@
 use strict;
 use warnings;
 use Getopt::Long;
-use Bio::Tools::GFF;
 use Pod::Usage;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $sub = "exon";
@@ -17,8 +17,8 @@ my $help;
 if( !GetOptions(
     "help|h" => \$help,
     "gff=s" => \$gff,
-	"sub=s" => \$sub,
-	"nc=s" => \$opt_nc,
+    "sub=s" => \$sub,
+    "nc=s" => \$opt_nc,
     "outfile|output|out|o=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line.",
@@ -52,12 +52,13 @@ else{
 }
 
 if($opt_nc ne "keep" and $opt_nc ne "filter" and $opt_nc ne "transcript"){
-	print "Parameter --nc accepts only [keep,filter,transcript] values.\n"; 
+	print "Parameter --nc accepts only [keep,filter,transcript] values.\n";
 	exit;
 }
 
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff                                                             });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config });
 # END parsing
 
 
@@ -244,7 +245,7 @@ Input GFF3 file that will be read
 =item B<--nc>
 
 STRING - behaviour for non-coding features (e.g. recored wihtout CDS). [keep,filter,transcript]
-keep - Default, they are kept but no CDS position is reported in the 7th and 8th columns (a period is reported instead). 
+keep - Default, they are kept but no CDS position is reported in the 7th and 8th columns (a period is reported instead).
 filter - We remove them.
 transcript - We keep them but values in 7th and 8th columns will contains transcript's start and stop.
 

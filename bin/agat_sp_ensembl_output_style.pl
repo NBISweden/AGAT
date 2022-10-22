@@ -4,20 +4,18 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Getopt::Long;
-use AGAT::Omniscient;
-use Bio::Tools::GFF;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile;
-my $opt_comonTag=undef;
 my $opt_verbose=undef;
 my $opt_output;
 my $opt_help = 0;
 
 # OPTION MANAGMENT
 if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
-                  'c|ct=s'      => \$opt_comonTag,
                   'v'           => \$opt_verbose,
                   'o|output=s'  => \$opt_output,
                   'h|help!'     => \$opt_help ) )
@@ -44,15 +42,7 @@ if (! defined($opt_gfffile) ){
 
 ######################
 # Manage output file #
-
-my $gffout;
-if ($opt_output) {
-  open(my $fh, '>', $opt_output) or die "Could not open file '$opt_output' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+my $gffout = prepare_gffout($config, $opt_output);
 
                 #####################
                 #     MAIN          #
@@ -62,8 +52,7 @@ else{
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $opt_gfffile,
-                                                               locus_tag => $opt_comonTag,
-                                                               verbose => $opt_verbose
+                                                               config => $config
                                                                });
 print ("GFF3 file parsed\n");
 
@@ -102,12 +91,6 @@ like ensembl format.
 =item B<-g>, B<--gff> or B<-ref>
 
 Input GTF/GFF file.
-
-=item B<-c> or B<--ct>
-
-When the gff file provided is not correcly formated and features are linked
-to each other by a comon tag (by default locus_tag), this tag can be provided
-to parse the input file correctly.
 
 =item B<-v>
 

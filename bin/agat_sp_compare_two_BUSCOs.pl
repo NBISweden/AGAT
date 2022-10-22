@@ -8,10 +8,10 @@ use Pod::Usage;
 use Getopt::Long;
 use IO::File ;
 use List::Util 'first';
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
@@ -75,32 +75,22 @@ if ($outfolder) {
 }
 
 # Manage Output gff files
-my $gffout_complete;
-my $gffout_fragmented;
-my $gffout_duplicated;
-my %gff_out;
+my $gffout_complete_path;
+my $gffout_fragmented_path;
+my $gffout_duplicated_path;
 if ($outfolder) {
-  my $outfile="f1_complete.gff";
-  open(my $fh, '>', $outfolder."/".$outfile) or die "Could not open file '$outfile' $!";
-  $gffout_complete= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-
-  $outfile="f1_fragmented.gff";
-  open(my $fh2, '>', $outfolder."/".$outfile) or die "Could not open file '$outfile' $!";
-  $gffout_fragmented= Bio::Tools::GFF->new(-fh => $fh2, -gff_version => 3 );
-
-  $outfile="f1_duplicated.gff";
-  open(my $fh3, '>', $outfolder."/".$outfile) or die "Could not open file '$outfile' $!";
-  $gffout_duplicated= Bio::Tools::GFF->new(-fh => $fh3, -gff_version => 3 );
+  $gffout_complete_path = $outfolder."/"."f1_complete.gff";
+	$gffout_fragmented_path = $outfolder."/"."f1_fragmented.gff";
+	$gffout_duplicated_path = $outfolder."/"."f1_duplicated.gff";
 }
-else{
-  $gffout_complete = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3 );
-  $gffout_fragmented = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3 );
-  $gffout_duplicated = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3 );
-}
+my $gffout_complete = prepare_gffout($config, $gffout_complete_path);
+my $gffout_fragmented = prepare_gffout($config, $gffout_fragmented_path);
+my $gffout_duplicated = prepare_gffout($config, $gffout_duplicated_path);
+
+my %gff_out;
 $gff_out{'complete'}=$gffout_complete;
 $gff_out{'fragmented'}=$gffout_fragmented;
 $gff_out{'duplicated'}=$gffout_duplicated;
-
 
 #############################################################
 #                         MAIN
@@ -218,8 +208,7 @@ if (-d $augustus_gff_folder){
             print $path."\n" if $verbose;
 
             my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
-                                                                             verbose => $parser_verbosity,
-                                                                             gff_version => 3
+                                                                             config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){
               print "No gene found for $path\n";exit;
@@ -285,7 +274,7 @@ if (-d $augustus_gff_folder){
       }
     }
     my $out = $gff_out{$type};
-    print_omniscient( {omniscient => $full_omniscient, output => $out} ); 
+    print_omniscient( {omniscient => $full_omniscient, output => $out} );
     %$full_omniscient = (); # empty hash
     $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};

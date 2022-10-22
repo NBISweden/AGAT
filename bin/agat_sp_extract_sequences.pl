@@ -8,10 +8,10 @@ use Getopt::Long;
 use Sort::Naturally;
 use Bio::SeqIO;
 use Bio::DB::Fasta;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $opt_plus_strand = undef;
 my $start_run = time();
 my $codonTable=1;
@@ -138,7 +138,8 @@ if ($opt_keep_parent_attributes){
 ######################
 ### Parse GFF input #
 print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
+                                                                 config => $config
                                                               });
 print "Parsing Finished\n";
 ### END Parse GFF input #
@@ -506,7 +507,7 @@ sub extract_sequences{
     my $feature_type = $sortedList[0]->primary_tag;
 
     # ------ SPREADED feature need to be collapsed else only if merge option activated ------
-    if( exists_keys($hash_level,'spreadfeature',lc($feature_type) ) or ( $opt_merge ) ){
+    if( exists_keys($hash_level,'spread',lc($feature_type) ) or ( $opt_merge ) ){
 
     	my $sequence="";my $info = "";
 
@@ -843,8 +844,8 @@ The result is written to the specified output file, or to STDOUT.
 Features spanning several locations (e.g. UTR, CDS), are extracted chunk by chunk
 and merged to create the biological feature. If you wish to extract each chunck independently,
 please refer to the --split parameter. To see the list of features that may span over several locations
-within AGAT run: agat_convert_sp_gxf2gxf.pl --expose
-and then look at the file called features_spread.json.
+within AGAT run: agat levels --expose
+and then look at section called spread in the feature_levels.yaml file.
 
 The headers are formated like that:
 >ID gene=gene_ID seq_id=Chromosome_ID type=cds 5'extra=VALUE tag=value tag=value

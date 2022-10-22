@@ -6,10 +6,11 @@ use Carp;
 use Getopt::Long;
 use IO::File;
 use Pod::Usage;
-use Bio::Tools::GFF;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
+
 my @opt_files;
 my $opt_output=undef;
 my $opt_plot;
@@ -22,7 +23,7 @@ if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
                   'o|out|output=s'      => \$opt_output,
                   'w|window|b|break|breaks=i'  => \$opt_breaks,
                   'x|p=f'               => \$Xpercent,
-									'plot!'               => \$opt_plot,
+                  'plot!'               => \$opt_plot,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -47,7 +48,7 @@ if ( ! ( $#opt_files  >= 0) ) {
 # #######################
 # # START Manage Option #
 # #######################
-
+my $ostreamReport_file;
 if (defined($opt_output) ) {
   if (-d $opt_output){
     print "The output directory choosen already exists. Please geve me another Name.\n";exit();
@@ -55,15 +56,10 @@ if (defined($opt_output) ) {
   else{
     mkdir $opt_output;
   }
+  $ostreamReport_file = $opt_output."/report.txt";
 }
 
-my $ostreamReport;
-if (defined($opt_output) ) {
-  $ostreamReport=IO::File->new(">".$opt_output."/report.txt" ) or croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
-}
-else{
-  $ostreamReport = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-}
+my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 my $string1 .= "usage: $0 @copyARGV\n\n";
 
@@ -120,7 +116,8 @@ foreach my $file (@opt_files){
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file,
+                                                                   config => $config
                                                               });
   print("Parsing Finished\n\n");
   ### END Parse GFF input #
@@ -241,7 +238,6 @@ foreach  my $tag (sort keys %introns){
 
   print $ostreamReport $stringPrint;
   if($opt_output){print $stringPrint;}
-
 
 
   # Part 4

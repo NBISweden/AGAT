@@ -7,12 +7,12 @@ use File::Basename;
 use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
-use Bio::Tools::GFF;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
-use AGAT::Omniscient;
+use AGAT::AGAT;
 
 my $header = get_agat_header();
+my $config = get_agat_config();
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -61,30 +61,26 @@ my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 
 ######################
 # Manage output file #
-my $gffout;
-my $gffout_incomplete;
+my $gffout_file;
+my $gffout_incomplete_file;
 if ($outfile) {
   my ($filename,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-  my $outputname = $path.$filename.$ext;
-  open(my $fh, '>', $outputname) or die "Could not open file '$outputname' $!";
-  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => 3 );
-  $outputname = $path.$filename."_incomplete".$ext;
-  open(my $fh2, '>', $outputname) or die "Could not open file '$outputname' $!";
-  $gffout_incomplete= Bio::Tools::GFF->new(-fh => $fh2, -gff_version => 3 );
+
+	$gffout_file = $path.$filename.$ext;
+  $gffout_incomplete_file = $path.$filename."_incomplete".$ext;
 }
-else{
-  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-  $gffout_incomplete = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => 3);
-}
+
+my $gffout = prepare_gffout($config, $gffout_file);
+my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                 config => $config
                                                               });
 print ("GFF3 file parsed\n");
 
@@ -102,7 +98,7 @@ print ("Fasta file parsed\n");
 #counters
 my %mrnaCounter=( 0 => 0, 1 => 0, 2 => 0, 3 => 0);
 my $geneCounter=0;
-my %omniscient_incomplete;
+my %omniscient_incomplete; initialize_omni_from(\%omniscient_incomplete, $hash_omniscient);
 my @incomplete_mRNA;
 
 

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 38;
+use Test::More tests => 43;
 
 =head1 DESCRIPTION
 
@@ -19,15 +19,23 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 }
 
 # script to call to check the parser
+my $script_agat = $script_prefix."bin/agat";
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
-#my $pathtmp2 = "tmp2.gff"; # path file where to save temporary output
-my $dir = "t/gff_syntax"; # folder where the test files are
+unlink $pathtmp; # remove in case it exists
+my $expected_output_path = "t/gff_syntax/out/";
+my $input_path = "t/gff_syntax/in/";
+
+# remove config in local folder if exists
+unlink "config.yaml"; 
+
+# Loop over test
+my $dir = "t/gff_syntax/in"; # folder where the test files are
 opendir my $dh, $dir or die "Could not open '$dir' for reading: $!\n";
 my @files = readdir $dh;
 foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } @files) {
 
-  # for all test files
+  # for all test files	
   if ( $file =~ m/test.gff$/ ){
 
     # skip cases
@@ -37,57 +45,40 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     # case do not merge loci 8,32,34,36
     if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/ or $file =~ m/^36_/){
-        system("$script --gff t/gff_syntax/$file -o $pathtmp  2>&1 1>/dev/null");
+        system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 		# peculiar case 28
     elsif($file =~ m/^28_/){
-        system("$script --gff t/gff_syntax/$file -c Name -o $pathtmp  2>&1 1>/dev/null");
+        system("$script_agat config --expose --locus_tag Name 2>&1 1>/dev/null"); # set special config for the test
+        system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 
     # standard cases
     else{
-      system("$script --gff t/gff_syntax/$file  --merge_loci -o $pathtmp  2>&1 1>/dev/null");
+			system("$script_agat config --expose --merge_loci 2>&1 1>/dev/null"); # set special config for the test
+      system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
 
     my @splitname = split /_/, $file;
-    my $correct_output = $splitname[0]."_correct_output.gff";
+    my $correct_output = $expected_output_path."/".$splitname[0]."_correct_output.gff";
 
     #run test
-    ok( system("diff $pathtmp t/gff_syntax/$correct_output") == 0, "parse $file");
+    ok( system("diff $pathtmp $correct_output") == 0, "parse $file");
     unlink $pathtmp;
-    #--------------- rerun on the first output #---------------
-
-     # peculiar case
-     #if ($file =~ m/^8_/){
-    #     system("$script --gff $pathtmp -o $pathtmp2 ");
-     #}
-     #elsif($file =~ m/^28_/){
-    #     system("$script --gff $pathtmp -c Name -o $pathtmp2 ");
-     #}
-     # standard cases
-     #else{
-    #   system("$script --gff $pathtmp --merge_loci -o $pathtmp2 ");
-     #}
-
-     #run test
-     #ok( system("diff $pathtmp2 t/gff_syntax/$correct_output") == 0, "parse2 $file");
+		unlink "config.yaml";
   }
 }
 closedir($dh);
 
 #  ---------------------------- special tests ----------------------------
-my $result = "t/gff_syntax/stop_start_an_exon_correct_output.gff";
-system(" $script --gff t/gff_syntax/stop_start_an_exon.gtf -o $pathtmp 2>&1 1>/dev/null");
+my $result = "$expected_output_path/stop_start_an_exon_correct_output.gff";
+system(" $script --gff $input_path/stop_start_an_exon.gtf -o $pathtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $pathtmp") == 0, "output $script");
 unlink $pathtmp;
 
-$result = "t/gff_syntax/stop_split_over_two_exons_correct_output.gff";
-system(" $script --gff t/gff_syntax/stop_split_over_two_exons.gtf -o $pathtmp 2>&1 1>/dev/null");
+$result = "$expected_output_path/stop_split_over_two_exons_correct_output.gff";
+system(" $script --gff $input_path/stop_split_over_two_exons.gtf -o $pathtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $pathtmp") == 0, "output $script");
 unlink $pathtmp;
-
-
-
-#unlink $pathtmp2;
