@@ -285,7 +285,7 @@ All the installed scripts have the `agat_` prefix.
 
 To have a look to the available tools you have several approaches:  
   * `agat --tools`
-  * Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tool installed.
+  * Typing `agat_` in your terminal followed by the <TAB> key to activate the autocompletion will display the complete list of available tools.
   * [The documentation](https://agat.readthedocs.io/en/latest/?badge=latest).  
 
 
