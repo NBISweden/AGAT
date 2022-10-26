@@ -36,10 +36,10 @@ Suite of tools to handle gene annotations in any GTF/GFF format.
    * [Usage](#usage)
    * [List of tools](#list-of-tools)
    * [More about the tools](#more-about-the-tools)
-   * [Omniscient - Standardisation for a full GFF3 compliant to any tool](#omniscient---standardisation-for-a-full-gff3-compliant-to-any-tool)
-      * [Omniscient data structure](#omniscient-data-structure)
-      * [How does the Omniscient parser work](#how-does-the-omniscient-parser-work)
-      * [What can the Omniscient parser do for you](#what-can-the-omniscient-parser-do-for-you)
+   * [The AGAT parser - Standardisation to create GXF files compliant to any tool](#the-agat-parser---standardisation-to-create-gxf-files-compliant-to-any-tool)
+      * [The data structure](#the-data-structure)
+      * [How does the AGAT parser work](#how-does-the-agat-parser-work)
+      * [What can the AGAT parser do for you](#what-can-the-agat-parser-do-for-you)
       * [examples](#examples)
    * [How to cite?](#how-to-cite)
    * [Publication using AGAT](#publication-using-agat)
@@ -293,34 +293,34 @@ To have a look to the available tools you have several approaches:
 
 #### with \_sp\_ prefix => Means SLURP
 
-The gff file will be charged in memory Omniscient data structure that is way to facilitate access to desired features at any time.
+The gff file will be charged in memory in a specific data structure facilitating the access to desired features at any time.
 It has a memory cost but make life smoother. Indeed, it allows to perform complicated tasks in a more time efficient way.
 Moreover, it allows to fix all potential errors in the limit of the possibilities given by the format itself.
-See the Omniscient section for more information about it.  
+See the AGAT parser section for more information about it.  
 
 #### with \_sq\_ prefix => Means SEQUENTIAL
 
 The gff file is read and processed from its top to the end line by line without sanity check. This is memory efficient.
 
-## Omniscient - Standardisation for a full GFF3 compliant to any tool  
+## The AGAT parser - Standardisation to create GXF compliant to any tool  
 
-All tools with `agat_sp_` prefix will parse and slurps the entire data into a data structure called Omniscient.
-Below you will find more information about peculiarity of the Omniscient structure,
+All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure called.
+Below you will find more information about peculiarity of the data structure,
 and the parsing approach used.
 
-#### Omniscient data structure
+#### the data structure
 
-The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
+The method create a hash structure containing all the data in memory. We can call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
 ```
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
 $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureListL2 is a list to be able to manage isoform cases.  
 $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureListL3 is a list to be able to put all the feature of a same tag together.  
 ```
 
-#### How does the Omniscient parser work
+#### How does the AGAT parser work
 
-The Omniscient parser phylosophy:
-  * 1) Parse by Parent/child relationship  
+The AGAT parser phylosophy:
+  * 1) Parse by Parent/child relationship or gene_id/transcript_id relationship.
   * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter).  
   * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature).  
 
@@ -329,7 +329,7 @@ The Omniscient parser phylosophy:
 To resume by priority of way to parse: **Parent/child relationship > locus_tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 
-#### What can the Omniscient parser do for you
+#### What can the AGAT parser do for you
 
 * It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s)).    
 * It creates missing mandatory attributes (ID and/or Parent).  

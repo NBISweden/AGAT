@@ -3,7 +3,7 @@
 ## DESCRIPTION
 
 This script merge different gff annotation files in one.
-It uses the Omniscient parser that takes care of duplicated names and fixes other oddities met in those files.
+It uses the AGAT parser that takes care of duplicated names and fixes other oddities met in those files.
 
 ## SYNOPSIS
 
@@ -25,4 +25,3 @@ agat_sp_merge_annotations.pl --help
 - **--help** or **-h**
 
     Display this helpful text.
-

@@ -78,13 +78,13 @@ agat_convert_sp_gxf2gxf.pl
 =head1 DESCRIPTION
 
 This script fixes and/or standardizes any GTF/GFF file into full sorted GTF/GFF file.
-It AGAT parser removes duplicate features, fixes duplicated IDs, adds missing ID and/or Parent attributes, 
-deflates factorized attributes (attributes with several parents are duplicated with uniq ID), 
+It AGAT parser removes duplicate features, fixes duplicated IDs, adds missing ID and/or Parent attributes,
+deflates factorized attributes (attributes with several parents are duplicated with uniq ID),
 add missing features when possible (e.g. add exon if only CDS described, add UTR if CDS and exon described),
 fix feature locations (e.g. check exon is embedded in the parent features mRNA, gene), etc...
 
 All AGAT's scripts with the _sp_ prefix use the AGAT parser, before to perform any supplementary task.
-So, it is not necessary to run this script pior the use of any other _sp_ script. 
+So, it is not necessary to run this script prior the use of any other _sp_ script. 
 
 =head1 SYNOPSIS
 

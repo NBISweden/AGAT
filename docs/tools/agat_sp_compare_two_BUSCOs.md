@@ -37,7 +37,6 @@ agat_sp_compare_two_BUSCOs.pl --help
 - **-v** or **--verbose**
 
     Integer: For displaying extra information use -v 1.
-    For activating the verbosity in the omniscient parser use -v 66. (not recommended)
 
 - **-o** or **--output**
 
@@ -46,4 +45,3 @@ agat_sp_compare_two_BUSCOs.pl --help
 - **--help** or **-h**
 
     Display this helpful text.
-

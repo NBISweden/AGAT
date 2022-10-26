@@ -174,11 +174,6 @@ foreach my $type1 (keys %busco1){
   }
 }
 
-# set verbosity for the parser. Quiete except if verbose == 66
-
-my $parser_verbosity = -1;
-$parser_verbosity = 0 if ($verbose and $verbose == 66) ; # put to -1 make the parser quiete even for warnings.
-
 #extract gff from folder1
 my $full_omniscient={};
 my $loop = 0;
@@ -358,7 +353,6 @@ STRING: Input busco folder2
 =item B<-v> or B<--verbose>
 
 Integer: For displaying extra information use -v 1.
-For activating the verbosity in the omniscient parser use -v 66. (not recommended)
 
 =item B<-o> or B<--output>
 
