@@ -10,10 +10,11 @@
 
 AGAT
 =========================================
-<h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
-Suite of tools to handle gene annotations in any GTF/GFF format.
-
 [<img align="right" src="docs/img/NBIS.png" width="200" height="100" />](https://nbis.se)
+<h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
+
+Suite of tools to handle gene annotations in any GTF/GFF format.  
+\>>[docs](https://agat.readthedocs.io/en/latest/index.html)<<
 
 ---------------------------
 
@@ -302,7 +303,7 @@ See the AGAT parser section for more information about it.
 
 The gff file is read and processed from its top to the end line by line without sanity check. This is memory efficient.
 
-## The AGAT parser - Standardisation to create GXF compliant to any tool  
+## The AGAT parser - Standardisation to create GXF files compliant to any tool  
 
 All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure called.
 Below you will find more information about peculiarity of the data structure,
