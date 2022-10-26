@@ -34,6 +34,7 @@ debug: false
 tabix: false
 
 # should overlapping loci (at CDS level) be merged in a single locus
+# Only one gene is kept, and the mRNA features become isoforms. 
 merge_loci: false
 
 # should fasta embedded in GFF/GTF be thrown away from input?

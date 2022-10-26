@@ -49,10 +49,10 @@ sub import {
 
 # Provide version
 sub print_agat_version{
- print $VERSION."\n";
+	print $VERSION."\n";
 }
 
-# Provide meta information
+# Provide header
 sub get_agat_header{
 
   my $header = qq{
@@ -64,6 +64,75 @@ sub get_agat_header{
 };
 
 	return $header;
+}
+
+# Provide AGAT information
+sub print_agat_info{
+	my $header = get_agat_header();
+	print <<MESSAGE
+	$header 
+AGAT checks, fixes, pads missing information (features/attributes) of any
+kind of GTF/GFF (GXF) files and create complete, sorted and standardised 
+GFF/GTF formated files. Over the years it has been enriched by many many
+tools to perform just about any tasks that is possible related to GTF/GFF
+format files (sanitizing, conversions, merging, modifying, filtering, FASTA
+sequence extraction, adding information, etc). Comparing to other methods
+AGAT is robust to even the most despicable GTF/GFF files.
+
+By default AGAT automatically selects the appropriate parser and generates
+a GFF3 output. This can be tuned via the config file.
+
+AGAT contains 2 types of scripts: 
+=================================
+
+1) _sp_ prefix (slurp)
+---------------
+Data is loaded into memory via the AGAT parser that removes duplicate features, 
+fixes duplicated IDs, adds missing ID and/or Parent attributes, deflates factorized 
+attributes (attributes with several parents are duplicated with uniq ID), add missing 
+features when possible (e.g. add exon if only CDS described, add UTR if CDS and exon 
+described), fix feature locations (e.g. check exon is embedded in the parent features 
+mRNA, gene), etc.
+The AGAT parser defines relationship between features using 3 levels.
+(e.g Level1=gene; Level2=mRNA,tRNA; Level3=exon,cds,utr)
+The feature type information is stored within the 3rd column of a GXF file.
+The parser needs to know to which level a feature type is part of. This information
+is stored by default in a yaml file provided with the tool. We have implemented the
+most common feature types met in gff/gtf files. If a feature type is not yet handle
+by the parser it will throw a warning. You can easily inform the parser how
+to handle it (level1, level2 or level3) by modifying the feature_levels.yaml file.
+
+To access the AGAT feature_levels file: agat levels --expose
+
+The  yaml file will appear in the working folder. By default, AGAT uses the
+feature_levels.yaml file from the working directory when any.
+
+AGAT parser phylosophy:
+ a) Parse by Parent/child relationship
+          or gene_id/transcript_id
+   b) ELSE Parse by a comon tag (an attribute value shared by feature that must be grouped together.
+           By default we are using locus_tag and gene_id as locus tag, but you can specify the one of your choice vi the config.
+     c) ELSE Parse sequentially (features are grouped in a bucket, and the bucket change at each level2 feature met, and bucket(s) are linked to the first l1 top feature met)
+
+
+2) _sq_ prefix (sequential):
+---------------------
+The gff file is read and processed from its top to the end line by line via the bioperl parser.
+This is memory efficient, but no sanity check will be performed by the AGAT parser.
+
+Configuration
+=============
+
+AGAT has a configuration file: config.yaml
+
+To access the AGAT config file: agat config --expose
+
+The config yaml file will appear in the working folder. By default, AGAT 
+uses the config file from the working directory when any.
+The configuration can be used to change output format, to merge loci,
+to activate tabix output, etc. (For _sq_ scripts only input/output format 
+configuration parameters are used).
+MESSAGE
 }
 
 # load configuration file from local file if any either the one shipped with AGAT
@@ -88,9 +157,14 @@ sub handle_main {
 		my $version = $general->{configs}[-1]{version};
 		my $tools = $general->{configs}[-1]{tools};
 		my $help = $general->{configs}[-1]{help};
+		my $info = $general->{configs}[-1]{info};
 
 		if($version){
 			print_agat_version();
+		}
+
+		if($info){
+			print_agat_info();
 		}
 
 		if($tools){

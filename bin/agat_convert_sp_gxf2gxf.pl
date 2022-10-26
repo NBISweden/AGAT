@@ -77,43 +77,14 @@ agat_convert_sp_gxf2gxf.pl
 
 =head1 DESCRIPTION
 
-This script fixes and/or standardizes any GTF/GFF file into full sorted GFF3 file.
-The output GFF syntax is shaped by bioperl and choose among the versions
-1,2,2.5 (GTF equivalent) and 3. For a correct GTF file, it is recommended to use
-agat_convert_sp_gff2gtf.pl
-
-Without specifying an input GTF/GFF version, the Omniscient parser will first detect
-automtically the most appropriate GFF parser to use from bioperl (GFF1,GFF2,GFF3)
-in order to read you file properly.
-Then the Omniscient parser removes duplicate features, fixes duplicated IDs,
-adds missing ID and/or Parent attributes, deflates factorized attributes
-(attributes with several parents are duplicated with uniq ID), add missing features
-when possible (e.g. add exon if only CDS described, add UTR if CDS and exon described),
+This script fixes and/or standardizes any GTF/GFF file into full sorted GTF/GFF file.
+It AGAT parser removes duplicate features, fixes duplicated IDs, adds missing ID and/or Parent attributes, 
+deflates factorized attributes (attributes with several parents are duplicated with uniq ID), 
+add missing features when possible (e.g. add exon if only CDS described, add UTR if CDS and exon described),
 fix feature locations (e.g. check exon is embedded in the parent features mRNA, gene), etc...
-All AGAT's scripts with the _sp_ prefix use the same parser, before to perform supplement tasks.
-With that script you can tuned the Omniscient parser behaviour. I.e. you can decide
-to merge loci that have an overlap at their CDS features (Only one top feature
-is kept (gene), and the mRNA features become isoforms). This is not activated by
-default in case you are working on a prokaryote annotation that often have overlaping
-loci.
-The Omniscient parser defines relationship between features using 3 levels.
-e.g Level1=gene; Level2=mRNA,tRNA; Level3=exon,cds,utr.
-The feature type information is stored within the 3rd column of a GTF/GFF file.
-The parser need to know to which level a feature type is part of. This information
-is stored by default in a yaml file coming with the tool. We have implemented the
-most common feature types met in gff/gtf files. If a feature type is not yet handle
-by the parser it will throw a warning. You can easily inform the parser how
-to handle it (level1, level2 or level3) by modifying the feature_levels.yaml file.
-How to access this file? Easy just run: agat levels --expose 
-The  yaml file will appear in the working folder. By default, the Omniscient parser 
-use the feature_levels.yaml file from the working directory when any.
 
-Omniscient parser phylosophy:
-
- Parse by Parent/child relationship
-   ELSE Parse by a comomn tag  (an attribute value shared by feature that must be grouped together.
-        By default we are using locus_tag and gene_id as locus tag, but you can specify the one of your choice
-     ELSE Parse sequentially (features are grouped in a bucket, and the bucket change at each level2 feature met, and bucket(s) are linked to the first l1 top feature met)
+All AGAT's scripts with the _sp_ prefix use the AGAT parser, before to perform any supplementary task.
+So, it is not necessary to run this script pior the use of any other _sp_ script. 
 
 =head1 SYNOPSIS
 
