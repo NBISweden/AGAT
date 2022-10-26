@@ -43,13 +43,27 @@ my $application = {
       MAIN => {
          help        => $header,
          description =>
-    'AGAT has the power to check, fix, pad missing information (features/
-attributes) of any kind of GTF and GFF to create complete, sorted and
-standardised gff3 format. Over the years it has been enriched by many many
+'AGAT checks, fixes, pads missing information (features/attributes) of any
+kind of GTF/GFF (GXF) files and create complete, sorted and standardised 
+GFF/GTF formated files. Over the years it has been enriched by many many
 tools to perform just about any tasks that is possible related to GTF/GFF
 format files (sanitizing, conversions, merging, modifying, filtering, FASTA
 sequence extraction, adding information, etc). Comparing to other methods
-AGAT is robust to even the most despicable GTF/GFF files.',
+AGAT is robust to even the most despicable GTF/GFF files.
+
+By default AGAT automatically selects the appropriate parser and generates
+a GFF3 output by default. This can be tuned via the config file.
+
+Configuration (optional)
+========================
+To access the config.yaml configuration file: agat config --expose
+The file will appear in the working folder. By default, AGAT uses the config file from the working directory when any.
+
+Feature levels (optional)
+========================
+To access the AGAT feature_levels file: agat levels --expose
+The file will appear in the working folder. By default, AGAT uses the config file from the working directory when any.
+',
 				 children => [qw< levels config >],
 
          # allow for configuration files
@@ -71,6 +85,11 @@ AGAT is robust to even the most despicable GTF/GFF files.',
 							 shortbool   => 1,
 							 help        => 'Display the AGAT tools available',
 						},
+						{
+							 getopt      => 'info|i!',
+							 shortbool   => 1,
+							 help        => 'Display information on how AGAT works',
+						},
          ],
 				 commit	     => '#handle_main',
       },
@@ -83,7 +102,7 @@ AGAT is robust to even the most despicable GTF/GFF files.',
 use this option. It will copy past in you working directory the feature_levels.yaml file 
 used to define the relationships between feature types and their level organisation.
 Typical level organisation: Level1 => gene; Level2 => mRNA; level3 => exon,cds,
-utrs. If you get warning from the Omniscient parser that a feature relationship
+utrs. If you get warning from the AGAT parser that a feature relationship
 is not defined, you can provide information about it within the exposed feature_levels.yaml
 file. Indeed, if the feature_levels.yaml file exists in your working directory, it will be
 used by default.',

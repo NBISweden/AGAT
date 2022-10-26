@@ -4,20 +4,20 @@ All tools taking GFF/GTF as input can be divided in two groups: \_sp\_ and \_sq\
 
 * Tools with \_sp\_ prefix
 
-\_sp\_ stands for SLURP. Those tools will charge the file in memory Omniscient data structure. It has a memory cost but makes life smoother. Indeed, it allows to perform complicated tasks in a more time efficient way ( Any features can be accessed at any time by AGAT).
+\_sp\_ stands for SLURP. Those tools will charge the file in memory in a specific data structure. It has a memory cost but makes life smoother. Indeed, it allows to perform complicated tasks in a more time efficient way ( Any features can be accessed at any time by AGAT).
 Moreover, it allows to fix all potential errors in the limit of the possibilities given by the format itself.
-See the Omniscient section for more information about it.  
+See the AGAT parser section for more information about it.  
 
 * with \_sq\_ prefix
 
  \_sq\_ stands for SEQUENTIAL. Those tools will read and process GFF/GTF files from the top to the bottom, line by line, performing tasks on the fly. This is memory efficient but the sanity check of the file is minimum. Those tools are not intended to perform complex tasks.
 
-## Omniscient / parsing performed by \_sp\_ prefix tools / Standardisation for a full GFF3 compliant to any tool
+## The AGAT parser / used by \_sp\_ prefix tools / Standardisation to create GXF files compliant to any tool
 
-The first step of AGAT' tools with the \_sp\_ prefix of is to fix the file to standardize it. (e.g. a file containing only exon will be modified to create mRNA and gene features). To perform this task AGAT parses and slurps the entire data into a data structure called Omniscient.
-Below you will find more information about peculiarity of the Omniscient structure, and the parsing approach used.
+The first step of AGAT' tools with the \_sp\_ prefix of is to fix the file to standardize it. (e.g. a file containing only exon will be modified to create mRNA and gene features). To perform this task AGAT parses and slurps the entire data into a specific data structure.
+Below you will find more information about peculiarity of this data structure, and the parsing approach used.
 
-### What performs the Omniscient parser
+### What performs the AGAT parser
 
 * It creates missing parental features. (e.g if a level2 or level3 feature do not have parental feature(s) we create the missing level2 and/or level1 feature(s)).    
 * It creates missing mandatory attributes (ID and/or Parent).  
@@ -30,7 +30,7 @@ Below you will find more information about peculiarity of the Omniscient structu
 * It groups features together (if related features are spread at different places in the file).  
 
 
-### Omniscient data structure
+### The data structure
 
 The method create a hash structure containing all the data in memory. We call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
 ```
@@ -39,9 +39,9 @@ $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA
 $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureList is a list to be able to put all the feature of a same tag together.  
 ```
 
-### How does the Omniscient parser work
+### How does the AGAT parser work
 
-To resume by priority of way to parse: **Parent/child relationship > common attribute/tag > sequential.**  
+To resume by priority of way to parse: **Parent/child or gene_id/transcript_id relationship > common attribute/tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 If you need to use the `--ct` option you will have to process the file `agat_convert_sp_gxf2gxf.pl` first  before running any other tool.
 
@@ -90,7 +90,7 @@ Example of relationship made sequentially:
 
 ### Particular case
 
-Below you will find more information about peculiarity of the Omniscient structure, and the parsing approach used.
+Below you will find more information about peculiar GXF files and how the AGAT parser behaves and uses the different parsing approaches.
 
 #### A. Level1 feature type missing and no Parent/gene_id
 

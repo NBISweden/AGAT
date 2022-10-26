@@ -96,7 +96,7 @@ original feature types (3rd column).
 To be fully GTF compliant all feature have a gene_id and a transcript_id attribute.
 The gene_id	is unique identifier for the genomic source of the transcript, which is
 used to group transcripts into genes.
-The transcript_id	is a unique identifier for the predicted transcript,
+The transcript_id is a unique identifier for the predicted transcript,
 which is used to group features into transcripts.
 
 =head1 SYNOPSIS
