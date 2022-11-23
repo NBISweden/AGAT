@@ -3,13 +3,32 @@
 use strict;
 use warnings;
 use File::Path;
-use Test::More tests => 73;
 
 =head1 DESCRIPTION
 
 Test to verify the output of scripts using gff_syntax cases
 
 =cut
+
+################################################################################
+#   set number of test according to number of scripts
+my $nb_test;
+BEGIN{
+  open(FH, '<', __FILE__) or die $!;
+  while(<FH>){
+    if( $_ !~ /^#/){ #if it is not a comment line
+      if (index($_ , "ok(") != -1) { # This is a test line. We should avoid counting this line. It is why we remove 1 later
+        $nb_test++;
+      }
+    }
+  }
+  $nb_test--;
+  close(FH);
+}
+#
+################################################################################
+
+use Test::More tests => $nb_test ;
 
 # Check if has to be run in Devel::Cover or not
 my $script_prefix="";
@@ -456,9 +475,10 @@ unlink $outprefix."_report.txt";
 
 $script = $script_prefix."bin/agat_sp_functional_statistics.pl";
 $result = "$output_folder/agat_sp_functional_statistics_1.txt";
-system(" $script --gff t/gff_syntax/in/10_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/function.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp/report.txt") == 0, "output $script");
+ok( system("diff $output_folder/agat_sp_functional_statistics/table_gene_mrna.txt $outtmp/gene\@mrna/table_per_feature_type.txt") == 0, "output $script");
+ok( system("diff $output_folder/agat_sp_functional_statistics/table_repeat.txt $outtmp/repeat_region/table_per_feature_type.txt") == 0, "output $script");
 rmtree $outtmp;
 
 # --------check agat_sp_keep_longest_isoform.pl-------------

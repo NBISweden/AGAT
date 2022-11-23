@@ -12,7 +12,7 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my $config = get_agat_config();
 my $gff = undef;
-my $opt_output = undef;
+my $opt_output = "output_functional_statistics";
 my $opt_genomeSize = undef;
 my $opt_help= 0;
 
@@ -44,20 +44,16 @@ if ( ! (defined($gff)) ){
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-my $out_file;
-if ($opt_output) {
-  if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
-  }
-  if (-d $opt_output){
-      print "The output directory choosen already exists. Please give me another Name.\n";exit();
-  }
-  mkdir $opt_output;
-
-  $out_file = $opt_output."/report.txt";
+if (-f $opt_output){
+  print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
 }
+if (-d $opt_output){
+  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+}
+mkdir $opt_output;
 
-my $out = prepare_fileout($out_file);
+my $stat_file = $opt_output."/stat_features.txt";
+my $stat_out = prepare_fileout($stat_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -76,244 +72,82 @@ print "Parsing Finished\n";
 ###############################################################
 
 print "Compute statistics\n";
-print_omniscient_statistics ({ input => $hash_omniscient,
+print_omniscient_statistics ({ input  => $hash_omniscient,
 															 genome => $opt_genomeSize,
-															 output => $out
+															 output => $stat_out
 														 });
 
 ###############################################################
 ### Print Statistics function
 ###############################################################:
-my %names_l1;
-my $name_l1_nb=undef;
-my %names_l2;
-my $name_l2_nb=undef;
-my %products;
-my $product_l2_nb=undef;
-my %descriptions;
-my $description_l2_nb=undef;
-my %ontology_terms;
-my $ontology_term_l2_nb=undef;
+my %link_tags; # list children tag to parent tags
+my %hash_info;
+my %dbxref_db;
+## Fill the hash
+foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
+  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+    my $chimerel1l2 = $tag_l1;
 
-my %DB_omni_mrna;
-my %DB_omni_gene;
+    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
+      if ( exists_keys( $hash_omniscient,( 'level2',$tag_l2, $id_l1 ) ) ){
+        $chimerel1l2=$tag_l1 ."@".$tag_l2;
+        $link_tags{$chimerel1l2}{"l2"}{$tag_l2}++;
 
-my $nbmRNAwithFunction = 0;
-my $nbGeneWithFunction = 0;
-my $nbGeneWithProduct = 0;
-my $nbGeneWithDescription = 0;
-my $total_nb_l1 = 0;
-my $total_nb_l2 = 0;
+        foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
+          my $level2_ID = lc($feature_l2->_tag_value('ID'));
+          analyse_feature(\%hash_info, $chimerel1l2, $feature_l2);
 
-  #################
-  # == LEVEL 1 == #
-  #################
-foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
-  foreach my $gene_id_tag_key (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
-    $total_nb_l1++;
-    my $l1_has_function=undef;
-    my $l1_has_product=undef;
-    my $l1_has_description=undef;
-    my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id_tag_key};
-    my $id_gene=$gene_feature->_tag_value('ID');
-
-    #Check For NAME
-    if($gene_feature->has_tag('Name') ){
-      my $value = $gene_feature->_tag_value('Name');
-      $names_l1{$value}++;
-      $name_l1_nb++;
-      #print "l1 has tag name with value:".$value."\n";
-    }
-
-    foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-      if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id_tag_key) ) ){
-        foreach my $level2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$gene_id_tag_key}}) {
-          $total_nb_l2++;
-          my $l2_has_function=undef;
-          my $l2_has_product=undef;
-          my $l2_has_description=undef;
-          my $id_mrna=$level2_feature->_tag_value('ID');
-
-          #Check For NAME
-          if($level2_feature->has_tag('Name') ){
-            my $value = $level2_feature->_tag_value('Name');
-            $names_l2{$value}++;
-            $name_l2_nb++;
-            #print "l2 has tag name with value:".$value."\n";
-          }
-
-          #Check For product
-          if($level2_feature->has_tag('product') ){
-            my $value = $level2_feature->_tag_value('product');
-            if ($value ne "hypothetical protein"){
-                $products{$value}++;
-                $product_l2_nb++;
-                $l2_has_product=1;
-                #print "l2 has tag product with value:".$value."\n";
+          foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}} ){
+            if ( exists_keys( $hash_omniscient, ( 'level3',$tag_l3, $level2_ID ) ) ){
+              $link_tags{$chimerel1l2}{"l3"}{$tag_l3}++;
+              foreach my $feature_l3 ( @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}} ) {
+                analyse_feature(\%hash_info, $chimerel1l2, $feature_l3);
+              }
             }
-          }
-
-
-          #Check For description
-          if($level2_feature->has_tag('description') ){
-            my $value = $level2_feature->_tag_value('description');
-            if ($value ne "hypothetical protein"){
-                $descriptions{$value}++;
-                $description_l2_nb++;
-                $l2_has_description=1;
-                #print "l2 has tag descritpion with value:".$value."\n";
-            }
-          }
-
-          #Check For Ontology_term
-          if($level2_feature->has_tag('Ontology_term') ){
-            my @values = $level2_feature->get_tag_values('Ontology_term');
-            foreach my $tuple (@values){
-              my ($type,$value) = split /:/,$tuple;
-              $ontology_terms{$value}++;
-              $ontology_term_l2_nb++;
-              $l2_has_function=1;
-              push @{$DB_omni_mrna{'Ontology_term'}{$id_mrna}}, $value;
-              $DB_omni_gene{'Ontology_term'}{$id_gene}++;
-              #print "l2 has tag ontology_term with value:".$value."\n";
-            }
-          }
-
-          #Check For Dbxref
-          if($level2_feature->has_tag('Dbxref') ){
-            my @values = $level2_feature->get_tag_values('Dbxref');
-            foreach my $tuple (@values){
-              my ($type,$value) = split /:/,$tuple;
-              push @{$DB_omni_mrna{$type}{$id_mrna}}, $value;
-              $DB_omni_gene{$type}{$id_gene}++;
-              $l2_has_function=1;
-            }
-          }
-          elsif($level2_feature->has_tag('db_xref') ){
-            my @values = $level2_feature->get_tag_values('db_xref');
-            foreach my $tuple (@values){
-              my ($type,$value) = split /:/,$tuple;
-              push @{$DB_omni_mrna{$type}{$id_mrna}}, $value;
-              $DB_omni_gene{$type}{$id_gene}++;
-              $l2_has_function=1;
-            }
-          }
-
-          if($l2_has_function){
-            $nbmRNAwithFunction++;
-            $l1_has_function=1;
-          }
-          if($l2_has_product){
-            $l1_has_product=1;
-          }
-          if($l2_has_description){
-            $l1_has_description=1;
           }
         }
+        # Analyse level1 with chimere name used with l2
+        $link_tags{$chimerel1l2}{"l1"}=$tag_l1;
+        my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+        analyse_feature(\%hash_info, $chimerel1l2, $feature_l1);
       }
     }
-    if($l1_has_function){
-      $nbGeneWithFunction++;
-    }
-    if($l1_has_product){
-      $nbGeneWithProduct++;
-    }
-    if($l1_has_description){
-      $nbGeneWithDescription++;
+
+    if ($chimerel1l2 eq $tag_l1 ){ # This is not a chimere, means no l2 linked to this l1, so l1 has not been analysed yet.
+      $link_tags{$chimerel1l2}{"l1"}=$tag_l1;
+      my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
+      analyse_feature(\%hash_info, $tag_l1, $feature_l1);
     }
   }
 }
 
-#print result per type within dedicated file when output provided
-# create streamOutput
-if($opt_output){
-  foreach my $type (keys %DB_omni_mrna){
+## Resume the info
+foreach my $chimerel1l2 (sort keys %link_tags){
+  # get level1 name
+  my $tag_l1 = $link_tags{$chimerel1l2}{"l1"};
+  #print result per type within dedicated file when output provided
+  my $type_output = $opt_output."/".$chimerel1l2;
+  mkdir $type_output;
+  
+  my $table_file = $type_output."/table_per_feature_type.txt";
+  my $table_file_out = prepare_fileout($table_file);
 
-    my $ostreamFunct_file;
-    if($opt_output){
-      $ostreamFunct_file = $opt_output."/$type.txt";
-    }
-    my $ostreamFunct = prepare_fileout($ostreamFunct_file);
+  print $table_file_out  "\nFunctional info $chimerel1l2 records:\n";
+  table_info_l1l3(\%hash_info, $chimerel1l2, $tag_l1, $table_file_out, $type_output);
 
-    foreach my $seq_id (keys %{$DB_omni_mrna{$type}}){
-      print $ostreamFunct $seq_id."\t".join( ',', @{$DB_omni_mrna{$type}{$seq_id}} )."\n";
+  foreach my $tag_l2 ( sort keys %{$link_tags{$chimerel1l2}{"l2"}}){
+    table_info_l2(\%hash_info, $chimerel1l2, $tag_l1, $tag_l2, $table_file_out, $type_output);
+
+    # Get tag l3
+    foreach my $tag_l3 ( sort keys %{$link_tags{$chimerel1l2}{"l3"}} ){
+      table_info_l1l3(\%hash_info, $chimerel1l2, $tag_l3, $table_file_out, $type_output);     
     }
   }
 }
 
-my $nbmRNAwithoutFunction= $total_nb_l2 - $nbmRNAwithFunction;
-my $nbGeneWithoutFunction= $total_nb_l1 - $nbGeneWithFunction;
-my $nbGeneWithoutProduct= $total_nb_l1 - $nbGeneWithProduct;
-
-my $listOfFunction="";
-foreach my $funct (sort keys %DB_omni_mrna){
-  $listOfFunction.="$funct,";
-}
-chop $listOfFunction;
-
-# NOW summerize
-my $stringPrint=undef;
-my $lineB=       "_______________________________________________________________________________________________________";
-$stringPrint .= " ".$lineB."\n";
-$stringPrint .= "|".sizedPrint(" ",25)."|".sizedPrint("Nb term linked to mRNA",25)."|".sizedPrint("Nb mRNA with term",25)."|".sizedPrint("Nb gene with term",25)."|\n";
-$stringPrint .= "|".$lineB."|\n";
-
-foreach my $type (sort keys %DB_omni_mrna){
-    my $total_term_mRNA=0;
-    foreach my $id_l2 (keys %{$DB_omni_mrna{$type}} ){
-      $total_term_mRNA+=scalar @{$DB_omni_mrna{$type}{$id_l2}};
-    }
-    my $nbmRNA_with_term = keys %{$DB_omni_mrna{$type}};
-    my $nbGenewith_term = keys %{$DB_omni_gene{$type}};
-
-    my $mRNA_type =0; #keys %{$mRNAAssociatedToTerm{$type}};
-    my $gene_type =0; #keys %{$GeneAssociatedToTerm{$type}};
-    $stringPrint .= "|".sizedPrint(" $type",25)."|".sizedPrint($total_term_mRNA,25)."|".sizedPrint($nbmRNA_with_term,25)."|".sizedPrint($nbGenewith_term,25)."|\n|".$lineB."|\n";
-  }
-
-
-
-$stringPrint .= "\nnb mRNA without Functional annotation ($listOfFunction) = $nbmRNAwithoutFunction (remind: total mRNA = $total_nb_l2)\n".
-                  "nb mRNA with Functional annotation ($listOfFunction) = $nbmRNAwithFunction (remind: total mRNA = $total_nb_l2)\n".
-                  "nb gene without Functional annotation ($listOfFunction) = $nbGeneWithoutFunction (remind: total gene = $total_nb_l1)\n".
-                  "nb gene with Functional annotation ($listOfFunction) = $nbGeneWithFunction (remind: total gene = $total_nb_l1)\n\n";
-
-
-#-----name------
-if ($name_l1_nb){
-  $stringPrint .= "We found $name_l1_nb genes with <Name> attribute. (remind: total gene = $total_nb_l1)\n";
-}
-else{$stringPrint .= "No gene with <Name> attribute found.\n";}
-if ($name_l2_nb){
-  $stringPrint .= "We found $name_l2_nb mRNAs with <Name> attribute. They probably have the same names as their parent genes. (remind: total mRNA = $total_nb_l2)\n";
-}
-else{$stringPrint .= "No mRNA with <Name> attribute found.\n";}
-
-#-----description------
-if ($nbGeneWithDescription){
-   $stringPrint .= "We found $nbGeneWithDescription genes with <description> attribute.\n";
-}
-else{$stringPrint .= "No gene with <description> attribute found.\n";}
-if ($description_l2_nb){
-  $stringPrint .= "We have $description_l2_nb mRNAs with <description> attribute.\n";
-}
-else{$stringPrint .= "No mRNA with <description> attribute found.\n";}
-
-#-----product------
-if($nbGeneWithProduct){
-  $stringPrint .= "We found $nbGeneWithProduct genes with <product> attribute.\n";
-}
-else{$stringPrint .= "No gene with <product> attribute found.\n";}
-if ($product_l2_nb){
-  $stringPrint .= "We have $product_l2_nb mRNAs with <product> attribute.\n";
-}
-else{$stringPrint .= "No mRNA with <product> attribute found.\n";}
-
-
-print $out $stringPrint;
 # END STATISTICS #
 ##################
-print "Bye Bye.\n";
+print "Result available in <$opt_output>. Bye Bye.\n";
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -326,6 +160,276 @@ print "Bye Bye.\n";
                 ####
                  ##
 
+# Print table for l1
+sub table_info_l1l3{
+  my ($hash_info, $chimerel1l2, $tag, $table_file_out, $type_output)=@_;
+
+  my $lineB = "_____________________________________________________________________________";
+  my $stringPrint=undef;
+
+  my $stringPrintFooter=undef;
+  my $nb_up_ft = keys %{$hash_info{$chimerel1l2}{'type_ft'}{$tag}{"id"}};
+  $stringPrintFooter .= "Nb $tag = $nb_up_ft\n";
+
+  # --- HEADER ---
+  $stringPrint .= " ".$lineB."\n";
+  $stringPrint .= "|".sizedPrint(" ",25)."|".sizedPrint("Nb holded by",25)."|".sizedPrint("Nb $tag",25)."|\n";
+  $stringPrint .= "|".sizedPrint(" ",25)."|".sizedPrint("$tag",25)."|".sizedPrint("holding it",25)."|\n";
+  $stringPrint .= "|".$lineB."|\n";
+  
+  # --- general details ---
+  foreach my $type ("name", "product", "description", "ontology_term", "dbxref"){
+
+    my $term_holded_by_l1 = 0;
+    foreach my $id (keys %{$hash_info->{$chimerel1l2}{$type}{$tag}{"id"}} ) {
+      $term_holded_by_l1 +=  $hash_info->{$chimerel1l2}{$type}{$tag}{"id"}{$id};
+    }
+    my $l1_holding_term = keys %{$hash_info->{$chimerel1l2}{$type}{$tag}{"id"}};
+    $stringPrint .= "|".sizedPrint("$type",25)."|".sizedPrint($term_holded_by_l1,25)."|".sizedPrint($l1_holding_term,25)."|\n";
+    $stringPrint .= "|".$lineB."|\n";
+
+    # Add information about feature without of ...
+    my $nb_up_ft_withoutFunction = $nb_up_ft - $l1_holding_term;
+    $stringPrintFooter .= "Nb $tag with <$type> attribute = $l1_holding_term\n";
+    $stringPrintFooter .= "Nb $tag without <$type> attribute = $nb_up_ft_withoutFunction\n";
+
+    # --- Print ID \t function file ---
+    if($type ne "dbxref" ){
+      my $type_output_ok = $type_output."/$type";
+
+      if (exists_keys( $hash_info, ($chimerel1l2, $type, $tag, 'value') ) ){
+        mkdir $type_output_ok if (! -d $type_output_ok);
+        my $type_file = $type_output_ok."/$type"."_"."$tag.txt";
+        my $type_file_out = prepare_fileout($type_file);
+
+        foreach my $id (sort keys %{$hash_info->{$chimerel1l2}{$type}{$tag}{"id"}} ) {
+          foreach my $value (sort keys %{$hash_info->{$chimerel1l2}{$type}{$tag}{"value"}{$id}} ) {
+            print $type_file_out "$id\t$value\n";
+          }
+        }
+      }
+    }
+  }
+
+  # --- DBXREF details ---
+  # loop over all dbxref db seen
+  foreach my $db (sort keys %dbxref_db){
+    my $total_db_l1 = 0;
+    my $db_l1 = 0;
+    if ( exists_keys( $hash_info, ( $chimerel1l2, 'dbxref', $tag, "value", $db, "id" ) ) ){
+
+      
+      my $type_output_ok = $type_output."/dbxref";
+      mkdir $type_output_ok;
+      my $db_file = $type_output_ok."/$db"."_"."$tag.txt";
+      my $db_out = prepare_fileout($db_file);
+
+      $db_l1 = keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag}{"value"}{$db}{"id"}} ;
+      foreach my $id (sort keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag}{"value"}{$db}{"id"}}){
+        $total_db_l1 += $hash_info->{$chimerel1l2}{'dbxref'}{$tag}{"value"}{$db}{"id"}{$id};
+        foreach my $value (sort keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag}{"value"}{$db}{"value"}{$id}}){
+          print $db_out "$id\t$value\n";
+        }
+      }
+    }
+    $stringPrint .= "|".sizedPrint("dbxref:$db",25)."|".sizedPrint($total_db_l1,25)."|".sizedPrint($db_l1,25)."|\n";
+    $stringPrint .= "|".$lineB."|\n";
+
+    # Add information about feature without of ...
+    my $nb_up_ft_withoutFunction = $nb_up_ft - $db_l1;
+    $stringPrintFooter .= "Nb $tag with <$db> dbxref = $db_l1\n";
+    $stringPrintFooter .= "Nb $tag without <$db> dbxref = $nb_up_ft_withoutFunction\n";
+  }
+
+  # Add info about feature without
+  $stringPrint .= $stringPrintFooter;
+  #Print results
+  print $table_file_out $stringPrint;
+}
+
+
+# Print table for l2
+sub table_info_l2{
+  my ($hash_info, $chimerel1l2, $tag_l1, $tag_l2, $table_file_out, $type_output)=@_;
+  
+  my $lineB=       "_______________________________________________________________________________________________________";
+  my $stringPrint=undef;
+  
+  my $stringPrintFooter=undef;
+  my $nb_l2_ft = keys %{$hash_info{$chimerel1l2}{'type_ft'}{$tag_l2}{"id"}};
+  my $nb_l1_ft = keys %{$hash_info->{$chimerel1l2}{'type_ft'}{$tag_l1}{"id"}};
+  $stringPrintFooter .= "Nb $tag_l1 = $nb_l1_ft\n";
+  $stringPrintFooter .= "Nb $tag_l2 = $nb_l2_ft\n";
+
+  # --- HEADER ---
+  $stringPrint .= " ".$lineB."\n";
+  $stringPrint .= "|".sizedPrint(" ",25)."|".sizedPrint("Nb holded by",25)."|".sizedPrint("Nb $tag_l2",25)."|".sizedPrint("Nb $tag_l1 with",25)."|\n";
+  $stringPrint .= "|".sizedPrint(" ",25)."|".sizedPrint("$tag_l2",25)."|".sizedPrint("holding it",25)."|".sizedPrint("$tag_l2 holding it",25)."|\n";
+  $stringPrint .= "|".$lineB."|\n";
+  
+  # --- general details ---
+  foreach my $type ("name", "product", "description", "ontology_term", "dbxref"){
+
+    my $term_holded_by_l2 = 0;
+    foreach my $id (keys %{$hash_info->{$chimerel1l2}{$type}{$tag_l2}{"id"}} ) {
+      $term_holded_by_l2 +=  $hash_info->{$chimerel1l2}{$type}{$tag_l2}{"id"}{$id};
+    }
+    my $l2_holding_term = keys %{$hash_info->{$chimerel1l2}{$type}{$tag_l2}{"id"}};
+    my $l1_from_l2_holding_term = keys %{$hash_info->{$chimerel1l2}{$type}{$tag_l2}{"parent"}};
+    $stringPrint .= "|".sizedPrint("$type",25)."|".sizedPrint($term_holded_by_l2,25)."|".sizedPrint($l2_holding_term,25)."|".sizedPrint($l1_from_l2_holding_term,25)."|\n";
+    $stringPrint .= "|".$lineB."|\n";
+
+    # Add information about feature without of ...
+    my $nb_up_ft_withoutFunction = $nb_l1_ft - $l1_from_l2_holding_term;
+    $stringPrintFooter .= "Nb $tag_l1 with <$type> attribute = $l1_from_l2_holding_term\n";
+    $stringPrintFooter .= "Nb $tag_l1 without <$type> attribute = $nb_up_ft_withoutFunction\n";
+    $nb_up_ft_withoutFunction = $nb_l2_ft - $l2_holding_term;
+    $stringPrintFooter .= "Nb $tag_l2 with <$type> attribute = $l2_holding_term\n";
+    $stringPrintFooter .= "Nb $tag_l2 without <$type> attribute = $nb_up_ft_withoutFunction\n";
+
+    # --- Print ID \t function file ---
+    if($type ne "dbxref" ){
+      if (exists_keys( $hash_info, ($chimerel1l2, $type, $tag_l2, 'value') ) ){
+        my $type_output_ok = $type_output."/$type";
+        mkdir $type_output_ok if (! -d $type_output_ok);
+        my $type_file = $type_output_ok."/$type"."_"."$tag_l2.txt";
+        my $type_file_out = prepare_fileout($type_file);
+        foreach my $id (sort keys %{$hash_info->{$chimerel1l2}{$type}{$tag_l2}{"id"}} ) {
+          foreach my $value (sort keys %{$hash_info->{$chimerel1l2}{$type}{$tag_l2}{"value"}{$id}} ) {
+            print $type_file_out "$id\t$value\n";
+          }
+        }
+      }
+    }
+  }
+
+  # --- DBXREF details ---
+  # loop over all dbxref db seen
+  foreach my $db (sort keys %dbxref_db){
+    my $db_l2 = 0;
+    my $total_db_l2 = 0;
+    my $db_l1_from_l2 = 0;
+    my $db_l1 = 0;
+
+    if ( exists_keys( $hash_info, ( $chimerel1l2, 'dbxref', $tag_l2, "value", $db, "id" ) ) ){
+      $db_l2 = keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag_l2}{"value"}{$db}{"id"}} ;
+
+      my $type_output_ok = $type_output."/dbxref";
+      mkdir $type_output_ok if (! -d $type_output_ok);
+      my $db_file = $type_output_ok."/$db"."_"."$tag_l2.txt";
+      my $db_out = prepare_fileout($db_file);
+
+      foreach my $id (sort keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag_l2}{"value"}{$db}{"id"}}){
+        $total_db_l2 += $hash_info->{$chimerel1l2}{'dbxref'}{$tag_l2}{"value"}{$db}{"id"}{$id};
+        foreach my $value (sort keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag_l2}{"value"}{$db}{"value"}{$id}}){
+          print $db_out "$id\t$value\n";
+        }
+      }
+    }
+    if ( exists_keys( $hash_info, ( $chimerel1l2, 'dbxref', $tag_l2, "value", $db, "parent" ) ) ){
+      $db_l1_from_l2 = keys %{$hash_info->{$chimerel1l2}{'dbxref'}{$tag_l2}{"value"}{$db}{"parent"}} ;
+    }
+    $stringPrint .= "|".sizedPrint("dbxref:$db",25)."|".sizedPrint($total_db_l2,25)."|".sizedPrint($db_l2,25)."|".sizedPrint($db_l1_from_l2,25)."|\n";
+    $stringPrint .= "|".$lineB."|\n";
+
+    # Add information about feature without of ...
+    my $nb_up_ft_withoutFunction = $nb_l1_ft - $db_l1_from_l2;
+    $stringPrintFooter .= "Nb $tag_l1 with $db dbxref = $db_l1_from_l2\n";
+    $stringPrintFooter .= "Nb $tag_l1 without $db dbxref = $nb_up_ft_withoutFunction\n";
+    $nb_up_ft_withoutFunction = $nb_l2_ft - $db_l2;
+    $stringPrintFooter .= "Nb $tag_l2 with $db dbxref = $db_l2\n";
+    $stringPrintFooter .= "Nb $tag_l2 without $db dbxref = $nb_up_ft_withoutFunction\n";
+  }
+
+  # Add info about feature without
+  $stringPrint .= $stringPrintFooter;
+  #Print results
+  print $table_file_out $stringPrint;
+}
+
+sub analyse_feature{
+  my ($hash_info, $tag_l1, $feature)=@_;
+
+  my $id = $feature->_tag_value('ID');
+  my $type_ft = lc($feature->primary_tag);
+  my $parent = undef;
+  if($feature->has_tag('Parent') ){
+    $parent = $feature->_tag_value('Parent');
+  }
+
+  # General info
+  $hash_info{$tag_l1}{'type_ft'}{$type_ft}{"id"}{$id}++ ;
+  $hash_info{$tag_l1}{'type_ft'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+
+  #Check For NAME
+  if($feature->has_tag('Name') ){
+    my @values = $feature->get_tag_values('Name');
+    foreach my $value (@values){
+      $hash_info{$tag_l1}{'name'}{$type_ft}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'name'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'name'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+    }
+  }
+
+  #Check For product /!\ can have "hypothetical protein" values
+  if($feature->has_tag('product') ){
+    my @values = $feature->get_tag_values('product');
+    foreach my $value (@values){
+      $hash_info{$tag_l1}{'product'}{$type_ft}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'product'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'product'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+    }
+  }
+
+  #Check For description /!\ can have "hypothetical protein" values
+  if($feature->has_tag('description') ){
+    my @values = $feature->get_tag_values('description');
+    foreach my $value (@values){
+      $hash_info{$tag_l1}{'description'}{$type_ft}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'description'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'description'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+    }
+  }
+
+  #Check For Ontology_term
+  if($feature->has_tag('Ontology_term') ){
+    my @values = $feature->get_tag_values('Ontology_term');
+    foreach my $tuple (@values){
+      my ($type,$value) = split /:/,$tuple;
+      $hash_info{$tag_l1}{'ontology_term'}{$type_ft}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'ontology_term'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'ontology_term'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+      #print "l2 has tag ontology_term with value:".$value."\n";
+    }
+  }
+
+  #Check For Dbxref
+  if($feature->has_tag('Dbxref') ){
+    my @values = $feature->get_tag_values('Dbxref');
+    foreach my $tuple (@values){
+      my ($type,$value) = split /:/,$tuple;
+      $dbxref_db{$type}++; 
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"id"}{$id}++;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"parent"}{$parent}++ if ($parent);
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+    }
+  }
+  elsif($feature->has_tag('db_xref') ){
+    my @values = $feature->get_tag_values('db_xref');
+    foreach my $tuple (@values){
+      my ($type,$value) = split /:/,$tuple;
+      $dbxref_db{$type}++; 
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"value"}{$id}{$value}++ ;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"id"}{$id}++;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"value"}{$type}{"parent"}{$parent}++ if ($parent);
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"id"}{$id}++ ;
+      $hash_info{$tag_l1}{'dbxref'}{$type_ft}{"parent"}{$parent}++ if ($parent);
+    }
+  }
+}
+
 __END__
 
 =head1 NAME
@@ -334,7 +438,7 @@ agat_sp_functional_statistics.pl
 
 =head1 DESCRIPTION
 
-The script aims to summerize functional information stored in the file.
+The script aims to summerize functional information stored in a GXF/GTF file.
 
 =head1 SYNOPSIS
 
@@ -354,11 +458,9 @@ Input GTF/GFF file.
 This option inform about the genome size in oder to compute more statistics.
 You can give the size in Nucleotide or directly the fasta file.
 
-
 =item B<--output> or B<-o>
 
-File where will be written the result. If no output file is specified,
-the output will be written to STDOUT.
+Folder where will be written the results. [Default output_functional_statistics]
 
 =item B<-h> or B<--help>
 

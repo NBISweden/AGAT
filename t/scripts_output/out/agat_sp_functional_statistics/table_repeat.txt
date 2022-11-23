@@ -1,0 +1,35 @@
+
+Functional info repeat_region records:
+ _____________________________________________________________________________
+|                         |      Nb holded by       |    Nb repeat_region     |
+|                         |      repeat_region      |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            0            |            0            |
+|_____________________________________________________________________________|
+|         product         |            0            |            0            |
+|_____________________________________________________________________________|
+|       description       |            0            |            0            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            3            |            1            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            1            |            1            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            2            |            1            |
+|_____________________________________________________________________________|
+Nb repeat_region = 1
+Nb repeat_region with <name> attribute = 0
+Nb repeat_region without <name> attribute = 1
+Nb repeat_region with <product> attribute = 0
+Nb repeat_region without <product> attribute = 1
+Nb repeat_region with <description> attribute = 0
+Nb repeat_region without <description> attribute = 1
+Nb repeat_region with <ontology_term> attribute = 0
+Nb repeat_region without <ontology_term> attribute = 1
+Nb repeat_region with <dbxref> attribute = 1
+Nb repeat_region without <dbxref> attribute = 0
+Nb repeat_region with <GeneID> dbxref = 1
+Nb repeat_region without <GeneID> dbxref = 0
+Nb repeat_region with <TAIR> dbxref = 1
+Nb repeat_region without <TAIR> dbxref = 0

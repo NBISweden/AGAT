@@ -24,8 +24,7 @@ agat_sp_functional_statistics.pl --help
 
 - **--output** or **-o**
 
-    File where will be written the result. If no output file is specified,
-    the output will be written to STDOUT.
+    Folder where will be written the results. \[Default output_functional_statistics\]
 
 - **-h** or **--help**
 
