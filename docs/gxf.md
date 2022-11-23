@@ -38,7 +38,7 @@ It's often hard to understand and differentiate all GFF/GTF formats/flavors. Man
 
  ⇨	When I use the term gff it includes all gff formats/flavors. (The first version of the format was not called gff1 but gff. But to make it easier I will always specify the version of the format saying gff1 when I talk about the first version of it).  
  
- ⇨	I the same way, when I use the term gtf it includes all gtf formats/flavors.  
+ ⇨	In the same way, when I use the term gtf it includes all gtf formats/flavors.  
  
  ⇨	I have created the term **gxf** that means all the gff and gtf formats/flavors.
 
@@ -46,15 +46,14 @@ It's often hard to understand and differentiate all GFF/GTF formats/flavors. Man
 
 **GFF (Gene-Finding Format)** is a general-purpose genome annotation format. It was conceived during a 1997 meeting on computational genefinding at the Isaac Newton Institute, Cambridge, UK and developed in collaboration between the Sanger Centre, the University of California at Santa Cruz and other participants (_Holmes I: Studies in Probabilistic Sequence Alignment and Evolution. PhD thesis University of Cambridge 1998._). The key players have been **Richard Durbin** and **David Haussler**.  
 
-**GFF** is a one-line-per-record format that can be used to identify a substring of a biological sequence. It is an extension of a basic (name,start,end) tuple (or "NSE"). It was originally designed as a common format for sharing information between **gene-finding sensors** (finding signals:starts, splice sites, stops, motifs; finding regions: exons, introns, protein domains etc.), and **gene predictors** (predicting gene, RNA transcript or protein structures). These two steps were usually performed within the same program but thanks to the GFF format they can be decoupled allowing the transfer of feature information from a tool to another one.  
-But its uses go beyond gene-finding purpose and is used as a convenient way of representing a set of many kinds of feature. The GFF fomat has been developed to be easy to parse and process by a variety of programs in different languages (e.g Unix tools as grep and sort, perl, awk, etc). For these reasons, they decided that each feature is described on a single line, and line order is not relevant.
+**GFF** is a one-line-per-record format that can be used to identify a substring of a biological sequence. It is an extension of a basic (name, start, end) tuple (or "NSE"). It was originally designed as a common format for sharing information between **gene-finding sensors** (finding signals: starts, splice sites, stops, motifs; finding regions: exons, introns, protein domains etc.), and **gene predictors** (predicting gene, RNA transcript or protein structures). These two steps were usually performed within the same program but thanks to the GFF format they can be decoupled, allowing the transfer of feature information from one tool to another. But its uses go beyond gene-finding and it is used as a convenient way of representing a set of many kinds of feature. The GFF fomat has been developed to be easy to parse and process by a variety of programs in different languages (e.g Unix tools as grep and sort, perl, awk, etc.). For these reasons, they decided that each feature is described on a single line, and line order is not relevant.
 
 ## GFF
 
 ### GFF0  
 (before 13-11-1997)  
 
-There is no clear information about how look the format at that time but it was close to the GFF1 format specification without the field `source` added the 1997-11-13.
+There is no clear information about how the format looked at that time but it was close to the GFF1 format specification without the field `source` added the 1997-11-13.
 
 ### GFF1  
 (13-11-1997)  
@@ -62,13 +61,13 @@ There is no clear information about how look the format at that time but it was 
 For a complete description of the format please refer to this link:
 [https://web.archive.org/web/19980222142332/http://www.sanger.ac.uk:80/~rd/gff.html](https://web.archive.org/web/19980222142332/http://www.sanger.ac.uk:80/~rd/gff.html). This is the oldest description of the format I found (1998-02-22).
 
-I consider the format as GFF1 when they definitly defined the 9th field of the format (1997-11-13 rd: added extra `source` field as discussed at Newton Institute meeting 971029). Before that the format was existing but was at the stage of version 0.
+I consider the format as GFF1 when they definitely defined the 9th field of the format (1997-11-13 rd: added extra `source` field as discussed at Newton Institute meeting 971029). Before that, the format only existed in its 0th version.
 
-This GFF1 format contains 8 madatory fields and 9th one optional. Fields are:  
+This GFF1 format contains 8 mandatory fields followed by one optional field. The fields are:  
 
     <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [group]
 
-Definition of these fields are:
+They are defined as follows:
 
     <seqname>
         The name of the sequence. Having an explicit sequence name allows a feature file to be prepared for a data set of multiple sequences. Normally the seqname will be the identifier of the sequence in an accompanying fasta format file. An alternative is that 'seqname' is the identifier for a sequence in a public database, such as an EMBL/Genbank/DDBJ accession number. Which is the case, and which file or database to use, should be explained in accompanying information.
@@ -79,15 +78,15 @@ Definition of these fields are:
     <start>, <end>
         Integers. <start> must be less than or equal to <end>. Sequence numbering starts at 1, so these numbers should be between 1 and the length of the relevant sequence, inclusive.
     <score>
-        A floating point value. When there is no score (i.e. for a sensor that just records the possible presence of a signal, as "splice5" above) you must give something, by convention 0.
+        A floating point value. When there is no score (i.e., for a sensor that just records the possible presence of a signal, as "splice5" above) you must give something, by convention 0.
     <strand>
         One of '+', '-' or '.'. '.' should be used when strand is not relevant, e.g. for dinucleotide repeats.
     <frame>
-        One of '0', '1', '2' or '.'. '0' indicates that the specified region is in frame, i.e. that its first base corresponds to the first base of a codon. '1' indicates that there is one extra base, i.e. that the second base of the region corresponds to the first base of a codon, and '2' means that the third base of the region is the first base of a codon. If the strand is '-', then the first base of the region is value of <end>, because the corresponding coding region will run from <end> to <start> on the reverse strand.
+        One of '0', '1', '2' or '.'. '0' indicates that the specified region is in frame, i.e., that its first base corresponds to the first base of a codon. '1' indicates that there is one extra base, i.e., that the second base of the region corresponds to the first base of a codon, and '2' means that the third base of the region is the first base of a codon. If the strand is '-', then the first base of the region is value of <end>, because the corresponding coding region will run from <end> to <start> on the reverse strand.
     [group]
         An optional string-valued field that can be used as a name to group together a set of records. Typical uses might be to group the introns and exons in one gene prediction (or experimentally verified gene structure), or to group multiple regions of match to another sequence, such as an EST or a protein. See below for examples.
 
-    => All strings (i.e. values of the <seqname>, <feature> or <group> fields) should be under 256 characters long, and should not include whitespace. The whole line should be under 32k long. A character limit is not very desirable, but helps write parsers in some languages. The slightly silly 32k limit is to allow plenty of space for comments/extra data.
+    => All strings (i.e., values of the <seqname>, <feature> or <group> fields) should be under 256 characters long, and should not include whitespace. The whole line should be under 32k long. A character limit is not very desirable, but helps write parsers in some languages. The slightly silly 32k limit is to allow plenty of space for comments/extra data.
     => Fields must be separated by TAB characters ('\t').
 
 Extra features of the format:
@@ -99,7 +98,7 @@ Extra features of the format:
 
     ## comment lines for meta information
 
-    There is a set of standardised (i.e. parsable) ## line types that can be used optionally at the top of a gff file. The philosophy is a little like the special set of %% lines at the top of postscript files, used for example to give the BoundingBox for EPS files.
+    There is a set of standardised (i.e., parsable) ## line types that can be used optionally at the top of a gff file. The philosophy is a little like the special set of %% lines at the top of postscript files, used for example to give the BoundingBox for EPS files.
     Current proposed ## lines are:
 
      ##gff-version 1
@@ -118,7 +117,7 @@ Extra features of the format:
     To indicate that this file only contains entries for the the specified subregion of a sequence.
     Please feel free to propose new ## lines. The ## line proposal came out of some discussions including Anders Krogh, David Haussler, people at the Newton Institute on 1997-10-29 and some email from Suzanna Lewis. Of course, naive programs can ignore all of these...
 
-Here an example of GFF1:  
+Here is an example of GFF1:  
 
     ##gff-version 1
     SEQ1	EMBL	atg	103	105	.	+	0
@@ -136,29 +135,31 @@ Here an example of GFF1:
 ### GFF2  
 (29-09-2000)  
 
-**/!\ Note**: Some of the changes we will see have been implemented before the offical release of the version 2. As consequence, several interemediate states between version 1 and 2 have existed. We can call them GFF1.X. I will not discuss further these intermediate states.
+**/!\ Note**: Some of the changes we will see have been implemented before the offical release of GFF2. As a consequence, several interemediate states between version 1 and 2 have existed. We can call them GFF1.X. I will not further discuss these intermediate states.
 
-**16/12/98**: Discussions with **Lincoln Stein** and **others**,the Version 2 format of GFF is proposed.  
+**16/12/98**: Discussions with **Lincoln Stein** and **others**, the Version 2 format of GFF is proposed.  
+
 **17/11/99**: **Gene Feature Finding** Version 2 format is conceptually generalized to be the **General Feature Format**
 
 The GFF2 format is conceptualized since the 16/12/98 but becomes officially the default version the 2000-9-29.
 [Here is the official description](snapshots/sanger_gff2.md) which is a snapshot from here: https://web.archive.org/web/20010208224442/http://www.sanger.ac.uk:80/Software/formats/GFF/GFF_Spec.shtml.  
- You can find the first description (03 Feb 2000) of the GFF2 [here](snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
 
-Here we will review changes occured from the version 1.
+You can find the first description (03 Feb 2000) of the GFF2 [here](snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
+
+Here we will review changes from GFF1.
 
 => The **Gene Feature Finding** has been  generalized to accomodate RNA and Protein feature files and has been renamed the **General Feature Format** while retaining the same acronym GFF.  
 
-The main change from Version 1 to Version 2 is the addition of an optional 9th field with tag-value type structure (essentially semicolon-separated .ace format) used for any additional material on the line. Version 2 also allows '.' as a score, for features for which there is no score.
+The main change from Version 1 to Version 2 is the revision of the optional 9th field with tag-value type structure (essentially semicolon-separated .ace format) used for any additional material on the line. Version 2 also allows '.' as a score, for features for which there is no score.
 With the changes taking place to version 2 of the format, we also allow for feature sets to be defined over RNA and Protein sequences, as well as genomic DNA. This is used for example by the EMBOSS project to provide standard format output for all features as an option. In this case the <strand> and <frame> fields should be set to '.'. To assist this transition in specification, a new #Type Meta-Comment has been added.
 
 #### Definition
 
-This GFF2 format contains 8 madatory fields and 9th one optional. Fields are:  
+This GFF2 format contains 8 mandatory fields followed by optional fields. Fields are:  
 
       <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [group/attributes] [comments]
 
-Definition of these fields are (For better lisibility here is included only differences with GFF1):
+Differences in these fields from GFF1 are as follows:
 
     <seqname>
         /
@@ -169,7 +170,7 @@ Definition of these fields are (For better lisibility here is included only diff
     <start>, <end>
         Version 2 change: version 2 condones values of <start> and <end> that extend outside the reference sequence. This is often more natural when dumping from acedb, rather than clipping. It means that some software using the files may need to clip for itself.
     <score>
-        Version 2 change: When there is no score (i.e. for a sensor that just records the possible presence of a signal, as for the EMBL features above) you should use '.' instead of 0.
+        Version 2 change: When there is no score (i.e., for a sensor that just records the possible presence of a signal, as for the EMBL features above) you should use '.' instead of 0.
     <strand>
         Version 2 change: This field is left empty '.' for RNA and protein features.
     <frame>
@@ -179,7 +180,7 @@ Definition of these fields are (For better lisibility here is included only diff
 
     In addition to these, ACEDB typically dumps GFF with specific tag-value pairs for given feature types. These tag-value pairs may be considered 'standard' GFF tag-values with respect to ACEDB databases. (rbsk: These will be summarized in a table here in the near future)
 
-    Version 2 change: In version 2, the optional [group] field is renamed to [attribute] (09/99) and must have an tag value structure following the syntax used within objects in a .ace file, flattened onto one line by semicolon separators. Tags must be standard identifiers ([A-Za-z][A-Za-z0-9_]*). Free text values must be quoted with double quotes. Note: all non-printing characters in such free text value strings (e.g. newlines, tabs, control characters, etc) must be explicitly represented by their C (UNIX) style backslash-escaped representation (e.g. newlines as '\n', tabs as '\t'). As in ACEDB, multiple values can follow a specific tag. The aim is to establish consistent use of particular tags, corresponding to an underlying implied ACEDB model if you want to think that way (but acedb is not required). Examples of these would be:
+    Version 2 change: In version 2, the optional [group] field is renamed to [attribute] (09/99) and must have an tag-value structure following the syntax used within objects in a .ace file, flattened onto one line by semicolon separators. Tags must be standard identifiers ([A-Za-z][A-Za-z0-9_]*). Free text values must be quoted with double quotes. Note: all non-printing characters in such free text value strings (e.g. newlines, tabs, control characters, etc) must be explicitly represented by their C (UNIX) style backslash-escaped representation (e.g. newlines as '\n', tabs as '\t'). As in ACEDB, multiple values can follow a specific tag. The aim is to establish consistent use of particular tags, corresponding to an underlying implied ACEDB model if you want to think that way (but acedb is not required). Examples of these would be:
     seq1     BLASTX  similarity   101  235 87.1 + 0	Target "HBA_HUMAN" 11 55 ; E_value 0.0003
     dJ102G20 GD_mRNA coding_exon 7105 7201   .  - 2 Sequence "dJ102G20.C1.1"
 
@@ -198,7 +199,7 @@ Extra features of the format:
 
     ## comment lines for meta information
 
-    There is a set of standardised (i.e. parsable) ## line types that can be used optionally at the top of a gff file. The philosophy is a little like the special set of %% lines at the top of postscript files, used for example to give the BoundingBox for EPS files.
+    There is a set of standardised (i.e., parsable) ## line types that can be used optionally at the top of a gff file. The philosophy is a little like the special set of %% lines at the top of postscript files, used for example to give the BoundingBox for EPS files.
     Current proposed ## lines are:
 
       ##gff-version 2
@@ -231,7 +232,7 @@ Extra features of the format:
       ##sequence-region {seqname} {start} {end}
         /
 
-Here an example of GFF2:  
+Here is an example of GFF2:  
 
     ##gff-version 2
     SEQ1	EMBL	atg	103	105	.	+	0
@@ -246,7 +247,7 @@ Here an example of GFF2:
 ### GFF3  
 (2004)  
 
-GFF3 addresses several shortcomings in its predecessor GFF2. Actually it addresses the most common extensions to GFF, while preserving back-ward compatibility with previous formats. It has been conceptualized by by **Lincoln Stein**. [The First specification draft](https://web.archive.org/web/20031207182031/http://song.sourceforge.net:80/gff3.shtml) I found is from 10 September 2003 (version 1.00rc1). [The first offical specification](http://rice.bio.indiana.edu:7082/annot/gff3.html) is the version 1 published the 30 September 2004.
+GFF3 addresses several shortcomings in its predecessor, GFF2. Actually it addresses the most common extensions to GFF, while preserving backward compatibility with previous formats. It has been conceptualized by **Lincoln Stein**. [The First specification draft](https://web.archive.org/web/20031207182031/http://song.sourceforge.net:80/gff3.shtml) I found is from 10 September 2003 (version 1.00rc1). [The first offical specification](http://rice.bio.indiana.edu:7082/annot/gff3.html) is the version 1 published the 30 September 2004.
 
 Last updated the 26 February 2013 with version 1.23.
 Here is the last description of the specifications: [https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md)
@@ -254,7 +255,7 @@ Here is the last description of the specifications: [https://github.com/The-Sequ
 The majors updates are:  
   * the limitations of the feature type (3rd column) that is constrained to be either a term from the Sequence Ontology or an SO accession number (2278 possibilities).  * Some attribute's tags have predefined meanings: ID, Name, Alias, Parent, Target, Gap, Derives_from, Note, Dbxref, Ontology_term, Is_circular.
   * Parent, Alias, Note, Dbxref and Ontology_term attributes can have multiple values (separated with the comma "," character).  
-  * The **ID** indicates the ID of the feature. The ID attribute is required for features that have children (e.g. gene and mRNAs), or for those that span multiple lines, but are optional for other features. IDs for each feature must be unique within the scope of the GFF file. In the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID must collectively represent a single feature.  
+  * The **ID** indicates the ID of the feature. The ID attribute is required for features that have children (e.g. gene and mRNAs), or for those that span multiple lines, but are optional for other features. IDs for each feature must be unique within the scope of the GFF file. In the case of discontinuous features (i.e., a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID must collectively represent a single feature.  
   * The reserved Parent attribute can be used to establish a part-of relationship between two features. A feature that has the Parent attribute set is interpreted as asserting that it is a part of the specified Parent feature
 
 ## GTF
@@ -265,7 +266,9 @@ The majors updates are:
 **GTF stands for Gene Transfer Format.**
 
 GTF borrows from the GFF file format [1], but has additional structure that warrants a separate definition and format name.
-The structure is similar to GFF, so the fields are: <seqname><source><feature><start><end><score><strand><frame><attributes>
+The structure is similar to GFF, so the fields are:  
+
+      <seqname><source><feature><start><end><score><strand><frame><attributes>
 
 In this paper from 2003 [(Keibler E, Brent M: Eval: a software package for analysis of genome annotations. BMC Bioinformatics 2003, 4:50.)](https://doi.org/10.1186/1471-2105-4-50)
 they say:
@@ -293,9 +296,9 @@ So the oldest paper they point to is the one from [Reese et al. from February 9,
     within the GFF format, for instance, declaring that submitters should describe coding exons with 
     the feature name CDS.
 
-From those information we can understand that in ~2000 for the drosophila genome project they have use the GFF format with particuliar specification that leaded to the emergence of the GTF format.
+From this, we can understand that in ~2000 for the drosophila genome project they have use the GFF format with particuliar specification that lead to the emergence of the GTF format.
 
-In another paper [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6): 996–1006. doi:10.1101/gr.229102](https://doi.org/10.1101/gr.229102) the authors say that the GTF format has been designed specifically for the human genome project:
+In another paper, [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6): 996–1006. doi:10.1101/gr.229102](https://doi.org/10.1101/gr.229102) the authors say that the GTF format has been designed specifically for the human genome project:
 
     Since August 2001, it has become possible for users to upload their own annotations for display
     in the browser. These annotations can be in the standard GFF format 
@@ -304,9 +307,9 @@ In another paper [The Human Genome Browser at UCSC. Genome Res. 2002 Jun; 12(6):
     page http://genome.cse.ucsc.edu/goldenPath/help/customTrack.html. Note that the GFF and GTF files
     must be tab delimited rather than space delimited.
       
-With this last paper it's hard to understand from which project the GTF format is finally born.
+With this last paper, it's hard to understand from which project the GTF format is finally born.
 
-Until now I havn't find a comprehensive description of the original GTF version (Ensembl version ?) but based some hints from the Masters Project Report of Evan Keibler `Eval: A Gene Set Comparison System` and from other ressources I can say that the GTF1 was similar to GTF2. With few differences listed here:
+Until now I havn't find a comprehensive description of the original GTF version (Ensembl version ?), but based on some hints from the Masters Project Report of Evan Keibler `Eval: A Gene Set Comparison System` and from other ressources I can say that the GTF1 was similar to GTF2. With few differences listed here:
 
   * feature  
       
@@ -319,11 +322,11 @@ Until now I havn't find a comprehensive description of the original GTF version 
 ### GTF2 and GFF2.5  
 (2003)  
 
-We can find on some place that GTF2 is similar to GFF2.5 but I do not find coherent explanation about it. It sounds definitly to be GTF format.
+We can find in some places that GTF2 is similar to GFF2.5, but I do not know of a coherent explanation about it. It sounds definitely to be GTF format.
 The original GTF described by Ensembl has been adapted and became GTF2 for the need of the the Mouse/Human Annotation Collaboration.
 
 [Here the description from the Brent Lab at the Washington University in St. Louis](https://web.archive.org/web/20031212200757/http://genes.cse.wustl.edu/GTF2.html).
-Found from the Eval publication received the 18 july 2003 mentioning the address http://genes.cse.wustl.edu/GTF2.html that has been archived in the web-archive the 12/12/2003. Prior to the publication in BMC Bioinformatics (and after 1 January 2003 because it's the most recent  journal cited in his report) E. Kleiber released a Master project report named "Eval: A Gene Set Comparison System" where he mention and describe the GTF, maybe the first version of the GTF2 format.
+Found from the Eval publication received the 18 July 2003 mentioning the address http://genes.cse.wustl.edu/GTF2.html that has been archived in the web-archive the 12/12/2003. Prior to the publication in BMC Bioinformatics (and after 1 January 2003 because it's the most recent  journal cited in his report) E. Kleiber released a Master project report named "Eval: A Gene Set Comparison System" where he mention and describe the GTF, maybe the first version of the GTF2 format.
 
 GTF borrows from the GFF file format [1], but has additional structure that warrants a separate definition and format name.
 The structure is similar to GFF, so the fields are: <seqname><source><feature><start><end><score><strand><frame><attributes>
@@ -378,7 +381,7 @@ Here an example of GTF:
 (2005)  
 
 [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF21.html).
-In this version the **feature** field change a little bit and can contain 6 different types:
+In this version, the **feature** field change a little bit and can contain 6 different types:
 
 ```
 The following feature types are required: "CDS", "start_codon", "stop_codon".  
@@ -388,7 +391,7 @@ The features "5UTR", "3UTR", and "exon" are optional. All other features will be
 ### GTF2.2  
 (2007)  
 
-In this version they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
+In this version, they included specific 9th column terms: **transcript_id**, **protein_id** and **gene_id**.  
  [Here the description from the Brent Lab at the Washington University in St. Louis](http://mblab.wustl.edu/GTF22.html).  
 The **<feature>** field change a little bit and can contain 9 different types:
   
@@ -402,11 +405,9 @@ The features "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS" and "exon" are o
 ### GTF2.5  
 (2012)  
 
-This version is unofficial. I call it like that to differentiate it against the other GTF flavors. This GTF flavor has been developed by the GENCODE project.  
-[Here is the first desciption of this format.](https://web.archive.org/web/20130116085529/https://www.gencodegenes.org/gencodeformat.html)  
-[Here is the last desciption of this format.](https://www.gencodegenes.org/pages/data_format.html)  
-The **<feature>** field change a little bit and can contain 8 different types: gene, transcript, exon, CDS, UTR, start_codon, stop_codon, Selenocysteine.
-The tags/key-name of the **<attribute>** field started with 9 mandatories and 34 optionals (30 from Havanna project and 4 specific to Genecode). The most recent description of the format shows that it has existed until 11 different mandatory tags, but depending of the version and the line (feature type) the number of mandatory tags has varied a lot. There is also 76 that are optionals (70 comes from of a special set of tags, and 6 are specifics). For GRCh38 annotation lifted back to GRCh3 there is 6 other optional tags.
+This version is unofficial. I call it like that to differentiate it against the other GTF flavors. This GTF flavor has been developed by the GENCODE project. Here is [the first desciption of this format](https://web.archive.org/web/20130116085529/https://www.gencodegenes.org/gencodeformat.html) and [the last desciption of this format](https://www.gencodegenes.org/pages/data_format.html). The **<feature>** field changed a little bit and can contain 8 different types: gene, transcript, exon, CDS, UTR, start_codon, stop_codon, Selenocysteine.
+
+The tags/key-name of the **<attribute>** field started with 9 mandatories and 34 optionals (30 from Havanna project and 4 specific to Genecode). The most recent description of the format shows that it has existed until 11 different mandatory tags, but depending of the version and the line (feature type) the number of mandatory tags has varied a lot. There are also 76 that are optionals (70 comes from of a special set of tags, and 6 are specifics). For GRCh38 annotation lifted back to GRCh3, there are 6 other optional tags.
 
 ### GTF3  
 (2015)  
@@ -440,19 +441,21 @@ GTF3| 2015 | | | gene, transcript, exon, CDS, Selenocysteine, start_codon, stop_
 
 ### Discussion
 
-Then main differences between GTF and GFF formats are the 3rd and 9th colomn. The feature type value of the 3rd column in GTF is constrained by a list of few feature types (<10) while in GFF it is much more vast. It was not constrained until version 3 where it is now constrained to be either a term from the Sequence Ontology or an SO accession number ( 2278 possible terms ).  
+The main differences between GTF and GFF formats are the 3rd and 9th colomn. The feature type value of the 3rd column in GTF is constrained by a list of few feature types (<10) while in GFF it is much more vast. It was not constrained until version 3 where it is now constrained to be either a term from the Sequence Ontology or an SO accession number ( 2278 possible terms ).  
+
 The structure of the 9th column is slightly different between the two formats:  
   * GTF2.2: **attribute_name “attribute_value”; attribute_name “attribute_value”;**  
   * GFF3: **ID=cds00004;Parent=mRNA00001,mRNA00002;Name=edenprotein.4**  
-Within that colum the mandatory attributes are differents.
+
+Within that column, the mandatory attributes are different.
 
 **Feature type limitation wihtin GTF**  
 
-As the feature types of the 3rd column is limited by the GTF format, many groups/infrastrucutre use the 9th column to describe other features like tRNA, pseudogenes, etc. As example, ENSEMBL use the attribute **gene_biotype** to define if a **transcript** feature is coding or non-coding.
+As the feature types of the 3rd column is limited by the GTF format, many groups/infrastructure use the 9th column to describe other features like tRNA, pseudogenes, etc. As an example, ENSEMBL use the attribute **gene_biotype** to define if a **transcript** feature is coding or non-coding.
 
 ## Extra
 
-### Problem encountered due to lack of standardization
+### Problems encountered due to lack of standardization
 
 **Inconsistency in stop codon treatment in GTF tracks** (from https://genome.ucsc.edu/FAQ/FAQtracks.html):  
 
