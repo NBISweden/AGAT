@@ -1,0 +1,215 @@
+
+Functional info gene@mrna records:
+ _____________________________________________________________________________
+|                         |      Nb holded by       |         Nb gene         |
+|                         |          gene           |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            0            |            0            |
+|_____________________________________________________________________________|
+|         product         |            0            |            0            |
+|_____________________________________________________________________________|
+|       description       |            4            |            4            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            0            |            0            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |
+|_____________________________________________________________________________|
+Nb gene = 4
+Nb gene with <name> attribute = 0
+Nb gene without <name> attribute = 4
+Nb gene with <product> attribute = 0
+Nb gene without <product> attribute = 4
+Nb gene with <description> attribute = 4
+Nb gene without <description> attribute = 0
+Nb gene with <ontology_term> attribute = 0
+Nb gene without <ontology_term> attribute = 4
+Nb gene with <dbxref> attribute = 0
+Nb gene without <dbxref> attribute = 4
+Nb gene with <GeneID> dbxref = 0
+Nb gene without <GeneID> dbxref = 4
+Nb gene with <TAIR> dbxref = 0
+Nb gene without <TAIR> dbxref = 4
+ _______________________________________________________________________________________________________
+|                         |      Nb holded by       |         Nb mrna         |      Nb gene with       |
+|                         |          mrna           |        holding it       |     mrna holding it     |
+|_______________________________________________________________________________________________________|
+|          name           |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|         product         |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|       description       |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|      ontology_term      |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|          dbxref         |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |            0            |
+|_______________________________________________________________________________________________________|
+Nb gene = 4
+Nb mrna = 4
+Nb gene with <name> attribute = 0
+Nb gene without <name> attribute = 4
+Nb mrna with <name> attribute = 0
+Nb mrna without <name> attribute = 4
+Nb gene with <product> attribute = 0
+Nb gene without <product> attribute = 4
+Nb mrna with <product> attribute = 0
+Nb mrna without <product> attribute = 4
+Nb gene with <description> attribute = 0
+Nb gene without <description> attribute = 4
+Nb mrna with <description> attribute = 0
+Nb mrna without <description> attribute = 4
+Nb gene with <ontology_term> attribute = 0
+Nb gene without <ontology_term> attribute = 4
+Nb mrna with <ontology_term> attribute = 0
+Nb mrna without <ontology_term> attribute = 4
+Nb gene with <dbxref> attribute = 0
+Nb gene without <dbxref> attribute = 4
+Nb mrna with <dbxref> attribute = 0
+Nb mrna without <dbxref> attribute = 4
+Nb gene with GeneID dbxref = 0
+Nb gene without GeneID dbxref = 4
+Nb mrna with GeneID dbxref = 0
+Nb mrna without GeneID dbxref = 4
+Nb gene with TAIR dbxref = 0
+Nb gene without TAIR dbxref = 4
+Nb mrna with TAIR dbxref = 0
+Nb mrna without TAIR dbxref = 4
+ _____________________________________________________________________________
+|                         |      Nb holded by       |          Nb cds         |
+|                         |           cds           |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            0            |            0            |
+|_____________________________________________________________________________|
+|         product         |            0            |            0            |
+|_____________________________________________________________________________|
+|       description       |            0            |            0            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            0            |            0            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |
+|_____________________________________________________________________________|
+Nb cds = 4
+Nb cds with <name> attribute = 0
+Nb cds without <name> attribute = 4
+Nb cds with <product> attribute = 0
+Nb cds without <product> attribute = 4
+Nb cds with <description> attribute = 0
+Nb cds without <description> attribute = 4
+Nb cds with <ontology_term> attribute = 0
+Nb cds without <ontology_term> attribute = 4
+Nb cds with <dbxref> attribute = 0
+Nb cds without <dbxref> attribute = 4
+Nb cds with <GeneID> dbxref = 0
+Nb cds without <GeneID> dbxref = 4
+Nb cds with <TAIR> dbxref = 0
+Nb cds without <TAIR> dbxref = 4
+ _____________________________________________________________________________
+|                         |      Nb holded by       |         Nb exon         |
+|                         |          exon           |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            22           |            21           |
+|_____________________________________________________________________________|
+|         product         |            3            |            2            |
+|_____________________________________________________________________________|
+|       description       |            2            |            1            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            0            |            0            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |
+|_____________________________________________________________________________|
+Nb exon = 21
+Nb exon with <name> attribute = 21
+Nb exon without <name> attribute = 0
+Nb exon with <product> attribute = 2
+Nb exon without <product> attribute = 19
+Nb exon with <description> attribute = 1
+Nb exon without <description> attribute = 20
+Nb exon with <ontology_term> attribute = 0
+Nb exon without <ontology_term> attribute = 21
+Nb exon with <dbxref> attribute = 0
+Nb exon without <dbxref> attribute = 21
+Nb exon with <GeneID> dbxref = 0
+Nb exon without <GeneID> dbxref = 21
+Nb exon with <TAIR> dbxref = 0
+Nb exon without <TAIR> dbxref = 21
+ _____________________________________________________________________________
+|                         |      Nb holded by       |    Nb five_prime_utr    |
+|                         |      five_prime_utr     |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            0            |            0            |
+|_____________________________________________________________________________|
+|         product         |            0            |            0            |
+|_____________________________________________________________________________|
+|       description       |            0            |            0            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            0            |            0            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |
+|_____________________________________________________________________________|
+Nb five_prime_utr = 4
+Nb five_prime_utr with <name> attribute = 0
+Nb five_prime_utr without <name> attribute = 4
+Nb five_prime_utr with <product> attribute = 0
+Nb five_prime_utr without <product> attribute = 4
+Nb five_prime_utr with <description> attribute = 0
+Nb five_prime_utr without <description> attribute = 4
+Nb five_prime_utr with <ontology_term> attribute = 0
+Nb five_prime_utr without <ontology_term> attribute = 4
+Nb five_prime_utr with <dbxref> attribute = 0
+Nb five_prime_utr without <dbxref> attribute = 4
+Nb five_prime_utr with <GeneID> dbxref = 0
+Nb five_prime_utr without <GeneID> dbxref = 4
+Nb five_prime_utr with <TAIR> dbxref = 0
+Nb five_prime_utr without <TAIR> dbxref = 4
+ _____________________________________________________________________________
+|                         |      Nb holded by       |    Nb three_prime_utr   |
+|                         |     three_prime_utr     |        holding it       |
+|_____________________________________________________________________________|
+|          name           |            0            |            0            |
+|_____________________________________________________________________________|
+|         product         |            0            |            0            |
+|_____________________________________________________________________________|
+|       description       |            0            |            0            |
+|_____________________________________________________________________________|
+|      ontology_term      |            0            |            0            |
+|_____________________________________________________________________________|
+|          dbxref         |            0            |            0            |
+|_____________________________________________________________________________|
+|      dbxref:GeneID      |            0            |            0            |
+|_____________________________________________________________________________|
+|       dbxref:TAIR       |            0            |            0            |
+|_____________________________________________________________________________|
+Nb three_prime_utr = 4
+Nb three_prime_utr with <name> attribute = 0
+Nb three_prime_utr without <name> attribute = 4
+Nb three_prime_utr with <product> attribute = 0
+Nb three_prime_utr without <product> attribute = 4
+Nb three_prime_utr with <description> attribute = 0
+Nb three_prime_utr without <description> attribute = 4
+Nb three_prime_utr with <ontology_term> attribute = 0
+Nb three_prime_utr without <ontology_term> attribute = 4
+Nb three_prime_utr with <dbxref> attribute = 0
+Nb three_prime_utr without <dbxref> attribute = 4
+Nb three_prime_utr with <GeneID> dbxref = 0
+Nb three_prime_utr without <GeneID> dbxref = 4
+Nb three_prime_utr with <TAIR> dbxref = 0
+Nb three_prime_utr without <TAIR> dbxref = 4
