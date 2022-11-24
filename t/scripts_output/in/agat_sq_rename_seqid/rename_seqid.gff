@@ -1,0 +1,70 @@
+##gff-version 3
+##sequence-region   1 1 43270923
+#!genome-build RAP-DB seq1-1.0
+#!genome-version seq1-1.0
+#!genome-date 2015-10
+#!genome-build-accession GCA_001433935.1
+contig1	RAP-DB	chromosome	1	43270923	.	.	.	ID=chromosome:1;Alias=Chr1,AP014957.1,NC_029256.1
+###
+seq1	toolX	repeat_region	2000	2100	.	+	.	ID=fakeRepeat1
+###
+seq1	toolX	gene	11218	12435	.	+	.	ID=gene:Os01g0100200;biotype=protein_coding;description=Conserved hypothetical protein. (Os01t0100200-01);gene_id=Os01g0100200;logic_name=seq1v1.0-20170804-genes
+seq1	toolX	mRNA	11218	12435	.	+	.	ID=transcript:Os01t0100200-01;Parent=gene:Os01g0100200;biotype=protein_coding;transcript_id=Os01t0100200-01
+seq1	toolX	five_prime_UTR	11218	11797	.	+	.	Parent=transcript:Os01t0100200-01
+seq1	toolX	exon	11218	12060	.	+	.	Parent=transcript:Os01t0100200-01;Name=Os01t0100200-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0100200-01.exon1;rank=1
+seq1	toolX	CDS	11798	12060	.	+	0	ID=CDS:Os01t0100200-01;Parent=transcript:Os01t0100200-01;protein_id=Os01t0100200-01
+seq1	toolX	CDS	12152	12317	.	+	1	ID=CDS:Os01t0100200-01;Parent=transcript:Os01t0100200-01;protein_id=Os01t0100200-01
+seq1	toolX	exon	12152	12435	.	+	.	Parent=transcript:Os01t0100200-01;Name=Os01t0100200-01.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0100200-01.exon2;rank=2
+seq1	toolX	three_prime_UTR	12318	12435	.	+	.	Parent=transcript:Os01t0100200-01
+###
+seq2	toolX	gene	11372	12284	.	-	.	ID=gene:Os01g0100300;biotype=protein_coding;description=Cytochrome P450 domain containing protein. (Os01t0100300-00);gene_id=Os01g0100300;logic_name=seq2v1.0-20170804-genes
+seq2	toolX	mRNA	11372	12284	.	-	.	ID=transcript:Os01t0100300-00;Parent=gene:Os01g0100300;biotype=protein_coding;transcript_id=Os01t0100300-00
+seq2	toolX	exon	11372	12042	.	-	.	Parent=transcript:Os01t0100300-00;Name=Os01t0100300-00.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0100300-00.exon2;rank=2
+seq2	toolX	CDS	11372	12042	.	-	2	ID=CDS:Os01t0100300-00;Parent=transcript:Os01t0100300-00;protein_id=Os01t0100300-00
+seq2	toolX	exon	12146	12284	.	-	.	Parent=transcript:Os01t0100300-00;Name=Os01t0100300-00.exon1;constitutive=1;ensembl_end_phase=1;ensembl_phase=0;exon_id=Os01t0100300-00.exon1;rank=1
+seq2	toolX	CDS	12146	12284	.	-	0	ID=CDS:Os01t0100300-00;Parent=transcript:Os01t0100300-00;protein_id=Os01t0100300-00
+###
+seq2	toolX	gene	12721	15685	.	+	.	ID=gene:Os01g0100400;biotype=protein_coding;description=Similar to Pectinesterase-like protein. (Os01t0100400-01);gene_id=Os01g0100400;logic_name=seq2v1.0-20170804-genes
+seq2	toolX	mRNA	12721	15685	.	+	.	ID=transcript:Os01t0100400-01;Parent=gene:Os01g0100400;biotype=protein_coding;transcript_id=Os01t0100400-01
+seq2	toolX	five_prime_UTR	12721	12773	.	+	.	Parent=transcript:Os01t0100400-01
+seq2	toolX	exon	12721	13813	.	+	.	Parent=transcript:Os01t0100400-01;Name=Os01t0100400-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0100400-01.exon1;rank=1
+seq2	toolX	CDS	12774	13813	.	+	0	ID=CDS:Os01t0100400-01;Parent=transcript:Os01t0100400-01;protein_id=Os01t0100400-01
+seq2	toolX	exon	13906	14271	.	+	.	Parent=transcript:Os01t0100400-01;Name=Os01t0100400-01.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=2;exon_id=Os01t0100400-01.exon2;rank=2
+seq2	toolX	CDS	13906	14271	.	+	1	ID=CDS:Os01t0100400-01;Parent=transcript:Os01t0100400-01;protein_id=Os01t0100400-01
+seq2	toolX	exon	14359	14437	.	+	.	Parent=transcript:Os01t0100400-01;Name=Os01t0100400-01.exon3;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0100400-01.exon3;rank=3
+seq2	toolX	CDS	14359	14437	.	+	1	ID=CDS:Os01t0100400-01;Parent=transcript:Os01t0100400-01;protein_id=Os01t0100400-01
+seq2	toolX	exon	14969	15171	.	+	.	Parent=transcript:Os01t0100400-01;Name=Os01t0100400-01.exon4;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0100400-01.exon4;rank=4
+seq2	toolX	CDS	14969	15171	.	+	0	ID=CDS:Os01t0100400-01;Parent=transcript:Os01t0100400-01;protein_id=Os01t0100400-01
+seq2	toolX	CDS	15266	15359	.	+	1	ID=CDS:Os01t0100400-01;Parent=transcript:Os01t0100400-01;protein_id=Os01t0100400-01
+seq2	toolX	exon	15266	15685	.	+	.	Parent=transcript:Os01t0100400-01;Name=Os01t0100400-01.exon5;constitutive=1;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0100400-01.exon5;rank=5
+seq2	toolX	three_prime_UTR	15360	15685	.	+	.	Parent=transcript:Os01t0100400-01
+###
+seq3	toolX	gene	12808	13978	.	-	.	ID=gene:Os01g0100466;biotype=protein_coding;description=Hypothetical protein. (Os01t0100466-00);gene_id=Os01g0100466;logic_name=seq3v1.0-20170804-genes
+seq3	toolX	mRNA	12808	13978	.	-	.	ID=transcript:Os01t0100466-00;Parent=gene:Os01g0100466;biotype=protein_coding;transcript_id=Os01t0100466-00
+seq3	toolX	three_prime_UTR	12808	12868	.	-	.	Parent=transcript:Os01t0100466-00
+seq3	toolX	exon	12808	13782	.	-	.	Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon2;rank=2
+seq3	toolX	CDS	12869	13102	.	-	0	ID=CDS:Os01t0100466-00;Parent=transcript:Os01t0100466-00;protein_id=Os01t0100466-00
+seq3	toolX	five_prime_UTR	13103	13782	.	-	.	Parent=transcript:Os01t0100466-00
+seq3	toolX	exon	13880	13978	.	-	.	Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon1;rank=1
+seq3	toolX	five_prime_UTR	13880	13978	.	-	.	Parent=transcript:Os01t0100466-00
+###
+seq3	toolX	gene	16399	20144	.	+	.	ID=gene:Os01g0100500;biotype=protein_coding;description=Immunoglobulin-like domain containing protein. (Os01t0100500-01);gene_id=Os01g0100500;logic_name=seq3v1.0-20170804-genes
+seq3	toolX	mRNA	16399	20144	.	+	.	ID=transcript:Os01t0100500-01;Parent=gene:Os01g0100500;biotype=protein_coding;transcript_id=Os01t0100500-01
+seq3	toolX	five_prime_UTR	16399	16598	.	+	.	Parent=transcript:Os01t0100500-01
+seq3	toolX	exon	16399	16976	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon1;constitutive=1;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0100500-01.exon1;rank=1
+seq3	toolX	CDS	16599	16976	.	+	0	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	17383	17474	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0100500-01.exon2;rank=2
+seq3	toolX	CDS	17383	17474	.	+	0	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	17558	18258	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon3;constitutive=1;ensembl_end_phase=1;ensembl_phase=2;exon_id=Os01t0100500-01.exon3;rank=3
+seq3	toolX	CDS	17558	18258	.	+	1	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	18501	18571	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon4;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0100500-01.exon4;rank=4
+seq3	toolX	CDS	18501	18571	.	+	2	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	18968	19057	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon5;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0100500-01.exon5;rank=5
+seq3	toolX	CDS	18968	19057	.	+	0	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	19142	19321	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon6;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0100500-01.exon6;rank=6
+seq3	toolX	CDS	19142	19321	.	+	0	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	CDS	19531	19593	.	+	0	ID=CDS:Os01t0100500-01;Parent=transcript:Os01t0100500-01;protein_id=Os01t0100500-01
+seq3	toolX	exon	19531	19629	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon7;constitutive=1;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0100500-01.exon7;rank=7
+seq3	toolX	three_prime_UTR	19594	19629	.	+	.	Parent=transcript:Os01t0100500-01
+seq3	toolX	exon	19734	20144	.	+	.	Parent=transcript:Os01t0100500-01;Name=Os01t0100500-01.exon8;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100500-01.exon8;rank=8
+seq3	toolX	three_prime_UTR	19734	20144	.	+	.	Parent=transcript:Os01t0100500-01

@@ -699,6 +699,15 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# --------check agat_sq_rename_seqid.pl-------------
+
+$script = $script_prefix."bin/agat_sq_rename_seqid.pl";
+$result = "$output_folder/agat_sq_rename_seqid_1.gff";
+system(" $script --gff $input_folder/agat_sq_rename_seqid/rename_seqid.gff --tsv $input_folder/agat_sq_rename_seqid/rename_table.tsv -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # --------check agat_sq_repeats_analyzer.pl-------------
 
 # XXX
