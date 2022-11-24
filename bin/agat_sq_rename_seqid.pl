@@ -23,7 +23,7 @@ my $opt_help = 0;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions (  'gff=s' => \$input_gff,
                     'o|output=s' => \$outputFile,
-			        'tsv=s' => \$input_tsv,
+	                'tsv=s' => \$input_tsv,
                     'csv!' => \$csv,
 			        'v|verbose!' => \$verbose,
                     'h|help!'         => \$opt_help )  )
@@ -58,13 +58,9 @@ my $gff_in = Bio::Tools::GFF->new(-file => $input_gff, -gff_version => $format);
 open(INPUT, "<", $input_tsv) or die ("$!\n");
 
 # Open tsv file for reading
-my $line = 0;
 my %tsv;
-my %header;
-my $nb_header = undef;
 while (<INPUT>) {
 	chomp;
-	$line++;
 
 	$_=~ s/^\s+//; #removing leading spaces
 	$_=~ s/\s+$//; #removing trailing spaces
@@ -74,54 +70,17 @@ while (<INPUT>) {
 	if ($csv){
 		@splitline = split /,/, $_;
 	}
-  else{
+  	else{
 	  @splitline = split /\t/, $_; # split at tabulation
-  }
+  	}
 
-	if ($line == 1){
-		$nb_header = scalar @splitline;
-		print "$nb_header headers\n" if $verbose;
-		my $cpt = 0;
-		foreach my $header_title (@splitline){
-			$header{$cpt++} = $header_title;
-		}
-	}
-	else{
-		my $nb_column = scalar @splitline;
-		if($nb_column != $nb_header) { print "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"; }
-		for(my $i = 1; $i <= $#splitline; $i++){
-			$tsv{lc($splitline[0])}{$header{$i}} = $splitline[$i];
-		}
-	}
+	$tsv{$splitline[0]} = $splitline[1];
 }
 
-my $cpt_line = 0;
 while (my $feature = $gff_in->next_feature() ) {
-	$cpt_line++;
 
-	if($feature->has_tag('ID')){
-		my $id = lc($feature->_tag_value('ID'));
-		if (exists_keys(\%tsv,($id))){
-			foreach my $att ( sort keys %{$tsv{$id}} ){
-				#attribute already exists
-				if($feature->has_tag($att)){
-					my @originalvalues = $feature->get_tag_values($att);
-					if (grep( /$tsv{$id}{$att}/, @originalvalues)){
-						print "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n" if ($verbose);
-					}
-					#add attribute
-					else{
-						print "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n" if ($verbose);
-						$feature->add_tag_value($att, $tsv{$id}{$att});
-					}
-				}
-				# new attribute
-				else{
-					print "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n" if ($verbose);
-					$feature->add_tag_value($att, $tsv{$id}{$att});
-				}
-			}
-		}
+	if(exists_keys(\%tsv,  ($feature->seq_id() ) ) ){
+		$feature->seq_id($tsv{$feature->seq_id()});
 	}
 	$gffout->write_feature($feature);
 }
@@ -134,37 +93,24 @@ __END__
 
 =head1 NAME
 
-agat_sq_add_attributes_from_tsv.pl
+agat_sq_rename_seqid.pl
 
 =head1 DESCRIPTION
 
-The script aims to add info from a tsv/csv file to the attributes of a gff file.
-An attribute looks like that: tag=value1,value2
-The first line of the tsv/csv must contains the headers, the other lines contain the values.
-The header becomes the tag of the new attribute. If the tag already exists, the value will be added only
-if the value does not already exists.
-The first column does not become an attribute, indeed it must contain the feature ID
-that will be used to know to which feature we will add the attributes.
+The script aims to modify seqid (1st column) of a GFF/GTF file efficiently. 
+Indeed, when the number of chromosomes or scaffolding is large, 
+replacement using e.g. sed command can be time-consuming. 
+You must provide a file (tsv or csv) without header and with 
+one renaming information by line: The first value is the original sequence identifier (1st column of the GFF/GTF file), 
+the second value is the new sequence identifier to use.
 
---- example ---
 
-* input.tsv:
-ID	annot_type1
-gene1	anot_x
-cds1	anot_y
-
-* gff:
-chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1
-chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1
-
-* output.gff:
-chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot_type1=anot_x
-chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=anot_y
+number of chromosomes or scaffolding is large, sed replacement is time-consuming
 
 =head1 SYNOPSIS
 
-    agat_sq_add_attributes_from_tsv.pl --gff input.gff --tsv input.tsv [ -o output.gff3 ]
-    agat_sq_add_attributes_from_tsv.pl --help
+    agat_sq_rename_seqid.pl --gff input.gff --tsv input.tsv [ -o output.gff3 ]
+    agat_sq_rename_seqid.pl --help
 
 =head1 OPTIONS
 
