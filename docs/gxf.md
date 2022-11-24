@@ -46,7 +46,7 @@ It's often hard to understand and differentiate all GFF/GTF formats/flavors. Man
 
 **GFF (Gene-Finding Format)** is a general-purpose genome annotation format. It was conceived during a 1997 meeting on computational genefinding at the Isaac Newton Institute, Cambridge, UK and developed in collaboration between the Sanger Centre, the University of California at Santa Cruz and other participants (_Holmes I: Studies in Probabilistic Sequence Alignment and Evolution. PhD thesis University of Cambridge 1998._). The key players have been **Richard Durbin** and **David Haussler**.  
 
-**GFF** is a one-line-per-record format that can be used to identify a substring of a biological sequence. It is an extension of a basic (name, start, end) tuple (or "NSE"). It was originally designed as a common format for sharing information between **gene-finding sensors** (finding signals: starts, splice sites, stops, motifs; finding regions: exons, introns, protein domains etc.), and **gene predictors** (predicting gene, RNA transcript or protein structures). These two steps were usually performed within the same program but thanks to the GFF format they can be decoupled, allowing the transfer of feature information from one tool to another. But its uses go beyond gene-finding and it is used as a convenient way of representing a set of many kinds of feature. The GFF fomat has been developed to be easy to parse and process by a variety of programs in different languages (e.g Unix tools as grep and sort, perl, awk, etc.). For these reasons, they decided that each feature is described on a single line, and line order is not relevant.
+**GFF** is a one-line-per-record format that can be used to identify a substring of a biological sequence. It is an extension of a basic (name, start, end) tuple (or "NSE"). It was originally designed as a common format for sharing information between **gene-finding sensors** (finding signals: starts, splice sites, stops, motifs; finding regions: exons, introns, protein domains etc.), and **gene predictors** (predicting gene, RNA transcript or protein structures). These two steps were usually performed within the same program but thanks to the GFF format they can be decoupled, allowing the transfer of feature information from one tool to another. But its uses go beyond gene-finding and it is used as a convenient way to represent a set of many kinds of features. The GFF fomat has been developed to be easy to parse and process by a variety of programs in different languages (e.g Unix tools as grep and sort, perl, awk, etc.). For these reasons, they decided that each feature is described on a single line, and line order is not relevant.
 
 ## GFF
 
@@ -157,7 +157,7 @@ With the changes taking place to version 2 of the format, we also allow for feat
 
 This GFF2 format contains 8 mandatory fields followed by optional fields. Fields are:  
 
-      <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [group/attributes] [comments]
+    <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [group/attributes] [comments]
 
 Differences in these fields from GFF1 are as follows:
 
@@ -268,7 +268,7 @@ The majors updates are:
 GTF borrows from the GFF file format [1], but has additional structure that warrants a separate definition and format name.
 The structure is similar to GFF, so the fields are:  
 
-      <seqname><source><feature><start><end><score><strand><frame><attributes>
+    <seqname><source><feature><start><end><score><strand><frame><attributes>
 
 In this paper from 2003 [(Keibler E, Brent M: Eval: a software package for analysis of genome annotations. BMC Bioinformatics 2003, 4:50.)](https://doi.org/10.1186/1471-2105-4-50)
 they say:
@@ -329,7 +329,9 @@ The original GTF described by Ensembl has been adapted and became GTF2 for the n
 Found from the Eval publication received the 18 July 2003 mentioning the address http://genes.cse.wustl.edu/GTF2.html that has been archived in the web-archive the 12/12/2003. Prior to the publication in BMC Bioinformatics (and after 1 January 2003 because it's the most recent  journal cited in his report) E. Kleiber released a Master project report named "Eval: A Gene Set Comparison System" where he mention and describe the GTF, maybe the first version of the GTF2 format.
 
 GTF borrows from the GFF file format [1], but has additional structure that warrants a separate definition and format name.
-The structure is similar to GFF, so the fields are: <seqname><source><feature><start><end><score><strand><frame><attributes>
+The structure is similar to GFF, so the fields are:  
+
+    <seqname><source><feature><start><end><score><strand><frame><attributes>
 
 Definition of these fields are:
 
