@@ -177,9 +177,11 @@ level3:
   transcription_start_site: exon
   tts: exon
   3utr: exon
+  3'-utr: exon
   utr: exon
   uorf: five_prime_utr
   5utr: exon
+  5'-utr: exon
 
 # ------------------------------- SPREAD FEATURES ------------------------------
 # Here are described features that may span over different locations
