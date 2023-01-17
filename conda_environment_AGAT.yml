@@ -7,13 +7,12 @@ channels:
 
 dependencies:
   - perl >=5.8
-  - perl-bioperl >=1.7
+  - perl-bioperl >=1.7.8
   - perl-clone
   - perl-extutils-makemaker
   - perl-graph
-  - perl-lwp-simple
+  - perl-lwp-simple >=6.39
   - perl-lwp-protocol-https
-  - perl-json
   - perl-carp
   - perl-sort-naturally
   - perl-list-moreutils

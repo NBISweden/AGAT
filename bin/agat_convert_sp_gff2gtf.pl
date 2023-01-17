@@ -19,9 +19,9 @@ my $help;
 if( !GetOptions(
     "help" => \$help,
     "gff|gtf|i=s" => \$gff,
-		"gtf_version=s" => \$gtf_version,
-		"verbose|v!" => \$verbose,
-    "outfile|output|o|out|gtf=s" => \$outfile))
+	"gtf_version=s" => \$gtf_version,
+	"verbose|v!" => \$verbose,
+    "outfile|output|o|out=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line.",
                  -verbose => 1,
@@ -85,13 +85,13 @@ agat_convert_sp_gff2gtf.pl
 
 The script aims to convert any GTF/GFF file into a proper GTF file.
 Full information about the format can be found here: https://agat.readthedocs.io/en/latest/gxf.html
-You can choose among 7 different GTF types (1, 2, 2.1, 2.2, 2.5, 3 and relax).
+You can choose among 7 different GTF types (1, 2, 2.1, 2.2, 2.5, 3 or relax).
 Depending the version selected the script will filter out the features that are not accepted.
 For GTF2.5 and 3, every level1 feature (e.g nc_gene pseudogene) will be converted into
 gene feature and every level2 feature (e.g mRNA ncRNA) will be converted into
 transcript feature.
 Using the "relax" option you will produce a GTF-like output keeping all
-original feature types (3rd column).
+original feature types (3rd column). No modification will occur e.g. mRNA to transcript. 
 
 To be fully GTF compliant all feature have a gene_id and a transcript_id attribute.
 The gene_id	is unique identifier for the genomic source of the transcript, which is
@@ -113,9 +113,9 @@ which is used to group features into transcripts.
 Input GFF/GTF file that will be read
 
 =item B<--gtf_version>
-version of the GTF output. Default 3 (for GTF3)
+version of the GTF output (1,2,2.1,2.2,2.5,3 or relax). Default 3.
 
-relax: all feature types are accepted
+relax: all feature types are accepted.
 
 GTF3 (9 feature types accepted): gene, transcript, exon, CDS, Selenocysteine, start_codon, stop_codon, three_prime_utr and five_prime_utr
 
@@ -127,7 +127,7 @@ GTF2.1 (6 feature types accepted): CDS, start_codon, stop_codon, exon, 5UTR, 3UT
 
 GTF2 (4 feature types accepted): CDS, start_codon, stop_codon, exon
 
-GTF1 (5 feature types accepted): 	CDS, start_codon, stop_codon, exon, intron
+GTF1 (5 feature types accepted): CDS, start_codon, stop_codon, exon, intron
 
 =item B<-o> , B<--output> , B<--out> , B<--outfile> or B<--gtf>
 

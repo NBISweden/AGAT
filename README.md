@@ -127,7 +127,8 @@ For a complete overview of the GTF/GFF formats have a look [here](https://agat.r
 ## Installation
 
 ### Using Docker
-
+   <details>
+      <summary>See details</summary>
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
 Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
 Then:
@@ -137,9 +138,11 @@ docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
 # use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl
 docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
-
+   </details>
+ 
 ### Using Singularity
-
+   <details>
+      <summary>See details</summary>
 First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
 Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
 Then:
@@ -154,10 +157,12 @@ You are now in the container. You can use an AGAT's tool e.g. agat_convert_sp_gx
 ```
 agat_convert_sp_gxf2gxf.pl --help
 ```
-
+   </details>
 
 ### Using Bioconda
-
+   <details>
+      <summary>See details</summary>
+      
 #### Install AGAT
 
   ```
@@ -174,9 +179,11 @@ agat_convert_sp_gxf2gxf.pl --help
   ```
   conda uninstall agat  
   ```
-
+   </details>
+   
 ### Old school - Manually
-
+   <details>
+      <summary>See details</summary>
 You will have to install all prerequisites and AGAT manually.
 
 #### Install prerequisites
@@ -272,6 +279,7 @@ From the folder where the repository is located.
   ```
   perl uninstall_AGAT
   ```
+   </details>
 
 ## Usage
 
@@ -345,7 +353,7 @@ The parser may used only one or a mix of these approaches according of the pecul
 
 
 #### examples
-AGAT has been tested on 36 different peculiar GTF/GFF formats being different flavours or/and containing errors.
+AGAT was tested on 42 different types of GTF/GFF of different flavours or/and containing errors.
 Below few are listed but you can find the full list of them into the `t/gff_syntax` directory.
 
 ##### example 8 - only CDS defined
