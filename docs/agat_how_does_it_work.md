@@ -43,7 +43,6 @@ $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3
 
 To resume by priority of way to parse: **Parent/child or gene_id/transcript_id relationship > common attribute/tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
-If you need to use the `--ct` option you will have to process the file `agat_convert_sp_gxf2gxf.pl` first  before running any other tool.
 
   1. Parsing approach 1: by Parent/child relationship  
 
@@ -63,7 +62,8 @@ Example of gene_id/transcript_id relationship used by the GTF format:
 
   2. ELSE Parsing approach 2: by a common attribute/tag  
 
-  a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user using the `--ct` parameter).  
+  a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user modifying the AGAT configuration file `config.yaml`.  
+  You can modify the `config.yaml` either running `agat config --expose` to access it (it will be copied in the current directory) and then modifying it manually; or running `agat config --expose --locus_tag attribute_name` that will copy the `config.yaml` locally with the modification of the `locus_tag` parameter accordingly.
 
 Example of relationship made using a common tag (here locus_tag):
 
@@ -126,9 +126,11 @@ Here an example of three transcripts from two different genes (isoforms exist - 
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-* ! A way to fix that is to use a common attribute. Here you could use `common_tag`, `transcript_id`, `gene_info`:
+* ! A way to fix that is to use a common attribute (i.e. locus tag). AGAT uses `locus_tag` and `gene_id` by default.
+If you are lucky those attributes already exist. Here they are absent, you can use either `common_tag`, `transcript_id`, or `gene_info`. Let's investigate each case:
 
-`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct common_tag`  
+`agat config --expose --locus_tag common_tag # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff`
 
 This will work well even if transcript isoforms exist. This will use the parsing approach 2 (only using common attribute).
 
@@ -144,7 +146,8 @@ This will work well even if transcript isoforms exist. This will use the parsing
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct gene_info`
+`agat config --expose --locus_tag gene_info # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff`
 
 This will work well even if transcript isoforms exist. This will use the parsing approach 2 (common attribute gene_info) for transcript features and approach 3 (sequential) for subfeatures, which do not have the transcript_id attribute.
 
@@ -160,7 +163,8 @@ This will work well even if transcript isoforms exist. This will use the parsing
     chr12   HAVANA  exon    1000    5000    .   +   .   ID="zzz";Parent="yyy";common_tag="gene2"
     chr12   HAVANA  CDS 1000    5000    .   +   0   ID="www";Parent="yyy";common_tag="gene2"
 
-`agat_convert_sp_gxf2gxf.pl --gff testA.gff --ct transcript_id`  
+`agat config --expose --locus_tag transcript_id # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testA.gff`  
 
 /!\ In our case, using `transcript_id` is not a good choice. Indeed each transcript will have its own gene feature, so isoform will not be linked to the same gene feature as expected. This will use the parsing approach 2 (common attribute transcript_id) for transcript features and approach 3 (sequential) for subfeatures that do not have the transcript_id attribute.
 
@@ -214,10 +218,11 @@ Input (testB.gff):
 		chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_id="gene2"
 		chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_id="gene2"
 
-* ! A way to fix that is to use a `common attribute` to group the feature properly:. AGAT uses `locus_tag` and `gene_id` by default.
+* ! A way to fix that is to use a `common attribute` to group the feature properly: AGAT uses `locus_tag` and `gene_id` by default.
 If you are lucky those attributes already exist. Here they are absent, you can use `locus_id` instead.
 
-`agat_convert_sp_gxf2gxf.pl --gff testB.gff --ct locus_id`
+`agat config --expose --locus_tag locus_id # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testB.gff`
 
     chr12   HAVANA  gene    100 600 .   +   .   ID="gene1";locus_id="gene1"
     chr12   HAVANA  mRNA    100 500 .   +   .   ID=transcript1;Parent="gene1";locus_id="gene1"
@@ -326,7 +331,8 @@ Input testC.gff:
 
 As the default `common attribute` are absent (gene_id or locus_tag), you have to inform AGAT what attribute to use to group features together properly, here `locus_id` is a good choice:  
 
-`agat_convert_sp_gxf2gxf.pl --gff testC.gff --ct locus_id`  
+`agat config --expose --locus_tag locus_id # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testC.gff`  
 
     chr12   HAVANA  gene    100 600 .   +   .   ID=nbis-gene-1;locus_id="gene1"
     chr12   HAVANA  mRNA    100 600 .   +   .   ID=nbisL2-exon-1;Parent=nbis-gene-1;locus_id="gene1"
@@ -365,7 +371,8 @@ Input (testD.gff):
 
 /!\ All features are collected under a single gene and mRNA feature, which is wrong.
 
-`agat_convert_sp_gxf2gxf.pl --gff testD.gff --ct ID`
+`agat config --expose --locus_tag ID # Modify the locus_tag parameter via the AGAT configuration file config.yaml`
+`agat_convert_sp_gxf2gxf.pl --gff testD.gff`
 
 		chr10	Liftoff	gene	100	300	.	+	0	ID=nbis-gene-1
 		chr10	Liftoff	mRNA	100	300	.	+	0	ID=nbisL2-cds-1;Parent=nbis-gene-1
