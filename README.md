@@ -129,8 +129,10 @@ For a complete overview of the GTF/GFF formats have a look [here](https://agat.r
 ### Using Docker
    <details>
       <summary>See details</summary>
+      
 First you must have [Docker](https://docs.docker.com/get-docker/) installed and running.  
-Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
+Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).
+
 Then:
   ```
 # get the chosen AGAT container version
@@ -143,8 +145,10 @@ docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gx
 ### Using Singularity
    <details>
       <summary>See details</summary>
-First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.
-Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).  
+      
+First you must have [Singularity](https://sylabs.io/guides/3.5/user-guide/quick_start.html) installed and running.  
+Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.io/repository/biocontainers/agat?tab=tags).
+
 Then:
 ```
 # get the chosen AGAT container version
