@@ -33,6 +33,7 @@ level1:
   chromosome: topfeature
   conserved_region: standalone
   contig: topfeature
+  crispr: standalone
   dnasei_hypersensitive_site: standalone
   enhancer: standalone
   enhancer_blocking_element: standalone
