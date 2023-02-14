@@ -72,9 +72,9 @@ foreach my $next_file (@opt_files){
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
-print ("\nNow merging overlaping loci, and removing identical isoforms\n");
-my $nb_cases = merge_overlap_features(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
-print "$nb_cases overlapping cases found. For each case 2 loci have been merged within a single locus\n";
+print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
+merge_overlap_features(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
+
 
 print ("\nfinal result:\n");
 info_omniscient($hash_omniscient);

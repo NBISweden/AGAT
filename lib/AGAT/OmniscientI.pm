@@ -525,7 +525,7 @@ sub slurp_gff3_file_JD {
 	if ( $config->{merge_loci} ){
 		# Better probably to keep it before check 10 anyway
 		dual_print ($log, file_text_line({ string => "Check$check_cpt: merge overlaping features into same locus", char => "-", prefix => "\n" }), $verbose );
-		_merge_overlap_features($log, \%omniscient, \%mRNAGeneLink, $verbose);
+		merge_overlap_features($log, \%omniscient, \%mRNAGeneLink, $verbose);
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 		$check_cpt++; $previous_time = time();
 	}
@@ -2963,25 +2963,6 @@ sub _id_exists_in_l1_omniscient{
 	}
 	return $id_good_cast;
 }
-
-# L1: LocusID->level->typeFeature->ID->[ID,start,end]
-# LocusID->level->typeFeature->Parent->[ID,start,end]
-# @Purpose: When two feature overlap at level3, and are the same type level 2 they have to be merged under the same level 1 feature.
-# @input: 2 =>	hash,	integer for verbosity
-# @output: 0
-sub _merge_overlap_features{
-	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
-
-	my $resume_case= merge_overlap_features($log, $omniscient, $mRNAGeneLink, $verbose);
-
-	if($resume_case){
-		dual_print($log, "$resume_case overlapping cases found. For each case 2 loci have been merged within a single locus\n", $verbose);
-	}
-	else{
-		dual_print($log, "None found\n", $verbose);
-	}
-}
-
 
 # @Purpose: When too feature l2 isoform are identical, we remove one
 # @input: 2 =>	hash,	integer for verbosity

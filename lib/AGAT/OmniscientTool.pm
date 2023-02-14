@@ -515,10 +515,15 @@ sub append_omniscient {
 	}
 }
 
+# L1: LocusID->level->typeFeature->ID->[ID,start,end]
+# LocusID->level->typeFeature->Parent->[ID,start,end]
+# @Purpose: When two feature overlap at level3, and are the same type level 2 they have to be merged under the same level 1 feature.
+# @input: 2 =>	hash,	integer for verbosity
+# @output: 0
 sub merge_overlap_features{
 	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
 	my $resume_case=undef;
-
+	$verbose=4;
 	my $sortBySeq = gather_and_sort_l1_by_seq_id_and_strand($omniscient);
 
 	foreach my $locusID ( keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
@@ -548,9 +553,10 @@ sub merge_overlap_features{
 
 					# Let's check at Gene LEVEL
 					if(location_overlap(\@location, \@location_to_check)){
-
+						print "here?\n";
 						#let's check at CDS level
 						if(check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , $id_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
+							print "here2?\n";
 							#they overlap in the CDS we should give them the same name
 							$resume_case++;
 
@@ -620,7 +626,12 @@ sub merge_overlap_features{
 	 		}
 	 	}
 	}
-	return $resume_case;
+	if($resume_case){
+		dual_print($log, "$resume_case overlapping cases found. For each case 2 loci have been merged within a single locus\n", $verbose);
+	}
+	else{
+		dual_print($log, "None found\n", $verbose);
+	}
 }
 
 #				   +------------------------------------------------------+
@@ -2071,7 +2082,7 @@ sub check_gene_positions {
 sub check_all_level1_locations {
 	my ($args) = @_;
 
-	my $resume_case=undef;
+	my $resume_case=0;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
