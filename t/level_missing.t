@@ -28,21 +28,21 @@ unlink $outtmp; # remove if exists
 my $result;
 
 # remove config in local folder if exists
-unlink "config.yaml"; 
+unlink "config.yaml";
 
 # -------------------------- testA -------------------------
 
 $result = "$output_folder/testA_output.gff";
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testA");
 unlink $outtmp;
 
 $result = "$output_folder/testA_output2.gff";
 system("$script_agat config --expose --locus_tag common_tag 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testA2");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -50,7 +50,7 @@ $result = "$output_folder/testA_output3.gff";
 system("$script_agat config --expose --locus_tag gene_info 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testA3");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -58,7 +58,7 @@ $result = "$output_folder/testA_output4.gff";
 system("$script_agat config --expose --locus_tag transcript_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testA4");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -67,14 +67,14 @@ unlink "config.yaml";
 $result = "$output_folder/testB_output.gff";
 system(" $script --gff $input_folder/testB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testB");
 unlink $outtmp;
 
 $result = "$output_folder/testB_output2.gff";
 system("$script_agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testB2");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -83,14 +83,14 @@ unlink "config.yaml";
 $result = "$output_folder/testC_output.gff";
 system(" $script --gff $input_folder/testC.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testC");
 unlink $outtmp;
 
 $result = "$output_folder/testC_output2.gff";
 system("$script_agat config --expose --locus_tag locus_id 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testC.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testC2");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -99,14 +99,14 @@ unlink "config.yaml";
 $result = "$output_folder/testD_output.gff";
 system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testD");
 unlink $outtmp;
 
 $result = "$output_folder/testD_output2.gff";
 system("$script_agat config --expose --locus_tag ID 2>&1 1>/dev/null");
 system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testD2");
 unlink $outtmp;
 unlink "config.yaml";
 
@@ -115,7 +115,7 @@ unlink "config.yaml";
 $result = "$output_folder/testE_output.gff";
 system(" $script --gff $input_folder/testE.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testE");
 unlink $outtmp;
 
 
@@ -124,7 +124,7 @@ unlink $outtmp;
 $result = "$output_folder/testF_output.gff";
 system(" $script --gff $input_folder/testF.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testF");
 unlink $outtmp;
 
 # -------------------------- testG -------------------------
@@ -132,5 +132,5 @@ unlink $outtmp;
 $result = "$output_folder/testG_output.gff";
 system(" $script --gff $input_folder/testG.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $outtmp") == 0, "output $script");
+ok( system("diff $result $outtmp") == 0, "output testG");
 unlink $outtmp;

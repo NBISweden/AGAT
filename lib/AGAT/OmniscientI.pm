@@ -721,7 +721,7 @@ sub manage_one_feature{
 									$l1_ID = $locusTAGvalue;
 								}
 								else{
-									$l1_ID = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}."L1");
+									$l1_ID = _create_ID($hashID, "gene", $id, $config->{"prefix_new_id"});
 								}
 								$last_l1_f = clone($feature);
 								create_or_replace_tag($last_l1_f,'ID',$l1_ID); #modify Parent To keep only one
@@ -739,7 +739,7 @@ sub manage_one_feature{
 											$l1_ID = $locusTAGvalue;
 										}
 										else{
-											$l1_ID = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}."L1");
+											$l1_ID = _create_ID($hashID, "gene", $id, $config->{"prefix_new_id"});
 										}
 										$last_l1_f = clone($feature);
 										create_or_replace_tag($last_l1_f,'ID',$l1_ID); #modify Parent To keep only one
@@ -902,7 +902,7 @@ sub manage_one_feature{
 										}
 										if ($play_this_game){
 												dual_print ($log, "Complex case 2.2 !!!\n", $verbose) if ($debug);
-												$l2_id = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}."L2");
+												$l2_id = _create_ID($hashID, 'rna', $id, $config->{"prefix_new_id"});
 												$last_l2_f = clone($feature);
 												create_or_replace_tag($last_l2_f,'ID',$l2_id); #modify Parent To keep only one
 												$last_l2_f->primary_tag('RNA');
@@ -947,7 +947,7 @@ sub manage_one_feature{
 														$l1_id=$last_l1_f->_tag_value('ID');
 												}
 												else{ # case where No level1 feature defined yet - I will need a bucketL1
-														$l1_id = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}."L1");
+														$l1_id = _create_ID($hashID, 'gene', $id, $config->{"prefix_new_id"});
 														$last_l1_f = clone($feature);
 														create_or_replace_tag($last_l1_f,'ID',$l1_id); #modify Parent To keep only one
 														$last_l1_f->primary_tag('gene');
@@ -1561,7 +1561,7 @@ sub _check_l1_linked_to_l2{
 
 				# Parent ID has same id as l2 feature !! We must modify it
 				if ( lc( $l2_id ) eq  lc($ParentID) ){
-					$ParentID = _create_ID($hashID, $primary_tag_l1, $ParentID, $config->{"prefix_new_id"}."L1");
+					$ParentID = _create_ID($hashID, $primary_tag_l1, $ParentID, $config->{"prefix_new_id"});
 					dual_print($log, "Parent ID and ID are the same. Here is the new parent ID created $ParentID.\n") if ($debug);
 
 					# Update new parent id to all feature l2 related
@@ -2718,7 +2718,7 @@ sub _deinterleave_sequential{
 	 				foreach my $bucket (keys %{$infoSequential->{'locus'}{$locusNameHIS}} ){
 	 					if ($bucket eq 'level1'){next;}
 
-	 					my $prefix= lc($config->{"prefix_new_id"}."L2"); #when a l2 start with this prefix it means we created the l2 on the fly (the real l2 if exists, had not been met yet)
+	 					my $prefix= lc($config->{"prefix_new_id"}); #when a l2 start with this prefix it means we created the l2 on the fly (the real l2 if exists, had not been met yet)
 	 					if($bucket =~ /^$prefix/i){
 
 	 						my $idok=undef;
