@@ -129,40 +129,47 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             $mrnaCounter{'0'}++;
 
             my $seqobj = extract_cds(\@{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}, $db);
+            my $length_CDS = length($seqobj->seq);
+            #------------- check CDS length -------------
+            if ($length_CDS >= 3){
+              #------------- check start -------------
+              if (! $skip_start_check){
+                my $start_codon = $seqobj->subseq(1,3);
+                if(! $codonTable->is_start_codon( $start_codon )){
+                  print "start= $start_codon  is not a valid start codon\n" if ($verbose);
+                  $start_missing="true";
+                  if($add_flag){
+                    create_or_replace_tag($level2_feature, 'incomplete', '1');
+                  }
+                }
+              }
+              #------------- check stop --------------
+              if (! $skip_stop_check){
+                my $seqlength  = length($seqobj->seq());
+                my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
-            #------------- check start -------------
-            if (! $skip_start_check){
-              my $start_codon = $seqobj->subseq(1,3);
-              if(! $codonTable->is_start_codon( $start_codon )){
-                print "start= $start_codon  is not a valid start codon\n" if ($verbose);
-                $start_missing="true";
-                if($add_flag){
-                  create_or_replace_tag($level2_feature, 'incomplete', '1');
+                if(! $codonTable->is_ter_codon( $stop_codon )){
+                  print "stop= $stop_codon is not a valid stop codon\n" if ($verbose);
+                  $stop_missing="true";
+                  if($add_flag){
+                    if($start_missing){
+                      create_or_replace_tag($level2_feature, 'incomplete', '3');
+                    }
+                    else{
+                      create_or_replace_tag($level2_feature, 'incomplete', '2');
+                    }
+                  }
                 }
               }
             }
-            #------------- check stop --------------
-            if (! $skip_stop_check){
-              my $seqlength  = length($seqobj->seq());
-              my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
-
-              if(! $codonTable->is_ter_codon( $stop_codon )){
-                print "stop= $stop_codon is not a valid stop codon\n" if ($verbose);
-                $stop_missing="true";
-                if($add_flag){
-                  if($start_missing){
-                    create_or_replace_tag($level2_feature, 'incomplete', '3');
-                  }
-                  else{
-                    create_or_replace_tag($level2_feature, 'incomplete', '2');
-                  }
-                }
-              }
+            else{ #short CDS
+              print "CDS too short ($length_CDS nt) we skip it\n" if ($verbose);
             }
           }
           else{ #No CDS
             print "Not a coding rna (no CDS) we skip it\n" if ($verbose);
           }
+
           if($start_missing or $stop_missing){
             #Keep track counter
             if ($start_missing and $stop_missing) {
