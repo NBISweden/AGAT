@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 =head1 DESCRIPTION
 
@@ -26,7 +26,7 @@ my $output_folder = "t/gff_other/out";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
 
 # remove config in local folder if exists and potential tmp file already existing
-unlink "config.yaml"; 
+unlink "config.yaml";
 unlink $pathtmp;
 
 # -------- test gzip file and contain fasta --------
@@ -50,3 +50,13 @@ system("$script --gff t/scripts_output/in/1.gff -o $pathtmp 2>&1 1>/dev/null");
 ok( system("diff $pathtmp $correct_output") == 0, "tabix check");
 unlink $pathtmp;
 unlink "config.yaml";
+
+# -------- Parent ID already used by same level feature --------
+$script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
+$correct_output = "$output_folder/issue329.gff";
+
+system("$script --gff $input_folder/issue329.gff -o $pathtmp 2>&1 1>/dev/null");
+
+#run test
+ok( system("diff $pathtmp $correct_output") == 0, "issue329 check");
+unlink $pathtmp;

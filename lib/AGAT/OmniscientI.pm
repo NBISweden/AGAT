@@ -721,7 +721,7 @@ sub manage_one_feature{
 									$l1_ID = $locusTAGvalue;
 								}
 								else{
-									$l1_ID = _create_ID($hashID, "gene", $id, $config->{"prefix_new_id"});
+									$l1_ID = _create_ID($hashID, "gene", undef, $config->{"prefix_new_id"});
 								}
 								$last_l1_f = clone($feature);
 								create_or_replace_tag($last_l1_f,'ID',$l1_ID); #modify Parent To keep only one
@@ -739,7 +739,7 @@ sub manage_one_feature{
 											$l1_ID = $locusTAGvalue;
 										}
 										else{
-											$l1_ID = _create_ID($hashID, "gene", $id, $config->{"prefix_new_id"});
+											$l1_ID = _create_ID($hashID, "gene", undef, $config->{"prefix_new_id"});
 										}
 										$last_l1_f = clone($feature);
 										create_or_replace_tag($last_l1_f,'ID',$l1_ID); #modify Parent To keep only one
@@ -902,7 +902,7 @@ sub manage_one_feature{
 										}
 										if ($play_this_game){
 												dual_print ($log, "Complex case 2.2 !!!\n", $verbose) if ($debug);
-												$l2_id = _create_ID($hashID, 'rna', $id, $config->{"prefix_new_id"});
+												$l2_id = _create_ID($hashID, 'rna', undef, $config->{"prefix_new_id"});
 												$last_l2_f = clone($feature);
 												create_or_replace_tag($last_l2_f,'ID',$l2_id); #modify Parent To keep only one
 												$last_l2_f->primary_tag('RNA');
@@ -947,7 +947,7 @@ sub manage_one_feature{
 														$l1_id=$last_l1_f->_tag_value('ID');
 												}
 												else{ # case where No level1 feature defined yet - I will need a bucketL1
-														$l1_id = _create_ID($hashID, 'gene', $id, $config->{"prefix_new_id"});
+														$l1_id = _create_ID($hashID, 'gene', undef, $config->{"prefix_new_id"});
 														$last_l1_f = clone($feature);
 														create_or_replace_tag($last_l1_f,'ID',$l1_id); #modify Parent To keep only one
 														$last_l1_f->primary_tag('gene');
@@ -1394,21 +1394,29 @@ sub _check_uniq_id_feature{
 sub _create_ID{
 	my	($hashID, $primary_tag, $id, $prefix)=@_;
 
-	my $key;
+  my $uID;
 
-	if($prefix){
-		$key=$prefix."-".$primary_tag;
-	}
-	else{
-		$key=$primary_tag;
-	}
+  # if id does not exist, or exists and is already in use ($hashID->{'uid'}{lc(id)} ne undef)
+  if(!$id or $hashID->{'uid'}{lc($id)}){
+  	my $key;
 
-	my $uID = $id ? $id : $key."-1";
+  	if($prefix){
+  		$key=$prefix."-".$primary_tag;
+  	}
+  	else{
+  		$key=$primary_tag;
+  	}
 
-	while( exists_keys($hashID, ('uid', lc ($uID) ) )){	 #loop until we found an uniq tag
-		$hashID->{'ft'}{$key}++;
-		$uID = $key."-".$hashID->{'ft'}{$key};
-	}
+  	$uID = $id ? $id : $key."-1";
+
+  	while( exists_keys($hashID, ('uid', lc ($uID) ) )){	 #loop until we found an uniq tag
+  		$hashID->{'ft'}{$key}++;
+  		$uID = $key."-".$hashID->{'ft'}{$key};
+  	}
+  }
+  else{ # It was in the hash but unused
+    $uID = $id
+  }
 
 	#push the new ID
 	$hashID->{'uid'}{lc($uID)}=$id;
@@ -1551,32 +1559,32 @@ sub _check_l1_linked_to_l2{
 				my $primary_tag_l1=undef;
 				if(lc($gene_feature->primary_tag) =~ /match/){ $primary_tag_l1="match"; }
 				else{ $primary_tag_l1="gene"; }
-
-				$gene_feature->remove_tag('Parent'); # remove parent ID because, none.
-				$gene_feature->primary_tag($primary_tag_l1); # change primary tag
-
-				# ID and Parent ID identic, we have to update Parent ID
-				my $ParentID = $hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked}[0]->_tag_value('Parent') ;
+        # use Parent tag as ID
+        my $oID = $gene_feature->_tag_value('Parent');
+        create_or_replace_tag($gene_feature, 'ID', $oID); #modify ID to replace by parent value
+        # remove parent ID because, none.
+        $gene_feature->remove_tag('Parent');
+        # change primary tag
+				$gene_feature->primary_tag($primary_tag_l1);
+        #check uniqness of the ID
+        my $new_ID_l1 = _check_uniq_id_feature($hash_omniscient, $hashID, $gene_feature, 'level1');
 				my $l2_id = $hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked}[0]->_tag_value('ID');
 
-				# Parent ID has same id as l2 feature !! We must modify it
-				if ( lc( $l2_id ) eq  lc($ParentID) ){
-					$ParentID = _create_ID($hashID, $primary_tag_l1, $ParentID, $config->{"prefix_new_id"});
-					dual_print($log, "Parent ID and ID are the same. Here is the new parent ID created $ParentID.\n") if ($debug);
+				# Parent ID has same id as l2 feature !! We must modify ParentID
+				if ( lc( $new_ID_l1 ) ne  lc($oID) ){
+					dual_print($log, "Parent ID and ID are the same. Here is the new parent ID created $new_ID_l1.\n") if ($debug);
 
 					# Update new parent id to all feature l2 related
 					foreach	my $l2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked} } ){
-						create_or_replace_tag($l2_feature,'Parent', $ParentID);
+						create_or_replace_tag($l2_feature,'Parent', $new_ID_l1);
 					}
-					$hash_omniscient->{'level2'}{$primary_tag_l2}{lc($ParentID)} = delete $hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked};
+					$hash_omniscient->{'level2'}{$primary_tag_l2}{lc($new_ID_l1)} = delete $hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked};
 				}
-
 				# check start stop if isoforms exists
 				check_level1_positions({ omniscient => $hash_omniscient, feature => $gene_feature } );
 
 				# now save it in omniscient
-				create_or_replace_tag($gene_feature, 'ID', $ParentID); #modify ID to replace by parent value
-				$hash_omniscient->{"level1"}{$primary_tag_l1}{lc($ParentID)}=$gene_feature;
+				$hash_omniscient->{"level1"}{$primary_tag_l1}{lc($new_ID_l1)}=$gene_feature;
 				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 0); # print only in log
 			}
 		}
@@ -1769,7 +1777,6 @@ sub _check_l2_linked_to_l3{
 					check_level2_positions($hash_omniscient, $l2_feature);	# check start stop if isoforms exists
 
 					#fill L1
-
 					my $l1_feature=clone($hash_omniscient->{'level3'}{$tag_l3}{$id_l2}[0]);#create a copy of the first mRNA feature;
 					$l1_feature->frame(".") if ($l1_feature->frame ne "."); # If we clone a CDS there will be a frame information to remove.
 					$l1_feature->remove_tag('Parent'); # remove parent ID because, none.
