@@ -522,8 +522,8 @@ sub slurp_gff3_file_JD {
 	#check loci names (when overlap should be the same if type is the same)
 	if ( $config->{merge_loci} ){
 		# Better probably to keep it before check 10 anyway
-		dual_print ($log, file_text_line({ string => "Check$check_cpt: merge overlaping features into same locus", char => "-", prefix => "\n" }), $verbose );
-		merge_overlap_features($log, \%omniscient, \%mRNAGeneLink, $verbose);
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: merge overlaping loci into same locus", char => "-", prefix => "\n" }), $verbose );
+		merge_overlap_loci($log, \%omniscient, \%mRNAGeneLink, $verbose);
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 		$check_cpt++; $previous_time = time();
 	}

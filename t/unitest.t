@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 16;
+use Test::More tests => 15;
 use Bio::Tools::GFF;
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
@@ -35,21 +35,15 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scr
                                                                 config => $config
                                                                 });
 
-#run remove_l2_related_feature test
-my $feature2 = @{$hash_omniscient->{"level2"}{"mrna"}{"gene:os01g0100100"}}[0];
-my $nb_gene = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
-remove_l2_related_feature($hash_omniscient,$feature2, 0);
-my $nb_gene2 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
-ok(  $nb_gene != $nb_gene2, "remove_l2_related_feature");
-
 #run remove_omniscient_elements_from_level1_id_list test
+my $nb_gene2 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
 remove_omniscient_elements_from_level1_id_list($hash_omniscient,["gene:os01g0100200"]);
 my $nb_gene3 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
 ok(  $nb_gene2 != $nb_gene3, "remove_omniscient_elements_from_level1_id_list");
 
 
 #run remove_omniscient_elements_from_level2_feature_list test
-$feature2 = @{$hash_omniscient->{"level2"}{"mrna"}{"gene:os01g0100300"}}[0];
+my $feature2 = @{$hash_omniscient->{"level2"}{"mrna"}{"gene:os01g0100100"}}[0];
 remove_omniscient_elements_from_level2_feature_list($hash_omniscient, [$feature2]);
 my $nb_gene4 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
 ok(  $nb_gene3 != $nb_gene4, "remove_omniscient_elements_from_level2_feature_list");
