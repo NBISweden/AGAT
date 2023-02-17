@@ -196,3 +196,13 @@ spread:
    uORF: 1
    3utr: 1
    5utr: 1
+
+
+# features from level3 to not merge when overlap.
+# By default level3 features (children of the same parent) that overlap are merged.
+# the check_all_level3_locations step take care of that. This behaviour is
+# deactivated force the features listed below.
+# It is possible to modify the behaviour for all level3 feature types via the
+# agat config file : agat config --expose --no-check_all_level3_locations
+skip_merge_l3:
+  uorf: 1

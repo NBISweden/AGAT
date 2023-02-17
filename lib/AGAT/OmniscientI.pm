@@ -1843,12 +1843,14 @@ sub _check_all_level3_locations{
 
 	foreach my $type_l3 (keys %{$hash_omniscient->{'level3'}}){
 		foreach my $id_l2 (keys %{$hash_omniscient->{'level3'}{$type_l3}}){
-			if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
-				#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
-				my $method;
-				exists_keys($hash_omniscient,('other', 'level', 'spread', $type_l3) ) ? $method = "adjacent" : $method = "all";
-				$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
-			}
+      if(! exists_keys($hash_omniscient,('other','level', 'skip_merge_l3', $type_l3) ) ){
+  			if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
+  				#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
+  				my $method;
+  				exists_keys($hash_omniscient,('other', 'level', 'spread', $type_l3) ) ? $method = "adjacent" : $method = "all";
+  				$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
+  			}
+      }
 		}
 		if($nb_merged){
 			$resume_cases{$type_l3}+=$nb_merged;
