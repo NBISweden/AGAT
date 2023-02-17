@@ -1,0 +1,3 @@
+##gff-version 3
+chr1	AUGUSTUS	gene	1000424	1039237	.	+	.	ID=A
+chr1	AUGUSTUS	mRNA	1000424	1039237	.	+	.	ID=A.t1;Parent=A;merged_ID=B.t1;merged_Parent=B

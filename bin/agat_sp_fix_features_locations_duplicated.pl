@@ -235,7 +235,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                           if(exists_keys($omniscient,('level3', 'exon', $id_l2_1))){
                             if(exists_keys($omniscient,('level3', 'exon', $id_l2_2))){
 
-                              my $resu_overlap = check_gene_overlap_at_CDSthenEXON($omniscient, $omniscient , $gene_feature_id, $gene_feature_id2);
+                              my $resu_overlap = check_feature_overlap_from_l3_to_l1($omniscient, $omniscient , $gene_feature_id, $gene_feature_id2);
                               if ($resu_overlap){
 
                                 print "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n" if $verbose;

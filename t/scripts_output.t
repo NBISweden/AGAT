@@ -570,6 +570,12 @@ system(" $script --gff $input_folder/agat_sp_merge_annotations/file1.gff  --gff 
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$result = "$output_folder/agat_sp_merge_annotations_2.gff";
+system(" $script --gff $input_folder/agat_sp_merge_annotations/fileA.gff  --gff $input_folder/agat_sp_merge_annotations/fileB.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
 
 $script = $script_prefix."bin/agat_sp_prokka_fix_fragmented_gene_annotations.pl";
