@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 43;
+use Test::More tests => 44;
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ my $expected_output_path = "t/gff_syntax/out/";
 my $input_path = "t/gff_syntax/in/";
 
 # remove config in local folder if exists
-unlink "config.yaml"; 
+unlink "config.yaml";
 
 # Loop over test
 my $dir = "t/gff_syntax/in"; # folder where the test files are
@@ -35,7 +35,7 @@ opendir my $dh, $dir or die "Could not open '$dir' for reading: $!\n";
 my @files = readdir $dh;
 foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } @files) {
 
-  # for all test files	
+  # for all test files
   if ( $file =~ m/test.gff$/ ){
 
     # skip cases
