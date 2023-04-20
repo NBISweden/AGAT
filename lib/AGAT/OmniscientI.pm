@@ -1557,17 +1557,26 @@ sub _check_l1_linked_to_l2{
 
 				#Deal case where we reconstruct other thing than a gene
 				my $primary_tag_l1=undef;
-				if(lc($gene_feature->primary_tag) =~ /match/){ $primary_tag_l1="match"; }
-				else{ $primary_tag_l1="gene"; }
-        # use Parent tag as ID
-        my $oID = $gene_feature->_tag_value('Parent');
-        create_or_replace_tag($gene_feature, 'ID', $oID); #modify ID to replace by parent value
-        # remove parent ID because, none.
-        $gene_feature->remove_tag('Parent');
-        # change primary tag
+				if (lc($gene_feature->primary_tag) =~ /match/){
+					$primary_tag_l1="match";
+				}else{
+					$primary_tag_l1="gene";
+				}
+        			# use Parent tag as ID
+        			my $oID = $gene_feature->_tag_value('Parent');
+        			create_or_replace_tag($gene_feature, 'ID', $oID); #modify ID to replace by parent value
+        			# remove parent ID because, none.
+        			$gene_feature->remove_tag('Parent');
+				foreach my $tag ('transcript_biotype', 'transcript_id', 'transcript_name', 'transcript_source', 'transcript_support_level', 'transcript_version', 'exon_id', 'exon_number', 'exon_version'){
+					if ($l1_feature->has_tag($tag)) {
+						$l1_feature->remove_tag($tag);
+					}
+				}
+
+        			# change primary tag
 				$gene_feature->primary_tag($primary_tag_l1);
-        #check uniqness of the ID
-        my $new_ID_l1 = _check_uniq_id_feature($hash_omniscient, $hashID, $gene_feature, 'level1');
+       				#check uniqness of the ID
+        			my $new_ID_l1 = _check_uniq_id_feature($hash_omniscient, $hashID, $gene_feature, 'level1');
 				my $l2_id = $hash_omniscient->{'level2'}{$primary_tag_l2}{$id_l1_checked}[0]->_tag_value('ID');
 
 				# Parent ID has same id as l2 feature !! We must modify ParentID
@@ -1799,11 +1808,21 @@ sub _check_l2_linked_to_l3{
 					}
 					$l2_feature->primary_tag($primary_tag_l2); # change primary tag
 					check_level2_positions($hash_omniscient, $l2_feature);	# check start stop if isoforms exists
+					foreach my $tag ('transcript_biotype', 'transcript_id', 'transcript_name', 'transcript_source', 'transcript_support_level', 'transcript_version', 'exon_id', 'exon_number', 'exon_version'){
+						if ($l2_feature->has_tag($tag)) {
+							$l2_feature->remove_tag($tag);
+						}
+					}
 
 					#fill L1
 					my $l1_feature=clone($hash_omniscient->{'level3'}{$tag_l3}{$id_l2}[0]);#create a copy of the first mRNA feature;
 					$l1_feature->frame(".") if ($l1_feature->frame ne "."); # If we clone a CDS there will be a frame information to remove.
 					$l1_feature->remove_tag('Parent'); # remove parent ID because, none.
+					foreach my $tag ('transcript_biotype', 'transcript_id', 'transcript_name', 'transcript_source', 'transcript_support_level', 'transcript_version', 'exon_id', 'exon_number', 'exon_version'){
+						if ($l1_feature->has_tag($tag)) {
+							$l1_feature->remove_tag($tag);
+						}
+					}
 
 					#Deal case where we reconstruct other thing than a gene
 					my $primary_tag_l1=undef;
