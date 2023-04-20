@@ -256,7 +256,7 @@ sub slurp_gff3_file_JD {
 #	+-------------------------------------------------------------------------+
 	my %mRNAGeneLink; #Hast that keep track about link between l2 and l1
 	my %duplicate;# Hash to store duplicated feature info
-  my %hashID; # ex %miscCount;# Hash to store any counter. Will be use to create a new uniq ID / %uniqID;# Hash to follow up with an uniq identifier every feature / %uniqIDtoType; # Hash to follow up with an uniq identifier every feature type
+  	my %hashID; # ex %miscCount;# Hash to store any counter. Will be use to create a new uniq ID / %uniqID;# Hash to follow up with an uniq identifier every feature / %uniqIDtoType; # Hash to follow up with an uniq identifier every feature type
 	my %locusTAG; # Hash to follow up the locus tag met
 	my %infoSequential;# Hash to store sequential bucket features
 	my %attachedL2Sequential;# Hash to store links between L2 and l1 within sequential cases
