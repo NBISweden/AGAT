@@ -2132,7 +2132,7 @@ sub _check_exons{
 				 	}
 
 				 	## check all NOn-exon in adjacent mater to have the correct list (allows to merge UTR and CDS to recreate exon )
-				 	$list_location_NoExon = _merge_adjacent_and_overlaping_locations($list_location_NoExon_tmp);
+					$list_location_NoExon = _merge_adjacent_and_overlaping_locations($list_location_NoExon_tmp);
 
 #				 	+--------------------------------------------------------------------------------------------------------+
 #					| 				COMPARE EXONS POSITION TO THOSE DESCRIBED BY NON-EXON FEATURES 						 |
@@ -2639,7 +2639,7 @@ sub _merge_adjacent_and_overlaping_locations{
 
 			#Check if adjacent
 			if ( ($location_next->[1] <= $location->[2]+1) and ($location_next->[2]+1 >= $location->[1]) ){ #it overlaps or are consecutive/adjacent
-				$location->[2]=$location_next->[2];
+				$location->[2]=$location_next->[2] if ($location_next->[2] >= $location->[2]);
 				$skip_because_consumed{lc($location_next->[0])}++; # Save consumed feature ID
 			}
 			#if after we stop
