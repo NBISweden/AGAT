@@ -116,6 +116,11 @@ sub activate_warning_limit{
 #               Char (character to use to make the frame),
 #								String (extra to print at the end after the frame)
 # @output 1 => String
+#e.g. surround_text("- Start parsing -",80,"*")
+#  ********************************************************************************
+#  *                              - Start parsing -                               *
+#  ********************************************************************************
+#
 sub surround_text{
   my ($term, $size, $char, $extra) = @_;
 
@@ -156,6 +161,9 @@ sub surround_text{
 	return $result;
 }
 
+# e.g.  file_text_line({ string => "parse options and metadata", char => "-" })
+# -------------------------- parse options and metadata --------------------------
+#
 sub file_text_line{
   my ($args) = @_;
 
