@@ -524,7 +524,7 @@ sub append_omniscient {
 sub merge_overlap_loci{
 	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
 	my $resume_merge=undef;
-  my $resume_identic=0;
+  	my $resume_identic=0;
 
 	my $sortBySeq = gather_and_sort_l1_by_seq_id_and_strand($omniscient);
 
@@ -543,13 +543,14 @@ sub merge_overlap_loci{
 
 				my $feature_l1 = shift @{$sortBySeq->{$locusID}{$tag_l1}};
 				my $id_l1 = lc($feature_l1->_tag_value('ID'));
+				if(! exists_keys($omniscient, ('level1', $tag_l1, $id_l1))){ next; } # feature can be absent because removed in a previous round
 				my @location = ($id_l1, int($feature_l1->start()), int($feature_l1->end())); # This location will be updated on the fly
 
 				# Go through location from left to right ### !!
 				foreach my $l1_feature2 ( @{$sortBySeq->{$locusID}{$tag_l1}} ) {
 
-          my $id2_l1 = lc($l1_feature2->_tag_value('ID'));
-          if(! exists_keys($omniscient, ('level1', $tag_l1, $id2_l1))){ last; } # feature can be absent because removed by keep_only_uniq_from_list2 in a previous round
+          			my $id2_l1 = lc($l1_feature2->_tag_value('ID'));
+          			if(! exists_keys($omniscient, ('level1', $tag_l1, $id2_l1))){ last; } # feature can be absent because removed by keep_only_uniq_from_list2 in a previous round
 
 					my @location_to_check = ($id2_l1, int($l1_feature2->start()), int($l1_feature2->end()));
 
@@ -570,7 +571,7 @@ sub merge_overlap_loci{
 							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
 								if(lc($tag) ne "parent" and lc($tag) ne "id"){
-									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1},$tag ,$omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag));
+									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1}, $tag ,$omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag));
 								}
 							}
 							# remove the level1 of the ovelaping one
@@ -1261,7 +1262,6 @@ sub create_or_replace_tag{
 # INPUT: feature object, String tag, String or Array ref;
 # Output: None
 sub create_or_append_tag{
-
 	my ($feature, $tag, $value)=@_;
 
 	if ($feature->has_tag($tag) ) {
