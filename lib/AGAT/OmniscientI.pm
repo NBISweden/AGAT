@@ -119,7 +119,7 @@ sub slurp_gff3_file_JD {
 	# +----------------- Check we receive a hash as ref ------------------+
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
 
-	#  +-----------------  Declare all variables and fill them ------------------+
+	# +-----------------  Declare all variables and fill them ------------------+
 	my ( $file, $gff_in_format, $locus_tag, $verbose, $merge_loci,
 	    $log, $debug, $throw_fasta, $progress_bar);
 
@@ -149,12 +149,14 @@ sub slurp_gff3_file_JD {
 			my $log_name = $filename.".agat.log";
 			open($log, '>', $log_name  ) or
 						dual_print($log, "Can not open $log_name for printing: $!", 1) && die;
-			print $log AGAT::AGAT::get_agat_header(); # print AGAT header
 			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
 																  char => " ",
 																  extra => "\n"});
 		}
 	}
+
+	# +----------------- Print header ------------------+
+	dual_print ($log, AGAT::AGAT::get_agat_header(), $verbose);
 
 	# +----------------- debug param  ------------------+
 	$debug = $config->{debug};
@@ -176,7 +178,8 @@ sub slurp_gff3_file_JD {
 	$throw_fasta = $config->{throw_fasta};
 
 	# +---------------------------------- Write header info  ----------------------------------+
-	dual_print ($log, surround_text("- Start parsing -",80,"*"), $verbose);
+	dual_print ($log,sizedPrint("\n",80, "\n"), $verbose);
+	dual_print ($log,sizedPrint("------ Start parsing ------",80, "\n"), $verbose);
 	dual_print ($log, file_text_line({ string => "parse options and metadata", char => "-" }), $verbose);
 
 	# +-- load files --+
@@ -406,7 +409,7 @@ sub slurp_gff3_file_JD {
 	}
 
 	# Parsing time
-	dual_print ($log, surround_text("- End parsing -\ndone in ".(time() - $start_run)." seconds",80,"*","\n"), $verbose );
+	dual_print ($log,sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n"), $verbose);
 	$previous_time = time();
 	my $check_time = $previous_time;
 
@@ -416,7 +419,7 @@ sub slurp_gff3_file_JD {
 
 	# -------------------- Mandatory checks --------------------
 	my $check_cpt = 1;
-	dual_print ($log, surround_text("- Start checks -",80,"*"), $verbose);
+	dual_print ($log,sizedPrint("------ Start checks ------",80, "\n"), $verbose);
 
 	dual_print ($log, file_text_line({ string => "Check$check_cpt: feature types", char => "-" }), $verbose );
 	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "ontology", verbose => $verbose });
@@ -548,9 +551,7 @@ sub slurp_gff3_file_JD {
 		}
 	}
 
-	dual_print ($log, surround_text("- End checks -\ndone in ".(time() - $check_time)." seconds",80,"*","\n"), $verbose );
-
- dual_print ($log, "=> OmniscientI total time: ".(time() - $start_run)." seconds\n", $verbose );
+	dual_print ($log,sizedPrint("------ End checks (done in ".(time() - $check_time)." second) ------",80, "\n\n\n"), $verbose);
 
 	#return
 	return \%omniscient, \%mRNAGeneLink	;
