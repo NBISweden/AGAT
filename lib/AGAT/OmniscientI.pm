@@ -17,6 +17,7 @@ use Exporter;
 use Term::ProgressBar;
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
+use AGAT::OmniscientO;
 use AGAT::Levels;
 use AGAT::Utilities;
 use AGAT::BioperlGFF;
@@ -448,7 +449,10 @@ sub slurp_gff3_file_JD {
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 		$check_cpt++; $previous_time = time();
 	}
-
+	my $out =prepare_gffout();
+	print_omniscient( {omniscient => \%omniscient,
+					  output => $out
+                } );
 	if( $config->{check_l2_linked_to_l3} ) {
 			#Check relationship between l3 and l2
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }), $verbose );
@@ -690,9 +694,9 @@ sub manage_one_feature{
 				# get Parent #
 				#GFF case
 				if($feature->has_tag('Parent')){
-							$parent = $feature->_tag_value('Parent');
-							$locusTAGvalue = $parent;
-							_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
+						$parent = $feature->_tag_value('Parent');
+						$locusTAGvalue = $parent;
+						_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
 				}
 
 				#GTF case
@@ -874,7 +878,7 @@ sub manage_one_feature{
 								#######################
 
 								# case were locus already met before (feature are spread within the file), we link the L3 to the last l2 of this locus.
-								if( exists_keys($locusTAG_uniq, ('level2', lc($locusTAGvalue) ) ) ){
+								if( $locusTAGvalue and exists_keys($locusTAG_uniq, ('level2', lc($locusTAGvalue) ) ) ){
 										dual_print ($log, "Complex case L3 1 !!!\n", $verbose) if ($debug);
 										$last_l2_f = @{$locusTAG_uniq->{'level2'}{lc($locusTAGvalue)}}[$#{$locusTAG_uniq->{'level2'}{lc($locusTAGvalue)}}];
 										$l2_id = $last_l2_f->_tag_value('ID');
@@ -920,7 +924,6 @@ sub manage_one_feature{
 						# We don't play this game only if we decided finally to take the same parent
 						# value as previous feature
 						if ($play_this_game){
-
 								create_or_replace_tag($feature,'Parent',$l2_id); #modify Parent To keep only one
 
 								#############
@@ -954,10 +957,9 @@ sub manage_one_feature{
 														$last_l1_f->primary_tag('gene');
 												}
 
-												#push( @{$infoSequential->{'locus'}{lc($l1_id)}{lc($l2_id)}{'level3'}}, $feature );
-												#$infoSequential->{'id'}{lc($l2_id)} = $l2_id;
+												push( @{$infoSequential->{'locus'}{lc($l1_id)}{lc($l2_id)}{'level3'}}, $feature );
+												$infoSequential->{'id'}{lc($l2_id)} = $l2_id;
 												dual_print ($log, "::::::::::Push-L3-omiscient-3: level3 ".$primary_tag." || ".lc($l2_id)." == ".$feature->gff_string."\n", $verbose) if ($debug);
-												push (@{$omniscient->{"level3"}{$primary_tag}{lc($l2_id)}}, $feature);
 												return $l2_id, $last_l1_f, $last_l2_f, $feature, $feature, $lastL1_new;								#### STOP HERE AND RETURN
 										}
 								}
@@ -1868,14 +1870,14 @@ sub _check_all_level3_locations{
 
 	foreach my $type_l3 (keys %{$hash_omniscient->{'level3'}}){
 		foreach my $id_l2 (keys %{$hash_omniscient->{'level3'}{$type_l3}}){
-      if(! exists_keys($hash_omniscient,('other','level', 'skip_merge_l3', $type_l3) ) ){
-  			if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
-  				#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
-  				my $method;
-  				exists_keys($hash_omniscient,('other', 'level', 'spread', $type_l3) ) ? $method = "adjacent" : $method = "all";
-  				$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
-  			}
-      }
+			if(! exists_keys($hash_omniscient,('other','level', 'skip_merge_l3', $type_l3) ) ){
+					if( exists_keys($hash_omniscient,('level3', $type_l3, $id_l2) ) ){
+						#CONDITION ? EVALUATE_IF_CONDITION_WAS_TRUE : EVALUATE_IF_CONDITION_WAS_FALSE
+						my $method;
+						exists_keys($hash_omniscient,('other', 'level', 'spread', $type_l3) ) ? $method = "adjacent" : $method = "all";
+						$nb_merged = merge_features( $hash_omniscient, 'level3', $type_l3, $id_l2, $method, $log);
+					}
+			}
 		}
 		if($nb_merged){
 			$resume_cases{$type_l3}+=$nb_merged;
@@ -2083,8 +2085,8 @@ sub _check_exons{
 										if(! $feature_example){
 											$feature_example=$l3_feature;
 										}
-
-										push @{$list_location_NoExon_tmp}, [[$l3_feature->_tag_value('ID')] ,int($l3_feature->start), int($l3_feature->end)]; #list of all feature that has been checked in overlap mode
+										my $IDunique = get_uniq_id($hash_omniscient, $l3_feature); # be safe in case of spread feature that might have same ID
+										push @{$list_location_NoExon_tmp}, [[$IDunique] ,int($l3_feature->start), int($l3_feature->end)]; #list of all feature that has been checked in overlap mode
 									}
 								}
 							}
@@ -2575,19 +2577,20 @@ sub merge_features{
 		#    ==========
 		#         ========= <-
 		# To avoid rare case like this one we need to skip consumed feature that can be not consecutive.
-		if( exists_keys( \%skip_because_consumed, (lc($l3_feature->_tag_value("ID"))) ) ){
+		my $IDunique = get_uniq_id($hash_omniscient, $l3_feature); # to be safe with spread feature sharing same ID
+		if( exists_keys( \%skip_because_consumed, (lc($IDunique)) ) ){
 			next;
 		}
 
 		foreach my $l3_feature_next (@sorted_features){
-
+			my $IDunique_next = get_uniq_id($hash_omniscient, $l3_feature_next);# to be safe with spread feature sharing same ID
 			#Check if adjacent
 			if ($method eq "adjacent"){
 				if ( $l3_feature->end()+1 == $l3_feature_next->start() ){ #locations are consecutives consecutive
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
 						dual_print($log, $message, 0); #print log only
-						$l3_feature->end($l3_feature_next->end());
-						$skip_because_consumed{lc($l3_feature_next->_tag_value("ID"))}++; # Save consumed feature ID
+						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
+						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
 				}
 				#if after we stop
@@ -2599,8 +2602,8 @@ sub merge_features{
 				if ( ($l3_feature_next->start() <= $l3_feature->end()+1) and ($l3_feature_next->end()+1 >= $l3_feature->start() ) ){ #it overlaps or are consecutive/adjacent
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
 						dual_print($log, $message, 0); #print log only
-						$l3_feature->end($l3_feature_next->end());
-						$skip_because_consumed{lc($l3_feature_next->_tag_value("ID"))}++; # Save consumed feature ID
+						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
+						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
 				}
 				#if after we stop
@@ -2895,6 +2898,9 @@ sub _check_sequential{ # Goes through from L3 to l1
 		 						else{#create l2
 			 						$must_create_l2=1;
 			 						$feature_l2 = clone($infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level3'}[0]);#create a copy of the first mRNA feature;
+
+									# remove strand if any
+									$feature_l2->frame(".");
 
 									#manage primary tag
 									my $primary_tag_l2='RNA';

@@ -1,0 +1,16 @@
+ptg000001l	exonerate:protein2genome:local	gene	13733550	13734381	1150	-	.	gene_id 1 ; sequence XP_021634939.1 ; gene_orientation +
+ptg000001l	exonerate:protein2genome:local	cds	13734028	13734381	.	-	.
+ptg000001l	exonerate:protein2genome:local	exon	13734028	13734381	.	-	.	insertions 0 ; deletions 0
+ptg000001l	exonerate:protein2genome:local	splice5	13734026	13734027	.	-	.	intron_id 1 ; splice_site "GT"
+ptg000001l	exonerate:protein2genome:local	intron	13733971	13734027	.	-	.	intron_id 1
+ptg000001l	exonerate:protein2genome:local	splice3	13733971	13733972	.	-	.	intron_id 0 ; splice_site "AG"
+ptg000001l	exonerate:protein2genome:local	cds	13733550	13733970	.	-	.
+ptg000001l	exonerate:protein2genome:local	exon	13733550	13733970	.	-	.	insertions 0 ; deletions 0 ; frameshifts 1
+ptg000001l	exonerate:protein2genome:local	gene	6876023	6876853	1131	-	.	gene_id 2 ; sequence XP_021634939.1 ; gene_orientation +
+ptg000001l	exonerate:protein2genome:local	cds	6876500	6876853	.	-	.
+ptg000001l	exonerate:protein2genome:local	exon	6876500	6876853	.	-	.	insertions 0 ; deletions 0
+ptg000001l	exonerate:protein2genome:local	splice5	6876498	6876499	.	-	.	intron_id 1 ; splice_site "GT"
+ptg000001l	exonerate:protein2genome:local	intron	6876443	6876499	.	-	.	intron_id 1
+ptg000001l	exonerate:protein2genome:local	splice3	6876443	6876444	.	-	.	intron_id 0 ; splice_site "AG"
+ptg000001l	exonerate:protein2genome:local	cds	6876023	6876442	.	-	.
+ptg000001l	exonerate:protein2genome:local	exon	6876023	6876442	.	-	.	insertions 0 ; deletions 0
