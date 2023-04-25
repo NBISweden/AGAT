@@ -607,7 +607,7 @@ sub merge_overlap_loci{
 										my $kept_l2 = shift @$commons; # first is the one we append
 										my $id_l2 = lc($kept_l2->_tag_value('ID'));
 										foreach my $common (@{$commons}){
-                      $resume_identic++;
+                      						$resume_identic++;
 											my @list_tag_l2 = $common->get_all_tags();
 											foreach my $tag (@list_tag_l2){
 												create_or_append_tag($kept_l2, "merged_".$tag ,$common->get_tag_values($tag));
