@@ -169,6 +169,8 @@ level3:
   pseudogenic_exon: 1
   selenocysteine: 1
   sig_peptide: exon
+  splice3 : intron
+  splice5 : intron
   start_codon: exon
   stop_codon: exon
   stop_codon_read_through: exon
