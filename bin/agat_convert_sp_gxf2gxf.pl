@@ -13,7 +13,6 @@ my $header = get_agat_header();
 my $config = get_agat_config();
 my $start_run = time();
 my $opt_gfffile;
-my $opt_verbose = 1;
 my $opt_output;
 my $opt_help;
 
@@ -98,10 +97,6 @@ So, it is not necessary to run this script prior the use of any other _sp_ scrip
 =item B<-g>, B<--gtf>, B<--gff> or B<--gxf>
 
 String - Input GTF/GFF file. Compressed file with .gz extension is accepted.
-
-=item B<-v>
-
-Integer - Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are increasing verbosity.
 
 =item B<-o> or B<--output>
 
