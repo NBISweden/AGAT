@@ -449,10 +449,7 @@ sub slurp_gff3_file_JD {
 		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 		$check_cpt++; $previous_time = time();
 	}
-	my $out =prepare_gffout();
-	print_omniscient( {omniscient => \%omniscient,
-					  output => $out
-                } );
+
 	if( $config->{check_l2_linked_to_l3} ) {
 			#Check relationship between l3 and l2
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }), $verbose );
