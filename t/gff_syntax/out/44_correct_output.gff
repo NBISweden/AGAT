@@ -1,0 +1,19 @@
+##gff-version 3
+ptg000001l	exonerate:protein2genome:local	gene	6876023	6876853	1131	-	.	ID=2;gene_id=2;gene_orientation=+;sequence=XP_021634939.1
+ptg000001l	exonerate:protein2genome:local	mRNA	6876023	6876853	.	-	.	ID=nbis-rna-2;Parent=2
+ptg000001l	exonerate:protein2genome:local	exon	6876023	6876442	.	-	.	ID=exon-4;Parent=nbis-rna-2;deletions=0;insertions=0
+ptg000001l	exonerate:protein2genome:local	exon	6876500	6876853	.	-	.	ID=exon-3;Parent=nbis-rna-2;deletions=0;insertions=0
+ptg000001l	exonerate:protein2genome:local	cds	6876023	6876442	.	-	.	ID=cds-4;Parent=nbis-rna-2
+ptg000001l	exonerate:protein2genome:local	cds	6876500	6876853	.	-	.	ID=cds-3;Parent=nbis-rna-2
+ptg000001l	exonerate:protein2genome:local	intron	6876443	6876499	.	-	.	ID=nbis-intron-2;Parent=nbis-rna-2;intron_id=1
+ptg000001l	exonerate:protein2genome:local	splice3	6876443	6876444	.	-	.	ID=splice3-2;Parent=nbis-rna-2;intron_id=0;splice_site=AG
+ptg000001l	exonerate:protein2genome:local	splice5	6876498	6876499	.	-	.	ID=splice5-2;Parent=nbis-rna-2;intron_id=1;splice_site=GT
+ptg000001l	exonerate:protein2genome:local	gene	13733550	13734381	1150	-	.	ID=1;gene_id=1;gene_orientation=+;sequence=XP_021634939.1
+ptg000001l	exonerate:protein2genome:local	mRNA	13733550	13734381	.	-	.	ID=nbis-rna-1;Parent=1
+ptg000001l	exonerate:protein2genome:local	exon	13733550	13733970	.	-	.	ID=exon-2;Parent=nbis-rna-1;deletions=0;frameshifts=1;insertions=0
+ptg000001l	exonerate:protein2genome:local	exon	13734028	13734381	.	-	.	ID=exon-1;Parent=nbis-rna-1;deletions=0;insertions=0
+ptg000001l	exonerate:protein2genome:local	cds	13733550	13733970	.	-	.	ID=cds-2;Parent=nbis-rna-1
+ptg000001l	exonerate:protein2genome:local	cds	13734028	13734381	.	-	.	ID=cds-1;Parent=nbis-rna-1
+ptg000001l	exonerate:protein2genome:local	intron	13733971	13734027	.	-	.	ID=nbis-intron-1;Parent=nbis-rna-1;intron_id=1
+ptg000001l	exonerate:protein2genome:local	splice3	13733971	13733972	.	-	.	ID=splice3-1;Parent=nbis-rna-1;intron_id=0;splice_site=AG
+ptg000001l	exonerate:protein2genome:local	splice5	13734026	13734027	.	-	.	ID=splice5-1;Parent=nbis-rna-1;intron_id=1;splice_site=GT
