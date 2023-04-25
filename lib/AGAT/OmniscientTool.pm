@@ -31,7 +31,7 @@ remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
 check_mrna_positions check_features_overlap initialize_omni_from
-create_omniscient get_cds_from_l2 merge_overlap_loci );
+create_omniscient get_cds_from_l2 merge_overlap_loci get_uniq_id );
 
 sub import {
   AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -2916,6 +2916,20 @@ return $result
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
+# secure way to get ID because if spread feature e.g. CDS the ID can be share by multiple feature
+sub get_uniq_id {
+	my ($hash_omniscient, $feature) = @_;
+
+	my $id;
+	if ( exists_keys($hash_omniscient,('other', 'level', 'spread', lc($feature->primary_tag()) ) ) )
+	 {
+		$id = $feature->_tag_value('ID')."_".$feature->start()."_".$feature->end();
+	} 
+	else {
+		$id = $feature->_tag_value('ID');
+	}
+	return $id;
+}
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
 #				   || 			Info from id/feature 					 ||
