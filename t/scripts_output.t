@@ -88,6 +88,14 @@ system(" $script --mfannot $input_folder/test.mfannot -o $outtmp 2>&1 1>/dev/nul
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# -------------------------- check agat_convert_minimap2_bam2gff.pl --------------------------
+$script = $script_prefix."bin/agat_convert_minimap2_bam2gff.pl";
+$result = "$output_folder/agat_convert_minimap2_bam2gff_1.gff";
+system(" $script -i $input_folder/test_minimap2.sam -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # -------------------------- check agat_convert_sp_gff2bed -------------------------
 
 $script = $script_prefix."bin/agat_convert_sp_gff2bed.pl";

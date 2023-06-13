@@ -1,0 +1,248 @@
+##gff-version 3
+scaffold3095	est2genome	cDNA_match	6560	7116	442	+	.	ID=match1;aligned_identity=96.0
+scaffold3095	est2genome	cDNA_match_part	6560	7116	442	+	.	ID=match1.p1;Parent=match1;Target=MH169039.1 1 555
+scaffold1456	est2genome	cDNA_match	15138	15962	660	+	.	ID=match2;aligned_identity=96.0
+scaffold1456	est2genome	cDNA_match_part	15138	15962	660	+	.	ID=match2.p1;Parent=match2;Target=KC808703.1 1 825
+scaffold1456	est2genome	cDNA_match	15142	15964	683	+	.	ID=match3;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15964	683	+	.	ID=match3.p1;Parent=match3;Target=KC808702.1 5 827
+scaffold1456	est2genome	cDNA_match	15142	15964	678	+	.	ID=match4;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15142	15964	678	+	.	ID=match4.p1;Parent=match4;Target=KC808701.1 5 827
+scaffold1456	est2genome	cDNA_match	15142	15961	675	+	.	ID=match5;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15142	15961	675	+	.	ID=match5.p1;Parent=match5;Target=KC808700.1 5 824
+scaffold1456	est2genome	cDNA_match	15142	15964	683	+	.	ID=match6;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15964	683	+	.	ID=match6.p1;Parent=match6;Target=KC808699.1 5 827
+scaffold1456	est2genome	cDNA_match	15142	15961	665	+	.	ID=match7;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15961	665	+	.	ID=match7.p1;Parent=match7;Target=KC808698.1 5 824
+scaffold1456	est2genome	cDNA_match	15142	15961	660	+	.	ID=match8;aligned_identity=96.1
+scaffold1456	est2genome	cDNA_match_part	15142	15961	660	+	.	ID=match8.p1;Parent=match8;Target=KC808697.1 5 824
+scaffold1456	est2genome	cDNA_match	15142	15960	659	+	.	ID=match9;aligned_identity=96.1
+scaffold1456	est2genome	cDNA_match_part	15142	15960	659	+	.	ID=match9.p1;Parent=match9;Target=KC808696.1 5 823
+scaffold1456	est2genome	cDNA_match	15142	15956	651	+	.	ID=match10;aligned_identity=95.8
+scaffold1456	est2genome	cDNA_match_part	15142	15956	651	+	.	ID=match10.p1;Parent=match10;Target=KC808695.1 5 819
+scaffold1456	est2genome	cDNA_match	15142	15958	682	+	.	ID=match11;aligned_identity=96.7
+scaffold1456	est2genome	cDNA_match_part	15142	15958	682	+	.	ID=match11.p1;Parent=match11;Target=KC808694.1 5 821
+scaffold1456	est2genome	cDNA_match	15142	15960	664	+	.	ID=match12;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15960	664	+	.	ID=match12.p1;Parent=match12;Target=KC808693.1 5 823
+scaffold1456	est2genome	cDNA_match	15142	15958	662	+	.	ID=match13;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15958	662	+	.	ID=match13.p1;Parent=match13;Target=KC808692.1 5 821
+scaffold1456	est2genome	cDNA_match	15142	15959	678	+	.	ID=match14;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15959	678	+	.	ID=match14.p1;Parent=match14;Target=KC808691.1 5 822
+scaffold1456	est2genome	cDNA_match	15142	15960	679	+	.	ID=match15;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15960	679	+	.	ID=match15.p1;Parent=match15;Target=KC808690.1 5 823
+scaffold1456	est2genome	cDNA_match	15142	15961	675	+	.	ID=match16;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15142	15961	675	+	.	ID=match16.p1;Parent=match16;Target=KC808689.1 5 824
+scaffold1456	est2genome	cDNA_match	15138	15965	686	+	.	ID=match17;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15138	15965	686	+	.	ID=match17.p1;Parent=match17;Target=KC808677.1 1 828
+scaffold1456	est2genome	cDNA_match	15138	15965	663	+	.	ID=match18;aligned_identity=96.0
+scaffold1456	est2genome	cDNA_match_part	15138	15965	663	+	.	ID=match18.p1;Parent=match18;Target=KC808676.1 1 828
+scaffold1456	est2genome	cDNA_match	15142	15965	689	+	.	ID=match19;aligned_identity=96.7
+scaffold1456	est2genome	cDNA_match_part	15142	15965	689	+	.	ID=match19.p1;Parent=match19;Target=KC808675.1 5 828
+scaffold1456	est2genome	cDNA_match	15138	15965	692	+	.	ID=match20;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15138	15965	692	+	.	ID=match20.p1;Parent=match20;Target=KC808674.1 1 828
+scaffold1456	est2genome	cDNA_match	15142	15965	689	+	.	ID=match21;aligned_identity=96.7
+scaffold1456	est2genome	cDNA_match_part	15142	15965	689	+	.	ID=match21.p1;Parent=match21;Target=KC808673.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15965	676	+	.	ID=match22;aligned_identity=96.1
+scaffold1456	est2genome	cDNA_match_part	15142	15965	676	+	.	ID=match22.p1;Parent=match22;Target=KC808672.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15965	684	+	.	ID=match23;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15965	684	+	.	ID=match23.p1;Parent=match23;Target=KC808671.1 5 828
+scaffold1456	est2genome	cDNA_match	15138	15965	683	+	.	ID=match24;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15138	15965	683	+	.	ID=match24.p1;Parent=match24;Target=KC808670.1 1 828
+scaffold1456	est2genome	cDNA_match	15148	15964	667	+	.	ID=match25;aligned_identity=96.3
+scaffold1456	est2genome	cDNA_match_part	15148	15964	667	+	.	ID=match25.p1;Parent=match25;Target=KC808669.1 6 822
+scaffold1456	est2genome	cDNA_match	15148	15965	671	+	.	ID=match26;aligned_identity=96.3
+scaffold1456	est2genome	cDNA_match_part	15148	15965	671	+	.	ID=match26.p1;Parent=match26;Target=KC808668.1 4 821
+scaffold1456	est2genome	cDNA_match	15150	15965	676	+	.	ID=match27;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15150	15965	676	+	.	ID=match27.p1;Parent=match27;Target=KC808667.1 1 816
+scaffold1456	est2genome	cDNA_match	15142	15965	682	+	.	ID=match28;aligned_identity=96.5
+scaffold1456	est2genome	cDNA_match_part	15142	15965	682	+	.	ID=match28.p1;Parent=match28;Target=KC808666.1 5 828
+scaffold1456	est2genome	cDNA_match	15138	15965	676	+	.	ID=match29;aligned_identity=96.3
+scaffold1456	est2genome	cDNA_match_part	15138	15965	676	+	.	ID=match29.p1;Parent=match29;Target=KC808665.1 1 828
+scaffold1456	est2genome	cDNA_match	15142	15965	674	+	.	ID=match30;aligned_identity=96.4
+scaffold1456	est2genome	cDNA_match_part	15142	15965	674	+	.	ID=match30.p1;Parent=match30;Target=KC808664.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15960	682	+	.	ID=match31;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15960	682	+	.	ID=match31.p1;Parent=match31;Target=KC808663.1 5 823
+scaffold1456	est2genome	cDNA_match	15142	15957	661	+	.	ID=match32;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15957	661	+	.	ID=match32.p1;Parent=match32;Target=KC808660.1 5 820
+scaffold1456	est2genome	cDNA_match	15142	15957	671	+	.	ID=match33;aligned_identity=96.4
+scaffold1456	est2genome	cDNA_match_part	15142	15957	671	+	.	ID=match33.p1;Parent=match33;Target=KC808659.1 5 820
+scaffold1456	est2genome	cDNA_match	15172	15965	659	+	.	ID=match34;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15172	15965	659	+	.	ID=match34.p1;Parent=match34;Target=KC808658.1 1 794
+scaffold1456	est2genome	cDNA_match	15142	15965	684	+	.	ID=match35;aligned_identity=96.6
+scaffold1456	est2genome	cDNA_match_part	15142	15965	684	+	.	ID=match35.p1;Parent=match35;Target=KC808657.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15965	664	+	.	ID=match36;aligned_identity=96.1
+scaffold1456	est2genome	cDNA_match_part	15142	15965	664	+	.	ID=match36.p1;Parent=match36;Target=KC808656.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15960	664	+	.	ID=match37;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15960	664	+	.	ID=match37.p1;Parent=match37;Target=KC808643.1 5 823
+scaffold1456	est2genome	cDNA_match	15142	15958	670	+	.	ID=match38;aligned_identity=96.3
+scaffold1456	est2genome	cDNA_match_part	15142	15958	670	+	.	ID=match38.p1;Parent=match38;Target=KC808642.1 5 821
+scaffold1456	est2genome	cDNA_match	15142	15965	674	+	.	ID=match39;aligned_identity=96.4
+scaffold1456	est2genome	cDNA_match_part	15142	15965	674	+	.	ID=match39.p1;Parent=match39;Target=KC808641.1 5 828
+scaffold1456	est2genome	cDNA_match	15138	15965	658	+	.	ID=match40;aligned_identity=95.9
+scaffold1456	est2genome	cDNA_match_part	15138	15965	658	+	.	ID=match40.p1;Parent=match40;Target=KC808640.1 1 828
+scaffold1456	est2genome	cDNA_match	15142	15965	674	+	.	ID=match41;aligned_identity=96.4
+scaffold1456	est2genome	cDNA_match_part	15142	15965	674	+	.	ID=match41.p1;Parent=match41;Target=KC808638.1 5 828
+scaffold1456	est2genome	cDNA_match	15142	15965	699	+	.	ID=match42;aligned_identity=97.0
+scaffold1456	est2genome	cDNA_match_part	15142	15965	699	+	.	ID=match42.p1;Parent=match42;Target=KC808637.1 5 828
+scaffold1456	est2genome	cDNA_match	15138	15965	693	+	.	ID=match43;aligned_identity=96.7
+scaffold1456	est2genome	cDNA_match_part	15138	15965	693	+	.	ID=match43.p1;Parent=match43;Target=KC808636.1 1 828
+scaffold1456	est2genome	cDNA_match	14519	15958	1114	+	.	ID=match44;aligned_identity=94.3
+scaffold1456	est2genome	cDNA_match_part	14519	15958	1114	+	.	ID=match44.p1;Parent=match44;Target=KC808622.1 4 1443
+scaffold280	est2genome	cDNA_match	130415	131113	390	-	.	ID=match45;aligned_identity=92.3
+scaffold280	est2genome	cDNA_match_part	130415	130527	390	-	.	ID=match45.p1;Parent=match45;Target=KC808621.1 540 652
+scaffold280	est2genome	cDNA_match_part	130576	131113	390	-	.	ID=match45.p1;Parent=match45;Target=KC808621.1 1 539
+scaffold1456	est2genome	cDNA_match	14519	15965	1045	+	.	ID=match46;aligned_identity=91.5
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1045	+	.	ID=match46.p1;Parent=match46;Target=KC808620.1 2 1448
+scaffold1456	est2genome	cDNA_match	14475	15965	1065	+	.	ID=match47;aligned_identity=93.8
+scaffold1456	est2genome	cDNA_match_part	14475	15965	1065	+	.	ID=match47.p1;Parent=match47;Target=KC808619.1 1 1491
+scaffold1456	est2genome	cDNA_match	14519	15965	1099	+	.	ID=match48;aligned_identity=94.0
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1099	+	.	ID=match48.p1;Parent=match48;Target=KC808617.1 2 1448
+scaffold1456	est2genome	cDNA_match	14519	15965	1039	+	.	ID=match49;aligned_identity=91.7
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1039	+	.	ID=match49.p1;Parent=match49;Target=KC808616.1 4 1450
+scaffold1456	est2genome	cDNA_match	14475	15965	1093	+	.	ID=match50;aligned_identity=94.1
+scaffold1456	est2genome	cDNA_match_part	14475	15965	1093	+	.	ID=match50.p1;Parent=match50;Target=KC808615.1 1 1491
+scaffold1456	est2genome	cDNA_match	15142	15960	670	+	.	ID=match51;aligned_identity=96.2
+scaffold1456	est2genome	cDNA_match_part	15142	15960	670	+	.	ID=match51.p1;Parent=match51;Target=KC808614.1 5 823
+scaffold1456	est2genome	cDNA_match	14475	15958	1027	+	.	ID=match52;aligned_identity=92.0
+scaffold1456	est2genome	cDNA_match_part	14475	15958	1027	+	.	ID=match52.p1;Parent=match52;Target=KC808613.1 1 1484
+scaffold1456	est2genome	cDNA_match	14519	15962	1007	+	.	ID=match53;aligned_identity=90.6
+scaffold1456	est2genome	cDNA_match_part	14519	15962	1007	+	.	ID=match53.p1;Parent=match53;Target=KC808612.1 2 1445
+scaffold1456	est2genome	cDNA_match	14519	15965	1075	+	.	ID=match54;aligned_identity=93.8
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1075	+	.	ID=match54.p1;Parent=match54;Target=KC808607.1 3 1449
+scaffold1456	est2genome	cDNA_match	14519	15965	1115	+	.	ID=match55;aligned_identity=93.9
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1115	+	.	ID=match55.p1;Parent=match55;Target=KC808606.1 4 1450
+scaffold1456	est2genome	cDNA_match	14519	15965	1032	+	.	ID=match56;aligned_identity=91.2
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1032	+	.	ID=match56.p1;Parent=match56;Target=KC808605.1 2 1448
+scaffold1456	est2genome	cDNA_match	14519	15965	1030	+	.	ID=match57;aligned_identity=91.7
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1030	+	.	ID=match57.p1;Parent=match57;Target=KC808604.1 2 1448
+scaffold1456	est2genome	cDNA_match	14519	15965	1099	+	.	ID=match58;aligned_identity=94.0
+scaffold1456	est2genome	cDNA_match_part	14519	15965	1099	+	.	ID=match58.p1;Parent=match58;Target=KC808603.1 2 1448
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match59;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match59.p1;Parent=match59;Target=KC763927.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	488	+	.	ID=match60;aligned_identity=99.2
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	488	+	.	ID=match60.p1;Parent=match60;Target=KC763926.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	494	+	.	ID=match61;aligned_identity=99.8
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	494	+	.	ID=match61.p1;Parent=match61;Target=KC763925.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match62;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match62.p1;Parent=match62;Target=KC763924.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	489	+	.	ID=match63;aligned_identity=99.6
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	489	+	.	ID=match63.p1;Parent=match63;Target=KC763920.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match64;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match64.p1;Parent=match64;Target=KC763919.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match65;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match65.p1;Parent=match65;Target=KC763918.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	494	+	.	ID=match66;aligned_identity=99.8
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	494	+	.	ID=match66.p1;Parent=match66;Target=KC763917.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match67;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match67.p1;Parent=match67;Target=KC763916.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match68;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match68.p1;Parent=match68;Target=KC763915.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match69;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match69.p1;Parent=match69;Target=KC763910.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	486	+	.	ID=match70;aligned_identity=99.6
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	486	+	.	ID=match70.p1;Parent=match70;Target=KC763903.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	491	+	.	ID=match71;aligned_identity=99.8
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	491	+	.	ID=match71.p1;Parent=match71;Target=KC763902.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match72;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match72.p1;Parent=match72;Target=KC763901.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	491	+	.	ID=match73;aligned_identity=99.8
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	491	+	.	ID=match73.p1;Parent=match73;Target=KC763900.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	496	+	.	ID=match74;aligned_identity=100.0
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	496	+	.	ID=match74.p1;Parent=match74;Target=KC763899.1 1 496
+scaffold9	est2genome	cDNA_match	4723585	4724080	491	+	.	ID=match75;aligned_identity=99.8
+scaffold9	est2genome	cDNA_match_part	4723585	4724080	491	+	.	ID=match75.p1;Parent=match75;Target=KC763897.1 1 496
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match76;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match76.p1;Parent=match76;Target=KC751484.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6100	446	+	.	ID=match77;aligned_identity=98.7
+scaffold3095	est2genome	cDNA_match_part	5625	6100	446	+	.	ID=match77.p1;Parent=match77;Target=KC751483.1 1 476
+scaffold3095	est2genome	cDNA_match	5625	6115	459	+	.	ID=match78;aligned_identity=98.6
+scaffold3095	est2genome	cDNA_match_part	5625	6115	459	+	.	ID=match78.p1;Parent=match78;Target=KC751482.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match79;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match79.p1;Parent=match79;Target=KC751481.1 1 491
+scaffold3095	est2genome	cDNA_match	5648	6087	407	+	.	ID=match80;aligned_identity=98.4
+scaffold3095	est2genome	cDNA_match_part	5648	6087	407	+	.	ID=match80.p1;Parent=match80;Target=KC751480.1 1 442
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match81;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match81.p1;Parent=match81;Target=KC751478.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match82;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match82.p1;Parent=match82;Target=KC751477.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match83;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match83.p1;Parent=match83;Target=KC751476.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match84;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match84.p1;Parent=match84;Target=KC751474.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match85;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match85.p1;Parent=match85;Target=KC751473.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match86;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match86.p1;Parent=match86;Target=KC751472.1 1 491
+scaffold3095	est2genome	cDNA_match	5648	6115	438	+	.	ID=match87;aligned_identity=98.7
+scaffold3095	est2genome	cDNA_match_part	5648	6115	438	+	.	ID=match87.p1;Parent=match87;Target=KC751468.1 1 468
+scaffold3095	est2genome	cDNA_match	5648	6115	430	+	.	ID=match88;aligned_identity=98.3
+scaffold3095	est2genome	cDNA_match_part	5648	6115	430	+	.	ID=match88.p1;Parent=match88;Target=KC751467.1 1 470
+scaffold3095	est2genome	cDNA_match	5648	6115	438	+	.	ID=match89;aligned_identity=98.7
+scaffold3095	est2genome	cDNA_match_part	5648	6115	438	+	.	ID=match89.p1;Parent=match89;Target=KC751466.1 1 468
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match90;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match90.p1;Parent=match90;Target=KC751464.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match91;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match91.p1;Parent=match91;Target=KC751463.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match92;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match92.p1;Parent=match92;Target=KC751462.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match93;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match93.p1;Parent=match93;Target=KC751461.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match94;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match94.p1;Parent=match94;Target=KC751460.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match95;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match95.p1;Parent=match95;Target=KC751458.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match96;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match96.p1;Parent=match96;Target=KC751457.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match97;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match97.p1;Parent=match97;Target=KC751456.1 1 491
+scaffold3095	est2genome	cDNA_match	5625	6106	452	+	.	ID=match98;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6106	452	+	.	ID=match98.p1;Parent=match98;Target=KC751455.1 1 482
+scaffold3095	est2genome	cDNA_match	5625	6115	461	+	.	ID=match99;aligned_identity=98.8
+scaffold3095	est2genome	cDNA_match_part	5625	6115	461	+	.	ID=match99.p1;Parent=match99;Target=KC751454.1 1 491
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match100;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match100.p1;Parent=match100;Target=KC733758.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match101;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match101.p1;Parent=match101;Target=KC733757.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match102;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match102.p1;Parent=match102;Target=KC733756.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match103;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match103.p1;Parent=match103;Target=KC733755.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match104;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match104.p1;Parent=match104;Target=KC733754.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match105;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match105.p1;Parent=match105;Target=KC733753.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match106;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match106.p1;Parent=match106;Target=KC733752.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7091	556	+	.	ID=match107;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7091	556	+	.	ID=match107.p1;Parent=match107;Target=KC733751.1 1 576
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match108;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match108.p1;Parent=match108;Target=KC733749.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match109;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match109.p1;Parent=match109;Target=KC733748.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7086	551	+	.	ID=match110;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7086	551	+	.	ID=match110.p1;Parent=match110;Target=KC733742.1 1 571
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match111;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match111.p1;Parent=match111;Target=KC733741.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	566	+	.	ID=match112;aligned_identity=99.2
+scaffold3095	est2genome	cDNA_match_part	6516	7106	566	+	.	ID=match112.p1;Parent=match112;Target=KC733740.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match113;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match113.p1;Parent=match113;Target=KC733739.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match114;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match114.p1;Parent=match114;Target=KC733738.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match115;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match115.p1;Parent=match115;Target=KC733730.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match116;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match116.p1;Parent=match116;Target=KC733729.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match117;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match117.p1;Parent=match117;Target=KC733728.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match118;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match118.p1;Parent=match118;Target=KC733727.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match119;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match119.p1;Parent=match119;Target=KC733726.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match120;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match120.p1;Parent=match120;Target=KC733725.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match121;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match121.p1;Parent=match121;Target=KC733721.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	569	+	.	ID=match122;aligned_identity=99.2
+scaffold3095	est2genome	cDNA_match_part	6516	7106	569	+	.	ID=match122.p1;Parent=match122;Target=KC733720.1 1 591
+scaffold3095	est2genome	cDNA_match	6516	7106	571	+	.	ID=match123;aligned_identity=99.3
+scaffold3095	est2genome	cDNA_match_part	6516	7106	571	+	.	ID=match123.p1;Parent=match123;Target=KC733719.1 1 591

@@ -1,4 +1,4 @@
-# agat\_convert\_sp\_minimap2\_bam2gff.pl
+# agat\_convert\_minimap2\_bam2gff.pl
 
 ## DESCRIPTION
 
@@ -10,9 +10,9 @@ To use bam with this script you will need samtools in your path.
 ## SYNOPSIS
 
 ```
-agat_convert_sp_minimap2_bam2gff.pl -i infile.bam [ -o outfile ]
-agat_convert_sp_minimap2_bam2gff.pl -i infile.sam [ -o outfile ]
-agat_convert_sp_minimap2_bam2gff.pl --help
+agat_convert_minimap2_bam2gff.pl -i infile.bam [ -o outfile ]
+agat_convert_minimap2_bam2gff.pl -i infile.sam [ -o outfile ]
+agat_convert_minimap2_bam2gff.pl --help
 ```
 
 ## OPTIONS
