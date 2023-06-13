@@ -339,7 +339,7 @@ rl	i	Length of query regions harboring repetitive seeds
 
 =head1 NAME
 
-agat_convert_sp_minimap2_bam2gff.pl
+agat_convert_minimap2_bam2gff.pl
 
 =head1 DESCRIPTION
 
@@ -350,9 +350,9 @@ To use bam with this script you will need samtools in your path.
 
 =head1 SYNOPSIS
 
-    agat_convert_sp_minimap2_bam2gff.pl -i infile.bam [ -o outfile ]
-    agat_convert_sp_minimap2_bam2gff.pl -i infile.sam [ -o outfile ]
-    agat_convert_sp_minimap2_bam2gff.pl --help
+    agat_convert_minimap2_bam2gff.pl -i infile.bam [ -o outfile ]
+    agat_convert_minimap2_bam2gff.pl -i infile.sam [ -o outfile ]
+    agat_convert_minimap2_bam2gff.pl --help
 
 =head1 OPTIONS
 
