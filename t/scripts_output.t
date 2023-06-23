@@ -696,6 +696,7 @@ $script = $script_prefix."bin/agat_sq_manage_IDs.pl";
 $result = "$output_folder/agat_sq_manage_IDs_1.gff";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
+#ok( system("diff -b -I '^usage:' -I '^usage:' $result $outtmp") == 0, "output $script");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
