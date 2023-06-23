@@ -68,6 +68,7 @@ level1:
   protein_coding_gene: 1
   protein_match: 1
   pseudogene: 1
+  pseudogenic_region: 1
   region: topfeature
   regulatory_region: standalone
   response_element: standalone
@@ -167,6 +168,7 @@ level3:
   non_canonical_three_prime_splice_site: 1
   protein: 1
   pseudogenic_exon: 1
+  pseudogenic_cds: pseudogenic_exon
   selenocysteine: 1
   sig_peptide: exon
   splice3 : intron
