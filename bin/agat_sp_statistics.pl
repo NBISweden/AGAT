@@ -109,12 +109,12 @@ agat_sp_statistics.pl
 
 =head1 DESCRIPTION
 
-The script provides exhaustive statitics of a gft/gff file.
+The script provides exhaustive statistics of a gft/gff file.
 /!\ If you have isoforms in your file, even if correct, some values calculated
-might sounds incoherent: e.g total length mRNA can be superior than the genome size.
-Because all isoforms lengh are aditionned... It is why by deafault
+might sounds incoherent: e.g. total length mRNA can be superior than the genome size.
+Because all isoforms length is added... It is why by default
 we always compute the statistics twice when there are isoforms, once with the
-isoforms, once wihtout (In that case we keep the longest isoform per locus).
+isoforms, once without (In that case we keep the longest isoform per locus).
 
 =head1 SYNOPSIS
 
