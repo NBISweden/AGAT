@@ -193,6 +193,7 @@ level3:
 spread:
    cds: 1
    five_prime_utr: 1
+   pseudogenic_cds: 1
    start_codon: 1
    stop_codon: 1
    three_prime_utr: 1
