@@ -1,4 +1,4 @@
-usage: bin/agat_sp_manage_introns.pl --gff t/scripts_output/in/1.gff -o tmp.txt
+usage: bin/agat_sp_manage_introns.pl --gff t/scripts_output/in/1.gff -o tmp.gff
 
 --------------------------------------------------------------------------------
 

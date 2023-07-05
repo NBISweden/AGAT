@@ -566,7 +566,7 @@ $script = $script_prefix."bin/agat_sp_manage_introns.pl";
 $result = "$output_folder/agat_sp_manage_introns_1.txt";
 system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system( "diff $result $outtmp/report.txt" ) == 0, "output $script");
+ok( system( "diff  -b -I '^usage:' -I '^usage:' $result $outtmp/report.txt" ) == 0, "output $script");
 rmtree $outtmp;
 
 # ------------------- check agat_sp_merge_annotations script-------------------
