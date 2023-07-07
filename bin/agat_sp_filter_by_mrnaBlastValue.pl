@@ -18,8 +18,9 @@ my $gff     = undef;
 my $blast   = undef;
 my $opt_help;
 
-'c|config=s'               => \$config,
-if ( !GetOptions(   "h|help"      => \$opt_help,
+
+if ( !GetOptions(   'c|config=s'=> \$config,
+                    "h|help"    => \$opt_help,
                     "gff=s"     => \$gff,
                     "blast=s"   => \$blast,
                     "outfile=s" => \$outfile ))
