@@ -9,7 +9,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: '0'
 dynamic_config: 0
-generated_by: 'ExtUtils::MakeMaker version 7.36, CPAN::Meta::Converter version 2.150010'
+generated_by: 'ExtUtils::MakeMaker version 7.66, CPAN::Meta::Converter version 2.150010'
 license: gpl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -38,7 +38,6 @@ requires:
   Getopt::Long: '0'
   IO::File: '0'
   IPC::Open2: '0'
-  JSON: '0'
   LWP::Protocol::https: '0'
   LWP::UserAgent: '0'
   List::MoreUtils: '0'
