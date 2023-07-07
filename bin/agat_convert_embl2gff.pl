@@ -251,10 +251,6 @@ Bolean - Means that primary tags provided by the option "primary_tag" will be di
 
 Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
 
-=item B<--throw_fasta>
-
-Bolean - Means that you do not want to keep the fasta sequence at the end of the gff output.
-
 =item B<-o>, B<--output>, B<--out>, B<--outfile> or B<--gff>
 
 Output GFF file. If no output file is specified, the output will be
