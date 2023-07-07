@@ -12,7 +12,7 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;

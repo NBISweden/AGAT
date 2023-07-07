@@ -25,7 +25,7 @@ use AGAT::AGAT;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $model_to_test = undef;

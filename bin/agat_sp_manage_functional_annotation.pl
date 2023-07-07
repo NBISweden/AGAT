@@ -16,7 +16,7 @@ use AGAT::AGAT;
 my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 
 # PARAMETERS - OPTION
 my $opt_reffile;

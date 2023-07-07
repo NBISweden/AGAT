@@ -8,7 +8,7 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;

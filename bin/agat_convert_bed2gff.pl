@@ -8,7 +8,7 @@ use Getopt::Long;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
@@ -18,14 +18,14 @@ my $inflate_type = "exon";
 my $verbose = undef;
 my $help;
 
-if( !GetOptions(  "help" => \$help,
-							    "bed=s" => \$bed,
-									"source=s" => \$source_tag,
-									"verbose|v!" => \$verbose,
-									"primary_tag=s" => \$primary_tag,
-									"inflate_off!" => \$inflating_off,
-									"inflate_type=s" => \$inflate_type,
-							    "outfile|output|o|out|gff=s" => \$outfile ) )
+if( !GetOptions(  	"help"           => \$help,
+					"bed=s"          => \$bed,
+					"source=s"       => \$source_tag,
+					"verbose|v!"     => \$verbose,
+					"primary_tag=s"  => \$primary_tag,
+					"inflate_off!"   => \$inflating_off,
+					"inflate_type=s" => \$inflate_type,
+					"outfile|output|o|out|gff=s" => \$outfile ) )
 {
     pod2usage( { -message => "Failed to parse command line.\n",
                  -verbose => 1,
@@ -45,6 +45,9 @@ if ( ! (defined($bed)) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
 my $gffout = prepare_gffout($config, $outfile);

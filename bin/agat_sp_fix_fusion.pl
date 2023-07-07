@@ -21,7 +21,7 @@ my $PREFIX_CPT_EXON=1;
 my $PREFIX_CPT_MRNA=1;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;

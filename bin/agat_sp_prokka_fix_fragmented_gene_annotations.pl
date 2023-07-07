@@ -58,7 +58,7 @@ use case_info;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfolder = undef;
 my $gff = undef;
 my $file_fasta=undef;

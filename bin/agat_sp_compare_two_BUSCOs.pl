@@ -11,7 +11,7 @@ use List::Util 'first';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
