@@ -17,7 +17,7 @@ my $force=undef;
 my $outfile=undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "force" => \$force,
     "output|outfile|out|o=s" => \$outfile))

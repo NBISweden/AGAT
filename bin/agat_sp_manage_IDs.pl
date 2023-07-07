@@ -23,7 +23,7 @@ my $opt_type_dependent = undef;
 my $verbose;
 
 if ( !GetOptions(
-    "help|h!"   => \$opt_help,
+    "h|help!"   => \$opt_help,
     "gff|f=s"   => \$opt_gff,
     "nb=i"      => \$opt_nbIDstart,
     "gap=i"     => \$opt_gap,

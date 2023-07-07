@@ -18,7 +18,7 @@ my $gff     = undef;
 my $blast   = undef;
 my $opt_help;
 
-if ( !GetOptions(   "help"      => \$opt_help,
+if ( !GetOptions(   "h|help"      => \$opt_help,
                     "gff=s"     => \$gff,
                     "blast=s"   => \$blast,
                     "outfile=s" => \$outfile ))

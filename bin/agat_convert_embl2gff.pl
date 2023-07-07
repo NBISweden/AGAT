@@ -21,7 +21,7 @@ my $keep;
 my $help;
 
 if( !GetOptions(
-    "help"                       => \$help,
+    "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
     "d!"                         => \$discard,

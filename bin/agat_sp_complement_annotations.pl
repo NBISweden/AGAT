@@ -20,7 +20,7 @@ my $opt_help= undef;
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "ref|r|i=s" => \$ref,
     "add|a=s" => \@opt_files,
     "size_min|s=i" => \$size_min,

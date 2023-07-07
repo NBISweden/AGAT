@@ -18,7 +18,7 @@ my $fasta = undef;
 my $help;
 
 if( !GetOptions(
-    "help|h" => \$help,
+    "h|help" => \$help,
     "gff=s" => \$gff,
 		"fasta=s" => \$fasta,
     "outfile|output|out|o=s" => \$outfile))

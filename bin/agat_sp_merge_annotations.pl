@@ -16,7 +16,7 @@ my $file2 = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "gff|f=s" => \@opt_files,
     "output|outfile|out|o=s" => \$outfile))
 

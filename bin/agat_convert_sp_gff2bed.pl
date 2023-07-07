@@ -15,7 +15,7 @@ my $opt_nc = "keep";
 my $help;
 
 if( !GetOptions(
-    "help|h" => \$help,
+    "h|help" => \$help,
     "gff=s" => \$gff,
     "sub=s" => \$sub,
     "nc=s" => \$opt_nc,

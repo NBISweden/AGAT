@@ -19,7 +19,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "gff=s" => \$gff,
     "add_flag|af!" => \$add_flag,
     "d|dist=i" => \$opt_dist,

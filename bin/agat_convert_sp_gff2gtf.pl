@@ -17,7 +17,7 @@ my $help;
 
 
 if( !GetOptions(
-    "help" => \$help,
+    "h|help" => \$help,
     "gff|gtf|i=s" => \$gff,
 	"gtf_version=s" => \$gtf_version,
 	"verbose|v!" => \$verbose,

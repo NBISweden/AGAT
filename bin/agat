@@ -71,7 +71,7 @@ The file will appear in the working folder. By default, AGAT uses the config fil
          # 'config-files' => ["/etc/$APPNAME.json"],
          options     => [
             {
-               getopt      => 'help|h!',
+               getopt      => 'h|help!',
 					shortbool   => 1, #shortbool added by JDainat to avoid --no-help
                help        => 'Display the help',
             },
@@ -108,7 +108,7 @@ file. Indeed, if the feature_levels.yaml file exists in your working directory, 
 used by default.',
          options     => [
 					 {
-							 getopt      => 'help|h!',
+							 getopt      => 'h|help!',
 							 shortbool   => 1,
 							 help        => 'Display the help',
 						},
@@ -136,7 +136,7 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 ',
 				 options     => [
 					 {
-							getopt      => 'help|h!',
+							getopt      => 'h|help!',
 							help        => 'Display the help',
 							shortbool   => 1,
 					 },

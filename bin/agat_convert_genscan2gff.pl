@@ -19,11 +19,11 @@ my %hash_uniqID;
 my $verbose = undef;
 my $help;
 
-if( !GetOptions(  "help" => \$help,
-							    "g|genscan=s" => \$genscan,
-								"seqid=s" => \$seq_id,
-								"verbose|v!" => \$verbose,
-							    "outfile|output|o|out|gff=s" => \$outfile ) )
+if( !GetOptions(	"h|help" => \$help,
+					"g|genscan=s" => \$genscan,
+					"seqid=s" => \$seq_id,
+					"verbose|v!" => \$verbose,
+					"outfile|output|o|out|gff=s" => \$outfile ) )
 {
     pod2usage( { -message => "Failed to parse command line.\n",
                  -verbose => 1,

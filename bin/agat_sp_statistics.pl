@@ -19,7 +19,7 @@ my $opt_verbose = 0;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    "help|h"      => \$opt_help,
+    "h|help"      => \$opt_help,
     'o|output=s'  => \$opt_output,
     'd|p'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,

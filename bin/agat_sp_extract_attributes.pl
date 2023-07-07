@@ -24,7 +24,7 @@ my $outInOne=undef;
 my $doNotReportEmptyCase=undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "d!" => \$doNotReportEmptyCase,
     "m|merge!" => \$one_tsv,

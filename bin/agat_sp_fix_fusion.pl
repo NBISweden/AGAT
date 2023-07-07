@@ -33,7 +33,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"           => \$opt_help,
+    "h|help"           => \$opt_help,
     "gff=s"            => \$gff,
     "fasta|fa=s"       => \$file_fasta,
     "stranded|s"       => \$stranded,

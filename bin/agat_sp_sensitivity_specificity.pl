@@ -19,7 +19,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"      => \$opt_help,
+    "h|help"      => \$opt_help,
     "gff1=s"      => \$gff1,
     "gff2=s"      => \$gff2,
     "v!"          => \$verbose,

@@ -17,7 +17,7 @@ my $opt_plot = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    "help|h"          => \$opt_help,
+    "h|help"          => \$opt_help,
     'o|output=s'      => \$opt_output,
     "gff|f=s"         => \$gff))
 

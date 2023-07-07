@@ -18,7 +18,7 @@ my $verbose;
 my $opt_help = 0;
 
 if ( !GetOptions(
-		"help|h"                 => \$opt_help,
+		"h|help"                 => \$opt_help,
 		"f|file|gff3|gff=s"      => \$ref,
 		"merge|m!"               => \$opt_merge,
 		"output|outfile|out|o=s" => \$outfile,

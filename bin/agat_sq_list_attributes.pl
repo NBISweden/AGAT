@@ -20,7 +20,7 @@ my $primaryTag=undef;
 my $outfile=undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "p|t|l=s" => \$primaryTag,
     "output|outfile|out|o=s" => \$outfile))

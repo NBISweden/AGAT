@@ -22,7 +22,7 @@ my $cp = undef;
 my $overwrite = undef;
 
 if ( !GetOptions(
-    "help|h"      => \$opt_help,
+    "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
 		"overwrite"   => \$overwrite,

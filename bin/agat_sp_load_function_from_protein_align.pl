@@ -45,7 +45,7 @@ my $opt_help               = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"                 => \$opt_help,
+    "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,
     "sp:s"                   => \$sort_method_by_species,

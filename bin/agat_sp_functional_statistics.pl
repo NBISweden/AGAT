@@ -17,7 +17,7 @@ my $opt_genomeSize = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    "help|h"     => \$opt_help,
+    "h|help"     => \$opt_help,
     'g|gs=s'     => \$opt_genomeSize,
     'o|output=s' => \$opt_output,
     "gff|f=s"    => \$gff))
