@@ -1047,6 +1047,12 @@ upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
 
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives yo the possibility to use your own AGAT config file (located elsewhere or named differently).
+
 =back
 
 =head1 FEEDBACK

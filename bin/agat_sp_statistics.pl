@@ -146,6 +146,12 @@ Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are incre
 
 File where will be written the result. If no output file is specified, the output will be written to STDOUT.
 
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives yo the possibility to use your own AGAT config file (located elsewhere or named differently).
+
 =item B<-h> or B<--help>
 
 Display this helpful text.

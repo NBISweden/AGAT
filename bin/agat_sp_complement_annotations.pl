@@ -184,6 +184,12 @@ Option to keep the non-overlping gene only if the CDS size (in nucleotide) is ov
 
 Output gff3 containing the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
 
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives yo the possibility to use your own AGAT config file (located elsewhere or named differently).
+
 =item B<--help> or B<-h>
 
 Display this helpful text.
