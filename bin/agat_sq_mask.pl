@@ -28,6 +28,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'hm:s'            => \$opt_HardMask,
                   'sm'              => \$opt_SoftMask,
                   'o|output=s'      => \$opt_output,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

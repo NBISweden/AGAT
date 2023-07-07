@@ -22,6 +22,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
                   "fasta|fa=s"      => \$opt_fasta,
                   "v|vebose!"       => \$opt_verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

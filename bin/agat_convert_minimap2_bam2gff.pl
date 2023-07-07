@@ -20,6 +20,7 @@ if ( !GetOptions( 'i|input=s' => \$opt_in,
                   'b|bam!' => \$opt_bam,
                   's|sam!' => \$opt_sam,
                   'o|out|output=s' => \$opt_output,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

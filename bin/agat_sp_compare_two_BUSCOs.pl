@@ -25,6 +25,7 @@ if ( !GetOptions ('f1=s' => \$folderIn1,
                   "f2=s" => \$folderIn2,
                   'o|output=s' => \$outfolder,
                   'v|verbose=i' => \$verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',

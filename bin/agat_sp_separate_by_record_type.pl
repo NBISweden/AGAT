@@ -17,6 +17,7 @@ my $opt_help = 0;
 if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
 
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

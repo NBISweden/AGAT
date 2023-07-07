@@ -23,6 +23,7 @@ if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
                   'o|out|output=s' => \$opt_output,
                   'v|verbose!'      => \$verbose,
                   'i|intron_size=i'      => \$Xsize,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
