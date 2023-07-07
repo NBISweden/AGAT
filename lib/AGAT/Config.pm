@@ -83,7 +83,7 @@ sub get_config{
 
 	# -------------- INPUT --------------
 	# -- Declare all variables and fill them --
-	my ( $verbose, $log, $debug, $type ) ;
+	my ( $verbose, $log, $debug, $type, $config_file_in ) ;
 	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
 	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
 	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
@@ -91,24 +91,38 @@ sub get_config{
 	if( !$type eq "local" and !$type eq "original" ){
 		warn "type must be local or original. $type unknown!";exit;
 	}
-
-	#set run directory
-	my $run_dir = cwd;
-
+	if( ! defined($args->{config_file_in}) ) { $config_file_in = undef;} else{ $config_file_in = $args->{config_file_in}; }
+	
 	my $path=undef;
 
-	# get local config if any
-	if ($type eq "local") {
-		$path = $run_dir."/".$config_file;
-		if (-e $path){
-			dual_print($log, "Using $config_file file found in your working directory.\n", $verbose );
-		} else {
-			$path = undef;
+	# original approach trying to get the local and/or original config file
+	if (! $config_file_in){
+		#set run directory
+		my $run_dir = cwd;
+
+		# get local config if any
+		if ($type eq "local") {
+			$path = $run_dir."/".$config_file;
+			if (-e $path){
+				dual_print($log, "Using $config_file file found in your working directory.\n", $verbose );
+			} else {
+				$path = undef;
+			}
+		}
+		#otherwise use the standard location ones
+		if (! $path) { 
+			$path = dist_file('AGAT', $config_file);
+			dual_print($log, "Using standard $path file\n", $verbose );
 		}
 	}
-	if (! $path) { #otherwise use the standard location ones
-		$path = dist_file('AGAT', $config_file);
-		dual_print($log, "Using standard $path file\n", $verbose );
+	# Config file provided we must load this one !
+	else{
+		if (-e $config_file_in){
+			$path = $config_file_in;
+			dual_print($log, "Using provided config file $path.\n", $verbose );
+		} else{
+			warn "Config file $config_file_in does not exist! Please check the path!"; exit;
+		}
 	}
 	return $path;
 }
