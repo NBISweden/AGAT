@@ -123,7 +123,7 @@ This is memory efficient, but no sanity check will be performed by the AGAT pars
 Configuration
 =============
 
-AGAT has a configuration file: config.yaml
+AGAT has a configuration file: agat_config.yaml
 
 To access the AGAT config file: agat config --expose
 
@@ -388,7 +388,7 @@ sub handle_config {
 			} else {
 				expose_config_file({config_file => $config_file});
 			}
-			print "Config file written in your working directory (config.yaml)\n";
+			print "Config file written in your working directory (agat_config.yaml)\n";
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help

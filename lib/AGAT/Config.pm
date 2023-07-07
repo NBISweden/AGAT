@@ -38,7 +38,7 @@ first time.
 
 #	-----------------------------------CONSTANT-----------------------------------
 
-my $config_file= ('config.yaml');
+my $config_file= ("agat_config.yaml");
 
 #	------------------------------------GENERAL------------------------------------	 
 
@@ -118,7 +118,7 @@ sub expose_config_hash{
 	my ($config);
 	if( ! defined($args->{config}) ) { $config = undef;} else{ $config = $args->{config};}
 
-	DumpFile('config.yaml', $config);
+	DumpFile("agat_config.yaml", $config);
 }
 
 # @Purpose: Write the config hash in a yaml file in the current directory 
