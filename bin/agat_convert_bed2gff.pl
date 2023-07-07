@@ -18,7 +18,9 @@ my $inflate_type = "exon";
 my $verbose = undef;
 my $help;
 
-if( !GetOptions(  	"h|help"         => \$help,
+
+if( !GetOptions(  	'c|config=s'     => \$config,
+					"h|help"         => \$help,
 					"bed=s"          => \$bed,
 					"source=s"       => \$source_tag,
 					"verbose|v!"     => \$verbose,

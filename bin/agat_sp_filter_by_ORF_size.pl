@@ -22,6 +22,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"   => \$opt_help,
     "g|gff=s"  => \$gff,
     't|test=s' => \$opt_test,

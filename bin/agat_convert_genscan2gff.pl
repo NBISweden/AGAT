@@ -19,6 +19,7 @@ my %hash_uniqID;
 my $verbose = undef;
 my $help;
 
+'c|config=s'               => \$config,
 if( !GetOptions(	"h|help" => \$help,
 					"g|genscan=s" => \$genscan,
 					"seqid=s" => \$seq_id,

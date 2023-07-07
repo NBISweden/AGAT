@@ -15,6 +15,7 @@ my $opt_nc = "keep";
 my $help;
 
 if( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help" => \$help,
     "gff=s" => \$gff,
     "sub=s" => \$sub,

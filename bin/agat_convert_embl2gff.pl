@@ -21,6 +21,7 @@ my $keep;
 my $help;
 
 if( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,

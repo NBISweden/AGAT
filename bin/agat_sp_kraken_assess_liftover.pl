@@ -32,6 +32,7 @@ my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"                 => \$help,
     "gtf=s"                  => \$gff,
     "threshold|t=i"          => \$valueK,

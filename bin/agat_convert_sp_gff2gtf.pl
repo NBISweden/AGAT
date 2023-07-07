@@ -17,6 +17,7 @@ my $help;
 
 
 if( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help" => \$help,
     "gff|gtf|i=s" => \$gff,
 	"gtf_version=s" => \$gtf_version,

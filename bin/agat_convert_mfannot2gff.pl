@@ -25,6 +25,7 @@ GetOptions(
     'mfannot|m|i=s' => \$mfannot_file,
     'gff|g|o=s' => \$gff_file,
 		'v|verbose!' => \$verbose,
+    'c|config=s'               => \$config,
     'h|help' => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
     'man' => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );

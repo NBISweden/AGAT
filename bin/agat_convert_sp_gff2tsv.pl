@@ -21,6 +21,7 @@ my $add = undef;
 my $cp = undef;
 
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"          => \$opt_help,
     "gff|f=s"         => \$gff,
     "output|outfile|out|o=s" => \$opt_output))

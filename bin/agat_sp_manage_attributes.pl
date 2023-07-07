@@ -22,6 +22,7 @@ my $cp = undef;
 my $overwrite = undef;
 
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,

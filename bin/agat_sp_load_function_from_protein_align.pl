@@ -45,6 +45,7 @@ my $opt_help               = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,

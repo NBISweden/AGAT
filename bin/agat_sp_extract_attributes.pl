@@ -24,6 +24,7 @@ my $outInOne=undef;
 my $doNotReportEmptyCase=undef;
 
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "d!" => \$doNotReportEmptyCase,

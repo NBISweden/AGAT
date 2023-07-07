@@ -21,6 +21,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
                   'c|config=s'               => \$config,
                   'o|output=s'               => \$opt_output,
+                  'c|config=s'               => \$config,
                   'h|help!'                  => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

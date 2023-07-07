@@ -19,6 +19,7 @@ my $outfile=undef;
 my $cpt_case=0;
 
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "tag|att=s"   => \$attribute,

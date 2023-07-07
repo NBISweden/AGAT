@@ -73,6 +73,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help" => \$opt_help,
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,

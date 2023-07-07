@@ -20,6 +20,7 @@ my $opt_help= undef;
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help" => \$opt_help,
     "ref|r|i=s" => \$ref,
     "add|a=s" => \@opt_files,

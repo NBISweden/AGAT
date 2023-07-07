@@ -20,6 +20,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
+    'c|config=s'               => \$config,
     "h|help"                 => \$opt_help,
     "f|file|gff3|gff=s"      => \$ref,
     "v|verbose!"              => \$verbose,
