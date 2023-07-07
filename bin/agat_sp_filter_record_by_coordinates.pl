@@ -26,7 +26,6 @@ if ( !GetOptions( 'i|input|gtf|gff=s'         => \$opt_gff,
                   "e|exclude!"                => \$opt_exclude_ov,
                   'o|output=s'                => \$opt_output,
                   'v|verbose!'                => \$opt_verbose,
-                  'c|config=s'               => \$config,
                   'h|help!'                   => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

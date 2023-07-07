@@ -88,7 +88,6 @@ GetOptions(
  'o|output=s'               => \$opt_output,
  'a|addgntag'               => \$opt_addGnPresentTag,
  'v'                        => \$opt_verbose,
- 'c|config=s'               => \$config,
  'h|help!'                  => \$opt_help
 )
 or pod2usage( {

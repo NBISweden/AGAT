@@ -21,7 +21,6 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   "size|s=i"            => \$INTRON_LENGTH,
-                  'c|config=s'               => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

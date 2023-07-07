@@ -30,7 +30,6 @@ if ( !GetOptions( 'i|g|gff=s' => \$opt_file,
                   "table|codon|ct=i" => \$codon_table_id,
                   'o|out|output=s' => \$opt_output,
                   'v!' => \$verbose,
-                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

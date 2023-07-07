@@ -53,7 +53,6 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'f|fa|fasta=s'                 => \$opt_fastafile,
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
-                  'c|config=s'               => \$config,
                   'h|help!'                      => \$opt_help,
                   'merge!'                       => \$opt_merge,
                   'mrna|transcript!'             => \$opt_mrna,

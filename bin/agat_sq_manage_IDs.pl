@@ -20,7 +20,6 @@ Getopt::Long::Configure ('bundling');
 if ( !GetOptions ('file|input|gff|i=s' => \$inputFile,
       'of=i' => \$outformat,
       'o|output=s' => \$outfile,
-      'c|config=s'               => \$config,
       'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',

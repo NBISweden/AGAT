@@ -27,7 +27,6 @@ if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
                   "p|type|l=s"        => \$primaryTag,
                   'o|output=s'        => \$outfile,
                   'q|quiet!'          => \$quiet,
-                  'c|config=s'               => \$config,
                   'h|help!'           => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
