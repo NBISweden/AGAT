@@ -38,6 +38,7 @@ first time.
 
 #	-----------------------------------CONSTANT-----------------------------------
 
+# This is the default one, but can be changed by the user
 my $config_file= ("agat_config.yaml");
 
 #	------------------------------------GENERAL------------------------------------	 
@@ -115,27 +116,29 @@ sub get_config{
 sub expose_config_hash{
 	my ($args)=@_;
 
-	my ($config);
-	if( ! defined($args->{config}) ) { $config = undef;} else{ $config = $args->{config};}
+	my ($config_in, $config_file_out);
+	if( ! defined($args->{config_in}) ) { $config_in = undef;} else{ $config_in = $args->{config_in};}
+	if( ! defined($args->{config_file_out}) ) { $config_file_out = $config_file;} else{ $config_file_out = $args->{config_file_out};}
 
-	DumpFile("agat_config.yaml", $config);
+	DumpFile($config_file_out, $config_in);
 }
 
 # @Purpose: Write the config hash in a yaml file in the current directory 
 sub expose_config_file{
 	my ($args)=@_;
 
-	my ($path);
-	if( ! defined($args->{config_file}) ) { $path = undef;} else{ $path = $args->{config_file};}
+	my ($path_in, $config_file_out);
+	if( ! defined($args->{config_file_in}) ) { $path_in = undef;} else{ $path_in = $args->{config_file_in};}
+	if( ! defined($args->{config_file_out}) ) { $config_file_out = $config_file;} else{ $config_file_out = $args->{config_file_out};}
 
 	#set run directory
-	if(! $path){
-		$path = dist_file('AGAT', $config_file);
-		print "Path where $config_file is standing according to dist_file: $path\n";
+	if(! $path_in){
+		$path_in = dist_file('AGAT', $config_file);
+		print "Path where $config_file is standing according to dist_file: $path_in\n";
 	}
 	# copy the file locally
 	my $run_dir = cwd;
-	copy($path, $run_dir) or die print "Copy failed: $!";
+	copy($path_in, $run_dir."/".$config_file_out) or die print "Copy failed: $!";
 }
 
 # @Purpose: Check config value to be sure everything is set as expected

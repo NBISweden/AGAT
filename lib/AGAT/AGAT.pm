@@ -215,6 +215,7 @@ sub handle_config {
 		# config file option
 		my $verbose = $general->{configs}[-1]{verbose};
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
+		my $config_new_name = $general->{configs}[-1]{output};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
 		my $tabix = $general->{configs}[-1]{tabix};
@@ -247,6 +248,7 @@ sub handle_config {
 
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
+
 			# integer 0-4
 			if( defined($verbose) ){
 				$config->{ verbose } = $verbose;
@@ -384,9 +386,9 @@ sub handle_config {
 			print "Config checked\n";
 
 			if ($modified_on_the_fly) {
-				expose_config_hash({ config => $config})
+				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
 			} else {
-				expose_config_file({config_file => $config_file});
+				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name});
 			}
 			print "Config file written in your working directory (agat_config.yaml)\n";
 		}
