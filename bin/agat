@@ -72,7 +72,7 @@ The file will appear in the working folder. By default, AGAT uses the config fil
          options     => [
             {
                getopt      => 'h|help!',
-					shortbool   => 1, #shortbool added by JDainat to avoid --no-help
+			   shortbool   => 1, #shortbool added by JDainat to avoid --no-help
                help        => 'Display the help',
             },
 						{
