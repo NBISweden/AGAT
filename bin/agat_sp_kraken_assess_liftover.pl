@@ -12,7 +12,7 @@ use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 
 #####
 # What we call parial gene (containing "_partial_part-" in the ID) ?
@@ -32,7 +32,8 @@ my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
-    "help|h"                 => \$help,
+    'c|config=s'               => \$config,
+    "h|help"                 => \$help,
     "gtf=s"                  => \$gff,
     "threshold|t=i"          => \$valueK,
     'p|plot!'                => \$opt_plot,
@@ -58,6 +59,9 @@ if ( ! (defined($gff)) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -767,6 +771,12 @@ Allows to create an histogram in pdf. It shows the distribution of percentage of
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

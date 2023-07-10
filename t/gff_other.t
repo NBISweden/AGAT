@@ -24,9 +24,10 @@ my $script_agat = $script_prefix."bin/agat";
 my $input_folder = "t/gff_other/in";
 my $output_folder = "t/gff_other/out";
 my $pathtmp = "tmp.gff"; # path file where to save temporary output
+my $config="agat_config.yaml";
 
 # remove config in local folder if exists and potential tmp file already existing
-unlink "config.yaml";
+unlink $config;
 unlink $pathtmp;
 
 # -------- test gzip file and contain fasta --------
@@ -49,7 +50,7 @@ system("$script --gff t/scripts_output/in/1.gff -o $pathtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $pathtmp $correct_output") == 0, "tabix check");
 unlink $pathtmp;
-unlink "config.yaml";
+unlink $config;
 
 # -------- Parent ID already used by same level feature --------
 $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";

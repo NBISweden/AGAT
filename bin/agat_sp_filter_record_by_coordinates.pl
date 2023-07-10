@@ -11,22 +11,23 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
-my $opt_output = undef;
-my $opt_coordinates = undef ;
-my $opt_exclude_ov = undef ;
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my $config ;
+my $opt_output ;
+my $opt_coordinates ;
+my $opt_exclude_ov ;
+my $opt_gff ;
+my $opt_verbose ;
+my $opt_help ;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'i|input|gtf|gff=s'         => \$opt_gff,
-                  "c|coordinates|tsv|r|ranges=s"=> \$opt_coordinates,
-                  "e|exclude!"                => \$opt_exclude_ov,
-                  'o|output=s'                => \$opt_output,
-                  'v|verbose!'                => \$opt_verbose,
-                  'h|help!'                   => \$opt_help ) )
+if ( !GetOptions( 'i|input|gtf|gff=s'            => \$opt_gff,
+                  "coordinates|tsv|r|ranges=s" => \$opt_coordinates,
+                  "e|exclude!"                   => \$opt_exclude_ov,
+                  'o|output=s'                   => \$opt_output,
+                  'v|verbose!'                   => \$opt_verbose,
+                  'c|config=s'                   => \$config,
+                  'h|help!'                      => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -46,6 +47,9 @@ if ( ! $opt_gff ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ###############
 # Manage Output
@@ -269,7 +273,7 @@ it is part of is overlaping the coordinates.
 
 Input GTF/GFF file
 
-=item B<-c>, B<--coordinates>, B<--tsv>, B<-r> or B<--ranges>
+=item B<--coordinates>, B<--tsv>, B<-r> or B<--ranges>
 
 String - tsv file containing the coordinates.
 Coordinates must be one per line.
@@ -290,6 +294,12 @@ Output folder.
 =item B<-v> or B<--verbose>
 
 Verbosity.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

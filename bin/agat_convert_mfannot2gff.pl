@@ -11,7 +11,7 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $mfannot_file;
 my $verbose;
 my $gff_file;
@@ -25,13 +25,17 @@ GetOptions(
     'mfannot|m|i=s' => \$mfannot_file,
     'gff|g|o=s' => \$gff_file,
 		'v|verbose!' => \$verbose,
-    'help|h' => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
+    'c|config=s'               => \$config,
+    'h|help' => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
     'man' => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );
 
 if (!defined $mfannot_file) {
     pod2usage( -message=>"Insufficient options supplied", -exitstatus=>2 );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
 my $gffout = prepare_gffout($config, $gff_file);
@@ -455,6 +459,12 @@ The mfannot input file
 =item B<-g> or B<-o> or B<--gff>
 
 the gff output file
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

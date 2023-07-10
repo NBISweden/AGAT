@@ -11,7 +11,7 @@ use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_file;
 my $INTRON_LENGTH = 10;
 my $opt_output=undef;
@@ -21,6 +21,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   "size|s=i"            => \$INTRON_LENGTH,
+                  'c|config=s'               => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -41,6 +42,9 @@ if ( ! defined( $opt_file) ) {
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -196,6 +200,12 @@ Default value = 10.
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the gene incriminated will be write.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

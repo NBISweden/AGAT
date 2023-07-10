@@ -26,9 +26,10 @@ my $output_folder = "t/level_missing/out";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
 unlink $outtmp; # remove if exists
 my $result;
+my $config="agat_config.yaml";
 
 # remove config in local folder if exists
-unlink "config.yaml";
+unlink $config;
 
 # -------------------------- testA -------------------------
 
@@ -44,7 +45,7 @@ system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testA2");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 $result = "$output_folder/testA_output3.gff";
 system("$script_agat config --expose --locus_tag gene_info 2>&1 1>/dev/null");
@@ -52,7 +53,7 @@ system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testA3");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 $result = "$output_folder/testA_output4.gff";
 system("$script_agat config --expose --locus_tag transcript_id 2>&1 1>/dev/null");
@@ -60,7 +61,7 @@ system(" $script --gff $input_folder/testA.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testA4");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 # -------------------------- testB -------------------------
 
@@ -76,7 +77,7 @@ system(" $script --gff $input_folder/testB.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testB2");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 # -------------------------- testC -------------------------
 
@@ -92,7 +93,7 @@ system(" $script --gff $input_folder/testC.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testC2");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 # -------------------------- testD -------------------------
 
@@ -108,7 +109,7 @@ system(" $script --gff $input_folder/testD.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output testD2");
 unlink $outtmp;
-unlink "config.yaml";
+unlink $config;
 
 # -------------------------- testE -------------------------
 

@@ -123,7 +123,7 @@ This is memory efficient, but no sanity check will be performed by the AGAT pars
 Configuration
 =============
 
-AGAT has a configuration file: config.yaml
+AGAT has a configuration file: agat_config.yaml
 
 To access the AGAT config file: agat config --expose
 
@@ -138,12 +138,16 @@ MESSAGE
 # load configuration file from local file if any either the one shipped with AGAT
 # return a hash containing the configuration.
 sub get_agat_config{
+	my ($args)=@_;
 
-	my $config_file = get_config({type => "local"}); #try local firt, if none will take the original
-	my $config = load_config({ config_file => $config_file});
+	my ($config_file_provided);
+	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+
+	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
+	my $config = load_config({ config_file => $config_file_checked});
 	check_config({ config => $config});
 	return $config;
-};
+}
 
 # ==============================================================================
 #										=== fonction for agat caller ====
@@ -215,6 +219,7 @@ sub handle_config {
 		# config file option
 		my $verbose = $general->{configs}[-1]{verbose};
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
+		my $config_new_name = $general->{configs}[-1]{output};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
 		my $tabix = $general->{configs}[-1]{tabix};
@@ -247,6 +252,7 @@ sub handle_config {
 
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
+
 			# integer 0-4
 			if( defined($verbose) ){
 				$config->{ verbose } = $verbose;
@@ -383,12 +389,20 @@ sub handle_config {
 			check_config({ config => $config});
 			print "Config checked\n";
 
+			 
+			
 			if ($modified_on_the_fly) {
-				expose_config_hash({ config => $config})
+				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
 			} else {
-				expose_config_file({config_file => $config_file});
+				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name});
 			}
-			print "Config file written in your working directory (config.yaml)\n";
+
+			# inform user
+			my $config_file_used;
+			if($config_new_name){
+				$config_file_used = $config_new_name;
+			} else { $config_file_used = "agat_config.yaml"; }
+			print "Config file written in your working directory ($config_file_used)\n";
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help

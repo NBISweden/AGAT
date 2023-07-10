@@ -8,7 +8,7 @@ use Getopt::Long;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
@@ -18,14 +18,16 @@ my $inflate_type = "exon";
 my $verbose = undef;
 my $help;
 
-if( !GetOptions(  "help" => \$help,
-							    "bed=s" => \$bed,
-									"source=s" => \$source_tag,
-									"verbose|v!" => \$verbose,
-									"primary_tag=s" => \$primary_tag,
-									"inflate_off!" => \$inflating_off,
-									"inflate_type=s" => \$inflate_type,
-							    "outfile|output|o|out|gff=s" => \$outfile ) )
+
+if( !GetOptions(  	'c|config=s'     => \$config,
+					"h|help"         => \$help,
+					"bed=s"          => \$bed,
+					"source=s"       => \$source_tag,
+					"verbose|v!"     => \$verbose,
+					"primary_tag=s"  => \$primary_tag,
+					"inflate_off!"   => \$inflating_off,
+					"inflate_type=s" => \$inflate_type,
+					"outfile|output|o|out|gff=s" => \$outfile ) )
 {
     pod2usage( { -message => "Failed to parse command line.\n",
                  -verbose => 1,
@@ -45,6 +47,9 @@ if ( ! (defined($bed)) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
 my $gffout = prepare_gffout($config, $outfile);
@@ -486,6 +491,12 @@ add verbosity
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

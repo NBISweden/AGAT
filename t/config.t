@@ -21,13 +21,14 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 # script to call to check the parser
 my $script = "";
 my $output_folder = "t/config/out";
+my $config="agat_config.yaml";
 
 # remove config in local folder if exists
-unlink "config.yaml"; 
+unlink $config; 
 
 # ---- test gzip file and contain fasta ----
 $script = $script_prefix."bin/agat";
-my $correct_output = "$output_folder/config.yaml";
+my $correct_output = "$output_folder/$config";
 
 system("$script config -e \\
 								--no-log \\
@@ -57,7 +58,7 @@ system("$script config -e \\
 								--prefix_new_id nbisTEST   ");
 
 #run test
-ok( system("diff config.yaml $correct_output") == 0, "modif config check");
+ok( system("diff $config $correct_output") == 0, "modif config check");
 # remove file created for the test
-unlink "config.yaml";
-print "config removed\n";
+unlink $config;
+print "$config removed\n";

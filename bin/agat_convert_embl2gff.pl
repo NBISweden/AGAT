@@ -10,18 +10,18 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile;
 my $embl;
 my $emblmygff3;
-my $throw_fasta=$config->{"throw_fasta"};
 my $primaryTags;
 my $discard;
 my $keep;
 my $help;
 
 if( !GetOptions(
-    "help"                       => \$help,
+    'c|config=s'                 => \$config,
+    "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
     "d!"                         => \$discard,
@@ -47,6 +47,10 @@ if ( ! (defined($embl)) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+my $throw_fasta=$config->{"throw_fasta"};
 
 ##################
 # MANAGE OPTION  #
@@ -255,6 +259,12 @@ Bolean - Means that only primary tags provided by the option "primary_tag" will 
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

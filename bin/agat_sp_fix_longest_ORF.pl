@@ -25,7 +25,7 @@ use AGAT::AGAT;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $model_to_test = undef;
@@ -37,7 +37,8 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help" => \$opt_help,
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,
     "split|s" => \$split_opt,
@@ -66,6 +67,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
 print "Codon table ".$codonTable." in use. You can change it using --table option.\n";
 
@@ -1258,6 +1263,12 @@ written to STDOUT.
 =item B<-v>
 
 verbose mode. Default off. -v 1 minimum verbosity, -v 3 maximum verbosity
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

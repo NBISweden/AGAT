@@ -12,7 +12,8 @@ Test to verify the method detecting the gff parser version to use with bioperl.
 =cut
 
 # remove config in local folder if exists
-unlink "config.yaml";
+my $config="agat_config.yaml";
+unlink $config;
 
 # Loop over test
 opendir (DIR, "t/gff_version/in") or die $!;

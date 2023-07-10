@@ -10,7 +10,7 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $model_id = -1;
@@ -18,7 +18,8 @@ my $fasta = undef;
 my $help;
 
 if( !GetOptions(
-    "help|h" => \$help,
+    'c|config=s'               => \$config,
+    "h|help" => \$help,
     "gff=s" => \$gff,
 		"fasta=s" => \$fasta,
     "outfile|output|out|o=s" => \$outfile))
@@ -40,6 +41,9 @@ if ( ! defined($gff) or ! defined($fasta) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
 my $zffout;
@@ -199,6 +203,12 @@ Input fasta file
 
 File prefix where will be written the results (e.g. outfile.ann and outfile.dna).
 If no output file is specified, the output will be written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

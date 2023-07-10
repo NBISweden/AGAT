@@ -11,7 +11,7 @@ use List::Util 'first';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
@@ -25,6 +25,7 @@ if ( !GetOptions ('f1=s' => \$folderIn1,
                   "f2=s" => \$folderIn2,
                   'o|output=s' => \$outfolder,
                   'v|verbose=i' => \$verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -43,6 +44,9 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
                  -verbose => 0,
                  -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage input folder1
 my $fh1;
@@ -357,6 +361,12 @@ Integer: For displaying extra information use -v 1.
 =item B<-o> or B<--output>
 
 STRING: Output folder.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

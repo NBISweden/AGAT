@@ -25,9 +25,10 @@ my $pathtmp = "tmp.gff"; # path file where to save temporary output
 unlink $pathtmp; # remove in case it exists
 my $expected_output_path = "t/gff_syntax/out/";
 my $input_path = "t/gff_syntax/in/";
+my $config="agat_config.yaml";
 
 # remove config in local folder if exists
-unlink "config.yaml";
+unlink $config;
 
 # Loop over test
 my $dir = "t/gff_syntax/in"; # folder where the test files are
@@ -65,7 +66,7 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     #run test
     ok( system("diff $pathtmp $correct_output") == 0, "parse $file");
     unlink $pathtmp;
-		unlink "config.yaml";
+		unlink $config;
   }
 }
 closedir($dh);

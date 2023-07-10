@@ -15,7 +15,7 @@ use AGAT::AGAT;
 
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 
 #The cases are exclusive, one result could not be part of several cases.
 my %cases_explanation = (
@@ -45,7 +45,8 @@ my $opt_help               = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"                 => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,
     "sp:s"                   => \$sort_method_by_species,
@@ -78,6 +79,9 @@ if ( ! ($annotation_gff and $protein_gff and $protein_fasta) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 #               +------------------------------------------------------+
 #               |+----------------------------------------------------+|
@@ -1295,6 +1299,12 @@ Be verbose.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

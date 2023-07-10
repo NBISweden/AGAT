@@ -56,7 +56,7 @@ a GFF3 output by default. This can be tuned via the config file.
 
 Configuration (optional)
 ========================
-To access the config.yaml configuration file: agat config --expose
+To access the agat_config.yaml configuration file: agat config --expose
 The file will appear in the working folder. By default, AGAT uses the config file from the working directory when any.
 
 Feature levels (optional)
@@ -71,7 +71,7 @@ The file will appear in the working folder. By default, AGAT uses the config fil
          # 'config-files' => ["/etc/$APPNAME.json"],
          options     => [
             {
-               getopt      => 'help|h!',
+               getopt      => 'h|help!',
 					shortbool   => 1, #shortbool added by JDainat to avoid --no-help
                help        => 'Display the help',
             },
@@ -108,7 +108,7 @@ file. Indeed, if the feature_levels.yaml file exists in your working directory, 
 used by default.',
          options     => [
 					 {
-							 getopt      => 'help|h!',
+							 getopt      => 'h|help!',
 							 shortbool   => 1,
 							 help        => 'Display the help',
 						},
@@ -136,14 +136,18 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 ',
 				 options     => [
 					 {
-							getopt      => 'help|h!',
+							getopt      => 'h|help!',
 							help        => 'Display the help',
 							shortbool   => 1,
 					 },
 					 {
 							getopt      => 'expose|e!',
-							help        => 'Expose the config file (A config.yaml will be set in your working directory). If any AGAT use the config.yaml from the current directory over the default one.',
+							help        => 'Expose the config file. By default agat_config.yaml, but you can change the config file name using output option.',
 							shortbool   => 1,
+					 },
+					{
+							getopt      => 'output=s',
+							help        => 'To create a config file with the desired name instead of the default agat_config.yaml. Do not forget to mention your config file name when using AGAT, otherwise AGAT will use the agat_config.yaml in your working directory if any or the original agat_config.yaml file shiped along the tool.',
 					 },
 					 {
 							getopt      => 'verbose=i',

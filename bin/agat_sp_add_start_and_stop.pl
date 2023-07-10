@@ -13,7 +13,7 @@ use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_id = 1;
 my $stop_id = 1;
 
@@ -30,6 +30,7 @@ if ( !GetOptions( 'i|g|gff=s' => \$opt_file,
                   "table|codon|ct=i" => \$codon_table_id,
                   'o|out|output=s' => \$opt_output,
                   'v!' => \$verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -50,6 +51,9 @@ if(! $opt_file or ! $file_fasta ) {
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # #######################
 # # START Manage Option #
@@ -398,6 +402,12 @@ Output gff file updated
 =item B<-v>
 
 Verbose for debugging purpose.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

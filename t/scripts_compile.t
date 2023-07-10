@@ -29,7 +29,8 @@ BEGIN{
 use Test::More tests => $nb_test ;
 
 # remove config in local folder if exists
-unlink "config.yaml"; 
+my $config="agat_config.yaml";
+unlink $config; 
 
 # foreach script in the bin, let run the test
 opendir (DIR, "bin") or die $!;

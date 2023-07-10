@@ -11,7 +11,7 @@ use Bio::DB::Fasta;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_plus_strand = undef;
 my $start_run = time();
 my $codonTable=1;
@@ -53,6 +53,7 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'f|fa|fasta=s'                 => \$opt_fastafile,
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
+                  'c|config=s'               => \$config,
                   'h|help!'                      => \$opt_help,
                   'merge!'                       => \$opt_merge,
                   'mrna|transcript!'             => \$opt_mrna,
@@ -91,6 +92,9 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # activate warnings limit
 my %warnings;
@@ -1045,6 +1049,12 @@ Integer - It will take that number of nucleotide in more at the 5' extremity.
 upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =back
 
