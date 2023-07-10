@@ -23,18 +23,18 @@ my $opt_type_dependent = undef;
 my $verbose;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help!"   => \$opt_help,
-    "gff|f=s"   => \$opt_gff,
-    "nb=i"      => \$opt_nbIDstart,
-    "gap=i"     => \$opt_gap,
-    "tair!"     => \$opt_tair,
-    "ensembl!"  => \$opt_ensembl,
-    "prefix=s"  => \$opt_prefix,
-    "p|t|l=s"   => \@opt_tag,
+    'c|config=s'     => \$config,
+    "h|help!"        => \$opt_help,
+    "gff|f=s"        => \$opt_gff,
+    "nb=i"           => \$opt_nbIDstart,
+    "gap=i"          => \$opt_gap,
+    "tair!"          => \$opt_tair,
+    "ensembl!"       => \$opt_ensembl,
+    "prefix=s"       => \$opt_prefix,
+    "p|t|l=s"        => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
-		"collective!" => \$opt_collective,
-    "verbose|v!"  => \$verbose,
+		"collective!"    => \$opt_collective,
+    "verbose|v!"     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {

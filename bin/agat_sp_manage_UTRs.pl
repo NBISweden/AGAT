@@ -25,15 +25,15 @@ my $DefaultUTRnb=5;
 
 my @copyARGV=@ARGV;
 print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_reffile,
-                  'n|t|nb|number=i' => \$opt_nbUTR,
-                  '3|three|three_prime_utr!' => \$opt_utr3,
-                  '5|five|five_prime_utr!' => \$opt_utr5,
-                  'b|both|bs!' => \$opt_bst,
-                  'o|out|output=s' => \$opt_output,
-                  'p|plot!' => \$opt_plot,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
+                  'n|t|nb|number=i'         => \$opt_nbUTR,
+                  '3|three|three_prime_utr!'=> \$opt_utr3,
+                  '5|five|five_prime_utr!'  => \$opt_utr5,
+                  'b|both|bs!'              => \$opt_bst,
+                  'o|out|output=s'          => \$opt_output,
+                  'p|plot!'                 => \$opt_plot,
+                  'c|config=s'              => \$config,
+                  'h|help!'                 => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

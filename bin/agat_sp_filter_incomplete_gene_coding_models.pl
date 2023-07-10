@@ -25,16 +25,16 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "table|codon|ct=i" => \$codonTableId,
-    "add_flag|af!" => \$add_flag,
+    'c|config=s'                => \$config,
+    "h|help"                    => \$opt_help,
+    "gff=s"                     => \$gff,
+    "fasta|fa|f=s"              => \$file_fasta,
+    "table|codon|ct=i"          => \$codonTableId,
+    "add_flag|af!"              => \$add_flag,
     "skip_start_check|sstartc!" => \$skip_start_check,
-    "skip_stop_check|sstopc!" => \$skip_stop_check,
-    "v!" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+    "skip_stop_check|sstopc!"   => \$skip_stop_check,
+    "v!"                        => \$verbose,
+    "output|outfile|out|o=s"    => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
