@@ -1054,7 +1054,7 @@ otherwise you will extract each upstream parts of the subfeatures
 
 String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
 otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives yo the possibility to use your own AGAT config file (located elsewhere or named differently).
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =back
 
