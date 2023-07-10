@@ -14,14 +14,13 @@ my $config;
 my $outfile;
 my $embl;
 my $emblmygff3;
-my $throw_fasta=$config->{"throw_fasta"};
 my $primaryTags;
 my $discard;
 my $keep;
 my $help;
 
 if( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'                 => \$config,
     "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
@@ -51,6 +50,7 @@ if ( ! (defined($embl)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+my $throw_fasta=$config->{"throw_fasta"};
 
 ##################
 # MANAGE OPTION  #
