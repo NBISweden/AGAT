@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 1;
+use Test::More tests => 3;
 
 =head1 DESCRIPTION
 
@@ -61,4 +61,22 @@ system("$script config -e \\
 ok( system("diff $config $correct_output") == 0, "modif config check");
 # remove file created for the test
 unlink $config;
-print "$config removed\n";
+
+
+# ----- Test Rename config file ----
+
+my $new_config_name = "agat_config_renamed.yml";
+system("$script config -e --output $new_config_name --locus_tag Name");
+
+#run test 
+ok( system("if [[ -e $new_config_name ]];then exit 0;fi") == 0, "rename agat config file check");
+
+# ----- Test use a renamed config file ----
+
+system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new_config_name -o tmp.gff  2>&1 1>/dev/null");
+#run test 
+ok( system("diff tmp.gff t/gff_syntax/out/28_correct_output.gff") == 0, "Use custom agat config file check");
+
+# remove file created for the test
+unlink "tmp.gff";
+unlink $new_config_name;
