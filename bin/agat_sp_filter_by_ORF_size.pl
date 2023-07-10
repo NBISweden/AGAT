@@ -50,6 +50,9 @@ if ( ! (defined($gff)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 ######################
 # Option check
 

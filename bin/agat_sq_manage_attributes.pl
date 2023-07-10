@@ -25,7 +25,7 @@ my $overwrite = undef;
 my $cpt_case=0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'  => \$config,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
@@ -58,6 +58,10 @@ if ( ! $gff or ! $attributes){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# --- Manage output
 my $gffout = prepare_gffout($config, $outfile);
 
 # deal with strategy input

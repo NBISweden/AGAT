@@ -56,6 +56,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
 print "Codon table ".$codonTableId." in use. You can change it using --table option.\n";
 my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);

@@ -45,6 +45,9 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 ######################
 # Manage output file #
 my $gffout = prepare_gffout($config, $opt_output);

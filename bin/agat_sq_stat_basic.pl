@@ -20,11 +20,12 @@ my $inflate;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('i|file|input|gff=s' => \@inputFile,
-      'o|output=s' => \$outputFile,
-			'inflate!' => \$inflate,
-      'g|genome=s' => \$genome,
-      'c|config=s'               => \$config,
+if ( !GetOptions (
+      'i|file|input|gff=s' => \@inputFile,
+      'o|output=s'      => \$outputFile,
+			'inflate!'        => \$inflate,
+      'g|genome=s'      => \$genome,
+      'c|config=s'      => \$config,
       'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -43,6 +44,9 @@ if (! @inputFile ){
                  -verbose => 0,
                  -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage Output
 my $ostream = prepare_fileout($outputFile);

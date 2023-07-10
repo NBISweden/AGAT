@@ -54,6 +54,9 @@ if ( ! $gff or ! $attributes ){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
 if ($outfile) {

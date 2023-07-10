@@ -18,7 +18,7 @@ my $opt_help = 0;
 # OPTION MANAGMENT
 if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
                   'o|output=s'  => \$opt_output,
-                  'c|config=s'               => \$config,
+                  'c|config=s'  => \$config,
                   'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -40,6 +40,9 @@ if (! defined($opt_gfffile) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #

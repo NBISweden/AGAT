@@ -73,18 +73,18 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-	"db=s" => \$file_db,
-	"frags!" => \$frags,
-	"pseudo!" => \$pseudo,
-	"hamap_size=s" => \$hamap_size,
-    "table|codon|ct=i" => \$codonTable,
-	"skip_hamap!" => \$skip_hamap,
-    "v=i" => \$verbose,
-    "output|out|o=s" => \$outfolder))
+    'c|config=s'         => \$config,
+    "h|help"             => \$opt_help,
+    "gff=s"              => \$gff,
+    "fasta|fa|f=s"       => \$file_fasta,
+	"db=s"               => \$file_db,
+	"frags!"             => \$frags,
+	"pseudo!"            => \$pseudo,
+	"hamap_size=s"       => \$hamap_size,
+    "table|codon|ct=i"   => \$codonTable,
+	"skip_hamap!"        => \$skip_hamap,
+    "v=i"                => \$verbose,
+    "output|out|o=s"     => \$outfolder))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -109,6 +109,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# Check codon table
 $codonTable = get_proper_codon_table($codonTable);
 print "Codon table ".$codonTable." in use. You can change it using --table option.\n";
 

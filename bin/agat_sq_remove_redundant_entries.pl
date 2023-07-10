@@ -41,6 +41,9 @@ if ((!defined($inputFile)) ){
                  -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # Manage input fasta file
 my $format = $config->{gff_output_version};
 if(! $format ){ $format = select_gff_format($inputFile); }

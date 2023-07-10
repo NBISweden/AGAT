@@ -50,6 +50,9 @@ if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defi
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
   print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
 }

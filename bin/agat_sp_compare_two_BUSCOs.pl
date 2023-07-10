@@ -45,6 +45,9 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
                  -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # Manage input folder1
 my $fh1;
 $folderIn1 = remove_slash_path_folder($folderIn1);

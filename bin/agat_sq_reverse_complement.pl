@@ -45,6 +45,9 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
                  -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # Manage input gff file
 my $format = select_gff_format($opt_gfffile);
 my $ref_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);

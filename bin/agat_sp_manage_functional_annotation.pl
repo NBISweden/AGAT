@@ -119,6 +119,9 @@ if ( !( defined($opt_reffile) ) ) {
   );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 #################################################
 ####### START Manage files (input output) #######
 #################################################

@@ -20,10 +20,10 @@ my $primaryTag=undef;
 my $outfile=undef;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "p|t|l=s" => \$primaryTag,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \$gff,
+    "p|t|l=s"                => \$primaryTag,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -45,6 +45,9 @@ if ( ! (defined($gff)) ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage $primaryTag
 my @ptagList;

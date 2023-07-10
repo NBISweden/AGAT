@@ -21,11 +21,11 @@ my $width = 60; # line length printed
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
-                  'f|fa|fasta=s' => \$opt_fastafile,
-                  'of=s'      => \$opt_output_fasta,
-                  'og=s'      => \$opt_output_gff,
-                  'c|config=s'               => \$config,
+if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
+                  'f|fa|fasta=s'    => \$opt_fastafile,
+                  'of=s'            => \$opt_output_fasta,
+                  'og=s'            => \$opt_output_gff,
+                  'c|config=s'      => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -48,7 +48,11 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
+######################
+# Manage output file #
 my $ostream;
 if ($opt_output_fasta) {
   open(my $fh, '>', $opt_output_fasta) or die "Could not open file $opt_output_fasta $!";

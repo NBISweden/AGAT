@@ -93,6 +93,9 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # activate warnings limit
 my %warnings;
 activate_warning_limit(\%warnings, 10);

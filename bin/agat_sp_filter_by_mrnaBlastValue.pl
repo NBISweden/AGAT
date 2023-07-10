@@ -45,6 +45,9 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 # Open Output files #
 my $out = prepare_gffout($config, $outfile);
 

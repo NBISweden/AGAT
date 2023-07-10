@@ -67,6 +67,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
 print "Codon table ".$codonTable." in use. You can change it using --table option.\n";
 

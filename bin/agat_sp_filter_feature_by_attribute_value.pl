@@ -52,6 +52,9 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 ###############
 # Test options
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){

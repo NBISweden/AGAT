@@ -47,6 +47,9 @@ if ( ! (defined($ref)) ){
            -exitval => 2 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 ######################
 # Manage output file #
 my $reportout_file;

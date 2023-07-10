@@ -34,6 +34,9 @@ if (!defined $mfannot_file) {
     pod2usage( -message=>"Insufficient options supplied", -exitstatus=>2 );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
 ## Manage output file
 my $gffout = prepare_gffout($config, $gff_file);
 
