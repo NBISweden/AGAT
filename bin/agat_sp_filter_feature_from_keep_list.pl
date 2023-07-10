@@ -10,7 +10,7 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_keep_list = undef;
@@ -27,6 +27,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'o|output=s'          => \$opt_output,
                   'a|attribute=s'       => \$opt_attribute,
                   'v|verbose!'          => \$opt_verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -47,6 +48,9 @@ if ( ! $opt_gff or ! $opt_keep_list ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ###############
 # Manage Output
@@ -288,6 +292,12 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option for debugging purpose.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

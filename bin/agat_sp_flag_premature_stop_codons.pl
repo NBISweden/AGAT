@@ -14,7 +14,7 @@ use AGAT::AGAT;
 
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_file;
 my $opt_output;
 my $file_fasta;
@@ -26,6 +26,7 @@ if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
                 	'o|out|output=s'    => \$opt_output,
 					"fasta|fa|f=s"      => \$file_fasta,
 					"table|codon|ct=i"  => \$codonTable,
+                 	'c|config=s'               => \$config,
                  	'h|help!'           => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,6 +49,9 @@ if ( !$opt_file or !$file_fasta) {
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -300,6 +304,12 @@ Codon table to use. [default 1]
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the result will be printed.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

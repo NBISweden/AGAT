@@ -67,10 +67,12 @@ level1:
   protein_binding_site: standalone
   protein_coding_gene: 1
   protein_match: 1
+  protein_bind: standalone
   pseudogene: 1
   pseudogenic_region: 1
   region: topfeature
   regulatory_region: standalone
+  regulatory: standalone
   response_element: standalone
   rrna_gene: 1
   repeat_instability_region: standalone

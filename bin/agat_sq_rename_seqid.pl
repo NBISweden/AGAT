@@ -11,7 +11,7 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $input_gff;
 my $input_tsv;
@@ -26,6 +26,7 @@ if ( !GetOptions (  'gff=s' => \$input_gff,
 	                'tsv=s' => \$input_tsv,
                     'csv!' => \$csv,
 			        'v|verbose!' => \$verbose,
+                    'c|config=s'               => \$config,
                     'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -45,6 +46,9 @@ if (! $input_gff or ! $input_tsv){
                  -verbose => 0,
                  -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage Output
 my $gffout = prepare_gffout($config, $outputFile);
@@ -136,6 +140,12 @@ BOLEAN: Add verbosity
 
 STRING: Output file. If no output file is specified, the output will be written
 to STDOUT. The result is in tabulate format.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

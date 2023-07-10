@@ -11,7 +11,7 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my @inputFile;
 my $outputFile;
@@ -20,10 +20,12 @@ my $inflate;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('i|file|input|gff=s' => \@inputFile,
-      'o|output=s' => \$outputFile,
-			'inflate!' => \$inflate,
-      'g|genome=s' => \$genome,
+if ( !GetOptions (
+      'i|file|input|gff=s' => \@inputFile,
+      'o|output=s'      => \$outputFile,
+			'inflate!'        => \$inflate,
+      'g|genome=s'      => \$genome,
+      'c|config=s'      => \$config,
       'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -42,6 +44,9 @@ if (! @inputFile ){
                  -verbose => 0,
                  -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage Output
 my $ostream = prepare_fileout($outputFile);
@@ -196,6 +201,12 @@ to count the feature and its size as many time there are parents.
 =item B<-o> or B<--output>
 
 STRING: Output file. If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

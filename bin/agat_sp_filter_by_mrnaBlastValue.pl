@@ -12,13 +12,15 @@ use URI::Escape;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff     = undef;
 my $blast   = undef;
 my $opt_help;
 
-if ( !GetOptions(   "help"      => \$opt_help,
+
+if ( !GetOptions(   'c|config=s'=> \$config,
+                    "h|help"    => \$opt_help,
                     "gff=s"     => \$gff,
                     "blast=s"   => \$blast,
                     "outfile=s" => \$outfile ))
@@ -42,6 +44,9 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Open Output files #
 my $out = prepare_gffout($config, $outfile);
@@ -203,7 +208,13 @@ The list of the all-vs-all blast file (outfmt 6, blastp)
 
 The name of the output file. By default the output is the standard output.
 
-=item B<--help> or B<-h>
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
+
+=item B<-h> or B<--help>
 
 Display this helpful text.
 

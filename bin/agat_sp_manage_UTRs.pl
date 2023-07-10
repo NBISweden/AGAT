@@ -12,7 +12,7 @@ use Getopt::Long qw(:config no_auto_abbrev);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_reffile;
 my $opt_plot;
 my $opt_nbUTR;
@@ -25,14 +25,15 @@ my $DefaultUTRnb=5;
 
 my @copyARGV=@ARGV;
 print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_reffile,
-                  'n|t|nb|number=i' => \$opt_nbUTR,
-                  '3|three|three_prime_utr!' => \$opt_utr3,
-                  '5|five|five_prime_utr!' => \$opt_utr5,
-                  'b|both|bs!' => \$opt_bst,
-                  'o|out|output=s' => \$opt_output,
-                  'p|plot!' => \$opt_plot,
-                  'h|help!'         => \$opt_help ) )
+if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
+                  'n|t|nb|number=i'         => \$opt_nbUTR,
+                  '3|three|three_prime_utr!'=> \$opt_utr3,
+                  '5|five|five_prime_utr!'  => \$opt_utr5,
+                  'b|both|bs!'              => \$opt_bst,
+                  'o|out|output=s'          => \$opt_output,
+                  'p|plot!'                 => \$opt_plot,
+                  'c|config=s'              => \$config,
+                  'h|help!'                 => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -52,6 +53,9 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
@@ -520,6 +524,12 @@ Allows to create an histogram in pdf of UTR sizes distribution.
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the gene incriminated will be write.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

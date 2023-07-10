@@ -11,7 +11,7 @@ use Sort::Naturally;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $opt_output = undef;
 my $gff1 = undef;
 my $gff2 = undef;
@@ -21,7 +21,8 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"         => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help"         => \$opt_help,
     "gff1=s"         => \$gff1,
     "gff2=s"         => \$gff2,
 	"debug|d!"       => \$debug,
@@ -49,6 +50,9 @@ if ( ! $gff1 or ! $gff2){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -683,6 +687,12 @@ Debug option, make it easier to follow what is going on for debugging purpose.
 =item  B<--verbose> or B<-v>
 
 Verbose option, make it easier to follow what is going on.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

@@ -11,7 +11,7 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $model_to_test = undef;
 my $outfile = undef;
 my $ref = undef;
@@ -20,7 +20,8 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h"                 => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help"                 => \$opt_help,
     "f|file|gff3|gff=s"      => \$ref,
     "v|verbose!"              => \$verbose,
     "m|model=s"              => \$model_to_test,
@@ -45,6 +46,9 @@ if ( ! (defined($ref)) ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -533,6 +537,12 @@ Add verbosity.
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
 Output file. If none given, will be display in standard output.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

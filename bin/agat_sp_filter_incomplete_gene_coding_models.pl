@@ -12,7 +12,7 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -25,15 +25,16 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "table|codon|ct=i" => \$codonTableId,
-    "add_flag|af!" => \$add_flag,
+    'c|config=s'                => \$config,
+    "h|help"                    => \$opt_help,
+    "gff=s"                     => \$gff,
+    "fasta|fa|f=s"              => \$file_fasta,
+    "table|codon|ct=i"          => \$codonTableId,
+    "add_flag|af!"              => \$add_flag,
     "skip_start_check|sstartc!" => \$skip_start_check,
-    "skip_stop_check|sstopc!" => \$skip_stop_check,
-    "v!" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+    "skip_stop_check|sstopc!"   => \$skip_stop_check,
+    "v!"                        => \$verbose,
+    "output|outfile|out|o=s"    => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -55,6 +56,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
 print "Codon table ".$codonTableId." in use. You can change it using --table option.\n";
 my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
@@ -367,6 +372,12 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option, make it easier to follow what is going on for debugging purpose.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

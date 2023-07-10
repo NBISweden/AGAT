@@ -43,12 +43,13 @@ my $input_folder = "t/scripts_output/in";
 my $output_folder = "t/scripts_output/out";
 my $outtmp = "tmp.gff"; # path file where to save temporary output
 my $outprefix = "tmp";
+my $config="agat_config.yaml";
 my $script;
 my $result;
 my $result2;
 
 # remove config in local folder if exists and potential tmp file already existing
-unlink "config.yaml";
+unlink $config;
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 

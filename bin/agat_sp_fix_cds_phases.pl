@@ -9,7 +9,7 @@ use AGAT::AGAT;
 
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $opt_fasta = undef;
 my $opt_gfffile;
@@ -22,6 +22,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
                   "fasta|fa=s"      => \$opt_fasta,
                   "v|vebose!"       => \$opt_verbose,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -43,6 +44,9 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -108,6 +112,12 @@ Add verbosity.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

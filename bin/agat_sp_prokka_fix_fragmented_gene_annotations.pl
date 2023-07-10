@@ -58,7 +58,7 @@ use case_info;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $outfolder = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -73,17 +73,18 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-	"db=s" => \$file_db,
-	"frags!" => \$frags,
-	"pseudo!" => \$pseudo,
-	"hamap_size=s" => \$hamap_size,
-    "table|codon|ct=i" => \$codonTable,
-	"skip_hamap!" => \$skip_hamap,
-    "v=i" => \$verbose,
-    "output|out|o=s" => \$outfolder))
+    'c|config=s'         => \$config,
+    "h|help"             => \$opt_help,
+    "gff=s"              => \$gff,
+    "fasta|fa|f=s"       => \$file_fasta,
+	"db=s"               => \$file_db,
+	"frags!"             => \$frags,
+	"pseudo!"            => \$pseudo,
+	"hamap_size=s"       => \$hamap_size,
+    "table|codon|ct=i"   => \$codonTable,
+	"skip_hamap!"        => \$skip_hamap,
+    "v=i"                => \$verbose,
+    "output|out|o=s"     => \$outfolder))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -108,6 +109,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# Check codon table
 $codonTable = get_proper_codon_table($codonTable);
 print "Codon table ".$codonTable." in use. You can change it using --table option.\n";
 
@@ -1064,6 +1069,12 @@ Output folder. Mandatory.
 =item B<-v>
 
 verbose mode. Default off.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

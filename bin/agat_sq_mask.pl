@@ -9,7 +9,7 @@ use IO::File ;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $opt_HardMask;
 my $opt_SoftMask;
@@ -28,6 +28,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'hm:s'            => \$opt_HardMask,
                   'sm'              => \$opt_SoftMask,
                   'o|output=s'      => \$opt_output,
+                  'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,6 +49,9 @@ if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defi
            -verbose => 0,
            -exitval => 1 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
   print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
@@ -163,6 +167,12 @@ HardMask option => Sequences masked will be replaced by a character. By default 
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

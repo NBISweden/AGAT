@@ -9,7 +9,7 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my $opt_output = undef;
 my @opt_files;
@@ -20,7 +20,8 @@ my $opt_help= undef;
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help" => \$opt_help,
     "ref|r|i=s" => \$ref,
     "add|a=s" => \@opt_files,
     "size_min|s=i" => \$size_min,
@@ -45,6 +46,9 @@ if (! $ref or ! @opt_files ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -182,6 +186,12 @@ Option to keep the non-overlping gene only if the CDS size (in nucleotide) is ov
 =item  B<--out>, B<--output>, B<--outfile> or B<-o>
 
 Output gff3 containing the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 

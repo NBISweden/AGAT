@@ -11,7 +11,7 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $start_run = time();
 my %handlers;
 my $gff = undef;
@@ -20,9 +20,10 @@ my $primaryTag=undef;
 my $outfile=undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "p|t|l=s" => \$primaryTag,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \$gff,
+    "p|t|l=s"                => \$primaryTag,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -44,6 +45,9 @@ if ( ! (defined($gff)) ){
            -verbose => 0,
            -exitval => 2 } );
 }
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
 
 # Manage $primaryTag
 my @ptagList;
@@ -208,6 +212,12 @@ By default all feature are taking in account. fill the option by the value "all"
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

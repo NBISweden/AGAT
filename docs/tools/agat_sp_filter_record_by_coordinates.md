@@ -24,7 +24,7 @@ agat_sp_filter_record_by_coordinates.pl --help
 
     Input GTF/GFF file
 
-- **-c**, **--coordinates**, **--tsv**, **-r** or **--ranges**
+- **--coordinates**, **--tsv**, **-r** or **--ranges**
 
     String - tsv file containing the coordinates.
     Coordinates must be one per line.
@@ -45,6 +45,12 @@ agat_sp_filter_record_by_coordinates.pl --help
 - **-v** or **--verbose**
 
     Verbosity.
+
+- **-c** or **--config**
+
+    String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any,
+    otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+    The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 - **-h** or **--help**
 

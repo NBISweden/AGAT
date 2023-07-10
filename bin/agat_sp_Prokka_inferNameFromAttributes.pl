@@ -10,14 +10,15 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config = get_agat_config();
+my $config;
 my $gff = undef;
 my $opt_help= 0;
 my $force=undef;
 my $outfile=undef;
 
 if ( !GetOptions(
-    "help|h" => \$opt_help,
+    'c|config=s'               => \$config,
+    "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "force" => \$force,
     "output|outfile|out|o=s" => \$outfile))
@@ -42,6 +43,10 @@ if ( ! (defined($gff)) ){
            -exitval => 1 } );
 }
 
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+# Prepare output
 my $gffout = prepare_gffout($config, $outfile);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -150,6 +155,12 @@ If Name attribute already exists, they will be replaced if a new one is found
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-c> or B<--config>
+
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
+The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 

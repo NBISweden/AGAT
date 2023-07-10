@@ -23,10 +23,11 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 
 
 # remove config in local folder if exists
-unlink "config.yaml";
+my $config="agat_config.yaml";
+unlink $config;
 
 # get standard config
-my $config = get_agat_config();
+$config = get_agat_config();
 $config->{verbose}=0;
 $config->{progress_bar}=0;
 
