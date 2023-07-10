@@ -62,7 +62,6 @@ ok( system("diff $config $correct_output") == 0, "modif config check");
 # remove file created for the test
 unlink $config;
 
-
 # ----- Test Rename config file ----
 
 my $new_config_name = "agat_config_renamed.yml";
