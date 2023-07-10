@@ -11,23 +11,23 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_output = undef;
-my $opt_coordinates = undef ;
-my $opt_exclude_ov = undef ;
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my $config ;
+my $opt_output ;
+my $opt_coordinates ;
+my $opt_exclude_ov ;
+my $opt_gff ;
+my $opt_verbose ;
+my $opt_help ;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'i|input|gtf|gff=s'         => \$opt_gff,
-                  "c|coordinates|tsv|r|ranges=s"=> \$opt_coordinates,
-                  "e|exclude!"                => \$opt_exclude_ov,
-                  'o|output=s'                => \$opt_output,
-                  'v|verbose!'                => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'                   => \$opt_help ) )
+if ( !GetOptions( 'i|input|gtf|gff=s'            => \$opt_gff,
+                  "coordinates|tsv|r|ranges=s" => \$opt_coordinates,
+                  "e|exclude!"                   => \$opt_exclude_ov,
+                  'o|output=s'                   => \$opt_output,
+                  'v|verbose!'                   => \$opt_verbose,
+                  'c|config=s'                   => \$config,
+                  'h|help!'                      => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -273,7 +273,7 @@ it is part of is overlaping the coordinates.
 
 Input GTF/GFF file
 
-=item B<-c>, B<--coordinates>, B<--tsv>, B<-r> or B<--ranges>
+=item B<--coordinates>, B<--tsv>, B<-r> or B<--ranges>
 
 String - tsv file containing the coordinates.
 Coordinates must be one per line.
