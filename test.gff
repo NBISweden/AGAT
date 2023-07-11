@@ -1,0 +1,10 @@
+#!genome-build ROS_Cfam_1.0
+#!genome-version ROS_Cfam_1.0
+#!genome-date 2020-09
+#!genome-build-accession GCA_014441545.1
+#!genebuild-last-updated 2020-10
+X	ensembl	gene	24550462	24552226	.	-	.	gene_id "ENSCAFG00845015183"; gene_version "1"; gene_source "ensembl"; gene_biotype "protein_coding";
+X	ensembl	transcript	24550462	24552226	.	-	.	gene_id "ENSCAFG00845015183"; gene_version "1"; transcript_id "ENSCAFT00845027108"; transcript_version "1"; gene_source "ensembl"; gene_biotype "protein_coding"; transcript_source "ensembl"; transcript_biotype "protein_coding"; tag "Ensembl_canonical";
+X	ensembl	exon	24552206	24552226	.	-	.	gene_id "ENSCAFG00845015183"; gene_version "1"; transcript_id "ENSCAFT00845027108"; transcript_version "1"; exon_number "1"; gene_source "ensembl"; gene_biotype "protein_coding"; transcript_source "ensembl"; transcript_biotype "protein_coding"; exon_id "ENSCAFE00845128634"; exon_version "1"; tag "Ensembl_canonical";
+X	ensembl	CDS	24552206	24552226	.	-	0	gene_id "ENSCAFG00845015183"; gene_version "1"; transcript_id "ENSCAFT00845027108"; transcript_version "1"; exon_number "1"; gene_source "ensembl"; gene_biotype "protein_coding"; transcript_source "ensembl"; transcript_biotype "protein_coding"; protein_id "ENSCAFP00845021332"; protein_version "1"; tag "Ensembl_canonical";
+X	ensembl	start_codon	24552224	24552226	.	-	0	gene_id "ENSCAFG00845015183"; gene_version "1"; transcript_id "ENSCAFT00845027108"; transcript_version "1"; exon_number "1"; gene_source "ensembl"; gene_biotype "protein_coding"; transcript_source "ensembl"; transcript_biotype "protein_coding"; tag "Ensembl_canonical";
