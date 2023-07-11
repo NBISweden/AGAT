@@ -8,8 +8,8 @@ of impacted features.
 ## SYNOPSIS
 
 ```
-agat_sq_manage_ID.pl --gff <input file> [-o <output file>]
-agat_sq_manage_ID.pl --help
+agat_sq_manage_IDs.pl --gff <input file> [-o <output file>]
+agat_sq_manage_IDs.pl --help
 ```
 
 ## OPTIONS

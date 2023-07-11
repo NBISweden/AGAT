@@ -21,13 +21,13 @@ gene1	annot_x
 cds1	annot_y  
 ```
 
-\* input.gff:  
+- input.gff:  
 ```
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1  
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1  
 ```
 
-\* output.gff: 
+- output.gff: 
 ```
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot_type1=annot_x  
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=annot_y  
@@ -35,23 +35,23 @@ chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=annot_y
 
 \--- example2 ---
 
-\* input.tsv:
+- input.tsv:
 ```
 gene_id	annot_type1
 gene1	anot_x
 cds1	anot_y
 ```
 
-\* input gtf:
+- input gtf:
 ```
 chr1	irgsp	gene	1000	2000	.	+	.	gene_id gene1;
 chr1	irgsp	CDS	2983	3268	.	+	.	gene_id cds1;
 ```
 
-\* output.gff:
+- output.gtf:
 ```
-chr1	irgsp	gene	1000	2000	.	+	.	gene_id gene1;annot_type1 anot_x
-chr1	irgsp	CDS	2983	3268	.	+	.	gene_id=cds1;annot_type1=anot_y
+chr1	irgsp	gene	1000	2000	.	+	.	gene_id gene1; annot_type1 anot_x
+chr1	irgsp	CDS	2983	3268	.	+	.	gene_id cds1; annot_type1 anot_y
 ```
 
 ## SYNOPSIS

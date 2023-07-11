@@ -113,7 +113,6 @@ Contents
    tools/agat_sq_add_locus_tag.md
    tools/agat_sq_filter_feature_from_fasta.md
    tools/agat_sq_list_attributes.md
-   tools/agat_sq_manage_ID.md
    tools/agat_sq_manage_IDs.md
    tools/agat_sq_manage_attributes.md
    tools/agat_sq_mask.md
