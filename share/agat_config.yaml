@@ -7,7 +7,7 @@
 output_format: GFF
 # When output_type is GFF, GFF version to use (bioperl): 1, 2, 2.5 or 3
 gff_output_version: 3
-# When output_type is GTF, GTF version to use: 0, 1, 2, 2.1, 2.2, 2.5, 3 or relax
+# When output_type is GTF, GTF version to use: 1, 2, 2.1, 2.2, 2.5, 3 or relax
 # 3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
 # 2.5 = ("gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine");
 # 2.2 = ("CDS", "start_codon", "stop_codon", "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS", "exon");
