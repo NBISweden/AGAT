@@ -659,6 +659,15 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# --------check agat_sq_add_attributes_from_tsv.pl-------------
+
+$script = $script_prefix."bin/agat_sq_add_attributes_from_tsv.pl";
+$result = "$output_folder/agat_sq_add_attributes_from_tsv_1.gff";
+system(" $script --gff $input_folder/agat_sq_add_attributes_from_tsv.gff --tsv $input_folder/agat_sq_add_attributes_from_tsv.tsv -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # --------check agat_sq_add_hash_tag.pl-------------
 
 $script = $script_prefix."bin/agat_sq_add_hash_tag.pl";
