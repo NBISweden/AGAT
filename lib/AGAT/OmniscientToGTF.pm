@@ -21,22 +21,15 @@ sub import {
   AGAT::OmniscientToGTF->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
 }
 
-# --------------------------- CONSTANT ---------------------------
+# --------------------------- INFO ---------------------------
 # Set GTF version definitions
-my @GTF3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
-my @GTF2_5 = ("gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine");
-my @GTF2_2 = ("CDS", "start_codon", "stop_codon", "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS", "exon");
-my @GTF2_1 = ("CDS", "start_codon", "stop_codon", "exon", "5UTR", "3UTR");
-my @GTF2 = ("CDS", "start_codon", "stop_codon", "exon");
-my @GTF1 = ("CDS", "start_codon", "stop_codon", "exon", "intron");
-our %GTF_LIST = (
-	1 => \@GTF1,
-	2 => \@GTF2,
-	"2.1" => \@GTF2_1,
-	"2.2" => \@GTF2_2,
-	"2.5" => \@GTF2_5,
-	3 => \@GTF3
-);
+#my @GTF3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
+#my @GTF2_5 = ("gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine");
+#my @GTF2_2 = ("CDS", "start_codon", "stop_codon", "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS", "exon");
+#my @GTF2_1 = ("CDS", "start_codon", "stop_codon", "exon", "5UTR", "3UTR");
+#my @GTF2 = ("CDS", "start_codon", "stop_codon", "exon");
+#my @GTF1 = ("CDS", "start_codon", "stop_codon", "exon", "intron");
+
 
 # --------------------------- SHARED FUNCTIONS ---------------------------
 
@@ -455,13 +448,8 @@ sub _uniq_comparison{
 sub _print_omniscient_filter{
 	my ($hash_omniscient, $gtf_version, $relax, $gffout)=@_;
 
-	# --------- deal GTF version --------------
-	my $list_ok = $GTF_LIST{$gtf_version};
-	$_=lc for @$list_ok;
-	my %hash_ok = map { $_ => 1 } @$list_ok;
-
 	# --------- deal with header --------------
-  _write_headers_gtf($hash_omniscient, $gffout, $gtf_version, $relax);
+  	_write_headers_gtf($hash_omniscient, $gffout, $gtf_version, $relax);
 
 	# sort by seq id
 	my ( $hash_sortBySeq, $hash_sortBySeq_stdf,  $hash_sortBySeq_topf) = collect_l1_info_sorted_by_seqid_and_location($hash_omniscient);
@@ -471,7 +459,7 @@ sub _print_omniscient_filter{
 	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
 		# ----- LEVEL 1 -----
-		_write_top_features_gtf($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient, \%hash_ok, $relax);
+		_write_top_features_gtf($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);
 
 		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 			my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
@@ -479,10 +467,7 @@ sub _print_omniscient_filter{
 
 			my $feature_l1 = $hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1};
 			my $primary_tag_l1_gtf = lc($feature_l1->primary_tag());
-
-			if(exists_keys (\%hash_ok, ( $primary_tag_l1_gtf) ) or $relax ) {
-				_write_feature_JD(	$gffout, $feature_l1 ); # print feature
-			}
+			$gffout->write_feature($feature_l1); # print feature
 
 			# ----- LEVEL 2 -----
 			foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
@@ -490,9 +475,7 @@ sub _print_omniscient_filter{
 					foreach my $feature_level2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 						my $primary_tag_l2_gtf = lc($feature_level2->primary_tag());
-						if(exists_keys (\%hash_ok, ($primary_tag_l2_gtf) )  or $relax ) {
-							_write_feature_JD($gffout, $feature_level2); # print feature
-						}
+						$gffout->write_feature($feature_level2); # print feature
 
 						# ----- LEVEL 3 -----
 						my $level2_ID = lc($feature_level2->_tag_value('ID'));
@@ -502,7 +485,7 @@ sub _print_omniscient_filter{
 						# FIRST EXON
 						if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
 							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
-								_write_feature_JD($gffout, $feature_level3);
+								$gffout->write_feature($feature_level3);
 								push @l3_done, 'exon';
 							}
 						}
@@ -510,7 +493,7 @@ sub _print_omniscient_filter{
 						# SECOND CDS
 						if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
 							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
-								_write_feature_JD($gffout, $feature_level3);
+								$gffout->write_feature($feature_level3);
 								push @l3_done, 'cds';
 							}
 						}
@@ -522,10 +505,8 @@ sub _print_omniscient_filter{
 								if ( exists_keys( $hash_omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
 									my $primary_tag_l3_gtf = lc($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}->[0]->primary_tag() );
 
-									if(exists_keys (\%hash_ok, ( $primary_tag_l3_gtf) )  or $relax ) {
-										foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
-											_write_feature_JD($gffout, $feature_level3);
-										}
+									foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
+										$gffout->write_feature($feature_level3);
 									}
 								}
 							}
@@ -569,7 +550,7 @@ sub _write_headers_gtf{
 
 sub _write_top_features_gtf{
 
-  my ( $gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient, $hash_ok, $relax ) = @_;
+  my ( $gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient ) = @_;
 
   if ( exists_keys( $hash_sortBySeq_topf, ($seqid) ) ){
 
@@ -578,128 +559,9 @@ sub _write_top_features_gtf{
 			my $id_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'id'};
 			my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
-			if(exists_keys ($hash_ok, ( $tag_l1) ) or $relax ) {
-				_write_feature_JD($gffout, $feature_l1); # print feature
-			}
+			$gffout->write_feature($feature_l1); # print feature
     }
   }
 }
-
-sub _write_feature_JD {
-    my ($self, @features) = @_;
-    return unless @features;
-    if( $self->{'_first'} && $self->gff_version() == 3 ) {
-        $self->_print("##gff-version 3\n");
-    }
-    $self->{'_first'} = 0;
-    foreach my $feature ( @features ) {
-        $self->_print(_gff25_string_JD($self, $feature)."\n");
-    }
-}
-
-=head2 _gff25_string_JD
-
- Title   : _gff25_string
- Usage   : $gffstr = $gffio->_gff2_string
- Function: To get a format of GFF that is peculiar to Gbrowse/Bio::DB::GFF
- Example : 9th column: ID "gene-1"; Name "name 1" name2;
- Returns : A GFF2.5-formatted string representation of the SeqFeature
- Args    : A Bio::SeqFeatureI implementing object to be GFF2.5-stringified
- Comments: GFF2.5 is suposed to be similar as GTF (with semicolon at the end).
-=cut
-
-sub _gff25_string_JD {
-    my ($gff, $origfeat) = @_;
-
-    # for skipping data that may be represented elsewhere; currently, this is
-		# only the score
-		my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
-
-    my $feat;
-    if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
-        $feat = $origfeat->feature2;
-    } else {
-        $feat = $origfeat;
-    }
-    my ($str1, $str2,$score,$frame,$name,$strand);
-
-    if( $feat->can('score') ) {
-        $score = $feat->score();
-    }
-    $score = '.' unless defined $score;
-
-    if( $feat->can('frame') ) {
-        $frame = $feat->frame();
-    }
-    $frame = '.' unless defined $frame;
-
-    $strand = $feat->strand();
-    if(! $strand) {
-        $strand = ".";
-    } elsif( $strand == 1 ) {
-        $strand = '+';
-    } elsif ( $feat->strand == -1 ) {
-        $strand = '-';
-    }
-
-    if( $feat->can('seqname') ) {
-        $name = $feat->seq_id();
-    }
-    $name ||= 'SEQ';
-
-    $str1 = join("\t",
-                 $name,
-                 $feat->source_tag(),
-                 $feat->primary_tag(),
-                 $feat->start(),
-                 $feat->end(),
-                 $score,
-                 $strand,
-                 $frame);
-
-    my @all_tags = $feat->all_tags;
-    my @group; my @firstgroup;
-
-    if (@all_tags) {   # only play this game if it is worth playing...
-        foreach my $tag ( @all_tags ) {
-            next if exists $SKIPPED_TAGS{$tag};
-            my @v;
-            foreach my $value ( $feat->get_tag_values($tag) ) {
-                unless( defined $value && length($value) ) {
-                    $value = '""';
-                } else{ # quote all type of values
-                    $value =~ s/\t/\\t/g; # substitute tab and newline
-                    # characters
-                    $value =~ s/\n/\\n/g; # to their UNIX equivalents
-                    $value = '"' . $value . '"';
-                }
-                push @v, $value;
-            }
-            $v[$#v] =~ s/\s+$//; #remove left space of the last value
-            if (($tag eq 'gene_id') || ($tag eq 'transcript_id')){ # hopefully we won't get both...
-                push @firstgroup, "$tag ".join(" ", @v);
-            } else {
-                push @group, "$tag ".join(" ", @v);
-            }
-        }
-    }
-        @firstgroup = sort @firstgroup if @firstgroup;
-    $str2 = join('; ', (@firstgroup, @group));
-    $str2 .= ";";
-    # Add Target information for Feature Pairs
-    if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
-        ! $feat->has_tag('Group') &&
-        $origfeat->isa('Bio::SeqFeature::FeaturePair') ) {
-        $str2 = sprintf("Target %s ; tstart %d ; tend %d", $origfeat->feature1->seq_id,
-                        ( $origfeat->feature1->strand < 0 ?
-                          ( $origfeat->feature1->end,
-                            $origfeat->feature1->start) :
-                          ( $origfeat->feature1->start,
-                            $origfeat->feature1->end)
-                        )) . ($str2?" ; ".$str2:""); # need to put the target info before other tag/value pairs - mw
-    }
-    return $str1 . "\t".  $str2;
-}
-
 
 1;

@@ -44,9 +44,9 @@ if ((!defined($inputFile)) ){
 $config = get_agat_config({config_file_in => $config});
 
 # Manage input fasta file
-my $format = $config->{gff_output_version};
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 my $gffout = prepare_gffout($config, $outfile);
 

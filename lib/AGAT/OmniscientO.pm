@@ -39,7 +39,7 @@ sub import {
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
-#				   || 					          Print Methods 					       ||
+#				   ||                   Print Methods 		     	     ||
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
@@ -47,6 +47,15 @@ sub import {
 sub prepare_gffout{
 	my ($config, $outfile) = @_;
 
+	# Selection which version param to use according to output format asked for
+	my $version;
+
+	if ( $config->{output_format} eq "gff"){
+	 	$version = $config->{gff_output_version}
+	} else {
+		$version = $config->{gtf_output_version}
+	}
+	
 	my $gffout;
 	if ($outfile) {
 		# check existence
@@ -56,11 +65,11 @@ sub prepare_gffout{
 		}
 		else {
 			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-		  $gffout= Bio::Tools::GFF->new(-fh => $fh, -gff_version => $config->{gff_output_version});
+			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
 		}
 	}
 	else{
-	  $gffout = Bio::Tools::GFF->new(-fh => \*STDOUT, -gff_version => $config->{gff_output_version});
+		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
 	}
 	return $gffout;
 }
@@ -585,7 +594,15 @@ sub write_headers{
   if ($gffout->{'_first'} ){
 
     # we write the very top header describing gff version
-    $gffout->_print("##gff-version ".$gffout->gff_version()."\n");
+	my $line = "##";
+    if ( $gffout->{'TYPE'} eq "GTF"){
+        $line .= "gtf-version ";
+    } else {
+        $line .= "gff-version ";
+    }
+    $line .= $gffout->{'VERSION'}."\n";
+    $gffout->_print($line);
+
 
     # Now we inject the header catched when parsing input file
     if (exists_keys( $omniscient, ('other', 'header') ) ){

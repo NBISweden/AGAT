@@ -19,7 +19,7 @@ my $outfile=undef;
 my $cpt_case=0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'  => \$config,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "tag|att=s"   => \$attribute,
@@ -52,10 +52,10 @@ $config = get_agat_config({config_file_in => $config});
 
 print "Looking to $attribute attribute.\n";
 
-# Manage input fasta file
-my $format = $config->{gff_output_version};
+# Manage input gff file
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
-my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
 
 #time to calcul progression
 my $startP=time;

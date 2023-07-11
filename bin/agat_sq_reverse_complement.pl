@@ -25,7 +25,7 @@ if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
                         'f|fasta=s'  => \$opt_fastafile,
                         'o|output=s' => \$outfile,
                         'v|verbose!' => \$verbose,
-                        'c|config=s'               => \$config,
+                        'c|config=s' => \$config,
                         'h|help!'    => \$opt_help )  )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
@@ -49,8 +49,9 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
 $config = get_agat_config({config_file_in => $config});
 
 # Manage input gff file
-my $format = select_gff_format($opt_gfffile);
-my $ref_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
+my $format = $config->{force_gff_input_version};
+if(! $format ){ $format = select_gff_format($opt_gfffile); }
+my $ref_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 # Manage output fasta file
 my ($fasta_in,$path,$ext) = fileparse($opt_fastafile,qr/\.[^.]*/);

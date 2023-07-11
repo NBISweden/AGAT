@@ -134,6 +134,7 @@ Jason Stajich, jason-at-biperl-dot-org
 Chris Mungall, cjm-at-fruitfly-dot-org
 Steffen Grossmann [SG], grossman at molgen.mpg.de
 Malcolm Cook, mec-at-stowers-institute.org
+Jacques Dainat
 
 =head1 APPENDIX
 
@@ -161,6 +162,15 @@ my %GFF3_ID_Tags = map { $_ => $i++ } qw(ID Parent Target);
 # only the score
 my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
 
+# Set GTF version definitions
+my %GTF_FEATURES = ( 
+    3 => ["gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr"],
+    2.5 => ["gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine"],
+    2.2 => ["CDS", "start_codon", "stop_codon", "5UTR", "3UTR", "inter", "inter_CNS", "intron_CNS", "exon"],
+    2.1 => ["CDS", "start_codon", "stop_codon", "exon", "5UTR", "3UTR"],
+    2 => ["CDS", "start_codon", "stop_codon", "exon"],
+    1 => ["CDS", "start_codon", "stop_codon", "exon", "intron"]
+);
 
 =head2 new
 
@@ -195,17 +205,17 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($gff_version, $noparse) = $self->_rearrange([qw(GFF_VERSION NOPARSE)],@args);
+    my ($gff_version, $version, $type, $noparse) = $self->_rearrange([qw(GFF_VERSION VERSION TYPE NOPARSE)],@args);
 
     # initialize IO
     $self->_initialize_io(@args);
+    # parse header or not
     $self->_parse_header() unless $noparse;
-
-    $gff_version ||= 2;
-    if( ! $self->gff_version($gff_version) )  {
-        $self->throw("Can't build a GFF object with the unknown version ".
-            $gff_version);
-    }
+    # check if GFF or GTF
+    $self->check_type($type);
+    # check version of the GFF or GTF
+    $self->check_version($gff_version, $version);
+    # ?
     $self->{'_first'} = 1;
     return $self;
 }
@@ -432,11 +442,15 @@ sub _feature_idx_by_seq_id {
 sub from_gff_string {
     my ($self, $feat, $gff_string) = @_;
 
-    if($self->gff_version() == 1)  {
-        return $self->_from_gff1_string($feat, $gff_string);
-    } elsif( $self->gff_version() == 3 ) {
-        return $self->_from_gff3_string($feat, $gff_string);
-    } else {
+    if ($self->{'TYPE'} eq "GFF"){
+        if($self->{'VERSION'} == 1)  {
+            return $self->_from_gff1_string($feat, $gff_string);
+        } elsif( $self->{'VERSION'} == 3 ) {
+            return $self->_from_gff3_string($feat, $gff_string);
+        } else { # GFF2 and 2.5
+            return $self->_from_gff2_string($feat, $gff_string);
+        }
+    } else { # all GTF cases
         return $self->_from_gff2_string($feat, $gff_string);
     }
 }
@@ -671,20 +685,27 @@ sub unescape {
 sub write_feature {
     my ($self, @features) = @_;
     return unless @features;
-    if( $self->{'_first'} && $self->gff_version() == 3 ) {
-        $self->_print("##gff-version 3\n");
+    if( $self->{'_first'} ) {
+        my $line = "##";
+        if ( $self->{'TYPE'} eq "GTF"){
+            $line .= "gtf-version ";
+        } else {
+            $line .= "gff-version ";
+        }
+        $line .= $self->{'VERSION'}."\n";
+        $self->_print($line);
     }
     $self->{'_first'} = 0;
     foreach my $feature ( @features ) {
-        $self->_print($self->gff_string($feature)."\n");
+        $self->_print($self->gxf_string($feature)."\n");
     }
 }
 
 
-=head2 gff_string
+=head2 gxf_string
 
  Title   : gff_string
- Usage   : $gffstr = $gffio->gff_string($feature);
+ Usage   : $gffstr = $gffio->gxf_string($feature);
  Function: Obtain the GFF-formatted representation of a SeqFeatureI object.
            The formatting depends on the version specified at initialization.
 
@@ -696,17 +717,21 @@ sub write_feature {
 
 =cut
 
-sub gff_string{
+sub gxf_string{
     my ($self, $feature) = @_;
 
-    if($self->gff_version() == 1) {
-        return $self->_gff1_string($feature);
-    } elsif( $self->gff_version() == 3 ) {
-        return $self->_gff3_string($feature);
-    } elsif( $self->gff_version() == 2.5 ) {
+    if ($self->{'TYPE'} eq "GFF"){
+        if($self->check_version() == 1) {
+            return $self->_gff1_string($feature);
+        } elsif( $self->check_version() == 3 ) {
+            return $self->_gff3_string($feature);
+        } elsif( $self->check_version() == 2.5 ) {
+            return $self->_gff25_string($feature);
+        } else {
+            return $self->_gff2_string($feature);
+        }
+    } else { # GTF case
         return $self->_gff25_string($feature);
-    } else {
-        return $self->_gff2_string($feature);
     }
 }
 
@@ -874,26 +899,37 @@ sub _gff2_string{
     return $str1."\t".$str2;
 }
 
-
 =head2 _gff25_string
 
  Title   : _gff25_string
  Usage   : $gffstr = $gffio->_gff2_string
  Function: To get a format of GFF that is peculiar to Gbrowse/Bio::DB::GFF
- Example :
+ Example : 9th column: ID "gene-1"; Name "name 1" name2;
  Returns : A GFF2.5-formatted string representation of the SeqFeature
  Args    : A Bio::SeqFeatureI implementing object to be GFF2.5-stringified
-
+ Comments: GFF2.5 is suposed to be similar as GTF (with semicolon at the end).
 =cut
 
 sub _gff25_string {
     my ($gff, $origfeat) = @_;
+
+    # for skipping data that may be represented elsewhere; currently, this is
+		# only the score
+		my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
+
     my $feat;
     if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
         $feat = $origfeat->feature2;
     } else {
         $feat = $origfeat;
     }
+
+    if ($gff->{'TYPE'} eq "GTF" and $gff->{'VERSION'} ne "relax"){
+        if(!  grep {lc($feat->primary_tag()) eq lc($_)} ( @{$GTF_FEATURES {$gff->{'VERSION'}}} )) {
+            next;
+        }
+    }
+
     my ($str1, $str2,$score,$frame,$name,$strand);
 
     if( $feat->can('score') ) {
@@ -917,10 +953,9 @@ sub _gff25_string {
 
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
-        $name ||= 'SEQ';
-    } else {
-        $name = 'SEQ';
     }
+    $name ||= 'SEQ';
+
     $str1 = join("\t",
                  $name,
                  $feat->source_tag(),
@@ -933,33 +968,33 @@ sub _gff25_string {
 
     my @all_tags = $feat->all_tags;
     my @group; my @firstgroup;
+
     if (@all_tags) {   # only play this game if it is worth playing...
         foreach my $tag ( @all_tags ) {
+            next if exists $SKIPPED_TAGS{$tag};
             my @v;
             foreach my $value ( $feat->get_tag_values($tag) ) {
-            next if exists $SKIPPED_TAGS{$tag};
                 unless( defined $value && length($value) ) {
                     $value = '""';
-                } elsif ($value =~ /[^A-Za-z0-9_]/){
+                } else{ # quote all type of values
                     $value =~ s/\t/\\t/g; # substitute tab and newline
                     # characters
                     $value =~ s/\n/\\n/g; # to their UNIX equivalents
-                    $value = '"' . $value . '" ';
-                } # if the value contains
-                  # anything other than valid
-                  # tag/value characters, then
-                  # quote it
+                    $value = '"' . $value . '"';
+                }
                 push @v, $value;
-                # for this tag (allowed in GFF2 and .ace format)
             }
-            if (($tag eq 'Group') || ($tag eq 'Target')){ # hopefully we won't get both...
+            $v[$#v] =~ s/\s+$//; #remove left space of the last value
+            if (($tag eq 'gene_id') || ($tag eq 'transcript_id')){ # hopefully we won't get both...
                 push @firstgroup, "$tag ".join(" ", @v);
             } else {
                 push @group, "$tag ".join(" ", @v);
             }
         }
     }
-    $str2 = join(' ; ', (@firstgroup, @group));
+        @firstgroup = sort @firstgroup if @firstgroup;
+    $str2 = join('; ', (@firstgroup, @group));
+    $str2 .= ";";
     # Add Target information for Feature Pairs
     if( ! $feat->has_tag('Target') && # This is a bad hack IMHO
         ! $feat->has_tag('Group') &&
@@ -974,7 +1009,6 @@ sub _gff25_string {
     }
     return $str1 . "\t".  $str2;
 }
-
 
 =head2 _gff3_string
 
@@ -1143,25 +1177,90 @@ sub _gff3_string {
 }
 
 
-=head2 gff_version
+=head2 check_version
 
-  Title   : _gff_version
-  Usage   : $gffversion = $gffio->gff_version
+  Title   : check_version
+  Usage   : $version = $gffio->check_version
   Function:
   Example :
   Returns : The GFF version this parser will accept and emit.
   Args    : none
+  Comment : priority of VERSION over GFF_VERSION (GFF_VERSION is kept for retro-compatibility)
+
 
 =cut
 
-sub gff_version {
-    my ($self, $value) = @_;
-    if(defined $value && grep {$value == $_ } ( 1, 2, 2.5, 3)) {
-        $self->{'GFF_VERSION'} = $value;
+sub check_version {
+    my ($self, $gff_version, $version) = @_;
+
+    # GFF case
+    if ($self->{'TYPE'} eq "GFF"){
+        if (! $version){
+            if ($gff_version){
+                $version = $gff_version;
+            }
+            else{
+                $version = 3;
+            }
+        }
+        if( grep {$version == $_ } ( 1, 2, 2.5, 3)) {
+            $self->{'GFF_VERSION'} = $version;
+            $self->{'VERSION'} = $version;
+        }
+        else  {
+            $self->throw("Can't build a GFF object with the unknown version ". $version  .". Accepted values are: 1, 2, 2.5, 3");
+        }
     }
-    return $self->{'GFF_VERSION'};
+    elsif ($self->{'TYPE'} eq "GTF"){
+        if (! $version){
+            if ($gff_version){
+                $version = $gff_version;
+            }
+            else{
+                $version = "relax";
+            }
+        }
+        if( grep {$version == $_ } ( 1, 2, 2.1, 2.2, 2.5, 3, "relax")) {
+            $self->{'GFF_VERSION'} = $version;
+            $self->{'VERSION'} = $version;
+        }
+        else  {
+            $self->throw("Can't build a GTF object with the unknown version ". $version . ". Accepted values are: 1, 2, 2.1, 2.2, 2.5, 3, relax");
+        }
+    }
+    else {
+        $self->throw("Can't build GFF/GTF object of the unknown type ".
+            $$self->{'TYPE'} . ". Accepted value is GFF and GTF. If none provided GFF is used as default.");
+    }
+    return $self->{'VERSION'};
 }
 
+=head2 check_type
+
+  Title   : check_type
+  Usage   : $type = $gffio->check_type
+  Function:
+  Example :
+  Returns : The file type GFF or GTF this parser will accept and emit.
+  Args    : none
+
+=cut
+sub check_type {
+    my ($self, $type) = @_;
+    if( $type ) {
+        if (lc($type) eq "gff"){
+            $self->{'TYPE'} = "GFF";
+        } elsif (lc($type) eq "gtf") {
+            $self->{'TYPE'} = "GTF";
+        } else {
+            $self->throw("Can't build GFF/GTF object of the unknown type ".
+            $type . ". Accepted value is GFF and GTF. If none provided GFF is used as default.");
+        }   
+    } else { # default is GFF
+        $self->{'TYPE'} = "GFF";
+    }
+    return $self->{'TYPE'};
+}
 
 # Make filehandles
 

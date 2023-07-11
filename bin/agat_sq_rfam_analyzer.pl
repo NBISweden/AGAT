@@ -69,11 +69,11 @@ my $type_bp;
 my %check; #track the repeat already annotated to not. Allow to skip already read repeats
 
 foreach my $file (@inputFile){
-# Manage input fasta file
+  # Manage input gff file
   print "Reading $file\n";
-	my $format = $config->{gff_output_version};
-	if(! $format ){ $format = select_gff_format($file); }
-  my $ref_in = Bio::Tools::GFF->new(-file => $file, -gff_version => $format);
+  my $format = $config->{force_gff_input_version};
+  if(! $format ){ $format = select_gff_format($file); }
+  my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
 
   my $startP=time;
   my $nbLine=`wc -l < $file`;

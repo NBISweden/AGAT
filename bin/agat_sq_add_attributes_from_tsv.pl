@@ -57,7 +57,7 @@ my $gffout = prepare_gffout($config, $outputFile);
 my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
 print "Reading $input_gff using format GFF$format\n";
-my $gff_in = Bio::Tools::GFF->new(-file => $input_gff, -gff_version => $format);
+my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);
 
 # Manage tsv input
 open(INPUT, "<", $input_tsv) or die ("$!\n");

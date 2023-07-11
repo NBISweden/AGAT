@@ -153,10 +153,10 @@ my $hash_level = $hash_info->{'other'}{'level'};
                 #####################
 
 
-# Manage gff fasta file
-my $format = $config->{gff_output_version};
+# Manage gff file
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
-my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
 
 #time to calcul progression
 my $startP=time;

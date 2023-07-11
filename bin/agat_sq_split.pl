@@ -20,11 +20,11 @@ my $feature_type="gene";
 
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions ('file|input|gff=s' => \$inputFile,
-      'ft|feature_type=s' => \$feature_type,
-      'i|interval=i' => \$interval,
-      'o|output=s' => \$outfolder,
+      'ft|feature_type=s'        => \$feature_type,
+      'i|interval=i'             => \$interval,
+      'o|output=s'               => \$outfolder,
       'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
+      'h|help!'                  => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -46,10 +46,10 @@ if ( !(defined($inputFile)) or !(defined($outfolder)) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
-# Manage input fasta file
-my $format = $config->{gff_output_version};
+# Manage input gff file
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
 if (-d $outfolder) {

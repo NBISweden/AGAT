@@ -78,10 +78,10 @@ if (defined( $opt_HardMask)){
 #### read gff file and save info in memory
 my %gff; my $nbLineRead=0;
 
-# Manage input fasta file
-my $format = $config->{gff_output_version};
+# Manage input gff file
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($opt_gfffile); }
-my $gff_in = Bio::Tools::GFF->new(-file => $opt_gfffile, -gff_version => $format);
+my $gff_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 
 print( "Reading features from $opt_gfffile...\n");
