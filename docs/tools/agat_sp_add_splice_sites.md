@@ -1,6 +1,6 @@
 # NAME
 
-agat\_sp\_add\_introns.pl
+agat\_sp\_add\_splice\_sites.pl
 
 # DESCRIPTION
 

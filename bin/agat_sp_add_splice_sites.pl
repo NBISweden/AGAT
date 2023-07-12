@@ -207,7 +207,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_add_introns.pl
+agat_sp_add_splice_sites.pl
 
 =head1 DESCRIPTION
 
