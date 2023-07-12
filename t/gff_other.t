@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 =head1 DESCRIPTION
 
@@ -57,6 +57,16 @@ $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
 $correct_output = "$output_folder/issue329.gff";
 
 system("$script --gff $input_folder/issue329.gff -o $pathtmp 2>&1 1>/dev/null");
+
+#run test
+ok( system("diff $pathtmp $correct_output") == 0, "issue329 check");
+unlink $pathtmp;
+
+# -------- Issue 368 avoid seq_id 0 replaced by SEQ --------
+$script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
+$correct_output = "$output_folder/issue368.gff";
+
+system("$script --gff $input_folder/issue368.gff -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
 ok( system("diff $pathtmp $correct_output") == 0, "issue329 check");
