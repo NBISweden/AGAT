@@ -249,7 +249,7 @@ agat_sp_filter_feature_from_keep_list.pl
 The script aims to keep records based on a keeplist.
 The default behaviour is to look at the features's ID. If the feature has an ID
 (case insensitive) listed among the keeplist it will be kept along with all
-related features (the whole record is kept. A record repsent all features linked
+related features (the whole record is kept. A record represent all features linked
  by relationship e.g. gene+transcript+exon+cds of a same locus).
 
 =head1 SYNOPSIS
