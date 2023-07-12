@@ -54,9 +54,10 @@ $config = get_agat_config({config_file_in => $config});
 my $gffout = prepare_gffout($config, $outputFile);
 
 # Manage GFF Input
-my $format = $config->{gff_output_version};
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
-my $gff_in = Bio::Tools::GFF->new(-file => $input_gff, -gff_version => $format);
+print "Reading $input_gff using format GFF$format\n";
+my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);
 
 # Manage tsv input
 open(INPUT, "<", $input_tsv) or die ("$!\n");
@@ -102,9 +103,8 @@ while (<INPUT>) {
 my $cpt_line = 0;
 while (my $feature = $gff_in->next_feature() ) {
 	$cpt_line++;
-
-	if($feature->has_tag('ID')){
-		my $id = lc($feature->_tag_value('ID'));
+	if($feature->has_tag($header{"0"})){
+		my $id = lc($feature->_tag_value($header{"0"}));
 		if (exists_keys(\%tsv,($id))){
 			foreach my $att ( sort keys %{$tsv{$id}} ){
 				#attribute already exists
@@ -142,13 +142,15 @@ agat_sq_add_attributes_from_tsv.pl
 
 =head1 DESCRIPTION
 
-The script aims to add info from a tsv/csv file to the attributes of a gff file.
-An attribute looks like that: tag=value1,value2
-The first line of the tsv/csv must contains the headers, the other lines contain the values.
-The header becomes the tag of the new attribute. If the tag already exists, the value will be added only
-if the value does not already exists.
-The first column does not become an attribute, indeed it must contain the feature ID
-that will be used to know to which feature we will add the attributes.
+The purpose of the script is to add information from a tsv/csv file to the attributes of a gff file (9th column).
+e.g. an attribute looks like this in a GFF3 file: tag=value1,value2 
+The first line of the tsv/csv file must contain the headers (corresponding to an attribute tag in the GFF/GTF file),
+while the other lines contain the values (corresponding to an attribute value in the GFF/GTF file).
+The first column is used to synchronize information between the tsv file and the GFF/GTF file. In other words, 
+it's used to determine which feature we're going to add attributes to.
+The other columns will be added as attribute in the GFF/GTF file. The header becomes the tag for the new attribute, 
+and the value is that defined for the corresponding feature line. 
+(If the tag already exists, we append the value only if the value doesn't already exist).
 
 --- example ---
 
@@ -157,13 +159,28 @@ ID	annot_type1
 gene1	anot_x
 cds1	anot_y
 
-* gff:
+* input gff:
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1
 
 * output.gff:
 chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot_type1=anot_x
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=anot_y
+
+--- example2 ---
+
+* input.tsv:
+gene_id	annot_type1
+gene1	anot_x
+cds1	anot_y
+
+* input gff:
+chr1	irgsp	gene	1000	2000	.	+	.	gene_id=gene1
+chr1	irgsp	CDS	2983	3268	.	+	.	gene_id=cds1
+
+* output.gff:
+chr1	irgsp	gene	1000	2000	.	+	.	gene_id=gene1;annot_type1=anot_x
+chr1	irgsp	CDS	2983	3268	.	+	.	gene_id=cds1;annot_type1=anot_y
 
 =head1 SYNOPSIS
 

@@ -63,9 +63,9 @@ else{
 }
 
 # Manage input fasta file
-my $format = $config->{gff_output_version};
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
-my $ref_in = Bio::Tools::GFF->new(-file => $gff, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
 
 
                 #####################

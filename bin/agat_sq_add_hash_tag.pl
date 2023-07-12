@@ -17,11 +17,12 @@ my $opt_help = 0;
 my $interval=1;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff=s' => \$inputFile,
-      'i|interval=i' => \$interval,
-      'o|output=s' => \$outfile,
-      'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
+if ( !GetOptions (
+      'file|input|gff=s' => \$inputFile,
+      'i|interval=i'     => \$interval,
+      'o|output=s'       => \$outfile,
+      'c|config=s'       => \$config,
+      'h|help!'          => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -51,9 +52,9 @@ if (( $interval > 2 or $interval < 1) ){
 $config = get_agat_config({config_file_in => $config});
 
 # Manage input gff file
-my $format = $config->{gff_output_version};
+my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = Bio::Tools::GFF->new(-file => $inputFile, -gff_version => $format);
+my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
 my $gffout = prepare_gffout($config, $outfile);

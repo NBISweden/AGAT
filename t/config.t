@@ -25,6 +25,7 @@ my $config="agat_config.yaml";
 
 # remove config in local folder if exists
 unlink $config; 
+unlink "tmp.gff";
 
 # ---- test gzip file and contain fasta ----
 $script = $script_prefix."bin/agat";
