@@ -69,5 +69,5 @@ $correct_output = "$output_folder/issue368.gff";
 system("$script --gff $input_folder/issue368.gff -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
-ok( system("diff $pathtmp $correct_output") == 0, "issue329 check");
+ok( system("diff $pathtmp $correct_output") == 0, "issue368 check");
 unlink $pathtmp;
