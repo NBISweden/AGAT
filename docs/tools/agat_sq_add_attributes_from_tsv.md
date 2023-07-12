@@ -14,7 +14,7 @@ and the value is that defined for the corresponding feature line.
 
 \--- example ---
 
-\* input.tsv:  
+- input.tsv:  
 ```
 ID	annot_type1  
 gene1	annot_x  
