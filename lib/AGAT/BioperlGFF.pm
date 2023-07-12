@@ -478,6 +478,7 @@ sub _from_gff1_string {
         $feat->throw("[$string] does not look like GFF to me");
     }
     $frame = 0 unless( $frame =~ /^\d+$/);
+    $seqname = 'SEQ' if ! length($seqname);
     $feat->seq_id($seqname);
     $feat->source_tag($source);
     $feat->primary_tag($primary);
@@ -538,6 +539,7 @@ sub _from_gff2_string {
     if ( !defined $frame ) {
         $feat->throw("[$string] does not look like GFF2 to me");
     }
+    $seqname = 'SEQ' if ! length($seqname);
     $feat->seq_id($seqname);
     $feat->source_tag($source);
     $feat->primary_tag($primary);
@@ -632,6 +634,7 @@ sub _from_gff3_string {
     if ( ! defined $frame ) {
         $feat->throw("[$string] does not look like GFF3 to me");
     }
+    $seqname = 'SEQ' if ! length($seqname);
     $feat->seq_id($seqname);
     $feat->source_tag($source);
     $feat->primary_tag($primary);
@@ -772,10 +775,8 @@ sub _gff1_string{
 
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
-        $name ||= 'SEQ';
-    } else {
-        $name = 'SEQ';
     }
+    $name = 'SEQ' if ! length($name);
 
     $str = join("\t",
                 $name,
@@ -841,7 +842,7 @@ sub _gff2_string{
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     }
-    $name ||= 'SEQ';
+    $name = 'SEQ' if ! length($name);
 
     $str1 = join("\t",
                  $name,
@@ -954,7 +955,7 @@ sub _gff25_string {
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
     }
-    $name ||= 'SEQ';
+    $name = 'SEQ' if ! length($name);
 
     $str1 = join("\t",
                  $name,
@@ -1056,11 +1057,9 @@ sub _gff3_string {
 
     if( $feat->can('seqname') ) {
         $name = $feat->seq_id();
-        $name ||= 'SEQ';
-    } else {
-        $name = 'SEQ';
-    }
-
+    } 
+    $name = 'SEQ' if ! length($name);
+    
     my @groups;
 
     # force leading ID and Parent tags
