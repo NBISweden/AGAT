@@ -136,6 +136,7 @@ my $splice_added=0;
         if(@introns){
           my $it = natatime 2, @introns;
           while (my @tuple = $it->()) {
+            print "@tuple\n";
 						$splice_added++;
             
             # Clean feature used as template
@@ -150,7 +151,7 @@ my $splice_added=0;
             my $right_fetaure_type = 'three_prime_cis_splice_site';
 
             # Flip if minus strand
-            if ( ($strand eq "-" ) or ($strand eq "-1" ) ) {            
+            if ( ($feature_example->strand() eq "-" ) or ($feature_example->strand() eq "-1" ) ) {            
               # flip ID              
               my $tmp = $left_ID;
               $left_ID = $right_ID;
@@ -170,8 +171,8 @@ my $splice_added=0;
             # Deal with right splice
             $right_feature->primary_tag($right_fetaure_type);
             create_or_replace_tag($right_feature,'ID', $right_ID); #modify ID to replace by parent value
-            $right_feature->start($tuple[1]);
-            $right_feature->end($tuple[1]-1);
+            $right_feature->start($tuple[1]-1);
+            $right_feature->end($tuple[1]);
             
             $spliceID++; # for donnor or acceptor
             push (@{$hash_omniscient->{"level3"}{lc($left_fetaure_type)}{lc($id_l2)}}, $left_feature);
@@ -184,7 +185,7 @@ my $splice_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "$splice_added introns added\nBye Bye\n";
+print "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n";
       #########################
       ######### END ###########
       #########################
@@ -210,12 +211,13 @@ agat_sp_add_introns.pl
 
 =head1 DESCRIPTION
 
-The script aims to add intron features to gtf/gff file without intron features.
+The script aims to add splice sites features (five_prime_cis_splice_site and three_prime_cis_splice_site) to gtf/gff file.
+The splice sites are deduced from CDS features.
 
 =head1 SYNOPSIS
 
-    agat_sp_add_introns.pl --gff infile --out outFile
-    agat_sp_add_introns.pl --help
+    agat_sp_add_splice_sites.pl --gff infile --out outFile
+    agat_sp_add_splice_sites.pl --help
 
 =head1 OPTIONS
 
@@ -227,7 +229,7 @@ Input GTF/GFF file.
 
 =item  B<--out>, B<--output> or B<-o>
 
-Output GFF3 file.
+Output file (default GFF3 - see config to modify output format).
 
 =item B<-c> or B<--config>
 
