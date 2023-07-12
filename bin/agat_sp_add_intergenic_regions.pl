@@ -19,7 +19,7 @@ my $opt_output=undef;
 my $opt_help = 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
+if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   'c|config=s'          => \$config,
                   'v|verbose!'          => \$verbose,
@@ -196,7 +196,7 @@ agat_sp_add_intergenic_regions.pl
 =head1 DESCRIPTION
 
 The script aims to add intergenic features (intergenic_region) to gtf/gff file.
-The intergenic regions are deduced from gene features.
+The intergenic regions are deduced from gene features (feature type gene from the 3rd column).
 
 =head1 SYNOPSIS
 
@@ -207,7 +207,7 @@ The intergenic regions are deduced from gene features.
 
 =over 8
 
-=item B<--gff>, B<-f>, B<--ref> or B<-reffile>
+=item B<--gff>, B<-f> or B<--ref>
 
 Input GTF/GFF file.
 
@@ -225,7 +225,7 @@ The --config option gives yo the possibility to use your own AGAT config file (l
 
 Add verbosity
 
-=item B<--help> or B<-h>
+=item B<-h> or B<--help>
 
 Display this helpful text.
 
