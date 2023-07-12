@@ -44,6 +44,7 @@ level1:
   hat_tir_transposon: standalone
   helitron: standalone
   insulator: standalone
+  intergenic_region: standalone
   inverted_repeat: standalone
   knob: standalone
   l1_line_retrotransposon: standalone
