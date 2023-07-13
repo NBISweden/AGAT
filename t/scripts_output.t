@@ -195,6 +195,15 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# -------------------------- check agat_sp_add_splice_sites -------------------------
+
+$script = $script_prefix."bin/agat_sp_add_splice_sites.pl";
+$result = "$output_folder/agat_sp_add_splice_sites_1.gff";
+system(" $script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # ---------------------- check agat_sp_add_start_and_stop ----------------------
 
 $script = $script_prefix."bin/agat_sp_add_start_and_stop.pl";
@@ -208,7 +217,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_alignment_output_style.pl";
 $result = "$output_folder/agat_sp_alignment_output_style_1.gff";
-system(" $script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
@@ -256,7 +265,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_ensembl_output_style.pl";
 $result = "$output_folder/agat_sp_ensembl_output_style_1.gff";
-system("$script --gff t/gff_syntax/in/0_test.gff -o $outtmp 2>&1 1>/dev/null");
+system("$script --gff $input_folder/0.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
