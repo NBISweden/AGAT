@@ -245,9 +245,9 @@ sub print_omniscient_as_gff{
 
 		# Read by seqId to sort properly the output by seq ID
 		# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101
-		foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+		foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-	  	#################
+	  	    #################
 			# == LEVEL 1 == # IF not in omniscient do that, otherwise we us within. Make a method for it.
 			#################
 			write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $omniscient);
@@ -256,7 +256,7 @@ sub print_omniscient_as_gff{
 
 				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
 				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
-			  $gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
+			    $gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
 				#################
 				# == LEVEL 2 == #
@@ -407,7 +407,7 @@ sub print_omniscient_from_level1_id_list {
 	my ( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($omniscient, $level_id_list);
 
   #Read by seqId to sort properly the output by seq ID
-  foreach my $seqid ( sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+  foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
     #################
     # == LEVEL 1 == #
