@@ -60,6 +60,7 @@ Contents
    tools/agat_convert_sp_gff2zff.md
    tools/agat_convert_sp_gxf2gxf.md
    tools/agat_sp_Prokka_inferNameFromAttributes.md
+   tools/agat_sp_add_intergenic_regions.md
    tools/agat_sp_add_introns.md
    tools/agat_sp_add_start_and_stop.md
    tools/agat_sp_alignment_output_style.md
