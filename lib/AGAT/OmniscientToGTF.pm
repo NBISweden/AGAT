@@ -456,7 +456,7 @@ sub _print_omniscient_filter{
 
 	# Read by seqId to sort properly the output by seq ID
 	# sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) will provide sorting like that: contig contig1 contig2 contig3 contig10 contig11 contig22 contig100 contig101
-	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+	foreach my $seqid (sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
 		# ----- LEVEL 1 -----
 		_write_top_features_gtf($gffout, $seqid, $hash_sortBySeq_topf, $hash_omniscient);

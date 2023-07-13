@@ -177,6 +177,15 @@ ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 unlink $outprefix."_report.txt";
 
+# -------------------------- check agat_sp_add_intergenic_regions -------------------------
+
+$script = $script_prefix."bin/agat_sp_add_intergenic_regions.pl";
+$result = "$output_folder/agat_sp_add_intergenic_regions_1.gff";
+system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # -------------------------- check agat_sp_add_introns -------------------------
 
 $script = $script_prefix."bin/agat_sp_add_introns.pl";
