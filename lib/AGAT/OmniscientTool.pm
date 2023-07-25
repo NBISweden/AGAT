@@ -30,7 +30,7 @@ create_or_replace_tag create_or_append_tag remove_element_from_omniscient_attrib
 remove_shortest_isoforms check_gene_overlap_at_level3 gather_and_sort_l1_by_seq_id_for_l2type
 gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_location
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
-check_mrna_positions check_features_overlap initialize_omni_from
+check_mrna_positions check_features_overlap initialize_omni_from clean_clone
 create_omniscient get_cds_from_l2 merge_overlap_loci get_uniq_id );
 
 sub import {
@@ -1232,6 +1232,70 @@ sub subsample_omniscient_from_level1_id_list_intact {
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 
+# @Purpose: clone template feature. reshape the cloned feature to make it standard
+# cleaning attributes (excepted ID Parent, gene_id, transcript_id), score, phase, adding AGAT as tool
+# @input: 1 => GFF feature
+# @output 1 => GFF feature
+sub clean_clone{
+	my ($args) = @_;
+
+  	# -------------- OUTPUT --------------
+	my $cloned_feature;
+
+	# -------------- INPUT --------------
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for clean_clone. Please check the call.\n"; exit; }
+	# -- Declare all variables and fill them --
+	my ($omniscient, $feature, $new_parent, $new_id, $new_primary_tag);
+	# omniscient to access feature level information, config information
+	if( defined($args->{omniscient}) ) { $omniscient = $args->{omniscient};}
+	# the feature to clone
+	if( defined($args->{feature})) {$feature = $args->{feature};} else { warn "Providing a feature is mandatory!"; exit; }
+	# String, new parent attribute
+	if( defined($args->{new_parent}) ) { $new_parent = $args->{new_parent}; }
+	# String, new id attribute
+	if( defined($args->{new_id}) ) { $new_id = $args->{new_id}; }
+	# String, new primary_tag
+	if( defined($args->{new_primary_tag}) ) { $new_primary_tag = $args->{new_primary_tag}; }
+
+	# boolean, should we clean attributes excepted id parent gene_id trancript_id
+	my $clean_attributes = 0; #$omniscient->{"config"}{"clean_clone"};
+
+	# clone the feature
+	$cloned_feature = clone($feature);
+	# clean frame/phase
+	$cloned_feature->frame("."); 
+	# Update source
+	$cloned_feature->source_tag("AGAT");
+	# clean score
+	$cloned_feature->score(".");
+	# clean attributes
+	if ($clean_attributes){
+		my @tags = $cloned_feature->get_all_tags();
+		foreach my $tag (@tags){
+			if (lc($tag) ne "id" and lc($tag) ne "parent" and lc($tag) ne "gene_id" and lc($tag) ne "transcript_id"){
+				$cloned_feature->remove_tag($tag);
+			}
+		}
+	}
+	# new primary tag
+	$cloned_feature->primary_tag($new_primary_tag) if $new_primary_tag;
+	# remove Parent attribute if level1
+	if ($omniscient){
+		if ($cloned_feature->has_tag("Parent")){
+			my $hash_level = $omniscient->{'other'}{'level'};
+			if( exists_keys($hash_level,'level1',lc($cloned_feature->primary_tag)) ){
+				$cloned_feature->remove_tag("Parent");
+			}
+		}
+	}
+	# new id
+	create_or_replace_tag($cloned_feature,'ID',$new_id) if $new_id;
+	# new parent
+	create_or_replace_tag($cloned_feature,'Parent',$new_parent) if $new_parent;
+
+	return $cloned_feature;
+}
 
 # INPUT: feature object, String tag, String or Array ref;
 # Output: None
