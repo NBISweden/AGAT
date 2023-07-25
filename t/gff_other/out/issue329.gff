@@ -3,6 +3,6 @@
 CP002685.1	Genbank	gene	2805	3176	.	+	.	ID=gene-AT2G03855;Name=MIR5642b;gbkey=Gene;gene=MIR5642b;gene_biotype=miRNA;locus_tag=AT2G03855
 CP002685.1	Genbank	primary_transcript	2805	3176	.	+	.	ID=rna-gnl|JCVI|mRNA.AT2G03855.1;Parent=gene-AT2G03855;gene=MIR5642b;locus_tag=AT2G03855
 CP002685.1	Genbank	exon	2805	3176	.	+	.	ID=exon-gnl|JCVI|mRNA.AT2G03855.1-1;Parent=rna-gnl|JCVI|mRNA.AT2G03855.1;gene=MIR5642b;locus_tag=AT2G03855
-CP002685.1	Genbank	gene	3145	3164	.	+	.	ID=nbis-gene-1;gene=MIR5642b;locus_tag=AT2G03855
+CP002685.1	AGAT	gene	3145	3164	.	+	.	ID=nbis-gene-1;gene=MIR5642b;locus_tag=AT2G03855
 CP002685.1	Genbank	miRNA	3145	3164	.	+	.	ID=rna-AT2G03855;Parent=nbis-gene-1;gene=MIR5642b;locus_tag=AT2G03855
 CP002685.1	Genbank	exon	3145	3164	.	+	.	ID=exon-AT2G03855-1;Parent=rna-AT2G03855;gene=MIR5642b;locus_tag=AT2G03855
