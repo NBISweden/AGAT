@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use File::Basename;
 use Test::More tests => 45;
 
 =head1 DESCRIPTION
@@ -28,13 +29,19 @@ my $input_path = "t/gff_syntax/in/";
 my $config="agat_config.yaml";
 
 # remove config in local folder if exists
-unlink $config;
+cleaning();
 
 # Loop over test
 my $dir = "t/gff_syntax/in"; # folder where the test files are
 opendir my $dh, $dir or die "Could not open '$dir' for reading: $!\n";
 my @files = readdir $dh;
 foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } @files) {
+
+  # skip few cases to be faster
+  #my ($value) = $file =~ m/^(\d+)_.*/;
+  #my $analyzed = 44;
+  #if(defined($value) and $value < $analyzed){next;}
+  
 
   # for all test files
   if ( $file =~ m/test.gff$/ ){
@@ -65,8 +72,10 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     #run test
     ok( system("diff $pathtmp $correct_output") == 0, "parse $file");
-    unlink $pathtmp;
-		unlink $config;
+
+    # cleaning 
+    #if($value and $value == $analyzed){exit;}
+    cleaning($file);
   }
 }
 closedir($dh);
@@ -75,11 +84,31 @@ closedir($dh);
 my $result = "$expected_output_path/stop_start_an_exon_correct_output.gff";
 system(" $script --gff $input_path/stop_start_an_exon.gtf -o $pathtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $pathtmp") == 0, "output $script");
-unlink $pathtmp;
+ok( system("diff $result $pathtmp") == 0, "output stop_start_an_exon");
+cleaning("stop_start_an_exon.gtf");
 
 $result = "$expected_output_path/stop_split_over_two_exons_correct_output.gff";
 system(" $script --gff $input_path/stop_split_over_two_exons.gtf -o $pathtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $pathtmp") == 0, "output $script");
-unlink $pathtmp;
+ok( system("diff $result $pathtmp") == 0, "output stop_split_over_two_exons_correct_output");
+cleaning("stop_split_over_two_exons.gtf");
+
+# --- convenient function ---
+
+sub cleaning{
+  my ($filename)=@_;
+
+  if (-e $pathtmp){
+    unlink $pathtmp;
+  }
+  if (-e $config){
+    unlink $config;
+  }
+  # if a file name is provided
+  if($filename){
+    my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
+    if (-e "$name.agat.log"){
+      unlink "$name.agat.log";
+    }
+  }
+}
