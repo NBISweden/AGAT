@@ -12,7 +12,7 @@ use Sort::Naturally;
 use LWP::UserAgent;
 use Bio::OntologyIO::obo;
 use Bio::Ontology::OntologyEngineI;
-use Clone 'clone'; # to remove and use clean_clone
+use Clone 'clone';
 use Exporter;
 use Term::ProgressBar;
 use AGAT::AGAT;
@@ -3429,7 +3429,7 @@ sub get_general_info{
 					" and all level3 feautres (e,g, CDS,exon) will be attached to them. This is probably not what you want...\n".
 					"  see B. 2.2 and 3. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n".
 					"  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly ".
-					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
+					"(parameter locus_tag in agat config file agat_config.yaml (to access it type: agat config --expose)).\n", $verbose);
 		}
 		elsif ($nb_parent <= $nb_feature_line and $nb_common_tag <= $nb_feature_line){
 			dual_print( $log, "  => Some common attributes and some Parent attributes missing.\n".
@@ -3439,7 +3439,7 @@ sub get_general_info{
 					"  /!\\ For features where the common attribute or the parent attribute is missing, it would be fine as long as you do not expect isoforms in your annotation (Eukaryote).".
 					"  see B. 4. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n".
 					"  !! You might try to fix the issue by choosing a common tag attribute to use in order to group the features correctly ".
-					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
+					"(parameter locus_tag in agat config file agat_config.yaml (to access it type: agat config --expose)).\n", $verbose);
 		}
 		# Missing Parent attribute
 		elsif ($nb_parent <= $nb_feature_line and $nb_common_tag >= $nb_feature_line){
@@ -3465,7 +3465,7 @@ sub get_general_info{
 					"  see B. 1.2. at https://agat.readthedocs.io/en/latest/agat_how_does_it_work.html \n", $verbose);
 			}
 			dual_print( $log, "  !! You might try to fix the issue by choosing a common attribute to use in order to group the features correctly ".
-					"(parameter --ct in agat_convert_sp_gxf2gxf.pl).\n", $verbose);
+					"(parameter locus_tag in agat config file agat_config.yaml (to access it type: agat config --expose)).\n", $verbose);
 		}
 	}
 	return $nb_feature_line;
