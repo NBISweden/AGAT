@@ -162,6 +162,7 @@ sub handle_main {
 		my $tools = $general->{configs}[-1]{tools};
 		my $help = $general->{configs}[-1]{help};
 		my $info = $general->{configs}[-1]{info};
+		my $h = $general->{configs}[-1]{h};
 
 		if($version){
 			print_agat_version();
@@ -187,7 +188,7 @@ sub handle_main {
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help
 		my $nb_args = keys %{$general->{configs}[-1]};
-		if(! $help and $nb_args != 0){ exit 0;}
+		if(! $help and ! $h and $nb_args != 0){ exit 0;}
 }
 
 # Function to manipulate levels from the agat caller
@@ -230,6 +231,7 @@ sub handle_config {
 		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
 		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
 		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
+		my $clean_attributes_from_template = $general->{configs}[-1]{clean_attributes_from_template};
 		my $locus_tag = $general->{configs}[-1]{locus_tag};
 		my $check_sequential = $general->{configs}[-1]{check_sequential};
 		my $check_l2_linked_to_l3 = $general->{configs}[-1]{check_l2_linked_to_l3};
@@ -312,6 +314,11 @@ sub handle_config {
 			# bolean
 			if( defined($create_l3_for_l2_orphan) ){
 				$config->{ create_l3_for_l2_orphan } = _make_bolean($create_l3_for_l2_orphan);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($clean_attributes_from_template) ){
+				$config->{ clean_attributes_from_template } = _make_bolean($clean_attributes_from_template);
 				$modified_on_the_fly = 1;
 			}
 			# string

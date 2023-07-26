@@ -1259,7 +1259,7 @@ sub clean_clone{
 	if( defined($args->{new_primary_tag}) ) { $new_primary_tag = $args->{new_primary_tag}; }
 
 	# boolean, should we clean attributes excepted id parent gene_id trancript_id
-	my $clean_attributes = 0; #$omniscient->{"config"}{"clean_clone"};
+	my $clean_attributes = $omniscient->{"config"}{"clean_attributes_from_template"};
 
 	# clone the feature
 	$cloned_feature = clone($feature);

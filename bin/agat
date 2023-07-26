@@ -249,6 +249,10 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							getopt      => 'check_identical_isoforms!',
 							help        => 'To remove identical isoforms (same exon,cds,locations). [Default activated]',
 					 },
+					 {
+							getopt      => 'clean_attributes_from_template!',
+							help        => 'To clean the attributes of features used as template by AGAT when creating new features. [Default deactivated]',
+					 },
 				 ],
 				 commit => '#handle_config',
 			},
