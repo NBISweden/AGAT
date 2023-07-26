@@ -1,7 +1,7 @@
 ##gff-version 3
-chr12	HAVANA	gene	100	900	.	+	.	ID=nbis-gene-2;locus_id="gene1"
-chr12	HAVANA	mRNA	100	900	.	+	.	ID=nbis-rna-1;Parent=nbis-gene-2;locus_id="gene1"
-chr12	HAVANA	exon	100	600	.	+	.	ID=exon1;Parent=nbis-rna-1;locus_id="gene1"
-chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=nbis-rna-1;locus_id="gene2"
-chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-1;Parent=nbis-rna-1;locus_id="gene1"
-chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=nbis-rna-1;locus_id="gene2"
+chr12	AGAT	gene	100	900	.	+	.	ID=agat-gene-2;locus_id="gene1"
+chr12	AGAT	mRNA	100	900	.	+	.	ID=agat-rna-1;Parent=agat-gene-2;locus_id="gene1"
+chr12	HAVANA	exon	100	600	.	+	.	ID=exon1;Parent=agat-rna-1;locus_id="gene1"
+chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=agat-rna-1;locus_id="gene2"
+chr12	HAVANA	CDS	100	600	.	+	0	ID=cds-1;Parent=agat-rna-1;locus_id="gene1"
+chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=agat-rna-1;locus_id="gene2"

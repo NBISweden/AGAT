@@ -4,9 +4,9 @@
 1	irgsp	exon	12808	13782	.	-	.	ID=Os01t0100466-00.exon2;Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon2;rank=2
 1	irgsp	exon	13870	13978	.	-	.	ID=Os01t0100466-00.exon1;Parent=transcript:Os01t0100466-00;Name=Os01t0100466-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon1;rank=1
 1	irgsp	CDS	12869	13102	.	-	0	ID=CDS:Os01t0100466-00;Parent=transcript:Os01t0100466-00;protein_id=Os01t0100466-00
-1	irgsp	five_prime_UTR	13103	13782	.	-	.	ID=five_prime_utr-1;Parent=transcript:Os01t0100466-00
-1	irgsp	five_prime_UTR	13870	13978	.	-	.	ID=five_prime_utr-2;Parent=transcript:Os01t0100466-00
-1	irgsp	three_prime_UTR	12808	12868	.	-	.	ID=three_prime_utr-1;Parent=transcript:Os01t0100466-00
+1	irgsp	five_prime_UTR	13103	13782	.	-	.	ID=agat-five_prime_utr-1;Parent=transcript:Os01t0100466-00
+1	irgsp	five_prime_UTR	13870	13978	.	-	.	ID=agat-five_prime_utr-2;Parent=transcript:Os01t0100466-00
+1	irgsp	three_prime_UTR	12808	12868	.	-	.	ID=agat-three_prime_utr-1;Parent=transcript:Os01t0100466-00
 1	irgsp	gene	12809	13978	.	-	.	ID=NBISG00000000001;biotype=protein_coding;description=Hypothetical protein. (Os01t0100466-00);gene_id=Os01g0100466;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	12809	13978	.	-	.	ID=NBISM00000000002;Parent=NBISG00000000001;biotype=protein_coding;transcript_id=Os01t0100466-00
 1	irgsp	exon	12809	13782	.	-	.	ID=NBISE00000000003;Parent=NBISM00000000002;Name=Os01t0100466-00.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100466-00.exon2;rank=2

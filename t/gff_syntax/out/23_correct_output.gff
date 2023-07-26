@@ -11,7 +11,7 @@ unitig_10|quiver	maker	five_prime_UTR	296915	296995	.	-	.	ID=maker-unitig_10|qui
 unitig_10|quiver	maker	three_prime_UTR	293192	294037	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1:three_prime_utr;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1
 unitig_10|quiver	maker	mRNA	293192	296995	3733	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;Name=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2;_AED=0.22;_QI=81|1|1|1|0|0|2|1411|746;_eAED=0.22
 unitig_10|quiver	maker	exon	293192	296824	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2:exon:6;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2
-unitig_10|quiver	maker	exon	296896	296995	.	-	.	ID=nbis-exon-1;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2
+unitig_10|quiver	maker	exon	296896	296995	.	-	.	ID=agat-exon-1;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2
 unitig_10|quiver	maker	CDS	294603	296824	.	-	2	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2:cds;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2
 unitig_10|quiver	maker	CDS	296896	296914	.	-	0	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2:cds;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2
 unitig_10|quiver	maker	five_prime_UTR	296915	296995	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2:five_prime_utr;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-2

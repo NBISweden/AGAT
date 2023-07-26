@@ -301,6 +301,10 @@ sub check_config{
 		print "check_identical_isoforms parameter missing in the configuration file.\n";
 		$error = 1;
 	}
+	if( ! exists_keys($config, ("clean_attributes_from_template") ) ) {
+		print "clean_attributes_from_template parameter missing in the configuration file.\n";
+		$error = 1;
+	}
 
 	# Now exit if one confiuguration parameter is missing
 	if ($error){exit 1;}

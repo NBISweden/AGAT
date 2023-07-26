@@ -56,7 +56,8 @@ system("$script config -e \\
 								--no-progress_bar  \\
 								--no-check_exons  \\
 								--merge_loci \\
-								--prefix_new_id nbisTEST   ");
+								--prefix_new_id nbisTEST \\
+								--clean_attributes_from_template  ");
 
 #run test
 ok( system("diff $config $correct_output") == 0, "modif config check");

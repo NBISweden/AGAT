@@ -1,6 +1,6 @@
 ##gff-version 3
-scaffold_823	jgi	gene	105596	142103	.	+	.	ID=PP1S9_164V6;kraken_mapped=partial;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
-scaffold_823	jgi	mRNA	105596	129298	.	+	.	ID=transcript:PP1S9_164V6.2;Parent=PP1S9_164V6;kraken_mapped=100.00%25;description=Mapped at 100.00%25;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
+scaffold_823	AGAT	gene	105596	142103	.	+	.	ID=PP1S9_164V6;kraken_mapped=partial;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
+scaffold_823	AGAT	mRNA	105596	129298	.	+	.	ID=transcript:PP1S9_164V6.2;Parent=PP1S9_164V6;kraken_mapped=100.00%25;description=Mapped at 100.00%25;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
 scaffold_823	jgi	exon	105596	105903	.	+	.	ID=PP1S9_164V6.2.exon1;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;Name=PP1S9_164V6.2.exon1;constitutive=0;ensembl_end_phase=2;ensembl_phase=0;exon_id=PP1S9_164V6.2.exon1;gene_id=PP1S9_164V6;rank=1;transcript_id=PP1S9_164V6.2
 scaffold_823	jgi	exon	106102	106323	.	+	.	ID=PP1S9_164V6.2.exon2;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;Name=PP1S9_164V6.2.exon2;constitutive=0;ensembl_end_phase=2;ensembl_phase=2;exon_id=PP1S9_164V6.2.exon2;gene_id=PP1S9_164V6;rank=2;transcript_id=PP1S9_164V6.2
 scaffold_823	jgi	exon	106856	107014	.	+	.	ID=PP1S9_164V6.2.exon3;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;Name=PP1S9_164V6.2.exon3;constitutive=0;ensembl_end_phase=2;ensembl_phase=2;exon_id=PP1S9_164V6.2.exon3;gene_id=PP1S9_164V6;rank=3;transcript_id=PP1S9_164V6.2
@@ -47,7 +47,7 @@ scaffold_823	jgi	CDS	125485	125688	.	+	.	ID=CDS:PP1S9_164V6.2;Parent=transcript:
 scaffold_823	jgi	CDS	126356	126571	.	+	.	ID=CDS:PP1S9_164V6.2;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.2;transcript_id=PP1S9_164V6.2
 scaffold_823	jgi	CDS	128691	128835	.	+	.	ID=CDS:PP1S9_164V6.2;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.2;transcript_id=PP1S9_164V6.2
 scaffold_823	jgi	CDS	128991	129298	.	+	.	ID=CDS:PP1S9_164V6.2;Parent=transcript:PP1S9_164V6.2;kraken_mapped=TRUE;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.2;transcript_id=PP1S9_164V6.2
-scaffold_823	jgi	mRNA	134394	142103	.	+	.	ID=transcript:PP1S9_164V6.1;Parent=PP1S9_164V6;kraken_mapped=62.81%25;description=Mapped at 62.81%25;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
+scaffold_823	AGAT	mRNA	134394	142103	.	+	.	ID=transcript:PP1S9_164V6.1;Parent=PP1S9_164V6;kraken_mapped=62.81%25;description=Mapped at 62.81%25;gene_id=PP1S9_164V6;protein_id=PP1S9_164V6.1;transcript_id=PP1S9_164V6.1
 scaffold_823	jgi	exon	134394	135006	.	+	.	ID=PP1S9_164V6.1.exon1;Parent=transcript:PP1S9_164V6.1;kraken_mapped=TRUE;Name=PP1S9_164V6.1.exon1;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=PP1S9_164V6.1.exon1;gene_id=PP1S9_164V6;rank=1;transcript_id=PP1S9_164V6.1
 scaffold_823	jgi	exon	135540	135653	.	+	.	ID=PP1S9_164V6.1.exon2;Parent=transcript:PP1S9_164V6.1;kraken_mapped=TRUE;Name=PP1S9_164V6.1.exon2;constitutive=0;ensembl_end_phase=0;ensembl_phase=0;exon_id=PP1S9_164V6.1.exon2;gene_id=PP1S9_164V6;rank=2;transcript_id=PP1S9_164V6.1
 scaffold_823	jgi	exon	135843	136017	.	+	.	ID=PP1S9_164V6.1.exon3;Parent=transcript:PP1S9_164V6.1;kraken_mapped=TRUE;Name=PP1S9_164V6.1.exon3;constitutive=0;ensembl_end_phase=1;ensembl_phase=0;exon_id=PP1S9_164V6.1.exon3;gene_id=PP1S9_164V6;rank=3;transcript_id=PP1S9_164V6.1

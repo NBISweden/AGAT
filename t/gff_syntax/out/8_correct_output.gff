@@ -1,19 +1,19 @@
 ##gff-version 3
-Tob1_contig1	Prodigal:2.60	gene	476	670	.	-	.	ID=nbis-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	mRNA	476	670	.	-	.	ID=nbis-rna-1;Parent=nbis-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	exon	476	670	.	-	.	ID=nbis-exon-1;Parent=nbis-rna-1;locus_tag=Tob1_00001;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;Parent=nbis-rna-1;locus_tag=Tob1_00001;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	gene	34266	35222	.	+	.	ID=nbis-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	mRNA	34266	35222	.	+	.	ID=nbis-rna-2;Parent=nbis-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	exon	34266	35222	.	+	.	ID=nbis-exon-2;Parent=nbis-rna-2;locus_tag=Tob1_00024;product=hypothetical protein
-Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;Parent=nbis-rna-2;locus_tag=Tob1_00024;product=hypothetical protein
-Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	ID=sig_peptide-1;Parent=nbis-rna-2;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
-Tob1_contig1	Prodigal:2.60	gene	35267	37444	.	-	.	ID=nbis-gene-3;locus_tag=Tob1_00025
-Tob1_contig1	Prodigal:2.60	mRNA	35267	37444	.	-	.	ID=nbis-rna-3;Parent=nbis-gene-3;locus_tag=Tob1_00025
-Tob1_contig1	Prodigal:2.60	exon	35267	37444	.	-	.	ID=nbis-exon-3;Parent=nbis-rna-3;locus_tag=Tob1_00025
-Tob1_contig1	Prodigal:2.60	CDS	35267	37444	.	-	0	ID=Tob1_00025;Parent=nbis-rna-3;locus_tag=Tob1_00025
-Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	ID=sig_peptide-2;Parent=nbis-rna-3;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 25;product=putative signal peptide
-Tob1_contig1	Prodigal:2.60	gene	38304	39338	.	-	.	ID=nbis-gene-4;locus_tag=Tob1_00026
-Tob1_contig1	Prodigal:2.60	mRNA	38304	39338	.	-	.	ID=nbis-rna-4;Parent=nbis-gene-4;locus_tag=Tob1_00026
-Tob1_contig1	Prodigal:2.60	exon	38304	39338	.	-	.	ID=nbis-exon-4;Parent=nbis-rna-4;locus_tag=Tob1_00026
-Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=nbis-rna-4;locus_tag=Tob1_00026
+Tob1_contig1	AGAT	gene	476	670	.	-	.	ID=agat-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	AGAT	mRNA	476	670	.	-	.	ID=agat-rna-1;Parent=agat-gene-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	AGAT	exon	476	670	.	-	.	ID=agat-exon-1;Parent=agat-rna-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	476	670	.	-	0	ID=Tob1_00001;Parent=agat-rna-1;locus_tag=Tob1_00001;product=hypothetical protein
+Tob1_contig1	AGAT	gene	34266	35222	.	+	.	ID=agat-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	AGAT	mRNA	34266	35222	.	+	.	ID=agat-rna-2;Parent=agat-gene-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	AGAT	exon	34266	35222	.	+	.	ID=agat-exon-2;Parent=agat-rna-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	Prodigal:2.60	CDS	34266	35222	.	+	0	ID=Tob1_00024;Parent=agat-rna-2;locus_tag=Tob1_00024;product=hypothetical protein
+Tob1_contig1	SignalP:4.1	sig_peptide	34266	34298	.	+	0	ID=agat-sig_peptide-1;Parent=agat-rna-2;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 33;product=putative signal peptide
+Tob1_contig1	AGAT	gene	35267	37444	.	-	.	ID=agat-gene-3;locus_tag=Tob1_00025
+Tob1_contig1	AGAT	mRNA	35267	37444	.	-	.	ID=agat-rna-3;Parent=agat-gene-3;locus_tag=Tob1_00025
+Tob1_contig1	AGAT	exon	35267	37444	.	-	.	ID=agat-exon-3;Parent=agat-rna-3;locus_tag=Tob1_00025
+Tob1_contig1	Prodigal:2.60	CDS	35267	37444	.	-	0	ID=Tob1_00025;Parent=agat-rna-3;locus_tag=Tob1_00025
+Tob1_contig1	SignalP:4.1	sig_peptide	37420	37444	.	-	0	ID=agat-sig_peptide-2;Parent=agat-rna-3;inference=ab initio prediction:SignalP:4.1;note=predicted cleavage at residue 25;product=putative signal peptide
+Tob1_contig1	AGAT	gene	38304	39338	.	-	.	ID=agat-gene-4;locus_tag=Tob1_00026
+Tob1_contig1	AGAT	mRNA	38304	39338	.	-	.	ID=agat-rna-4;Parent=agat-gene-4;locus_tag=Tob1_00026
+Tob1_contig1	AGAT	exon	38304	39338	.	-	.	ID=agat-exon-4;Parent=agat-rna-4;locus_tag=Tob1_00026
+Tob1_contig1	Prodigal:2.60	CDS	38304	39338	.	-	0	ID=Tob1_00026;Parent=agat-rna-4;locus_tag=Tob1_00026
