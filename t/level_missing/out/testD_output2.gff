@@ -1,13 +1,13 @@
 ##gff-version 3
-chr10	AGAT	gene	100	300	.	+	.	ID=nbis-gene-1
-chr10	AGAT	mRNA	100	300	.	+	.	ID=nbis-rna-1;Parent=nbis-gene-1
-chr10	AGAT	exon	100	300	.	+	.	ID=nbis-exon-1;Parent=nbis-rna-1
-chr10	Liftoff	CDS	100	300	.	+	0	ID=cds1;Parent=nbis-rna-1
-chr10	AGAT	gene	400	490	.	-	.	ID=nbis-gene-3
-chr10	AGAT	mRNA	400	490	.	-	.	ID=nbis-rna-3;Parent=nbis-gene-3
-chr10	AGAT	exon	400	490	.	-	.	ID=nbis-exon-3;Parent=nbis-rna-3
-chr10	Liftoff	CDS	400	490	.	-	0	ID=cds3;Parent=nbis-rna-3
-chr10	AGAT	gene	600	900	.	+	.	ID=nbis-gene-2
-chr10	AGAT	mRNA	600	900	.	+	.	ID=nbis-rna-2;Parent=nbis-gene-2
-chr10	AGAT	exon	600	900	.	+	.	ID=nbis-exon-2;Parent=nbis-rna-2
-chr10	Liftoff	CDS	600	900	.	+	0	ID=cds2;Parent=nbis-rna-2
+chr10	AGAT	gene	100	300	.	+	.	ID=agat-gene-1
+chr10	AGAT	mRNA	100	300	.	+	.	ID=agat-rna-1;Parent=agat-gene-1
+chr10	AGAT	exon	100	300	.	+	.	ID=agat-exon-1;Parent=agat-rna-1
+chr10	Liftoff	CDS	100	300	.	+	0	ID=cds1;Parent=agat-rna-1
+chr10	AGAT	gene	400	490	.	-	.	ID=agat-gene-3
+chr10	AGAT	mRNA	400	490	.	-	.	ID=agat-rna-3;Parent=agat-gene-3
+chr10	AGAT	exon	400	490	.	-	.	ID=agat-exon-3;Parent=agat-rna-3
+chr10	Liftoff	CDS	400	490	.	-	0	ID=cds3;Parent=agat-rna-3
+chr10	AGAT	gene	600	900	.	+	.	ID=agat-gene-2
+chr10	AGAT	mRNA	600	900	.	+	.	ID=agat-rna-2;Parent=agat-gene-2
+chr10	AGAT	exon	600	900	.	+	.	ID=agat-exon-2;Parent=agat-rna-2
+chr10	Liftoff	CDS	600	900	.	+	0	ID=cds2;Parent=agat-rna-2

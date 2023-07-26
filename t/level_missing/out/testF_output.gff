@@ -10,7 +10,7 @@ chr12	AGAT	gene	700	900	.	+	.	ID="gene2";locus_tag="gene2"
 chr12	AGAT	mRNA	700	900	.	+	.	ID=transcriptb;Parent="gene2";locus_tag="gene2"
 chr12	HAVANA	exon	700	900	.	+	.	ID=exonb;Parent=transcriptb;locus_tag="gene2"
 chr12	HAVANA	CDS	700	900	.	+	0	ID=cds-b;Parent=transcriptb;locus_tag="gene2"
-chr12	AGAT	gene	1000	1110	.	+	.	ID=nbis-gene-1
-chr12	AGAT	mRNA	1000	1110	.	+	.	ID=transcript4;Parent=nbis-gene-1
+chr12	AGAT	gene	1000	1110	.	+	.	ID=agat-gene-1
+chr12	AGAT	mRNA	1000	1110	.	+	.	ID=transcript4;Parent=agat-gene-1
 chr12	HAVANA	exon	1000	1110	.	+	.	ID=exon4;Parent=transcript4
 chr12	HAVANA	CDS	1000	1110	.	+	0	ID=cds4;Parent=transcript4

@@ -28,18 +28,18 @@
 1	irgsp	CDS	9210	9615	.	+	0	ID=CDS:Os01t0100100-01;Parent=transcript:Os01t0100100-01;protein_id=Os01t0100100-01
 1	irgsp	CDS	10102	10187	.	+	2	ID=CDS:Os01t0100100-01;Parent=transcript:Os01t0100100-01;protein_id=Os01t0100100-01
 1	irgsp	CDS	10274	10297	.	+	0	ID=CDS:Os01t0100100-01;Parent=transcript:Os01t0100100-01;protein_id=Os01t0100100-01
-1	irgsp	five_prime_UTR	2983	3268	.	+	.	ID=nbis-five_prime_utr-1;Parent=transcript:Os01t0100100-01
-1	irgsp	five_prime_UTR	3354	3448	.	+	.	ID=nbis-five_prime_utr-2;Parent=transcript:Os01t0100100-01
-1	irgsp	three_prime_UTR	10298	10430	.	+	.	ID=nbis-three_prime_utr-1;Parent=transcript:Os01t0100100-01
-1	irgsp	three_prime_UTR	10504	10815	.	+	.	ID=nbis-three_prime_utr-2;Parent=transcript:Os01t0100100-01
+1	irgsp	five_prime_UTR	2983	3268	.	+	.	ID=agat-five_prime_utr-1;Parent=transcript:Os01t0100100-01
+1	irgsp	five_prime_UTR	3354	3448	.	+	.	ID=agat-five_prime_utr-2;Parent=transcript:Os01t0100100-01
+1	irgsp	three_prime_UTR	10298	10430	.	+	.	ID=agat-three_prime_utr-1;Parent=transcript:Os01t0100100-01
+1	irgsp	three_prime_UTR	10504	10815	.	+	.	ID=agat-three_prime_utr-2;Parent=transcript:Os01t0100100-01
 1	irgsp	gene	11218	12435	.	+	.	ID=gene:Os01g0100200;biotype=protein_coding;description=Conserved hypothetical protein. (Os01t0100200-01);gene_id=Os01g0100200;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	11218	12435	.	+	.	ID=transcript:Os01t0100200-01;Parent=gene:Os01g0100200;biotype=protein_coding;transcript_id=Os01t0100200-01
 1	irgsp	exon	11218	12060	.	+	.	ID=Os01t0100200-01.exon1;Parent=transcript:Os01t0100200-01;Name=Os01t0100200-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0100200-01.exon1;rank=1
 1	irgsp	exon	12152	12435	.	+	.	ID=Os01t0100200-01.exon2;Parent=transcript:Os01t0100200-01;Name=Os01t0100200-01.exon2;constitutive=1;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0100200-01.exon2;rank=2
 1	irgsp	CDS	11798	12060	.	+	0	ID=CDS:Os01t0100200-01;Parent=transcript:Os01t0100200-01;protein_id=Os01t0100200-01
 1	irgsp	CDS	12152	12317	.	+	1	ID=CDS:Os01t0100200-01;Parent=transcript:Os01t0100200-01;protein_id=Os01t0100200-01
-1	irgsp	five_prime_UTR	11218	11797	.	+	.	ID=nbis-five_prime_utr-3;Parent=transcript:Os01t0100200-01
-1	irgsp	three_prime_UTR	12318	12435	.	+	.	ID=nbis-three_prime_utr-3;Parent=transcript:Os01t0100200-01
+1	irgsp	five_prime_UTR	11218	11797	.	+	.	ID=agat-five_prime_utr-3;Parent=transcript:Os01t0100200-01
+1	irgsp	three_prime_UTR	12318	12435	.	+	.	ID=agat-three_prime_utr-3;Parent=transcript:Os01t0100200-01
 1	irgsp	gene	11372	12284	.	-	.	ID=gene:Os01g0100300;biotype=protein_coding;description=Cytochrome P450 domain containing protein. (Os01t0100300-00);gene_id=Os01g0100300;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	11372	12284	.	-	.	ID=transcript:Os01t0100300-00;Parent=gene:Os01g0100300;biotype=protein_coding;transcript_id=Os01t0100300-00
 1	irgsp	exon	11372	12042	.	-	.	ID=Os01t0100300-00.exon2;Parent=transcript:Os01t0100300-00;Name=Os01t0100300-00.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0100300-00.exon2;rank=2

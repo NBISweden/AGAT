@@ -56,7 +56,7 @@ locus_tag:
   - gene_id
 
 # prefix used to create feature identifer
-prefix_new_id: nbis
+prefix_new_id: agat
 
 # To clean feature attributes when cloning it. When AGAT creates a missing feature, 
 # it uses a related feature from the record (parent or children) as a template. 
