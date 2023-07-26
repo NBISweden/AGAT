@@ -136,7 +136,7 @@ my $splice_added=0;
         if(@introns){
           my $it = natatime 2, @introns;
           while (my @tuple = $it->()) {
-            print "@tuple\n";
+
 						$splice_added++;
             
             # Clean feature used as template
