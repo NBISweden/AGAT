@@ -346,7 +346,7 @@ By default all feature are taking into account. fill the option by the value "al
 Value to check in the attribute
 
 =item B<-t> or B<--test>
-Test to apply (> < = >= <=). default value "=". If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
+Test to apply (> < = >= <=). default value "=". If you use one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
 
 =item B<-o> or B<--output>
 

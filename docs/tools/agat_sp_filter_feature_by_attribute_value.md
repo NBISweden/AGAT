@@ -40,7 +40,7 @@ agat_sp_select_feature_by_attribute_value.pl --help
     Value to check in the attribute
 
 - **-t** or **--test**
-Test to apply (> < = >= <=). default value "=". If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
+Test to apply (> < = >= <=). default value "=". If you use one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
 - **-o** or **--output**
 
     Output GFF file.  If no output file is specified, the output will be
