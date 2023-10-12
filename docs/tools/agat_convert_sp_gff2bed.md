@@ -4,8 +4,9 @@
 
 The script aims to convert GTF/GXF file into bed file.
 It will convert level2 features from gff (mRNA, transcripts) into bed features.
-If  the selected level2 subfeatures (defaut: exon) exist, they will be reported
-in the block fields (9-12th colum in bed).
+If the selected level2 subfeatures (defaut: exon) exist, they are reported
+in the block fields (9-12th colum in bed). CDS Start and End are reported in column
+7 and 8 accordingly.
 
 Definintion of the bed format: 
 ```
@@ -36,6 +37,13 @@ agat_convert_sp_gff2bed.pl --help
 - **--gff**
 
     Input GFF3 file that will be read
+
+- **--nc**
+
+    STRING - behaviour for non-coding features (e.g. recored wihtout CDS). [keep,filter,transcript]
+    keep - Default, they are kept but no CDS position is reported in the 7th and 8th columns (a period is reported instead).
+    filter - We remove them.
+    transcript - We keep them but values in 7th and 8th columns will contains transcript's start and stop.
 
 - **--sub**
 
