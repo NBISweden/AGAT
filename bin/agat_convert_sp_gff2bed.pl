@@ -190,11 +190,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$field12_blockStarts = undef;
 
 							if($test_nc eq "." and $opt_nc eq "filter"){
-								continue; # skip this non-coding feature
+								# skip this non-coding feature
+							} else {
+								# print bed line
+								print $bedout $line;
 							}
-							# print bed line
-							print $bedout $line;
-
 						}
 					}
 				}
