@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 =head1 DESCRIPTION
 
@@ -70,4 +70,14 @@ system("$script --gff $input_folder/issue368.gff -o $pathtmp 2>&1 1>/dev/null");
 
 #run test
 ok( system("diff $pathtmp $correct_output") == 0, "issue368 check");
+unlink $pathtmp;
+
+# -------- Issue 389 very wierd --------
+$script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
+$correct_output = "$output_folder/issue389.gff";
+
+system("$script --gff $input_folder/issue389.gff -o $pathtmp 2>&1 1>/dev/null");
+
+#run test
+ok( system("diff $pathtmp $correct_output") == 0, "issue389 check");
 unlink $pathtmp;

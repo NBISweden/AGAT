@@ -1,0 +1,386 @@
+##gff-version 3
+##sequence-region	pHB9	1	166754
+pHB9	AGAT	gene	3022	24325	.	+	.	ID=BHRF1;label=BHRF1_Cp_mRNA
+pHB9	Manual	mRNA	3022	24325	.	+	.	ID=mRNA_Cp6_BHRF1;Parent=BHRF1;label=BHRF1_Cp_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-5;Parent=mRNA_Cp6_BHRF1;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-15;Parent=mRNA_Cp6_BHRF1;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-32;Parent=mRNA_Cp6_BHRF1;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-133;Parent=mRNA_Cp6_BHRF1;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-39;Parent=mRNA_Cp6_BHRF1;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-146;Parent=mRNA_Cp6_BHRF1;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-53;Parent=mRNA_Cp6_BHRF1;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-161;Parent=mRNA_Cp6_BHRF1;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-69;Parent=mRNA_Cp6_BHRF1;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-178;Parent=mRNA_Cp6_BHRF1;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-87;Parent=mRNA_Cp6_BHRF1;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-197;Parent=mRNA_Cp6_BHRF1;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-107;Parent=mRNA_Cp6_BHRF1;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-218;Parent=mRNA_Cp6_BHRF1;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-241;Parent=mRNA_Cp6_BHRF1;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-264;Parent=mRNA_Cp6_BHRF1;label=Exon Y2
+pHB9	Manual	gene	3022	26353	.	+	.	ID=EBNA-LP;Name=EBNA-LP;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	24325	.	+	.	ID=mRNA_Cp6BH_LP6W;Parent=EBNA-LP;label=EBNA-LP_Cp_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-9;Parent=mRNA_Cp6BH_LP6W;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-19;Parent=mRNA_Cp6BH_LP6W;label=Exon C2
+pHB9	Manual	exon	6245	6305	.	+	.	ID=agat-exon-125;Parent=mRNA_Cp6BH_LP6W;label=Exon W1'.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-137;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-43;Parent=mRNA_Cp6BH_LP6W;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-150;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-57;Parent=mRNA_Cp6BH_LP6W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-165;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-73;Parent=mRNA_Cp6BH_LP6W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-182;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-91;Parent=mRNA_Cp6BH_LP6W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-201;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-111;Parent=mRNA_Cp6BH_LP6W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-222;Parent=mRNA_Cp6BH_LP6W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-245;Parent=mRNA_Cp6BH_LP6W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-268;Parent=mRNA_Cp6BH_LP6W;label=Exon Y2
+pHB9	Manual	mRNA	3022	24798	.	+	.	ID=mRNA_Cp6Y3_LP6W;Parent=EBNA-LP;label=EBNA-LP_Cp_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-10;Parent=mRNA_Cp6Y3_LP6W;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-20;Parent=mRNA_Cp6Y3_LP6W;label=Exon C2
+pHB9	Manual	exon	6245	6305	.	+	.	ID=agat-exon-126;Parent=mRNA_Cp6Y3_LP6W;label=Exon W1'.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-138;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-44;Parent=mRNA_Cp6Y3_LP6W;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-151;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-58;Parent=mRNA_Cp6Y3_LP6W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-166;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-74;Parent=mRNA_Cp6Y3_LP6W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-183;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-92;Parent=mRNA_Cp6Y3_LP6W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-202;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-112;Parent=mRNA_Cp6Y3_LP6W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-223;Parent=mRNA_Cp6Y3_LP6W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-246;Parent=mRNA_Cp6Y3_LP6W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-269;Parent=mRNA_Cp6Y3_LP6W;label=Exon Y2
+pHB9	Manual	exon	24712	24798	.	+	.	ID=Y3pA;Parent=mRNA_Cp6Y3_LP6W;label=Exon Y3pA
+pHB9	Manual	mRNA	3022	26353	.	+	.	ID=mRNA_Cp6delE2_LP6W;Parent=EBNA-LP;Name=mRNA_Cp6delE2_LP6W
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-11;Parent=mRNA_Cp6delE2_LP6W;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-21;Parent=mRNA_Cp6delE2_LP6W;label=Exon C2
+pHB9	Manual	exon	6245	6305	.	+	.	ID=agat-exon-127;Parent=mRNA_Cp6delE2_LP6W;label=Exon W1'.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-139;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-45;Parent=mRNA_Cp6delE2_LP6W;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-152;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-59;Parent=mRNA_Cp6delE2_LP6W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-167;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-75;Parent=mRNA_Cp6delE2_LP6W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-184;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-93;Parent=mRNA_Cp6delE2_LP6W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-203;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-113;Parent=mRNA_Cp6delE2_LP6W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-224;Parent=mRNA_Cp6delE2_LP6W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-247;Parent=mRNA_Cp6delE2_LP6W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-270;Parent=mRNA_Cp6delE2_LP6W;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=agat-exon-301;Parent=mRNA_Cp6delE2_LP6W;label=Exon Y3
+pHB9	Manual	exon	26178	26353	.	+	.	ID=agat-exon-302;Parent=mRNA_Cp6delE2_LP6W;Name=Exon_delEBNA2
+pHB9	Manual	mRNA	3022	26353	.	+	.	ID=mRNA_Cp6E2_LP6W;Parent=EBNA-LP;label=EBNA-LP_Cp_E2_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-8;Parent=mRNA_Cp6E2_LP6W;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-18;Parent=mRNA_Cp6E2_LP6W;label=Exon C2
+pHB9	Manual	exon	6245	6305	.	+	.	ID=W1pr1;Parent=mRNA_Cp6E2_LP6W;label=Exon W1'.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-136;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-42;Parent=mRNA_Cp6E2_LP6W;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-149;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-56;Parent=mRNA_Cp6E2_LP6W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-164;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-72;Parent=mRNA_Cp6E2_LP6W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-181;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-90;Parent=mRNA_Cp6E2_LP6W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-200;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-110;Parent=mRNA_Cp6E2_LP6W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-221;Parent=mRNA_Cp6E2_LP6W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-244;Parent=mRNA_Cp6E2_LP6W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-267;Parent=mRNA_Cp6E2_LP6W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-284;Parent=mRNA_Cp6E2_LP6W;label=Exon YH
+pHB9	Manual	mRNA	6070	26353	.	+	.	ID=mRNA_Wp6E2_LP6W;Parent=EBNA-LP;Name=mRNA_Wp6E2_LP6W
+pHB9	Manual	exon	6070	6096	.	+	.	ID=agat-exon-22;Parent=mRNA_Wp6E2_LP6W;label=Exon W0.1;locus_tag=EBNAs
+pHB9	Manual	exon	6245	6305	.	+	.	ID=agat-exon-128;Parent=mRNA_Wp6E2_LP6W;label=Exon W1'.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-141;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-48;Parent=mRNA_Wp6E2_LP6W;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-154;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-62;Parent=mRNA_Wp6E2_LP6W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-169;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-78;Parent=mRNA_Wp6E2_LP6W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-186;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-96;Parent=mRNA_Wp6E2_LP6W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-205;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-115;Parent=mRNA_Wp6E2_LP6W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-226;Parent=mRNA_Wp6E2_LP6W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-249;Parent=mRNA_Wp6E2_LP6W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-272;Parent=mRNA_Wp6E2_LP6W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-286;Parent=mRNA_Wp6E2_LP6W;label=Exon YH
+pHB9	Manual	mRNA	9142	26353	.	+	.	ID=mRNA_Wp5E2_LP5W;Parent=EBNA-LP;Name=mRNA_Wp5E2_LP5W
+pHB9	Manual	exon	9142	9168	.	+	.	ID=agat-exon-23;Parent=mRNA_Wp5E2_LP5W;label=Exon W0.2;locus_tag=EBNAs
+pHB9	Manual	exon	9317	9377	.	+	.	ID=W1pr2;Parent=mRNA_Wp5E2_LP5W;label=Exon W1'.2;locus_tag=EBNAs
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-156;Parent=mRNA_Wp5E2_LP5W;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-63;Parent=mRNA_Wp5E2_LP5W;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-171;Parent=mRNA_Wp5E2_LP5W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-79;Parent=mRNA_Wp5E2_LP5W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-188;Parent=mRNA_Wp5E2_LP5W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-97;Parent=mRNA_Wp5E2_LP5W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-207;Parent=mRNA_Wp5E2_LP5W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-117;Parent=mRNA_Wp5E2_LP5W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-228;Parent=mRNA_Wp5E2_LP5W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-251;Parent=mRNA_Wp5E2_LP5W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-274;Parent=mRNA_Wp5E2_LP5W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-288;Parent=mRNA_Wp5E2_LP5W;label=Exon YH
+pHB9	Manual	mRNA	12214	26353	.	+	.	ID=mRNA_Wp4E2_LP4W;Parent=EBNA-LP;Name=mRNA_Wp4E2_LP4W
+pHB9	Manual	exon	12214	12240	.	+	.	ID=agat-exon-24;Parent=mRNA_Wp4E2_LP4W;label=Exon W0.3;locus_tag=EBNAs
+pHB9	Manual	exon	12389	12449	.	+	.	ID=W1pr3;Parent=mRNA_Wp4E2_LP4W;label=Exon W1'.3;locus_tag=EBNAs
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-173;Parent=mRNA_Wp4E2_LP4W;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-82;Parent=mRNA_Wp4E2_LP4W;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-190;Parent=mRNA_Wp4E2_LP4W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-100;Parent=mRNA_Wp4E2_LP4W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-209;Parent=mRNA_Wp4E2_LP4W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-119;Parent=mRNA_Wp4E2_LP4W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-230;Parent=mRNA_Wp4E2_LP4W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-253;Parent=mRNA_Wp4E2_LP4W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-276;Parent=mRNA_Wp4E2_LP4W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-290;Parent=mRNA_Wp4E2_LP4W;label=Exon YH
+pHB9	Manual	mRNA	15286	26353	.	+	.	ID=mRNA_Wp3E2_LP3W;Parent=EBNA-LP;Name=mRNA_Wp3E2_LP3W
+pHB9	Manual	exon	15286	15312	.	+	.	ID=agat-exon-25;Parent=mRNA_Wp3E2_LP3W;label=Exon W0.4;locus_tag=EBNAs
+pHB9	Manual	exon	15461	15521	.	+	.	ID=W1pr4;Parent=mRNA_Wp3E2_LP3W;label=Exon W1'.4;locus_tag=EBNAs
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-192;Parent=mRNA_Wp3E2_LP3W;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-101;Parent=mRNA_Wp3E2_LP3W;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-211;Parent=mRNA_Wp3E2_LP3W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-121;Parent=mRNA_Wp3E2_LP3W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-232;Parent=mRNA_Wp3E2_LP3W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-255;Parent=mRNA_Wp3E2_LP3W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-278;Parent=mRNA_Wp3E2_LP3W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-292;Parent=mRNA_Wp3E2_LP3W;label=Exon YH
+pHB9	Manual	mRNA	18358	26353	.	+	.	ID=mRNA_Wp2E2_LP2W;Parent=EBNA-LP;Name=mRNA_Wp2E2_LP2W
+pHB9	Manual	exon	18358	18384	.	+	.	ID=agat-exon-26;Parent=mRNA_Wp2E2_LP2W;label=Exon W0.5;locus_tag=EBNAs
+pHB9	Manual	exon	18533	18593	.	+	.	ID=W1pr5;Parent=mRNA_Wp2E2_LP2W;label=Exon W1'.5;locus_tag=EBNAs
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-213;Parent=mRNA_Wp2E2_LP2W;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-123;Parent=mRNA_Wp2E2_LP2W;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-234;Parent=mRNA_Wp2E2_LP2W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-257;Parent=mRNA_Wp2E2_LP2W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-280;Parent=mRNA_Wp2E2_LP2W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-294;Parent=mRNA_Wp2E2_LP2W;label=Exon YH
+pHB9	Manual	mRNA	21430	26353	.	+	.	ID=mRNA_Wp1E2_LP1W;Parent=EBNA-LP;Name=mRNA_Wp1E2_LP1W
+pHB9	Manual	exon	21430	21456	.	+	.	ID=agat-exon-27;Parent=mRNA_Wp1E2_LP1W;label=Exon W0.6;locus_tag=EBNAs
+pHB9	Manual	exon	21605	21665	.	+	.	ID=W1pr6;Parent=mRNA_Wp1E2_LP1W;label=Exon W1'.6;locus_tag=EBNAs
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-236;Parent=mRNA_Wp1E2_LP1W;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-259;Parent=mRNA_Wp1E2_LP1W;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-282;Parent=mRNA_Wp1E2_LP1W;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-296;Parent=mRNA_Wp1E2_LP1W;label=Exon YH
+pHB9	Manual	gene	3022	38784	.	+	.	ID=EBNA2;Name=EBNA2;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	26353	.	+	.	ID=mRNA_Cp6_W1_EBNA2;Parent=EBNA2;label=EBNA2_Cp_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-6;Parent=mRNA_Cp6_W1_EBNA2;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-16;Parent=mRNA_Cp6_W1_EBNA2;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-33;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-134;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-40;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-147;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-54;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-162;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-70;Parent=mRNA_Cp6_W1_EBNA2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-179;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-88;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-198;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-108;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-219;Parent=mRNA_Cp6_W1_EBNA2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-242;Parent=mRNA_Cp6_W1_EBNA2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-265;Parent=mRNA_Cp6_W1_EBNA2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-283;Parent=mRNA_Cp6_W1_EBNA2;label=Exon YH
+pHB9	Manual	mRNA	3022	26353	.	+	.	ID=mRNA_Cp6delE2_delE2;Parent=EBNA2;Name=mRNA_Cp6delE2_delE2
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-7;Parent=mRNA_Cp6delE2_delE2;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-17;Parent=mRNA_Cp6delE2_delE2;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-34;Parent=mRNA_Cp6delE2_delE2;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-135;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-41;Parent=mRNA_Cp6delE2_delE2;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-148;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-55;Parent=mRNA_Cp6delE2_delE2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-163;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-71;Parent=mRNA_Cp6delE2_delE2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-180;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-89;Parent=mRNA_Cp6delE2_delE2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-199;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-109;Parent=mRNA_Cp6delE2_delE2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-220;Parent=mRNA_Cp6delE2_delE2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-243;Parent=mRNA_Cp6delE2_delE2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-266;Parent=mRNA_Cp6delE2_delE2;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=agat-exon-300;Parent=mRNA_Cp6delE2_delE2;label=Exon Y3
+pHB9	Manual	exon	26178	26353	.	+	.	ID=exon_delEBNA2;Parent=mRNA_Cp6delE2_delE2;Name=Exon_delEBNA2
+pHB9	Manual	mRNA	3022	26353	.	+	.	ID=mRNA_C2p_W1_EBNA2;Parent=EBNA2;label=EBNA2_C2prime_mRNA
+pHB9	Manual	exon	3022	3165	.	+	.	ID=exon_C1;Parent=mRNA_C2p_W1_EBNA2;label=Exon C1
+pHB9	Manual	exon	3312	3335	.	+	.	ID=exon_C2';Parent=mRNA_C2p_W1_EBNA2;label=Exon C2'
+pHB9	Manual	exon	6240	6305	.	+	.	ID=W1r1;Parent=mRNA_C2p_W1_EBNA2;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=W2r1;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.1
+pHB9	Manual	exon	9459	9590	.	+	.	ID=W2r2;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=W1r3;Parent=mRNA_C2p_W1_EBNA2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=W2r3;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=W1r4;Parent=mRNA_C2p_W1_EBNA2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=W2r4;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=W1r5;Parent=mRNA_C2p_W1_EBNA2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=W2r5;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=W1r6;Parent=mRNA_C2p_W1_EBNA2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=W2r6;Parent=mRNA_C2p_W1_EBNA2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=Y1;Parent=mRNA_C2p_W1_EBNA2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=Y2;Parent=mRNA_C2p_W1_EBNA2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=YH;Parent=mRNA_C2p_W1_EBNA2;label=Exon YH
+pHB9	Manual	mRNA	6070	26353	.	+	.	ID=mRNA_Wp6E2_E2;Parent=EBNA2;Name=mRNA_Wp6E2_E2
+pHB9	Manual	exon	6070	6096	.	+	.	ID=W0r1;Parent=mRNA_Wp6E2_E2;label=Exon W0.1;locus_tag=EBNAs
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-35;Parent=mRNA_Wp6E2_E2;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-140;Parent=mRNA_Wp6E2_E2;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-46;Parent=mRNA_Wp6E2_E2;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-153;Parent=mRNA_Wp6E2_E2;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-60;Parent=mRNA_Wp6E2_E2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-168;Parent=mRNA_Wp6E2_E2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-76;Parent=mRNA_Wp6E2_E2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-185;Parent=mRNA_Wp6E2_E2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-94;Parent=mRNA_Wp6E2_E2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-204;Parent=mRNA_Wp6E2_E2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-114;Parent=mRNA_Wp6E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-225;Parent=mRNA_Wp6E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-248;Parent=mRNA_Wp6E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-271;Parent=mRNA_Wp6E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-285;Parent=mRNA_Wp6E2_E2;label=Exon YH
+pHB9	Manual	mRNA	9142	26353	.	+	.	ID=mRNA_Wp5E2_E2;Parent=EBNA2;Name=mRNA_Wp5E2_E2
+pHB9	Manual	exon	9142	9168	.	+	.	ID=W0r2;Parent=mRNA_Wp5E2_E2;label=Exon W0.2;locus_tag=EBNAs
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-47;Parent=mRNA_Wp5E2_E2;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-155;Parent=mRNA_Wp5E2_E2;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-61;Parent=mRNA_Wp5E2_E2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-170;Parent=mRNA_Wp5E2_E2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-77;Parent=mRNA_Wp5E2_E2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-187;Parent=mRNA_Wp5E2_E2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-95;Parent=mRNA_Wp5E2_E2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-206;Parent=mRNA_Wp5E2_E2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-116;Parent=mRNA_Wp5E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-227;Parent=mRNA_Wp5E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-250;Parent=mRNA_Wp5E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-273;Parent=mRNA_Wp5E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-287;Parent=mRNA_Wp5E2_E2;label=Exon YH
+pHB9	Manual	mRNA	12214	26353	.	+	.	ID=mRNA_Wp4E2_E2;Parent=EBNA2;Name=mRNA_Wp4E2_E2
+pHB9	Manual	exon	12214	12240	.	+	.	ID=W0r3;Parent=mRNA_Wp4E2_E2;label=Exon W0.3;locus_tag=EBNAs
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-64;Parent=mRNA_Wp4E2_E2;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-172;Parent=mRNA_Wp4E2_E2;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-80;Parent=mRNA_Wp4E2_E2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-189;Parent=mRNA_Wp4E2_E2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-98;Parent=mRNA_Wp4E2_E2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-208;Parent=mRNA_Wp4E2_E2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-118;Parent=mRNA_Wp4E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-229;Parent=mRNA_Wp4E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-252;Parent=mRNA_Wp4E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-275;Parent=mRNA_Wp4E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-289;Parent=mRNA_Wp4E2_E2;label=Exon YH
+pHB9	Manual	mRNA	15286	26353	.	+	.	ID=mRNA_Wp3E2_E2;Parent=EBNA2;Name=mRNA_Wp3E2_E2
+pHB9	Manual	exon	15286	15312	.	+	.	ID=W0r4;Parent=mRNA_Wp3E2_E2;label=Exon W0.4;locus_tag=EBNAs
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-81;Parent=mRNA_Wp3E2_E2;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-191;Parent=mRNA_Wp3E2_E2;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-99;Parent=mRNA_Wp3E2_E2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-210;Parent=mRNA_Wp3E2_E2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-120;Parent=mRNA_Wp3E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-231;Parent=mRNA_Wp3E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-254;Parent=mRNA_Wp3E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-277;Parent=mRNA_Wp3E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-291;Parent=mRNA_Wp3E2_E2;label=Exon YH
+pHB9	Manual	mRNA	18358	26353	.	+	.	ID=mRNA_Wp2E2_E2;Parent=EBNA2;Name=mRNA_Wp2E2_E2
+pHB9	Manual	exon	18358	18384	.	+	.	ID=W0r5;Parent=mRNA_Wp2E2_E2;label=Exon W0.5;locus_tag=EBNAs
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-102;Parent=mRNA_Wp2E2_E2;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-212;Parent=mRNA_Wp2E2_E2;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-122;Parent=mRNA_Wp2E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-233;Parent=mRNA_Wp2E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-256;Parent=mRNA_Wp2E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-279;Parent=mRNA_Wp2E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-293;Parent=mRNA_Wp2E2_E2;label=Exon YH
+pHB9	Manual	mRNA	21430	26353	.	+	.	ID=mRNA_Wp1E2_E2;Parent=EBNA2;Name=mRNA_Wp1E2_E2
+pHB9	Manual	exon	21430	21456	.	+	.	ID=W0r6;Parent=mRNA_Wp1E2_E2;label=Exon W0.6;locus_tag=EBNAs
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-124;Parent=mRNA_Wp1E2_E2;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-235;Parent=mRNA_Wp1E2_E2;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-258;Parent=mRNA_Wp1E2_E2;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-281;Parent=mRNA_Wp1E2_E2;label=Exon Y2
+pHB9	Manual	exon	24712	26353	.	+	.	ID=agat-exon-295;Parent=mRNA_Wp1E2_E2;label=Exon YH
+pHB9	AGAT	RNA	38748	38784	.	+	.	ID=agat-rna-1;Parent=ebna2;Name=Qp;locus_tag=EBNAs
+pHB9	Manual	exon	38748	38784	.	+	.	ID=Qp-exon;Parent=agat-rna-1;Name=Qp;locus_tag=EBNAs
+pHB9	Manual	gene	3022	71571	.	+	.	ID=EBNA3A;Name=EBNA3A;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	71571	.	+	.	ID=mRNA_Cp6_W1_E3A;Parent=EBNA3A;Name=mRNA_Cp6_W1_E3A
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-4;Parent=mRNA_Cp6_W1_E3A;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-14;Parent=mRNA_Cp6_W1_E3A;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-31;Parent=mRNA_Cp6_W1_E3A;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-132;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-38;Parent=mRNA_Cp6_W1_E3A;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-145;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-52;Parent=mRNA_Cp6_W1_E3A;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-160;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-68;Parent=mRNA_Cp6_W1_E3A;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-177;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-86;Parent=mRNA_Cp6_W1_E3A;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-196;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-106;Parent=mRNA_Cp6_W1_E3A;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-217;Parent=mRNA_Cp6_W1_E3A;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-240;Parent=mRNA_Cp6_W1_E3A;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-263;Parent=mRNA_Cp6_W1_E3A;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=agat-exon-299;Parent=mRNA_Cp6_W1_E3A;label=Exon Y3
+pHB9	Manual	exon	43804	43975	.	+	.	ID=agat-exon-306;Parent=mRNA_Cp6_W1_E3A;Name=U-exon
+pHB9	Manual	exon	68564	68907	.	+	.	ID=3A_Ex1;Parent=mRNA_Cp6_W1_E3A;label=EBNA3A Ex1
+pHB9	Manual	exon	68996	71571	.	+	.	ID=3A_Ex2;Parent=mRNA_Cp6_W1_E3A;label=EBNA3A Ex2
+pHB9	Manual	gene	3022	78114	.	+	.	ID=EBNA3B;Name=EBNA3B;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	78114	.	+	.	ID=mRNA_Cp6_W1_E3B;Parent=EBNA3B;Name=mRNA_Cp6_W1_E3B
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-3;Parent=mRNA_Cp6_W1_E3B;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-13;Parent=mRNA_Cp6_W1_E3B;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-30;Parent=mRNA_Cp6_W1_E3B;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-131;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-37;Parent=mRNA_Cp6_W1_E3B;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-144;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-51;Parent=mRNA_Cp6_W1_E3B;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-159;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-67;Parent=mRNA_Cp6_W1_E3B;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-176;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-85;Parent=mRNA_Cp6_W1_E3B;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-195;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-105;Parent=mRNA_Cp6_W1_E3B;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-216;Parent=mRNA_Cp6_W1_E3B;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-239;Parent=mRNA_Cp6_W1_E3B;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-262;Parent=mRNA_Cp6_W1_E3B;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=agat-exon-298;Parent=mRNA_Cp6_W1_E3B;label=Exon Y3
+pHB9	Manual	exon	43804	43975	.	+	.	ID=agat-exon-305;Parent=mRNA_Cp6_W1_E3B;Name=U-exon
+pHB9	Manual	exon	71666	72035	.	+	.	ID=3B_Ex1;Parent=mRNA_Cp6_W1_E3B;label=EBNA3B Ex1
+pHB9	Manual	exon	72114	75056	.	+	.	ID=3B_Ex2;Parent=mRNA_Cp6_W1_E3B;label=EBNA3B Ex2
+pHB9	Manual	exon	75131	78114	.	+	.	ID=agat-exon-307;Parent=mRNA_Cp6_W1_E3B;label=EBNA3C Ex2
+pHB9	Manual	gene	3022	78114	.	+	.	ID=EBNA3C;Name=EBNA3C;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	78114	.	+	.	ID=mRNA_Cp6_W1_E3C;Parent=EBNA3C;Name=mRNA_Cp6_W1_E3C
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-2;Parent=mRNA_Cp6_W1_E3C;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=agat-exon-12;Parent=mRNA_Cp6_W1_E3C;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-29;Parent=mRNA_Cp6_W1_E3C;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-130;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=agat-exon-36;Parent=mRNA_Cp6_W1_E3C;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-143;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-50;Parent=mRNA_Cp6_W1_E3C;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-158;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-66;Parent=mRNA_Cp6_W1_E3C;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-175;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-84;Parent=mRNA_Cp6_W1_E3C;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-194;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-104;Parent=mRNA_Cp6_W1_E3C;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-215;Parent=mRNA_Cp6_W1_E3C;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-238;Parent=mRNA_Cp6_W1_E3C;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-261;Parent=mRNA_Cp6_W1_E3C;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=agat-exon-297;Parent=mRNA_Cp6_W1_E3C;label=Exon Y3
+pHB9	Manual	exon	43804	43975	.	+	.	ID=agat-exon-304;Parent=mRNA_Cp6_W1_E3C;Name=U-exon
+pHB9	Manual	exon	74690	75056	.	+	.	ID=3C_Ex1;Parent=mRNA_Cp6_W1_E3C;label=EBNA3C Ex1
+pHB9	Manual	exon	75131	78114	.	+	.	ID=3C_Ex2;Parent=mRNA_Cp6_W1_E3C;label=EBNA3C Ex2
+pHB9	Manual	gene	3022	86283	.	+	.	ID=EBNA1;Name=EBNA1;locus_tag=EBNAs
+pHB9	Manual	mRNA	3022	86283	.	+	.	ID=mRNA_Cp6_W1_E1;Parent=EBNA1;Name=mRNA_Cp6_W1_E1
+pHB9	Manual	exon	3022	3165	.	+	.	ID=agat-exon-1;Parent=mRNA_Cp6_W1_E1;label=Exon C1
+pHB9	Manual	exon	3312	3343	.	+	.	ID=exon_C2;Parent=mRNA_Cp6_W1_E1;label=Exon C2
+pHB9	Manual	exon	6240	6305	.	+	.	ID=agat-exon-28;Parent=mRNA_Cp6_W1_E1;label=Exon W1.1
+pHB9	Manual	exon	6387	6518	.	+	.	ID=agat-exon-129;Parent=mRNA_Cp6_W1_E1;label=Exon W2.1
+pHB9	Manual	exon	9312	9377	.	+	.	ID=W1r2;Parent=mRNA_Cp6_W1_E1;label=Exon W1.2
+pHB9	Manual	exon	9459	9590	.	+	.	ID=agat-exon-142;Parent=mRNA_Cp6_W1_E1;label=Exon W2.2
+pHB9	Manual	exon	12384	12449	.	+	.	ID=agat-exon-49;Parent=mRNA_Cp6_W1_E1;label=Exon W1.3
+pHB9	Manual	exon	12531	12662	.	+	.	ID=agat-exon-157;Parent=mRNA_Cp6_W1_E1;label=Exon W2.3
+pHB9	Manual	exon	15456	15521	.	+	.	ID=agat-exon-65;Parent=mRNA_Cp6_W1_E1;label=exon W1.4
+pHB9	Manual	exon	15603	15734	.	+	.	ID=agat-exon-174;Parent=mRNA_Cp6_W1_E1;label=Exon W2.4
+pHB9	Manual	exon	18528	18593	.	+	.	ID=agat-exon-83;Parent=mRNA_Cp6_W1_E1;label=Exon W1.5
+pHB9	Manual	exon	18675	18806	.	+	.	ID=agat-exon-193;Parent=mRNA_Cp6_W1_E1;label=Exon W2.5
+pHB9	Manual	exon	21600	21665	.	+	.	ID=agat-exon-103;Parent=mRNA_Cp6_W1_E1;label=Exon W1.6
+pHB9	Manual	exon	21747	21878	.	+	.	ID=agat-exon-214;Parent=mRNA_Cp6_W1_E1;label=Exon W2.6
+pHB9	Manual	exon	24087	24119	.	+	.	ID=agat-exon-237;Parent=mRNA_Cp6_W1_E1;label=Exon Y1
+pHB9	Manual	exon	24204	24325	.	+	.	ID=agat-exon-260;Parent=mRNA_Cp6_W1_E1;label=Exon Y2
+pHB9	Manual	exon	24712	24770	.	+	.	ID=Y3;Parent=mRNA_Cp6_W1_E1;label=Exon Y3
+pHB9	Manual	exon	43804	43975	.	+	.	ID=agat-exon-303;Parent=mRNA_Cp6_W1_E1;Name=U-exon
+pHB9	Manual	exon	84268	86283	.	+	.	ID=agat-exon-308;Parent=mRNA_Cp6_W1_E1;Name=EBNA1_exon
+pHB9	Manual	mRNA	38556	86283	.	+	.	ID=mRNA_Fp_EBNA1;Parent=EBNA1;label=EBNA1_Fp_mRNA
+pHB9	Manual	exon	38556	38784	.	+	.	ID=Fp-exon;Parent=mRNA_Fp_EBNA1;Name=Fp
+pHB9	Manual	exon	43804	43975	.	+	.	ID=U-exon,"";Parent=mRNA_Fp_EBNA1;Name=U-exon
+pHB9	Manual	exon	84268	86283	.	+	.	ID=EBNA1_exon;Parent=mRNA_Fp_EBNA1;Name=EBNA1_exon
