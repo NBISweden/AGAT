@@ -506,7 +506,7 @@ sub slurp_gff3_file_JD {
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
 			$check_cpt++; $previous_time = time();
 	}
-
+	
 	if( $config->{check_all_level2_locations} ) {
 		# Check rna positions compared to its l2 features
 		dual_print ($log, file_text_line({ string => "Check$check_cpt: all level2 locations", char => "-", prefix => "\n" }), $verbose );
@@ -1075,6 +1075,8 @@ sub _fix_parent_attribute_when_id_l1_l2_identical{
 	my $last_l1_id = $last_l1_f->_tag_value('ID');
 	my $last_l2_id = $last_l2_f->_tag_value('ID');
 	if (! exists_keys ($hashID, ( 'uid', $last_l2_id ) ) ){ return;} # case the previous L2 was a duplicate
+	if (! defined($hashID->{'uid'}{ lc($last_l2_id) }) ){ return;} # case the previous L2 was a creation on the fly so cannot be a duplicated id
+
 	my $previous_l2_original_id = lc( $hashID->{'uid'}{ lc($last_l2_id) } );
 
 	if ( lc($last_l1_id) eq lc($previous_l2_original_id) ){
@@ -2797,18 +2799,19 @@ sub _deinterleave_sequential{
 	 								# ====================================================================================================================================
 	 							}
 	 						}
+							if(defined($idok)){ #if not it means the interleaved L3 didn't have any existing L2 (#389)
+								if(exists_keys ($infoSequential,("locus", $locusNameUniq, $idok) ) ){
 
-	 				 		if(exists_keys ($infoSequential,("locus", $locusNameUniq, $idok) ) ){
-
-	 				 			foreach my $level (keys %{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}} ){
-	 				 				push @{$infoSequential->{'locus'}{$locusNameUniq}{$idok}{$level}}, @{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{$level}};
-	 				 			}
-	 				 			delete $infoSequential->{'locus'}{$locusNameHIS}{$bucket};
-	 				 			if(! %{$infoSequential->{'locus'}{$locusNameHIS}}){delete $infoSequential->{'locus'}{$locusNameHIS};} # remove because nothing linked to it anymore
-	 				 		}
-	 				 		else{
-	 				 			$infoSequential->{'locus'}{$locusNameUniq}{$idok} = delete $infoSequential->{'locus'}{$locusNameHIS}{$bucket}; #delete the lod key but transfer the data to a new key
-	 				 		}
+									foreach my $level (keys %{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}} ){
+										push @{$infoSequential->{'locus'}{$locusNameUniq}{$idok}{$level}}, @{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{$level}};
+									}
+									delete $infoSequential->{'locus'}{$locusNameHIS}{$bucket};
+									if(! %{$infoSequential->{'locus'}{$locusNameHIS}}){delete $infoSequential->{'locus'}{$locusNameHIS};} # remove because nothing linked to it anymore
+								}
+								else{
+									$infoSequential->{'locus'}{$locusNameUniq}{$idok} = delete $infoSequential->{'locus'}{$locusNameHIS}{$bucket}; #delete the lod key but transfer the data to a new key
+								}
+							}
 	 				 	}
 	 			 	}
 	 			}
