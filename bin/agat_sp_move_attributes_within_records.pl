@@ -337,7 +337,7 @@ Example of L2 featrue
 
 =head1 SYNOPSIS
 
-    agat_sp_move_attributes_within_records.pl --gff infile.gff --primaryTagCopy mRNA  --primaryTagPaste CDS --attribute Dbxref,Ontology [ --output outfile ]
+    agat_sp_move_attributes_within_records.pl --gff infile.gff --feature_copy mRNA  --feature_paste CDS --attribute Dbxref,Ontology [ --output outfile ]
     agat_sp_move_attributes_within_records.pl --help
 
 =head1 OPTIONS
