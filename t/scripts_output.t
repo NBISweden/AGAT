@@ -603,6 +603,15 @@ system(" $script --gff $input_folder/agat_sp_merge_annotations/fileA.gff  --gff 
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+# ------------------- check agat_sp_move_attributes_within_records script-------------------
+
+$script = $script_prefix."bin/agat_sp_move_attributes_within_records.pl";
+$result = "$output_folder/agat_sp_move_attributes_within_records.gff";
+system(" $script --gff $input_folder/agat_sp_move_attributes_within_records.gff --fp exon,CDS --fc mRNA -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
 
 $script = $script_prefix."bin/agat_sp_prokka_fix_fragmented_gene_annotations.pl";
