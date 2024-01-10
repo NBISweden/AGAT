@@ -1,0 +1,6 @@
+##gff-version 3
+ptg000002l	AGAT	gene	3255	4626	.	+	.	ID=NBISG00000000001;Dbxref=CDD:cd07067,Gene3D:G3DSA:3.40.50.1240,InterPro:IPR013078,InterPro:IPR029033;Name=ARB_03491;Ontology_term=-;makerName=g1.t1;product=Probable phosphoglycerate mutase ARB_03491;uniprot_id=D4B4V1
+ptg000002l	AUGUSTUS	mRNA	3255	4626	0.5	+	.	ID=NBISM00000000001;Parent=NBISG00000000001;Dbxref=CDD:cd07067,Gene3D:G3DSA:3.40.50.1240,InterPro:IPR013078,InterPro:IPR029033;Name=ARB_03491;Ontology_term=-;makerName=g1.t1;product=Probable phosphoglycerate mutase ARB_03491;uniprot_id=D4B4V1
+ptg000002l	AGAT	exon	3255	4626	.	+	.	ID=agat-exon-1;Parent=NBISM00000000001;Dbxref=CDD:cd07067,Gene3D:G3DSA:3.40.50.1240,InterPro:IPR013078,InterPro:IPR029033;Name=ARB_03491;Ontology_term=-;makerName=g1.t1.CDS1,g1.t1;product=Probable phosphoglycerate mutase ARB_03491;uniprot_id=D4B4V1
+ptg000002l	AUGUSTUS	CDS	3255	3275	0.98	+	0	ID=NBISC00000000001;Parent=NBISM00000000001;Dbxref=CDD:cd07067,Gene3D:G3DSA:3.40.50.1240,InterPro:IPR013078,InterPro:IPR029033;Name=ARB_03491;Ontology_term=-;makerName=g1.t1.CDS1,g1.t1;product=Probable phosphoglycerate mutase ARB_03491;uniprot_id=D4B4V1
+ptg000002l	AGAT	three_prime_UTR	3276	4626	.	+	.	ID=agat-three_prime_utr-1;Parent=NBISM00000000001;makerName=g1.t1.CDS1
