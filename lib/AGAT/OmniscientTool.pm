@@ -571,7 +571,8 @@ sub merge_overlap_loci{
 							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
 								if(lc($tag) ne "parent" and lc($tag) ne "id"){
-									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1}, $tag ,$omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag));
+									my @tag_values = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag);
+									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1}, $tag , \@tag_values);
 								}
 							}
 							# remove the level1 of the ovelaping one
@@ -611,7 +612,8 @@ sub merge_overlap_loci{
                       						$resume_identic++;
 											my @list_tag_l2 = $common->get_all_tags();
 											foreach my $tag (@list_tag_l2){
-												create_or_append_tag($kept_l2, "merged_".$tag ,$common->get_tag_values($tag));
+												my @tag_values = $common->get_tag_values($tag);
+												create_or_append_tag($kept_l2, "merged_".$tag , \@tag_values);
 											}
 										}
 									}
@@ -1325,6 +1327,9 @@ sub create_or_replace_tag{
 
 # INPUT: feature object, String tag, String or Array ref;
 # Output: None
+# /!\ If values are extracted using get_tag_values($tag) you should first save the result in an array and send the array ref to this function e.g
+# 	my @tag_values = $feature->get_tag_values($tag);
+#	create_or_append_tag($other_feature, $tag , \@tag_values);
 sub create_or_append_tag{
 	my ($feature, $tag, $value)=@_;
 
