@@ -182,15 +182,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
             my $copyl2 = check_feature($feature_l2,'level2', \@ptagListCopy);
             my $pastel2 = check_feature($feature_l2,'level2', \@ptagListPaste);
             if($pastel2 and $copyl1){
-              # for each tag of L1
-              my @list_tags = $feature_l1->get_all_tags();
-							foreach my $tag (@list_tags){
-                # Check tag is among those that have to be used
-                if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                  my @tag_values = $feature_l1->get_tag_values($tag);  
-								  create_or_append_tag($feature_l2, $tag, \@tag_values);
-                }
-              }
+              add_tags_from_to($feature_l1, $feature_l2);
             }
 
 				    #################
@@ -207,27 +199,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                   my $pastel3 = check_feature($feature_l3, 'level3', \@ptagListPaste);
                   #copy attributes from L1 to l3
                   if ($copyl1 and $pastel3){
-                    # for each tag of L1
-                    my @list_tags = $feature_l1->get_all_tags();
-										foreach my $tag (@list_tags){
-                      # Check tag is among those that have to be used
-                      if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                        my @tag_values = $feature_l2->get_tag_values($tag);  
-											  create_or_append_tag($feature_l3, $tag, \@tag_values);
-                      }
-                    }
+                    add_tags_from_to($feature_l1, $feature_l3);
                   }
                    #copy attributes from L2 to l3
                   if ($copyl2 and $pastel3){
-                    # for each tag of L2
-                    my @list_tags = $feature_l2->get_all_tags();
-										foreach my $tag (@list_tags){
-                       # Check tag is among those that have to be used
-                      if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                        my @tag_values = $feature_l2->get_tag_values($tag);                      
-											  create_or_append_tag($feature_l3, $tag, \@tag_values);
-                      }
-                    }
+                    add_tags_from_to($feature_l2, $feature_l3);
                   }
                   # ------- Case L3 to L3 -------
                   foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
@@ -241,15 +217,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                           my $pastel3_again = check_feature($feature_l3_again, 'level3', \@ptagListPaste);
                           #copy attributes from L1 to l3
                           if ($copyl3 and $pastel3_again){
-                            # for each tag of L3
-                            my @list_tags = $feature_l3->get_all_tags();
-                            foreach my $tag (@list_tags){
-                              # Check tag is among those that have to be used
-                              if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                                my @tag_values = $feature_l3->get_tag_values($tag);  
-                                create_or_append_tag($feature_l3_again, $tag, \@tag_values);
-                              }
-                            }
+                              add_tags_from_to($feature_l3, $feature_l3_again);
                           }
                         }
                       }
@@ -271,15 +239,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                     my $pastel2_again = check_feature($feature_l2_again, 'level3', \@ptagListPaste);
                     #copy attributes from L1 to l3
                     if ($copyl2 and $pastel2_again){
-                      # for each tag of L3
-                      my @list_tags = $feature_l2->get_all_tags();
-                      foreach my $tag (@list_tags){
-                        # Check tag is among those that have to be used
-                        if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                          my @tag_values = $feature_l2->get_tag_values($tag);  
-                          create_or_append_tag($feature_l2_again, $tag, \@tag_values);
-                        }
-                      }
+                      add_tags_from_to($feature_l2, $feature_l2_again);
                     }
                   }
                 }
@@ -306,6 +266,23 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );#prin
                ######
                 ####
                  ##
+
+# add tags and avoid Parent and ID
+sub add_tags_from_to{
+  my  ($feature_from, $feature_to)=@_;
+
+  # for each tag of feature_from
+  my @list_tags = $feature_from->get_all_tags();
+  foreach my $tag (@list_tags){
+    # Check tag is among those that have to be used
+    if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
+      if (lc($tag) ne "id" and lc($tag) ne "parent" ){
+        my @tag_values = $feature_from->get_tag_values($tag);
+        create_or_append_tag($feature_to, $tag, \@tag_values);
+      }
+    }
+  }
+}
 
 sub check_feature{
   my  ($feature, $level, $ptagList)=@_;
