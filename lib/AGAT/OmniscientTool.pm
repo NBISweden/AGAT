@@ -1333,15 +1333,15 @@ sub create_or_append_tag{
 				my @original_values = $feature->get_tag_values($tag);
 				foreach my $value (@{$value}){
 					if(! grep { $value eq $_ } @original_values){
-						$feature->add_tag_value($tag,@{$value});
+						$feature->add_tag_value($tag,$value);
 					}
 				}
 			}
 			else{
-						my @original_values = $feature->get_tag_values($tag);
+				my @original_values = $feature->get_tag_values($tag);
 	        	if(! grep { $value eq $_ } @original_values){
 	        		$feature->add_tag_value($tag,$value);
-  					}
+  				}
         	}
 	}
 	else{

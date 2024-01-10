@@ -187,7 +187,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							foreach my $tag (@list_tags){
                 # Check tag is among those that have to be used
                 if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-								  create_or_append_tag($feature_l2, $tag ,$feature_l1->get_tag_values($tag));
+                  my @tag_values = $feature_l1->get_tag_values($tag);  
+								  create_or_append_tag($feature_l2, $tag, \@tag_values);
                 }
               }
             }
@@ -211,7 +212,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 										foreach my $tag (@list_tags){
                       # Check tag is among those that have to be used
                       if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-											  create_or_append_tag($feature_l3, $tag ,$feature_l1->get_tag_values($tag));
+                        my @tag_values = $feature_l2->get_tag_values($tag);  
+											  create_or_append_tag($feature_l3, $tag, \@tag_values);
                       }
                     }
                   }
@@ -222,7 +224,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 										foreach my $tag (@list_tags){
                        # Check tag is among those that have to be used
                       if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-											  create_or_append_tag($feature_l3, $tag ,$feature_l2->get_tag_values($tag));
+                        my @tag_values = $feature_l2->get_tag_values($tag);                      
+											  create_or_append_tag($feature_l3, $tag, \@tag_values);
                       }
                     }
                   }
@@ -243,7 +246,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                             foreach my $tag (@list_tags){
                               # Check tag is among those that have to be used
                               if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                                create_or_append_tag($feature_l3_again, $tag ,$feature_l3->get_tag_values($tag));
+                                my @tag_values = $feature_l3->get_tag_values($tag);  
+                                create_or_append_tag($feature_l3_again, $tag, \@tag_values);
                               }
                             }
                           }
@@ -272,7 +276,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                       foreach my $tag (@list_tags){
                         # Check tag is among those that have to be used
                         if(exists_keys(\%attHashOk,("all_attributes")) or exists_keys(\%attHashOk,($tag))){
-                          create_or_append_tag($feature_l2_again, $tag ,$feature_l2->get_tag_values($tag));
+                          my @tag_values = $feature_l2->get_tag_values($tag);  
+                          create_or_append_tag($feature_l2_again, $tag, \@tag_values);
                         }
                       }
                     }
