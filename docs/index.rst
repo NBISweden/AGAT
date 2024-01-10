@@ -103,6 +103,7 @@ Contents
    tools/agat_sp_manage_functional_annotation.md
    tools/agat_sp_manage_introns.md
    tools/agat_sp_merge_annotations.md
+   tools/agat_sp_move_attributes_within_records
    tools/agat_sp_prokka_fix_fragmented_gene_annotations.md
    tools/agat_sp_sensitivity_specificity.md
    tools/agat_sp_separate_by_record_type.md
