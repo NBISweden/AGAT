@@ -2620,8 +2620,8 @@ sub gather_and_sort_l1_by_seq_id{
 	    	push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
 	  	}
 	  	foreach my $position_l1 (keys %hash_sortBySeq){
-        @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
-      }
+        	@{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+      	}
 	}
  	return \%hash_sortBySeq;
 }
@@ -2643,7 +2643,7 @@ sub gather_and_sort_l1_by_seq_id_for_l2type{
 			}
 	  }
 	  foreach my $position_l1 (keys %hash_sortBySeq){
-      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
     }
 	}
  	return \%hash_sortBySeq;
@@ -2663,7 +2663,7 @@ sub gather_and_sort_l1_by_seq_id_for_l1type{
 		  push (@{$hash_sortBySeq{$position}{$tag_level1}}, $omniscient->{'level1'}{$tag_level1}{$level1_id});
 		}
 	  foreach my $position_l1 (keys %hash_sortBySeq){
-      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+      @{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
     }
 	}
 
@@ -2684,7 +2684,7 @@ sub gather_and_sort_l1_by_seq_id_and_strand{
         	push (@{$hash_sortBySeq{$position_l1}{$tag_level1}}, $level1_feature);
         }
         foreach my $position_l1 (keys %hash_sortBySeq){
-        	@{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
+        	@{$hash_sortBySeq{$position_l1}{$tag_level1}} = sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$hash_sortBySeq{$position_l1}{$tag_level1}};
         }
     }
   return \%hash_sortBySeq;
