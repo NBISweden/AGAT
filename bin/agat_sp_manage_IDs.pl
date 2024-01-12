@@ -111,9 +111,9 @@ my $opt_tair_suffix=0;
 
 foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-  foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq{$seqid}}){
+  foreach my $tag_l1 (sort {$a cmp $b} keys %{$hash_sortBySeq->{$seqid}}){
 
-    foreach my $feature_l1 ( @{$hash_sortBySeq{$seqid}{$tag_l1}}){ # feature are alredy sorted by function that made that hash
+    foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}}){ # feature are alredy sorted by function that made that hash
       my $id_l1 = lc($feature_l1->_tag_value('ID'));
       my $l1_ID_modified=undef;
 
