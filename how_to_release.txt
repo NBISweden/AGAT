@@ -14,3 +14,17 @@ make test to check everything is fine
 # PR and merge in master branch
 
 # create a release
+
+
+# Docs
+
+To keep the doc sync with the tools we need to generate md file from pod file.
+Here some explanation how to do so.
+
+# extract pod
+for i in AGAT/bin/*;do name=$(basename $i .pl); perl -MPod::Markdown::Github -e "Pod::Markdown::Github->filter('$i')" > $name.md.full ;done
+# remove FEEDBACK info and below
+for i in agat_*.full; do name=$(basename $i .full); awk '{if($0 ~ "FEEDBACK" ) exit; print $0}' $i > $name; done
+# remove the full pod file now it is useless
+rm *.full
+# Do not forget to put the md file into docs/tools and update the index.rst accordingly
