@@ -234,9 +234,9 @@ sub print_omniscient_as_gff{
 	}
 	else{
 
-		### OLD FASHION GOING TRHOUGH LEVEL1
-			#foreach my $primary_tag_l1 ( sort {$a <=> $b or $a cmp $b} keys %{$omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
-			#	foreach my $id_tag_key_level1 ( sort { $omniscient->{'level1'}{$primary_tag_l1}{$a}->start <=> $omniscient->{'level1'}{$primary_tag_l1}{$b}->start } keys %{$omniscient->{'level1'}{$primary_tag_l1}} ) { #sort by position
+		### Just for information - OLD FASHION GOING TRHOUGH LEVEL1
+		#foreach my $primary_tag_l1 ( sort {$a <=> $b or $a cmp $b} keys %{$omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
+		#	foreach my $id_tag_key_level1 ( sort { $omniscient->{'level1'}{$primary_tag_l1}{$a}->start <=> $omniscient->{'level1'}{$primary_tag_l1}{$b}->start } keys %{$omniscient->{'level1'}{$primary_tag_l1}} ) { #sort by position
 
 		### NEW FASHION GOING TRHOUGH LEVEL1 - Have to first create a hash of seq_id -> level1_feature , then we can go through in alphanumerical order.
 
@@ -264,23 +264,23 @@ sub print_omniscient_as_gff{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 							$gffout->write_feature($feature_level2);
 
 							#################
 							# == LEVEL 3 == #
 							#################
 							my $level2_ID ;
-	    				if($feature_level2->has_tag('ID')){
-	    					$level2_ID = lc($feature_level2->_tag_value('ID'));
-	    				}
-	    				elsif($feature_level2->has_tag('transcript_id')){
-	    					$level2_ID = lc( $feature_level2->_tag_value('transcript_id'));
-	    				}
-	    				else{
-	    					warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
-	    				}
-	    				print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
+							if($feature_level2->has_tag('ID')){
+								$level2_ID = lc($feature_level2->_tag_value('ID'));
+							}
+							elsif($feature_level2->has_tag('transcript_id')){
+								$level2_ID = lc( $feature_level2->_tag_value('transcript_id'));
+							}
+							else{
+								warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
+							}
+							print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
 						}
 					}
 				}
@@ -336,7 +336,7 @@ sub print_omniscient_as_match{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) }  @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 							if($primary_tag_l2 =~ "match"){
 								$gffout->write_feature($feature_level2);
@@ -429,7 +429,7 @@ sub print_omniscient_from_level1_id_list {
     	foreach my $primary_tag_key_level2 (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
     		if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
-    			foreach my $feature_level2 ( @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+    			foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
     				#_uri_encode_one_feature($feature_level2);
 
