@@ -5,6 +5,7 @@ use warnings;
 use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
+use Sort::Naturally;
 
 my $header = get_agat_header();
 my $config;
@@ -74,7 +75,7 @@ my %handlers;
 my $gffout;
 #################
 # == LEVEL 1 == #
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+foreach my $tag_l1 ( sort { ncmp ($a, $b) } keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 	# deal with topfeatures and standalone feature type
 	if ( exists_keys ($topfeatures, ($tag_l1) ) or  exists_keys ($standalones, ($tag_l1) ) ){
 
@@ -92,7 +93,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_lev
 	    #################
 	    # == LEVEL 2 == #
 	    my $level1_printed=undef;
-	    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+	    foreach my $tag_l2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
 	      if ( exists_keys ($hash_omniscient, ('level2', $tag_l2, $key_l1) ) ){
 	        foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$key_l1}}) {

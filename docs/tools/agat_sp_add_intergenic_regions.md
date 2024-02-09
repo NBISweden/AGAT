@@ -1,20 +1,18 @@
-# NAME
+# agat\_sp\_add\_intergenic\_regions.pl
 
-agat\_sp\_add\_intergenic\_regions.pl
-
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to add intergenic features (intergenic\_region) to gtf/gff file.
 The intergenic regions are deduced from gene features (feature type gene from the 3rd column).
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_add_intergenic_regions.pl --gff infile --out outFile
 agat_sp_add_intergenic_regions.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f** or **--ref**
 

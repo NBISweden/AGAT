@@ -1,21 +1,19 @@
-# NAME
+# agat\_sp\_move\_attributes\_within\_records.pl
 
-agat\_sp\_move\_attributes\_within\_records.pl
-
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to keep move attributes within a record e.g. from Level1 to Level2 and/or Level3 features; and / or from Level2 to Level2 or Level3 features; and / or from Level3 to Level3 features.
 Example of L1 feature: gene
 Example of L2 featrue
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_move_attributes_within_records.pl --gff infile.gff --feature_copy mRNA  --feature_paste CDS --attribute Dbxref,Ontology [ --output outfile ]
 agat_sp_move_attributes_within_records.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **-f**, **--reffile**, **--gff**  or **-ref**
 
