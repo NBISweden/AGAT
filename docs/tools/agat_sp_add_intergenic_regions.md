@@ -1,6 +1,4 @@
-# NAME
-
-agat\_sp\_add\_intergenic\_regions.pl
+# agat\_sp\_add\_intergenic\_regions.pl
 
 # DESCRIPTION
 

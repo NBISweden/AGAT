@@ -1,6 +1,4 @@
-# NAME
-
-agat\_sp\_add\_splice\_sites.pl
+# agat\_sp\_add\_splice\_sites.pl
 
 # DESCRIPTION
 

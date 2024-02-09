@@ -1,6 +1,4 @@
-# NAME
-
-agat\_sp\_move\_attributes\_within\_records.pl
+# agat\_sp\_move\_attributes\_within\_records.pl
 
 # DESCRIPTION
 
