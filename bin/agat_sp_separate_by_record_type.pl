@@ -5,6 +5,7 @@ use warnings;
 use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
+use Sort::Naturally;
 
 my $header = get_agat_header();
 my $config;
