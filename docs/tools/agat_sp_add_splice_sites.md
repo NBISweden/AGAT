@@ -1,18 +1,18 @@
 # agat\_sp\_add\_splice\_sites.pl
 
-# DESCRIPTION
+## DESCRIPTION
 
 The script aims to add splice sites features (five\_prime\_cis\_splice\_site and three\_prime\_cis\_splice\_site) to gtf/gff file.
 The splice sites are deduced from CDS features.
 
-# SYNOPSIS
+## SYNOPSIS
 
 ```
 agat_sp_add_splice_sites.pl --gff infile --out outFile
 agat_sp_add_splice_sites.pl --help
 ```
 
-# OPTIONS
+## OPTIONS
 
 - **--gff**, **-f**, **--ref** or **-reffile**
 
