@@ -1,0 +1,6 @@
+Chr1	Liftoff	gene	41075	54676	.	+	.	ID=gene-gene1
+Chr1	Liftoff	mRNA	41075	54676	.	+	.	ID=rna-transcript1;Parent=gene-gene1
+Chr1	Liftoff	exon	41075	54676	.	+	.	ID=exon-transcript1-1;Parent=rna-transcript1
+Chr1	Liftoff	CDS	41311	54435	.	+	0	ID=cds-codingsequence-1.1;Parent=rna-transcript1
+Chr1	Liftoff	five_prime_UTR	41075	41310	.	+	.	ID=nbis-five_prime_utr-19342;Parent=rna-transcript1
+Chr1	Liftoff	three_prime_UTR	54436	54676	.	+	.	ID=nbis-three_prime_utr-18368;Parent=rna-transcript1
