@@ -128,7 +128,6 @@ sub complement_omniscients {
 	my ($omniscient1, $omniscient2, $size_min, $verbose)=@_;
 
 	my %add_omniscient;
-
 	$size_min=0 if (! $size_min);
 
 	if(! $verbose){$verbose=0;}
@@ -152,13 +151,12 @@ sub complement_omniscients {
 
 						#If location_to_check start if over the end of the reference location, we stop
 						if($location2->[1] > $location->[2]) {last;}
-						print "location_to_check start if over the end of the reference location.\n" if ($verbose >= 3);
 
 						#If location_to_check end if inferior to the start of the reference location, we continue next
 						if($location2->[2] < $location->[1]) {next;}
-						print "location_to_check start if inferior to the start of the reference location.\n" if ($verbose >= 3);
 
 						# Let's check at Gene LEVEL
+						print  "location overlap at gene level check now level3.\n" if ($verbose >= 3);
 						if( location_overlap($location, $location2) ){ #location overlap at gene level check now level3
 							#let's check at CDS level (/!\ id1_l1 is corresponding to id from $omniscient2)
 							if(check_feature_overlap_from_l3_to_l1($omniscient2, $omniscient1, $id1_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level, otherwise any type of feature level3 overlaping is sufficient to decide that they overlap
@@ -2060,133 +2058,134 @@ sub check_gene_overlap_at_level3{
 # if no l3 check at l2
 # then if no l2 check at l1
 sub check_feature_overlap_from_l3_to_l1{
-  my  ($hash_omniscient, $hash_omniscient2, $gene_id, $gene_id2)=@_;
+	my  ($hash_omniscient, $hash_omniscient2, $gene_id, $gene_id2)=@_;
 
-  my $level3_global=0;
-  my $overlap_ft = undef;
-  my $level2_overlap=undef;
-  my $exist_l2A=undef;
-  my $exist_l2B=undef;
+	my $level3_global=0;
+	my $overlap_ft = undef;
+	my $level2_overlap=undef;
+	my $exist_l2A=undef;
+	my $exist_l2B=undef;
 
-  # check at L3
+	# check at L3
 	foreach my $l2_type (keys %{$hash_omniscient->{'level2'}} ){
 
-		if(exists_keys($hash_omniscient,('level2', $l2_type, lc($gene_id)))){
-      $exist_l2A=1;
+		if(exists_keys($hash_omniscient,('level2', $l2_type, lc($gene_id)))){	
+      		$exist_l2A=1;
 
 			foreach my $mrna_feature (@{$hash_omniscient->{'level2'}{$l2_type}{lc($gene_id)}}){
 				my $mrna_id1 = $mrna_feature->_tag_value('ID');
 
 				if(exists_keys($hash_omniscient2,('level2', $l2_type, lc($gene_id2)))){
+          			# from here both feature level2 are the same type
+			    	foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){
+						my $mrna_id2 = $mrna_feature2->_tag_value('ID');
 
-          # from here both feature level2 are the same type
-			    foreach my $mrna_feature2 (@{$hash_omniscient2->{'level2'}{$l2_type}{lc($gene_id2)}}){
-					  my $mrna_id2 = $mrna_feature2->_tag_value('ID');
+            			# check overlap in case for later if Level3 test not possible
+						if(($mrna_feature2->start <= $mrna_feature->end) and ($mrna_feature2->end >= $mrna_feature->start )){ # they overlap
+							$level2_overlap=$l2_type;
+						}
 
-            # check overlap in case for later if LEvel3 test not possible
-            if(($mrna_feature2->start <= $mrna_feature->end) and ($mrna_feature2->end >= $mrna_feature->start )){ # they overlap
-              $level2_overlap=$l2_type;
-            }
+						#check all cds pieces - CDS against CDS
+						my $cds_local=0;
+						$cds_local++ if ( exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1))));
+						$cds_local++ if ( exists_keys($hash_omniscient2,('level3', 'cds', lc($mrna_id2))));
+						$level3_global += $cds_local;
+						if( $cds_local == 2) {
+							foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
+								foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
+									if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
+										$overlap_ft = "cds";
+										last;
+									}
+								}
+								last if ($overlap_ft);
+							}
+						}
 
-				    #check all cds pieces - CDS against CDS
-            my $cds_local=0;
-            $cds_local++ if ( exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id1))));
-            $cds_local++ if ( exists_keys($hash_omniscient,('level3', 'cds', lc($mrna_id2))));
-            $level3_global += $cds_local;
-				    if( $cds_local == 2) {
-						  foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'cds'}{lc($mrna_id1)}}){
-					      foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'cds'}{lc($mrna_id2)}}){
-					        if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
-                    $overlap_ft = "cds";
-                    last;
-					        }
-					      }
-                last if ($overlap_ft);
-				      }
-				    }
-            # No CDS, check at exon
-            elsif(!$cds_local){
-              # check all exon pieces - exon against exon
-              my $exon_local=0;
-              $exon_local++ if ( exists_keys($hash_omniscient,('level3', 'exon', lc($mrna_id1))));
-              $exon_local++ if ( exists_keys($hash_omniscient,('level3', 'exon', lc($mrna_id2))));
-              $level3_global += $exon_local;
-              if( $exon_local == 2) {
-                foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'exon'}{lc($mrna_id1)}}){
-                  foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'exon'}{lc($mrna_id2)}}){
-                    if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
-                      $overlap_ft = "exon";
-                      last;
-                    }
-                  }
-                  last if ($overlap_ft);
-                }
-              }
-              # No CDS, No exon, check at other feature types
-              elsif(!$exon_local){
-  				    	foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
-                  if ($tag_l3 ne "cds" or $tag_l3 ne "exon"){
-                    my $l3_local=0;
-                    $l3_local++ if ( exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1))));
-                    $l3_local++ if ( exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id2))));
-                    $level3_global += $l3_local;
-                    if( $l3_local == 2) {
-      				    		foreach my $feature1 (@{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id1)}}){
-      				    			foreach my $feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
-    				    					if(($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start )){ # they overlap
-                            $overlap_ft = $tag_l3;
-                            last;
-    					          	}
-                          last if ($overlap_ft);
-    						        }
-    							    }
-    								}
-                    last if ($overlap_ft);
-                  }
-  							}
-              }
-				    }
-            last if ($overlap_ft);
-			    }
+						# No CDS, check at exon
+						elsif(!$cds_local){
+							# check all exon pieces - exon against exon
+							my $exon_local=0;
+							$exon_local++ if ( exists_keys($hash_omniscient,('level3', 'exon', lc($mrna_id1))));
+							$exon_local++ if ( exists_keys($hash_omniscient,('level3', 'exon', lc($mrna_id2))));
+							$level3_global += $exon_local;
+							if( $exon_local == 2) {
+								foreach my $cds_feature1 (@{$hash_omniscient->{'level3'}{'exon'}{lc($mrna_id1)}}){
+									foreach my $cds_feature2 (@{$hash_omniscient2->{'level3'}{'exon'}{lc($mrna_id2)}}){
+										if(($cds_feature2->start <= $cds_feature1->end) and ($cds_feature2->end >= $cds_feature1->start )){ # they overlap
+											$overlap_ft = "exon";
+											last;
+										}
+									}
+									last if ($overlap_ft);
+								}
+							}
+							# No CDS, No exon, check at other feature types
+							elsif(!$exon_local){
+								foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
+									if ($tag_l3 ne "cds" or $tag_l3 ne "exon"){
+										my $l3_local=0;
+										$l3_local++ if ( exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id1))));
+										$l3_local++ if ( exists_keys($hash_omniscient,('level3', $tag_l3, lc($mrna_id2))));
+										$level3_global += $l3_local;
+										if( $l3_local == 2) {
+											foreach my $feature1 (@{$hash_omniscient->{'level3'}{$tag_l3}{lc($mrna_id1)}}){
+												foreach my $feature2 (@{$hash_omniscient2->{'level3'}{$tag_l3}{lc($mrna_id2)}}){
+													if(($feature2->start <= $feature1->end) and ($feature2->end >= $feature1->start )){ # they overlap
+														$overlap_ft = $tag_l3;
+														last;
+													}
+													last if ($overlap_ft);
+												}
+											}
+										}
+										last if ($overlap_ft);
+									}
+								}
+							}
+						}
+						last if ($overlap_ft);
+					}
 				}
-        last if ($overlap_ft);
+				last if ($overlap_ft);
 			}
 		}
-    last if ($overlap_ft);
+	last if ($overlap_ft);
 	}
-  # Level3 test not possible, check overlap at level2
-  if (! $level3_global){ #nothing tested at level3
-    if ( $level2_overlap){
-      $overlap_ft = $level2_overlap;
-    }
-    else{
-      if (! $exist_l2A){
-        # check other locus was wihtout l2 also
-        foreach my $l2_type (keys %{$hash_omniscient->{'level2'}} ){
-          if(exists_keys($hash_omniscient,('level2', $l2_type, lc($gene_id2)))){
-            $exist_l2B=1;
-          }
-        }
-        if (! $exist_l2B){ # locus2 was also without l2 let's check at level1 now
-          foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}} ){
-            if(exists_keys($hash_omniscient,('level1', $tag_l1, lc($gene_id)))){
-              if(exists_keys($hash_omniscient,('level1', $tag_l1, lc($gene_id2)))){
-                my $level1_feature = $hash_omniscient->{'level1'}{$tag_l1}{$gene_id};
-                my $level1_feature2 = $hash_omniscient->{'level1'}{$tag_l1}{$gene_id2};
-                if(($level1_feature2->start <= $level1_feature->end) and ($level1_feature2->end >= $level1_feature->start )){ # they overlap
-                  $overlap_ft=$tag_l1;
-                  last
-                }
-              }
-              else{
-                last;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+
+ 	# Level3 test not possible, check overlap at level2
+ 	if (! $level3_global){ #nothing tested at level3
+		if ( $level2_overlap){
+			$overlap_ft = $level2_overlap;
+		}
+		else{
+			if (! $exist_l2A){
+				# check other locus was wihtout l2 also
+				foreach my $l2_type (keys %{$hash_omniscient->{'level2'}} ){
+					if(exists_keys($hash_omniscient,('level2', $l2_type, lc($gene_id2)))){
+						$exist_l2B=1;
+					}
+				}
+				if (! $exist_l2B){ # locus2 was also without l2 let's check at level1 now
+					foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}} ){
+						if(exists_keys($hash_omniscient,('level1', $tag_l1, lc($gene_id)))){
+							if(exists_keys($hash_omniscient,('level1', $tag_l1, lc($gene_id2)))){
+								my $level1_feature = $hash_omniscient->{'level1'}{$tag_l1}{$gene_id};
+								my $level1_feature2 = $hash_omniscient->{'level1'}{$tag_l1}{$gene_id2};
+								if(($level1_feature2->start <= $level1_feature->end) and ($level1_feature2->end >= $level1_feature->start )){ # they overlap
+									$overlap_ft=$tag_l1;
+									last
+								}
+							}
+							else{
+								last;
+							}
+						}
+					}
+				}
+			}
+    	}
+  	}
   return $overlap_ft;
 }
 
