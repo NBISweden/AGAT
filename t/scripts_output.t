@@ -260,6 +260,11 @@ system(" $script --ref t/gff_syntax/in/25_test.gff  --add t/gff_syntax/in/9_test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$result = "$output_folder/agat_sp_complement_annotations_2.gff";
+system(" $script --ref $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff  --add $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # --------check agat_sp_ensembl_output_style.pl-------------
 

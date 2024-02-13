@@ -1,0 +1,7 @@
+##gff-version 3
+Chr1	Helixer	gene	41064	54753	.	+	.	ID=Chr1_000001
+Chr1	Helixer	mRNA	41064	54753	.	+	.	ID=Chr1_000001.1;Parent=Chr1_000001
+Chr1	Helixer	exon	41064	54753	.	+	.	ID=Chr1_000001.1.exon.1;Parent=Chr1_000001.1
+Chr1	Helixer	CDS	41311	54435	.	+	0	ID=Chr1_000001.1.CDS.1;Parent=Chr1_000001.1
+Chr1	Helixer	five_prime_UTR	41064	41310	.	+	.	ID=Chr1_000001.1.five_prime_UTR.1;Parent=Chr1_000001.1
+Chr1	Helixer	three_prime_UTR	54436	54753	.	+	.	ID=Chr1_000001.1.three_prime_UTR.1;Parent=Chr1_000001.1
