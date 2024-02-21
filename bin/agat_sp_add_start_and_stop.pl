@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 use POSIX qw(strftime);
-use List::MoreUtils  qw(natatime);;
+use List::MoreUtils  qw(natatime);
+use Sort::Naturally;
 use Carp;
 use Getopt::Long;
 use Pod::Usage;
@@ -102,8 +103,8 @@ my $counter_end_added = 0;
 ### Parse GFF input #
 # get nb of each feature in omniscient;
 foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
-  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
-    foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}} ){
+  foreach my $id_l1 (sort { ncmp ($a, $b) } keys %{$hash_omniscient->{'level2'}{$tag_l2}}){
+    foreach my $feature_l2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}} ){
 
       # get level2 id
       my $id_level2 = lc($feature_l2->_tag_value('ID'));
