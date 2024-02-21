@@ -617,7 +617,6 @@ Output gff file updated
 
 Boolean - When no start/stop codon found, try to extend the CDS to meet the next start/stop codon in the sequence. 
 
-
 =item B<--ni> or B<--na>
 
 Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
