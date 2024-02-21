@@ -292,6 +292,13 @@ sub slurp_gff3_file_JD {
 				}
 				next;
 			}
+			# save header if any
+			if ($level eq 'config'){
+				foreach my $thing( keys %{$file->{'other'} } ){
+					$omniscient{'config'}{$thing} = $file->{'config'}{$thing};
+				}
+				next;
+			}
 			if ( ref($file->{$level}) eq 'HASH'){ #Header,level1,level2,#level3
 				foreach my $tag (keys %{$file->{$level}}){
 					foreach my $id (keys %{$file->{$level}{$tag}}){
