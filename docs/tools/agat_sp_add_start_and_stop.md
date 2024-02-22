@@ -31,6 +31,14 @@ agat_sp_add_start_and_stop.pl.pl --help
 
     Output gff file updated
 
+- **-e** or **--extend**
+
+    Boolean - When no start/stop codon found, try to extend the CDS to meet the next start/stop codon in the sequence. 
+
+- **--ni** or **--na**
+
+    Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
+
 - **-v**
 
     Verbose for debugging purpose.

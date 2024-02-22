@@ -1,0 +1,86 @@
+##gff-version 3
+1	irgsp	gene	303233	306736	.	+	.	ID=gene:Os01g0105700;Name=basic helix-loop-helix protein 071;biotype=protein_coding;description=Basic helix-loop-helix dimerisation region bHLH domain containing protein. (Os01t0105700-01);gene_id=Os01g0105700;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	303233	306736	.	+	.	ID=transcript:Os01t0105700-01;Parent=gene:Os01g0105700;biotype=protein_coding;transcript_id=Os01t0105700-01
+1	irgsp	five_prime_UTR	303233	303328	.	+	.	Parent=transcript:Os01t0105700-01
+1	irgsp	exon	303233	303471	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0105700-01.exon1;rank=1
+1	irgsp	CDS	303329	303471	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	303981	304509	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0105700-01.exon2;rank=2
+1	irgsp	CDS	303981	304509	.	+	1	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	305572	305718	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon3;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105700-01.exon3;rank=3
+1	irgsp	CDS	305572	305718	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	305834	305899	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon4;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105700-01.exon4;rank=4
+1	irgsp	CDS	305834	305899	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	305993	306058	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon5;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105700-01.exon5;rank=5
+1	irgsp	CDS	305993	306058	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	306171	306245	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon6;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105700-01.exon6;rank=6
+1	irgsp	CDS	306171	306245	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	CDS	306353	306490	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	irgsp	exon	306353	306736	.	+	.	Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon7;constitutive=1;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0105700-01.exon7;rank=7
+1	irgsp	three_prime_UTR	306494	306736	.	+	.	Parent=transcript:Os01t0105700-01
+###
+1	irgsp	gene	306871	308842	.	-	.	ID=gene:Os01g0105800;Name=IRON-SULFUR CLUSTER PROTEIN 9;biotype=protein_coding;description=Similar to Iron sulfur assembly protein 1. (Os01t0105800-01);gene_id=Os01g0105800;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	306871	308842	.	-	.	ID=transcript:Os01t0105800-01;Parent=gene:Os01g0105800;biotype=protein_coding;transcript_id=Os01t0105800-01
+1	irgsp	three_prime_UTR	306871	307123	.	-	.	Parent=transcript:Os01t0105800-01
+1	irgsp	exon	306871	307217	.	-	.	Parent=transcript:Os01t0105800-01;Name=Os01t0105800-01.exon4;constitutive=1;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0105800-01.exon4;rank=4
+1	irgsp	CDS	307127	307217	.	-	1	ID=CDS:Os01t0105800-01;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
+1	irgsp	exon	307296	307413	.	-	.	Parent=transcript:Os01t0105800-01;Name=Os01t0105800-01.exon3;constitutive=1;ensembl_end_phase=2;ensembl_phase=1;exon_id=Os01t0105800-01.exon3;rank=3
+1	irgsp	CDS	307296	307413	.	-	2	ID=CDS:Os01t0105800-01;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
+1	irgsp	CDS	308397	308601	.	-	0	ID=CDS:Os01t0105800-01;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
+1	irgsp	exon	308397	308626	.	-	.	Parent=transcript:Os01t0105800-01;Name=Os01t0105800-01.exon2;constitutive=1;ensembl_end_phase=1;ensembl_phase=-1;exon_id=Os01t0105800-01.exon2;rank=2
+1	irgsp	five_prime_UTR	308602	308626	.	-	.	Parent=transcript:Os01t0105800-01
+1	irgsp	exon	308703	308842	.	-	.	Parent=transcript:Os01t0105800-01;Name=Os01t0105800-01.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0105800-01.exon1;rank=1
+1	irgsp	five_prime_UTR	308703	308842	.	-	.	Parent=transcript:Os01t0105800-01
+###
+1	irgsp	gene	309520	313170	.	-	.	ID=gene:Os01g0105900;biotype=protein_coding;description=Carbohydrate/purine kinase domain containing protein. (Os01t0105900-01);gene_id=Os01g0105900;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	309520	313170	.	-	.	ID=transcript:Os01t0105900-01;Parent=gene:Os01g0105900;biotype=protein_coding;transcript_id=Os01t0105900-01
+1	irgsp	three_prime_UTR	309520	309821	.	-	.	Parent=transcript:Os01t0105900-01
+1	irgsp	exon	309520	310070	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon8;constitutive=1;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0105900-01.exon8;rank=8
+1	irgsp	CDS	309825	310070	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	310256	310367	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon7;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0105900-01.exon7;rank=7
+1	irgsp	CDS	310256	310367	.	-	1	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	310455	310552	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon6;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0105900-01.exon6;rank=6
+1	irgsp	CDS	310455	310552	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	310632	310739	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon5;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105900-01.exon5;rank=5
+1	irgsp	CDS	310632	310739	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	310880	310918	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon4;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105900-01.exon4;rank=4
+1	irgsp	CDS	310880	310918	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	311002	311073	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon3;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105900-01.exon3;rank=3
+1	irgsp	CDS	311002	311073	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	311163	311426	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0105900-01.exon2;rank=2
+1	irgsp	CDS	311163	311426	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	CDS	312867	313064	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	irgsp	exon	312867	313170	.	-	.	Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon1;constitutive=1;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0105900-01.exon1;rank=1
+1	irgsp	five_prime_UTR	313065	313170	.	-	.	Parent=transcript:Os01t0105900-01
+###
+1	irgsp	gene	319754	322205	.	+	.	ID=gene:Os01g0106200;biotype=protein_coding;description=Similar to RER1A protein (AtRER1A). (Os01t0106200-01);gene_id=Os01g0106200;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	319754	322205	.	+	.	ID=transcript:Os01t0106200-01;Parent=gene:Os01g0106200;biotype=protein_coding;transcript_id=Os01t0106200-01
+1	irgsp	five_prime_UTR	319754	319874	.	+	.	Parent=transcript:Os01t0106200-01
+1	irgsp	exon	319754	320236	.	+	.	Parent=transcript:Os01t0106200-01;Name=Os01t0106200-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0106200-01.exon1;rank=1
+1	irgsp	CDS	319875	320236	.	+	0	ID=CDS:Os01t0106200-01;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
+1	irgsp	exon	321468	321648	.	+	.	Parent=transcript:Os01t0106200-01;Name=Os01t0106200-01.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=2;exon_id=Os01t0106200-01.exon2;rank=2
+1	irgsp	CDS	321468	321648	.	+	1	ID=CDS:Os01t0106200-01;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
+1	irgsp	CDS	321928	321972	.	+	0	ID=CDS:Os01t0106200-01;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
+1	irgsp	exon	321928	322205	.	+	.	Parent=transcript:Os01t0106200-01;Name=Os01t0106200-01.exon3;constitutive=1;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0106200-01.exon3;rank=3
+1	irgsp	three_prime_UTR	321976	322205	.	+	.	Parent=transcript:Os01t0106200-01
+### No start no end
+1	irgsp	gene	25861	26424	.	-	.	ID=gene:Os01g0100650;biotype=protein_coding;description=Hypothetical gene. (Os01t0100650-00);gene_id=Os01g0100650;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	25861	26424	.	-	.	ID=transcript:Os01t0100650-00;Parent=gene:Os01g0100650;biotype=protein_coding;transcript_id=Os01t0100650-00
+1	irgsp	three_prime_UTR	25861	26039	.	-	.	Parent=transcript:Os01t0100650-00
+1	irgsp	exon	25861	26424	.	-	.	Parent=transcript:Os01t0100650-00;Name=Os01t0100650-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100650-00.exon1;rank=1
+1	irgsp	CDS	26058	26423	.	-	0	ID=CDS:Os01t0100650-00;Parent=transcript:Os01t0100650-00;protein_id=Os01t0100650-00
+1	irgsp	five_prime_UTR	26424	26424	.	-	.	Parent=transcript:Os01t0100650-00
+### Sould extend to find start but avoid out of sequence (<0)
+#1	irgsp	gene	58658	61090	.	+	.	ID=gene:Os01g0101150;biotype=protein_coding;description=Hypothetical conserved gene. (Os01t0101150-00);gene_id=Os01g0101150;logic_name=irgspv1.0-20170804-genes
+#1	irgsp	mRNA	58658	61090	.	+	.	ID=transcript:Os01t0101150-00;Parent=gene:Os01g0101150;biotype=protein_coding;transcript_id=Os01t0101150-00
+#1	irgsp	exon	58658	61090	.	+	.	Parent=transcript:Os01t0101150-00;Name=Os01t0101150-00.exon1;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0101150-00.exon1;rank=1
+#1	irgsp	CDS	58661	61000	.	+	0	ID=CDS:Os01t0101150-00;Parent=transcript:Os01t0101150-00;protein_id=Os01t0101150-00
+### Sequence length = 43270923. No start, No Stop . Extension to find stop should stop because reach end of sequence
+1	irgsp	gene	43270900	43270919	.	+	.	ID=geneA
+1	irgsp	mRNA	43270900	43270919	.	+	.	ID=transcriptA;Parent=geneA
+1	irgsp	exon	43270900	43270919	.	+	.	Parent=transcriptA
+1	irgsp	CDS	43270900	43270919	.	+	0	Parent=transcriptA
+### Sequence length = 43270923. No start, No Stop . Extension to find start should stop because reach beginning of sequence
+1	irgsp	gene	34	123	.	+	.	ID=geneX
+1	irgsp	mRNA	34	123	.	+	.	ID=transcriptX;Parent=geneX
+1	irgsp	exon	34	123	.	+	.	Parent=transcriptX
+1	irgsp	CDS	34	123	.	+	0	Parent=transcriptX

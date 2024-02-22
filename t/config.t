@@ -70,7 +70,7 @@ my $new_config_name = "agat_config_renamed.yml";
 system("$script config -e --output $new_config_name --locus_tag Name");
 
 #run test 
-ok( system("if [[ -e $new_config_name ]];then exit 0;fi") == 0, "rename agat config file check");
+ok( system("if [ -e $new_config_name ];then exit 0;fi") == 0, "rename agat config file check");
 
 # ----- Test use a renamed config file ----
 

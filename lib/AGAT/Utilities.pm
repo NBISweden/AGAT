@@ -75,6 +75,10 @@ sub get_proper_codon_table {
   my ($codon_table_id_original) = @_;
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
+  if (!$codon_table_id_bioperl){
+	$codon_table_id_bioperl = 1 ;
+	$codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
+  }  
 
   if ($codon_table_id_original == 0 and  $codon_table_id_original != $codon_table_id_bioperl){
     $codonTable->warn("Your version of bioperl do not handle codon table 0\n".
