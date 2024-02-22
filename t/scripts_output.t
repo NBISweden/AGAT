@@ -213,6 +213,13 @@ system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $inp
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$script = $script_prefix."bin/agat_sp_add_start_and_stop.pl";
+$result = "$output_folder/agat_sp_add_start_and_stop_2.gff";
+system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $input_folder/1.fa -e --ni -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # -------------------------- check agat_sp_statistics --------------------------
 
 $script = $script_prefix."bin/agat_sp_alignment_output_style.pl";

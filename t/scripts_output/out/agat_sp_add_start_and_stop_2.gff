@@ -1,16 +1,17 @@
 ##gff-version 3
-1	irgsp	gene	34	123	.	+	.	ID=geneX
-1	irgsp	mRNA	34	123	.	+	.	ID=transcriptX;Parent=geneX
-1	irgsp	exon	34	123	.	+	.	ID=agat-exon-2;Parent=transcriptX
-1	irgsp	CDS	34	123	.	+	0	ID=agat-cds-2;Parent=transcriptX
-1	AGAT	start_codon	34	36	.	+	.	ID=start_added-6;Parent=transcriptX
-1	AGAT	stop_codon	121	123	.	+	.	ID=stop_added-6;Parent=transcriptX
-1	irgsp	gene	25861	26424	.	-	.	ID=gene:Os01g0100650;biotype=protein_coding;description=Hypothetical gene. (Os01t0100650-00);gene_id=Os01g0100650;logic_name=irgspv1.0-20170804-genes
-1	irgsp	mRNA	25861	26424	.	-	.	ID=transcript:Os01t0100650-00;Parent=gene:Os01g0100650;biotype=protein_coding;transcript_id=Os01t0100650-00
-1	irgsp	exon	25861	26424	.	-	.	ID=Os01t0100650-00.exon1;Parent=transcript:Os01t0100650-00;Name=Os01t0100650-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100650-00.exon1;rank=1
-1	irgsp	CDS	26055	26423	.	-	0	ID=CDS:Os01t0100650-00;Parent=transcript:Os01t0100650-00;protein_id=Os01t0100650-00
+1	irgsp	gene	34	1011	.	+	.	ID=geneX
+1	irgsp	mRNA	34	1011	.	+	.	ID=transcriptX;Parent=geneX
+1	irgsp	exon	34	1011	.	+	.	ID=agat-exon-2;Parent=transcriptX
+1	irgsp	CDS	34	1011	.	+	0	ID=agat-cds-2;Parent=transcriptX
+1	AGAT	stop_codon	1009	1011	.	+	.	ID=stop_added-6;Parent=transcriptX
+1	irgsp	gene	25861	26447	.	-	.	ID=gene:Os01g0100650;biotype=protein_coding;description=Hypothetical gene. (Os01t0100650-00);gene_id=Os01g0100650;logic_name=irgspv1.0-20170804-genes
+1	irgsp	mRNA	25861	26447	.	-	.	ID=transcript:Os01t0100650-00;Parent=gene:Os01g0100650;biotype=protein_coding;transcript_id=Os01t0100650-00
+1	irgsp	exon	25861	26447	.	-	.	ID=Os01t0100650-00.exon1;Parent=transcript:Os01t0100650-00;Name=Os01t0100650-00.exon1;constitutive=1;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0100650-00.exon1;rank=1
+1	irgsp	CDS	26040	26447	.	-	0	ID=CDS:Os01t0100650-00;Parent=transcript:Os01t0100650-00;protein_id=Os01t0100650-00
 1	irgsp	five_prime_UTR	26424	26424	.	-	.	ID=agat-five_prime_utr-6;Parent=transcript:Os01t0100650-00
-1	irgsp	three_prime_UTR	25861	26057	.	-	.	ID=agat-three_prime_utr-5;Parent=transcript:Os01t0100650-00
+1	AGAT	start_codon	26445	26447	.	-	.	ID=start_added-2;Parent=transcript:Os01t0100650-00;protein_id=Os01t0100650-00
+1	AGAT	stop_codon	26040	26042	.	-	.	ID=stop_added-1;Parent=transcript:Os01t0100650-00;protein_id=Os01t0100650-00
+1	irgsp	three_prime_UTR	25861	26039	.	-	.	ID=agat-three_prime_utr-5;Parent=transcript:Os01t0100650-00
 1	irgsp	gene	303233	306736	.	+	.	ID=gene:Os01g0105700;Name=basic helix-loop-helix protein 071;biotype=protein_coding;description=Basic helix-loop-helix dimerisation region bHLH domain containing protein. (Os01t0105700-01);gene_id=Os01g0105700;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	303233	306736	.	+	.	ID=transcript:Os01t0105700-01;Parent=gene:Os01g0105700;biotype=protein_coding;transcript_id=Os01t0105700-01
 1	irgsp	exon	303233	303471	.	+	.	ID=Os01t0105700-01.exon1;Parent=transcript:Os01t0105700-01;Name=Os01t0105700-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0105700-01.exon1;rank=1
@@ -28,9 +29,9 @@
 1	irgsp	CDS	306171	306245	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
 1	irgsp	CDS	306353	306493	.	+	0	ID=CDS:Os01t0105700-01;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
 1	irgsp	five_prime_UTR	303233	303328	.	+	.	ID=agat-five_prime_utr-1;Parent=transcript:Os01t0105700-01
-1	AGAT	start_codon	303329	303331	.	+	.	ID=start_added-2;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
+1	AGAT	start_codon	303329	303331	.	+	.	ID=start_added-3;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
 1	AGAT	stop_codon	306491	306493	.	+	.	ID=stop_added-2;Parent=transcript:Os01t0105700-01;protein_id=Os01t0105700-01
-1	irgsp	three_prime_UTR	306491	306736	.	+	.	ID=agat-three_prime_utr-1;Parent=transcript:Os01t0105700-01
+1	irgsp	three_prime_UTR	306494	306736	.	+	.	ID=agat-three_prime_utr-1;Parent=transcript:Os01t0105700-01
 1	irgsp	gene	306871	308842	.	-	.	ID=gene:Os01g0105800;Name=IRON-SULFUR CLUSTER PROTEIN 9;biotype=protein_coding;description=Similar to Iron sulfur assembly protein 1. (Os01t0105800-01);gene_id=Os01g0105800;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	306871	308842	.	-	.	ID=transcript:Os01t0105800-01;Parent=gene:Os01g0105800;biotype=protein_coding;transcript_id=Os01t0105800-01
 1	irgsp	exon	306871	307217	.	-	.	ID=Os01t0105800-01.exon4;Parent=transcript:Os01t0105800-01;Name=Os01t0105800-01.exon4;constitutive=1;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0105800-01.exon4;rank=4
@@ -42,9 +43,9 @@
 1	irgsp	CDS	308397	308601	.	-	0	ID=CDS:Os01t0105800-01;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
 1	irgsp	five_prime_UTR	308602	308626	.	-	.	ID=agat-five_prime_utr-2;Parent=transcript:Os01t0105800-01
 1	irgsp	five_prime_UTR	308703	308842	.	-	.	ID=agat-five_prime_utr-3;Parent=transcript:Os01t0105800-01
-1	AGAT	start_codon	308599	308601	.	-	.	ID=start_added-3;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
+1	AGAT	start_codon	308599	308601	.	-	.	ID=start_added-4;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
 1	AGAT	stop_codon	307124	307126	.	-	.	ID=stop_added-3;Parent=transcript:Os01t0105800-01;protein_id=Os01t0105800-01
-1	irgsp	three_prime_UTR	306871	307126	.	-	.	ID=agat-three_prime_utr-2;Parent=transcript:Os01t0105800-01
+1	irgsp	three_prime_UTR	306871	307123	.	-	.	ID=agat-three_prime_utr-2;Parent=transcript:Os01t0105800-01
 1	irgsp	gene	309520	313170	.	-	.	ID=gene:Os01g0105900;biotype=protein_coding;description=Carbohydrate/purine kinase domain containing protein. (Os01t0105900-01);gene_id=Os01g0105900;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	309520	313170	.	-	.	ID=transcript:Os01t0105900-01;Parent=gene:Os01g0105900;biotype=protein_coding;transcript_id=Os01t0105900-01
 1	irgsp	exon	309520	310070	.	-	.	ID=Os01t0105900-01.exon8;Parent=transcript:Os01t0105900-01;Name=Os01t0105900-01.exon8;constitutive=1;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0105900-01.exon8;rank=8
@@ -64,9 +65,9 @@
 1	irgsp	CDS	311163	311426	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
 1	irgsp	CDS	312867	313064	.	-	0	ID=CDS:Os01t0105900-01;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
 1	irgsp	five_prime_UTR	313065	313170	.	-	.	ID=agat-five_prime_utr-4;Parent=transcript:Os01t0105900-01
-1	AGAT	start_codon	313062	313064	.	-	.	ID=start_added-4;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
+1	AGAT	start_codon	313062	313064	.	-	.	ID=start_added-5;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
 1	AGAT	stop_codon	309822	309824	.	-	.	ID=stop_added-4;Parent=transcript:Os01t0105900-01;protein_id=Os01t0105900-01
-1	irgsp	three_prime_UTR	309520	309824	.	-	.	ID=agat-three_prime_utr-3;Parent=transcript:Os01t0105900-01
+1	irgsp	three_prime_UTR	309520	309821	.	-	.	ID=agat-three_prime_utr-3;Parent=transcript:Os01t0105900-01
 1	irgsp	gene	319754	322205	.	+	.	ID=gene:Os01g0106200;biotype=protein_coding;description=Similar to RER1A protein (AtRER1A). (Os01t0106200-01);gene_id=Os01g0106200;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	319754	322205	.	+	.	ID=transcript:Os01t0106200-01;Parent=gene:Os01g0106200;biotype=protein_coding;transcript_id=Os01t0106200-01
 1	irgsp	exon	319754	320236	.	+	.	ID=Os01t0106200-01.exon1;Parent=transcript:Os01t0106200-01;Name=Os01t0106200-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0106200-01.exon1;rank=1
@@ -76,12 +77,11 @@
 1	irgsp	CDS	321468	321648	.	+	1	ID=CDS:Os01t0106200-01;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
 1	irgsp	CDS	321928	321975	.	+	0	ID=CDS:Os01t0106200-01;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
 1	irgsp	five_prime_UTR	319754	319874	.	+	.	ID=agat-five_prime_utr-5;Parent=transcript:Os01t0106200-01
-1	AGAT	start_codon	319875	319877	.	+	.	ID=start_added-5;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
+1	AGAT	start_codon	319875	319877	.	+	.	ID=start_added-6;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
 1	AGAT	stop_codon	321973	321975	.	+	.	ID=stop_added-5;Parent=transcript:Os01t0106200-01;protein_id=Os01t0106200-01
-1	irgsp	three_prime_UTR	321973	322205	.	+	.	ID=agat-three_prime_utr-4;Parent=transcript:Os01t0106200-01
-1	irgsp	gene	43270900	43270919	.	+	.	ID=geneA
-1	irgsp	mRNA	43270900	43270919	.	+	.	ID=transcriptA;Parent=geneA
-1	irgsp	exon	43270900	43270919	.	+	.	ID=agat-exon-1;Parent=transcriptA
-1	irgsp	CDS	43270900	43270919	.	+	0	ID=agat-cds-1;Parent=transcriptA
-1	AGAT	start_codon	43270900	43270902	.	+	.	ID=start_added-1;Parent=transcriptA
-1	AGAT	stop_codon	43270917	43270919	.	+	.	ID=stop_added-1;Parent=transcriptA
+1	irgsp	three_prime_UTR	321976	322205	.	+	.	ID=agat-three_prime_utr-4;Parent=transcript:Os01t0106200-01
+1	irgsp	gene	43269907	43270922	.	+	.	ID=geneA
+1	irgsp	mRNA	43269907	43270922	.	+	.	ID=transcriptA;Parent=geneA
+1	irgsp	exon	43269907	43270922	.	+	.	ID=agat-exon-1;Parent=transcriptA
+1	irgsp	CDS	43269907	43270922	.	+	0	ID=agat-cds-1;Parent=transcriptA
+1	AGAT	start_codon	43269907	43269909	.	+	.	ID=start_added-1;Parent=transcriptA
