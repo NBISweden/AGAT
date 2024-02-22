@@ -134,6 +134,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
           print "start_codon already exists for $id_level2\n" if ($verbose);
         }
         else{
+          # ----- Find the start codon -----
           my $extension=0;
           my $start_codon = undef;
           if ( !$start_codon ){
@@ -154,7 +155,16 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
             }
           }
 
+          # ----- Create the start codon -----
           if ($start_codon) {
+            # Modify CDS to reflect result, because CDS will be used as template to create the start_codon 
+            if($strand eq "+"){
+              $cds_feature_list[0]->start( $cds_feature_list[0]->start() - $extension);
+            } else {
+              $cds_feature_list[-1]->end( $cds_feature_list[-1]->end() + $extension);
+            }
+
+            # Count number of start codon created
             $counter_start_added++;
 
             # create start feature
@@ -229,8 +239,8 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         if ( exists ($hash_omniscient->{'level3'}{'stop_codon'}{$id_level2} ) ){
           print "stop_codon already exists for $id_level2\n" if ($verbose);
         }
-        else{
-
+        else{ 
+          # ----- Find a stop codon -----
           # Need to try last codon for GFF and codon after CDS in case of GTF
           my $extension = 0;
           my $terminal_codon = undef;
@@ -261,13 +271,17 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
               $out = is_out_of_seq_stop(\@cds_feature_list, $extension + 3); # check if next codon is out of seq
             }
           }
-          # now lets handle the case if it is a stop codon
+
+          # ----- Create the stop codon -----
           if ( $terminal_codon ){
+            # Modify CDS to reflect result, because CDS will be used as template to create the stop_codon 
             if($strand eq "+"){
               $cds_feature_list[-1]->end( $cds_feature_list[-1]->end() + $extension);
             } else {
               $cds_feature_list[0]->start( $cds_feature_list[0]->start() - $extension);
             }
+
+            # Count number of start codon created
             $counter_end_added++;
 
             # create stop feature
@@ -341,7 +355,15 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
   }
 }
 
-print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+# case we need to check start stop of the features not CDS
+if ($opt_extend){
+  my ($new_hash_omniscient, $new_hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
+                                                                  config => $config });
+  print_omniscient( {omniscient => $new_hash_omniscient, output => $gffout} );
+} else {
+  print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+}
+
 print "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n";
 print "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n";
 print "bye bye\n";
