@@ -2201,69 +2201,60 @@ sub _check_exons{
 								"a next step) !!\n") if($debug);
 
 								my $location_cpt=0;
-			 						foreach my $location (sort {$a->[1] <=> $b->[1] } @{$list_location_NoExon}){
-			 							$location_cpt++;
+			 					foreach my $location (sort {$a->[1] <=> $b->[1] } @{$list_location_NoExon}){
+			 						$location_cpt++;
 
-			 							my $create_exon=1;
-			 							my $new_location;
-			 							my $overlap;
+			 						my $create_exon=1;
+			 						my $new_location;
+			 						my $overlap;
 
-			 							foreach my $exon_location (sort {$a->[1] <=> $b->[1] } @{$list_location_Exon}){
+		 							foreach my $exon_location (sort {$a->[1] <=> $b->[1] } @{$list_location_Exon}){
 
-			 								($new_location, $overlap) = _manage_location_lowLevel_adjacent($location, $exon_location); #there is an overlap if $new_location != $exon_location. If it's the same, we should check $overlap to be sure
+										#there is an overlap if $new_location != $exon_location. If it's the same, we should check $overlap to be sure
+										($new_location, $overlap) = _manage_location_lowLevel_adjacent($location, $exon_location); 
+										
+										#The exon_location has been modified by location... We have to remodelate the exon (only if fit some conditions) location to take the modification into account
+		 								if($new_location->[1] < $exon_location->[1] or $new_location->[2] > $exon_location->[2] ){ 
+			 								$create_exon=undef; # We must avoid to create exon because there is an overlap.
 
-			 								if($new_location->[1] < $exon_location->[1] or $new_location->[2] > $exon_location->[2] ){ #The exon_location has been modified by location... We have to remodelate the exon (only if fit some conditions) location to take the modification into account
-				 								$create_exon=undef; # We must avoid to create exon because there is an overlap.
+		 									my $redefine_left=undef;
+											my $redefine_right=undef;
 
-			 									my $redefine_left=undef;
-			 									my $redefine_right=undef;
-			 									#first location => check left
-				 								if($location_cpt == 1){
-				 									if($new_location->[1] <	$exon_location->[1]){ $redefine_left = $new_location->[1];} # Modify only if it's more left
-				 								}
-				 								#=> check left and right
-				 								if($location_cpt != 1 and $location_cpt != @$location){
-				 									if($new_location->[1] <	$exon_location->[1]){ $redefine_left = $new_location->[1];}	# Modify only if it's more left
-				 									if($new_location->[2] >	$exon_location->[2]){ $redefine_right = $new_location->[2];} # Modify only if it's more right
-				 								}
-				 								#last location => check right
-				 								if($location_cpt == @$location){
-				 									if($new_location->[2] >	$exon_location->[2]){ $redefine_right = $new_location->[2];} # Modify only if it's more right
-				 								}
+			 								if($new_location->[1] <	$exon_location->[1]){ $redefine_left = $new_location->[1];}	# Modify only if it's more left
+			 								if($new_location->[2] >	$exon_location->[2]){ $redefine_right = $new_location->[2];} # Modify only if it's more right
+											
+											if ($redefine_left or $redefine_right){
+												foreach my $l3_feature (@{$hash_omniscient->{'level3'}{'exon'}{$id_l2} } ){
+													if($l3_feature->_tag_value('ID') eq $exon_location->[0][0]){
 
-				 								foreach my $l3_feature (@{$hash_omniscient->{'level3'}{'exon'}{$id_l2} } ){
-				 									if($l3_feature->_tag_value('ID') eq $exon_location->[0][0]){
-
-				 										if($redefine_left){
+														if($redefine_left){
 															dual_print($log, "Modify the left location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->start()." to ".$new_location->[1]."\n", 0); #print only in log
-				 											$l3_feature->start($new_location->[1]); $resume_case2++;
-				 										}
-														else{$redefine_left = $exon_location->[1];}
+															$l3_feature->start($new_location->[1]); $resume_case2++;
+														}
 
-				 										if($redefine_right){
+														if($redefine_right){
 															dual_print($log, "Modify the right location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->end()." to ".$new_location->[2]."\n", 0); #print only in log
-				 											$l3_feature->end($new_location->[2]); $resume_case2++;
-				 										}
-														else{$redefine_right = $exon_location->[2];}
+															$l3_feature->end($new_location->[2]); $resume_case2++;
+														}
+														last;
+													}
+												}
+											}
+			 							}
+			 							elsif($overlap){ #location not modified but no overlap, so it means the exon is not defined ! <= ?? Not sure this comment is good 27th Nov 2018
+			 								$create_exon=undef;
+			 							}
+			 						}
 
-				 										last;
-				 									}
-				 								}
-				 							}
-				 							elsif($overlap){ #location not modified but no overlap, so it means the exon is not defined ! <= ?? Not sure this comment is good 27th Nov 2018
-				 								$create_exon=undef;
-				 							}
-				 						}
-
-				 						if($create_exon){
-				 							push @{$createIT{'exon'}}, $location;
-				 						}
+			 						if($create_exon){
+			 							push @{$createIT{'exon'}}, $location;
+			 						}
 		 						}
 		 					}
 		 				}
 		 				else{ dual_print($log, "No other feature to check the exon locations (e.g CDS, UTR, etc...). We can trust them then.\n") if ($debug)}
 	 					}
-	 					else{ $createIT{'exon'}=$list_location_NoExon;} # no exon exists, we have to create all of them
+	 				else{ $createIT{'exon'}=$list_location_NoExon;} # no exon exists, we have to create all of them
 
 					# NOW CREATE EXON IF NECESSARY
 					if(keys %createIT){
