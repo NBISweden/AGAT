@@ -81,6 +81,6 @@
 1	irgsp	CDS	43270900	43270919	.	+	0	Parent=transcriptA
 ### Sequence length = 43270923. No start, No Stop . Extension to find start should stop because reach beginning of sequence
 1	irgsp	gene	34	123	.	+	.	ID=geneX
-1	irgsp	mRNA	34	123	.	+	.	ID=transcriptA;Parent=geneX
+1	irgsp	mRNA	34	123	.	+	.	ID=transcriptX;Parent=geneX
 1	irgsp	exon	34	123	.	+	.	Parent=transcriptX
 1	irgsp	CDS	34	123	.	+	0	Parent=transcriptX
