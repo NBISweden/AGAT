@@ -203,7 +203,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
 
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https Term::ProgressBar
     ```
 
     * using conda
@@ -218,13 +218,13 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
 
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https perl-term-progressbar
       ```
 
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl
     ```
 
   * Optional
@@ -313,31 +313,53 @@ See the AGAT parser section for more information about it.
 
 #### with \_sq\_ prefix => Means SEQUENTIAL
 
-The gff file is read and processed from its top to the end line by line without sanity check. This is memory efficient.
+The gff file is read and processed from its top to the end line by line without sanity check (e.g. relationship between the features). This is memory efficient.
 
 ## The AGAT parser - Standardisation to create GXF files compliant to any tool  
 
-All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure called.
+All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure.
 Below you will find more information about peculiarity of the data structure,
 and the parsing approach used.
 
 #### the data structure
 
-The method create a hash structure containing all the data in memory. We can call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
+<details>
+   <summary>See data structure details</summary>
+  
+The method create a hash structure containing all the data in memory. We can call it OMNISCIENT. 
+The OMNISCIENT hold the GFF/GTF header information in that structure:
+```
+$omniscient{other}{header} = header information from the beginning of the file starting by # 
+```
+The OMNISCIENT hold the GFF/GTF feature information in that structure:
 ```
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
 $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureListL2 is a list to be able to manage isoform cases.  
 $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureListL3 is a list to be able to put all the feature of a same tag together.  
 ```
+The OMNISCIENT hold the `agat_config.yml` information in that structure:
+```
+$omniscient{config}{parameter1} = value parameter1
+$omniscient{config}{parameter2} = value parameter2
+```
+The OMNISCIENT hold the `feature_levels.yaml` information in that structure:
+```
+$omniscient{other}{level}{level1}{featureTypeX} = value featureTypeX (standalone, topfeature)
+$omniscient{other}{level}{level2}{featureTypeY} = value featureTypeY 
+$omniscient{other}{level}{level2}{featureTypeZ} = value featureTypeZ
+```
+</details>
 
 #### How does the AGAT parser work
+
+[<img align="right" src="docs/img/agat_parsing_overview.jpg" width="500" height="250" />](https://nbis.se)
 
 The AGAT parser phylosophy:
   * 1) Parse by Parent/child relationship or gene_id/transcript_id relationship.
   * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter).  
   * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature).  
 
-**/!\\** Case with only level3 features (i.e rast or some prokka files, sequential will not work as expected. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of features, a common tag must be used to group them correctly. We use `gene_id` and `locus_tag` by default but you can set up the one of your choice)
+**/!\\** Cases with only level3 features (i.e rast or some prokka files), **sequential parsing** may not work as expected if Parent/ID gene_id/transcript_id attributes are missing. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of features, a common tag must be used to group them correctly (by default `gene_id` and `locus_tag` but you can set up the ones of your choice)
 
 To resume by priority of way to parse: **Parent/child relationship > locus_tag > sequential.**  
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
@@ -566,41 +588,7 @@ Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GF
 
 ## Publication using AGAT
 
-Some examples of publications that have used AGAT  
-
-<details>
-<summary>See publications</summary>
-
-| Journal | Title |
-| --- | --- |
-| Genome Biology and Evolution | [Ancestral Physical Stress and Later Immune Gene Family Expansions Shaped Bivalve Mollusc Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8382680/)
-| Preprint | [A long read optimized de novo transcriptome pipeline reveals novel ocular developmentally regulated gene isoforms and disease targets](https://www.biorxiv.org/content/10.1101/2020.08.21.261644v2.full.pdf)
-| G3 Genes Genomes Genetics | [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode chromosomes](https://academic.oup.com/g3journal/article/11/1/jkaa020/6026964)
-| BMC genomics | [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
-| G3 Genes Genomes Genetics | [Application of an optimized annotation pipeline to the Cryptococcus deuterogattii genome reveals dynamic primary metabolic gene clusters and genomic impact of RNAi loss](https://www.biorxiv.org/content/10.1101/2020.09.01.278374v1.full)
-| Mol. Biol. Evol. | [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab277/6372697)
-| Virology | [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.sciencedirect.com/science/article/pii/S0042682221001148)
-| DNA Research | [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://academic.oup.com/dnaresearch/article/28/2/dsab002/6182681)
-| BMC genomics | [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07554-w)
-| Plos pathogens | [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
-| Preprint | [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
-| Preprint | [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
-| Microbiol Resour Announc. | [LGAAP: Leishmaniinae Genome Assembly and Annotation Pipeline](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8297458/)
-| Genome Biology and Evolution | [A Chromosome-level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus) ](https://academic.oup.com/gbe/article/13/9/evab212/6367782)
-| Preprint | [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
-| Gygabyte | [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
-| Nature | [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
-| Preprint |[High quality, phased genomes of Phytophthora ramorum clonal lineages NA1 and EU1](https://www.biorxiv.org/content/10.1101/2021.06.23.449625v1.full)
-| Elife | [Analysis of meiosis in Pristionchus pacificus reveals plasticity in homolog pairing and synapsis in the nematode lineage](https://elifesciences.org/articles/70990)
-| MDPI | [Transcriptome Comparison of Secondary Metabolite Biosynthesis Genes Expressed in Cultured and Lichenized Conditions of Cladonia rangiferina](https://www.mdpi.com/1424-2818/13/11/529/html)
-| MDPI | [FA-nf: A Functional Annotation Pipeline for Proteins from Non-Model Organisms Implemented in Nextflow](https://www.mdpi.com/2073-4425/12/10/1645/htm)
-| Preprint | [De Novo Whole Genome Assembly of the Roborovski Dwarf Hamster (Phodopus roborovskii) Genome, an Animal Model for Severe/Critical COVID-19](https://www.biorxiv.org/content/10.1101/2021.10.02.462569v2.full)
-| Preprint | [Using historical museum samples to examine divergent and parallel evolution in the invasive starling](https://www.biorxiv.org/content/10.1101/2021.08.22.457241v1.full)|
-| GBE | [A Chromosome-Level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus)](https://helda.helsinki.fi/bitstream/handle/10138/336322/evab212.pdf?sequence=1&isAllowed=y)|
-| Preprint | [A genome assembly of the Atlantic chub mackerel (Scomber colias): a valuable teleost fishing resource](https://www.biorxiv.org/content/10.1101/2021.11.19.468211v1.full.pdf)|
-| Current Protocols | [BUSCO: Assessing Genomic Data Quality and Beyond](https://currentprotocols.onlinelibrary.wiley.com/doi/full/10.1002/cpz1.323)
-| [...] | [...]
-</details>
+See [here](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=o0KM2sMAAAAJ&citation_for_view=o0KM2sMAAAAJ:qxL8FJ1GzNcC) for examples of publications using AGAT.  
 
 ## Troubleshooting
 
