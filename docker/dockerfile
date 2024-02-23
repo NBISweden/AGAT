@@ -22,3 +22,11 @@ RUN apt-get -y install libbio-perl-perl libclone-perl libgraph-perl liblwp-usera
 # add a text editor in case we need to we need to make some debug
 #RUN apt-get -y install nano
 
+# Install last version of AGAT (master branch)
+#RUN  cd /opt \
+#   && git clone https://github.com/NBISweden/AGAT.git \
+#   && cd AGAT \
+#   && perl Makefile.PL \
+#   && make \
+#   && make test \
+#   && make install \
