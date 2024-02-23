@@ -313,24 +313,46 @@ See the AGAT parser section for more information about it.
 
 #### with \_sq\_ prefix => Means SEQUENTIAL
 
-The gff file is read and processed from its top to the end line by line without sanity check. This is memory efficient.
+The gff file is read and processed from its top to the end line by line without sanity check (e.g. relationship between the features). This is memory efficient.
 
 ## The AGAT parser - Standardisation to create GXF files compliant to any tool  
 
-All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure called.
+All tools with `agat_sp_` prefix will parse and slurps the entire data into a specific data structure.
 Below you will find more information about peculiarity of the data structure,
 and the parsing approach used.
 
 #### the data structure
 
-The method create a hash structure containing all the data in memory. We can call it OMNISCIENT. The OMNISCIENT structure is a three levels structure:
+<details>
+   <summary>See data structure details</summary>
+  
+The method create a hash structure containing all the data in memory. We can call it OMNISCIENT. 
+The OMNISCIENT hold the GFF/GTF header information in that structure:
+```
+$omniscient{other}{header} = header information from the beginning of the file starting by # 
+```
+The OMNISCIENT hold the GFF/GTF feature information in that structure:
 ```
 $omniscient{level1}{tag_l1}{level1_id} = feature <= tag could be gene, match  
 $omniscient{level2}{tag_l2}{idY} = @featureListL2 <= tag could be mRNA,rRNA,tRNA,etc. idY is a level1_id (know as Parent attribute within the level2 feature). The @featureListL2 is a list to be able to manage isoform cases.  
 $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3,utr5,etc. idZ is the ID of a level2 feature (know as Parent attribute within the level3 feature). The @featureListL3 is a list to be able to put all the feature of a same tag together.  
 ```
+The OMNISCIENT hold the `agat_config.yml` information in that structure:
+```
+$omniscient{config}{parameter1} = value parameter1
+$omniscient{config}{parameter2} = value parameter2
+```
+The OMNISCIENT hold the `feature_levels.yaml` information in that structure:
+```
+$omniscient{other}{level}{level1}{featureTypeX} = value featureTypeX (standalone, topfeature)
+$omniscient{other}{level}{level2}{featureTypeY} = value featureTypeY 
+$omniscient{other}{level}{level2}{featureTypeZ} = value featureTypeZ
+```
+</details>
 
 #### How does the AGAT parser work
+
+[<img align="right" src="docs/img/agat_parsing_overview.jpg" width="400" height="250" />](https://nbis.se)
 
 The AGAT parser phylosophy:
   * 1) Parse by Parent/child relationship or gene_id/transcript_id relationship.
