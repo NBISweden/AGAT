@@ -588,41 +588,7 @@ Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GF
 
 ## Publication using AGAT
 
-Some examples of publications that have used AGAT  
-
-<details>
-<summary>See publications</summary>
-
-| Journal | Title |
-| --- | --- |
-| Genome Biology and Evolution | [Ancestral Physical Stress and Later Immune Gene Family Expansions Shaped Bivalve Mollusc Evolution](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8382680/)
-| Preprint | [A long read optimized de novo transcriptome pipeline reveals novel ocular developmentally regulated gene isoforms and disease targets](https://www.biorxiv.org/content/10.1101/2020.08.21.261644v2.full.pdf)
-| G3 Genes Genomes Genetics | [A telomere to telomere assembly of Oscheius tipulae and the evolution of rhabditid nematode chromosomes](https://academic.oup.com/g3journal/article/11/1/jkaa020/6026964)
-| BMC genomics | [In vitro resynthesis of lichenization reveals the genetic background of symbiosis-specific fungal-algal interaction in Usnea hakonensis](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-020-07086-9)
-| G3 Genes Genomes Genetics | [Application of an optimized annotation pipeline to the Cryptococcus deuterogattii genome reveals dynamic primary metabolic gene clusters and genomic impact of RNAi loss](https://www.biorxiv.org/content/10.1101/2020.09.01.278374v1.full)
-| Mol. Biol. Evol. | [Genomics of an avian neo-sex chromosome reveals the evolutionary dynamics of recombination suppression and sex-linked genes](https://academic.oup.com/mbe/advance-article/doi/10.1093/molbev/msab277/6372697)
-| Virology | [Four novel Picornaviruses detected in Magellanic Penguins (Spheniscus magellanicus) in Chile](https://www.sciencedirect.com/science/article/pii/S0042682221001148)
-| DNA Research | [The Crown Pearl: a draft genome assembly of the European freshwater pearl mussel Margaritifera margaritifera (Linnaeus, 1758)](https://academic.oup.com/dnaresearch/article/28/2/dsab002/6182681)
-| BMC genomics | [Investigating the impact of reference assembly choice on genomic analyses in a cattle breed](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-021-07554-w)
-| Plos pathogens | [Two novel loci underlie natural differences in Caenorhabditis elegans abamectin responses](https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009297)
-| Preprint | [Butterfly eyespots evolved via co-option of the antennal gene-regulatory network](https://www.biorxiv.org/content/10.1101/2021.03.01.429915v2.full)
-| Preprint | [Transcript- and annotation-guided genome assembly of the European starling](https://www.biorxiv.org/content/10.1101/2021.04.07.438753v1)
-| Microbiol Resour Announc. | [LGAAP: Leishmaniinae Genome Assembly and Annotation Pipeline](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8297458/)
-| Genome Biology and Evolution | [A Chromosome-level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus) ](https://academic.oup.com/gbe/article/13/9/evab212/6367782)
-| Preprint | [Barcoded RH-seq illuminates the complex genetic basis of yeast thermotolerance](https://www.biorxiv.org/content/10.1101/2021.07.26.453780v1.full)
-| Gygabyte | [A high-quality draft genome for Melaleuca alternifolia (tea tree): a new platform for evolutionary genomics of myrtaceous terpene-rich species](https://gigabytejournal.com/articles/28)
-| Nature | [Chromosome-scale genome sequencing, assembly and annotation of six genomes from subfamily Leishmaniinae](https://www.nature.com/articles/s41597-021-01017-3#citeas)
-| Preprint |[High quality, phased genomes of Phytophthora ramorum clonal lineages NA1 and EU1](https://www.biorxiv.org/content/10.1101/2021.06.23.449625v1.full)
-| Elife | [Analysis of meiosis in Pristionchus pacificus reveals plasticity in homolog pairing and synapsis in the nematode lineage](https://elifesciences.org/articles/70990)
-| MDPI | [Transcriptome Comparison of Secondary Metabolite Biosynthesis Genes Expressed in Cultured and Lichenized Conditions of Cladonia rangiferina](https://www.mdpi.com/1424-2818/13/11/529/html)
-| MDPI | [FA-nf: A Functional Annotation Pipeline for Proteins from Non-Model Organisms Implemented in Nextflow](https://www.mdpi.com/2073-4425/12/10/1645/htm)
-| Preprint | [De Novo Whole Genome Assembly of the Roborovski Dwarf Hamster (Phodopus roborovskii) Genome, an Animal Model for Severe/Critical COVID-19](https://www.biorxiv.org/content/10.1101/2021.10.02.462569v2.full)
-| Preprint | [Using historical museum samples to examine divergent and parallel evolution in the invasive starling](https://www.biorxiv.org/content/10.1101/2021.08.22.457241v1.full)|
-| GBE | [A Chromosome-Level Genome Assembly of the Reed Warbler (Acrocephalus scirpaceus)](https://helda.helsinki.fi/bitstream/handle/10138/336322/evab212.pdf?sequence=1&isAllowed=y)|
-| Preprint | [A genome assembly of the Atlantic chub mackerel (Scomber colias): a valuable teleost fishing resource](https://www.biorxiv.org/content/10.1101/2021.11.19.468211v1.full.pdf)|
-| Current Protocols | [BUSCO: Assessing Genomic Data Quality and Beyond](https://currentprotocols.onlinelibrary.wiley.com/doi/full/10.1002/cpz1.323)
-| [...] | [...]
-</details>
+See [here](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=o0KM2sMAAAAJ&citation_for_view=o0KM2sMAAAAJ:qxL8FJ1GzNcC) for examples of publications using AGAT.  
 
 ## Troubleshooting
 
