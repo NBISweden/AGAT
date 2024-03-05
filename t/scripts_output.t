@@ -586,7 +586,7 @@ unlink $outtmp;
 
 $script = $script_prefix."bin/agat_sp_manage_functional_annotation.pl";
 $result = "$output_folder/agat_sp_manage_functional_annotation_1.gff";
-system(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv --clean_name -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system( "diff $result $outtmp/02413F.gff" ) == 0, "output $script");
 rmtree $outtmp;
