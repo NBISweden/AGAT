@@ -703,7 +703,7 @@ agat_sp_compare_two_annotations.pl
 
 The script aims to compare two annotation of the same assembly. It provided
 information about split/fusion of genes between the two annotations.
-The most common case are:
+The most common cases are:
 1 => 0 ( gene uniq to file1)
 0 => 1 ( gene uniq to file2)
 1 => 1 ( 1 gene from file 1 overlaps only 1 gene from file2)
@@ -712,6 +712,9 @@ The most common case are:
 
 Then you can get more complex cases:
 <many> => <many>  (<many> genes from file 1 overlap <many> genes from file2)
+
+The script output a folder containing a report of number of different cases as well as a file
+per case type listing per line the gene feature's ID involved in each case.
 
 =head1 SYNOPSIS
 
@@ -732,8 +735,8 @@ Input GTF/GFF file2.
 
 =item B<-o> , B<--output> or B<--out> 
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output folder.  It contains a report that resume the type and number of cases, as well as a file per case type 
+containing one case per line with the list of gene feature's ID (or other type of feature level1) from file1 then file2 separated by a |.
 
 =item  B<--debug> or B<-d>
 
