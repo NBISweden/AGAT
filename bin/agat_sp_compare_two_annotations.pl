@@ -498,20 +498,31 @@ my ($filename2,$path2,$ext2) = fileparse($gff2,qr/\.[^.]*/);
 
 my $string_to_print = "usage: $0 @copyARGV\nResults of number of genes from file1 that overlap genes from file2:\n\n";
 
-
+my %file_handler;
 foreach my $type_l1 ( sort keys %overlap_info ){
 
     $string_to_print .= "$separator_table|".sizedPrint("$type_l1",92)."|\n";
     $string_to_print .= "$separator_table|".sizedPrint($filename1.$ext1,30)."|".sizedPrint($filename2.$ext2,30)."|".sizedPrint("Number of cases",30)."|\n$separator_table";
 
-		$total{$type_l1}{'A'}=0;
-		$total{$type_l1}{'B'}=0;
+	# Create file handlers
+	
+	foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}} ){
+      foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$value1}} ){
+		# report ids file_handler
+		my $report_ids = prepare_fileout("$opt_output/$type_l1"."_"."$value1"."_".$value2."_id_list.txt");
+		$file_handler{$type_l1."_".$value1."_".$value2}=$report_ids;
+	  }
+	}
+
+	$total{$type_l1}{'A'}=0;
+	$total{$type_l1}{'B'}=0;
     foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}} ){
       foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$value1}} ){
         $string_to_print .= "|".sizedPrint($value1,30)."|".sizedPrint($value2,30)."|".sizedPrint(scalar(@{$overlap_info{$type_l1}{$value1}{$value2}}),30)."|\n";
         
-		# report ids
-		my $report_ids = prepare_fileout("$opt_output/$value1"."_".$value2."_id_list.txt");
+		# Use proper file handler for outputing IDs
+		my  $report_ids = $file_handler{$type_l1."_".$value1."_".$value2};
+		
 		# file1
 		foreach my $array ( @{$overlap_info{$type_l1}{$value1}{$value2}}) {
 			my $cpt=0;
