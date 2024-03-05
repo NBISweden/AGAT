@@ -1177,14 +1177,14 @@ String - Input GTF/GFF file.
 
 String - Input blast ( outfmt 6 = tabular ) usually made by blasting the proteins resulting from the GFF/GTF file provided as input
 and a confident protein database (e.g. Swissprot/Uniprot). The file makse a bridge between the feature ID from the GFF/GTF and the 
-best protein ID matched in the used database. Thanks to that link the Name and products (sometimes called descriptions) information will be extracted 
-from the database fasta file and added in the GFF file. You must provide the same database via --db as the one used to create
-this blast output file.
+best protein ID matched in the used database. Thanks to that link the Name and products (sometimes called descriptions) information 
+will be extracted from the database fasta file and added in the GFF file. You must provide the same database via --db as the one used 
+to create this blast output file.
 
 =item B<--clean_name> 
 
 Bolean - When activated, if the Name attribute already exists, it we be cleaned. Otherwise Name retrieved by --blast + --db options 
-will be appended. Default False (Name attribute not cleaned)
+will be appended. Default False (Name attribute not cleaned).
 
 =item B<--clean_product> 
 
