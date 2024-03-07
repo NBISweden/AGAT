@@ -140,10 +140,15 @@ MESSAGE
 sub get_agat_config{
 	my ($args)=@_;
 
+	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
+	print AGAT::AGAT::get_agat_header();
+
 	my ($config_file_provided);
 	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
 
+	# Get the config file
 	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
+	# Load the config
 	my $config = load_config({ config_file => $config_file_checked});
 	check_config({ config => $config});
 	return $config;
