@@ -84,7 +84,7 @@ sub get_config{
 	# -------------- INPUT --------------
 	# -- Declare all variables and fill them --
 	my ( $verbose, $log, $debug, $type, $config_file_in ) ;
-	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
+	if( ! defined($args->{verbose}) ) { $verbose = 1;} else{ $verbose = $args->{verbose}; }
 	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
 	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
 	if( ! defined($args->{type}) ) { $type = "local";} else{ $type = $args->{type};}
