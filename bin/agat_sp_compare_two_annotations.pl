@@ -55,8 +55,21 @@ if ( ! $gff1 or ! $gff2){
 $config = get_agat_config({config_file_in => $config});
 
 ######################
+# Manage output folder #
+
+if (! $opt_output) {
+  print "Default output name: split_result\n";
+  $opt_output="comparison_result";
+}
+
+if (-d $opt_output){
+  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+}
+mkdir $opt_output;
+
+######################
 # Manage output file #
-my $report = prepare_fileout($opt_output);
+my $report = prepare_fileout("$opt_output/report.txt");
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -323,7 +336,9 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 									my $flat_overlap_1 = $locations1;
 									my $flat_overlap_2 = $locations2;
 									my $overlap_A=1;
+									my @overlap_A_id=($locations1->[0][3]);
 									my $overlap_B=1;
+									my @overlap_B_id=($locations2->[0][3]);
 									my $loop="top";
 									my $flip=2;
 									my $current_locs;
@@ -372,9 +387,11 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
 												if($loop eq "top"){
 													$overlap_A++;
+													push @overlap_A_id, $locations->[0][3];
 												}
 												elsif($loop eq "bot"){
 													$overlap_B++;
+													push @overlap_B_id, $locations->[0][3];
 												}
 											}
 											else{
@@ -398,14 +415,14 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 											}
 										}
 									}
-									$overlap_info{$locations1->[0][2]}{$overlap_A}{$overlap_B}++;
+									push @{$overlap_info{$locations1->[0][2]}{$overlap_A}{$overlap_B}}, [ [@overlap_A_id], [@overlap_B_id] ];
 								}
 		# ----------------------------------- CASE 1 -----------------------------------
 								#  location A                         ----------------
 								#  location B  ---------------
 								elsif ($locations2->[scalar(@{$locations2})-1][1] < $locations1->[0][0] ){
 
-									$overlap_info{$locations1->[0][2]}{0}{1}++;
+									push @{$overlap_info{$locations1->[0][2]}{0}{1}}, [[undef], [$locations2->[0][3]]];
 									print "Case1 notoverlap !\n\n" if ($debug);
 									# throw loc2
 									remove_loc_by_id($flattened_locations2_clean_sorted, $locusID, $chimere_type, $locations2->[0][3]);
@@ -420,7 +437,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 									my $id1 = $locations1->[0][3];
 									print "Case2 notoverlap !\n" if ($debug);
 									if(! exists_keys(\%seen1, ( $id1 ) ) ){ # else it has been dealed by overlap case
-										$overlap_info{$locations1->[0][2]}{1}{0}++;
+										push @{$overlap_info{$locations1->[0][2]}{1}{0}}, [ [$locations1->[0][3]], [undef] ];
 										# throw loc1
 										remove_loc_by_id($flattened_locations1_clean_sorted, $locusID, $chimere_type, $id1);
 										$seen1{$id1}++;
@@ -442,7 +459,7 @@ print "\nLook now what is specific to annotationA \n" if ($verbose);
 foreach my $locusID (  keys %{$flattened_locations1_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations1_clean_sorted->{$locusID}}){
     foreach my $locations1 ( @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}} ){
-			$overlap_info{$locations1->[0][2]}{1}{0}++;
+			push @{$overlap_info{$locations1->[0][2]}{1}{0}}, [ [$locations1->[0][3]], [undef]];
 			print " Case3 !\n" if ($debug);
     }
   }
@@ -454,7 +471,7 @@ print "\nLook now what is specific to annotationB \n" if ($verbose);
 foreach my $locusID (  keys %{$flattened_locations2_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations2_clean_sorted->{$locusID}}){
     foreach my $locations2 ( @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}} ){
-			$overlap_info{$locations2->[0][2]}{0}{1}++;
+			push @{$overlap_info{$locations2->[0][2]}{0}{1}},  [ [undef], [$locations2->[0][3]] ];
 			print " Case4 !\n" if ($debug);
     }
   }
@@ -481,22 +498,71 @@ my ($filename2,$path2,$ext2) = fileparse($gff2,qr/\.[^.]*/);
 
 my $string_to_print = "usage: $0 @copyARGV\nResults of number of genes from file1 that overlap genes from file2:\n\n";
 
-
+my %file_handler;
 foreach my $type_l1 ( sort keys %overlap_info ){
 
     $string_to_print .= "$separator_table|".sizedPrint("$type_l1",92)."|\n";
     $string_to_print .= "$separator_table|".sizedPrint($filename1.$ext1,30)."|".sizedPrint($filename2.$ext2,30)."|".sizedPrint("Number of cases",30)."|\n$separator_table";
 
-		$total{$type_l1}{'A'}=0;
-		$total{$type_l1}{'B'}=0;
+	# Create file handlers
+	
+	foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}} ){
+      foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$value1}} ){
+		# report ids file_handler
+		my $report_ids = prepare_fileout("$opt_output/$type_l1"."_"."$value1"."_".$value2."_id_list.txt");
+		$file_handler{$type_l1."_".$value1."_".$value2}=$report_ids;
+	  }
+	}
+
+	$total{$type_l1}{'A'}=0;
+	$total{$type_l1}{'B'}=0;
     foreach my $value1 ( sort {$a <=> $b} keys %{$overlap_info{$type_l1}} ){
       foreach my $value2 ( sort {$a <=> $b}  keys %{$overlap_info{$type_l1}{$value1}} ){
-        $string_to_print .= "|".sizedPrint($value1,30)."|".sizedPrint($value2,30)."|".sizedPrint($overlap_info{$type_l1}{$value1}{$value2},30)."|\n";
-        if ($value1 != 0){
-          $total{$type_l1}{'A'} += $value1 * $overlap_info{$type_l1}{$value1}{$value2};
+        $string_to_print .= "|".sizedPrint($value1,30)."|".sizedPrint($value2,30)."|".sizedPrint(scalar(@{$overlap_info{$type_l1}{$value1}{$value2}}),30)."|\n";
+        
+		# Use proper file handler for outputing IDs
+		my  $report_ids = $file_handler{$type_l1."_".$value1."_".$value2};
+		
+		# file1
+		foreach my $array ( @{$overlap_info{$type_l1}{$value1}{$value2}}) {
+			my $cpt=0;
+			my $last = scalar(@{$array->[0]});
+			foreach my $value ( @{$array->[0]} ) { # array0 is id overlarpA
+				$cpt++;
+				if(! $value){
+					print $report_ids "-";
+				} else {
+					if ($last == $cpt){
+						print $report_ids $value;
+					} else {
+						print $report_ids $value.", ";
+					}
+				}
+			}
+			print $report_ids " | ";
+			my $cpt2=0;
+			my $last2 = scalar(@{$array->[1]});
+			foreach my $value ( @{$array->[1]} ) { # array1 is id overlarpB
+				$cpt2++;
+				if(! $value){
+					print $report_ids "-\n";
+				} else {
+					if ($last2 == $cpt2){
+						print $report_ids "$value"
+					} else {
+						print $report_ids "$value, "
+					}
+				}
+			}
+			print $report_ids "\n";
+		}
+
+
+		if ($value1 != 0){
+          $total{$type_l1}{'A'} += $value1 * scalar(@{$overlap_info{$type_l1}{$value1}{$value2}});
         }
         if ($value2 != 0){
-          $total{$type_l1}{'B'} += $value2 * $overlap_info{$type_l1}{$value1}{$value2};
+          $total{$type_l1}{'B'} += $value2 * scalar(@{$overlap_info{$type_l1}{$value1}{$value2}});
         }
       }
     }
@@ -648,7 +714,7 @@ agat_sp_compare_two_annotations.pl
 
 The script aims to compare two annotation of the same assembly. It provided
 information about split/fusion of genes between the two annotations.
-The most common case are:
+The most common cases are:
 1 => 0 ( gene uniq to file1)
 0 => 1 ( gene uniq to file2)
 1 => 1 ( 1 gene from file 1 overlaps only 1 gene from file2)
@@ -657,6 +723,9 @@ The most common case are:
 
 Then you can get more complex cases:
 <many> => <many>  (<many> genes from file 1 overlap <many> genes from file2)
+
+The script output a folder containing a report of number of different cases as well as a file
+per case type listing per line the gene feature's ID involved in each case.
 
 =head1 SYNOPSIS
 
@@ -677,8 +746,8 @@ Input GTF/GFF file2.
 
 =item B<-o> , B<--output> or B<--out> 
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output folder.  It contains a report that resume the type and number of cases, as well as a file per case type 
+containing one case per line with the list of gene feature's ID (or other type of feature level1) from file1 then file2 separated by a |.
 
 =item  B<--debug> or B<-d>
 
