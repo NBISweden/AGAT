@@ -22,6 +22,10 @@ my $config;
 my $opt_reffile;
 my $opt_output;
 my $opt_BlastFile;
+my $opt_CleanNameAttribute; # Should we remove the Name attribute value if already exists - bolean
+my $opt_CleanProductAttribute; # Should we remove the product attribute value if already exists - bolean
+my $opt_CleanOntology_termAttribute; # Should we remove the Ontology_term attribute value if already exists - bolean
+my $opt_CleanDbxrefAttribute; # Should we remove the Dbxref attribute value if already exists - bolean
 my $opt_InterproFile;
 my $opt_name = undef;
 my $opt_nameU;
@@ -77,6 +81,10 @@ my @copyARGV = @ARGV;
 GetOptions(
  'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
  'b|blast=s'                => \$opt_BlastFile,
+ 'clean_name!'              => \$opt_CleanNameAttribute,
+ 'clean_product!'           => \$opt_CleanProductAttribute,
+ 'clean_dbxref!'            => \$opt_CleanDbxrefAttribute,
+ 'clean_ontology!'          => \$opt_CleanOntology_termAttribute,
  'd|db=s'                   => \$opt_dataBase,
  'be|blast_evalue=f'        => \$opt_blastEvalue,
  'pe=i'                     => \$opt_pe,
@@ -298,20 +306,16 @@ if ($opt_BlastFile || $opt_InterproFile ) {
     foreach my $id_level1 (keys %{$hash_omniscient ->{'level1'}{$primary_tag_level1}}) {
       my $feature_level1 = $hash_omniscient->{'level1'}{$primary_tag_level1}{$id_level1};
 
-      # Clean NAME attribute
-      if ($feature_level1->has_tag('Name')) {
-        $feature_level1->remove_tag('Name');
-      }
-
-      #Manage Name if option setting
+      #Manage Name 
+      clean_attribute($feature_level1, "Name"); # Clean NAME attribute
       if ( $opt_BlastFile ) {
 
         if (exists ($geneNameBlast{$id_level1})) {
           my @list_names = @{$geneNameBlast{$id_level1}};
-          create_or_replace_tag($feature_level1, 'Name', \@list_names);
+          create_or_append_tag($feature_level1, 'Name', \@list_names);
           $nbNamedGene++;
 
-          # Keep track of ducplicated gene names <= Find another way
+          # Keep track of duplicated gene names <= Find another way
           foreach my $name (@list_names){
 
             if (exists ($geneNameGiven{$name})) {
@@ -335,16 +339,12 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 
             my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
-            # Clean NAME attribute
-            if ($feature_level2->has_tag('Name')) {
-              $feature_level2->remove_tag('Name');
-            }
-
-            # Manage Name if option set
+            # Manage Name 
+            clean_attribute($feature_level2, "Name"); # Clean NAME attribute
             if ($opt_BlastFile) {
               # add gene Name
               if (exists ($mRNANameBlast{$level2_ID})) {
-                create_or_replace_tag($feature_level2, 'Name', $mRNANameBlast{$level2_ID});
+                create_or_append_tag($feature_level2, 'Name', $mRNANameBlast{$level2_ID});
                 add_attribute_to_cds($hash_omniscient, $level2_ID, 'Name', $mRNANameBlast{$level2_ID});
               }
 
@@ -370,13 +370,14 @@ if ($opt_BlastFile || $opt_InterproFile ) {
               my $productData = printProductFunct($level2_ID);
 
               #add product attribute
+              clean_attribute($feature_level2, "product"); # Clean product attribute
               if ($productData ne "") {
                 add_attribute_to_cds($hash_omniscient, $level2_ID, 'product', $productData);
                 if ($feature_level2->has_tag('pseudo')) {
                   create_or_replace_tag($feature_level2, 'Note', "product:$productData");
                 }
                 else {
-                  create_or_replace_tag($feature_level2, 'product', $productData);
+                  create_or_append_tag($feature_level2, 'product', $productData);
                 }
               }
               else {
@@ -385,7 +386,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                   create_or_replace_tag($feature_level2, 'Note', "product:hypothetical protein");
                 }
                 else {
-                  create_or_replace_tag($feature_level2, 'product', "hypothetical protein");
+                  create_or_append_tag($feature_level2, 'product', "hypothetical protein");
                 }
               } #Case where the protein is not known
             }
@@ -651,12 +652,39 @@ print_time("End of script.");
                 ####
                  ##
 
+# remove the attribute provided
+sub clean_attribute {
+  my ($feature, $tag) = @_;
+       
+  if ($opt_CleanNameAttribute and $tag eq "Name"){
+    if ($feature->has_tag('Name')) {
+      $feature->remove_tag('Name');
+    }
+  }
+  if ($opt_CleanProductAttribute and $tag eq "product"){
+    if ($feature->has_tag('product')) {
+      $feature->remove_tag('product');
+    }
+  }
+  if ($opt_CleanDbxrefAttribute and $tag eq "Dbxref"){
+    if ($feature->has_tag('Dbxref')) {
+      $feature->remove_tag('Dbxref');
+    }
+  }
+  if ($opt_CleanOntology_termAttribute and $tag eq "Ontology_term"){
+    if ($feature->has_tag('Ontology_term')) {
+      $feature->remove_tag('Ontology_term');
+    }
+  }
+}
+
 sub add_attribute_to_cds {
   my ($hash_omniscient, $level2_ID, $tag, $value) = @_;
 
   if($opt_populate_cds){
     if ( exists_keys ($hash_omniscient, ('level3', 'cds', lc($level2_ID)) ) ) {
       foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{'cds'}{lc($level2_ID)}}) {
+        clean_attribute($feature_level3, $tag);
         $feature_level3->add_tag_value($tag, $value);
       }
     }
@@ -730,6 +758,7 @@ sub addFunctions {
       my $data_list;
 
       if (lc($function_type) eq "go") {
+        clean_attribute($feature, "Ontology_term"); # Clean Ontology_term attribute
         foreach my $data (@{$functionData{$function_type}{$ID}}) {
           $feature->add_tag_value('Ontology_term', $data);
           $data_list .= "$data,";
@@ -738,6 +767,7 @@ sub addFunctions {
         }
       }
       else {
+        clean_attribute($feature, "Dbxref"); # Clean Dbxref attribute
         foreach my $data (@{$functionData{$function_type}{$ID}}) {
           $feature->add_tag_value('Dbxref', $data);
           $data_list .= "$data,";
@@ -1042,7 +1072,7 @@ sub parse_interpro_tsv {
         my @tuple = split(/:/, $pathway_tuple); #cut at character :
         my $db_name = $tuple[0];
         print "pathway info: ".$pathway_tuple."\n" if ($opt_verbose);
-
+        next if ($pathway_tuple eq "-"); # avoid empty pathway tuple
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
@@ -1145,12 +1175,35 @@ String - Input GTF/GFF file.
 
 =item B<-b> or B<--blast>
 
-String - Input blast ( outfmt 6 = tabular ) file that will be used to complement the features
-read from the first file (specified with --ref).
+String - Input blast ( outfmt 6 = tabular ) usually made by blasting the proteins resulting from the GFF/GTF file provided as input
+and a confident protein database (e.g. Swissprot/Uniprot). The file makse a bridge between the feature ID from the GFF/GTF and the 
+best protein ID matched in the used database. Thanks to that link the Name and products (sometimes called descriptions) information 
+will be extracted from the database fasta file and added in the GFF file. You must provide the same database via --db as the one used 
+to create this blast output file.
+
+=item B<--clean_name> 
+
+Bolean - When activated, if the Name attribute already exists, it we be cleaned. Otherwise Name retrieved by --blast + --db options 
+will be appended. Default False (Name attribute not cleaned).
+
+=item B<--clean_product> 
+
+Bolean - When activated, if the product attribute already exists, it we be cleaned. Otherwise product retrieved by --blast + --db options 
+will be appended. Default False (product attribute not cleaned).
+
+=item B<--clean_dbxref> 
+
+Bolean - When activated, if the Dbxref attribute already exists, it we be cleaned. Otherwise Dbxref retrieved by --interpro option 
+will be appended. Default False (Dbxref attribute not cleaned).
+
+=item B<--clean_ontology> 
+
+Bolean - When activated, if the Ontology_term attribute already exists, it we be cleaned. Otherwise Ontology_term retrieved by --interpro option 
+will be appended. Default False (Ontology_term attribute not cleaned).
 
 =item B<-d> or B<--db>
 
-String - The fasta file that has been used as DB for the blast. Gene names and products/descriptions will be fished from this file.
+String - The fasta file that has been used as DB for the blast. Gene names and products  (sometimes called descriptions) will be fished from this file.
 
 =item B<--be> or B<--blast_evalue>
 

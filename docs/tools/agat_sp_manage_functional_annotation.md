@@ -79,8 +79,29 @@ agat_sp_manage_functional_annotation.pl --help
 
 - **-b** or **--blast**
 
-    String - Input blast ( outfmt 6 = tabular ) file that will be used to complement the features
-    read from the first file (specified with --ref).
+    String - Input blast ( outfmt 6 = tabular ) usually made by blasting the proteins resulting from the GFF/GTF file provided as input
+    and a confident protein database (e.g. Swissprot/Uniprot). The file makse a bridge between the feature ID from the GFF/GTF and the 
+    best protein ID matched in the used database. Thanks to that link the Name and products (sometimes called descriptions) information will be extracted from the database fasta file and added in the GFF file. You must provide the same database via --db as the one used to create
+    this blast output file.
+
+- **--clean_name**
+
+    Bolean - When activated, if the Name attribute already exists, it we be cleaned. Otherwise Name retrieved by --blast + --db options 
+    will be appended. Default False (Name attribute not cleaned).
+
+- **--clean_product**
+
+    Bolean - When activated, if the product attribute already exists, it we be cleaned. Otherwise product retrieved by --blast + --db options 
+    will be appended. Default False (product attribute not cleaned).
+
+- **--clean_dbxref**
+
+    Bolean - When activated, if the Dbxref attribute already exists, it we be cleaned. Otherwise Dbxref retrieved by --interpro option 
+    will be appended. Default False (Dbxref attribute not cleaned).
+
+- **--clean_ontology**
+
+    Bolean - When activated, if the Ontology_term attribute already exists, it we be cleaned. Otherwise Ontology_term retrieved by --interpro option will be appended. Default False (Ontology_term attribute not cleaned).
 
 - **-d** or **--db**
 
