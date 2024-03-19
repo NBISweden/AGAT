@@ -1269,17 +1269,21 @@ sub clean_clone{
 	$cloned_feature->source_tag("AGAT");
 	# clean score
 	$cloned_feature->score(".");
+	# new primary tag
+	$cloned_feature->primary_tag($new_primary_tag) if $new_primary_tag;
 	# clean attributes
 	if ($clean_attributes){
 		my @tags = $cloned_feature->get_all_tags();
 		foreach my $tag (@tags){
-			if (lc($tag) ne "id" and lc($tag) ne "parent" and lc($tag) ne "gene_id" and lc($tag) ne "transcript_id"){
+			if ( lc($tag) ne "id" and lc($tag) ne "parent" and lc($tag) ne "gene_id" and lc($tag) ne "transcript_id" ){
+				$cloned_feature->remove_tag($tag);
+			}
+			if ( (lc($tag) eq "parent" or lc($tag) eq "transcript_id") and exists_keys($omniscient,("other","level","level1", lc($cloned_feature->primary_tag()) ) ) ){ # transcript_id and Parent attributes have to be removed for level1 feature anyway.
 				$cloned_feature->remove_tag($tag);
 			}
 		}
 	}
-	# new primary tag
-	$cloned_feature->primary_tag($new_primary_tag) if $new_primary_tag;
+
 	# remove Parent attribute if level1
 	if ($omniscient){
 		if ($cloned_feature->has_tag("Parent")){
