@@ -1775,8 +1775,10 @@ sub _check_l2_linked_to_l3{
 								 $primary_tag_l2 = 'mRNA'; 
 							} # guess mRNA
 							else{ $primary_tag_l2 = 'RNA' ;} #we cannot guess
+
+							# Use a L3 feature as template (better as L1 see bug #441)
 							$l2_feature = clean_clone( { omniscient => $hash_omniscient,
-													     feature => $has_l1_feature,
+													     feature => $hash_omniscient->{"level3"}{$tag_l3}{$id_l2}[0],
 														 new_primary_tag => $primary_tag_l2
 												   		} );
 
@@ -1811,7 +1813,7 @@ sub _check_l2_linked_to_l3{
 							$mRNAGeneLink->{ $id_l2 } = $l1_ID; # Always need to keep track about l2->l1, else the method _check_l2_linked_to_l3 will recreate a l1 thinking this relationship is not fill
 							push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($l1_ID)}}, $l2_feature);
 						}
-						dual_print($log, "L3 was directly linked to L1. Corrected by creating the intermediate L2 feature from L1 feature:\n".$l2_feature->gff_string()."\n", 0);
+						dual_print($log, "L3 had a L1 feature but no L2 feature. Corrected by creating the intermediate L2 feature:\n".$l2_feature->gff_string()."\n", $verbose);
 						last
 					}
 				}
