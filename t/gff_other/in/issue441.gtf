@@ -1,0 +1,16 @@
+Scaffold170	maker	exon	2883887	2884591	.	+	.	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2885735	2885878	.	+	.	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2885953	2886162	.	+	.	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2886451	2886531	.	+	.	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887224	2888594	.	+	.	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2884322	2884591	.	+	0	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2885735	2885878	.	+	0	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2885953	2886162	.	+	0	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2886451	2886531	.	+	0	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887224	2887376	.	+	0	transcript_id "GBI_15721-RE"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887524	2887566	.	+	.	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887651	2887775	.	+	.	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887917	2888009	.	+	.	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887524	2887566	.	+	0	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887651	2887775	.	+	2	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887917	2888009	.	+	0	transcript_id "GBI_15721-RF"; gene_id "GBI_15721"; gene_name "GBI_15721";

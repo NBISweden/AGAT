@@ -1,0 +1,23 @@
+##gtf-version X
+# GFF-like GTF i.e. not checked against any GTF specification. Conversion based on GFF input, standardised by AGAT.
+Scaffold170	AGAT	gene	2883887	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	AGAT	mRNA	2883887	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "GBI_15721-RE"; Parent "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2883887	2884591	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-1"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2885735	2885878	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-2"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2885953	2886162	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-3"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2886451	2886531	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-4"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887224	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-5"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2884322	2884591	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-cds-1"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2885735	2885878	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-cds-2"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2885953	2886162	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-cds-3"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2886451	2886531	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-cds-4"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887224	2887376	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-cds-5"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	AGAT	five_prime_UTR	2883887	2884321	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-five_prime_utr-1"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	AGAT	three_prime_UTR	2887377	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-three_prime_utr-1"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
+Scaffold170	AGAT	mRNA	2887524	2888009	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "GBI_15721-RF"; Parent "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887524	2887566	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-exon-6"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887651	2887775	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-exon-7"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
+Scaffold170	maker	exon	2887917	2888009	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-exon-8"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887524	2887566	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-cds-6"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887651	2887775	.	+	2	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-cds-7"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
+Scaffold170	maker	CDS	2887917	2888009	.	+	0	gene_id "GBI_15721"; transcript_id "GBI_15721-RF"; ID "agat-cds-8"; Parent "GBI_15721-RF"; gene_name "GBI_15721";
