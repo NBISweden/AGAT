@@ -156,7 +156,8 @@ sub slurp_gff3_file_JD {
 	}
 
 	# +----------------- Print header ------------------+
-	dual_print ($log, AGAT::AGAT::get_agat_header(), $verbose);
+	# Printed to screen by get_agat_config at the very beginning so here we just to want to report the header in the log
+	dual_print ($log, AGAT::AGAT::get_agat_header(), 0);
 
 	# +----------------- debug param  ------------------+
 	$debug = $config->{debug};
@@ -370,7 +371,6 @@ sub slurp_gff3_file_JD {
 
 		# -------------- Set progress bar ---------------------
 		my $nb_line_read=0;
-		my $progress_bar=undef;
  		if  ( $progress_bar and $nb_line_feature ){
 			$progress_bar = Term::ProgressBar->new({
 					name  => 'Parsing',
