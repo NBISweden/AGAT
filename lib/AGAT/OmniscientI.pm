@@ -1731,18 +1731,14 @@ sub _check_l2_linked_to_l3{
 							#check if we have the tag
 
 							foreach my $l3_feature (@{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-								print "fefe ".$l3_feature->gff_string()."\n";
 								if($l3_feature->has_tag($tag) ) {
-									print "has_tag $tag\n";
 									# case where it's linked by comon_tag attribute
 									if (exists_keys($common_tag_in_l1,( $tag, lc($l3_feature->_tag_value($tag)) ) ) ){
-										print "exists_keys\n";
 										if($#{$common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}} == 0){
 											my $id = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'id'};
 											my $ptag = $common_tag_in_l1->{$tag}{lc($l3_feature->_tag_value($tag))}[0]->{'ptag'};
 											$has_l1_feature = $hash_omniscient->{'level1'}{$ptag}{$id};
 											$id_l2_to_replace = $l3_feature->_tag_value('Parent');
-											print "goes into it !!!! $id_l2_to_replace \n";
 											last;
 										}
 										else{
@@ -1827,7 +1823,6 @@ sub _check_l2_linked_to_l3{
 						push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($l1_ID)}}, $l2_feature);
 					}
 					dual_print($log, "L3 had a L1 feature but no L2 feature. Corrected by creating the intermediate L2 feature:\n".$l2_feature->gff_string()."\nUsing this feature template:\n".$hash_omniscient->{"level3"}{$tag_l3}{$id_l2}[0]->gff_string()."\n", $verbose);
-					last
 				}
 				
 
