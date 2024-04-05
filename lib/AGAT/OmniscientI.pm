@@ -1345,8 +1345,16 @@ sub _check_uniq_id_feature{
 
 	my $uID=undef;
 	my $primary_tag = lc($feature->primary_tag);
-
 	my $id=undef;
+
+	# When using GFF2 or GFF2.5 bioperl parser (at least until version 1.7.8) when no ID attribute present it add an empty ID attribute
+	# which is problematic (all features have same ID!), so we remove it.
+	if($feature->has_tag('ID')){ #has the tag
+		if ($feature->_tag_value('ID') eq " "){
+			$feature->remove_tag('ID');
+		} 
+	}
+
 	if($feature->has_tag('ID')){ #has the tag
 		$id = $feature->_tag_value('ID');
 	}
