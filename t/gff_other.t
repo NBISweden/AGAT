@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 =head1 DESCRIPTION
 
@@ -93,3 +93,21 @@ ok( system("diff $pathtmp $correct_output") == 0, "issue441 check");
 
 unlink $pathtmp;
 unlink $config;
+
+# --------- Issue 448 bioperl adding extra empty ID attribute that mess up AGAT (only when input parsed with version 2 and 2.5)  ----
+$script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
+$correct_output = "$output_folder/issue448.gtf";
+
+system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
+system("$script --g $input_folder/issue448.gtf -o $pathtmp  2>&1 1>/dev/null");
+
+ok( system("diff $pathtmp $correct_output") == 0, "issue441 check");
+
+unlink $pathtmp;
+unlink $config;
+
+$correct_output = "$output_folder/issue448.gff";
+system("$script --g $input_folder/issue448.gtf -o $pathtmp  2>&1 1>/dev/null");
+
+ok( system("diff $pathtmp $correct_output") == 0, "issue441 check");
+unlink $pathtmp;

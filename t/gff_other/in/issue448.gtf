@@ -1,0 +1,17 @@
+chr10p	ambMex60DD	gene	697815	769805	1000	-	.	gene_id "AMEX60DD000004"; gene_name "LOC115462503 [nr]|ZNF268 [hs]"; 
+chr10p	ambMex60DD	transcript	697815	769805	1000	-	.	gene_id "AMEX60DD000004"; transcript_id "LOC115462503 [nr]|ZNF268 [hs]|AMEX60DD201000004.1"; gene_name "LOC115462503 [nr]|ZNF268 [hs]|AMEX60DD201000004.1"; homolog "XP_030048360.1"; ORF_type "Putative short PTC";
+chr10p	ambMex60DD	exon	697815	702473	1000	-	.	gene_id "AMEX60DD000004"; transcript_id "LOC115462503 [nr]|ZNF268 [hs]|AMEX60DD201000004.1"; exon_number "1"; 
+chr10p	ambMex60DD	exon	769665	769805	1000	-	.	gene_id "AMEX60DD000004"; transcript_id "LOC115462503 [nr]|ZNF268 [hs]|AMEX60DD201000004.1"; exon_number "2"; 
+chr10p	ambMex60DD	CDS	699525	701216	1000	-	.	gene_id "AMEX60DD000004"; transcript_id "LOC115462503 [nr]|ZNF268 [hs]|AMEX60DD201000004.1"; 
+chr10p	ambMex60DD	gene	770040	1018740	1000	+	.	gene_id "AMEX60DD000005"; gene_name "AMEX60DD000005"; 
+chr10p	ambMex60DD	transcript	770040	1018740	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.1"; gene_name "AMEX60DD201000005.1"; 
+chr10p	ambMex60DD	exon	770040	770424	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.1"; exon_number "1"; 
+chr10p	ambMex60DD	exon	801485	801606	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.1"; exon_number "2"; 
+chr10p	ambMex60DD	exon	915118	915167	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.1"; exon_number "3"; 
+chr10p	ambMex60DD	exon	1018684	1018740	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.1"; exon_number "4"; 
+chr10p	ambMex60DD	transcript	770040	961083	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; gene_name "AMEX60DD201000005.2"; ORF_type "Predicted";
+chr10p	ambMex60DD	exon	770040	770414	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; exon_number "1"; 
+chr10p	ambMex60DD	exon	801485	801606	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; exon_number "2"; 
+chr10p	ambMex60DD	exon	877425	877977	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; exon_number "3"; 
+chr10p	ambMex60DD	exon	915118	915167	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; exon_number "4"; 
+chr10p	ambMex60DD	exon	960764	961083	1000	+	.	gene_id "AMEX60DD000005"; transcript_id "AMEX60DD201000005.2"; exon_number "5"; 
