@@ -2,9 +2,11 @@
 
 ## DESCRIPTION
 
-The script converts output from minimap2 (bam or sam) into gff file.
-To get bam from minimap2 use the following command:
-minimap2 -ax splice:hq genome.fa Asecodes\_parviclava.nucest.fa | samtools sort -O BAM -o output.bam
+The script converts output from minimap2 (bam or sam) into GFF file.
+To get bam from minimap2 use the following command:  
+
+minimap2 -ax splice:hq genome.fa Asecodes\_parviclava.nucest.fa | samtools sort -O BAM -o output.bam  
+
 To use bam with this script you will need samtools in your path.
 
 ## SYNOPSIS
@@ -16,8 +18,6 @@ agat_convert_minimap2_bam2gff.pl --help
 ```
 
 ## OPTIONS
-
-if ( !GetOptions( 'i|input=s' => \\$opt\_in,
 
 - **-i** or **--input**
 
