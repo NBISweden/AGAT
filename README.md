@@ -6,7 +6,8 @@
 [<img alt="singularity_agat" src="https://img.shields.io/badge/container-Singularity-orange">](https://quay.io/repository/biocontainers/agat)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/agat/badges/license.svg)](https://anaconda.org/bioconda/agat)
 [![Anaconda-Server Badge](https://img.shields.io/conda/dn/bioconda/agat.svg?style=flat)](https://anaconda.org/bioconda/agat)
-[![DOI](https://zenodo.org/badge/222659741.svg)](https://zenodo.org/badge/latestdoi/222659741)  
+[<img alt="doi_zenodo" src="https://img.shields.io/badge/DOI-10.5281/zenodo.3552717-blue">](https://zenodo.org/doi/10.5281/zenodo.3552717)
+
 
 AGAT
 =========================================
