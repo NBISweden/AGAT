@@ -310,7 +310,7 @@ Attribute with the tag specified will be added if doesn't exist. The value will 
 
 =item B<--cp>
 
-When tags specied are with this form: tagName/newTagName.
+Bolean. When tags specied are with this form: tagName/newTagName.
 By using this <cp> parameter, the attribute with the tag tagName will be duplicated
 with the new tag newTagName if no attribute with the tag newTagName already exits.
 

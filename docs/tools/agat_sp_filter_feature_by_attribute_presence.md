@@ -1,4 +1,4 @@
-# agat\_sp\_select\_feature\_by\_attribute\_presence.pl
+# agat\_sp\filter\_feature\_by\_attribute\_presence.pl
 
 ## DESCRIPTION
 
@@ -11,8 +11,8 @@ removing all children of a feature will automatically remove this feature too.
 ## SYNOPSIS
 
 ```
-agat_sp_select_feature_by_attribute_presence.pl --gff infile.gff -a <tag> [ --output outfile ]
-agat_sp_select_feature_by_attribute_presence.pl --help
+agat_sp_filter_feature_by_attribute_presence.pl --gff infile.gff -a <tag> [ --output outfile ]
+agat_sp_filter_feature_by_attribute_presence.pl --help
 ```
 
 ## OPTIONS
