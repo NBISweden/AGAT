@@ -15,6 +15,7 @@ my $config;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
+my $opt_value_insensitive = undef;
 my $opt_attribute = undef;
 my $opt_test = "=";
 my $opt_gff = undef;
@@ -25,12 +26,13 @@ my $opt_help;
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'value=s'             => \$opt_value,
+                  'value_insensitive!'  => \$opt_value_insensitive,
                   "p|type|l=s"          => \$primaryTag,
                   'a|attribute=s'       => \$opt_attribute,
                   't|test=s'            => \$opt_test,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
+                  'c|config=s'          => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -59,11 +61,6 @@ $config = get_agat_config({config_file_in => $config});
 # Test options
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
   print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
-}
-if( ! looks_like_number($opt_value) ){
-  if($opt_test eq "="){$opt_test="eq";}
-  elsif($opt_test eq "!"){$opt_test="ne";}
-  else{ print "This test $opt_test is not possible with string value.";exit; }
 }
 
 ###############
@@ -110,10 +107,32 @@ else{
    }
 }
 
+# Transform value list into hash
+my $value_hash = string_sep_to_hash({ string => $opt_value,
+                                      separator => ","
+                                    });
+                                      
+foreach my $value (keys %{$value_hash}){
+  if( ! looks_like_number($value) ){
+    if($opt_test ne "=" and $opt_test ne "!"){
+      print "This test $opt_test is not possible with string value.\n";
+      exit; 
+    }
+  }
+}
+
+use Data::Dumper;
+print Dumper($value_hash);
+
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value.\n";
+$stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
+if ($opt_value_insensitive){
+  $stringPrint .= "case insensitive.\n";
+}else{
+   $stringPrint .= "case sensitive.\n";
+}
 
 if ($opt_output){
   print $ostreamReport $stringPrint;
@@ -145,7 +164,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
 			my $id_l1 = lc($feature_l1->_tag_value('ID'));
 
-	    $removeit = check_feature($feature_l1, 'level1', \@ptagList, $opt_attribute, $opt_test, $opt_value);
+	    $removeit = check_feature($feature_l1, 'level1');
 			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
 	    if ($removeit){
 	      my $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
@@ -167,7 +186,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
 	        foreach my $feature_l2 ( @list_fl2 ) {
 
-	          $removeit = check_feature($feature_l2,'level2', \@ptagList, $opt_attribute, $opt_test, $opt_value);
+	          $removeit = check_feature($feature_l2,'level2');
 	          if ($removeit){
 	            push @list_l2_to_remove, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded];
 	            next;
@@ -182,7 +201,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	              my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
 	              foreach my $feature_l3 ( @list_fl3 ) {
 
-	                $removeit = check_feature($feature_l3, 'level3', \@ptagList, $opt_attribute, $opt_test, $opt_value);
+	                $removeit = check_feature($feature_l3, 'level3');
 	                if ($removeit){
 	                  push @list_l3_to_remove, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded];
 	                }
@@ -239,61 +258,71 @@ if ($opt_output){
                  ##
 
 sub check_feature{
-  my  ($feature, $level, $ptagList, $opt_attribute, $opt_test, $opt_value)=@_;
+  my  ($feature, $level)=@_;
 
   my $removeit=undef;
   my $primary_tag=$feature->primary_tag;
 
   # check primary tag (feature type) to handle
-  foreach my $ptag (@$ptagList){
+  foreach my $ptag (@ptagList){
 
     if($ptag eq "all"){
-      $removeit = should_we_remove_feature($feature, $opt_attribute, $opt_test, $opt_value);
+      $removeit = should_we_remove_feature($feature);
     }
     elsif(lc($ptag) eq $level){
-      $removeit = should_we_remove_feature($feature, $opt_attribute, $opt_test, $opt_value);
+      $removeit = should_we_remove_feature($feature);
     }
     elsif(lc($ptag) eq lc($primary_tag) ){
-      $removeit = should_we_remove_feature($feature, $opt_attribute, $opt_test, $opt_value);
+      $removeit = should_we_remove_feature($feature);
     }
   }
   return $removeit;
 }
 
 sub should_we_remove_feature{
-  my ($feature, $opt_attribute, $opt_test, $opt_value)=@_;
+  my ($feature)=@_;
 
   if ($feature->has_tag($opt_attribute)){
 
     # get list of values for the attribute
-    my @values = $feature->get_tag_values($opt_attribute);
+    my @file_values = $feature->get_tag_values($opt_attribute);
 
     # if we found among the values one pass the test we return 1
-    foreach my $value (@values){
+    foreach my $file_value (@file_values){
 
-      if ($opt_test eq "eq"){
-        if ($value eq $opt_value){return 1; }
-      }
-      elsif ($opt_test eq "ne"){
-        if ($value ne $opt_value){return 1; }
-      }
-      elsif ($opt_test eq "="){
-       if ($value == $opt_value){return 1; }
-      }
-      elsif ($opt_test eq "!"){
-        if ($value != $opt_value){return 1; }
-      }
-      elsif ($opt_test eq ">"){
-        if ($value > $opt_value){return 1; }
-      }
-      elsif ($opt_test eq "<"){
-        if ($value < $opt_value){return 1; }
-      }
-      elsif ($opt_test eq "<="){
-        if ($value <= $opt_value){return 1; }
-      }
-      elsif ($opt_test eq ">="){
-        if ($value >= $opt_value){return 1; }
+      foreach my $given_value (keys %{$value_hash}){
+        # Deal with insensitive for template
+        if ($opt_value_insensitive){
+          $given_value = lc($given_value);
+          $file_value = lc($file_value);
+        }
+        # for string values replace = by eq and ! by ne and avoid other type of test
+        if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
+          if ($opt_test eq "="){
+            if ($file_value eq $given_value){return 1; }
+          }
+          elsif ($opt_test eq "!"){
+            if ($file_value ne $given_value){return 1; }
+          }
+        }
+        elsif ($opt_test eq "="){
+        if ($file_value == $given_value){return 1; }
+        }
+        elsif ($opt_test eq "!"){
+          if ($file_value != $given_value){return 1; }
+        }
+        elsif ($opt_test eq ">"){
+          if ($file_value > $given_value){return 1; }
+        }
+        elsif ($opt_test eq "<"){
+          if ($file_value < $given_value){return 1; }
+        }
+        elsif ($opt_test eq "<="){
+          if ($file_value <= $given_value){return 1; }
+        }
+        elsif ($opt_test eq ">="){
+          if ($file_value >= $given_value){return 1; }
+        }
       }
     }
   }
@@ -304,7 +333,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_select_feature_by_attribute_value.pl
+agat_sp_filter_feature_by_attribute_value.pl
 
 =head1 DESCRIPTION
 
@@ -317,8 +346,8 @@ removing all children of a feature will automatically remove this feature too.
 
 =head1 SYNOPSIS
 
-    agat_sp_select_feature_by_attribute_value.pl --gff infile.gff --value 1 -t "=" [ --output outfile ]
-    agat_sp_select_feature_by_attribute_value.pl --help
+    agat_sp_filter_feature_by_attribute_value.pl --gff infile.gff --value 1 -t "=" [ --output outfile ]
+    agat_sp_filter_feature_by_attribute_value.pl --help
 
 =head1 OPTIONS
 
@@ -343,10 +372,17 @@ By default all feature are taking into account. fill the option by the value "al
 
 =item B<--value>
 
-Value to check in the attribute
+Value(s) to check in the attribute. Case sensitive. List of values must be coma separated.
+
+=item B<--value_insensitive>
+
+Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
 
 =item B<-t> or B<--test>
-Test to apply (> < = >= <=). default value "=". If you use one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
+Test to apply (> < = ! >= <=). default value "=". 
+If you use one of these two character >, <, please don't forget to quote the
+parameter like that "<=" otherwise your terminal will complain.
+Only = and ! tests can be used to compare string values.
 
 =item B<-o> or B<--output>
 

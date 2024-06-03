@@ -10,7 +10,8 @@ use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
-sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text);
+sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
+string_sep_to_hash);
 
 sub import {
   AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -308,6 +309,28 @@ sub dual_print{
 	if($fh){
 		print $fh $string;
 	}
+}
+
+# @Purpose: transform a String with separator into hash
+# @input: 2 =>  string, char (the char is the separator)
+# @output 1 => hash
+sub string_sep_to_hash {
+	my $sub_name = (caller(0))[3];
+	# -------------- INPUT --------------
+	my ($args) = @_;
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for $sub_name. Please check the call.\n";exit;	}
+	# Fill the parameters
+	my ($string, $separator);
+	if( defined($args->{string})) {$string = $args->{string};} else{ print "String parameter mandatory to use $sub_name!"; exit; }
+	if( defined($args->{separator})) {$separator = $args->{separator};} else{ $separator = " ";}
+
+	my %hash_result;
+	my @values = split(/$separator/, $string);
+   	foreach my $value (@values){
+		$hash_result{$value}++;
+	}
+	return \%hash_result;
 }
 
 1;
