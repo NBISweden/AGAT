@@ -1399,18 +1399,18 @@ sub fil_cds_frame {
 
 					# If no phase found and a phase exists in the CDS feature we keep the original
 					# otherwise we loop over CDS features to set the correct phase
-          if ( defined( $phase ) ) {
-            foreach my $cds_feature ( @cds_list) {
-              my $original_phase = $cds_feature->frame;
+					if ( defined( $phase ) ) {
+						foreach my $cds_feature ( @cds_list) {
+							my $original_phase = $cds_feature->frame;
 
-              if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-                print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
-                $cds_feature->frame($phase);
-              }
-  						my $cds_length=$cds_feature->end-$cds_feature->start +1;
-  						$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
-  					}
-          }
+							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
+								print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
+								$cds_feature->frame($phase);
+							}
+							my $cds_length=$cds_feature->end-$cds_feature->start +1;
+							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
+						}
+					}
 				}
 			}
 		}
@@ -1445,15 +1445,15 @@ sub _get_cds_start_phase {
       my $protein_seq_obj = $cds_obj->translate();
       my $lastChar =  substr $protein_seq_obj->seq(),-1,1;
       my $count = () = $protein_seq_obj->seq() =~ /\*/g;
-      if ($lastChar eq "*"){ # if last char is a stop we remove it
-
-        if ($count == 1){
+      if ($lastChar eq "*"){ 
+		# The last char is a stop and in total we counted only one stop.
+        if ($count == 1){ 
             #print "Missing start codon, phase 0, stop present\n";
             return 0;
         }
       }
-      else{
-        if ($count == 0){
+      else{ # The last char is not a stop but we didn't find any stop in the middle on the sequence neither. 
+        if ($count == 0){ 
           #print "Missing start codon, phase 0, missing stop codon\n";
           return 0;
         }
@@ -1493,7 +1493,7 @@ sub _get_cds_start_phase {
         }
       }
 
-      # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and trow a warning !
+      # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and throw a warning !
       warn "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ".
       "All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n";
       return undef;
