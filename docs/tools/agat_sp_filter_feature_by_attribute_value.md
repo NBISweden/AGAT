@@ -1,4 +1,4 @@
-# agat\_sp\_select\_feature\_by\_attribute\_value.pl
+# agat\_sp\_filter\_feature\_by\_attribute\_value.pl
 
 ## DESCRIPTION
 
@@ -12,8 +12,8 @@ removing all children of a feature will automatically remove this feature too.
 ## SYNOPSIS
 
 ```
-agat_sp_select_feature_by_attribute_value.pl --gff infile.gff --value 1 -t "=" [ --output outfile ]
-agat_sp_select_feature_by_attribute_value.pl --help
+agat_sp_filter_feature_by_attribute_value.pl --gff infile.gff --value 1 -t "=" [ --output outfile ]
+agat_sp_filter_feature_by_attribute_value.pl --help
 ```
 
 ## OPTIONS
