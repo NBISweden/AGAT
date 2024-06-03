@@ -37,10 +37,20 @@ agat_sp_filter_feature_by_attribute_value.pl --help
 
 - **--value**
 
-    Value to check in the attribute
+    Value(s) to check in the attribute. Case sensitive. List of values must be coma separated. 
+
+- **--value\_insensitive**
+
+    Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
+
 
 - **-t** or **--test**
-Test to apply (> < = >= <=). default value "=". If you use one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
+
+    Test to apply (> < = ! >= <=). default value "=". 
+    If you use one of these two character >, <, please don't forget to quote the
+    parameter like that "<=" otherwise your terminal will complain.
+    Only = and ! tests can be used to compare string values.
+
 - **-o** or **--output**
 
     Output GFF file.  If no output file is specified, the output will be
