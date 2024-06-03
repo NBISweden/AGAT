@@ -279,7 +279,7 @@ __END__
 
 =head1 NAME
 
-agat_sp_select_feature_by_attribute_presence.pl
+agat_sp_filter_feature_by_attribute_presence.pl
 
 =head1 DESCRIPTION
 
@@ -291,8 +291,8 @@ removing all children of a feature will automatically remove this feature too.
 
 =head1 SYNOPSIS
 
-    agat_sp_select_feature_by_attribute_presence.pl --gff infile.gff -a <tag> [ --output outfile ]
-    agat_sp_select_feature_by_attribute_presence.pl --help
+    agat_sp_filter_feature_by_attribute_presence.pl --gff infile.gff -a <tag> [ --output outfile ]
+    agat_sp_filter_feature_by_attribute_presence.pl --help
 
 =head1 OPTIONS
 

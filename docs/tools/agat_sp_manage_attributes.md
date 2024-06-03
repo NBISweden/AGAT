@@ -42,7 +42,7 @@ agat_sp_manage_attributes.pl --help
 
 - **--cp**
 
-    When tags specied are with this form: tagName/newTagName.
+    Bolean. When tags specied are with this form: tagName/newTagName.
     By using this &lt;cp> parameter, the attribute with the tag tagName will be duplicated
     with the new tag newTagName if no attribute with the tag newTagName already exits.
 
