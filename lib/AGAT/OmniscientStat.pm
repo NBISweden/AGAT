@@ -11,6 +11,7 @@ use AGAT::Levels;
 use AGAT::Utilities;
 use AGAT::PlotR;
 use Try::Tiny;
+use YAML qw(DumpFile);
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( print_omniscient_statistics );
@@ -47,12 +48,12 @@ sub print_omniscient_statistics{
 
 #	---	HANDLE ARGUMENTS ---
 	my ($args) = @_	;
-
+	my %hash_yaml;
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
 
 	# Declare all variables and fill them
-	my ($omniscient, $genome_size, $output, $verbose, $distri, $isoform);
+	my ($omniscient, $genome_size, $output, $yaml, $verbose, $distri, $isoform);
 
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
@@ -84,15 +85,18 @@ sub print_omniscient_statistics{
 	if( ! defined($args->{output}) ) {
 		$output = IO::File->new();
 		$output->fdopen( fileno(STDOUT), 'w' );
+	}else{	$output = $args->{output};}
+	# YAML output filename
+	if( defined($args->{yaml}) ) {
+			$yaml = $args->{yaml};
 	}
-		else{	$output = $args->{output};}
 	# add verbosity
 	if( ! defined($args->{verbose}) ) {$verbose = 0;}
 		else{ $verbose = $args->{verbose}; }
 	# Path to the folder where to put distribution plot
 	if( ! defined($args->{distri}) ) {$distri = 0;}
 		else{ $distri = $args->{distri}; }
-	# Should we deal with isoform (remove them and re-compute the statistics)
+	# Should we deal with isoform (remove them and re-compute the statistics) 1=yes
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
 	print "get_omniscient_statistics\n" if $verbose;
@@ -108,24 +112,9 @@ sub print_omniscient_statistics{
 		my $isoform_type = ($by_main_type eq 3) ? $isoform : undef;
 		foreach my $by_type ( sort keys %{ $result_by_type->{$by_main_type} } ){
 
-			# Print feature type section
-			print $output file_text_line({ string => " $by_type", char => "-" });
-
 			my $stat = $result_by_type->{$by_main_type}{$by_type}{'info'};
 			my $distri_hash = $result_by_type->{$by_main_type}{$by_type}{'distri'};
 			my $l1l2 = $result_by_type->{$by_main_type}{$by_type}{'iso'};
-
-			# print sentences/info
-			foreach my $infoList (@$stat){
-				foreach my $info (@$infoList){
-			    print $output "$info";
-			  }
-			  print $output "\n";
-			}
-
-			if($distri){
-				_print_distribution($distri, "with_isoforms", $distri_hash);
-			}
 
 			#------- DEAL WITH ISOFORMS -----
 			if($isoform_type){
@@ -148,10 +137,12 @@ sub print_omniscient_statistics{
 				my $skip_iso=undef;
 				foreach my $sentenceType2 (@$stat2){
 					foreach my $sentence2 (@$sentenceType2){
+						my $sentence2=recreate_sentence($sentence2);
 						if ( $sentence2 =~ m/Number of $by_type\s*(\d+)\s*$/) {
 							my $digit2 = $1;
 							foreach my $sentenceType (@$stat){
-								foreach my $sentence (@$sentenceType){
+								foreach my $infoList (@$sentenceType){
+									my $sentence=recreate_sentence($infoList);
 									if ( $sentence =~ m/Number of $by_type\s*(\d+)\s*$/) {
 										if( $sentence eq $sentence2){
 											$skip_iso=1;
@@ -163,26 +154,109 @@ sub print_omniscient_statistics{
 					}
 				}
 				
-				if (! $skip_iso){
+				#------- NOW PRINTING RESULTS -----
+				if ($skip_iso){
+					# Print feature type section in log with no isoforms (while this is a feature type that might have isoforms)
+					print $output file_text_line({ string => " $by_type", char => "-" });
+					print_sentences($output, $stat);
+					if($distri){
+						_print_distribution($distri, "with_isoforms", $distri_hash);
+					}
+					# fill for YAML
+					$hash_yaml{ $by_type }{"isoform"}="no";
+					fill_yaml_hash(\%hash_yaml, $by_type, "without_isoforms", $stat);
+							
+				} else {
+					# Print feature type section in log with AND without isoforms (because this feature type have isoforms)
+
+					# Print text file
+					print $output file_text_line({ string => " $by_type", char => "-" });
+					print_sentences($output, $stat);
+					if($distri){
+						_print_distribution($distri, "with_isoform", $distri_hash);
+					}
+					# fill for YAML
+					$hash_yaml{ $by_type }{"isoform"}="yes";
+					fill_yaml_hash(\%hash_yaml, $by_type, "with_isoform", $stat);
+
+					# Print text file
 					print $output "$by_type have isoforms! Here are the statistics without isoforms shortest isoforms excluded):\n\n";
+					print_sentences($output, $stat2);
 					# get distribution info
-					my $distri2 = get_distributions($info_l2, $extra_l2);
-
-					# print sentences/info
-					foreach my $infoList2 (@$stat2){
-						foreach my $info2 (@$infoList2){
-							print $output "$info2";
-						}
-						print $output "\n";
-					}
-
+					my $distri2_hash = get_distributions($info_l2, $extra_l2);
 					if($distri){;
-						_print_distribution($distri, "without_isoforms", $distri_hash);
+						_print_distribution($distri, "without_isoforms", $distri2_hash);
 					}
+					# fill for YAML
+					fill_yaml_hash(\%hash_yaml, $by_type, "without_isoform", $stat2);
+
 				}
+			}
+			else{
+				# Print feature type section in log that cannot have isoforms
+				print $output file_text_line({ string => " $by_type", char => "-" });
+				print_sentences($output, $stat);
+				if($distri){
+					_print_distribution($distri, "with_isoform", $distri_hash);
+				}
+				# fill for YAML
+				$hash_yaml{ $by_type }{"isoform"}="NA";
+				fill_yaml_hash(\%hash_yaml, $by_type, "value", $stat);
+					
 			}
 		}
 	}
+	# Print YAML
+	if ($yaml ){
+		DumpFile($yaml, \%hash_yaml);	
+	}
+}
+
+# Fill hash for YAML with sentences/info from list of list [String, value, option]
+sub fill_yaml_hash{
+	my ($hash, $bytype, $isoinfo, $stat)=@_;
+		
+	foreach my $infoList (@$stat){
+		foreach my $infos (@$infoList){
+			my $increment="%d";
+			if (defined($infos->[2])){
+				$increment="%.1f";
+			}
+			if ($isoinfo eq "value"){
+				$hash->{$bytype}{$isoinfo}{$infos->[0]} = sprintf($increment, $infos->[1]);
+			} else {
+				$hash->{$bytype}{$isoinfo}{"value"}{$infos->[0]} = sprintf($increment,$infos->[1]);
+			}
+		}
+	}
+}
+
+# print sentences/info from list of list [String, value, option]
+sub print_sentences{
+	my ($output, $stat)=@_;
+		
+	foreach my $infoList (@$stat){
+		foreach my $info (@$infoList){
+			my $sentence = recreate_sentence($info);
+			print $output $sentence 
+		}
+		print $output "\n";
+	}
+}
+
+# Get  info list [String, value, option] and concatenate String + value using option for rendering if rendering different than default
+sub recreate_sentence{
+	my ($infos)=@_;
+	my $sentence=undef;
+
+	my $increment="%-45s%d%s";
+	if (defined($infos->[2])){
+			$increment=$infos->[2];
+	}
+
+	$sentence = sprintf($increment, "$infos->[0]", "$infos->[1]", "\n");
+	
+	return $sentence;
 }
 
 # @Purpose: Purpose print distribution from feature statistics
@@ -668,8 +742,7 @@ sub get_distributions{
 			}
 		}
 	}
-
-return \%distribution;
+	return \%distribution;
 }
 
 # ----------------------------------  -----------------------------------------
@@ -683,12 +756,12 @@ sub _info_single{
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l1", $all_info->{'level1'}{$tag_l1},"\n");
+		push @resu,  ["Number of single exon $tag_l1", $all_info->{'level1'}{$tag_l1}];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of single exon $tag_l2", $all_info->{'level2'}{$tag_l2},"\n");
+	    push @resu, ["Number of single exon $tag_l2", $all_info->{'level2'}{$tag_l2}];
 	}
 
 	return \@resu;
@@ -703,7 +776,7 @@ sub _info_overlap{
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number $tag_l1 overlapping", $all_info->{'level1'}{$tag_l1},"\n");
+		push @resu, ["Number $tag_l1 overlapping", $all_info->{'level1'}{$tag_l1}];
 	}
 
 	return \@resu;
@@ -719,37 +792,37 @@ sub _info_number {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Number of $tag_l1", $all_info->{'level1'}{$tag_l1}{'nb_feat'},"\n");
+		push @resu, ["Number of $tag_l1", $all_info->{'level1'}{$tag_l1}{'nb_feat'}];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l2", $all_info->{'level2'}{$tag_l2}{'nb_feat'},"\n");
+	    push @resu, ["Number of $tag_l2", $all_info->{'level2'}{$tag_l2}{'nb_feat'}];
 	    #manage utr both side
 	    if(exists ($all_info->{'level2'}{$tag_l2}{'utr_both_side'})){
-			push @resu, sprintf("%-45s%d%s", "Number of mrnas with utr both sides", $all_info->{'level2'}{$tag_l2}{'utr_both_side'},"\n");
+			push @resu, ["Number of mrnas with utr both sides", $all_info->{'level2'}{$tag_l2}{'utr_both_side'}];
 		}
 		#manage utr both side
 		if(exists ($all_info->{'level2'}{$tag_l2}{'utr_at_least_one_side'})){
-			push @resu, sprintf("%-45s%d%s", "Number of mrnas with at least one utr", $all_info->{'level2'}{$tag_l2}{'utr_at_least_one_side'},"\n");
+			push @resu, ["Number of mrnas with at least one utr", $all_info->{'level2'}{$tag_l2}{'utr_at_least_one_side'}];
 		}
 	}
 
 	#print level3 -
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
-	    push @resu, sprintf("%-45s%d%s", "Number of $tag_l3", $all_info->{'level3'}{$tag_l3}{'nb_feat'},"\n");
+	    push @resu, [ "Number of $tag_l3", $all_info->{'level3'}{$tag_l3}{'nb_feat'}];
 	}
 
  	#print level3 - exon case
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
-	    	push @resu, sprintf("%-45s%d%s", "Number of exon in $tag_l3", $all_info->{'level3'}{$tag_l3}{'exon'}{'nb_feat'},"\n");
+	    	push @resu, ["Number of exon in $tag_l3", $all_info->{'level3'}{$tag_l3}{'exon'}{'nb_feat'}];
 	    }
 	}
 	#print level3 - intron case
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'intron') ) ) {
-	    	push @resu, sprintf("%-45s%d%s", "Number of intron in $tag_l3", $all_info->{'level3'}{$tag_l3}{'intron'}{'nb_feat'},"\n");
+	    	push @resu, [ "Number of intron in $tag_l3", $all_info->{'level3'}{$tag_l3}{'intron'}{'nb_feat'}];
 	    }
 	}
 
@@ -765,12 +838,12 @@ sub _info_shortest {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Shortest $tag_l1 (bp)", $all_info->{'level1'}{$tag_l1}{'shortest'},"\n");
+		push @resu, ["Shortest $tag_l1 (bp)", $all_info->{'level1'}{$tag_l1}{'shortest'}];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Shortest $tag_l2 (bp)", $all_info->{'level2'}{$tag_l2}{'shortest'},"\n");
+	    push @resu, ["Shortest $tag_l2 (bp)", $all_info->{'level2'}{$tag_l2}{'shortest'}];
 	 }
 
 	#print level3
@@ -779,21 +852,21 @@ sub _info_shortest {
 			#print "No shortest for $tag_l3\n";
 		}
 		else{
-	    	push @resu, sprintf("%-45s%d%s", "Shortest $tag_l3", $all_info->{'level3'}{$tag_l3}{'shortest'},"\n");
+	    	push @resu, ["Shortest $tag_l3", $all_info->{'level3'}{$tag_l3}{'shortest'}];
 		}
 	}
 
 	#print level3 - spread feature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'piece') ) ) {
-	    	push @resu, sprintf("%-45s%d%s", "Shortest $tag_l3 piece (bp)", $all_info->{'level3'}{$tag_l3}{'piece'}{'shortest'},"\n");
+	    	push @resu, ["Shortest $tag_l3 piece (bp)", $all_info->{'level3'}{$tag_l3}{'piece'}{'shortest'}];
 	    }
 	}
 
 	#print level3 - intron
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
-	    	push @resu, sprintf("%-45s%d%s", "Shortest intron into $tag_l3 part (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'shortest'},"\n");
+	    	push @resu, ["Shortest intron into $tag_l3 part (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'shortest'}];
 	    }
 	}
 
@@ -809,12 +882,12 @@ sub _info_longest {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Longest $tag_l1 (bp)", $all_info->{'level1'}{$tag_l1}{'longest'},"\n");
+		push @resu, ["Longest $tag_l1 (bp)", $all_info->{'level1'}{$tag_l1}{'longest'}];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Longest $tag_l2 (bp)", $all_info->{'level2'}{$tag_l2}{'longest'},"\n");
+	    push @resu, ["Longest $tag_l2 (bp)", $all_info->{'level2'}{$tag_l2}{'longest'}];
 	 }
 
 	#print level3
@@ -823,21 +896,21 @@ sub _info_longest {
 			#print "No longest for $tag_l3\n";
 		}
 		else{
-	    	push @resu, sprintf("%-45s%d%s", "Longest $tag_l3 (bp)", $all_info->{'level3'}{$tag_l3}{'longest'},"\n");
+	    	push @resu, ["Longest $tag_l3 (bp)", $all_info->{'level3'}{$tag_l3}{'longest'}];
 		}
 	}
 
 	#print level3 - spread feature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'piece') ) ) {
-	    	push @resu, sprintf("%-45s%d%s", "Longest $tag_l3 piece (bp)", $all_info->{'level3'}{$tag_l3}{'piece'}{'longest'},"\n");
+	    	push @resu, ["Longest $tag_l3 piece (bp)", $all_info->{'level3'}{$tag_l3}{'piece'}{'longest'}];
 	    }
 	}
 
 	#print level3 - intron
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys($all_info, ('level3',$tag_l3,'intron'))){
-	    	push @resu, sprintf("%-45s%d%s", "Longest intron into $tag_l3 part (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'longest'},"\n");
+	    	push @resu, ["Longest intron into $tag_l3 part (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'longest'}];
 	    }
 	}
 
@@ -854,21 +927,21 @@ sub _info_mean_per {
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 		foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
 			my $mean=  $all_info->{'level2'}{$tag_l2}{'nb_feat'}/$all_info->{'level1'}{$tag_l1}{'nb_feat'};
-		    push @resu, sprintf("%-45s%.1f%s", "mean $tag_l2"."s per $tag_l1", $mean,"\n");
+		    push @resu, [ "mean $tag_l2"."s per $tag_l1", $mean, "%-45s%.1f%s"];
 		}
 	}
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 	    foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 			my $mean=  $all_info->{'level3'}{$tag_l3}{'nb_feat'}/$all_info->{'level2'}{$tag_l2}{'nb_feat'};
-		    push @resu, sprintf("%-45s%.1f%s", "mean $tag_l3"."s per $tag_l2", $mean,"\n");
+		    push @resu, [ "mean $tag_l3"."s per $tag_l2", $mean, "%-45s%.1f%s"];
 		}
 	}
 	#print level3 - spread feature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
 			my $mean=  $all_info->{'level3'}{$tag_l3}{'exon'}{'nb_feat'}/$all_info->{'level3'}{$tag_l3}{'nb_feat'};
-		    push @resu, sprintf("%-45s%.1f%s", "mean exons per $tag_l3", $mean,"\n");
+		    push @resu, [ "mean exons per $tag_l3", $mean, "%-45s%.1f%s"];
 	    }
 	}
 	#print introns
@@ -876,7 +949,7 @@ sub _info_mean_per {
 		foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 			if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
 			    my $mean=  $all_info->{'level3'}{$tag_l3}{'intron'}{'nb_feat'}/$all_info->{'level2'}{$tag_l2}{'nb_feat'};
-			    push @resu, sprintf("%-45s%.1f%s", "mean introns in $tag_l3"."s per $tag_l2", $mean,"\n");
+			    push @resu, [ "mean introns in $tag_l3"."s per $tag_l2", $mean, "%-45s%.1f%s"];
 			}
 		}
 	}
@@ -891,23 +964,23 @@ sub _info_length {
 
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
-		push @resu, sprintf("%-45s%d%s", "Total $tag_l1 length (bp)", $all_info->{'level1'}{$tag_l1}{'size_feat'},"\n");
+		push @resu, ["Total $tag_l1 length (bp)", $all_info->{'level1'}{$tag_l1}{'size_feat'}];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
-	    push @resu, sprintf("%-45s%d%s", "Total $tag_l2 length (bp)", $all_info->{'level2'}{$tag_l2}{'size_feat'},"\n");
+	    push @resu, ["Total $tag_l2 length (bp)", $all_info->{'level2'}{$tag_l2}{'size_feat'}];
 	 }
 
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
-	    push @resu, sprintf("%-45s%d%s", "Total $tag_l3 length (bp)", $all_info->{'level3'}{$tag_l3}{'size_feat'},"\n");
+	    push @resu, ["Total $tag_l3 length (bp)", $all_info->{'level3'}{$tag_l3}{'size_feat'}];
 	}
 
 	#print introns
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
-	    	push @resu, sprintf("%-45s%d%s", "Total intron length per $tag_l3 (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'size_feat'},"\n");
+	    	push @resu, ["Total intron length per $tag_l3 (bp)", $all_info->{'level3'}{$tag_l3}{'intron'}{'size_feat'}];
 	    }
 	}
 
@@ -924,7 +997,7 @@ sub _info_mean_length {
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
 		my $meanl= $all_info->{'level1'}{$tag_l1}{'size_feat'}/$all_info->{'level1'}{$tag_l1}{'nb_feat'};
-		push @resu, sprintf("%-45s%d%s", "mean $tag_l1 length (bp)", $meanl,"\n");
+		push @resu, ["mean $tag_l1 length (bp)", $meanl];
 	}
 
 	#print level2
@@ -934,7 +1007,7 @@ sub _info_mean_length {
 
 		if($size_feat !=0 and $nb_feat != 0){
 			my $meanl= $all_info->{'level2'}{$tag_l2}{'size_feat'}/$all_info->{'level2'}{$tag_l2}{'nb_feat'};
-		    push @resu, sprintf("%-45s%d%s", "mean $tag_l2 length (bp)", $meanl,"\n");
+		    push @resu, ["mean $tag_l2 length (bp)", $meanl];
 		}
 		else{warn "Problem in the calcul of level2 - $tag_l2 - size_feat";}
 	 }
@@ -946,7 +1019,7 @@ sub _info_mean_length {
 		}
 		else{
 			my $meanl= $all_info->{'level3'}{$tag_l3}{'size_feat'}/$all_info->{'level3'}{$tag_l3}{'nb_feat'};
-		    push @resu, sprintf("%-45s%d%s", "mean $tag_l3 length (bp)", $meanl,"\n");
+		    push @resu, ["mean $tag_l3 length (bp)", $meanl];
 		}
 	}
 
@@ -954,7 +1027,7 @@ sub _info_mean_length {
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
 			my $meanl= $all_info->{'level3'}{$tag_l3}{'size_feat'}/$all_info->{'level3'}{$tag_l3}{'exon'}{'nb_feat'};
-	    	push @resu, sprintf("%-45s%d%s", "mean $tag_l3 piece length (bp)", $meanl,"\n");
+	    	push @resu, ["mean $tag_l3 piece length (bp)", $meanl];
 	    }
 	}
 
@@ -962,7 +1035,7 @@ sub _info_mean_length {
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
 	    	my $meanl= $all_info->{'level3'}{$tag_l3}{'intron'}{'size_feat'}/$all_info->{'level3'}{$tag_l3}{'intron'}{'nb_feat'};
-	    	push @resu, sprintf("%-45s%d%s", "mean intron in $tag_l3 length (bp)", $meanl,"\n");
+	    	push @resu, ["mean intron in $tag_l3 length (bp)", $meanl];
 	    }
 	}
 
@@ -978,26 +1051,26 @@ sub _info_coverage {
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
 		my $perc= ($all_info->{'level1'}{$tag_l1}{'size_feat'}*100)/$genomeSize;
-		push @resu, sprintf("%-45s%.1f%s", "% of genome covered by $tag_l1", $perc,"\n");
+		push @resu, [ "% of genome covered by $tag_l1", $perc, "%-45s%.1f%s"];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 		my $perc= ($all_info->{'level2'}{$tag_l2}{'size_feat'}*100)/$genomeSize;
-	    push @resu, sprintf("%-45s%.1f%s", "% of genome covered by $tag_l2", $perc,"\n");
+	    push @resu, [ "% of genome covered by $tag_l2", $perc, "%-45s%.1f%s"];
 	 }
 
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 	    my $perc= ($all_info->{'level3'}{$tag_l3}{'size_feat'}*100)/$genomeSize;
-	    push @resu, sprintf("%-45s%.1f%s", "% of genome covered by $tag_l3", $perc,"\n");
+	    push @resu, [ "% of genome covered by $tag_l3", $perc, "%-45s%.1f%s"];
 	}
 
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
 		    my $perc= ($all_info->{'level3'}{$tag_l3}{'intron'}{'size_feat'}*100)/$genomeSize;
-		    push @resu, sprintf("%-45s%.1f%s", "% of genome covered by intron from $tag_l3", $perc,"\n");
+		    push @resu, [ "% of genome covered by intron from $tag_l3", $perc, "%-45s%.1f%s"];
 		}
 	}
 

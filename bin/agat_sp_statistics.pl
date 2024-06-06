@@ -13,6 +13,7 @@ my $header = get_agat_header();
 my $config;
 my $gff = undef;
 my $opt_output = undef;
+my $opt_yaml = undef;
 my $opt_genomeSize = undef;
 my $opt_plot = undef;
 my $opt_verbose = 0;
@@ -22,6 +23,7 @@ if ( !GetOptions(
     'c|config=s'               => \$config,
     "h|help"      => \$opt_help,
     'o|output=s'  => \$opt_output,
+    'yaml!'       => \$opt_yaml,
     'd|p'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,
     'g|f|gs=s'    => \$opt_genomeSize,
@@ -52,6 +54,13 @@ $config = get_agat_config({config_file_in => $config});
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
+if(defined($opt_yaml)){
+  if( defined($opt_output)){
+    $opt_yaml = $opt_output.".yaml";
+  }else{
+    $out
+  }
+}
 
 #Manage plot folder output
 if($opt_plot){
@@ -93,10 +102,11 @@ print "Parsing Finished\n";
 ##############
 # STATISTICS #
 print "Compute statistics\n";
-print_omniscient_statistics ({ input => $hash_omniscient,
-															 genome => $opt_genomeSize,
-															 output => $out,
-															 distri => $opt_plot,
+print_omniscient_statistics ({ input   => $hash_omniscient,
+															 genome  => $opt_genomeSize,
+															 output  => $out,
+                               yaml    => $opt_yaml,
+															 distri  => $opt_plot,
 															 isoform => 1,
 															 verbose => $opt_verbose
 														 });
@@ -148,6 +158,10 @@ Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are incre
 =item B<--output> or B<-o>
 
 File where will be written the result. If no output file is specified, the output will be written to STDOUT.
+
+=item B<--yaml>
+
+Bolean - When this option is activated , a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided)
 
 =item B<-c> or B<--config>
 

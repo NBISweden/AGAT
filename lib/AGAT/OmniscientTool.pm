@@ -349,27 +349,27 @@ sub merge_omniscients {
 	my $miscCount = \%hash_miscCount;
 
 
-  #################
-  # ==  HEADER == #
-  #################
-  if ( exists_keys($hash_omniscient2,('other') ) ){
-    foreach my $thing (keys %{$hash_omniscient2->{'other'}}){
-      # append new header lines
-      if ($thing eq 'header'){
-        foreach my $value ( @{$hash_omniscient2->{'other'}{'header'}} ){
-          if ( !( grep { $_ eq $value }  @{ $hash_omniscient1->{'other'}{'header'} } ) ){
-            push @{$hash_omniscient1->{'other'}{'header'}}, $value; #add value which is new
-          }
-        }
-      }
-      # For other thing we take only if no values/key
-      else{
-        if(! exists_keys($hash_omniscient1,('other', $thing) ) ) {
-          $hash_omniscient1->{'other'}{$thing} = clone($hash_omniscient2->{'other'}{$thing});
-        }
-      }
-    }
-  }
+	#################
+	# ==  HEADER == #
+	#################
+	if ( exists_keys($hash_omniscient2,('other') ) ){
+		foreach my $thing (keys %{$hash_omniscient2->{'other'}}){
+			# append new header lines
+			if ($thing eq 'header'){
+				foreach my $value ( @{$hash_omniscient2->{'other'}{'header'}} ){
+					if ( !( grep { $_ eq $value }  @{ $hash_omniscient1->{'other'}{'header'} } ) ){
+						push @{$hash_omniscient1->{'other'}{'header'}}, $value; #add value which is new
+					}
+				}
+			}
+			# For other thing we take only if no values/key
+			else{
+				if(! exists_keys($hash_omniscient1,('other', $thing) ) ) {
+					$hash_omniscient1->{'other'}{$thing} = clone($hash_omniscient2->{'other'}{$thing});
+				}
+			}
+		}
+	}
 
 	#################
 	# == LEVEL 1 == #
@@ -517,7 +517,7 @@ sub append_omniscient {
 # LocusID->level->typeFeature->Parent->[ID,start,end]
 # @Purpose: When two loci overlap at level3, and are the same type level 2
 # they have to be merged under the same level 1 feature.
-# @input: 2 =>	hash,	integer for verbosity
+# @input: 2 => hash, integer for verbosity
 # @output: 0
 sub merge_overlap_loci{
 	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
