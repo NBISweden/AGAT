@@ -39,6 +39,10 @@ agat_sp_statistics.pl --help
 
     File where will be written the result. If no output file is specified, the output will be written to STDOUT.
 
+- **--yaml**
+
+    Bolean - When this option is activated , a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided)
+
 - **-c** or **--config**
 
     String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any,
