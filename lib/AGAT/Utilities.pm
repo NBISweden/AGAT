@@ -76,19 +76,20 @@ sub get_proper_codon_table {
   my ($codon_table_id_original) = @_;
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
-  if (!$codon_table_id_bioperl){
-	$codon_table_id_bioperl = 1 ;
-	$codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
-  }  
+  
+  # To deal with empty result in version of bioperl < april 2024 when asking with table 0 (it was reutrning an empty string)
+  if (! defined($codon_table_id_bioperl)){
+	$codon_table_id_bioperl = 1 ; # default codon table
+  }
 
   if ($codon_table_id_original == 0 and  $codon_table_id_original != $codon_table_id_bioperl){
     $codonTable->warn("Your version of bioperl do not handle codon table 0\n".
     "see https://github.com/bioperl/bioperl-live/pull/315\n".
     "It uses codon table $codon_table_id_bioperl instead.");
-    return $codon_table_id_bioperl;
   }
-
-  return $codon_table_id_original;
+  
+  print "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n";
+  return $codon_table_id_bioperl;
 }
 
 # the warning message will be filtered to be printed only $nb_warnings times
