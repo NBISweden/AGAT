@@ -16,7 +16,7 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 
-our $VERSION     = "v1.4.0";
+our $VERSION     = "v1.4.1";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header print_agat_version get_agat_config handle_levels);
 sub import {
