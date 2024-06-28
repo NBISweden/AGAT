@@ -66,7 +66,7 @@ $config = get_agat_config({config_file_in => $config});
 my $gffout = prepare_gffout($config, $opt_output);
 
 $codon_table_id = get_proper_codon_table($codon_table_id);
-print "Codon table ".$codon_table_id." in use. You can change it using --table option.\n";
+
 my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac => 0);
 # #####################################
 # # END Manage OPTION

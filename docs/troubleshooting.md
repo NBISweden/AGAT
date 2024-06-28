@@ -76,3 +76,65 @@ Bio::DB::Fasta from Bioperl cannot handle line with more than 65,536 characters.
 # Be careful if you have long headers that can be folded over several lines. You must first shorten them, or fold with higher value.
 fold input.fa > output.fa
 ```
+
+
+## How to use codon table 0 (codon table 1 is used instead)?
+
+Several scripts need to use a codon table:
+
+```
+agat_sp_add_start_and_stop.pl  
+agat_sp_extract_sequences.pl  
+agat_sp_filter_incomplete_gene_coding_models.pl  
+agat_sp_fix_fusion.pl
+agat_sp_fix_longest_ORF.pl
+agat_sp_fix_small_exon_from_extremities.pl
+agat_sp_flag_premature_stop_codons.pl
+agat_sp_prokka_fix_fragmented_gene_annotations.pl
+```
+
+By default AGAT uses codon table 1 wich is the standard table. 
+
+* What is the difference between table 1 and table 0?  
+  The codon table 0 is strict and uses ATG-only start codon, while codon table 1 uses TTG, CTG and ATG possible start codon.
+
+* What are the possible codon table?   
+  In top of the table 0 which is specific to Bioperl many other tables are available. Their description can be found [here](https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#SG1).
+
+## Why when asking for table 0 AGAT keep using the table 1 ?
+
+There are two possible reasons for that problem.
+
+  * AGAT: Originally the problem comes from a bug in Bioperl. AGAT was trying to pass by the problem but the fix was not efficient until version 1.4.1. Please be sure to use a version >= 1.4.1 to avoid any problem from the AGAT side.
+
+  * Bioperl: The problem has been present for a while and has been definitly fixed in the [commit fa9366f from the 24th of April 2024](https://github.com/bioperl/bioperl-live/tree/fa9366f3a2f48fd051343d488cfce26655f842b3).  
+  So to fix the problem you need to use a bioperl version equal or later to that point. If not possible (e.g. not yet available for installation via conda) you can follow this procedure:
+      * run AGAT once
+      * catch the location of bioperl used from the prompt e.g.:
+        ```
+         ------------------------------------------------------------------------------
+        |   Another GFF Analysis Toolkit (AGAT) - Version: v1.4.0                      |
+        |   https://github.com/NBISweden/AGAT                                          |
+        |   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
+        ------------------------------------------------------------------------------
+        
+        ...
+
+        => Machine information:
+              This script is being run by perl v5.32.1
+              Bioperl location being used: /usr/local/lib/perl5/site_perl/Bio/
+              Operating system being used: linux
+        ```
+        Here the bioperl path is here: `/usr/local/lib/perl5/site_perl/Bio/`
+      * Move into the directory found in the previous step minus `/Bio`:
+        `cd /usr/local/lib/perl5/site_perl/`
+      * Copy paste locally the file and the folder from the bioperl-live repository (here)[https://github.com/bioperl/bioperl-live/tree/master/lib]:  
+        ```
+        git clone https://github.com/bioperl/bioperl-live
+        cp -r bioperl-live/lib/* .
+        ```
+        
+      Now you should be able to use the codon table 0. If not check your AGAT version (see above).
+
+
+

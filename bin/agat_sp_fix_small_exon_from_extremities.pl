@@ -61,8 +61,8 @@ my $gffout = prepare_gffout($config, $outfile);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+# --- Check codon table
 $codonTableId = get_proper_codon_table($codonTableId);
-print "Codon table ".$codonTableId." in use. You can change it using --table option.\n";
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

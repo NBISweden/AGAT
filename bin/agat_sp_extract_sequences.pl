@@ -96,6 +96,9 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+# --- Check codon table
+$codonTable = get_proper_codon_table($codonTable);
+
 # activate warnings limit
 my %warnings;
 activate_warning_limit(\%warnings, 10);
@@ -120,11 +123,6 @@ else{
 
 print "We will extract the $opt_type sequences.\n";
 $opt_type=lc($opt_type);
-
-# deal with codon table
-if($codonTable<0 and $codonTable>25){
-  print "$codonTable codon table is not a correct value. It should be between 0 and 25 (0,23 and 25 can be problematic !)\n";
-}
 
 # deal with OFS
 my $OFS=" ";

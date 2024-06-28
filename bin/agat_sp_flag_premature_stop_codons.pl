@@ -26,7 +26,7 @@ if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
                 	'o|out|output=s'    => \$opt_output,
 					"fasta|fa|f=s"      => \$file_fasta,
 					"table|codon|ct=i"  => \$codonTable,
-                 	'c|config=s'               => \$config,
+                 	'c|config=s'        => \$config,
                  	'h|help!'           => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -52,6 +52,9 @@ if ( !$opt_file or !$file_fasta) {
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+# --- Check codon table
+$codonTable = get_proper_codon_table($codonTable);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

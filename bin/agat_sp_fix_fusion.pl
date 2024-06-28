@@ -87,7 +87,6 @@ my $gffout3 = prepare_gffout($config, $gffout3_file);
 my $logout = prepare_fileout($logout_file);
 
 $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
-print "Codon table ".$opt_codonTableID." in use. You can change it using --table option.\n";
 
 if(!$threshold){
   $threshold=100;
