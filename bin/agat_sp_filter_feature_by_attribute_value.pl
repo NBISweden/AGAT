@@ -59,7 +59,7 @@ $config = get_agat_config({config_file_in => $config});
 
 ###############
 # Test options
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
+if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
   print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
 }
 
@@ -70,19 +70,22 @@ if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne 
 my $gffout_ok_file ;
 my $fhout_discarded_file ;
 my $ostreamReport_file;
+my $fhout_semidDiscarded_file;
 
 if ($opt_output) {
   my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
   # set file names
   $gffout_ok_file = $path.$outfile.$ext;
-  $fhout_discarded_file = $path.$outfile."_discarded.txt";
+  $fhout_discarded_file = $path.$outfile."_discarded.gff";
   $ostreamReport_file = $path.$outfile."_report.txt";
+  $fhout_semidDiscarded_file = $path.$outfile."_cannot_be_tested_because_attribute_missing.gff";
 }
 
 my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_fileout($fhout_discarded_file);
+my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
+my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file);
 
 # Manage $primaryTag
 my @ptagList;
@@ -121,17 +124,14 @@ foreach my $value (keys %{$value_hash}){
   }
 }
 
-use Data::Dumper;
-print Dumper($value_hash);
-
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
 if ($opt_value_insensitive){
-  $stringPrint .= "case insensitive.\n";
+  $stringPrint .= " case insensitive.\n";
 }else{
-   $stringPrint .= "case sensitive.\n";
+   $stringPrint .= " case sensitive.\n";
 }
 
 if ($opt_output){
@@ -142,7 +142,9 @@ else{ print $stringPrint; }
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
-my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
+my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
+                  'discarded' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0} );
+
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
@@ -167,19 +169,29 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    $removeit = check_feature($feature_l1, 'level1');
 			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
 	    if ($removeit){
-	      my $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
-				$all_cases{'l1'} += $cases->{'l1'};
-				$all_cases{'l2'} += $cases->{'l2'};
-				$all_cases{'l3'} += $cases->{'l3'};
-				$all_cases{'all'} += $cases->{'all'};
+        my $cases;
+        if($removeit == 2){ 
+          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_semidDiscarded);
+          $all_cases{'left'}{'l1'} += $cases->{'l1'};
+          $all_cases{'left'}{'l2'} += $cases->{'l2'};
+          $all_cases{'left'}{'l3'} += $cases->{'l3'};
+          $all_cases{'left'}{'all'} += $cases->{'all'};
+        } else {
+          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
+          $all_cases{'discarded'}{'l1'} += $cases->{'l1'};
+          $all_cases{'discarded'}{'l2'} += $cases->{'l2'};
+          $all_cases{'discarded'}{'l3'} += $cases->{'l3'};
+          $all_cases{'discarded'}{'all'} += $cases->{'all'};
+        }
+
 				next;
 	    }
 
 	    #################
 	    # == LEVEL 2 == #
 	    #################
-			my @list_l2_to_remove;
-			my @list_l3_to_remove;
+			my %list_l2_to_remove;
+			my %list_l3_to_remove;
 	    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
 	      if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
@@ -188,7 +200,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	          $removeit = check_feature($feature_l2,'level2');
 	          if ($removeit){
-	            push @list_l2_to_remove, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded];
+              if($removeit == 2){
+                push ( @{$list_l2_to_remove{'left'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_semidDiscarded]);
+              } else {
+                push ( @{$list_l2_to_remove{'discarded'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded]);
+              }
 	            next;
 	          }
 	          #################
@@ -203,7 +219,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	                $removeit = check_feature($feature_l3, 'level3');
 	                if ($removeit){
-	                  push @list_l3_to_remove, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded];
+                    if($removeit == 2){
+                      push ( @{$list_l3_to_remove{'left'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_semidDiscarded]);
+                    } else {
+                      push ( @{$list_l3_to_remove{'discarded'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded]);
+                    }
 	                }
 	              }
 	            }
@@ -212,22 +232,22 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	      }
 	    }
 			# Should be removed after looping over them to avoid problems
-			if (@list_l2_to_remove) {
-				foreach my $infos (@list_l2_to_remove) {
+			foreach my $key ( keys %list_l2_to_remove ){
+				foreach my $infos ( @{$list_l2_to_remove{$key}} ) {
 					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
-					$all_cases{'l1'} += $cases->{'l1'};
-					$all_cases{'l2'} += $cases->{'l2'};
-					$all_cases{'l3'} += $cases->{'l3'};
-					$all_cases{'all'} += $cases->{'all'};
+					$all_cases{$key}{'l1'} += $cases->{'l1'};
+					$all_cases{$key}{'l2'} += $cases->{'l2'};
+					$all_cases{$key}{'l3'} += $cases->{'l3'};
+					$all_cases{$key}{'all'} += $cases->{'all'};
 				}
 			}
-			if (@list_l3_to_remove) {
-				foreach my $infos (@list_l3_to_remove) {
+			foreach my $key ( keys %list_l3_to_remove ){
+				foreach my $infos ( @{$list_l3_to_remove{$key}} ) {
 					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos);
-					$all_cases{'l1'} += $cases->{'l1'};
-					$all_cases{'l2'} += $cases->{'l2'};
-					$all_cases{'l3'} += $cases->{'l3'};
-					$all_cases{'all'} += $cases->{'all'};
+					$all_cases{$key}{'l1'} += $cases->{'l1'};
+					$all_cases{$key}{'l2'} += $cases->{'l2'};
+					$all_cases{$key}{'l3'} += $cases->{'l3'};
+					$all_cases{$key}{'all'} += $cases->{'all'};
 				}
 			}
 		}
@@ -236,10 +256,18 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
 
-$stringPrint = $all_cases{'all'}." features removed:\n";
-$stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
-$stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
-$stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
+$stringPrint = "Feature discarded by applying the test (see $fhout_discarded_file file):\n";
+$stringPrint .= $all_cases{'discarded'}{'all'}." features removed:\n";
+$stringPrint .= $all_cases{'discarded'}{'l1'}." features level1 (e.g. gene) removed\n";
+$stringPrint .= $all_cases{'discarded'}{'l2'}." features level2 (e.g. mRNA) removed\n";
+$stringPrint .= $all_cases{'discarded'}{'l3'}." features level3 (e.g. exon) removed\n";
+
+$stringPrint .= "Feature left out because the attribute is missing (see $fhout_semidDiscarded_file file):\n";
+$stringPrint .= $all_cases{'left'}{'all'}." features removed:\n";
+$stringPrint .= $all_cases{'left'}{'l1'}." features level1 (e.g. gene) removed\n";
+$stringPrint .= $all_cases{'left'}{'l2'}." features level2 (e.g. mRNA) removed\n";
+$stringPrint .= $all_cases{'left'}{'l3'}." features level3 (e.g. exon) removed\n";
+
 if ($opt_output){
   print $ostreamReport $stringPrint;
   print $stringPrint;
@@ -298,35 +326,45 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
+          print "String case\n" if $opt_verbose;
           if ($opt_test eq "="){
-            if ($file_value eq $given_value){return 1; }
+            if ($file_value eq $given_value) { print "equal\n" if $opt_verbose; return 1; }
+            else { print "not equal\n" if $opt_verbose; }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){return 1; }
+            if ($file_value ne $given_value){ print "different\n" if $opt_verbose; return 1; }
+            else { print "not different\n" if $opt_verbose; }
           }
-        }
-        elsif ($opt_test eq "="){
-        if ($file_value == $given_value){return 1; }
-        }
-        elsif ($opt_test eq "!"){
-          if ($file_value != $given_value){return 1; }
-        }
-        elsif ($opt_test eq ">"){
-          if ($file_value > $given_value){return 1; }
-        }
-        elsif ($opt_test eq "<"){
-          if ($file_value < $given_value){return 1; }
-        }
-        elsif ($opt_test eq "<="){
-          if ($file_value <= $given_value){return 1; }
-        }
-        elsif ($opt_test eq ">="){
-          if ($file_value >= $given_value){return 1; }
+        } 
+        else{
+          print "Number case\n" if $opt_verbose;
+          if ($opt_test eq "="){
+            if ($file_value == $given_value){return 1; }
+          }
+          elsif ($opt_test eq "!"){
+            if ($file_value != $given_value){return 1; }
+          }
+          elsif ($opt_test eq ">"){
+            if ($file_value > $given_value){return 1; }
+          }
+          elsif ($opt_test eq "<"){
+            if ($file_value < $given_value){return 1; }
+          }
+          elsif ($opt_test eq "<="){
+            if ($file_value <= $given_value){return 1; }
+          }
+          elsif ($opt_test eq ">="){
+            if ($file_value >= $given_value){return 1; }
+          }
         }
       }
     }
+    return 0;
+  } else {
+    print "Attribute not found  case\n" if $opt_verbose;
+    print "$opt_attribute  ".$feature->gff_string."\n";
+    return 2;
   }
-  return 0;
 }
 
 __END__
