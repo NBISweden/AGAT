@@ -15,6 +15,8 @@ my $config;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
+my $opt_keep_parental = undef;
+my $opt_na_aside = undef;
 my $opt_value_insensitive = undef;
 my $opt_attribute = undef;
 my $opt_test = "=";
@@ -27,6 +29,8 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'value=s'             => \$opt_value,
                   'value_insensitive!'  => \$opt_value_insensitive,
+                  'keep_parental!'      => \$opt_keep_parental,
+                  'na_aside!'           => \$opt_na_aside, 
                   "p|type|l=s"          => \$primaryTag,
                   'a|attribute=s'       => \$opt_attribute,
                   't|test=s'            => \$opt_test,
@@ -70,7 +74,7 @@ if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne 
 my $gffout_ok_file ;
 my $fhout_discarded_file ;
 my $ostreamReport_file;
-my $fhout_semidDiscarded_file;
+my $fhout_semidDiscarded_file if $opt_na_aside;
 
 if ($opt_output) {
   my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
@@ -79,13 +83,13 @@ if ($opt_output) {
   $gffout_ok_file = $path.$outfile.$ext;
   $fhout_discarded_file = $path.$outfile."_discarded.gff";
   $ostreamReport_file = $path.$outfile."_report.txt";
-  $fhout_semidDiscarded_file = $path.$outfile."_cannot_be_tested_because_attribute_missing.gff";
+  $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
 }
 
 my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
 my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file);
+my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -170,20 +174,19 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
 	    if ($removeit){
         my $cases;
-        if($removeit == 2){ 
-          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_semidDiscarded);
-          $all_cases{'left'}{'l1'} += $cases->{'l1'};
-          $all_cases{'left'}{'l2'} += $cases->{'l2'};
-          $all_cases{'left'}{'l3'} += $cases->{'l3'};
-          $all_cases{'left'}{'all'} += $cases->{'all'};
-        } else {
+        if($removeit == 1){ 
           $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
           $all_cases{'discarded'}{'l1'} += $cases->{'l1'};
           $all_cases{'discarded'}{'l2'} += $cases->{'l2'};
           $all_cases{'discarded'}{'l3'} += $cases->{'l3'};
           $all_cases{'discarded'}{'all'} += $cases->{'all'};
+        } elsif ($removeit == 2 and $opt_na_aside){ 
+          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_semidDiscarded);
+          $all_cases{'na'}{'l1'} += $cases->{'l1'};
+          $all_cases{'na'}{'l2'} += $cases->{'l2'};
+          $all_cases{'na'}{'l3'} += $cases->{'l3'};
+          $all_cases{'na'}{'all'} += $cases->{'all'};
         }
-
 				next;
 	    }
 
@@ -200,10 +203,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	          $removeit = check_feature($feature_l2,'level2');
 	          if ($removeit){
-              if($removeit == 2){
-                push ( @{$list_l2_to_remove{'left'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_semidDiscarded]);
-              } else {
+              if ($removeit == 1){
                 push ( @{$list_l2_to_remove{'discarded'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded]);
+              } elsif ($removeit == 2 and $opt_na_aside){
+                push ( @{$list_l2_to_remove{'na'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_semidDiscarded]);
               }
 	            next;
 	          }
@@ -218,12 +221,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	              foreach my $feature_l3 ( @list_fl3 ) {
 
 	                $removeit = check_feature($feature_l3, 'level3');
-	                if ($removeit){
-                    if($removeit == 2){
-                      push ( @{$list_l3_to_remove{'left'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_semidDiscarded]);
-                    } else {
-                      push ( @{$list_l3_to_remove{'discarded'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded]);
-                    }
+                  if($removeit ==  1){
+                    push ( @{$list_l3_to_remove{'discarded'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded]); 
+                  } elsif ( $removeit == 2 and $opt_na_aside ){
+                    push ( @{$list_l3_to_remove{'na'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_semidDiscarded]);
 	                }
 	              }
 	            }
@@ -234,16 +235,16 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			# Should be removed after looping over them to avoid problems
 			foreach my $key ( keys %list_l2_to_remove ){
 				foreach my $infos ( @{$list_l2_to_remove{$key}} ) {
-					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
+					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos, $opt_keep_parental);
 					$all_cases{$key}{'l1'} += $cases->{'l1'};
 					$all_cases{$key}{'l2'} += $cases->{'l2'};
 					$all_cases{$key}{'l3'} += $cases->{'l3'};
 					$all_cases{$key}{'all'} += $cases->{'all'};
 				}
 			}
-			foreach my $key ( keys %list_l3_to_remove ){
+			foreach my $key ( sort keys %list_l3_to_remove ){
 				foreach my $infos ( @{$list_l3_to_remove{$key}} ) {
-					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos);
+					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos, $opt_keep_parental);
 					$all_cases{$key}{'l1'} += $cases->{'l1'};
 					$all_cases{$key}{'l2'} += $cases->{'l2'};
 					$all_cases{$key}{'l3'} += $cases->{'l3'};
@@ -262,11 +263,13 @@ $stringPrint .= $all_cases{'discarded'}{'l1'}." features level1 (e.g. gene) remo
 $stringPrint .= $all_cases{'discarded'}{'l2'}." features level2 (e.g. mRNA) removed\n";
 $stringPrint .= $all_cases{'discarded'}{'l3'}." features level3 (e.g. exon) removed\n";
 
-$stringPrint .= "Feature left out because the attribute is missing (see $fhout_semidDiscarded_file file):\n";
-$stringPrint .= $all_cases{'left'}{'all'}." features removed:\n";
-$stringPrint .= $all_cases{'left'}{'l1'}." features level1 (e.g. gene) removed\n";
-$stringPrint .= $all_cases{'left'}{'l2'}." features level2 (e.g. mRNA) removed\n";
-$stringPrint .= $all_cases{'left'}{'l3'}." features level3 (e.g. exon) removed\n";
+if($opt_na_aside){
+  $stringPrint .= "Feature left out because the attribute is missing (see $fhout_semidDiscarded_file file):\n";
+  $stringPrint .= $all_cases{'na'}{'all'}." features removed:\n";
+  $stringPrint .= $all_cases{'na'}{'l1'}." features level1 (e.g. gene) removed\n";
+  $stringPrint .= $all_cases{'na'}{'l2'}." features level2 (e.g. mRNA) removed\n";
+  $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
+}
 
 if ($opt_output){
   print $ostreamReport $stringPrint;
@@ -362,7 +365,6 @@ sub should_we_remove_feature{
     return 0;
   } else {
     print "Attribute not found  case\n" if $opt_verbose;
-    print "$opt_attribute  ".$feature->gff_string."\n";
     return 2;
   }
 }
@@ -376,11 +378,16 @@ agat_sp_filter_feature_by_attribute_value.pl
 =head1 DESCRIPTION
 
 The script aims to filter features according to attribute value (9th column).
-If the attribute tag is missing the feature will not be discarded.
-If the attribute exists and the value pass the test, the feature is discarded.
+- If the attribute exists and the value do not pass the test, the feature is written into <output>.
+- If the attribute exists and the value pass the test, the feature is discarded and written into <output>_discarded.gff.
+- If the attribute tag is missing (test cannot be applyed), the feature will be written into <output> by default. If --na_aside parameter 
+is activated then it will be written into <output>_na.gff.
+
 Attribute are stored in the 9th column and have this shape: tag=value
-/!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
-removing all children of a feature will automatically remove this feature too.
+/!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures.
+/!\ Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
+/!\ If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, 
+, then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
 
 =head1 SYNOPSIS
 
@@ -415,6 +422,16 @@ Value(s) to check in the attribute. Case sensitive. List of values must be coma 
 =item B<--value_insensitive>
 
 Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
+
+=item B<--na_aside>
+
+Bolean. Deactivated by default. By default if the attribute tag on which the filter is based is missing, the feature will be written into <output>.
+When activated, such features will be written into a separate file called <output>_na.gff
+
+
+=item B<--keep_parental>
+
+Bolean. Deactivated by default. When activated even if all child features have been removed, the parental one will be kept.
 
 =item B<-t> or B<--test>
 Test to apply (> < = ! >= <=). default value "=". 
