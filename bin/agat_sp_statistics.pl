@@ -57,8 +57,6 @@ my $out = prepare_fileout($opt_output);
 if(defined($opt_yaml)){
   if( defined($opt_output)){
     $opt_yaml = $opt_output.".yaml";
-  }else{
-    $out
   }
 }
 

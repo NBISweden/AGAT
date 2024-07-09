@@ -15,6 +15,8 @@ my $config;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
+my $opt_keep_parental = undef;
+my $opt_na_aside = undef;
 my $opt_value_insensitive = undef;
 my $opt_attribute = undef;
 my $opt_test = "=";
@@ -27,6 +29,8 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'value=s'             => \$opt_value,
                   'value_insensitive!'  => \$opt_value_insensitive,
+                  'keep_parental!'      => \$opt_keep_parental,
+                  'na_aside!'           => \$opt_na_aside, 
                   "p|type|l=s"          => \$primaryTag,
                   'a|attribute=s'       => \$opt_attribute,
                   't|test=s'            => \$opt_test,
@@ -59,7 +63,7 @@ $config = get_agat_config({config_file_in => $config});
 
 ###############
 # Test options
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
+if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
   print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
 }
 
@@ -70,19 +74,22 @@ if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne 
 my $gffout_ok_file ;
 my $fhout_discarded_file ;
 my $ostreamReport_file;
+my $fhout_semidDiscarded_file if $opt_na_aside;
 
 if ($opt_output) {
   my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
   # set file names
   $gffout_ok_file = $path.$outfile.$ext;
-  $fhout_discarded_file = $path.$outfile."_discarded.txt";
+  $fhout_discarded_file = $path.$outfile."_discarded.gff";
   $ostreamReport_file = $path.$outfile."_report.txt";
+  $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
 }
 
 my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_fileout($fhout_discarded_file);
+my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
+my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -121,17 +128,14 @@ foreach my $value (keys %{$value_hash}){
   }
 }
 
-use Data::Dumper;
-print Dumper($value_hash);
-
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
 if ($opt_value_insensitive){
-  $stringPrint .= "case insensitive.\n";
+  $stringPrint .= " case insensitive.\n";
 }else{
-   $stringPrint .= "case sensitive.\n";
+   $stringPrint .= " case sensitive.\n";
 }
 
 if ($opt_output){
@@ -142,7 +146,9 @@ else{ print $stringPrint; }
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
-my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
+my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
+                  'discarded' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0} );
+
 ######################
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
@@ -167,19 +173,28 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    $removeit = check_feature($feature_l1, 'level1');
 			# we can remove feature L1 now because we are looping over $hash_sortBySeq not $hash_omniscient
 	    if ($removeit){
-	      my $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
-				$all_cases{'l1'} += $cases->{'l1'};
-				$all_cases{'l2'} += $cases->{'l2'};
-				$all_cases{'l3'} += $cases->{'l3'};
-				$all_cases{'all'} += $cases->{'all'};
+        my $cases;
+        if($removeit == 1){ 
+          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_discarded);
+          $all_cases{'discarded'}{'l1'} += $cases->{'l1'};
+          $all_cases{'discarded'}{'l2'} += $cases->{'l2'};
+          $all_cases{'discarded'}{'l3'} += $cases->{'l3'};
+          $all_cases{'discarded'}{'all'} += $cases->{'all'};
+        } elsif ($removeit == 2 and $opt_na_aside){ 
+          $cases = remove_l1_and_relatives($hash_omniscient, $feature_l1, $fhout_semidDiscarded);
+          $all_cases{'na'}{'l1'} += $cases->{'l1'};
+          $all_cases{'na'}{'l2'} += $cases->{'l2'};
+          $all_cases{'na'}{'l3'} += $cases->{'l3'};
+          $all_cases{'na'}{'all'} += $cases->{'all'};
+        }
 				next;
 	    }
 
 	    #################
 	    # == LEVEL 2 == #
 	    #################
-			my @list_l2_to_remove;
-			my @list_l3_to_remove;
+			my %list_l2_to_remove;
+			my %list_l3_to_remove;
 	    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
 	      if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
@@ -188,7 +203,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	          $removeit = check_feature($feature_l2,'level2');
 	          if ($removeit){
-	            push @list_l2_to_remove, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded];
+              if ($removeit == 1){
+                push ( @{$list_l2_to_remove{'discarded'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_discarded]);
+              } elsif ($removeit == 2 and $opt_na_aside){
+                push ( @{$list_l2_to_remove{'na'}}, [$feature_l2, $tag_l1, $id_l1, $fhout_semidDiscarded]);
+              }
 	            next;
 	          }
 	          #################
@@ -202,8 +221,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	              foreach my $feature_l3 ( @list_fl3 ) {
 
 	                $removeit = check_feature($feature_l3, 'level3');
-	                if ($removeit){
-	                  push @list_l3_to_remove, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded];
+                  if($removeit ==  1){
+                    push ( @{$list_l3_to_remove{'discarded'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_discarded]); 
+                  } elsif ( $removeit == 2 and $opt_na_aside ){
+                    push ( @{$list_l3_to_remove{'na'}}, [$feature_l3, $tag_l1, $id_l1, $tag_l2, $id_l2, $fhout_semidDiscarded]);
 	                }
 	              }
 	            }
@@ -212,22 +233,22 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	      }
 	    }
 			# Should be removed after looping over them to avoid problems
-			if (@list_l2_to_remove) {
-				foreach my $infos (@list_l2_to_remove) {
-					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
-					$all_cases{'l1'} += $cases->{'l1'};
-					$all_cases{'l2'} += $cases->{'l2'};
-					$all_cases{'l3'} += $cases->{'l3'};
-					$all_cases{'all'} += $cases->{'all'};
+			foreach my $key ( keys %list_l2_to_remove ){
+				foreach my $infos ( @{$list_l2_to_remove{$key}} ) {
+					my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos, $opt_keep_parental);
+					$all_cases{$key}{'l1'} += $cases->{'l1'};
+					$all_cases{$key}{'l2'} += $cases->{'l2'};
+					$all_cases{$key}{'l3'} += $cases->{'l3'};
+					$all_cases{$key}{'all'} += $cases->{'all'};
 				}
 			}
-			if (@list_l3_to_remove) {
-				foreach my $infos (@list_l3_to_remove) {
-					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos);
-					$all_cases{'l1'} += $cases->{'l1'};
-					$all_cases{'l2'} += $cases->{'l2'};
-					$all_cases{'l3'} += $cases->{'l3'};
-					$all_cases{'all'} += $cases->{'all'};
+			foreach my $key ( sort keys %list_l3_to_remove ){
+				foreach my $infos ( @{$list_l3_to_remove{$key}} ) {
+					my $cases = remove_l3_and_relatives( $hash_omniscient, @$infos, $opt_keep_parental);
+					$all_cases{$key}{'l1'} += $cases->{'l1'};
+					$all_cases{$key}{'l2'} += $cases->{'l2'};
+					$all_cases{$key}{'l3'} += $cases->{'l3'};
+					$all_cases{$key}{'all'} += $cases->{'all'};
 				}
 			}
 		}
@@ -236,10 +257,20 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
 
-$stringPrint = $all_cases{'all'}." features removed:\n";
-$stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
-$stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
-$stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
+$stringPrint = "Feature discarded by applying the test (see $fhout_discarded_file file):\n";
+$stringPrint .= $all_cases{'discarded'}{'all'}." features removed:\n";
+$stringPrint .= $all_cases{'discarded'}{'l1'}." features level1 (e.g. gene) removed\n";
+$stringPrint .= $all_cases{'discarded'}{'l2'}." features level2 (e.g. mRNA) removed\n";
+$stringPrint .= $all_cases{'discarded'}{'l3'}." features level3 (e.g. exon) removed\n";
+
+if($opt_na_aside){
+  $stringPrint .= "Feature left out because the attribute is missing (see $fhout_semidDiscarded_file file):\n";
+  $stringPrint .= $all_cases{'na'}{'all'}." features removed:\n";
+  $stringPrint .= $all_cases{'na'}{'l1'}." features level1 (e.g. gene) removed\n";
+  $stringPrint .= $all_cases{'na'}{'l2'}." features level2 (e.g. mRNA) removed\n";
+  $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
+}
+
 if ($opt_output){
   print $ostreamReport $stringPrint;
   print $stringPrint;
@@ -298,35 +329,44 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
+          print "String case\n" if $opt_verbose;
           if ($opt_test eq "="){
-            if ($file_value eq $given_value){return 1; }
+            if ($file_value eq $given_value) { print "equal\n" if $opt_verbose; return 1; }
+            else { print "not equal\n" if $opt_verbose; }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){return 1; }
+            if ($file_value ne $given_value){ print "different\n" if $opt_verbose; return 1; }
+            else { print "not different\n" if $opt_verbose; }
           }
-        }
-        elsif ($opt_test eq "="){
-        if ($file_value == $given_value){return 1; }
-        }
-        elsif ($opt_test eq "!"){
-          if ($file_value != $given_value){return 1; }
-        }
-        elsif ($opt_test eq ">"){
-          if ($file_value > $given_value){return 1; }
-        }
-        elsif ($opt_test eq "<"){
-          if ($file_value < $given_value){return 1; }
-        }
-        elsif ($opt_test eq "<="){
-          if ($file_value <= $given_value){return 1; }
-        }
-        elsif ($opt_test eq ">="){
-          if ($file_value >= $given_value){return 1; }
+        } 
+        else{
+          print "Number case\n" if $opt_verbose;
+          if ($opt_test eq "="){
+            if ($file_value == $given_value){return 1; }
+          }
+          elsif ($opt_test eq "!"){
+            if ($file_value != $given_value){return 1; }
+          }
+          elsif ($opt_test eq ">"){
+            if ($file_value > $given_value){return 1; }
+          }
+          elsif ($opt_test eq "<"){
+            if ($file_value < $given_value){return 1; }
+          }
+          elsif ($opt_test eq "<="){
+            if ($file_value <= $given_value){return 1; }
+          }
+          elsif ($opt_test eq ">="){
+            if ($file_value >= $given_value){return 1; }
+          }
         }
       }
     }
+    return 0;
+  } else {
+    print "Attribute not found  case\n" if $opt_verbose;
+    return 2;
   }
-  return 0;
 }
 
 __END__
@@ -338,11 +378,16 @@ agat_sp_filter_feature_by_attribute_value.pl
 =head1 DESCRIPTION
 
 The script aims to filter features according to attribute value (9th column).
-If the attribute tag is missing the feature will not be discarded.
-If the attribute exists and the value pass the test, the feature is discarded.
+- If the attribute exists and the value do not pass the test, the feature is written into <output>.
+- If the attribute exists and the value pass the test, the feature is discarded and written into <output>_discarded.gff.
+- If the attribute tag is missing (test cannot be applyed), the feature will be written into <output> by default. If --na_aside parameter 
+is activated then it will be written into <output>_na.gff.
+
 Attribute are stored in the 9th column and have this shape: tag=value
-/!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
-removing all children of a feature will automatically remove this feature too.
+/!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures.
+/!\ Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
+/!\ If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, 
+then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
 
 =head1 SYNOPSIS
 
@@ -378,7 +423,17 @@ Value(s) to check in the attribute. Case sensitive. List of values must be coma 
 
 Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
 
+=item B<--na_aside>
+
+Bolean. Deactivated by default. By default if the attribute tag on which the filter is based is missing, the feature will be written into <output>.
+When activated, such features will be written into a separate file called <output>_na.gff.
+
+=item B<--keep_parental>
+
+Bolean. Deactivated by default. When activated even if all child features have been removed, the parental one will be kept.
+
 =item B<-t> or B<--test>
+
 Test to apply (> < = ! >= <=). default value "=". 
 If you use one of these two character >, <, please don't forget to quote the
 parameter like that "<=" otherwise your terminal will complain.
@@ -386,7 +441,7 @@ Only = and ! tests can be used to compare string values.
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
+Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-v>

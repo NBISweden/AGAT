@@ -314,7 +314,8 @@ By default all feature are taking into account. fill the option by the value "al
 
 =item B<--attribute>, B<--att>, B<-a>
 
-String - Attributes tag specified will be used to filter the feature type (feature type can also be specified by the option -p). List of attribute tags must be coma separated.
+String - Attributes tag specified will be used to filter the feature type (feature type can also be specified by the option -p). 
+List of attribute tags must be coma separated.
 
 =item B<--flip>
 

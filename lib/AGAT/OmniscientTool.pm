@@ -868,12 +868,37 @@ sub remove_element_from_omniscient {
 						if(@listok){
 							@{$hash_omniscient->{$level}{$tag_key}{$id_concern}}=@listok;
 						}
-						else{ # The list is empty we could remove the key (otherwise we would have saved a emplty list)
+						else{ # The list is empty we could remove the key (otherwise we would have saved a empty list)
 							delete $hash_omniscient->{$level}{$tag_key}{$id_concern};
 						}
 					}
 				}
 			}
+		}
+	}
+}
+
+# Print a feature safely.
+#
+# It ensures that the feature is printed correctly without causing any errors according the output type.
+#
+# Parameters:
+#   $feature : the feature to print
+#	$out :  AGAT::BioperlGFF / Bio::Tools::GFF object, or IO::File object or empty value
+# Returns:
+#   None
+#
+# Note:
+#   This function should be used when printing features to avoid any potential errors.
+sub print_feature_safe{
+	my ($feature, $out)=@_;
+
+	if($out){
+		if($out->isa('AGAT::BioperlGFF' ) or $out->isa('Bio::Tools::GFF')){
+			$out->write_feature( $feature );
+		}
+		else{
+			print $out $feature->gff_string()."\n";	
 		}
 	}
 }
@@ -899,19 +924,19 @@ sub remove_l1_and_relatives{
         foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
           if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID) ) ){
             foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
-              $cases_l3++;
-							print $fh_removed $feature_l3->_tag_value('ID')."\n" if ($fh_removed);
+            	$cases_l3++;
+				print_feature_safe( $feature_l3, $fh_removed );
             }
             delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
           }
         }
         $cases_l2++;
-				print $fh_removed $feature_l2->_tag_value('ID')."\n" if($fh_removed);
+		print_feature_safe( $feature_l2, $fh_removed );
       }
       delete $omniscient->{'level2'}{$ptag_l2}{$id_l1} # delete level2
     }
   }
-  print $fh_removed $feature->gff_string()."\n" if $fh_removed;
+  print_feature_safe( $feature, $fh_removed );
   delete $omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1
 	$cases_l1++;
 
@@ -927,11 +952,11 @@ sub remove_l1_and_relatives{
 # @input: 5 => hash(omniscient hash), featureL2,  primary tag l1, id l1, optional fh to write case removed
 # @output: 1 => hash (nb feature removed)
 sub remove_l2_and_relatives{
-  my ($omniscient, $feature, $ptag_l1, $id_l1, $fh_removed)=@_;
+  my ($omniscient, $feature, $ptag_l1, $id_l1, $fh_removed, $keep_parental)=@_;
 
   my %cases;
-	my $cases_l1 = 0; my $cases_l2 = 0; my $cases_l3 = 0;
-	my $ptag_l2 = lc($feature->primary_tag);
+  my $cases_l1 = 0; my $cases_l2 = 0; my $cases_l3 = 0;
+  my $ptag_l2 = lc($feature->primary_tag);
   my $level2_Parent_ID = lc($feature->_tag_value('Parent'));
   my $level2_ID = lc($feature->_tag_value('ID'));
 
@@ -943,40 +968,41 @@ sub remove_l2_and_relatives{
         foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
           if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID)  ) ){
             foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
-              $cases_l3++;
-							print $fh_removed $feature_l3->_tag_value('ID')."\n" if ($fh_removed);
+        		$cases_l3++;
+				print_feature_safe( $feature_l3, $fh_removed );
             }
             delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
           }
         }
       }
     }
-
+	
     # delete level2 and the hash pointer if the list is empty (no isoform left)
     my @id_concern_list=($id_l1);
     my @id_list_to_remove=($level2_ID);
     my @list_tag_key=('all');
     $cases_l2++;
-		print $fh_removed $feature->gff_string()."\n" if ($fh_removed);
+	print_feature_safe( $feature, $fh_removed );
     remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
 
-
-    if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-      my $anotherL2Linked=0;
-      foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
-      	 if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-      	 	$anotherL2Linked=1;
-      	 }
-      }
-      #The list was empty so l2 has been removed, we can now remove l1
-      if(! $anotherL2Linked){
-	      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
-	        $cases_l1++;
-					print $fh_removed $id_l1."\n" if ($fh_removed);
-	        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
-	      }
-	    }
-    }
+	if (! $keep_parental){
+		if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+			my $anotherL2Linked=0;
+			foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
+				if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+					$anotherL2Linked=1;
+				}
+			}
+			#The list was empty so l2 has been removed, we can now remove l1
+			if(! $anotherL2Linked){
+				if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+					$cases_l1++;
+					print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
+					delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+				}
+			}
+		}
+	}
   }
 
 	$cases{'l1'} = $cases_l1;
@@ -991,61 +1017,65 @@ sub remove_l2_and_relatives{
 # @input: 7 => hash(omniscient hash), feature L3, primary tag l2, id l2, primary tag l2, id l2, optional fh to write case removed
 # @output: 1 => hash (nb feature removed)
 sub remove_l3_and_relatives{
-  my ($omniscient, $feature, $ptag_l1, $id_l1, $ptag_l2, $id_l2, $fh_removed)=@_;
-
+  	my ($omniscient, $feature, $ptag_l1, $id_l1, $ptag_l2, $id_l2, $fh_removed, $keep_parental)=@_;
+	
 	my %cases;
 	my $cases_l1 = 0; my $cases_l2 = 0; my $cases_l3 = 0;
-  my $level3_Parent_ID = lc($feature->_tag_value('Parent'));
-  my $id_l3 = lc($feature->_tag_value('ID'));
+  	my $level3_Parent_ID = lc($feature->_tag_value('Parent'));
+  	my $id_l3 = lc($feature->_tag_value('ID'));
 	my $ptag_l3 = lc($feature->primary_tag);
 
-  if ( exists_keys( $omniscient, ('level3', $ptag_l3, $id_l2) ) ){ # just extra security in case
-    foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$id_l2}}) {
+	if ( exists_keys( $omniscient, ('level3', $ptag_l3, $id_l2) ) ) { # just extra security in case
+		foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$id_l2}}) {
 
-      if($id_l3 eq lc($feature_l3->_tag_value('ID')) ){
-        #remove one feature and pointer if no more feature left in the list
-        my @id_concern_list=($level3_Parent_ID);
-        my @id_list_to_remove=($id_l3);
-        my @list_tag_key=('all');
-        $cases_l3++;
-				print $fh_removed $feature->gff_string()."\n" if ($fh_removed);
-        remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level3','false', \@list_tag_key);
-      }
-    }
-  }
+			if($id_l3 eq lc($feature_l3->_tag_value('ID')) ){
+				#remove one feature and pointer if no more feature left in the list
+				my @id_concern_list=($level3_Parent_ID);
+				my @id_list_to_remove=($id_l3);
+				my @list_tag_key=('all');
+				$cases_l3++;
+				print_feature_safe( $feature, $fh_removed );
+				remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level3','false', \@list_tag_key);
+			}
+		}
+	}
 
-  # List empty check if we remove l2 or other l3 linked to it
-  if( ! exists_keys($omniscient, ('level3', $ptag_l3, $id_l2)) ){
-    foreach my $tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-      if ( exists_keys( $omniscient, ('level3', $tag_l3, $id_l2) ) ){
-				$cases{'l1'} = $cases_l1;
-				$cases{'l2'} = $cases_l2;
-				$cases{'l3'} = $cases_l3;
-				$cases{'all'} = $cases_l1+$cases_l2+$cases_l3;
+	if (! $keep_parental){
+		# List empty check if we remove l2 or other l3 linked to it
+		if( ! exists_keys($omniscient, ('level3', $ptag_l3, $id_l2)) ){
+			foreach my $tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+				if ( exists_keys( $omniscient, ('level3', $tag_l3, $id_l2) ) ){
+					$cases{'l1'} = $cases_l1;
+					$cases{'l2'} = $cases_l2;
+					$cases{'l3'} = $cases_l3;
+					$cases{'all'} = $cases_l1+$cases_l2+$cases_l3;
+					return \%cases;
+				}
+			}
 
-				return \%cases;
-      }
-    }
+			# if we arrive here it means no more L3 feature is attached to L2
+			# we remove the L2 parent properly (if isoforms they are kept)
+			if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1)) ){
+				my @id_concern_list=($id_l1);
+				my @id_list_to_remove=($id_l2);
+				my @list_tag_key=('all');
+				$cases_l2++;
+				my $feature_l2 = get_feature_l2_from_id_l2_l1($omniscient,  $id_l2, $id_l1);
+				print_feature_safe( $feature_l2, $fh_removed );
+				remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
 
-    # if we arrive here it means no more L3 feature is attached to L2
-    # we remove the L2 parent properly (if isoforms they are kept)
-    my @id_concern_list=($id_l1);
-    my @id_list_to_remove=($id_l2);
-    my @list_tag_key=('all');
-    $cases_l2++;
-		print $fh_removed $id_l2."\n" if ($fh_removed);
-    remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
-
-    # Should we remove l1 too?
-    if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-      #The list was empty so l2 has been removed, we can now remove l1
-      if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
-        $cases_l1++;
-				print $fh_removed $id_l1."\n" if($fh_removed);
-        delete $omniscient->{'level1'}{$ptag_l1}{$id_l1}
-      }
-    }
-  }
+				# Should we remove l1 too?
+				if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+					#The list was empty so l2 has been removed, we can now remove l1
+					if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+						$cases_l1++;
+						print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
+						delete $omniscient->{'level1'}{$ptag_l1}{$id_l1}
+					}
+				}
+			}
+		}
+	}
 
 	$cases{'l1'} = $cases_l1;
 	$cases{'l2'} = $cases_l2;
@@ -1623,6 +1653,13 @@ sub group_l1IDs_from_omniscient {
 	return \%group;
 }
 
+# Retrieves the feature level 2 from the given level 2 and level 1 IDs.
+#
+# Parameters:
+#   - $id_l2: The ID of the level 2 feature 
+#	- $id_l1: The ID of the parent level 1 feature
+# Returns:
+#   - The feature at level 2 corresponding to the given ID.
 sub get_feature_l2_from_id_l2_l1 {
 	my ($hash_omniscient, $id_l2, $id_l1) = @_  ;
 	foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){

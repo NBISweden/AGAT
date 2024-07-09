@@ -3,11 +3,14 @@
 ## DESCRIPTION
 
 The script aims to filter features according to attribute value (9th column).
-If the attribute tag is missing the feature will not be discarded.
-If the attribute exists and the value pass the test, the feature is discarded.
-Attribute are stored in the 9th column and have this shape: tag=value
-/!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
-removing all children of a feature will automatically remove this feature too.
+- If the attribute exists and the value do not pass the test, the feature is written into <output>.
+- If the attribute exists and the value pass the test, the feature is discarded and written into <output>_discarded.gff.
+- If the attribute tag is missing (test cannot be applyed), the feature will be written into <output> by default. If --na_aside parameter is activated then it will be written into <output>_na.gff.  
+
+Attribute are stored in the 9th column and have this shape: tag=value.
+/!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures.
+/!\\ Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
+/!\\ If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
 
 ## SYNOPSIS
 
@@ -43,6 +46,14 @@ agat_sp_filter_feature_by_attribute_value.pl --help
 
     Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
 
+- **<--na\_aside**
+
+    Bolean. Deactivated by default. By default if the attribute tag on which the filter is based is missing, the feature will be written into <output>.
+    When activated, such features will be written into a separate file called <output>_na.gff.
+
+- **<--keep\_parental>**
+
+    Bolean. Deactivated by default. When activated even if all child features have been removed, the parental one will be kept.
 
 - **-t** or **--test**
 
@@ -53,7 +64,7 @@ agat_sp_filter_feature_by_attribute_value.pl --help
 
 - **-o** or **--output**
 
-    Output GFF file.  If no output file is specified, the output will be
+    Output GFF file. If no output file is specified, the output will be
     written to STDOUT.
 
 - **-v**
