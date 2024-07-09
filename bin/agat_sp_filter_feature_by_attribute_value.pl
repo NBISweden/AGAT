@@ -387,7 +387,7 @@ Attribute are stored in the 9th column and have this shape: tag=value
 /!\ Removing a level1 or level2 feature will automatically remove all linked subfeatures.
 /!\ Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
 /!\ If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, 
-, then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
+then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
 
 =head1 SYNOPSIS
 
@@ -426,14 +426,14 @@ Bolean. Deactivated by default. When activated the values provided by the --valu
 =item B<--na_aside>
 
 Bolean. Deactivated by default. By default if the attribute tag on which the filter is based is missing, the feature will be written into <output>.
-When activated, such features will be written into a separate file called <output>_na.gff
-
+When activated, such features will be written into a separate file called <output>_na.gff.
 
 =item B<--keep_parental>
 
 Bolean. Deactivated by default. When activated even if all child features have been removed, the parental one will be kept.
 
 =item B<-t> or B<--test>
+
 Test to apply (> < = ! >= <=). default value "=". 
 If you use one of these two character >, <, please don't forget to quote the
 parameter like that "<=" otherwise your terminal will complain.
@@ -441,7 +441,7 @@ Only = and ! tests can be used to compare string values.
 
 =item B<-o> or B<--output>
 
-Output GFF file.  If no output file is specified, the output will be
+Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-v>
