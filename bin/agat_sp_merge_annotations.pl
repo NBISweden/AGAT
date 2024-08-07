@@ -7,7 +7,6 @@ use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
-use File::Basename;
 use File::Spec;
 use File::Glob ':glob';
 
