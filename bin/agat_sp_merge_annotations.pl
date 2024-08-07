@@ -40,7 +40,7 @@ if ($opt_help) {
 my @expanded_files;
 foreach my $file_or_dir (@opt_files) {
     if (-d $file_or_dir) {
-        push @expanded_files, bsd_glob(File::Spec->catfile($file_or_dir, '*.gff*'));
+        push @expanded_files, bsd_glob(File::Spec->catfile($file_or_dir, '*.{gff,gtf}'));
     } else {
         push @expanded_files, $file_or_dir;
     }
@@ -123,7 +123,7 @@ It uses the AGAT parser that takes care of duplicated names and fixes other oddi
 
 =item B<--gff> or B<-f>
 
-Input GTF/GFF file(s). You can specify a folder containing GFF3 files with the format .gff . You can also specify as much file you want like so: -f file1 -f file2 -f file3
+Input GTF/GFF file(s). You can specify a folder containing GFF3 files with the format .gff or GTF files with .gtf format . You can also specify as much file you want like so: -f file1 -f file2 -f file3
 
 =item  B<--out>, B<--output> or B<-o>
 
