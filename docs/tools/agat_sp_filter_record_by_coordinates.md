@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_record\_by\_coordinates.pl
+# agat_sp_filter_record_by_coordinates.pl
 
 ## DESCRIPTION
 

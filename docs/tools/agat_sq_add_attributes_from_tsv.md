@@ -1,4 +1,4 @@
-# agat\_sq\_add\_attributes\_from\_tsv.pl
+# agat_sq_add_attributes_from_tsv.pl
 
 ## DESCRIPTION
 
@@ -12,7 +12,7 @@ The other columns will be added as attribute in the GFF/GTF file. The header bec
 and the value is that defined for the corresponding feature line. 
 (If the tag already exists, we append the value only if the value doesn't already exist).
 
-\--- example ---
+--- example ---
 
 - input.tsv:  
 ```
@@ -33,7 +33,7 @@ chr1	irgsp	gene	1000	2000	.	+	.	ID=gene1;annot_type1=annot_x
 chr1	irgsp	CDS	2983	3268	.	+	.	ID=cds1;annot_type1=annot_y  
 ```
 
-\--- example2 ---
+--- example2 ---
 
 - input.tsv:
 ```

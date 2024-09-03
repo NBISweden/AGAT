@@ -1,17 +1,17 @@
-# agat\_sp\_kraken\_assess\_lift\_coverage.pl
+# agat_sp_kraken_assess_lift_coverage.pl
 
 ## DESCRIPTION
 
 The script takes as input gtf produced by Kraken (lift-over tool).
-It will analyse the kraken\_mapped attributes to calculate the mapped percentage of each mRNA.
+It will analyse the kraken_mapped attributes to calculate the mapped percentage of each mRNA.
 According to a threshold (0 by default), gene with a mapping percentage over that value will be reported.
-A plot nammed geneMapped\_plot.pdf is performed to visualize the result.
-/!\\ The script handles chimeric files (i.e containg gene part mapped on the template genome and others on the de-novo one)
-/!\\/!\\ If the file is complete (containing kraken\_mapped="TRUE" and kraken\_mapped="FALSE" attributes),
+A plot nammed geneMapped_plot.pdf is performed to visualize the result.
+/! The script handles chimeric files (i.e containg gene part mapped on the template genome and others on the de-novo one)
+/!/! If the file is complete (containing kraken_mapped="TRUE" and kraken_mapped="FALSE" attributes),
 the script calcul the real percentage lentgh that has been mapped.
-Else the calcul is only based on feature with kraken\_mapped="TRUE" attributes.
+Else the calcul is only based on feature with kraken_mapped="TRUE" attributes.
 So in this case the result most of time will be 100%.
-/!\\/!\\/!\\ We met rare cases where Kraken mapped a feature to several locations of the de-novo genome.
+/!/!/! We met rare cases where Kraken mapped a feature to several locations of the de-novo genome.
 As result we could end up with mapping over > 100%. We report them as 100% mapped in the plot
 and a warning is raised to allow to check thoses cases.
 

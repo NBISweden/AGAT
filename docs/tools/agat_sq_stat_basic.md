@@ -1,4 +1,4 @@
-# agat\_sq\_stat\_basic.pl
+# agat_sq_stat_basic.pl
 
 ## DESCRIPTION
 

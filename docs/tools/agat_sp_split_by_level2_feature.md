@@ -1,4 +1,4 @@
-# agat\_sp\_split\_by\_level2\_feature.pl
+# agat_sp_split_by_level2_feature.pl
 
 ## DESCRIPTION
 
@@ -20,7 +20,7 @@ agat_sp_split_by_level2_feature.pl --help
 
 - **-o** or **--output**
 
-    Output folder.  If no output folder provided, the default name will be &lt;split\_result>.
+    Output folder.  If no output folder provided, the default name will be &lt;split_result>.
 
 - **-c** or **--config**
 

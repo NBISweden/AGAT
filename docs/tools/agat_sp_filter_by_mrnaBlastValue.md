@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_by\_mrnaBlastValue.pl
+# agat_sp_filter_by_mrnaBlastValue.pl
 
 ## DESCRIPTION
 

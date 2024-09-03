@@ -1,11 +1,11 @@
-# agat\_fix\_small\_exon\_from\_extremities.pl
+# agat_fix_small_exon_from_extremities.pl
 
 ## DESCRIPTION
 
 The script aims to extend the small exons to make them longer.
 When submitting annotation to ENA they expect exon size of 15 nt minimum.
 Currently we extend only the exon from extremities, otherwise we risk to break the predicted ORF.
-/!\\ When we extend an exon and the CDS has to be extended too (because is was a partial CDS), we exit;
+/! When we extend an exon and the CDS has to be extended too (because is was a partial CDS), we exit;
 
 ## SYNOPSIS
 

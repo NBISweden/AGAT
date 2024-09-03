@@ -1,4 +1,4 @@
-# agat\_sp\_merge\_annotations.pl
+# agat_sp_merge_annotations.pl
 
 ## DESCRIPTION
 

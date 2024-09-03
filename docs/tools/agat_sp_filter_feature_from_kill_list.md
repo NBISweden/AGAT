@@ -1,11 +1,11 @@
-# agat\_sp\_filter\_feature\_from\_kill\_list.pl
+# agat_sp_filter_feature_from_kill_list.pl
 
 ## DESCRIPTION
 
 The script aims to remove features based on a kill list.
 The default behaviour is to look at the features's ID. If the feature has an ID
 (case insensitive) listed among the kill list it will be removed.
-/!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
+/! Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
 removing all children of a feature will automatically remove this feature too.
 
 ## SYNOPSIS
@@ -30,7 +30,7 @@ agat_sp_filter_feature_from_kill_list.pl --help
           level3=CDS,exon,UTR,etc
     By default all feature are taking into account. fill the option by the value "all" will have the same behaviour.
 
-- **--kl** or **--kill\_list**
+- **--kl** or **--kill_list**
 
     Kill list. One value per line.
 

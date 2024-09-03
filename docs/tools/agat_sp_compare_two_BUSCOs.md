@@ -1,4 +1,4 @@
-# agat\_sp\_compare\_two\_BUSCOs.pl
+# agat_sp_compare_two_BUSCOs.pl
 
 ## DESCRIPTION
 
@@ -12,8 +12,8 @@ Where EOG090W00UK is the BUSCO name/label/group investigated, and complete2dupli
 By loading these gff tracks in a web browser and helped by other tracks (e.g the genome annotation/prediction)
 can help to understand why the BUSCO have been classified differently from run1 to run2.
 In other term it allows to catch potential problems in an annotation.
-agat\_sp\_compare\_two\_BUSCOs.pl has been tested with results from BUSCO version 3 and 4.
-/!\\ The tool expects a BUSCO run in genome mode as input folder 1 and a BUSCO run in proteins mode
+agat_sp_compare_two_BUSCOs.pl has been tested with results from BUSCO version 3 and 4.
+/! The tool expects a BUSCO run in genome mode as input folder 1 and a BUSCO run in proteins mode
 as input folder 2. You can also decide to provide twice (--f1 --f2) the same BUSCO run in genome mode,
 the tool will only extract the annotation of the complete,fragmented and duplicated annotated BUSCOs from the 1st run in gff.
 

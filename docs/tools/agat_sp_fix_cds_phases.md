@@ -1,4 +1,4 @@
-# agat\_sp\_fix\_cds\_phases.pl
+# agat_sp_fix_cds_phases.pl
 
 ## DESCRIPTION
 

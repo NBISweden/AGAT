@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_by\_ORF\_size.pl
+# agat_sp_filter_by_ORF_size.pl
 
 ## DESCRIPTION
 

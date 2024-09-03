@@ -1,10 +1,10 @@
-# agat\_convert\_genscan2gff.pl
+# agat_convert_genscan2gff.pl
 
 ## DESCRIPTION
 
 The script takes a genscan file as input, and will translate it in gff format.
-The genscan format is described here: http://genome.crg.es/courses/Bioinformatics2003\_genefinding/results/genscan.html
-/!\\ vvv Known problem vvv /!\\
+The genscan format is described here: http://genome.crg.es/courses/Bioinformatics2003_genefinding/results/genscan.html
+/! vvv Known problem vvv /!
 You must have submited only DNA sequence, wihtout any header!!
 Indeed the tool expects only DNA sequences and does not crash/warn if an header
 is submited along the sequence.
@@ -12,7 +12,7 @@ e.g If you have an header ">seq" s-e-q are seen as the 3 first nucleotides of th
 Then all prediction location are shifted accordingly.
 (checked only on the online version http://argonaute.mit.edu/GENSCAN.html. I don't
 know if there is the same pronlem elsewhere.)
-/!\\ ^^^ Known problem ^^^^ /!\\
+/! ^^^ Known problem ^^^^ /!
 
 ## SYNOPSIS
 
@@ -30,12 +30,12 @@ agat_convert_genscan2gff.pl -h
 - **--source**
 
     The source informs about the tool used to produce the data and is stored in 2nd field of a gff file.
-    Example: Stringtie,Maker,Augustus,etc. \[default: data\]
+    Example: Stringtie,Maker,Augustus,etc. [default: data]
 
-- **--primary\_tag**
+- **--primary_tag**
 
-    The primary\_tag corresponf to the data type and is stored in 3rd field of a gff file.
-    Example: gene,mRNA,CDS,etc.  \[default: gene\]
+    The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
+    Example: gene,mRNA,CDS,etc.  [default: gene]
 
 - **--verbose**
 

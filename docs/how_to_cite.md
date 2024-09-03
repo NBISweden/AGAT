@@ -1,4 +1,4 @@
-## How to cite?
+# How to cite?
 
 This work has not been published yet(I will think about it). But if you wish to cite AGAT you can do it as follow (Adapt the version for the one you have used): 
 

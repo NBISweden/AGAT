@@ -1,4 +1,4 @@
-# agat\_sp\_compare\_two\_annotations.pl
+# agat_sp_compare_two_annotations.pl
 
 ## DESCRIPTION
 

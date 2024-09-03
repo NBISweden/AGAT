@@ -1,14 +1,14 @@
-# agat\_sp\_manage\_functional\_annotation.pl
+# agat_sp_manage_functional_annotation.pl
 
 ## DESCRIPTION
 
 The script take a gff3 file as input and blast and/or interpro output in order
 to attach functional annotation to corresponding features within the gff file.
 
-\>The blast against Protein Database (outfmt 6) allows to fill the field/attribute
+>The blast against Protein Database (outfmt 6) allows to fill the field/attribute
 NAME for gene and PRODUCT for mRNA.
 
-\>The Interpro result (.tsv) file allows to fill the DBXREF field/attribute with
+>The Interpro result (.tsv) file allows to fill the DBXREF field/attribute with
 pfam, tigr, interpro, GO, KEGG, etc... terms data.
 
 With the &lt;id> option the script will change all the ID field by an Uniq ID
@@ -107,7 +107,7 @@ agat_sp_manage_functional_annotation.pl --help
 
     String - The fasta file that has been used as DB for the blast. Gene names and products/descriptions will be fished from this file.
 
-- **--be** or **--blast\_evalue**
+- **--be** or **--blast_evalue**
 
     Float - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
 
@@ -116,11 +116,11 @@ agat_sp_manage_functional_annotation.pl --help
     Integer - The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
     You can decide until which protein existence level you want to consider to lift the finctional information. Default 5.
 
-    1\. Experimental evidence at protein level
-    2\. Experimental evidence at transcript level
-    3\. Protein inferred from homology
-    4\. Protein predicted
-    5\. Protein uncertain
+    1. Experimental evidence at protein level
+    2. Experimental evidence at transcript level
+    3. Protein inferred from homology
+    4. Protein predicted
+    5. Protein uncertain
 
 - **-i** or **--interpro**
 

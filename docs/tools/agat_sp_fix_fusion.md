@@ -1,4 +1,4 @@
-# agat\_sp\_fix\_fusion.pl
+# agat_sp_fix_fusion.pl
 
 ## DESCRIPTION
 
@@ -25,7 +25,7 @@ agat_sp_fix_fusion.pl --help
 
 - **--ct**, **--codon** or **--table**
 
-    Codon table to use. \[default 1\]
+    Codon table to use. [default 1]
 
 - **-t** or **--threshold**
 

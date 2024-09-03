@@ -1,4 +1,4 @@
-# agat\_convert\_sp\_gff2bed.pl
+# agat_convert_sp_gff2bed.pl
 
 ## DESCRIPTION
 

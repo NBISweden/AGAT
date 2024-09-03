@@ -1,4 +1,4 @@
-# agat\_sp\_manage\_attributes.pl
+# agat_sp_manage_attributes.pl
 
 ## DESCRIPTION
 
@@ -32,9 +32,9 @@ agat_sp_manage_attributes.pl --help
 - **--tag**, **--att**
 
     Attributes with the tag specified will be removed from the feature type specified by the option p (primary tag). List of tag must be coma separated.
-    /!\\\\ You must use "" if name contains spaces.
+    /! You must use "" if name contains spaces.
     Instead to remove an attribute, you can replace its Tag by a new Tag using this formulation tagName/newTagName.
-    To remove all attributes non mandatory (only ID and Parent are mandatory) you can use the option with &lt;all\_attributes> parameter.
+    To remove all attributes non mandatory (only ID and Parent are mandatory) you can use the option with &lt;all_attributes> parameter.
 
 - **--add**
 

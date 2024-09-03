@@ -1,9 +1,9 @@
-# agat\_sp\_statistics.pl
+# agat_sp_statistics.pl
 
 ## DESCRIPTION
 
 The script provides exhaustive statistics of a gft/gff file.
-/!\\ If you have isoforms in your file, even if correct, some values calculated
+/! If you have isoforms in your file, even if correct, some values calculated
 might sounds incoherent: e.g. total length mRNA can be superior than the genome size.
 Because all isoforms length is added... It is why by default
 we always compute the statistics twice when there are isoforms, once with the

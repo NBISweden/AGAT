@@ -1,4 +1,4 @@
-# agat\_sq\_filter\_feature\_from\_fasta.pl
+# agat_sq_filter_feature_from_fasta.pl
 
 ## DESCRIPTION
 

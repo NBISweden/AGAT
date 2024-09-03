@@ -1,4 +1,4 @@
-# agat\_sp\_functional\_statistics.pl
+# agat_sp_functional_statistics.pl
 
 ## DESCRIPTION
 
@@ -24,7 +24,7 @@ agat_sp_functional_statistics.pl --help
 
 - **--output** or **-o**
 
-    Folder where will be written the results. \[Default output_functional_statistics\]
+    Folder where will be written the results. [Default output_functional_statistics]
 
 - **-c** or **--config**
 

@@ -1,4 +1,4 @@
-# agat\_sp\_clipN\_seqExtremities\_and\_fixCoordinates.pl
+# agat_sp_clipN_seqExtremities_and_fixCoordinates.pl
 
 ## DESCRIPTION
 

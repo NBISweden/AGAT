@@ -1,4 +1,4 @@
-# agat\_sp\_fix\_longest\_ORF.pl
+# agat_sp_fix_longest_ORF.pl
 
 ## DESCRIPTION
 
@@ -31,7 +31,7 @@ agat_sp_fix_longest_ORF.pl --help
 
 - **--ct**, **--codon** or **--table**
 
-    Codon table to use. \[default 1\]
+    Codon table to use. [default 1]
 
 - **-m** or **--model**
 
@@ -50,9 +50,9 @@ agat_sp_fix_longest_ORF.pl --help
     				 while we force here the prediction to have a start codon.
     				 A ORF wihtout start can be the fact of an incomplete or fragmented ORF:
     				 annotation tool didn't predict the start because:
-    				 \* the start region is NNNN
-    				 \* the start region is XXXX
-    				 \* correct nucleotides but prediction tool did not annotate this part (e.g incomplete evidence in evidence-based prediction)
+    				 * the start region is NNNN
+    				 * the start region is XXXX
+    				 * correct nucleotides but prediction tool did not annotate this part (e.g incomplete evidence in evidence-based prediction)
 
     Model6 = The ORF is same size but not correct frame (+1 or +2 bp gives a frame shift).
 

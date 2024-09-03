@@ -1,11 +1,11 @@
-# agat\_sp\_manage\_IDs.pl
+# agat_sp_manage_IDs.pl
 
 ## DESCRIPTION
 
 The script takes a gff3 file as input and will go through all feature to overwrite
 the value of the ID attribute.
-By default the ID is built as follow: primary\_tag(i.e. 3rd column)-Number.
-If you provide a specific prefix the ID is built as follow: $opt\_prefix.$letterCode.Number.
+By default the ID is built as follow: primary_tag(i.e. 3rd column)-Number.
+If you provide a specific prefix the ID is built as follow: $opt_prefix.$letterCode.Number.
 By default the numbering start at 1, but you can decide to change this value using the --nb option.
 The $letterCode is the first letter of the feature type (3rd colum). It is uniq for each feature type,
 i.e. when two feature types start with the same letter, the second one met will have the two first letter as $letterCode (and so one).
@@ -30,15 +30,15 @@ agat_sp_manage_IDs.pl --help
 - **--ensembl**
 
     Boolean - For an ID Ensembl like (e.g PREFIXG00000000022). The ID is built as follow:
-    $opt\_prefix.$letterCode.0\*.Number where the number of 0 is adapted in order to have 11 digits.
+    $opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 11 digits.
 
 - **--prefix**
 
     String - Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
 
-- **--type\_dependent**
+- **--type_dependent**
 
-    Boolean - Activate type\_dependent numbering. The number is depedendent of the feature type.
+    Boolean - Activate type_dependent numbering. The number is depedendent of the feature type.
     i.e instead of:
     NbV1Ch01        AUGUSTUS        gene    97932   99714   0.06    -       .       ID=gene1
     NbV1Ch01        AUGUSTUS        mRNA    97932   99714   0.06    -       .       ID=mRNA2

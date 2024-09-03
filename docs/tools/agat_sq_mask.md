@@ -1,4 +1,4 @@
-# agat\_sq\_mask.pl
+# agat_sq_mask.pl
 
 ## DESCRIPTION
 

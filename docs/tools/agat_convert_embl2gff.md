@@ -1,4 +1,4 @@
-# agat\_convert\_embl2gff.pl
+# agat_convert_embl2gff.pl
 
 ## DESCRIPTION
 
@@ -22,7 +22,7 @@ agat_converter_embl2gff.pl --embl infile.embl [ -o outfile ]
     This is an EMBL format dedicated for submission and contains particularity to deal with.
     This parameter is needed to get a proper sequence id in the GFF3 from an embl made with EMBLmyGFF3.
 
-- **--primary\_tag**, **--pt**, **-t**
+- **--primary_tag**, **--pt**, **-t**
 
     List of "primary tag". Useful to discard or keep specific features.
     Multiple tags must be coma-separated.

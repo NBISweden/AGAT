@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_feature\_from\_keep\_list.pl
+# agat_sp_filter_feature_from_keep_list.pl
 
 ## DESCRIPTION
 
@@ -30,7 +30,7 @@ agat_sp_filter_feature_from_keep_list.pl --help
           level3=CDS,exon,UTR,etc
     By default all feature are taking into account. fill the option by the value "all" will have the same behaviour.
 
-- **--kl** or **--keep\_list**
+- **--kl** or **--keep_list**
 
     Keep list. One value per line.
 

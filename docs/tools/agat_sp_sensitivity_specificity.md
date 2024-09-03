@@ -1,4 +1,4 @@
-# agat\_sp\_sensitivity\_specificity.pl
+# agat_sp_sensitivity_specificity.pl
 
 ## DESCRIPTION
 

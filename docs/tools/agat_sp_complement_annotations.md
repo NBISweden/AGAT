@@ -1,4 +1,4 @@
-# agat\_sp\_complement\_annotations.pl
+# agat_sp_complement_annotations.pl
 
 ## DESCRIPTION
 
@@ -8,7 +8,7 @@ A l1 feature from the addfile.gff without a CDS that overlaps a l1 feature with 
 A l1 feature from the addfile.gff with a CDS that overlaps a l1 feature without a CDS from the reference annotation will be added.
 A l1 feature from the addfile.gff with a CDS that overlaps a l1 feature with a CDS from the reference annotation will be added only if the CDSs don't overlap.
 A l1 feature from the addfile.gff without a CDS that overlaps a l1 feature without a CDS from the reference annotation will be added only if none of the l3 features overlap.
-/!\\ It is sufficiant that only one isoform is overlapping to prevent the whole gene (l1 feature) from the addfile.gff to be added in the output.
+/! It is sufficiant that only one isoform is overlapping to prevent the whole gene (l1 feature) from the addfile.gff to be added in the output.
 
 ## SYNOPSIS
 
@@ -26,10 +26,10 @@ agat_sp_complement_annotations.pl --help
 - **--add** or **-a**
 
     Annotation(s) file you would like to use to complement the reference annotation. You can specify as much file you want like so: -a addfile1 -a addfile2 -a addfile3
-    /!\\ The order you provide these files matter. Once the reference file has been complemented by file1, this new annotation becomes the new reference that will be complemented by file2 etc.
-    /!\\ The result with -a addfile1 -a addfile2 will differ to the result from -a addfile2 -a addfile1. So, be aware of what you want if you use several addfiles.
+    /! The order you provide these files matter. Once the reference file has been complemented by file1, this new annotation becomes the new reference that will be complemented by file2 etc.
+    /! The result with -a addfile1 -a addfile2 will differ to the result from -a addfile2 -a addfile1. So, be aware of what you want if you use several addfiles.
 
-- **--size\_min** or **-s**
+- **--size_min** or **-s**
 
     Option to keep the non-overlping gene only if the CDS size (in nucleotide) is over the minimum size defined. Default = 0 that means all of them are kept.
 

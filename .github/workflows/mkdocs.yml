@@ -1,0 +1,32 @@
+name: ci
+on:
+  push:   
+    paths:
+      - 'docs/**'
+      - mkdocs.yml
+  pull_request:
+    paths:
+      - 'docs/**'
+      - mkdocs.yml
+
+permissions:
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - uses: actions/cache@v2
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+      - run: pip install mkdocs-material
+      - run: pip install pymdown-extensions
+      - run: pip install mkdocs-minify-plugin
+      - run: pip install mkdocs-macros-plugin
+      - run: pip install mkdocs-embed-external-markdown
+      - run: pip install mkdocs-table-reader-plugin
+      - run: mkdocs gh-deploy --force

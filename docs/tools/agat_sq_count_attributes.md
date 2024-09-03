@@ -1,4 +1,4 @@
-# agat\_sq\_count\_attributes.pl
+# agat_sq_count_attributes.pl
 
 # DESCRIPTION
 
