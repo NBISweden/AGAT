@@ -4,3 +4,4 @@ There are two scripts in AGAT in order to aggregate annotations. They do not beh
 
 ![](../img/aggregate_annotations.png "example")
 
+ 
