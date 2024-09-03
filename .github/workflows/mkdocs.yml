@@ -1,7 +1,6 @@
 name: documentation
 on:
   push:
-    branches: main
     paths:
       - 'docs/**'
       - mkdocs.yml
