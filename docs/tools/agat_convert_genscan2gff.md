@@ -37,17 +37,6 @@ agat_convert_genscan2gff.pl -h
     The primary\_tag corresponf to the data type and is stored in 3rd field of a gff file.
     Example: gene,mRNA,CDS,etc.  \[default: gene\]
 
-- **--inflate\_off**
-
-    By default we inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
-    of the main feature (primary\_tag). Type of subfeature created based on the
-    inflate\_type parameter. If you don't want this inflating behaviour you can deactivate it
-    by using the option --inflate\_off.
-
-- **--inflate\_type**
-
-    Feature type (3rd column in gff) created when inflate parameter activated \[default: exon\].
-
 - **--verbose**
 
     add verbosity
