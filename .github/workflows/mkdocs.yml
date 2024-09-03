@@ -1,4 +1,4 @@
-name: ci
+name: documentation
 on:
   push:   
     paths:
