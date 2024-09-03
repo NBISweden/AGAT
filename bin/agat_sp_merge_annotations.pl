@@ -7,6 +7,8 @@ use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
+use File::Spec;
+use File::Glob ':glob';
 
 my $header = get_agat_header();
 my $config;
@@ -33,6 +35,16 @@ if ($opt_help) {
                  -exitval => 0,
                  -message => "$header\n" } );
 }
+
+my @expanded_files;
+foreach my $file_or_dir (@opt_files) {
+    if (-d $file_or_dir) {
+        push @expanded_files, bsd_glob(File::Spec->catfile($file_or_dir, '*.{gff,gtf}'));
+    } else {
+        push @expanded_files, $file_or_dir;
+    }
+}
+@opt_files = @expanded_files;
 
 if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
     pod2usage( {
@@ -101,6 +113,7 @@ It uses the AGAT parser that takes care of duplicated names and fixes other oddi
 =head1 SYNOPSIS
 
     agat_sp_merge_annotations.pl --gff infile1 --gff infile2 --out outFile
+    agat_sp_merge_annotations.pl --gff /path/to/folder/with/gff --out outFile
     agat_sp_merge_annotations.pl --help
 
 =head1 OPTIONS
@@ -109,7 +122,7 @@ It uses the AGAT parser that takes care of duplicated names and fixes other oddi
 
 =item B<--gff> or B<-f>
 
-Input GTF/GFF file(s). You can specify as much file you want like so: -f file1 -f file2 -f file3
+Input GTF/GFF file(s). You can specify a folder containing GFF3 files with the format .gff or GTF files with .gtf format . You can also specify as much file you want like so: -f file1 -f file2 -f file3
 
 =item  B<--out>, B<--output> or B<-o>
 
