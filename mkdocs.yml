@@ -177,5 +177,8 @@ nav:
       - tools/agat_sq_rfam_analyzer.md
       - tools/agat_sq_split.md
       - tools/agat_sq_stat_basic.md
+    - How to:
+      - howto/how_to_extract_sequences.md
+      - howto/how_to_aggregate_annotation.md
     - Troubleshooting: 
       - troubleshooting.md
