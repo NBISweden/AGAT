@@ -286,17 +286,6 @@ Example: Stringtie,Maker,Augustus,etc. [default: data]
 The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
 Example: gene,mRNA,CDS,etc.  [default: gene]
 
-=item B<--inflate_off>
-
-By default we inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
-of the main feature (primary_tag). Type of subfeature created based on the
-inflate_type parameter. If you don't want this inflating behaviour you can deactivate it
-by using the option --inflate_off.
-
-=item B<--inflate_type>
-
-Feature type (3rd column in gff) created when inflate parameter activated [default: exon].
-
 =item B<--verbose>
 
 add verbosity
