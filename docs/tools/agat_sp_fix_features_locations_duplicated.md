@@ -1,4 +1,4 @@
-# agat\_sp\_fix\_features\_locations\_duplicated.pl
+# agat_sp_fix_features_locations_duplicated.pl
 
 ## DESCRIPTION
 

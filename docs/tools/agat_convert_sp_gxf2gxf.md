@@ -1,4 +1,4 @@
-# agat\_convert\_sp\_gxf2gxf.pl
+# agat_convert_sp_gxf2gxf.pl
 
 ## DESCRIPTION
 

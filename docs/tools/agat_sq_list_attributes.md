@@ -1,4 +1,4 @@
-# agat\_sq\_list\_attributes.pl
+# agat_sq_list_attributes.pl
 
 ## DESCRIPTION
 

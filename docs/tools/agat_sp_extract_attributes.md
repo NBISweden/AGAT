@@ -1,4 +1,4 @@
-# agat\_sp\_extract\_attributes.pl
+# agat_sp_extract_attributes.pl
 
 ## DESCRIPTION
 

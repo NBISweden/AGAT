@@ -1,5 +1,4 @@
-Why AGAT?
-=============
+# Why AGAT?
 
 Providing support in genome annotation within [NBIS](https://nbis.se) the GTF/GFF format is the main format I handle. I receive from customers file in GTF/GFF format coming from a broad range of sources. Even sometimes files from mixed sources (concatenated in the same file), or manually edited.
 The problem is that often those files do not follow the official specifications or even if they do, they are not even be sure to be compatible we the inputs expected by the tools.

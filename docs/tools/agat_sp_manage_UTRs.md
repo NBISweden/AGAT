@@ -1,4 +1,4 @@
-# agat\_sp\_manage\_UTRs.pl
+# agat_sp_manage_UTRs.pl
 
 ## DESCRIPTION
 
@@ -24,11 +24,11 @@ agat_sp_manage_UTRs.pl --help
 
     Threshold of exon's number of the UTR. Over or equal to this threshold, the UTR will be discarded. Default value is 5.
 
-- **-3**, **--three** or **--tree\_prime\_utr**
+- **-3**, **--three** or **--tree_prime_utr**
 
     The threshold of the option &lt;n> will be applied on the 3'UTR.
 
-- **-5**, **--five** or **--five\_prime\_utr**
+- **-5**, **--five** or **--five_prime_utr**
 
     The threshold of the option &lt;n> will be applied on the 5'UTR.
 

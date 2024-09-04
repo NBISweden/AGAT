@@ -1,4 +1,4 @@
-# agat\_sq\_split.pl
+# agat_sq_split.pl
 
 ## DESCRIPTION
 
@@ -21,7 +21,7 @@ agat_sq_split.pl --help
 
 - **-i** or **--interval**
 Integer.  Number of group of feature to include in each file. 1000 by default.
-- **--ft** or **--feature\_type**
+- **--ft** or **--feature_type**
 The top feature of the feature group. By default "gene".
 - **-o** or **--output**
 

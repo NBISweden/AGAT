@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_feature\_by\_attribute\_value.pl
+# agat_sp_filter_feature_by_attribute_value.pl
 
 ## DESCRIPTION
 
@@ -8,9 +8,9 @@ The script aims to filter features according to attribute value (9th column).
 - If the attribute tag is missing (test cannot be applyed), the feature will be written into <output> by default. If --na_aside parameter is activated then it will be written into <output>_na.gff.  
 
 Attribute are stored in the 9th column and have this shape: tag=value.
-/!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures.
-/!\\ Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
-/!\\ If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
+/! Removing a level1 or level2 feature will automatically remove all linked subfeatures.
+/! Removing all children of a feature will automatically remove this feature too (excepted if --keep_parental is activated).
+/! If --keep_parental is not activated and --na_aside is activated, and all level3 features of a record are split between both <output>_na.gff and <output>_discarded.gff, then the parental level1 and level2 features are removed and will end up in the <output>_na.gff file only.
 
 ## SYNOPSIS
 
@@ -42,16 +42,16 @@ agat_sp_filter_feature_by_attribute_value.pl --help
 
     Value(s) to check in the attribute. Case sensitive. List of values must be coma separated. 
 
-- **--value\_insensitive**
+- **--value_insensitive**
 
     Bolean. Deactivated by default. When activated the values provided by the --value parameter are handled case insensitive.
 
-- **<--na\_aside**
+- **<--na_aside**
 
     Bolean. Deactivated by default. By default if the attribute tag on which the filter is based is missing, the feature will be written into <output>.
     When activated, such features will be written into a separate file called <output>_na.gff.
 
-- **<--keep\_parental>**
+- **<--keep_parental>**
 
     Bolean. Deactivated by default. When activated even if all child features have been removed, the parental one will be kept.
 

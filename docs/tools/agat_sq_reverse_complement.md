@@ -1,4 +1,4 @@
-# agat\_sq\_reverse\_complement.pl
+# agat_sq_reverse_complement.pl
 
 ## DESCRIPTION
 

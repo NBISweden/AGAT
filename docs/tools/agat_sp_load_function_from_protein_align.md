@@ -1,4 +1,4 @@
-# agat\_sp\_load\_function\_from\_protein\_align.pl
+# agat_sp_load_function_from_protein_align.pl
 
 ## DESCRIPTION
 
@@ -38,7 +38,7 @@ agat_sp_load_function_from_protein_align.pl --help
     Rule to apply to lift function when a protein map properly.
     1) replace  => replace or add the product and Name attribute's values.
     2) complete => add the product and Name attribute's values only if doesn't exist.
-    3) add      => add the lfp\_product and lfp\_name attributes with the corresponding values
+    3) add      => add the lfp_product and lfp_name attributes with the corresponding values
 
 - **--value**, **--threshold** or **-t**
 
@@ -51,11 +51,11 @@ agat_sp_load_function_from_protein_align.pl --help
 - **--pe**
 
     Protein existence value. We will take the best overlap score protein according to the PE expected
-    1\. Experimental evidence at protein level
-    2\. Experimental evidence at transcript level
-    3\. Protein inferred from homology
-    4\. Protein predicted
-    5\. Protein uncertain
+    1. Experimental evidence at protein level
+    2. Experimental evidence at transcript level
+    3. Protein inferred from homology
+    4. Protein predicted
+    5. Protein uncertain
 
 - **--test**
 

@@ -1,4 +1,4 @@
-# agat\_sp\_ensembl\_output\_style.pl
+# agat_sp_ensembl_output_style.pl
 
 ## DESCRIPTION
 
@@ -21,7 +21,7 @@ agat_sp_ensembl_output_style.pl --help
 - **-c** or **--ct**
 
     When the gff file provided is not correcly formated and features are linked
-    to each other by a comon tag (by default locus\_tag), this tag can be provided
+    to each other by a comon tag (by default locus_tag), this tag can be provided
     to parse the input file correctly.
 
 - **-v**

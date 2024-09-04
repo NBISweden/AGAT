@@ -1,4 +1,4 @@
-# agat\_sp\_add\_introns.pl
+# agat_sp_add_introns.pl
 
 ## DESCRIPTION
 

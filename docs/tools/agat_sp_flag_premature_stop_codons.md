@@ -1,4 +1,4 @@
-# agat\_sp\_flag\_premature\_stop\_codons.pl
+# agat_sp_flag_premature_stop_codons.pl
 
 ## DESCRIPTION
 
@@ -26,7 +26,7 @@ agat_sp_flag_premature_stop_codons.pl --help
 
 - **--ct**, **--codon** or **--table**
 
-    Codon table to use. \[default 1\]
+    Codon table to use. [default 1]
 
 - **--out**, **--output** or **-o**
 

@@ -1,14 +1,14 @@
 # How does AGAT work?
 
-All tools taking GFF/GTF as input can be divided in two groups: \_sp\_ and \_sq\_.
+All tools taking GFF/GTF as input can be divided in two groups: `_sp_` and `_sq_`.
 
-* Tools with \_sp\_ prefix
+* Tools with `_sp_` prefix
 
 \_sp\_ stands for SLURP. Those tools will charge the file in memory in a specific data structure. It has a memory cost but makes life smoother. Indeed, it allows to perform complicated tasks in a more time efficient way ( Any features can be accessed at any time by AGAT).
 Moreover, it allows to fix all potential errors in the limit of the possibilities given by the format itself.
 See the AGAT parser section for more information about it.  
 
-* with \_sq\_ prefix
+* with `_sq_` prefix
 
  \_sq\_ stands for SEQUENTIAL. Those tools will read and process GFF/GTF files from the top to the bottom, line by line, performing tasks on the fly. This is memory efficient but the sanity check of the file is minimum. Those tools are not intended to perform complex tasks.
 
@@ -41,10 +41,19 @@ $omniscient{level3}{tag_l3}{idZ} =  @featureListL3 <= tag could be exon,cds,utr3
 
 ### How does the AGAT parser work
 
+The AGAT parser phylosophy will use several approach to understand the links/relationships betwen the featrures:  
+
+  * 1) Parse by Parent/child relationship or gene_id/transcript_id relationship.
+  * 2) ELSE Parse by a common tag  (an attribute value shared by feature that must be grouped together. By default we are using locus_tag but can be set by parameter).  
+  * 3) ELSE Parse sequentially (mean group features in a bucket, and the bucket change at each level2 feature, and bucket are join in a common tag at each new L1 feature).  
+
 To resume by priority of way to parse: **Parent/child or gene_id/transcript_id relationship > common attribute/tag > sequential.**  
+
+![](img/agat_parsing_overview.jpg){ width=800px }
+
 The parser may used only one or a mix of these approaches according of the peculiarity of the gtf/gff file you provide.
 
-  1. Parsing approach 1: by Parent/child relationship  
+  **1. Parsing approach 1: by Parent/child relationship**
 
 Example of Parent/ID relationship used by the GFF format:
 
@@ -60,7 +69,7 @@ Example of gene_id/transcript_id relationship used by the GTF format:
     chr12	HAVANA	exon	100	500	.	+	.	gene_id "gene1"; transcript_id "transcript1"; exon_id=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	gene_id "gene1"; transcript_id "transcript1"; cds_id=cds-1;
 
-  2. ELSE Parsing approach 2: by a common attribute/tag  
+  **2. ELSE Parsing approach 2: by a common attribute/tag** 
 
   a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user modifying the AGAT configuration file `agat_config.yaml`.  
   You can modify the `agat_config.yaml` either running `agat config --expose` to access it (it will be copied in the current directory) and then modifying it manually; or running `agat config --expose --locus_tag attribute_name` that will copy the `agat_config.yaml` locally with the modification of the `locus_tag` parameter accordingly.
@@ -72,7 +81,7 @@ Example of relationship made using a common tag (here locus_tag):
     chr12	HAVANA	exon	100	500	.	+	.	locus_tag="gene1";ID=exon1;
     chr12	HAVANA	CDS	100	500	.	+	0	locus_tag="gene1";ID=cds-1;
 
-  3. ELSE Parsing approach 3: sequentially.
+  **3. ELSE Parsing approach 3: sequentially**
 
   Reading from top to the botom of the file, level3 features (e.g. exon, CDS, UTR) are attached to the last level2 feature (e.g. mRNA) met, and level2 feature are attached to the last L1 feature (e.g. gene) met. To see the list of features of each level see the feature_levels.yaml file (In the share folder in the github repo or using `agat levels --expose`).
 
@@ -87,6 +96,7 @@ Example of relationship made sequentially:
     chr12	HAVANA	exon	1000	5000	.	+	.	ID="zzz"
     chr12	HAVANA	CDS	1000	5000	.	+	0	ID="www"
 
+/!\\ Cases with only level3 features (i.e rast or some prokka files), sequential parsing may not work as expected if Parent/ID gene_id/transcript_id attributes are missing. Indeed all features will be the child of only one newly created Parent. To create a parent per feature or group of features, a common tag must be used to group them correctly (by default gene_id and locus_tag but you can set up the ones of your choice). See [Particular case](#particular-case).
 
 ### Particular case
 
@@ -186,11 +196,11 @@ This will work well even if transcript isoforms exist. This will use the parsing
 
 In such case the sequential approach cannot be used (Indeed no level1 (e.g. gene) and no lelve2 (e.g. mrna) feature is present in the file). So the presence of parent/ID transcript_id/gene_id relationships and/or a proper common attribute is crucial.
 
-1. Case with Parent/ID transcript_id/gene_id relationships.
+##### 1. Case with Parent/ID transcript_id/gene_id relationships.
 
 If you have isoforms (for Eukaryote organism) in your files and the `common attribute` used is not set properly you can end up with isoforms having independent parent gene features. See below for more details.
 
-1.1
+**1.1**
 
 Input (testB.gff):  
 
@@ -237,7 +247,7 @@ If you are lucky those attributes already exist. Here they are absent, you can u
     chr12   HAVANA  CDS 700 900 .   +   0   ID=cds-b;Parent=transcriptb;locus_id="gene2"
 
 
-1.2.
+**1.2**
 
 Here we have only level3 features, Parent/ID transcript_id/gene_id relationships present, default `common attributes` ( `locus_tag` or `gene_id`) is set for some features.
 
@@ -272,9 +282,9 @@ Input testF.gff:
 
 The `common attributes` is used to attach isoforms to a common gene feature. As transcript4 has no common attribute, it will have its own parent features.
 
-2. Case without Parent/ID transcript_id/gene_id relationships. Only `common attribute` approach to parse the file can be used.
+##### 2. Case without Parent/ID transcript_id/gene_id relationships. Only `common attribute` approach to parse the file can be used.
 
-2.1.  
+**2.1**
 
 Here we have only level3 features, no Parent/ID transcript_id/gene_id relationships, but a default `common attributes` ( `locus_tag` or `gene_id`) is present.
 
@@ -347,7 +357,7 @@ As the default `common attribute` are absent (gene_id or locus_tag), you have to
 /!\\ In Eukaryote annotation containing isoforms it will not work properly. Indeed, it will result of isoforms merged in chimeric transcripts (It will be really unlucky to end up in such situation, because even a human cannot resolve such type of situation. There is no information about isoforms structure...).
 In Eukaryote cases (even for multi-exon CDS) with absence of isoforms, it will work correctly.
 
-3. In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute.
+##### 3. In the extreme case where you have only one type of feature, you may decide to use the ID as common attribute.
 
 This is the same problem as seen previously. Here the worse case that can append: only level3 features, no Parent/ID transcript_id/gene_id relationships, and the default `common attributes` ( `locus_tag` and `gene_id`) are absent. Sequential approach will be used by AGAT but as there are only level3 features,
 all will be linked to only one parent. See below for more details.
@@ -392,7 +402,7 @@ This case is fine for Prokaryote annotation.
 A) The annotation should not contain isoforms (Indeed, there is no existing information to decipher to which isoform a CDS will be part of. If isoforms are present, each one will be linked to its own gene feature).  
 B) If there are multi-exon CDS, CDS parts must share the same ID (Indeed multi-exon CDS can share or not the same ID. Both way are allowed by the GFF format. If the CDS parts share the same ID, the CDS parts will be collected properly. If the CDS parts do not share the same ID, AGAT will slice it and create a gene/mRNA feature by CDS part!).
 
-4. Case where you have only one type of feature, and some feature have Parent attributes and some other have common attributes.
+##### 4. Case where you have only one type of feature, and some feature have Parent attributes and some other have common attributes.
 
 Input (testG.gff):
 

@@ -1,4 +1,4 @@
-# agat\_sp\_filter\_gene\_by\_length.pl
+# agat_sp_filter_gene_by_length.pl
 
 ## DESCRIPTION
 
@@ -11,9 +11,9 @@ we apply the test on the longest one (the longest concatenated exon set).
 
 Some examples:
 Select L1 feature shorter than 1000bp:
-agat\_sp\_filter\_gene\_by\_length.pl --gff infile.gff  --size 1000 --test "<" -o result.gff
+agat_sp_filter_gene_by_length.pl --gff infile.gff  --size 1000 --test "<" -o result.gff
 Select genes longer than 200bp:
-agat\_sp\_filter\_gene\_by\_length.pl --gff infile.gff --size 200 --test ">" -o result.gff
+agat_sp_filter_gene_by_length.pl --gff infile.gff --size 200 --test ">" -o result.gff
 
 ## SYNOPSIS
 
@@ -30,13 +30,13 @@ agat_sp_filter_gene_by_length.pl --help
 
 - **-s** or **--size**
 
-    Integer - Gene size in pb \[Default 100\]
+    Integer - Gene size in pb [Default 100]
 
 - **-t** or **--test**
 
     Test to apply (>, <, =, >= or <=). If you use one of these two characters >, <,
     please do not forget to quote your parameter like that "<=". Else your terminal will complain.
-    \[Default "="\]
+    [Default "="]
 
 - **-o** or **--output**
 

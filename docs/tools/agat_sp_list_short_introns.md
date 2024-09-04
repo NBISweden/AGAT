@@ -1,4 +1,4 @@
-# agat\_sp\_list\_short\_introns.pl
+# agat_sp_list_short_introns.pl
 
 ## DESCRIPTION
 

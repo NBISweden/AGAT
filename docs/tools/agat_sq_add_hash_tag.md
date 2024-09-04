@@ -1,4 +1,4 @@
-# agat\_sq\_add\_hash\_tag.pl
+# agat_sq_add_hash_tag.pl
 
 ## DESCRIPTION
 

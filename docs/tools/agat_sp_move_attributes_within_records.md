@@ -1,4 +1,4 @@
-# agat\_sp\_move\_attributes\_within\_records.pl
+# agat_sp_move_attributes_within_records.pl
 
 ## DESCRIPTION
 
@@ -19,7 +19,7 @@ agat_sp_move_attributes_within_records.pl --help
 
     Input GFF3 file that will be read
 
-- **--feature\_copy** or **--fc**
+- **--feature_copy** or **--fc**
 
     primary tag (feature type) option to list from which feature we will copy the attributes, case insensitive. 
     You can specified a feature (or a coma separated list) by giving its primary tag / feature type (column 3) value as: cds, Gene, MrNa, etc
@@ -28,7 +28,7 @@ agat_sp_move_attributes_within_records.pl --help
           level3=CDS,exon,UTR,etc
     By default all level2 feature are used. 
 
-- **--feature\_paste** or **--fp**
+- **--feature_paste** or **--fp**
 
     primary tag (feature type) option to list to which feature we will paste the attributes, case sensitive. 
     You can specified a feature (or a coma separated list) by giving its primary tag / feature type (column 3) value as: cds, Gene, MrNa, etc
@@ -41,8 +41,8 @@ agat_sp_move_attributes_within_records.pl --help
 
     Attribute that will be copied and pasted. Case sensitive.
     You can specified an attribute (or a coma separated list) by giving its attribute tag value (column9) as: Ontology, Dbxref, etc
-    Default: all\_attributes
-    /!\\ &lt;all\_attributes> is a specific parameter meaning all the attributes will be use.
+    Default: all_attributes
+    /! &lt;all_attributes> is a specific parameter meaning all the attributes will be use.
 
 - **-o** or **--output**
 
@@ -55,8 +55,8 @@ agat_sp_move_attributes_within_records.pl --help
 
 - **-c** or **--config**
 
-    String - Input agat config file. By default AGAT takes as input agat\_config.yaml file from the working directory if any, 
-    otherwise it takes the orignal agat\_config.yaml shipped with AGAT. To get the agat\_config.yaml locally type: "agat config --expose".
+    String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+    otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
     The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 - **-h** or **--help**

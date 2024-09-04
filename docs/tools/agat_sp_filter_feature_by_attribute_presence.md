@@ -1,11 +1,11 @@
-# agat\_sp\filter\_feature\_by\_attribute\_presence.pl
+# agat_spfilter_feature_by_attribute_presence.pl
 
 ## DESCRIPTION
 
 The script aims to filter features according to attribute presence (9th column).
 If the attribute exists, the feature is discarded.
 Attribute are stored in the 9th column and have this shape: tag=value
-/!\\ Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
+/! Removing a level1 or level2 feature will automatically remove all linked subfeatures, and
 removing all children of a feature will automatically remove this feature too.
 
 ## SYNOPSIS

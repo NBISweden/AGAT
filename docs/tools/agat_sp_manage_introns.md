@@ -1,4 +1,4 @@
-# agat\_sp\_manage\_introns.pl
+# agat_sp_manage_introns.pl
 
 ## DESCRIPTION
 

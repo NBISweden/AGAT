@@ -1,4 +1,4 @@
-# agat\_sp\_Prokka\_inferNameFromAttributes.pl
+# agat_sp_Prokka_inferNameFromAttributes.pl
 
 ## DESCRIPTION
 

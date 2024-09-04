@@ -1,4 +1,4 @@
-# agat\_sp\_add\_start\_and\_stop.pl.pl
+# agat_sp_add_start_and_stop.pl.pl
 
 ## DESCRIPTION
 
@@ -25,7 +25,7 @@ agat_sp_add_start_and_stop.pl.pl --help
 
 - **--ct**, **--codon** or **--table**
 
-    Codon table to use. \[default 1\]
+    Codon table to use. [default 1]
 
 - **--out**, **--output** or **-o**
 

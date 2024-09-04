@@ -1,10 +1,10 @@
-# agat\_sp\_flag\_short\_introns.pl
+# agat_sp_flag_short_introns.pl
 
 ## DESCRIPTION
 
 The script flags the short introns with the attribute &lt;pseudo>.
 Is is usefull to avoid ERROR when submiting the data to EBI.
-(Typical EBI error message: \*\*\*\*\*\*\*\*ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy)
+(Typical EBI error message: ********ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy)
 
 ## SYNOPSIS
 
@@ -19,7 +19,7 @@ agat_sp_flag_short_introns.pl --help
 
     Input GTF/GFF file.
 
-- **--intron\_size** or **-i**
+- **--intron_size** or **-i**
 
     Minimum intron size, default 10. All genes with an intron < of this size will be
     flagged with the pseudo attribute (the value will be the size of the smallest

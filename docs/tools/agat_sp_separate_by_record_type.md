@@ -1,4 +1,4 @@
-# agat\_sp\_separate\_by\_record\_type.pl
+# agat_sp_separate_by_record_type.pl
 
 ## DESCRIPTION
 
@@ -25,7 +25,7 @@ agat_sp_separate_by_record_type.pl --help
 
 - **-o** or **--output**
 
-    Output folder.  If no output folder provided, the default name will be &lt;split\_result>.
+    Output folder.  If no output folder provided, the default name will be &lt;split_result>.
 
 - **-c** or **--config**
 

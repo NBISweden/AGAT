@@ -1,4 +1,4 @@
-# agat\_convert\_mfannot2gff.pl
+# agat_convert_mfannot2gff.pl
 
 ## DESCRIPTION
 

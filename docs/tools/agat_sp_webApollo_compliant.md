@@ -1,4 +1,4 @@
-# agat\_sp\_webApollo\_compliant.pl
+# agat_sp_webApollo_compliant.pl
 
 ## DESCRIPTION
 

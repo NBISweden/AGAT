@@ -1,4 +1,4 @@
-# agat\_sq\_add\_locus\_tag.pl
+# agat_sq_add_locus_tag.pl
 
 ## DESCRIPTION
 
@@ -25,7 +25,7 @@ agat_sq_add_locus_tag.pl --help
 
 - **--lo** or **--to**
 
-    Locus tag output, by defaut it will be called locus\_tag, but using this option you can specied the name of this attribute.
+    Locus tag output, by defaut it will be called locus_tag, but using this option you can specied the name of this attribute.
 
 - **--li** or **--ti**
 

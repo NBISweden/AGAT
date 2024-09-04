@@ -1,11 +1,11 @@
-# agat\_sp\_keep\_longest\_isoform.pl
+# agat_sp_keep_longest_isoform.pl
 
 ## DESCRIPTION
 
 The script aims to filter isoforms when present. For a locus:
-\- when all isoforms have CDS we keep the one with the longest CDS.
-\- when some isoforms have CDS some others not, we keep the one with the longest CDS.
-\- when none of the isoforms have CDS, we keep the one with the longest concatenated exons. 
+- when all isoforms have CDS we keep the one with the longest CDS.
+- when some isoforms have CDS some others not, we keep the one with the longest CDS.
+- when none of the isoforms have CDS, we keep the one with the longest concatenated exons. 
 
 ## SYNOPSIS
 

@@ -1,8 +1,8 @@
-# agat\_sp\_add\_attribute\_shortest\_intron\_size.pl
+# agat_sp_add_attribute_shortest_intron_size.pl
 
 ## DESCRIPTION
 
-The script add the attribute \<shortest_intron\> to each gene and rna, which will hold the size of the shortest intron in bp.
+The script add the attribute <shortest_intron> to each gene and rna, which will hold the size of the shortest intron in bp.
 
 ## SYNOPSIS
 

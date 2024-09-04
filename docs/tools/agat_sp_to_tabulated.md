@@ -1,4 +1,4 @@
-# agat\_sp\_to\_tabulated.pl
+# agat_sp_to_tabulated.pl
 
 ## DESCRIPTION
 
@@ -21,10 +21,10 @@ agat_sp_to_tabulated.pl --help
 - **-c** or **--ct**
 
     When the features doesn't have Parent/ID relationships, the parser will try to group
-    features using a common/shared attribute (i.e. a locus tag.). By default locus\_tag and gene\_id.
+    features using a common/shared attribute (i.e. a locus tag.). By default locus_tag and gene_id.
     You can provide another specific common/shared attribute using this option.
 
-- **--ml** or **--merge\_loci**
+- **--ml** or **--merge_loci**
 
     Merge loci parameter, default deactivated. You turn on the parameter if you want to merge loci into one locus when they overlap.
     (at CDS level for mRNA, at exon level for other level2 features. Strand has to be the same). Prokaryote can have overlaping loci so it should not use it for prokaryote annotation.

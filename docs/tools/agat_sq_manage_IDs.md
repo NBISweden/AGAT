@@ -1,4 +1,4 @@
-# agat\_sq\_manage\_ID.pl
+# agat_sq_manage_ID.pl
 
 ## DESCRIPTION
 
