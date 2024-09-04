@@ -11,9 +11,11 @@ concurrency:
   cancel-in-progress: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
+jobs:  
   # This workflow contains a single job called "build"
   build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
