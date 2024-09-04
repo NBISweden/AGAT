@@ -14,8 +14,10 @@ AGAT
 [<img align="right" src="docs/img/NBIS.png" width="200" height="100" />](https://nbis.se)
 <h2><em>A</em>nother <em>G</em>tf/Gff <em>A</em>nalysis <i>T</i>oolkit</h2>  
 
-Suite of tools to handle gene annotations in any GTF/GFF format.  
-\>>[docs](https://agat.readthedocs.io/en/latest/index.html)<<
+**Suite of tools to handle gene annotations in any GTF/GFF format.**  
+  
+*Documentation \>>[here](https://nbisweden.github.io/AGAT/)<<   
+Previous documentation until v1.4.0 (readthedocs) [here](https://agat.readthedocs.io/en/latest/index.html)*
 
 ---------------------------
 
