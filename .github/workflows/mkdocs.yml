@@ -5,7 +5,7 @@ on:
       - 'docs/**'
       - mkdocs.yml
   pull_request:
-    branches: main
+    branches: [main, master]
     paths:
       - 'docs/**'
       - mkdocs.yml
