@@ -10,12 +10,13 @@ agat levels --expose
 
 Then open the file with your favorite text editor.
 
-Now choose which section you want to modify:
-* `level1` (e.g. gene, match, region):
+Now choose which section you want to modify:  
+
+  * `level1` (e.g. gene, match, region):  
   For features that do not have parent
-* `level2` (e.g. mrna, match_part, trna):
+  * `level2` (e.g. mrna, match_part, trna):  
   For features that have one parent and the parent is a level 1 feature.
-* `level3` (e.g. exon, intron, cds):
+  * `level3` (e.g. exon, intron, cds):  
   For features that have one parent (the parent has also a parent) and no children
 
 For features that are discontinuous (i.e. when a single feature exists over multiple genomic locations like cds, utr) you must also fil the `spread` section.
@@ -24,10 +25,11 @@ Then add the feature type information by adding a paired-value like this:
 ```
 	"bigRNA":"gene",
 ```
-Where `bigRNA`is the feature type and `gene` the parent feature type expected.
-/!\\ For level1 feature type the second value can be:
- * topfeature: feature does not expect children, and will be written first in the sequence
- * standalone: feature does not expect children
+Where `bigRNA`is the feature type and `gene` the parent feature type expected.  
+/!\\ For `level1` feature type the second value can be:  
+
+ * `topfeature`: feature does not expect children, and will be written first in the sequence
+ * `standalone`: feature does not expect children
  * other values do not have any meaning but a value is required, write whatever you want.
 
 ## AGAT throws features out, because child features are not provided

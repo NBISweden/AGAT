@@ -12,15 +12,15 @@ task | tool
 -- | -- 
 **check, fix, pad** missing information into sorted and standardised gff3 | `agat_convert_sp_gxf2gxf.pl`  
 
-      * add missing parent features (e.g. gene and mRNA if only CDS/exon exists).  
-      * add missing features (e.g. exon and UTR).  
-      * add missing mandatory attributes (i.e. ID, Parent).  
-      * fix identifiers to be uniq.  
-      * fix feature locations.  
-      * remove duplicated features.  
-      * group related features (if spread in different places in the file).  
-      * sort features (tabix optional).  
-      * merge overlapping loci into one single locus (only if option activated).  
+    * add missing parent features (e.g. gene and mRNA if only CDS/exon exists).  
+    * add missing features (e.g. exon and UTR).  
+    * add missing mandatory attributes (i.e. ID, Parent).  
+    * fix identifiers to be uniq.  
+    * fix feature locations.  
+    * remove duplicated features.  
+    * group related features (if spread in different places in the file).  
+    * sort features (tabix optional).  
+    * merge overlapping loci into one single locus (only if option activated).  
 
 
   * Convert many formats
@@ -61,5 +61,5 @@ make **function statistics** | `agat_sp_functional_statistics.pl`
 **specificity sensitivity** | `agat_sp_sensitivity_specificity.pl`  
 **fusion / split** analysis between two annotations | `agat_sp_compare_two_annotations.pl`  
 analyze differences between **BUSCO** results | `agat_sp_compare_two_BUSCOs.pl`   
-... and much more ...| ... see [here](https://agat.readthedocs.io/en/latest/) ...
+... and much more ...| ... see [here](../tools/agat_convert_sp_gxf2gxf/) ...
 
