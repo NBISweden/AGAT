@@ -952,7 +952,7 @@ sub manage_one_feature{
 										if(!$last_l1_f and $last_l3_f){ #particular case : Two l3 that follow each other, but first one has locus_tag but not the second
 												dual_print ($log, "::::::::::Push-L3-sequential-2 $last_locusTAGvalue || ".lc($l2_id)." || level3 == ".$feature->gff_string."\n", $verbose) if ($debug);
 												push( @{$infoSequential->{'locus'}{lc($last_locusTAGvalue)}{lc($l2_id)}{'level3'}}, $feature );
-												$infoSequential->{'id'}{lc($l2_id)} = $l2_id;
+												$infoSequential->{'id'}{lc($l2_id)} = $l2_id;#}
 												return $last_locusTAGvalue, $last_l1_f, $last_l2_f, $feature, $feature, $lastL1_new;
 										}
 										else{
@@ -2842,8 +2842,34 @@ sub _deinterleave_sequential{
 	dual_print($log, "$resume_case cases of interleaved locus. ( Features of the locus data are defined earlier in the file.\n", $verbose) if($resume_case);
 }
 
+# Same locus but L3 and L2 have been put in two different buckets because L2 was met later in the file another parent have been created by AGAT
+sub _fixL2andL3inDifferentBucketBecauseL2wasMetLaterInTheFile{
+	my ($infoSequential) = @_;
+	my $resume_case=undef;
+
+	foreach my $locus ( sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}} ){
+		foreach my $bucket (sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}{$locus} } ){
+			if( exists_keys($infoSequential,("locus", $locus, $bucket, 'level3') ) and ! exists_keys($infoSequential,("locus", $locus, $bucket, 'level2') ) ){
+
+				foreach my $bucket2 (keys %{$infoSequential->{'locus'}{$locus}} ){
+					if ($bucket ne $bucket2){
+						if (exists_keys($infoSequential,("locus", $locus, $bucket2, 'level2') ) ){
+							#Push to allow to add different bucket in the level2 bucket
+							foreach my $feature ( @{$infoSequential->{'locus'}{ $locus }{$bucket}{'level3'} } ){
+								push( @{$infoSequential->{'locus'}{lc($locus)}{lc($bucket2)}{'level3'}}, $feature );
+							}
+							delete $infoSequential->{'locus'}{ $locus }{$bucket}{'level3'};
+							if( !%{$infoSequential->{'locus'}{ $locus }{$bucket}} ) {  delete $infoSequential->{'locus'}{ $locus }{$bucket};  }# remove this hash if empty
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 #
-#
+# BUCKET = LOCUS_ID
 # All Level1 feature are for sure in omniscient, we have only the ID in sequential,
 # other level feature are in sequential only if no parent has been found
 sub _check_sequential{ # Goes through from L3 to l1
@@ -2851,12 +2877,12 @@ sub _check_sequential{ # Goes through from L3 to l1
  	my $resume_case_l2=0;
  	my $resume_case_l3=0;
 
-
  	_deinterleave_sequential($infoSequential, $locusTAG_uniq, $verbose, $log); # PART OF LOCUS LOST BEFORE TO MEET ITS L2 or L1 ... we catch them and re-link everything as it should be
+	_fixL2andL3inDifferentBucketBecauseL2wasMetLaterInTheFile( $infoSequential);
 
  	foreach my $locusNameHIS ( sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}} ){ #comon tag was l1 id when no real comon tag present
-
- 		foreach my $bucket (sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}{$locusNameHIS} } ){ #bucket = level1 or Id L2
+				
+		foreach my $bucket (sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}{$locusNameHIS} } ){ #bucket = level1 or Id L2
 
 			dual_print($log, "\nlocusNameHIS $locusNameHIS bucket $bucket\n", $verbose) if($debug);
 
@@ -2865,7 +2891,7 @@ sub _check_sequential{ # Goes through from L3 to l1
  			my $must_create_l2=undef;
  			my $feature_l2 = undef;
 
-			#Bucket is an uniq ID created during the reading process. So it can be used as uniq ID.
+			# NO LEVEL3 FEATURE FOR THIS BUCKET/LOCUS
  			if(! exists_keys($infoSequential,("locus", $locusNameHIS, $bucket, 'level3') ) ){
 
 	 				# Link the l2 to the L1 feature
@@ -2903,6 +2929,7 @@ sub _check_sequential{ # Goes through from L3 to l1
 					#We cannot guess the structure except if it is prokaryote or single exon in eucaryote.
  			}
 
+			# THIS LOCUS HAS LEVEL3 FEATURE
 			else{
  				foreach my $feature_L3 (@{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level3'}} ){
 
@@ -2928,7 +2955,7 @@ sub _check_sequential{ # Goes through from L3 to l1
 				 						}
 			 						}
 		 							$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level2'} = $feature_l2;
-								}
+								} 
 								#If locus_tag check from omniscient if feature has same locus tag
 								elsif ( $common_tag and ( exists_keys($locusTAG_uniq,('topfeature', lc($common_tag) ) ) ) and (! exists_keys($locusTAG_uniq,('topfeature', lc($common_tag),'level1') ) ) ) {
 										my $id_level2 = undef;
@@ -2954,13 +2981,17 @@ sub _check_sequential{ # Goes through from L3 to l1
 
 									#manage primary tag
 									my $primary_tag_l2='RNA';
-									foreach my $feature_L3 (@{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level3'}} ){
+									if ( $feature_l2->has_tag('agat_parent_type') ){
+										$primary_tag_l2 = $feature_l2->_tag_value('agat_parent_type');
+									} else {
+										foreach my $feature_L3 (@{$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level3'}} ){
 
-			 							if ( lc($feature_L3->primary_tag) eq 'cds'){
-			 								$primary_tag_l2 ='mRNA';
-			 								last;
-			 							}
-			 						}
+											if ( lc($feature_L3->primary_tag) eq 'cds'){
+												$primary_tag_l2 ='mRNA';
+												last;
+											}
+										}
+									}
 			 						$feature_l2->primary_tag($primary_tag_l2);
 
 		 							#Manage ID
