@@ -1,4 +1,5 @@
 ##gff-version 3
+##transl_table=4
 Parsed1_mito	AGAT	gene	1	8415	.	-	.	ID=cox1;Name=cox1;locus_tag=cox1
 Parsed1_mito	AGAT	mRNA	1	8415	.	-	.	ID=mRNA_cox1;Parent=cox1;Name=cox1;locus_tag=cox1
 Parsed1_mito	AGAT	exon	1	366	.	-	.	ID=exon_cox1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
