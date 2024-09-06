@@ -608,7 +608,8 @@ sub write_headers{
     if (exists_keys( $omniscient, ('other', 'header') ) ){
       my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
       foreach my $header_line ( @{$omniscient->{'other'}{'header'} } ) {
-        print $gffXtra $header_line;
+		$header_line =~ s/[\r\n]+$//g;
+        print $gffXtra $header_line."\n";
       }
     }
     # to avoid to write again the header later in the file
