@@ -1,0 +1,15 @@
+##gff-version 3
+##transl_table=4
+Parsed1_mito	AGAT	gene	1	8415	.	-	.	ID=cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	mRNA	1	8415	.	-	.	ID=mRNA_cox1;Parent=cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	1	366	.	-	.	ID=exon_cox1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	1558	1920	.	-	.	ID=exon_cox1_1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	3237	3394	.	-	.	ID=agat-exon-1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	5040	5220	.	-	.	ID=agat-exon-2;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	6524	6665	.	-	.	ID=agat-exon-3;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	exon	8021	8415	.	-	.	ID=agat-exon-4;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	intron	367	1557	.	-	.	ID=intron_cox1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	intron	1921	3236	.	-	.	ID=intron_cox1_1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	intron	3395	5039	.	-	.	ID=agat-intron-1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	intron	5221	6523	.	-	.	ID=agat-intron-2;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+Parsed1_mito	AGAT	intron	6666	8020	.	-	.	ID=agat-intron-3;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1

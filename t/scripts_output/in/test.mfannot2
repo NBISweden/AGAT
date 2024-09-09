@@ -1,0 +1,186 @@
+>Parsed1_mito gc=4
+;     G-cox1 <== end
+;     G-cox1-E6 <== end
+     1  TTATGATTGTACAGGTAAATGATTGATATGATGATAATTAGGTGGACAAGGTAAAGTCCA
+    61  TTCTAATGTTGTAGCTGTTTCAGTTGTAGGAACTGTAGGATATGTACTACTGAAAAATGA
+   121  TGGAATATGCCAATAATTATTTGGTAATGGAGTTTTATCTTTATTAGTTAATGTTAAATA
+   181  TAATCCATATATAAAAACAATAGTTGATACTAATGAGATAATTGATCCATATGAAGCAAT
+   241  TAAATTCCATTCTGTATATGCATCTGCATAATCAGGGATTCTTCTAGGCATTCCTGCTAG
+   301  ACCCAAAAAGTGCATTGGGAAGAATGTAATATTAACTCCTATAAACATTGTCCAGAAGTG
+   361  AACTTG
+;     G-cox1-E6 <== start
+;     G-cox1-I5 <== end
+   367  caagtataaattcaaagatgatctaaattatcatcctaattatcactattgataaataat
+   427  caaattcttgtagtgataagtcatgtacctttatttaaggccttatgaataaagctgaac
+   487  aaactttatttatacttcgactgtacattaagcaccttttaggcacccactgatgaccca
+   547  gtctgtagcgatgttgtataccaccgacggtcttgaaatatcaagaataattttattgac
+   607  cgttttcaccagtatcgcttattctaaaatgagtatactttttctatacagattgcagta
+   667  taaattagaataaactttggattgaacttatgactctatattagaaaactttctggttat
+   727  aaa
+;     G-cox1-I5-orf275 <== end
+   730  ttataaacctaatttgtatagcatatcaggatgcatatgtggtaatactaaaggtcttaa
+   790  tatattcataccatcttgaggaatataaagaccatgaacaactttacctgactgtaaagt
+   850  tctagtatgcacagtataatttataccatacaaaaataaaagagctttacctaaaagatg
+   910  tacttccgaaaaagtaaagcaatatgtagaaaaaagaataccattattaagtttataagc
+   970  gtcatcttgaagccaaatagctatagctaatggcgttaaataatcagcgatattagctgg
+  1030  aataatctttatcttattaatataaaacaaagaataaagccaattaaactctttaagagt
+  1090  ataagtattaaattttattgagtaaaatatcttattatatttactactaaatgattcttt
+  1150  aattgaaggaattagagaactacataaacctcttttagcaaaaaagtcatgaatccacaa
+  1210  taaataatttttatttattgctccctgtttaaatgtgaatctcacgttattatgccttga
+  1270  ttctccatgactatctcctagcaaactacctactagaacactaatgacatctttgtcatc
+  1330  actagcattataacctgaaatattaggccttttagttctttcgggacttaatgtgataga
+  1390  agaagctataaaaaataaaaagataaaaagatcatacattaaaacttccttaatactaaa
+  1450  caattttagtggtaataataagataatagcaactcctattagtttcgatatataaataac
+  1510  ctgtctaatatttaatctaattaaattcaatccaattagggcaatatg
+;     G-cox1-I5-orf275 <== start /first_aa=H
+;     G-cox1-I5 <== start /group=ID (5.94e-40)
+;     G-cox1-E5 <== end
+  1558  ACCCCAAAATTCATTATATTGTTTTCCTGTTATTTTACCTATCCAATAATAGAATGCGGC
+  1618  AAATAAAGCAAATACTGCACCCATTGATAAAACATAATGAAAATGTGCTACTACGTAGTA
+  1678  GGTATCATGTAATACAACATCTAATGAAGCATTGGCTAAAATTACACCTGTTAATCCTCC
+  1738  TACTGTAAATAAGAAAATAAATCCTAATGCAAATAATACAGGAGTTTTAAATGTAATATG
+  1798  TCCTCCATAAAATGTAGCTATCCAACTAAATATTTTTATCCCTGTTGGAACAGCAATTAT
+  1858  CATCGTCGCCGCTGTAAAATAAGCCCTAGTATCGACATCTAATCCTACAGTATACATGTG
+  1918  ATG
+;     G-cox1-E5 <== start
+;     G-cox1-I4 <== end
+  1921  caaagtaagtaaatagatcatgtaagattctatttcttatcggactataccttcatcttt
+  1981  taaataatcaatcatagataacgatcaaagatcgttattaatgacctataaggtcgttac
+  2041  aatgataattatttatttttagttattatttatggctaatataaaaaatatctcttaata
+  2101  aatatatgacttttagttatatataagagatattttgtatctatcatata
+;     G-cox1-I4-orf361 <== end
+  2151  ttataatgatcgatctttaattgatgatcattctctgaacgatgatttaggatcattatt
+  2211  attaatagtagaaacaatttttctaatttttattaatccttctaaagttgtatgttcttt
+  2271  taatattattaaatcatatatacttttccattttaaataagaatttttcttttttgtttt
+  2331  taatgaaaaattatcaaaataagaaataacaggaaaaattcctataaatgtattattaat
+  2391  atatctatatacactattagttttatttcttaaagtaatatgaccaaatccaaaaatatt
+  2451  tttaatatgttcaaaaaaatttaatgcatctttctgatcaaggataaatctaagttgaac
+  2511  cctatatccagtaaaagtattaattctttttgtaatattaacattaaaacatccttctgc
+  2571  atctgtaaaacctgatagccaagcatcagaaagagaaggtaaaatgggtcttgagataaa
+  2631  aattagagctcttgaatcaaataagaaaataaatttattatataaaagagaaccaggtgt
+  2691  atttaatttcttatttaaatggatagcccattgttcaagttgattaattctatgaggaag
+  2751  aactaaattaccattaaataaatgaaaaagaataagaatgttaatataatcatcaacgat
+  2811  aaatctataaacattagatttaacatcaaaaataacattaccaaatcctaaaatttcttg
+  2871  aatatgaagtaaaattgcttcttctttttgagttagaattaatctaagtctatcctttaa
+  2931  tattaatatagcaccatctccttcaacaaatcctataaaccaagttaaccagttattatc
+  2991  tatcttttgaattttattatcatatttagccataaatatttttctaaaattatgaaaatt
+  3051  aaaagatgttttacatctagtctctaaggattttgtcttatttaaagacagttttcctgc
+  3111  ttgtttagtattttgattaggattttcactactcataagagaagtacctatcaataaaaa
+  3171  actgttcaagcatattgtaaaatctttactatttatatcactataaaagggagccatcat
+  3231  catatg
+;     G-cox1-I4-orf361 <== start /first_aa=H /note=LAGLIDADG ;; evalue:1.8e-44
+;     G-cox1-I4 <== start /group=IB (1.46e-17)
+;     G-cox1-E4 <== end
+  3237  ACTCCAAACTATAAATCCTAATATACCAATAGATAACATAGCATAAACCATTCCTAAATA
+  3297  ACCAAAAACAGGTTTTCTAGCAAATGTTGATACTACGTGACTAATTATACCAAATCCAGG
+  3357  AATAATTAAGATATACACTTCAGGGTGTCCAAAAAACC
+;     G-cox1-E4 <== start
+;     G-cox1-I3 <== end
+  3395  catattcttaaatctttataaaatctataacaagattcatctctataaagatttatgtac
+  3455  ttctttaattttcctctcttccttatttaaccactatcaataagtttcaggatcatatca
+  3515  ttagaagccttgtaaaatgactaattgtaaaatataaaaagtcattcaagaatatcgact
+  3575  gtacattaagcatcatttcagacacccacaaaagacccagtctgtagcgatgtttattat
+  3635  caccgacggtcttagtttagatgaaaacttttaaccgttttcttttgtatcgccaagaga
+  3695  taaaattctcttaataccctgtcaggtattatgttataataaacttttaagtttattttt
+  3755  ttttccttaataaagttgcaagaaatgattatagattataattataacatgactaagatt
+  3815  atggtaaataagataaacttttttaaataaaaagatttttatatctcatatattttcatt
+  3875  aattaaggtcttaaaaaaagatatataaccttagcatttgccttaattaatttcaatgat
+  3935  ttacaccataccacatcttttattcccgatttttaatcaacccaaagtatataaattaat
+  3995  catcttaaagatcttatgaatactatttttacatggaaatcata
+;     G-cox1-I3-orf303 <== end
+  4039  ttatttattaatttgtgcagcttttaattttaataaagctcttttttcagaaattaaatg
+  4099  ttcttgtaataaaacagatgcatgaatttccttaaaaagaattaaactattagctttttt
+  4159  acttttaagaggaaatttattaaaatatggaaaacatttagaaacatttttagctccatt
+  4219  caattcaaaagtaaatactcctttaattgaatgaggatctaatctaccagctgaaaacaa
+  4279  tttaactaaataacctaaaataattgcattcatggcatatttttgagatataagatattt
+  4339  cattctaaaagctttagagttctctaaaaaagaacaagtaaaacaaccttcagcatcagt
+  4399  aaatcctgataaccaagcagtttctaaactaggtaacatctttgtattgattggatcaat
+  4459  actatttaaaattaattgaccatttgtaacccattgattaaatgattttaaaactaaata
+  4519  aaattgatcagatttagaaggtaatattatattaccattaaataaatgcataatcataga
+  4579  catacattttttatcttgaactataaatcttaaagtattttgttctatactttgtattat
+  4639  tattttaccaaaaccaagaacttcttgtattgtttttagaatttctagatctgcactatt
+  4699  ttgtgttataacaaattgacatgatccatctcttgttatagtaaatatagatccatcacc
+  4759  ttcaacaaatccaattaaccattctaaaaaagattcaggtggtaaaggtctagaaccttc
+  4819  aaaataattattatattctttataaaaagctgtaaaatcaaattttgttttatataaatt
+  4879  aggatctaaattcatagttgcttctcttaatgtttgtaaattattaagaccttcttgttt
+  4939  ccaccagatcat
+;     G-cox1-I3-orf303 <== start /note=LAGLIDADG ;; evalue:9.2e-45
+  4951  ttttattgatccatatgttattaattctgaaataatattagtaccaggagataaaatttc
+  5011  ttaggttagaaataagtggtataattttg
+;     G-cox1-I3 <== start /group=ID (7.22e-41)
+;     G-cox1-E3 <== end
+  5040  AGAATAAATGCTGATATAAAACAGGATCACCTCCTCCTGCTGGATCATAAAATGTAGTAT
+  5100  TTAAATTTCTATCTGTTAATAACATAGTAATAGCACCTGCTAATACTGGTAATGATAATA
+  5160  ATAATAAAACAGCTGTAATTAAAACAGCCCAAACAAATAATGGTAATTTATGCATTGTCA
+  5220  T
+;     G-cox1-E3 <== start
+;     G-cox1-I2 <== end
+  5221  caaattatcgatttattttaataaaccgctggactttatttttaagaaaataatttcttg
+  5281  ttttgcgtatagtctctgaggatcctatttcacataaaaggaacataagttttaagaatt
+  5341  taaaagatttatatgtgtttagtttcctgctgattgcccattgtaacatatttaaaattt
+  5401  taacgaaagataaaacttctcgtatttaaatctttaggagtttccagcatatagcaaaaa
+  5461  taaggttttttataaattgagagcaaacttaaaataaaaaagtagaggttaaattaggta
+  5521  ataattaaaaaagacctctccttaaaatttaaattaagaaaccaaccgggtataactgta
+  5581  atgcataaattaaaaccataaaggtatttttgttaatgatgatcaaagatcgttacgatc
+  5641  ctcattaatgacgatcgttataatatatcagagatatattattaaaaattaa
+;     G-cox1-I2-orf276 <== end
+  5693  ttataaacctaacttataaagcattgaagaatgcataaaaggtaatactaaatcaataaa
+  5753  cgtttgtctaaattttgcaggcacaaaaattcttttttgagaatttgaacctgaaacagg
+  5813  tttaagtttagcagtaataccaaaattactttgtaatgcatccaataataattgtaatcc
+  5873  ttccatattgaaactttgagtatttaaataaataccaccattataataatgtccatcatc
+  5933  cattatccaatgagctaaagcaagaggtgttagaagagaactaatatttaaagggacaac
+  5993  tttagttcttttgttattaatctctttatagaaaatagaatttaacatattaatttccaa
+  6053  agtatagtaaaaagaagtagaaacaagtaagagaatccctatatgagtagtattagttct
+  6113  tgtatcaaatgacttgtctaatgaaggtgaacctgtagtaagccatggtttaagaataag
+  6173  atacatataagttaaatatttgatatttggcaaaccttgtttaaatctataagtatattt
+  6233  agctctaccagatttactaatagatgcatcacctaacaatgtaccaacaagaacagatct
+  6293  aatatcttttctaacattatctatctgagttgaactagtagtttcagtagcaagagaatc
+  6353  ttttatatatatcaatcctgatggttgtttagcacttaataagataaaattataaagaat
+  6413  gaattctattactatattaaatgaaaaaataataatatcaacataaagtaaaacaaaata
+  6473  actaaataatgaaaataaataaaggactaaaaatccaataatataaactct
+;     G-cox1-I2-orf276 <== start /first_aa=R
+;     G-cox1-I2 <== start /group=IB (2.36e-19)
+;     G-cox1-E2 <== end
+  6524  ACCCGGAGCTCTCATATTTAAAATTGTAGTAATAAAGTTAATAGCACCTAACATTGATGA
+  6584  TATACCAGCTAAGTGTAAACTAAAAATAGCTAAGTCAACTGAACCACCTGAATGAAAACC
+  6644  AATTGAAGCTAGAGGAGGATAG
+;     G-cox1-E2 <== start
+;     G-cox1-I1 <== end
+  6666  caatatatgttggttattatagataataatgatatacggtgatatctttattataattaa
+  6726  tagagataattaaaggttatatttaatattatttatctcttgtcattatatcttatataa
+  6786  cacacaattattctcataattgttcggactatgccttaatctttcttaaataatatatta
+  6846  agaaatatttattagatattaattagtaattataaagaagattttaaatctgaaatttta
+  6906  aaaatgtatattaaatatataaatctattatacttaatatacattttattataataaaaa
+  6966  c
+;     G-cox1-I1-orf350 <== end
+  6967  ctactttttaataaaatttttagtatctctaaattttcttaacattttttgataaaatat
+  7027  taatttttctctgtctttagaattgttataatatactgcttgagaccaaattttatattc
+  7087  tgtaaacttgttacttattagtatatttctaaaataattcataataatattaatagatac
+  7147  tttattagttgtatctaattgacatttagatgtataaattctaactttagaatttatctt
+  7207  aaatatcattctaagacattcaaatatgtggaaatctaatttttgactaaatccaaatcc
+  7267  tggagataatctttttccttctttaactgtaatataaaatgatccatcaccttcagtaaa
+  7327  acctcctacccagtgagggttaagaaataattttactttttccttattagataaatctaa
+  7387  attagaccatgctgaagatttataatcactaggaatgtttttcatcttatctcttataat
+  7447  tgttatttgagtaactctctcatttaaaggtaaattagattcccatatttctaacccttt
+  7507  taaccacagattaaatctatacgatttagaagttaataaaggtaattgattaaatatagg
+  7567  tattattactttttttaataatactctatctctaattctaaatttcctcatatttcctcc
+  7627  tgatttatctactgatcctattcctaatactgattttacataataaagtatttttacatt
+  7687  atacagatgttgatctaaatgaaatgtccaaacaaacttattctttccagttttttcaat
+  7747  tgaaaaccctccatctgcatctgtaaatcctactaaccaaacacaaaatttaaataattc
+  7807  tgaatgtttatttgaaagattttccgtatttagtctctgaggagcattaaaatctttgtt
+  7867  taatacccctgcaaatgatccacatgttaagaacgttatcacatcctcattaaaaaggta
+  7927  tgtagttccatataataaatggacttctttgcatagaacggaattattcatatatatctt
+  7987  accatatatagcagtcttatcctttaaaatttc
+;     G-cox1-I1-orf350 <== start /first_aa=E /note=LAGLIDADG ;; evalue:1.4e-59
+  8020  g
+;     G-cox1-I1 <== start /group=IB (1.03e-15)
+;     G-cox1-E1 <== end
+  8021  ACTGTCCACCCTGTACCTGCTCCTTGCTCAACGAATGCTGATCCTATTAATAAAATTAAT
+  8081  GATGGTGGCAATAACCAAAAACTGATATTATTCAACCTTGGAAAAGCCATATCAGGGCTA
+  8141  CCTATCATTATTGGAACAAAAAAATTTCCAAATCCTCCAATTAAAGCAGGCATAACCATA
+  8201  AAGAAAATCATAATAAATGCATGAGCTGTAATAATAACATTATACAATTGATGATCACCA
+  8261  TGTAAAAATTGTACACCTGGACCTGCTAATTCTAATCTAATTAAAATTGAAAAAGCTGTA
+  8321  CCAATCATACCTGCAAATATAGCGAATATTAAATATAATACTCCTATATCTTTAGCATTA
+  8381  GTTGAAAATAACCATCTTAAAATATATTTATTCAT
+;     G-cox1-E1 <== start
+;     G-cox1 <== start

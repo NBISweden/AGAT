@@ -41,6 +41,7 @@ level1:
   est_match: 1
   expressed_sequence_match: 1
   gene: 1
+  group_ii_intron: standalone
   hat_tir_transposon: standalone
   helitron: standalone
   insulator: standalone
@@ -61,6 +62,7 @@ level1:
   non_allelic_homologous_recombination_region: standalone
   nucleotide_motif: 1
   nucleotide_to_protein_match: 1
+  orf: 1
   pif_harbinger_tir_transposon: standalone
   pirna_gene: 1
   polypeptide: 1
@@ -203,7 +205,7 @@ spread:
    stop_codon: 1
    three_prime_utr: 1
    utr: 1
-   uORF: 1
+   uorf: 1
    3utr: 1
    5utr: 1
 

@@ -1,14 +1,13 @@
 #!/usr/bin/env perl
 
-# Convert Mfannot output file to GFF3 format
-# kbseah@mpi-bremen.de      2015-04-01
-# modified by jacques dainat: jacques.dainat@nbis.se
-
 use strict;
 use warnings;
 use Getopt::Long;
 use Pod::Usage;
 use AGAT::AGAT;
+use AGAT::OmniscientTool;
+use AGAT::OmniscientO;
+use AGAT::OmniscientI;
 
 my $header = get_agat_header();
 my $config;
@@ -19,15 +18,16 @@ my %startend_hash;     # Stores start and end positions of each feature reported
 my %sorted_hash;
 my %hash_uniqID;
 my %filtered_result;
-my %gencode_hash;
+my $omniscient={}; #Hash where all the features will be saved
+my $hashID={}; # ex %miscCount;# Hash to store any counter.
 
 GetOptions(
-    'mfannot|m|i=s' => \$mfannot_file,
-    'gff|g|o=s' => \$gff_file,
-		'v|verbose!' => \$verbose,
-    'c|config=s'               => \$config,
-    'h|help' => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
-    'man' => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
+    'mfannot|m|i=s'  => \$mfannot_file,
+    'gff|g|o=s'      => \$gff_file,
+	'v|verbose!'     => \$verbose,
+    'c|config=s'     => \$config,
+    'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
+    'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );
 
 if (!defined $mfannot_file) {
@@ -41,10 +41,14 @@ $config = get_agat_config({config_file_in => $config});
 my $gffout = prepare_gffout($config, $gff_file);
 
 ## MAIN ##############################################################
-
 read_mfannot($mfannot_file);
-sort_result();
-write_gff();
+
+handle_records();
+
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient,
+                                                                 config => $config });
+
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 ## SUBROUTINES #######################################################
 
@@ -55,377 +59,339 @@ sub read_mfannot {
     my $writeflag=0;
     my $previousDirection=undef;
     my $previousStartEnd=undef;;
-		my $previousIntron=undef;
-		my $previousRnl=undef;
-		my $previousRns=undef;
-		my $position=0;
+	my $previousIntron=undef;
+	my $previousRnl=undef;
+	my $previousRns=undef;
+	my $position=0;
 
     open(INPUT, "<", "$_[0]") or die ("$!\n");
     # Open Mfannot file for reading
     while (<INPUT>) {
         chomp;
-
+		#print "reading $_  ++\n";
         if ($_ =~ /^>(.*) gc=(\d+)/) {
             # If a header line, update the current contig and genetic code
             ($current_contig, $current_genetic_code) = ($1, $2);
             $current_pos=1; # Reset the position counter
-            $gencode_hash{$current_contig} = $current_genetic_code;
-        }
+			if (! exists_keys($omniscient,("other","header")) ){
+				push @{$omniscient->{"other"}{"header"}}, "##transl_table=".$current_genetic_code;
+			}
+		}
         elsif ($_ =~ /^\s*(\d+)\s+([ATCGatcgNn]+)/) {
+			print "DNA sequence line\n" if ($verbose);
             # If line is a numbered sequence line
             my ($pos_begin,$seqline) = ($1, $2);   # Sequence position
             $current_pos = length($seqline) + $pos_begin - 1;
         }
-        elsif ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;; mfannot:\s+(\/group=.*)/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
+        elsif ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;; mfannot:\s+(\/group=.*)/) or ($_ =~ /^;; mfannot:$/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
+			print "Feature line\n" if ($verbose);
+			if ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
 
-					if ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
+				# If line is a feature boundary, save that information
+				my @splitline = split /\s/, $1;
+				my $current_name = $splitline[0];
+				my $current_direction = $splitline[1];
+				my $current_startend = $splitline[2];
+				my $type = undef;
 
-						# If line is a feature boundary, save that information
-            my @splitline = split /\s/, $1;
-						my $current_name = $splitline[0];
-						my $current_direction = $splitline[1];
-						my $current_startend = $splitline[2];
+				if ($previousIntron){
+					$type = "group_II_intron";
+					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
+							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
+							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
+							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+					}
+					else { 
+						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
+					}
+					$previousIntron = undef;
+				}
 
-						if ($previousIntron){
-							if (defined $startend_hash{$current_contig}{$previousIntron}{"end"}{0}) {
-									my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{"end"}};
-									$startend_hash{$current_contig}{$previousIntron}{"end"}{$i} = $current_pos;
-									print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-							}
-							else { $startend_hash{$current_contig}{$previousIntron}{"end"}{0} = $current_pos; }
-							$previousIntron = undef;
-						}
+				if ($previousRns){
+					$type = "rRNA";
+					if (defined $startend_hash{$current_contig}{$previousRns}{$type}{"end"}{0}) {
+							my $i = keys %{$startend_hash{$current_contig}{$previousRns}{$type}{"end"}};
+							$startend_hash{$current_contig}{$previousRns}{$type}{"end"}{$i} = $current_pos;
+							print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+					}
+					else { $startend_hash{$current_contig}{$previousRns}{$type}{"end"}{0} = $current_pos; }
+					$previousRns = undef;
+				}
 
-						if ($previousRns){
-							if (defined $startend_hash{$current_contig}{$previousRns}{"end"}{0}) {
-									my $i = keys %{$startend_hash{$current_contig}{$previousRns}{"end"}};
-									$startend_hash{$current_contig}{$previousRns}{"end"}{$i} = $current_pos;
-									print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-							}
-							else { $startend_hash{$current_contig}{$previousRns}{"end"}{0} = $current_pos; }
-							$previousRns = undef;
-						}
+				if ($previousRnl){
+					$type = "rRNA";
+					if (defined $startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{0}) {
+							my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{$type}{"end"}};
+							$startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{$i} = $current_pos;
+							print "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+					}
+					else { $startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{0} = $current_pos; }
+					$previousRnl = undef;
+				}
 
+				# --- NOT PREVIOUSLY DEFINED ---
+
+				# --- RNL RNS lines ---
+				if( $current_startend eq ";;"){ #rns rnl cases
+
+					if( $current_name eq "rnl"){	
 						if ($previousRnl){
-							if (defined $startend_hash{$current_contig}{$previousRnl}{"end"}{0}) {
-									my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{"end"}};
-									$startend_hash{$current_contig}{$previousRnl}{"end"}{$i} = $current_pos;
+							if (defined $startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{0}) {
+									my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}};
+									$startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{$i} = $current_pos;
 									print "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
 							}
-							else { $startend_hash{$current_contig}{$previousRnl}{"end"}{0} = $current_pos; }
+							else { $startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{0} = $current_pos; }
 							$previousRnl = undef;
-						}
-
-						# gene lines
-            if ($current_direction eq "<==" && $current_startend eq "start" ) {
-                if (defined $startend_hash{$current_contig}{$current_name}{"start"}) {
-
-                    if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
-                        my $i = keys %{$startend_hash{$current_contig}{$current_name}{"start"}};
-                        $startend_hash{$current_contig}{$current_name}{"start"}{$i-1} = $current_pos;
-                        print "11 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                        next;
-                    }
-
-                    my $i = keys %{$startend_hash{$current_contig}{$current_name}{"start"}};
-                    $startend_hash{$current_contig}{$current_name}{"start"}{$i} = $current_pos;
-                    print "1 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                }
-                else { $startend_hash{$current_contig}{$current_name}{"start"}{0} = $current_pos; }
-            }
-            elsif ($current_direction eq "==>" && $current_startend eq "end" ) {
-                if (defined $startend_hash{$current_contig}{$current_name}{"end"}{0}) {
-
-                    if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
-                        my $i = keys %{$startend_hash{$current_contig}{$current_name}{"end"}};
-                         $startend_hash{$current_contig}{$current_name}{"end"}{$i-1} = $current_pos;
-                         print "22 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                         next;
-                    }
-
-                    my $i = keys %{$startend_hash{$current_contig}{$current_name}{"end"}};
-                    $startend_hash{$current_contig}{$current_name}{"end"}{$i} = $current_pos;
-                    print "2 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                }
-                else { $startend_hash{$current_contig}{$current_name}{"end"}{0} = $current_pos; }
-
-            }
-            elsif ($current_direction eq "==>" && $current_startend eq "start") {
-                if (defined $startend_hash{$current_contig}{$current_name}{"start"}{0}) {
-
-                    if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
-                        print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                        next;
-                    } #keep the first key and the first value
-
-                    my $i = keys %{$startend_hash{$current_contig}{$current_name}{"start"}};
-                    $startend_hash{$current_contig}{$current_name}{"start"}{$i} = $current_pos + 1;
-                    print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                }
-                else { $startend_hash{$current_contig}{$current_name}{"start"}{0} = $current_pos + 1; }
-            }
-            elsif ($current_direction eq "<==" && $current_startend eq "end") {
-                if (defined $startend_hash{$current_contig}{$current_name}{"end"}{0}) {
-
-                    if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
-                    print "44 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                    next;
-                    } #keep the first key and the first val
-
-                    my $i = keys %{$startend_hash{$current_contig}{$current_name}{"end"}};
-                    $startend_hash{$current_contig}{$current_name}{"end"}{$i} = $current_pos + 1;
-                    print "4 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-                }
-                else { $startend_hash{$current_contig}{$current_name}{"end"}{0} = $current_pos + 1; }
-            }
-
-						# rnl rns lines
-						elsif( $current_startend eq ";;"){ #rns rnl cases
-							if( $current_name eq "rnl"){
-								if ($previousRnl){
-									if (defined $startend_hash{$current_contig}{$previousRnl}{"end"}{0}) {
-											my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{"end"}};
-											$startend_hash{$current_contig}{$previousRnl}{"end"}{$i} = $current_pos;
-											print "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-									}
-									else { $startend_hash{$current_contig}{$previousRnl}{"end"}{0} = $current_pos; }
-									$previousRnl = undef;
-									next;
-								}
-
-								if (defined $startend_hash{$current_contig}{$current_name}{"start"}{0} ) {
-										my $i = keys %{$startend_hash{$current_contig}{$current_name}{"start"}};
-										$startend_hash{$current_contig}{$current_name}{"start"}{$i} = $current_pos + 1;
-										print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-								}
-								else { $startend_hash{$current_contig}{$current_name}{"start"}{0} = $current_pos + 1;}
-								$previousRnl=$current_name;
-							}
-
-							if( $current_name eq "rns"){
-								if ($previousRns){
-									if (defined $startend_hash{$current_contig}{$previousRns}{"end"}{0}) {
-											my $i = keys %{$startend_hash{$current_contig}{$previousRns}{"end"}};
-											$startend_hash{$current_contig}{$previousRns}{"end"}{$i} = $current_pos;
-											print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-									}
-									else { $startend_hash{$current_contig}{$previousRns}{"end"}{0} = $current_pos; }
-									$previousRns = undef;
-									next;
-								}
-
-								if (defined $startend_hash{$current_contig}{$current_name}{"start"}{0} ) {
-										my $i = keys %{$startend_hash{$current_contig}{$current_name}{"start"}};
-										$startend_hash{$current_contig}{$current_name}{"start"}{$i} = $current_pos + 1;
-										print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-								}
-								else { $startend_hash{$current_contig}{$current_name}{"start"}{0} = $current_pos + 1;}
-								$previousRns=$current_name;
-							}
-
-						}
-            else { print STDERR "Exception to possible combination of feature boundaries and directions: $_ \n"; }
-            $previousDirection=$current_direction;
-            $previousStartEnd=$current_startend;
-					}
-
-					# intron lines
-					if ($_ =~ /^;; mfannot:\s+\/(group=.*)/) {
-
-						if ($previousIntron){
-							if (defined $startend_hash{$current_contig}{$previousIntron}{"end"}{0}) {
-									my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{"end"}};
-									$startend_hash{$current_contig}{$previousIntron}{"end"}{$i} = $current_pos;
-									print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
-							}
-							else { $startend_hash{$current_contig}{$previousIntron}{"end"}{0} = $current_pos; }
-							$previousIntron = undef;
 							next;
 						}
 
-						if (defined $startend_hash{$current_contig}{$1}{"start"}{0} ) {
-								my $i = keys %{$startend_hash{$current_contig}{$1}{"start"}};
-								$startend_hash{$current_contig}{$1}{"start"}{$i} = $current_pos + 1;
-								print "Feature ". $1. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						if (defined $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} ) {
+								my $i = keys %{$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}};
+								$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{$i} = $current_pos + 1;
+								print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
 						}
-						else { $startend_hash{$current_contig}{$1}{"start"}{0} = $current_pos + 1;}
-						$previousIntron=$1;
-	        }
+						else { $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} = $current_pos + 1;}
+						$previousRnl=$current_name;
+					}
+
+					if( $current_name eq "rns"){
+						if ($previousRns){
+							if (defined $startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{0}) {
+									my $i = keys %{$startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}};
+									$startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{$i} = $current_pos;
+									print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							}
+							else { $startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{0} = $current_pos; }
+							$previousRns = undef;
+							next;
+						}
+
+						if (defined $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} ) {
+								my $i = keys %{$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}};
+								$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{$i} = $current_pos + 1;
+								print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						}
+						else { $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} = $current_pos + 1;}
+						$previousRns=$current_name;
+					}
+
 				}
-    }
-    close(INPUT);
+
+				#  --- GENE lines ----
+
+				elsif ( ( $current_direction eq "<==" or $current_direction eq "==>" )  && ( $current_startend eq "end" or $current_startend eq "start" ) ) {
+					
+					# Try to better define name and detect type of the feature
+					my @split_current_name = split /-/, $current_name;
+					# More than one element in the array
+					if ($#split_current_name > 0){
+						if ($split_current_name[1] =~ /^I/){ $type="intron";}
+						elsif ($split_current_name[1] =~ /^E/){ $type="exon";}
+						$current_name=$split_current_name[0]; # remove the -I or -E from the genename
+					}
+					elsif ($current_name =~ /^orf/){ $type="orf";}
+					elsif ($current_name =~ /^trn/){ $type="tRNA";}
+					else { $type="mRNA";}
+
+
+					
+					if ($current_direction eq "<==" && $current_startend eq "start" ) {
+
+						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"start"}) {
+							
+							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
+								my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
+								$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i-1} = $current_pos;
+								print "11 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								next;
+							}
+
+							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
+							$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i} = $current_pos;
+							print "1 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						}
+						else { $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0} = $current_pos; }
+					}
+					elsif ($current_direction eq "==>" && $current_startend eq "end" ) {
+
+						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0}) {
+
+							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
+								my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
+								$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i-1} = $current_pos;
+								print "22 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								next;
+							}
+
+							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
+							$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i} = $current_pos;
+							print "2 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						}
+						else { $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0} = $current_pos; }
+
+					}
+					elsif ($current_direction eq "==>" && $current_startend eq "start") {
+						my $value = ($current_pos == 1) ? $current_pos : $current_pos + 1;
+						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0}) {
+
+							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
+								print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								next;
+							} #keep the first key and the first value
+
+							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
+							$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i} = $value;
+							print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						}
+						else { $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0} = $value; }
+					}
+					elsif ($current_direction eq "<==" && $current_startend eq "end") {
+						my $value = ($current_pos == 1) ? $current_pos  : $current_pos + 1;
+						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0}) {
+
+							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
+							print "44 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							next;
+							} #keep the first key and the first val
+
+							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
+							$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i} = $value;
+							print "4 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						}
+						else { $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0} = $value; }
+					}
+				}
+				# --- COMBINATION UNKNOW ---
+				else { 
+					print STDERR "Exception to possible combination of feature boundaries and directions: $_ \n"; 
+				}
+
+				$previousDirection=$current_direction;
+				$previousStartEnd=$current_startend;
+			}
+
+			# --- INTRON lines ---
+			if ($_ =~ /^;; mfannot:\s+\/(group=.*)/) {
+				my $type = "group_II_intron";
+
+				if ($previousIntron){
+					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
+							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
+							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
+							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+					}
+					else { 
+						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
+					}
+					$previousIntron = undef;
+					next;
+				}
+
+				if (defined $startend_hash{$current_contig}{$1}{$type}{"start"}{0} ) {
+						my $i = keys %{$startend_hash{$current_contig}{$1}{$type}{"start"}};
+						$startend_hash{$current_contig}{$1}{$type}{"start"}{$i} = $current_pos + 1;
+						print "Feature ".$1. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+				}
+				else { 
+					$startend_hash{$current_contig}{$1}{$type}{"start"}{0} = $current_pos + 1;
+				}
+				$previousIntron=$1;
+			}
+			elsif ($_ =~ /^;; mfannot:$/) {
+				my $type = "group_II_intron";
+				if ($previousIntron){
+					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
+							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
+							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
+							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+					}
+					else { 
+						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
+					}
+					$previousIntron = undef;
+					next;
+				}
+			}
+		}
+	}
+	close(INPUT);
 }
 
-sub sort_result {
+# Gene have exon defined and global feature which we define as mRNA
+# tRNA have single exon defined and global feature which we define as level2 tRNA
+# orf are single exon feature defined as level2 orf
+sub handle_records {
 
 	my $gene_uniqid=0;
-	foreach my $contig (keys %startend_hash){
-		foreach my $name (keys %{$startend_hash{$contig}} ){
-			foreach my $nb ( keys %{$startend_hash{$contig}{$name}{'start'}} ){
-				my $start = $startend_hash{$contig}{$name}{'start'}{$nb};
-				my $end = $startend_hash{$contig}{$name}{'end'}{$nb};
-				my $featuredir = "+";
-				if ( $start > $end) {
-						$featuredir = "-";
-						my $tmpstart=$start;
-						$start = $end;
-						$end = $tmpstart;
-				}
+	foreach my $contig (sort keys %startend_hash){
+		foreach my $name (sort keys %{$startend_hash{$contig}} ){
 
-				my $parent = undef;
-				my $type = undef;
-				my $gene_id = undef;
-				my $gene_name = $name;
-				if ($name =~ /^rnl/ | $name =~ /^rns/) { $type="rRNA"; }
-				elsif ($name =~ /^trn/) { $type = "tRNA"; }
-				elsif ($name =~ /^group/){$type = "group_II_intron";}
-				elsif ($name =~ /^(\w+)-I\w+/){$type="intron"; $parent=$1; $gene_name=$1; $gene_id = $1;}
-				elsif ($name =~ /^(\w+)-E\w+/){$type="exon"; $parent=$1; $gene_name=$1; $gene_id = $1;}
-				else {$type="mRNA"; $gene_name=$name; $gene_id = $1;}
+			my $gene_name = $name;
+			if ($name =~ /(_[0-9]+)/) {
+				my @splitline = split /_/, $name;
+				$gene_name = $splitline[0];
+			}
 
-				if (! $gene_id ){$gene_id = $gene_uniqid++;}
+			foreach my $type ( sort keys %{$startend_hash{$contig}{$name}} ){
 
-				my %hash_value = (
-					start => $start,
-					end => $end,
-					strand => $featuredir,
-					type  => $type,
-					parent => $parent,
-					name => $name,
-					gene_name => $gene_name
-				);
+				# for each subfeature e.g. exon 0,1,2
+				foreach my $nb ( sort keys %{$startend_hash{$contig}{$name}{$type}{'start'}} ){
+					#get the start and end of the feature
+					my $start = $startend_hash{$contig}{$name}{$type}{'start'}{$nb};
+					my $end = $startend_hash{$contig}{$name}{$type}{'end'}{$nb};
+					# get the strand
+					my $featuredir = "+";
+					if ( $start > $end) {
+							$featuredir = "-";
+							my $tmpstart=$start;
+							$start = $end;
+							$end = $tmpstart;
+					}
+					
+					# Shift to exon for allowing multiple exons genes
+					my $realType = $type;											
+					if ($type eq "rRNA"){
+						$realType = "exon";
+					}
 
+					# Create unique ID
+					my $id = $realType."_".$name;
+					if(! exists_keys($hashID,($id)) ){
+						$hashID->{$id}++;
+					}
+					else {
+						$id = $id."_".$hashID->{$id};
+						$hashID->{$id}++;
+					}
+					
+					# create feature
+					my $feature = Bio::SeqFeature::Generic->new(-seq_id => $contig,
+																-source_tag => "AGAT",
+																-primary_tag => $realType,
+																-start => $start,
+																-end => $end ,
+																-frame => ".",
+																-strand => $featuredir,
+																-tag => {'ID' => $id, 'Name' => $gene_name, 'locus_tag' => $name }
+																) ;
+					
+					if ($type eq "rRNA"){
+						create_or_replace_tag($feature , "agat_parent_type", $type)
+					}
 
+					if ($realType eq "mRNA" or $realType eq "tRNA"  or $realType eq "rRNA" or $realType eq "orf" ){
+						push (@{$omniscient->{"level2"}{$realType}{lc($name)}}, $feature);
+					} else {
+						push (@{$omniscient->{"level3"}{$realType}{lc($name)}}, $feature);
 
-				push ( @{$filtered_result{ $contig }{ $gene_id }{ lc($type) }}, {%hash_value} );
-
-				if ($type ne "intron" and $type ne "exon"){
-					$sorted_hash{$contig}{"$start$end$name"} =  $gene_id; # to print the features sorted
+					}	
 				}
 			}
 		}
 	}
 }
 
-sub write_gff {
-
-		foreach my $current_contig ( sort keys %filtered_result ){
-      foreach my $uniqid ( sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 0) } keys %{$sorted_hash{$current_contig}}) {
-				my $gene_name = $sorted_hash{$current_contig}{$uniqid};
-
-					# mRNA can have exon or not (If none we create one)
-					if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'mrna')) ){
-						write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'mrna'});
-						if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'exon')) ){
-							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'exon'});
-						}
-						# create exon because none exists
-						else{
-							my $mrna_hash = $filtered_result{$current_contig}{$gene_name}{'mrna'}[0];
-
-							my %hash_value = (
-								start => $mrna_hash->{'start'},
-								end => $mrna_hash->{'end'},
-								strand => $mrna_hash->{'strand'},
-								type  => 'exon',
-								parent => $mrna_hash->{'name'},
-								name => $mrna_hash->{'name'},
-								gene_name => $mrna_hash->{'gene_name'}
-							);
-							write_feature($current_contig, [\%hash_value] );
-						}
-						if (exists_keys (\%filtered_result, ($current_contig, $gene_name, 'intron')) ){
-							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{'intron'});
-						}
-					}
-					# Other than mRNA
-					else{
-						foreach my $type ( keys %{$filtered_result{$current_contig}{$gene_name}}) {
-
-							write_feature($current_contig, $filtered_result{$current_contig}{$gene_name}{$type});
-
-							#create exon for other feature than group_ii_intron
-							if ( lc($type) ne "group_ii_intron" ) {
-								my @list_hashes;
-								foreach my $other_hash ( @{$filtered_result{$current_contig}{$gene_name}{$type} }){
-
-									my %hash_value = (
-										start => $other_hash->{'start'},
-										end => $other_hash->{'end'},
-										strand => $other_hash->{'strand'},
-										type  => 'exon',
-										parent => $other_hash->{'id'},
-										name => $other_hash->{'name'},
-										gene_name => $other_hash->{'gene_name'}
-									);
-									push @list_hashes, {%hash_value};
-								}
-
-								write_feature($current_contig, \@list_hashes );
-							}
-						}
-					}
-      }
-		}
-}
-
-
-sub write_feature{
-	my ($contig, $list)=@_;
-
-	foreach my $hash ( sort {$a->{'start'} <=> $b->{'start'}} @{$list} ) {
-
-		# deal with frame
-		my $frame;
-		if ($hash->{'type'} eq "CDS") { $frame="0"; }
-		else { $frame = "."; }
-
-		#ID and Parent
-		my $uniqID = create_uniq_id($hash->{'type'});
-		$hash->{'id'} = $uniqID;
-		my $mandatory = undef;
-		if( defined ($hash->{'parent'} ) ){
-			$mandatory = "ID=$uniqID;Parent=$hash->{'parent'}";
-		}
-		else{
-			$mandatory = "ID=$uniqID";
-		}
-
-		my $feature = Bio::SeqFeature::Generic->new(-seq_id => $contig,
-																								-source_tag => "mfannot",
-																								-primary_tag => $hash->{'type'},
-																								-start => $hash->{'start'},
-																								-end => $hash->{'end'} ,
-																								-frame => $frame,
-																								-strand => $hash->{'strand'},
-																								-score => ".",
-																								-tag => {'ID' => $uniqID, 'Name' => $hash->{'name'}, 'transl_table' => $gencode_hash{$contig}, 'gene' => $hash->{'gene_name'} }
-																								) ;
-		if( defined ($hash->{'parent'} ) ){
-			$feature->add_tag_value("Parent", $hash->{'parent'});
-		}
-
- 		$gffout->write_feature($feature);
-	}
-}
-
-
-sub create_uniq_id{
-	my ( $tag ) = @_;
-
-	my $uniqID;
-
-	if(! exists_keys(\%hash_uniqID,($tag) ) ){
-		$uniqID=$tag."_1";
-		$hash_uniqID{$tag}=1;
-	}
-	else{
-		$hash_uniqID{$tag}++;
-		$uniqID=$tag."_".$hash_uniqID{$tag};
-	}
-
-	return $uniqID;
-}
 
 
 =head1 NAME

@@ -89,6 +89,13 @@ system(" $script --mfannot $input_folder/test.mfannot -o $outtmp 2>&1 1>/dev/nul
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$script = $script_prefix."bin/agat_convert_mfannot2gff.pl";
+$result = "$output_folder/agat_convert_mfannot2gff_2.gff";
+system(" $script --mfannot $input_folder/test.mfannot2 -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # -------------------------- check agat_convert_minimap2_bam2gff.pl --------------------------
 $script = $script_prefix."bin/agat_convert_minimap2_bam2gff.pl";
 $result = "$output_folder/agat_convert_minimap2_bam2gff_1.gff";
