@@ -398,20 +398,20 @@ sub print_omniscient_from_level1_id_list {
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_from_level1_id_list!"; exit; }
 	# -----------------------------------
 
-  #uri_decode_omniscient($omniscient);
+	#uri_decode_omniscient($omniscient);
 
-  # --------- deal with header --------------
-  write_headers($omniscient, $gffout);
+	# --------- deal with header --------------
+	write_headers($omniscient, $gffout);
 
-  # sort by seq id
+ 	 # sort by seq id
 	my ( $hash_sortBySeq, $hash_sortBySeq_std, $hash_sortBySeq_topf ) = collect_l1_info_sorted_by_seqid_and_location($omniscient, $level_id_list);
 
-  #Read by seqId to sort properly the output by seq ID
-  foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
+  	#Read by seqId to sort properly the output by seq ID
+  	foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-    #################
-    # == LEVEL 1 == #
-    #################
+    	#################
+   		# == LEVEL 1 == #
+    	#################
 		write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $omniscient);
 
 		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
@@ -419,41 +419,41 @@ sub print_omniscient_from_level1_id_list {
 			my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
 			my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
-    	#_uri_encode_one_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
+    		#_uri_encode_one_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
 
-    	$gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
+    		$gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
-    	#################
-    	# == LEVEL 2 == #
-    	#################
-    	foreach my $primary_tag_key_level2 (keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+			#################
+			# == LEVEL 2 == #
+			#################
+			foreach my $primary_tag_key_level2 ( sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-    		if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
-    			foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+				if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
+					foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
-    				#_uri_encode_one_feature($feature_level2);
+						#_uri_encode_one_feature($feature_level2);
 
-    				$gffout->write_feature($feature_level2);
+						$gffout->write_feature($feature_level2);
 
-    				#################
-    				# == LEVEL 3 == #
-    				#################
-    				my $level2_ID ;
-    				if($feature_level2->has_tag('ID')){
-    					$level2_ID = lc($feature_level2->_tag_value('ID'));
-    				}
-    				elsif($feature_level2->has_tag('transcript_id')){
-    					$level2_ID = lc( $feature_level2->_tag_value('transcript_id'));
-    				}
-    				else{
-    					warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
-    				}
+						#################
+						# == LEVEL 3 == #
+						#################
+						my $level2_ID ;
+						if($feature_level2->has_tag('ID')){
+							$level2_ID = lc($feature_level2->_tag_value('ID'));
+						}
+						elsif($feature_level2->has_tag('transcript_id')){
+							$level2_ID = lc( $feature_level2->_tag_value('transcript_id'));
+						}
+						else{
+							warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
+						}
 
-    				print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
+						print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
 
-    			}
-        }
-      }
+					}
+        		}
+      		}
 		}
 	}
 
