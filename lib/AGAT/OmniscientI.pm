@@ -285,7 +285,7 @@ sub slurp_gff3_file_JD {
 	# ============================> HASH CASE <============================
 	elsif(ref($file) eq 'HASH'){
 
-		foreach my $level (keys %{$file}){
+		foreach my $level ( sort { ncmp ($a, $b) } keys %{$file}){
 			# save header if any
 			if ($level eq 'other'){
 				foreach my $thing( keys %{$file->{'other'} } ){
@@ -301,10 +301,10 @@ sub slurp_gff3_file_JD {
 				next;
 			}
 			if ( ref($file->{$level}) eq 'HASH'){ #Header,level1,level2,#level3
-				foreach my $tag (keys %{$file->{$level}}){
-					foreach my $id (keys %{$file->{$level}{$tag}}){
+				foreach my $tag ( sort { ncmp ($a, $b) } keys %{$file->{$level}}){
+					foreach my $id ( sort { ncmp ($a, $b) } keys %{$file->{$level}{$tag}}){
 						if ( ref($file->{$level}{$tag}{$id}) eq 'ARRAY'){ #level2,#level3
-							foreach my $feature ( @{$file->{$level}{$tag}{$id} }){
+							foreach my $feature (  sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$file->{$level}{$tag}{$id} }){
 								($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 										manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%hashID, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 							}
@@ -318,7 +318,7 @@ sub slurp_gff3_file_JD {
 				}
 			}
 			else{ #extra list of feature
-				foreach my $feature ( @{$file->{$level}} ) {
+				foreach my $feature (  sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$file->{$level}} ) {
 					($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 							manage_one_feature($ontology, $feature, \%omniscient, \%mRNAGeneLink, \%duplicate, \%hashID, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new, $verbose, $log, $debug);
 	 				}
@@ -2851,11 +2851,11 @@ sub _fixL2andL3inDifferentBucketBecauseL2wasMetLaterInTheFile{
 		foreach my $bucket (sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}{$locus} } ){
 			if( exists_keys($infoSequential,("locus", $locus, $bucket, 'level3') ) and ! exists_keys($infoSequential,("locus", $locus, $bucket, 'level2') ) ){
 
-				foreach my $bucket2 (keys %{$infoSequential->{'locus'}{$locus}} ){
+				foreach my $bucket2 (sort { ncmp($a,$b) } keys %{$infoSequential->{'locus'}{$locus}} ){
 					if ($bucket ne $bucket2){
 						if (exists_keys($infoSequential,("locus", $locus, $bucket2, 'level2') ) ){
 							#Push to allow to add different bucket in the level2 bucket
-							foreach my $feature ( @{$infoSequential->{'locus'}{ $locus }{$bucket}{'level3'} } ){
+							foreach my $feature ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$infoSequential->{'locus'}{ $locus }{$bucket}{'level3'} } ){
 								push( @{$infoSequential->{'locus'}{lc($locus)}{lc($bucket2)}{'level3'}}, $feature );
 							}
 							delete $infoSequential->{'locus'}{ $locus }{$bucket}{'level3'};
