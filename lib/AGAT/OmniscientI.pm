@@ -866,6 +866,9 @@ sub manage_one_feature{
 												$skip_last_l2=1;
 												dual_print ($log, "skip last l2\n", $verbose) if ( $debug );
 										}
+								} else {
+										$skip_last_l2=1;
+										dual_print ($log, "skip last l2\n", $verbose) if ( $debug );
 								}
 						}
 
@@ -878,8 +881,7 @@ sub manage_one_feature{
 						# but only if the last_comon tag is different as the parent of the last_l2_f
 						# (In that case we can use the last L2 feature. It was missing the comon tag in it).
 						if(! $last_l2_f or
-							($locusTAGvalue and (lc($locusTAGvalue) ne lc($last_locusTAGvalue) )
-							and lc($last_locusTAGvalue) ne lc($parent_of_last_l2) or $skip_last_l2) ){
+						  ($locusTAGvalue and ( lc($locusTAGvalue) ne lc($last_locusTAGvalue) ) and ( lc($last_locusTAGvalue) ne lc($parent_of_last_l2) or $skip_last_l2) ) ){
 								dual_print ($log, "Come in the complex case L3!!!\n", $verbose) if ($debug);
 								#######################
 								# Change referentiel => based on the last L2 link to this locus
