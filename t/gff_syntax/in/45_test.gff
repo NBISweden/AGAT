@@ -1,0 +1,8 @@
+BK063639.1	tpg	tRNA	1637	1705	.	+	.	ID=rna-BK063639.1:1637..1705;gbkey=tRNA;product=tRNA-Ile
+BK063639.1	tpg	exon	1637	1705	.	+	.	ID=exon-BK063639.1:1637..1705-1;Parent=rna-BK063639.1:1637..1705;gbkey=tRNA;product=tRNA-Ile
+BK063639.1	tpg	CDS	1790	2779	.	+	0	ID=cds-DBA43806.1;Dbxref=NCBI_GP:DBA43806.1;Name=DBA43806.1;gbkey=CDS;product=ND2;protein_id=DBA43806.1;transl_table=5
+BK063639.1	tpg	tRNA	2768	2840	.	-	.	ID=rna-BK063639.1:2768..2840;gbkey=tRNA;product=tRNA-Cys
+BK063639.1	tpg	exon	2768	2840	.	-	.	ID=exon-BK063639.1:2768..2840-1;Parent=rna-BK063639.1:2768..2840;gbkey=tRNA;product=tRNA-Cys
+BK063639.1	tpg	tRNA	3030	3098	.	-	.	ID=rna-BK063639.1:3030..3098;gbkey=tRNA;product=tRNA-Trp
+BK063639.1	tpg	exon	3030	3098	.	-	.	ID=exon-BK063639.1:3030..3098-1;Parent=rna-BK063639.1:3030..3098;gbkey=tRNA;product=tRNA-Trp
+BK063639.1	tpg	CDS	3114	4658	.	+	0	ID=cds-DBA43807.1;Dbxref=NCBI_GP:DBA43807.1;Name=DBA43807.1;gbkey=CDS;product=COX1;protein_id=DBA43807.1;transl_table=5

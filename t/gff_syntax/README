@@ -53,6 +53,8 @@ This is an explanations of the different test files used to check the GFF3 parse
 42: No attribute tag in L1; No attribute tag in L2; No attribute tag in L3; Single value in 9th column (GFF1)
 43: Issue 290 - level3 features (exons CDS) directly attached to the gene, while it exists an mRNA feature. The mRNA feature is also attached to the gene.
 44: Issue 350 - Exonerate output - No L2, ID only for L1.
+45: Issue 484 - CDS without Parent but not related to previous L2 because it has locus name while previous L2 had parent/ID attributes and no locus name.
+46: Issue 484 - Same but start by CDS
 
 /!\ If only level3 features are defined, and no locus tag present (see test 26), the tool cannot deal with it. I will create by default one umbrella level1, or if you on attribute as uniq locus ID, It will create a l1 for each feature => If only exon or only CDS features so the result will be fine, but if there are two different features that has to be linked together (two CDS or a CDS and a signal peptide as in the test case 26) , the tool will not perform properly.
 

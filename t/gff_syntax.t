@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use File::Basename;
-use Test::More tests => 45;
+use Test::More tests => 47;
 
 =head1 DESCRIPTION
 
@@ -55,12 +55,11 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/ or $file =~ m/^36_/){
         system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
-		# peculiar case 28
-    elsif($file =~ m/^28_/){
+		# peculiar cases with locus_tag Name
+    elsif($file =~ m/^28_/ or $file =~ m/^45_/ or $file =~ m/^46_/){
         system("$script_agat config --expose --locus_tag Name 2>&1 1>/dev/null"); # set special config for the test
         system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
     }
-
     # standard cases
     else{
 			system("$script_agat config --expose --merge_loci 2>&1 1>/dev/null"); # set special config for the test
