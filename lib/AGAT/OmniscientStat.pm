@@ -3,6 +3,7 @@
 package AGAT::OmniscientStat;
 
 use strict;
+use POSIX;
 use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;
@@ -44,6 +45,9 @@ This is the code to perform statisctis of data store in Omniscient.
 
 =cut
 
+# define first column width
+my $width = '%-45s';
+
 sub print_omniscient_statistics{
 
 #	---	HANDLE ARGUMENTS ---
@@ -53,11 +57,15 @@ sub print_omniscient_statistics{
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
 
 	# Declare all variables and fill them
-	my ($omniscient, $genome_size, $output, $yaml, $verbose, $distri, $isoform);
+	my ($omniscient, $genome_size, $output, $yaml, $verbose, $distri, $isoform, $percentile);
 
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
 		else{ print "Input omniscient mandatory to use print_omniscient_statistics!"; exit;}
+	
+	# percentile
+	if( defined($args->{percentile})) {$percentile = $args->{percentile};}
+		else{ $percentile=90; }
 
 	#genome size
 	if( ! defined($args->{genome}) ) {
@@ -77,7 +85,7 @@ sub print_omniscient_statistics{
 		  		$genome_size += length($string);
 		  	}
 			}
-			printf("%-45s%d%s", "Total sequence length (bp)", $genome_size,"\n");
+			printf("$width%d%s", "Total sequence length (bp)", $genome_size,"\n");
 		}
 	}
 
@@ -100,7 +108,7 @@ sub print_omniscient_statistics{
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
 	print "get_omniscient_statistics\n" if $verbose;
-	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size, $verbose);
+	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size, $percentile, $verbose);
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
 
@@ -131,7 +139,7 @@ sub print_omniscient_statistics{
 
 				# get nb of each feature in omniscient;
 				my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($omniscient, $by_type, $verbose);
-				my $stat2 = get_info_sentences($info_l2, $extra_l2, $genome_size);
+				my $stat2 = get_info_sentences($info_l2, $extra_l2, $genome_size, $percentile);
 				
 				# Check if we skip printing without iso because there is no iso
 				my $skip_iso=undef;
@@ -217,8 +225,10 @@ sub fill_yaml_hash{
 	my ($hash, $bytype, $isoinfo, $stat)=@_;
 		
 	foreach my $infoList (@$stat){
+		
 		foreach my $infos (@$infoList){
-			my $increment="%d";
+
+			my $increment="%s";
 			if (defined($infos->[2])){
 				$increment="%.1f";
 			}
@@ -249,12 +259,19 @@ sub recreate_sentence{
 	my ($infos)=@_;
 	my $sentence=undef;
 
-	my $increment="%-45s%d%s";
+	# ask for rounded value
 	if (defined($infos->[2])){
-			$increment=$infos->[2];
+		$sentence = sprintf("$width%.1f%s", "$infos->[0]", "$infos->[1]", "\n");
+		
+	} # na value
+	elsif($infos->[1] eq "na"){
+		$sentence = sprintf( "$width%s%s", "$infos->[0]", "$infos->[1]", "\n");
+	}else{
+		my $float = $infos->[1];
+		# With this calculation -1.4 is rounded to -1, and -1.6 to -2, and zero won't explode.
+		my $rounded = int($float + $float/abs($float*2 || 1));
+		$sentence = sprintf( "$width%d%s", "$infos->[0]", $rounded, "\n");
 	}
-
-	$sentence = sprintf($increment, "$infos->[0]", "$infos->[1]", "\n");
 	
 	return $sentence;
 }
@@ -300,7 +317,7 @@ sub _print_distribution{
 # (eg: Gene(l1),mRNA(l2),cds(l3),exon(l3), where the type of level1 and level3 feature are only those linked to mRNA.)
 sub get_omniscient_statistics {
 
-	my ($hash_omniscient, $genomeSize, $verbose) = @_  ;
+	my ($hash_omniscient, $genomeSize, $percentile, $verbose) = @_  ;
 
 	my %result_by_type;
 
@@ -315,7 +332,7 @@ sub get_omniscient_statistics {
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
 			print "get_omniscient_statistics_for_topfeature for $tag_l1\n" if $verbose;
 			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
-			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize);
+			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
 			$result_by_type{1}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
 		}
@@ -327,7 +344,7 @@ sub get_omniscient_statistics {
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
 				print "get_omniscient_statistics_for_standalone\n" if $verbose;
 				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
-				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize);
+				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
 				$result_by_type{2}{$tag_l1} = { info => $info_l1_sentence, distri => $info_l1_distri, iso =>  undef};
 		}
@@ -340,7 +357,7 @@ sub get_omniscient_statistics {
 		print "tag_l2 $tag_l2\n" if $verbose;
 		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
 
-		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2, $genomeSize);
+		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2, $genomeSize, $percentile);
 		my $info_l2_distri = get_distributions($info_l2, $extra_l2);
 
 
@@ -378,6 +395,7 @@ sub get_omniscient_statistics_for_topfeature{
 		#compute feature size
 		my $sizeFeature=($feature_l1->end-$feature_l1->start)+1;
 		$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_feat'} += $sizeFeature;
+		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_list'}}, $sizeFeature;
 
 		#create distribution list
 		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
@@ -433,6 +451,7 @@ sub get_omniscient_statistics_from_l2{
 		#compute feature size
 		my $sizeFeature=($feature_l1->end-$feature_l1->start)+1;
 		$all_info{$tag_l2}{'level1'}{$tag_l1}{'size_feat'} += $sizeFeature;
+		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'size_list'}}, $sizeFeature;
 
 		#create distribution list
 		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
@@ -460,6 +479,7 @@ sub get_omniscient_statistics_from_l2{
 			#compute feature size
 			my $sizeFeature=($feature_l2->end-$feature_l2->start)+1;
 				$all_info{$tag_l2}{'level2'}{$tag_l2}{'size_feat'} += $sizeFeature;
+				push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'size_list'}}, $sizeFeature;
 
 			#create distribution list
 			push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'distribution'}}, $sizeFeature;
@@ -488,6 +508,7 @@ sub get_omniscient_statistics_from_l2{
 
 	  			#compute feature size
 	  			$all_info{$tag_l2}{'level2'}{'intron'}{'size_feat'} += $intronSize;
+				push @{$all_info{$tag_l2}{'level2'}{'intron'}{'size_list'}}, $intronSize;
 
 	  			#create distribution list
 					push @{$all_info{$tag_l2}{'level2'}{'intron'}{'distribution'}}, $sizeFeature;
@@ -534,6 +555,7 @@ sub get_omniscient_statistics_from_l2{
 
 	  					#compute feature size
 	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'} += $intronSize;
+						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_list'}}, $intronSize;
 
 	  					#create distribution list
 							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'distribution'}}, $sizeFeature;
@@ -555,6 +577,7 @@ sub get_omniscient_statistics_from_l2{
 	  				#compute cumulative feature size
 	  				my $sizeFeature=($feature_l3->end-$feature_l3->start)+1;
 	  				$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'} += $sizeFeature;
+					push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeFeature;
 
 	  				#-------------------------------------------------
 	  				# MANAGE SPREAD FEATURES (multi exon features)
@@ -668,7 +691,7 @@ sub get_omniscient_statistics_from_l2{
 }
 
 sub get_info_sentences{
-	my ($all_info, $extra_info, $genomeSize) = @_;
+	my ($all_info, $extra_info, $genomeSize, $percentile) = @_;
 
 	my @result_list;
 
@@ -704,6 +727,12 @@ sub get_info_sentences{
 
 		my $info_mean_length = _info_mean_length($hashType);
 		push @result, @$info_mean_length;
+
+		my $info_median_length = _info_median_length($hashType);
+		push @result, @$info_median_length;
+
+		my $info_precentile_length = _info_precentile_length($hashType, $percentile);
+		push @result, @$info_precentile_length;
 
 		if($genomeSize){
 			my $info_coverage = _info_coverage($hashType, $genomeSize);
@@ -927,21 +956,21 @@ sub _info_mean_per {
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 		foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
 			my $mean=  $all_info->{'level2'}{$tag_l2}{'nb_feat'}/$all_info->{'level1'}{$tag_l1}{'nb_feat'};
-		    push @resu, [ "mean $tag_l2"."s per $tag_l1", $mean, "%-45s%.1f%s"];
+		    push @resu, [ "mean $tag_l2"."s per $tag_l1", $mean, "round"];
 		}
 	}
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 	    foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 			my $mean=  $all_info->{'level3'}{$tag_l3}{'nb_feat'}/$all_info->{'level2'}{$tag_l2}{'nb_feat'};
-		    push @resu, [ "mean $tag_l3"."s per $tag_l2", $mean, "%-45s%.1f%s"];
+		    push @resu, [ "mean $tag_l3"."s per $tag_l2", $mean, "round"];
 		}
 	}
 	#print level3 - spread feature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
 			my $mean=  $all_info->{'level3'}{$tag_l3}{'exon'}{'nb_feat'}/$all_info->{'level3'}{$tag_l3}{'nb_feat'};
-		    push @resu, [ "mean exons per $tag_l3", $mean, "%-45s%.1f%s"];
+		    push @resu, [ "mean exons per $tag_l3", $mean, "round"];
 	    }
 	}
 	#print introns
@@ -949,7 +978,7 @@ sub _info_mean_per {
 		foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 			if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
 			    my $mean=  $all_info->{'level3'}{$tag_l3}{'intron'}{'nb_feat'}/$all_info->{'level2'}{$tag_l2}{'nb_feat'};
-			    push @resu, [ "mean introns in $tag_l3"."s per $tag_l2", $mean, "%-45s%.1f%s"];
+			    push @resu, [ "mean introns in $tag_l3"."s per $tag_l2", $mean, "round" ];
 			}
 		}
 	}
@@ -1043,6 +1072,114 @@ sub _info_mean_length {
 }
 
 #############
+# Give info about median lenght of features by type
+sub _info_median_length {
+	my ($all_info) = @_  ;
+	my @resu;
+
+
+	#print level1
+	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
+		my $median = median( @{$all_info->{'level1'}{$tag_l1}{'size_list'}} );
+		push @resu, ["median $tag_l1 length (bp)", $median];
+	}
+
+	#print level2
+	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
+		my $size_feat = $all_info->{'level2'}{$tag_l2}{'size_list'};
+
+		if( $size_feat !=0 ){
+			my $median= median( @{$all_info->{'level2'}{$tag_l2}{'size_list'}} );
+		    push @resu, ["median $tag_l2 length (bp)", $median];
+		}
+		else{ warn "Problem in the calcul of level2 - $tag_l2 - size_list"; }
+	 }
+
+	#print level3
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if( $all_info->{'level3'}{$tag_l3}{'size_list'} == 0) {
+			#print "No size_list for $tag_l3\n";
+		}
+		else{
+			my $median = median( @{$all_info->{'level3'}{$tag_l3}{'size_list'}} );
+		    push @resu, ["median $tag_l3 length (bp)", $median];
+		}
+	}
+
+	#print level3 - multifeature cases
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
+			my $median = median( @{$all_info->{'level3'}{$tag_l3}{'size_list'}} );
+	    	push @resu, ["median $tag_l3 piece length (bp)", $median];
+	    }
+	}
+
+	#print introns
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
+	    	my $median = median( @{$all_info->{'level3'}{$tag_l3}{'intron'}{'size_list'}} );
+	    	push @resu, ["median intron in $tag_l3 length (bp)", $median];
+	    }
+	}
+
+	return \@resu;
+}
+
+#############
+# Give info about percentile lenght of features by type
+sub _info_precentile_length {
+	my ($all_info, $percentile_value) = @_  ;
+	if( ! defined($percentile_value) ) { $percentile_value = 90;}
+	my @resu;
+
+	#print level1
+	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
+		my $percentile = percentile( \@{$all_info->{'level1'}{$tag_l1}{'size_list'}}, $percentile_value );
+		push @resu, ["$percentile_value percentile $tag_l1 length (bp)", $percentile];
+	}
+
+	#print level2
+	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
+		my $size_feat = $all_info->{'level2'}{$tag_l2}{'size_list'};
+
+		if( $size_feat !=0 ){
+			my $percentile = percentile( \@{$all_info->{'level2'}{$tag_l2}{'size_list'}}, $percentile_value );
+		    push @resu, ["$percentile_value percentile $tag_l2 length (bp)", $percentile];
+		}
+		else{ warn "Problem in the calcul of level2 - $tag_l2 - size_list"; }
+	 }
+
+	#print level3
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if( $all_info->{'level3'}{$tag_l3}{'size_list'} == 0) {
+			#print "No size_list for $tag_l3\n";
+		}
+		else{
+			my $percentile = percentile( \@{$all_info->{'level3'}{$tag_l3}{'size_list'}}, $percentile_value );
+		    push @resu, ["$percentile_value percentile $tag_l3 length (bp)", $percentile];
+		}
+	}
+
+	#print level3 - multifeature cases
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
+			my $percentile = percentile( \@{$all_info->{'level3'}{$tag_l3}{'size_list'}}, $percentile_value );
+	    	push @resu, ["$percentile_value percentile $tag_l3 piece length (bp)", $percentile];
+	    }
+	}
+
+	#print introns
+	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
+		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
+	    	my $percentile = percentile( \@{$all_info->{'level3'}{$tag_l3}{'intron'}{'size_list'}}, $percentile_value );
+	    	push @resu, ["$percentile_value percentile intron in $tag_l3 length (bp)", $percentile];
+	    }
+	}
+
+	return \@resu;
+}
+
+#############
 # Give info about the features' coverage (by types) within/among the genome
 sub _info_coverage {
 	my ($all_info, $genomeSize) = @_  ;
@@ -1051,26 +1188,26 @@ sub _info_coverage {
 	#print level1
 	foreach my $tag_l1 (sort keys %{$all_info->{'level1'}}){
 		my $perc= ($all_info->{'level1'}{$tag_l1}{'size_feat'}*100)/$genomeSize;
-		push @resu, [ "% of genome covered by $tag_l1", $perc, "%-45s%.1f%s"];
+		push @resu, [ "% of genome covered by $tag_l1", $perc, "round"];
 	}
 
 	#print level2
 	foreach my $tag_l2 (sort keys %{$all_info->{'level2'}}){
 		my $perc= ($all_info->{'level2'}{$tag_l2}{'size_feat'}*100)/$genomeSize;
-	    push @resu, [ "% of genome covered by $tag_l2", $perc, "%-45s%.1f%s"];
+	    push @resu, [ "% of genome covered by $tag_l2", $perc, "round"];
 	 }
 
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 	    my $perc= ($all_info->{'level3'}{$tag_l3}{'size_feat'}*100)/$genomeSize;
-	    push @resu, [ "% of genome covered by $tag_l3", $perc, "%-45s%.1f%s"];
+	    push @resu, [ "% of genome covered by $tag_l3", $perc, "round"];
 	}
 
 	#print level3
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if(exists_keys($all_info, ('level3',$tag_l3,'intron'))){
 		    my $perc= ($all_info->{'level3'}{$tag_l3}{'intron'}{'size_feat'}*100)/$genomeSize;
-		    push @resu, [ "% of genome covered by intron from $tag_l3", $perc, "%-45s%.1f%s"];
+		    push @resu, [ "% of genome covered by intron from $tag_l3", $perc, "round"];
 		}
 	}
 
@@ -1134,6 +1271,41 @@ sub _detect_overlap_features{
 		}
 	}
 	return $resume_case;
+}
+
+# compute percentile of a list
+sub percentile {
+	my ($list_values, $percentile)=@_;
+
+	if( ! defined($percentile) ) {warn "percentile value missing\n";}
+
+	my $value_to_use = (100-$percentile)*0.01;
+	my $top_percent = int(@$list_values * $value_to_use);
+
+	if ($top_percent >= 1) {
+		my @values = sort {$a <=> $b} @$list_values;
+		pop @values for (1 .. $top_percent);
+		my $result = pop @values;
+		return $result;
+	}
+	else {
+		return "na";
+	}
+}
+
+# compute median of a list
+sub median
+{
+    my @vals = sort {$a <=> $b} @_;
+    my $len = @vals;
+    if($len%2) #odd?
+    {
+        return $vals[int($len/2)];
+    }
+    else #even
+    {
+        return ($vals[int($len/2)-1] + $vals[int($len/2)])/2;
+    }
 }
 
 1;
