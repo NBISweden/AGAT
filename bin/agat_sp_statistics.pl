@@ -14,6 +14,7 @@ my $config;
 my $gff = undef;
 my $opt_output = undef;
 my $opt_yaml = undef;
+my $opt_percentile = 90;
 my $opt_genomeSize = undef;
 my $opt_plot = undef;
 my $opt_verbose = 0;
@@ -23,6 +24,7 @@ if ( !GetOptions(
     'c|config=s'               => \$config,
     "h|help"      => \$opt_help,
     'o|output=s'  => \$opt_output,
+    'percentile=i' => \$opt_percentile,
     'yaml!'       => \$opt_yaml,
     'd|p'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,
@@ -102,6 +104,7 @@ print "Parsing Finished\n";
 print "Compute statistics\n";
 print_omniscient_statistics ({ input   => $hash_omniscient,
 															 genome  => $opt_genomeSize,
+                               percentile => $opt_percentile,
 															 output  => $out,
                                yaml    => $opt_yaml,
 															 distri  => $opt_plot,
@@ -156,6 +159,10 @@ Verbose option. To modify verbosity. Default is 1. 0 is quiet, 2 and 3 are incre
 =item B<--output> or B<-o>
 
 File where will be written the result. If no output file is specified, the output will be written to STDOUT.
+
+=item B<--percentile>
+
+Integer - Percentile to compute. Default is 90.
 
 =item B<--yaml>
 
