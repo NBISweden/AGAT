@@ -46,7 +46,7 @@ This is the code to perform statisctis of data store in Omniscient.
 =cut
 
 # define first column width
-my $width = '%-45s';
+my $width = '%-60s';
 
 sub print_omniscient_statistics{
 
@@ -261,16 +261,16 @@ sub recreate_sentence{
 
 	# ask for rounded value
 	if (defined($infos->[2])){
-		$sentence = sprintf("$width%.1f%s", "$infos->[0]", "$infos->[1]", "\n");
+		$sentence = sprintf("$width%.1f%s", $infos->[0]." ", $infos->[1], "\n");
 		
 	} # na value
 	elsif($infos->[1] eq "na"){
-		$sentence = sprintf( "$width%s%s", "$infos->[0]", "$infos->[1]", "\n");
+		$sentence = sprintf( "$width%s%s", $infos->[0]." ", $infos->[1], "\n");
 	}else{
 		my $float = $infos->[1];
 		# With this calculation -1.4 is rounded to -1, and -1.6 to -2, and zero won't explode.
 		my $rounded = int($float + $float/abs($float*2 || 1));
-		$sentence = sprintf( "$width%d%s", "$infos->[0]", $rounded, "\n");
+		$sentence = sprintf( "$width%d%s", $infos->[0]." ", $rounded, "\n");
 	}
 	
 	return $sentence;
