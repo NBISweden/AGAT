@@ -5,6 +5,8 @@ Number of chromosome                         1
 Number chromosome overlapping                0
 Total chromosome length (bp)                 43270923
 mean chromosome length (bp)                  43270923
+median chromosome length (bp)                43270923
+90 percentile chromosome length (bp)         na
 Longest chromosome (bp)                      43270923
 Shortest chromosome (bp)                     43270923
 
@@ -13,6 +15,8 @@ Number of repeat_region                      2
 Number repeat_region overlapping             0
 Total repeat_region length (bp)              202
 mean repeat_region length (bp)               101
+median repeat_region length (bp)             101
+90 percentile repeat_region length (bp)      na
 Longest repeat_region (bp)                   101
 Shortest repeat_region (bp)                  101
 
@@ -58,18 +62,44 @@ Total intron length per exon (bp)            89816
 Total intron length per five_prime_utr (bp)  11235
 Total intron length per three_prime_utr (bp) 794
 mean gene length (bp)                        3054
-mean mrna length (bp)                        3045
-mean cds length (bp)                         1088
+mean mrna length (bp)                        3046
+mean cds length (bp)                         1089
 mean exon length (bp)                        339
 mean five_prime_utr length (bp)              196
-mean three_prime_utr length (bp)             419
+mean three_prime_utr length (bp)             420
 mean cds piece length (bp)                   240
 mean five_prime_utr piece length (bp)        149
-mean three_prime_utr piece length (bp)       365
+mean three_prime_utr piece length (bp)       366
 mean intron in cds length (bp)               344
-mean intron in exon length (bp)              353
+mean intron in exon length (bp)              354
 mean intron in five_prime_utr length (bp)    591
 mean intron in three_prime_utr length (bp)   88
+median gene length (bp)                      2540
+median mrna length (bp)                      2484
+median cds length (bp)                       128
+median exon length (bp)                      165
+median five_prime_utr length (bp)            78
+median three_prime_utr length (bp)           245
+median cds piece length (bp)                 128
+median five_prime_utr piece length (bp)      78
+median three_prime_utr piece length (bp)     245
+median intron in cds length (bp)             133
+median intron in exon length (bp)            129
+median intron in five_prime_utr length (bp)  123
+median intron in three_prime_utr length (bp) 79
+90 percentile gene length (bp)               5514
+90 percentile mrna length (bp)               5514
+90 percentile cds length (bp)                521
+90 percentile exon length (bp)               818
+90 percentile five_prime_utr length (bp)     379
+90 percentile three_prime_utr length (bp)    691
+90 percentile cds piece length (bp)          521
+90 percentile five_prime_utr piece length (bp)379
+90 percentile three_prime_utr piece length (bp)691
+90 percentile intron in cds length (bp)      791
+90 percentile intron in exon length (bp)     770
+90 percentile intron in five_prime_utr length (bp)3593
+90 percentile intron in three_prime_utr length (bp)na
 Longest gene (bp)                            8045
 Longest mrna (bp)                            8045
 Longest cds (bp)                             2937
@@ -136,18 +166,44 @@ Total intron length per exon (bp)            72649
 Total intron length per five_prime_utr (bp)  11112
 Total intron length per three_prime_utr (bp) 794
 mean gene length (bp)                        3054
-mean mrna length (bp)                        2996
+mean mrna length (bp)                        2997
 mean cds length (bp)                         1054
-mean exon length (bp)                        319
-mean five_prime_utr length (bp)              220
-mean three_prime_utr length (bp)             373
-mean cds piece length (bp)                   231
+mean exon length (bp)                        320
+mean five_prime_utr length (bp)              221
+mean three_prime_utr length (bp)             374
+mean cds piece length (bp)                   232
 mean five_prime_utr piece length (bp)        159
-mean three_prime_utr piece length (bp)       314
-mean intron in cds length (bp)               335
+mean three_prime_utr piece length (bp)       315
+mean intron in cds length (bp)               336
 mean intron in exon length (bp)              349
 mean intron in five_prime_utr length (bp)    617
 mean intron in three_prime_utr length (bp)   88
+median gene length (bp)                      2540
+median mrna length (bp)                      2468
+median cds length (bp)                       125
+median exon length (bp)                      160
+median five_prime_utr length (bp)            87
+median three_prime_utr length (bp)           235
+median cds piece length (bp)                 125
+median five_prime_utr piece length (bp)      87
+median three_prime_utr piece length (bp)     235
+median intron in cds length (bp)             133
+median intron in exon length (bp)            127
+median intron in five_prime_utr length (bp)  123
+median intron in three_prime_utr length (bp) 79
+90 percentile gene length (bp)               5514
+90 percentile mrna length (bp)               5514
+90 percentile cds length (bp)                514
+90 percentile exon length (bp)               701
+90 percentile five_prime_utr length (bp)     371
+90 percentile three_prime_utr length (bp)    646
+90 percentile cds piece length (bp)          514
+90 percentile five_prime_utr piece length (bp)371
+90 percentile three_prime_utr piece length (bp)646
+90 percentile intron in cds length (bp)      770
+90 percentile intron in exon length (bp)     770
+90 percentile intron in five_prime_utr length (bp)3593
+90 percentile intron in three_prime_utr length (bp)na
 Longest gene (bp)                            8045
 Longest mrna (bp)                            7833
 Longest cds (bp)                             2937
@@ -186,6 +242,12 @@ Total exon length (bp)                       81
 mean ncrna_gene length (bp)                  81
 mean trna length (bp)                        81
 mean exon length (bp)                        81
+median ncrna_gene length (bp)                81
+median trna length (bp)                      81
+median exon length (bp)                      81
+90 percentile ncrna_gene length (bp)         na
+90 percentile trna length (bp)               na
+90 percentile exon length (bp)               na
 Longest ncrna_gene (bp)                      81
 Longest trna (bp)                            81
 Longest exon (bp)                            81
