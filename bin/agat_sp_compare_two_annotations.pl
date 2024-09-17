@@ -729,18 +729,18 @@ per case type listing per line the gene feature's ID involved in each case.
 
 =head1 SYNOPSIS
 
-    agat_sp_compare_two_annotations.pl -gff1 infile.gff [ -o outfile ]
+    agat_sp_compare_two_annotations.pl -gff1 infile1.gff -gff2 infile2.gff  [ -o outfile ]
     agat_sp_compare_two_annotations.pl --help
 
 =head1 OPTIONS
 
 =over 8
 
-=item B<-gff1>
+=item B<--gff1>
 
 Input GTF/GFF file1.
 
-=item B<-gff2>
+=item B<--gff2>
 
 Input GTF/GFF file2.
 
