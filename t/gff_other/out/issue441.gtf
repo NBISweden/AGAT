@@ -1,6 +1,6 @@
 ##gtf-version X
 # GFF-like GTF i.e. not checked against any GTF specification. Conversion based on GFF input, standardised by AGAT.
-Scaffold170	AGAT	gene	2883887	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "GBI_15721"; gene_name "GBI_15721";
+Scaffold170	AGAT	gene	2883887	2888594	.	+	.	gene_id "GBI_15721"; ID "GBI_15721"; gene_name "GBI_15721";
 Scaffold170	AGAT	mRNA	2883887	2888594	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "GBI_15721-RE"; Parent "GBI_15721"; gene_name "GBI_15721";
 Scaffold170	maker	exon	2883887	2884591	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-1"; Parent "GBI_15721-RE"; gene_name "GBI_15721";
 Scaffold170	maker	exon	2885735	2885878	.	+	.	gene_id "GBI_15721"; transcript_id "GBI_15721-RE"; ID "agat-exon-2"; Parent "GBI_15721-RE"; gene_name "GBI_15721";

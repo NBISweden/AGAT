@@ -1,5 +1,5 @@
 ##gff-version 3
-chr6	AGAT	gene	143060901	143061606	.	+	.	ID=ENSG00000146416.19;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
+chr6	AGAT	gene	143060901	143061606	.	+	.	ID=ENSG00000146416.19;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding
 chr6	HAVANA	transcript	143060901	143061606	.	+	.	ID=ENST00000367596.5;Parent=ENSG00000146416.19;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
 chr6	HAVANA	exon	143060901	143061066	.	+	.	ID=agat-exon-1;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
 chr6	HAVANA	exon	143061214	143061606	.	+	.	ID=agat-exon-2;Parent=ENST00000367596.5;gene_id=ENSG00000146416.19;gene_name=AIG1;gene_type=protein_coding;transcript_id=ENST00000367596.5
