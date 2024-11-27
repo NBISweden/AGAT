@@ -1,5 +1,5 @@
 ##gff-version 3
-xfSc0000000	AGAT	gene	7096	13319	.	-	.	ID=BL03703;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149301;status=both;transcript_id=BL03703_cuf1
+xfSc0000000	AGAT	gene	7096	13319	.	-	.	ID=BL03703;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149301;status=both
 xfSc0000000	AGAT	mRNA	7096	10149	.	-	.	ID=BL03703_cuf1;Parent=BL03703;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149301;status=both;transcript_id=BL03703_cuf1
 xfSc0000000	protein_coding	exon	7096	8697	.	-	.	ID=agat-exon-6;Parent=BL03703_cuf1;exon_number=2;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149301;status=both;transcript_id=BL03703_cuf1
 xfSc0000000	protein_coding	exon	9847	10149	.	-	.	ID=agat-exon-5;Parent=BL03703_cuf1;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149301;status=both;transcript_id=BL03703_cuf1
@@ -14,7 +14,7 @@ xfSc0000000	protein_coding	CDS	12803	13024	.	-	2	ID=agat-cds-3;Parent=BL03703_ev
 xfSc0000000	protein_coding	CDS	13283	13319	.	-	0	ID=agat-cds-2;Parent=BL03703_evm0;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=Blg02918.0;status=both;transcript_id=BL03703_evm0
 xfSc0000000	AGAT	RNA	7096	9184	.	-	.	ID=BL03703_cuf0;Parent=BL03703;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149300;status=both;transcript_id=BL03703_cuf0
 xfSc0000000	protein_coding	exon	7096	9184	.	-	.	ID=agat-exon-4;Parent=BL03703_cuf0;exon_number=1;gene_id=BL03703;gene_name=CHRND;oldID=BlTCONS00149300;status=both;transcript_id=BL03703_cuf0
-xfSc0000437	AGAT	gene	3712	3937	.	-	.	ID=BL03702;exon_number=2;gene_id=BL03702;gene_name=AHR;oldID=Blg03689.3;status=both;transcript_id=BL03702_evm3
+xfSc0000437	AGAT	gene	3712	3937	.	-	.	ID=BL03702;exon_number=2;gene_id=BL03702;gene_name=AHR;oldID=Blg03689.3;status=both
 xfSc0000437	AGAT	mRNA	3712	3937	.	-	.	ID=BL03702_evm3;Parent=BL03702;exon_number=2;gene_id=BL03702;gene_name=AHR;oldID=Blg03689.3;status=both;transcript_id=BL03702_evm3
 xfSc0000437	protein_coding	exon	3712	3937	.	-	.	ID=agat-exon-1;Parent=BL03702_evm3;exon_number=3;gene_id=BL03702;gene_name=AHR;oldID=Blg03689.3;status=both;transcript_id=BL03702_evm3
 xfSc0000437	protein_coding	CDS	3712	3937	.	-	1	ID=agat-cds-1;Parent=BL03702_evm3;exon_number=2;gene_id=BL03702;gene_name=AHR;oldID=Blg03689.3;status=both;transcript_id=BL03702_evm3

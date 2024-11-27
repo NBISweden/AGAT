@@ -582,11 +582,17 @@ scaffold789	maker	three_prime_UTR	564589	564780	.	+	.	ID=CLUHART00000006147:thre
 
 ## How to cite?
 
-This work has not been published (I will think about it). But if you wish to cite AGAT you could probably do it as follow (Adapt the version for the one you have used):
+This work has not been published (I will think about it) but you can cite it as follow:  
+
+```
+Dainat J. 2022. Another Gtf/Gff Analysis Toolkit (AGAT): Resolve interoperability issues and accomplish more with your annotations. Plant and Animal Genome XXIX Conference. https://github.com/NBISweden/AGAT.
+``` 
+
+or/and (Adapt the AGAT version to the one you used):  
 
 ```
 Dainat J. AGAT: Another Gff Analysis Toolkit to handle annotations in any GTF/GFF format.  
-(Version v0.8.0). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
+(Version v1.4.1). Zenodo. https://www.doi.org/10.5281/zenodo.3552717
 ```
 
 ## Publication using AGAT

@@ -1327,12 +1327,19 @@ sub clean_clone{
 		}
 	}
 
-	# remove Parent attribute if level1
+	# remove Parent and transcript_id attributes if level1. 
+	# We check is Level1 using the primary_tag of the feature
 	if ($omniscient){
 		if ($cloned_feature->has_tag("Parent")){
 			my $hash_level = $omniscient->{'other'}{'level'};
 			if( exists_keys($hash_level,'level1',lc($cloned_feature->primary_tag)) ){
 				$cloned_feature->remove_tag("Parent");
+			}
+		}
+		if ($cloned_feature->has_tag("transcript_id")){
+			my $hash_level = $omniscient->{'other'}{'level'};
+			if( exists_keys($hash_level,'level1',lc($cloned_feature->primary_tag)) ){
+				$cloned_feature->remove_tag("transcript_id");
 			}
 		}
 	}
