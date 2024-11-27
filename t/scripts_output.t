@@ -622,6 +622,12 @@ system(" $script --gff $input_folder/agat_sp_merge_annotations/fileA.gff  --gff 
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$result = "$output_folder/agat_sp_merge_annotations_3.gff";
+system(" $script --gff $input_folder/agat_sp_merge_annotations/test457_A.gff  --gff $input_folder/agat_sp_merge_annotations/test457_B.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # ------------------- check agat_sp_move_attributes_within_records script-------------------
 
 $script = $script_prefix."bin/agat_sp_move_attributes_within_records.pl";

@@ -1,6 +1,6 @@
 ##gff-version 3
 chr10	BestRefSeq	gene	123237824	123357992	.	-	.	ID=gene-FGFR2;ontology=G0222
-chr10	BestRefSeq	mRNA	123237824	123357992	.	-	.	ID=rna-NM_022970.3;Parent=gene-FGFR2;ontology=G0222;merged_ID=IDmodified-mrna-1;merged_Ontology=G0333;merged_Parent=IDmodified-gene-1
+chr10	BestRefSeq	mRNA	123237824	123357992	.	-	.	ID=rna-NM_022970.3;Parent=gene-FGFR2;ontology=G0222;merged_Ontology=G0333
 chr10	BestRefSeq	exon	123237824	123239535	.	-	.	ID=exon-NM_022970.3-18;Parent=rna-NM_022970.3
 chr10	BestRefSeq	exon	123243212	123243317	.	-	.	ID=exon-NM_022970.3-17;Parent=rna-NM_022970.3
 chr10	BestRefSeq	exon	123353223	123353481	.	-	.	ID=exon-NM_022970.3-2;Parent=rna-NM_022970.3
