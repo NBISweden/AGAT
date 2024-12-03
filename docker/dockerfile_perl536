@@ -1,0 +1,9 @@
+From perl:5.36
+
+RUN cpanm install BioPerl Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https Term::ProgressBar
+RUN git clone https://github.com/NBISweden/AGAT.git
+WORKDIR /usr/src/app/AGAT
+RUN perl Makefile.PL
+RUN make
+RUN make test
+RUN make install

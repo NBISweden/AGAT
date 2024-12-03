@@ -17,11 +17,6 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw( print_omniscient_statistics );
 
-sub import {
-  AGAT::OmniscientStat->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::OmniscientStat->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
-
 =head1 SYNOPSIS
 
 This is the code to perform statisctis of data store in Omniscient.

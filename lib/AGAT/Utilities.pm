@@ -13,11 +13,6 @@ our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_
 sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
 string_sep_to_hash);
 
-sub import {
-  AGAT::Utilities->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::Utilities->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
-
 =head1 SYNOPSIS
 
  package containing utility tools

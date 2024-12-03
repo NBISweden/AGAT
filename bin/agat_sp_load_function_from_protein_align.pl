@@ -840,10 +840,10 @@ sub check_gene_overlap_gffAlign{
   my  ($hash_omniscient, $prot_omniscient, $gene_id, $gene_id2, $prot_tag)=@_;
 
 #  my $overlap12=undef;
-  my $overlap12_abs=undef
+  my $overlap12_abs=undef;
 
 #  my $w_overlap12=undef;
-  my $w_overlap12_abs=undef
+  my $w_overlap12_abs=undef;
 
 #  my $overlap21=undef;
   my $overlap21_abs=undef;

@@ -26,10 +26,6 @@ our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format
 							modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop
 							slurp_gff3_file_JD);
-sub import {
-	AGAT::OmniscientI->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-	AGAT::OmniscientI->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
 
 =head1 SYNOPSIS
 
