@@ -48,7 +48,7 @@ jobs:
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        run: make test
 
   # This workflow contains a first job called "build"
   build_perl530:
