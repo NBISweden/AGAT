@@ -14,10 +14,6 @@ use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( load_config expose_config_file check_config get_config expose_config_hash );
-sub import {
-  AGAT::Config->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::Config->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
 
 =head1 SYNOPSIS
 

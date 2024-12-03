@@ -16,11 +16,6 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_omniscient_as_gtf);
 
-sub import {
-  AGAT::OmniscientToGTF->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::OmniscientToGTF->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
-
 # --------------------------- INFO ---------------------------
 # Set GTF version definitions
 #my @GTF3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");

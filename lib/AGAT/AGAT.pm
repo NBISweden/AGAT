@@ -20,7 +20,15 @@ our $VERSION     = "v1.4.1";
 our @ISA         = qw(Exporter);
 our @EXPORT      = qw(get_agat_header print_agat_version get_agat_config handle_levels);
 sub import {
-  AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+    AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+    AGAT::OmniscientI->export_to_level(1, @_);
+    AGAT::OmniscientO->export_to_level(1, @_);
+    AGAT::OmniscientTool->export_to_level(1, @_);
+    AGAT::Config->export_to_level(1, @_);
+    AGAT::Levels->export_to_level(1, @_);
+    AGAT::OmniscientStat->export_to_level(1, @_);
+    AGAT::Utilities->export_to_level(1, @_);
+    AGAT::PlotR->export_to_level(1, @_);
 }
 
 =head1 SYNOPSIS

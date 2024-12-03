@@ -33,11 +33,6 @@ remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_long
 check_mrna_positions check_features_overlap initialize_omni_from clean_clone
 create_omniscient get_cds_from_l2 merge_overlap_loci get_uniq_id );
 
-sub import {
-  AGAT::OmniscientTool->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::OmniscientTool->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
-
 =head1 SYNOPSIS
 
 This is the code to handle data store in Omniscient.

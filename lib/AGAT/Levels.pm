@@ -14,10 +14,6 @@ use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw( get_levels_info load_levels expose_levels get_feature_type_by_agat_value );
-sub import {
-  AGAT::Levels->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::Levels->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
 
 =head1 SYNOPSIS
 

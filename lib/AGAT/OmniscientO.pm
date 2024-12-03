@@ -18,11 +18,6 @@ our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_mat
 print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
 convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout);
 
-sub import {
-  AGAT::OmniscientO->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-  AGAT::OmniscientO->export_to_level(2, @_); # to be able to load the EXPORT functions when called from one level up;
-}
-
 =head1 SYNOPSIS
 
   This is the code to output data store in Omniscient.
