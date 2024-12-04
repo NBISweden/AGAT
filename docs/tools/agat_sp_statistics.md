@@ -29,7 +29,7 @@ agat_sp_statistics.pl --help
 
 - **-d** or **-p**
 
-    When this option is used, an histogram of distribution of the features will be printed in pdf files. (d means distribution, p means plot).
+   Bolean - When this option is used, an histogram of distribution of the features will be printed in pdf files in a folder with distribution_plots suffix. (d means distribution, p means plot).
 
 - **-v** or **--verbose**
 
@@ -43,9 +43,13 @@ agat_sp_statistics.pl --help
 
     Integer - Percentile to compute. Default is 90.
 
+- **-r** or **--raw**
+
+    Bolean - When this option is used, the raw data (same as used to create histogram of distribution of the features) are printed in a dedicated folder with raw_data suffix.
+
 - **--yaml**
 
-    Bolean - When this option is activated , a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided)
+    Bolean - When this option is activated, a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided).
 
 - **-c** or **--config**
 
