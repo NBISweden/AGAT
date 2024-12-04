@@ -691,10 +691,11 @@ rmtree $outtmp;
 
 $script = $script_prefix."bin/agat_sp_statistics.pl";
 $result = "$output_folder/agat_sp_statistics_1.txt";
-system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_folder/1.gff -o $outtmp -r 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
+rmtree $outtmp."_raw_data";
 
 # --------check agat_sp_webApollo_compliant.pl-------------
 

@@ -17,6 +17,7 @@ my $opt_yaml = undef;
 my $opt_percentile = 90;
 my $opt_genomeSize = undef;
 my $opt_plot = undef;
+my $opt_raw = undef;
 my $opt_verbose = 0;
 my $opt_help= 0;
 
@@ -25,8 +26,9 @@ if ( !GetOptions(
     "h|help"      => \$opt_help,
     'o|output=s'  => \$opt_output,
     'percentile=i' => \$opt_percentile,
-    'yaml!'       => \$opt_yaml,
-    'd|p'         => \$opt_plot,
+    'yaml!'        => \$opt_yaml,
+    'r|raw!'       => \$opt_raw,
+    'd|p!'         => \$opt_plot,
     'v|verbose'   => \$opt_verbose,
     'g|f|gs=s'    => \$opt_genomeSize,
     "gff|i=s"     => \$gff))
@@ -59,6 +61,23 @@ my $out = prepare_fileout($opt_output);
 if(defined($opt_yaml)){
   if( defined($opt_output)){
     $opt_yaml = $opt_output.".yaml";
+  }
+}
+
+# Manage raw data
+if($opt_raw){
+  if ($opt_output){
+    $opt_raw = $opt_output."_raw_data";
+  }
+  else{
+    $opt_raw = "raw_data";
+
+    if (-f $opt_raw){
+      print "Cannot create a directory with the name $opt_raw because a file with this name already exists.\n";exit();
+    }
+    if (-d $opt_raw){
+      print "Cannot create a directory with the name $opt_raw because a folder with this name already exists.\n";exit();
+    }
   }
 }
 
@@ -107,6 +126,7 @@ print_omniscient_statistics ({ input   => $hash_omniscient,
                                percentile => $opt_percentile,
 															 output  => $out,
                                yaml    => $opt_yaml,
+                               raw     => $opt_raw,
 															 distri  => $opt_plot,
 															 isoform => 1,
 															 verbose => $opt_verbose
@@ -150,7 +170,7 @@ This option inform about the genome size in oder to compute more statistics. You
 
 =item B<-d> or B<-p>
 
-When this option is used, an histogram of distribution of the features will be printed in pdf files. (d means distribution, p means plot).
+Bolean - When this option is used, an histogram of distribution of the features will be printed in pdf files in a folder with distribution_plots suffix. (d means distribution, p means plot).
 
 =item B<-v> or B<--verbose>
 
@@ -164,9 +184,13 @@ File where will be written the result. If no output file is specified, the outpu
 
 Integer - Percentile to compute. Default is 90.
 
+=item B<-r> or B<--raw>
+
+Bolean - When this option is used, the raw data (same as used to create histogram of distribution of the features) are printed in a dedicated folder with raw_data suffix.
+
 =item B<--yaml>
 
-Bolean - When this option is activated , a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided)
+Bolean - When this option is activated, a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided).
 
 =item B<-c> or B<--config>
 

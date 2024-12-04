@@ -52,7 +52,7 @@ sub print_omniscient_statistics{
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
 
 	# Declare all variables and fill them
-	my ($omniscient, $genome_size, $output, $yaml, $verbose, $distri, $isoform, $percentile);
+	my ($omniscient, $genome_size, $output, $yaml, $raw,  $verbose, $distri, $isoform, $percentile);
 
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
@@ -92,6 +92,10 @@ sub print_omniscient_statistics{
 	# YAML output filename
 	if( defined($args->{yaml}) ) {
 			$yaml = $args->{yaml};
+	}
+	# Raw data output filename
+	if( defined($args->{raw}) ) {
+			$raw = $args->{raw};
 	}
 	# add verbosity
 	if( ! defined($args->{verbose}) ) {$verbose = 0;}
@@ -165,6 +169,9 @@ sub print_omniscient_statistics{
 					if($distri){
 						_print_distribution($distri, "with_isoforms", $distri_hash);
 					}
+					if($raw){
+						_print_raw($raw, "with_isoforms", $distri_hash);
+					}
 					# fill for YAML
 					$hash_yaml{ $by_type }{"isoform"}="no";
 					fill_yaml_hash(\%hash_yaml, $by_type, "without_isoforms", $stat);
@@ -176,11 +183,14 @@ sub print_omniscient_statistics{
 					print $output file_text_line({ string => " $by_type", char => "-" });
 					print_sentences($output, $stat);
 					if($distri){
-						_print_distribution($distri, "with_isoform", $distri_hash);
+						_print_distribution($distri, "with_isoforms", $distri_hash);
+					}
+					if($raw){
+						_print_raw($raw, "with_isoforms", $distri_hash);
 					}
 					# fill for YAML
 					$hash_yaml{ $by_type }{"isoform"}="yes";
-					fill_yaml_hash(\%hash_yaml, $by_type, "with_isoform", $stat);
+					fill_yaml_hash(\%hash_yaml, $by_type, "with_isoforms", $stat);
 
 					# Print text file
 					print $output "$by_type have isoforms! Here are the statistics without isoforms shortest isoforms excluded):\n\n";
@@ -189,6 +199,9 @@ sub print_omniscient_statistics{
 					my $distri2_hash = get_distributions($info_l2, $extra_l2);
 					if($distri){;
 						_print_distribution($distri, "without_isoforms", $distri2_hash);
+					}
+					if($raw){
+						_print_raw($raw, "without_isoforms", $distri_hash);
 					}
 					# fill for YAML
 					fill_yaml_hash(\%hash_yaml, $by_type, "without_isoform", $stat2);
@@ -200,7 +213,10 @@ sub print_omniscient_statistics{
 				print $output file_text_line({ string => " $by_type", char => "-" });
 				print_sentences($output, $stat);
 				if($distri){
-					_print_distribution($distri, "with_isoform", $distri_hash);
+					_print_distribution($distri, "with_isoforms", $distri_hash);
+				}
+				if($raw){
+						_print_raw($raw, "with_isoforms", $distri_hash);
 				}
 				# fill for YAML
 				$hash_yaml{ $by_type }{"isoform"}="NA";
@@ -271,6 +287,44 @@ sub recreate_sentence{
 	return $sentence;
 }
 
+# @Purpose: Purpose print raw data from feature statistics
+# @input: 3 =>	String (folder), string (sub folder with or without iso) and hash (distribution)
+# @output: 0
+sub _print_raw{
+  my ($folder, $subfolder, $distri)=@_;
+
+  foreach my $type (keys %{$distri} ) {
+
+    foreach my $level (keys %{$distri->{$type}} ) {
+      foreach my $tag ( keys %{$distri->{$type}{$level}} ) {
+        if( exists_keys ($distri,($type, $level, $tag, 'whole') ) ){
+
+          if(! -d $folder){
+            mkdir $folder;
+          }
+
+          if(! -d $folder."/".$subfolder){
+            mkdir $folder."/".$subfolder;
+          }
+
+          my $output_tsv = $folder."/".$subfolder."/".$type."Class_".$tag.".tsv";
+			
+			# Open the file for writing
+			open my $fh, '>',  $output_tsv or die "Cannot write in file: $!";
+			print $fh "Name\tSize(bp)\n";  # Print header
+			# Print the list to the file
+			foreach my $tuple (@{$distri->{$type}{$level}{$tag}{'whole'}}) {
+				print $fh join("\t", @$tuple), "\n";  # join tuple element with tab and print
+			}
+			
+			# Close the file
+			close $fh;
+        }
+      }
+    }
+  }
+}
+
 # @Purpose: Purpose print distribution from feature statistics
 # @input: 2 =>	String (folder),	string (sub folder with or without iso) and hash (distribution)
 # @output: 0
@@ -293,9 +347,12 @@ sub _print_distribution{
 
           my $outputPDF = $folder."/".$subfolder."/".$type."Class_".$tag.".pdf";
 
+			# Create a new list containing only the second element of each tuple
+			my @first_elements = map { $_->[1] } @{$distri->{$type}{$level}{$tag}{'whole'}};
+
           #CREATE THE R COMMAND
-          my $nbValues = @{$distri->{$type}{$level}{$tag}{'whole'}};
-          my $R_command = rcc_plot_from_list($distri->{$type}{$level}{$tag}{'whole'}, "", "histogram", "$tag"." size (nt)", "Number of $tag", "Distribution of $tag sizes\nMade with $nbValues $tag", $outputPDF);
+          my $nbValues = @first_elements;
+          my $R_command = rcc_plot_from_list(\@first_elements, "", "histogram", "$tag"." size (nt)", "Number of $tag", "Distribution of $tag sizes\nMade with $nbValues $tag", $outputPDF);
           #EXECUTE THE R COMMAND
           execute_R_command($R_command);
         }
@@ -393,7 +450,7 @@ sub get_omniscient_statistics_for_topfeature{
 		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'size_list'}}, $sizeFeature;
 
 		#create distribution list
-		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
+		push @{$all_info{$tag_l1}{'level1'}{$tag_l1}{'distribution'}}, [$feature_l1->_tag_value('ID'), $sizeFeature];
 
 		# grab longest
 		if ((! $all_info{$tag_l1}{'level1'}{$tag_l1}{'longest'}) or ($all_info{$tag_l1}{'level1'}{$tag_l1}{'longest'} < $sizeFeature)){
@@ -449,7 +506,7 @@ sub get_omniscient_statistics_from_l2{
 		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'size_list'}}, $sizeFeature;
 
 		#create distribution list
-		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'distribution'}}, $sizeFeature;
+		push @{$all_info{$tag_l2}{'level1'}{$tag_l1}{'distribution'}}, [$feature_l1->_tag_value('ID'), $sizeFeature];
 
 		# grab longest
 		if ((! $all_info{$tag_l2}{'level1'}{$tag_l1}{'longest'}) or ($all_info{$tag_l2}{'level1'}{$tag_l1}{'longest'} < $sizeFeature)){
@@ -477,7 +534,7 @@ sub get_omniscient_statistics_from_l2{
 				push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'size_list'}}, $sizeFeature;
 
 			#create distribution list
-			push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'distribution'}}, $sizeFeature;
+			push @{$all_info{$tag_l2}{'level2'}{$tag_l2}{'distribution'}}, [$feature_l2->_tag_value('ID'), $sizeFeature];
 
 				# grab longest
 				if ((! $all_info{$tag_l2}{'level2'}{$tag_l2}{'longest'}) or ($all_info{$tag_l2}{'level2'}{$tag_l2}{'longest'} < $sizeFeature)){
@@ -506,7 +563,7 @@ sub get_omniscient_statistics_from_l2{
 				push @{$all_info{$tag_l2}{'level2'}{'intron'}{'size_list'}}, $intronSize;
 
 	  			#create distribution list
-					push @{$all_info{$tag_l2}{'level2'}{'intron'}{'distribution'}}, $sizeFeature;
+				push @{$all_info{$tag_l2}{'level2'}{'intron'}{'distribution'}}, [$feature_l2->_tag_value('ID'), $sizeFeature];
 
 					# grab longest
 	    		if ((! $all_info{$tag_l2}{'level2'}{'intron'}{'longest'}) or ($all_info{$tag_l2}{'level2'}{'intron'}{'longest'} < $intronSize)){
@@ -521,149 +578,149 @@ sub get_omniscient_statistics_from_l2{
 				}
 			}
 
-	#               +----------------------------------------------------+
-	#               |                     FEATURE LEVEL3                 |
-	#               f+----------------------------------------------------+
+			#  +----------------------------------------------------+
+			#  |                     FEATURE LEVEL3                 |
+			#  +----------------------------------------------------+
 			my $utr3 = undef;
 			my $utr5 = undef;
 			my $id_l2=lc($feature_l2->_tag_value('ID'));
-	  	foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
+	  		foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
 
-	  		if( exists_keys ($hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
+	  			if( exists_keys ($hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
 					my $sizeMultiFeat=0;
 					my $counterL3=-1;
 					my $indexLast = $#{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
 
 					my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
-	  			foreach my $feature_l3 ( @sortedList ){
+	  				foreach my $feature_l3 ( @sortedList ){
 
-	  				#count number feature of tag_l3 type
-	  				$counterL3++;
+						#count number feature of tag_l3 type
+						$counterL3++;
 
-	  				#-------------------------------------------------
-	  				#				Manage Introns
-	  				#-------------------------------------------------
-	  				# from the second intron to the last (from index 1 to last index of the table sortedList)
-	  				# We go inside this loop only if we have more than 1 feature.
-	  				if($counterL3 > 0 and $counterL3 <= $indexLast){
-	  					my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end - 1;
+						#-------------------------------------------------
+						#				Manage Introns
+						#-------------------------------------------------
+						# from the second intron to the last (from index 1 to last index of the table sortedList)
+						# We go inside this loop only if we have more than 1 feature.
+						if($counterL3 > 0 and $counterL3 <= $indexLast){
+							my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end - 1;
 
-	  					#compute feature size
-	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'} += $intronSize;
-						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_list'}}, $intronSize;
+							#compute feature size
+							$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_feat'} += $intronSize;
+							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'size_list'}}, $intronSize;
 
-	  					#create distribution list
-							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'distribution'}}, $sizeFeature;
+							#create distribution list
+								push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'distribution'}}, [$feature_l3->_tag_value('ID'), $sizeFeature];
 
-	  					# grab longest
-	    	  		if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'longest'} < $intronSize)){
+							# grab longest
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'longest'} < $intronSize)){
 								$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'longest'}=$intronSize;
 							}
 
 							# grab shorter
-	    				if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'} > $intronSize)){
-	    					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'}=$intronSize;
-	    				}
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'} > $intronSize)){
+								$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'shortest'}=$intronSize;
+							}
 
-	  					#Count number
-	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'nb_feat'} += 1;
-	  				}
+							#Count number
+							$all_info{$tag_l2}{'level3'}{$tag_l3}{'intron'}{'nb_feat'} += 1;
+						}
 
-	  				#compute cumulative feature size
-	  				my $sizeFeature=($feature_l3->end-$feature_l3->start)+1;
-	  				$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'} += $sizeFeature;
-					push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeFeature;
+						#compute cumulative feature size
+						my $sizeFeature=($feature_l3->end-$feature_l3->start)+1;
+						$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'} += $sizeFeature;
+						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeFeature;
 
-	  				#-------------------------------------------------
-	  				# MANAGE SPREAD FEATURES (multi exon features)
-	  				#-------------------------------------------------
-	  	  		if(($tag_l3 =~ /cds/) or ($tag_l3 =~ /utr/)){
-	  	  			$sizeMultiFeat += $sizeFeature;
-	  	  			$all_info{$tag_l2}{'level3'}{$tag_l3}{'exon'}{'nb_feat'}++;
+						#-------------------------------------------------
+						# MANAGE SPREAD FEATURES (multi exon features)
+						#-------------------------------------------------
+						if(($tag_l3 =~ /cds/) or ($tag_l3 =~ /utr/)){
+							$sizeMultiFeat += $sizeFeature;
+							$all_info{$tag_l2}{'level3'}{$tag_l3}{'exon'}{'nb_feat'}++;
 
-	  	  			#### MANAGE piece of multi exon features (spread features)
+							#### MANAGE piece of multi exon features (spread features)
 
-	  	  			#create distribution list of multifeature piece
-							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}}, $sizeFeature;
+							#create distribution list of multifeature piece
+							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}}, [$feature_l3->_tag_value('ID'), $sizeFeature];
 
 							# grab longest
-	    	  		if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'} < $sizeFeature)){
-								$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'}=$sizeFeature;
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'} < $sizeFeature)){
+									$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'longest'}=$sizeFeature;
+								}
+								# grab shorter
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'} > $sizeFeature)){
+								$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'}=$sizeFeature;
 							}
-							# grab shorter
-	    				if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'} > $sizeFeature)){
-	    					$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'shortest'}=$sizeFeature;
-	    				}
-	  	  		}
-	  	  		    #-------------------------------------------------
-	  				# MANAGE single FEATURES (multi exon features)
-	  				#-------------------------------------------------
-	  	  		else{
-	  	  			#count number of feature
-	  					$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
+	  	  				}
+						#-------------------------------------------------
+						# MANAGE single FEATURES (multi exon features)
+						#-------------------------------------------------
+						else{
+							#count number of feature
+							$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
 
-	  	  			#create distribution list of multifeature piece
-							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, $sizeFeature;
+							#create distribution list of multifeature piece
+							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, [$feature_l3->_tag_value('ID'), $sizeFeature];
 
-	    	  		# grab longest
-	    	  		if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'} < $sizeFeature)){
+							# grab longest
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'} < $sizeFeature)){
 								$all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}=$sizeFeature;
 							}
 							# grab shorter
-	    				if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'} > $sizeFeature)){
-	    					$all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}=$sizeFeature;
-	    				}
-	    			}
-	    			####################
-	  				#mange utr per mRNA
-	  				if ($tag_l3 =~ /three_prime_utr/){
-							$utr3=1;
-	  				}
-	  				if ($tag_l3 =~ /five_prime_utr/){
-	  					$utr5=1;
-	  				}
-	  			}# END FOREACH L3
+							if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'} > $sizeFeature)){
+								$all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}=$sizeFeature;
+							}
+	    				}	
+						####################
+						#mange utr per mRNA
+						if ($tag_l3 =~ /three_prime_utr/){
+								$utr3=1;
+						}
+						if ($tag_l3 =~ /five_prime_utr/){
+							$utr5=1;
+						}
+	  				}# END FOREACH L3
 
-	  			#----------------------------------------
-	  			# NOW TAKE CARE OF MULTIFEATURE AND L2
-	  			#in that case the feature was split in several peaces that have been glue together
-	  			if (($tag_l3 =~ /utr/) or ($tag_l3 =~ /cds/)){
-	  				#count number of feature
-	  				$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
+					#----------------------------------------
+					# NOW TAKE CARE OF MULTIFEATURE AND L2
+					#in that case the feature was split in several peaces that have been glue together
+					if (($tag_l3 =~ /utr/) or ($tag_l3 =~ /cds/)){
+						#count number of feature
+						$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
 
-	  				#create distribution list
-						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, $sizeMultiFeat;
+						#create distribution list - get the id of the last piece
+						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, [$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}[$#{$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}}][0], $sizeMultiFeat];
 
-	  				# grab longest
-	    	  	if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'} < $sizeMultiFeat)){
+						# grab longest
+						if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'} < $sizeMultiFeat)){
 							$all_info{$tag_l2}{'level3'}{$tag_l3}{'longest'}=$sizeMultiFeat;
 						}
 
 						# grab shorter
-	    			if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'} > $sizeMultiFeat)){
-	    				$all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}=$sizeMultiFeat;
-	    			}
-	  			}
+	    				if ((! $all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}) or ($all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'} > $sizeMultiFeat)){
+	    					$all_info{$tag_l2}{'level3'}{$tag_l3}{'shortest'}=$sizeMultiFeat;
+	    				}
+	  				}
 
-	  			if ($tag_l3 =~ /exon/){
-	  				if ($indexLast == 0) {
-	    				# body...
-	    				$extra_info{'single'}{$tag_l2}{'level2'}{$tag_l2}++;
-	    			}
-	    			else{
-	    				$All_l2_single=undef;
-	    			}
-	  			}
+					if ($tag_l3 =~ /exon/){
+						if ($indexLast == 0) {
+							# body...
+							$extra_info{'single'}{$tag_l2}{'level2'}{$tag_l2}++;
+						}
+						else{
+							$All_l2_single=undef;
+						}
+					}
 				}
 			}# END all feature level 3
 
-	  	# 1) Manage UTR both side
-	  	if ($utr3  and $utr5){
-	    	$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_both_side'}++;
-	    	$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_at_least_one_side'}++;
-	  	} # 2) Manage UTR at least one side
-	  	elsif ($utr3  or $utr5){
-	 			$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_at_least_one_side'}++;
+			# 1) Manage UTR both side
+			if ($utr3  and $utr5){
+				$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_both_side'}++;
+				$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_at_least_one_side'}++;
+			} # 2) Manage UTR at least one side
+			elsif ($utr3  or $utr5){
+					$all_info{$tag_l2}{'level2'}{$tag_l2}{'utr_at_least_one_side'}++;
 			}
 		}# END all feature level 2
 
