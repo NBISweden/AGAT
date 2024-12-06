@@ -40,6 +40,7 @@ system("$script config -e \\
 								--gff_output_version 2  \\
 								--gtf_output_version 2  \\
 								--debug  \\
+								--deflate_attribute  \\
 								--no-check_all_level1_locations  \\
 								--no-check_identical_isoforms  \\
 								--no-check_utrs  \\

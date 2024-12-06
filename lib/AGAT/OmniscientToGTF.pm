@@ -66,169 +66,166 @@ sub print_omniscient_as_gtf{
 				print "\n\n\nlevel1: ".$feature_level1->gff_string."\n" if $debug;
 				my $id_tag_key_level1 = lc($feature_level1->_tag_value('ID'));
 
-	      # Gene ID level1
+				# Gene ID level1
 				my $gene_id=undef;
-	      my $gene_id_att=undef;
-	      if($feature_level1->has_tag('gene_id')){
-	        $gene_id_att=$feature_level1->_tag_value('gene_id');
-	      }
+				my $gene_id_att=undef;
+				if($feature_level1->has_tag('gene_id')){
+					$gene_id_att=$feature_level1->_tag_value('gene_id');
+				}
 
-	      my $transcript_id=undef;
-	      my $level3_gene_id=undef;
-	      #################
-	      # == LEVEL 2 == #
-	      #################
-	      foreach my $primary_tag_key_level2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+	      		my $transcript_id=undef;
+	      		my $level3_gene_id=undef;
+				#################
+				# == LEVEL 2 == #
+				#################
+				foreach my $primary_tag_key_level2 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-	        if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_tag_key_level1) ) ){
-	          foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+					if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_tag_key_level1) ) ){
+						foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 							print "\nlevel2: ".$feature_level2->gff_string."\n" if $debug;
 
+							# Gene ID level2
+							my $gene_id_mrna_att=undef;
+							if($feature_level2->has_tag('gene_id')){
+								$gene_id_mrna_att=$feature_level2->_tag_value('gene_id');
+							}
 
-	            # Gene ID level2
-	            my $gene_id_mrna_att=undef;
-	            if($feature_level2->has_tag('gene_id')){
-	              $gene_id_mrna_att=$feature_level2->_tag_value('gene_id');
-	            }
+							my $transcript_id_mrna_att=undef;
+							if($feature_level2->has_tag('transcript_id')){
+								$transcript_id_mrna_att=$feature_level2->_tag_value('transcript_id');
+							}
 
-	            my $transcript_id_mrna_att=undef;
-	            if($feature_level2->has_tag('transcript_id')){
-	              $transcript_id_mrna_att=$feature_level2->_tag_value('transcript_id');
-	            }
+							# get gff3 feature (ID)
+							my $level2_ID = lc($feature_level2->_tag_value('ID'));
+							my $level3_transcript_id=undef;
+							#################
+							# == LEVEL 3 == #
+							#################
 
-	            # get gff3 feature (ID)
-	            my $level2_ID = lc($feature_level2->_tag_value('ID'));
-
-	            my $level3_transcript_id=undef;
-	            #################
-	            # == LEVEL 3 == #
-	            #################
-
-	            ############
-	            # Go through one time to check if gene_id and transcript_id are present and save them
-	            foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-	              if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
-	                foreach my $feature_level3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
+							############
+							# Go through one time to check if gene_id and transcript_id are present and save them
+							foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+								if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
+									foreach my $feature_level3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
 										print "level3: ".$feature_level3->gff_string."\n" if $debug;
-	                  #Get level3 gene_id
-	                  if(! $level3_gene_id){
-	                    if($feature_level3->has_tag('gene_id')){
-	                      $level3_gene_id=$feature_level3->_tag_value('gene_id');
-	                    }
-	                  }
+										#Get level3 gene_id
+										if(! $level3_gene_id){
+											if($feature_level3->has_tag('gene_id')){
+												$level3_gene_id=$feature_level3->_tag_value('gene_id');
+											}
+										}
 
-	                  #Get level3 transcript_id
-	                  if(! $level3_transcript_id){
-	                    if($feature_level3->has_tag('transcript_id')){
-	                      $level3_transcript_id=$feature_level3->_tag_value('transcript_id');
-	                    }
-	                  }
-	                  if($level3_gene_id and $level3_transcript_id){last;}
-	                }
-	              }
-	              if($level3_gene_id and $level3_transcript_id){last;}
-	            }
+										#Get level3 transcript_id
+										if(! $level3_transcript_id){
+											if($feature_level3->has_tag('transcript_id')){
+												$level3_transcript_id=$feature_level3->_tag_value('transcript_id');
+											}
+										}
+										if($level3_gene_id and $level3_transcript_id){last;}
+									}
+								}
+								if($level3_gene_id and $level3_transcript_id){last;}
+							}
 
-	            #################
-	            # CHOOSE the gene_id. We take the first from level1 to level3.
-	            if($gene_id_att and ! _does_id_exist("gene_id", $gene_id_att, \%keep_track_gene_id) ){
-	              $gene_id=$gene_id_att;
-	            }
-	            elsif($gene_id_mrna_att and ! _does_id_exist("gene_id", $gene_id_mrna_att, \%keep_track_gene_id) ){
-	              $gene_id=$gene_id_mrna_att
-	            }
-	            elsif($level3_gene_id and ! _does_id_exist("gene_id", $level3_gene_id, \%keep_track_gene_id) ){
-	              $gene_id=$level3_gene_id;
-	            }
-	            else{ # We didn't find any gene_id we will the ID of level1 as gene_id.
-	              $gene_id=$feature_level1->_tag_value('ID');
-	            }
+							#################
+							# CHOOSE the gene_id. We take the first from level1 to level3.
+							if($gene_id_att and ! _does_id_exist("gene_id", $gene_id_att, \%keep_track_gene_id) ){
+								$gene_id=$gene_id_att;
+							}
+							elsif($gene_id_mrna_att and ! _does_id_exist("gene_id", $gene_id_mrna_att, \%keep_track_gene_id) ){
+								$gene_id=$gene_id_mrna_att
+							}
+							elsif($level3_gene_id and ! _does_id_exist("gene_id", $level3_gene_id, \%keep_track_gene_id) ){
+								$gene_id=$level3_gene_id;
+							}
+							else{ # We didn't find any gene_id we will the ID of level1 as gene_id.
+								$gene_id=$feature_level1->_tag_value('ID');
+							}
 
-	            #################
-	            # CHOOSE the transcript_id. We take the first from level2 to level3.
-	            if($transcript_id_mrna_att and ! _does_id_exist("transcript_id", $transcript_id_mrna_att, \%keep_track_transcript_id) ){
-	              $transcript_id=$transcript_id_mrna_att;
-	            }
-	            elsif($level3_transcript_id and ! _does_id_exist("transcript_id", $level3_transcript_id, \%keep_track_transcript_id) ){
-	              $transcript_id=$level3_transcript_id;
-	            }
-	            else{ # We didn't find any gene_id we will the ID of level2 as transcript_id.
-	              $transcript_id=$feature_level2->_tag_value('ID');
-	            }
+							#################
+							# CHOOSE the transcript_id. We take the first from level2 to level3.
+							if($transcript_id_mrna_att and ! _does_id_exist("transcript_id", $transcript_id_mrna_att, \%keep_track_transcript_id) ){
+								$transcript_id=$transcript_id_mrna_att;
+							}
+							elsif($level3_transcript_id and ! _does_id_exist("transcript_id", $level3_transcript_id, \%keep_track_transcript_id) ){
+								$transcript_id=$level3_transcript_id;
+							}
+							else{ # We didn't find any gene_id we will the ID of level2 as transcript_id.
+								$transcript_id=$feature_level2->_tag_value('ID');
+							}
 
-	            ##############
-	            # Second pass of level3 features
-	            # Add gene_id and transcript_id to level3 feature that don't have this information
-	            foreach my $primary_tag_key_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-	              if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
-	                foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
+							##############
+							# Second pass of level3 features
+							# Add gene_id and transcript_id to level3 feature that don't have this information
+							foreach my $primary_tag_key_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+								if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
+									foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
 
-	                  #Check add gene_id
-	                  if(! $feature_level3->has_tag('gene_id')) {
-	                    $feature_level3->add_tag_value('gene_id', $gene_id);
-	                  }
-	                  elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-	                    warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
-											create_or_replace_tag($feature_level3, $previous_tag_l1, $feature_level3->_tag_value('gene_id'));
-											create_or_replace_tag($feature_level3, 'gene_id', $gene_id);
-	                  }
-	                  #Check add transcript_id
-	                  if(! $feature_level3->has_tag('transcript_id')){
-	                    $feature_level3->add_tag_value('transcript_id', $transcript_id);
-	                  }
-	                  elsif($feature_level3->_tag_value('transcript_id') ne $transcript_id){ #transcript_id different, we replace it.
-	                    warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
-										  create_or_replace_tag($feature_level3, $previous_tag_l2, $feature_level3->_tag_value('transcript_id'));
+										#Check add gene_id
+										if(! $feature_level3->has_tag('gene_id')) {
+											$feature_level3->add_tag_value('gene_id', $gene_id);
+										}
+										elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
+											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+																create_or_replace_tag($feature_level3, $previous_tag_l1, $feature_level3->_tag_value('gene_id'));
+																create_or_replace_tag($feature_level3, 'gene_id', $gene_id);
+										}
+										#Check add transcript_id
+										if(! $feature_level3->has_tag('transcript_id')){
+											$feature_level3->add_tag_value('transcript_id', $transcript_id);
+										}
+										elsif($feature_level3->_tag_value('transcript_id') ne $transcript_id){ #transcript_id different, we replace it.
+											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+											create_or_replace_tag($feature_level3, $previous_tag_l2, $feature_level3->_tag_value('transcript_id'));
 											create_or_replace_tag($feature_level3, 'transcript_id', $transcript_id);
-	                  }
-	                }
-	              }
-	            }
+										}
+									}
+								}
+							}
 
-	            ## add level2 missing information gene_id
-	            if(! $feature_level2->has_tag('gene_id')) {
-	               $feature_level2->add_tag_value('gene_id', $gene_id);
-	            }
-	            elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-	              warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+							## add level2 missing information gene_id
+							if(! $feature_level2->has_tag('gene_id')) {
+								$feature_level2->add_tag_value('gene_id', $gene_id);
+							}
+							elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
+								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l1, $feature_level2->_tag_value('gene_id'));
 								create_or_replace_tag($feature_level2, 'gene_id', $gene_id);
-	            }
-	            # add level2 missing information transcript_id
-	            if(! $feature_level2->has_tag('transcript_id')){
-	              $feature_level2->add_tag_value('transcript_id', $transcript_id);
-	            }
-	            elsif($feature_level2->_tag_value('transcript_id') ne $transcript_id){ #gene_id transcript_id, we replace it.
-	              warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+							}
+							# add level2 missing information transcript_id
+							if(! $feature_level2->has_tag('transcript_id')){
+								$feature_level2->add_tag_value('transcript_id', $transcript_id);
+							}
+							elsif($feature_level2->_tag_value('transcript_id') ne $transcript_id){ #gene_id transcript_id, we replace it.
+								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l2, $feature_level2->_tag_value('transcript_id'));
-	              create_or_replace_tag($feature_level2, 'transcript_id', $transcript_id);
-	            }
-	          }
-	        }
-	      }
+								create_or_replace_tag($feature_level2, 'transcript_id', $transcript_id);
+							}
+						}
+					}
+				}
 
-	      ## add level1 missing information gene_id
-	      if(! $feature_level1->has_tag('gene_id')) {
-	        $gene_id = $feature_level1->_tag_value('ID') if (! $gene_id);
-	        $feature_level1->add_tag_value('gene_id', $gene_id);
-	      }
-	      elsif($feature_level1->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-	        warn("Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+				## add level1 missing information gene_id
+				if(! $feature_level1->has_tag('gene_id')) {
+					$gene_id = $feature_level1->_tag_value('ID') if (! $gene_id);
+					$feature_level1->add_tag_value('gene_id', $gene_id);
+				}
+				elsif($feature_level1->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
+					warn("Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 					create_or_replace_tag($feature_level1, $previous_tag_l1, $feature_level1->_tag_value('gene_id'));
 					create_or_replace_tag($feature_level1,'gene_id', $gene_id);
-	      }
+				}
 
 				# Save used ID
 				$keep_track_gene_id{$gene_id}++;
 				$keep_track_transcript_id{$transcript_id}++ if ($transcript_id);
-	    }
-	  }
+			}
+		}
 	}
 
 	if (! $relax){
 		# convert correct
 		_convert_feature_type($hash_omniscient, $gtf_version, $verbose);
-
 	}
 
 	# print results
@@ -432,7 +429,7 @@ sub _remove_cds{
 	@{$hash_omniscient->{'level3'}{'cds'}{$id_l2}} = @new_cds_list;
 }
 
-# Make a uniq string id for comprison.
+# Make a uniq string id for comparison.
 # Needed because ID is not enough because CDS can share identifiers
 sub _uniq_comparison{
 	my ($feature)=@_;
@@ -462,6 +459,7 @@ sub _print_omniscient_filter{
 
 			my $feature_l1 = $hash_omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1};
 			my $primary_tag_l1_gtf = lc($feature_l1->primary_tag());
+			_deal_with_double_attributes($feature_l1);
 			$gffout->write_feature($feature_l1); # print feature
 
 			# ----- LEVEL 2 -----
@@ -470,6 +468,7 @@ sub _print_omniscient_filter{
 					foreach my $feature_level2 ( sort { ncmp ($a->start.$a->end.$a->_tag_value('ID'), $b->start.$b->end.$b->_tag_value('ID') ) } @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 						my $primary_tag_l2_gtf = lc($feature_level2->primary_tag());
+						_deal_with_double_attributes($feature_level2);
 						$gffout->write_feature($feature_level2); # print feature
 
 						# ----- LEVEL 3 -----
@@ -480,6 +479,7 @@ sub _print_omniscient_filter{
 						# FIRST EXON
 						if ( exists_keys( $hash_omniscient, ('level3', 'exon', $level2_ID) ) ){
 							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}}) {
+								_deal_with_double_attributes($feature_level3);
 								$gffout->write_feature($feature_level3);
 								push @l3_done, 'exon';
 							}
@@ -488,6 +488,7 @@ sub _print_omniscient_filter{
 						# SECOND CDS
 						if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
 							foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}}) {
+								_deal_with_double_attributes($feature_level3);
 								$gffout->write_feature($feature_level3);
 								push @l3_done, 'cds';
 							}
@@ -501,6 +502,7 @@ sub _print_omniscient_filter{
 									my $primary_tag_l3_gtf = lc($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}->[0]->primary_tag() );
 
 									foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
+										_deal_with_double_attributes($feature_level3);
 										$gffout->write_feature($feature_level3);
 									}
 								}
@@ -509,6 +511,34 @@ sub _print_omniscient_filter{
 					}
 				}
 			}
+		}
+	}
+}
+
+# @Purpose: Modify the gene_id and transcript_id attributes to avoid double values
+# @input: 1 =>  feature
+# @output none => none
+sub _deal_with_double_attributes{
+	my ($feature) = @_  ;
+
+	if ($feature->has_tag('gene_id')){
+		my @gene_id_att = $feature->get_tag_values('gene_id');
+		if (scalar(@gene_id_att) > 1){
+			warn("Gene_id have several values, we will keep only the first one.\n");
+			my $gene_id = shift @gene_id_att; # get first value
+			$feature->remove_tag('gene_id');
+			$feature->add_tag_value('gene_id', $gene_id);
+			$feature->add_tag_value('agat_other_gene_id', @gene_id_att);
+		}
+	}
+	if ($feature->has_tag('transcript_id')){
+		my @transcript_id_att = $feature->get_tag_values('transcript_id');
+		if (scalar(@transcript_id_att) > 1){
+			my $transcript_id = shift @transcript_id_att; # get first value
+			warn("Transcript_id have several values, we will keep only the first one.\n");
+			$feature->remove_tag('transcript_id'); 
+			$feature->add_tag_value('transcript_id', $transcript_id);
+			$feature->add_tag_value('agat_other_transcript_id', @transcript_id_att);
 		}
 	}
 }

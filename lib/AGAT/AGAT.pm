@@ -17,8 +17,9 @@ use AGAT::PlotR;
 use Bio::Tools::GFF;
 
 our $VERSION     = "v1.4.1";
-our @ISA         = qw(Exporter);
-our @EXPORT      = qw(get_agat_header print_agat_version get_agat_config handle_levels);
+our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
+our @ISA         = qw( Exporter );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels );
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -159,6 +160,10 @@ sub get_agat_config{
 	# Load the config
 	my $config = load_config({ config_file => $config_file_checked});
 	check_config({ config => $config});
+
+	# Store the config in a Global variable accessible from everywhere.
+	$CONFIG = $config;
+	
 	return $config;
 }
 
@@ -243,6 +248,7 @@ sub handle_config {
 		my $output_format = $general->{configs}[-1]{output_format};
 		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
 		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
+		my $deflate_attribute = $general->{configs}[-1]{deflate_attribute};
 		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
 		my $clean_attributes_from_template = $general->{configs}[-1]{clean_attributes_from_template};
 		my $locus_tag = $general->{configs}[-1]{locus_tag};
@@ -322,6 +328,11 @@ sub handle_config {
 			# string
 			if( defined($gtf_output_version) ){
 				$config->{ gtf_output_version } = lc($gtf_output_version);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($deflate_attribute) ){
+				$config->{ deflate_attribute } = _make_bolean($deflate_attribute);
 				$modified_on_the_fly = 1;
 			}
 			# bolean

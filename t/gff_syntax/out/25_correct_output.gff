@@ -21,7 +21,7 @@ scaffold1	StringTie	exon	12106	13353	1000.00	-	.	ID=agat-exon-13;Parent=MSTRG.6.
 scaffold1	AGAT	gene	21499	23178	.	.	.	ID=agat-gene-3;geneID=MSTRG.7
 scaffold1	StringTie	transcript	21499	23178	1000.00	.	.	ID=MSTRG.7.1;Parent=agat-gene-3;geneID=MSTRG.7
 scaffold1	StringTie	exon	21499	23178	1000.00	.	.	ID=agat-exon-14;Parent=MSTRG.7.1;cov=207.398804
-scaffold1	AGAT	gene	44218	47964	.	-	.	ID=agat-gene-4;geneID=MSTRG.11
+scaffold1	AGAT	gene	44218	47964	.	-	.	ID=agat-gene-4;geneID=MSTRG.11;merged_ID=agat-gene-5,agat-gene-6
 scaffold1	StringTie	transcript	44218	47964	1000.00	-	.	ID=MSTRG.11.1;Parent=agat-gene-4;geneID=MSTRG.11
 scaffold1	StringTie	exon	44218	45365	1000.00	-	.	ID=agat-exon-15;Parent=MSTRG.11.1;cov=3001.629883
 scaffold1	StringTie	exon	47660	47706	1000.00	-	.	ID=agat-exon-16;Parent=MSTRG.11.1;cov=4399.870117
