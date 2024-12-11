@@ -2625,6 +2625,7 @@ sub collect_l1_info_sorted_by_seqid_and_location{
 	#Check option filterid
 	my $hash_filterid;
 	if ($filterid){
+		$hash_filterid = {};
 		if( ref($filterid) eq 'ARRAY' ){
 			$hash_filterid->{$_}++ for (@{$filterid});
 		}
