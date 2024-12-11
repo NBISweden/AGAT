@@ -16,16 +16,18 @@ my $file_fasta=undef;
 my $outfile = undef;
 my $verbose = undef;
 my $opt_test = undef;
+my $opt_all_iso = undef;
 my $gff = undef;
 my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s' => \$config,
     "h|help"   => \$opt_help,
     "g|gff=s"  => \$gff,
     't|test=s' => \$opt_test,
+    'all_iso!' => \$opt_all_iso,
     "size|s=i" => \$PROT_LENGTH,
     "v!"       => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
@@ -110,10 +112,17 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-      my $there_is_cds=undef;
-      my $one_pass=undef;
+       
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_l2, $gene_id_l1) ) ){
-				$no_l2 = undef;
+				
+        $no_l2 = undef;
+        my $one_pass=undef;   
+        my $all_pass=1;
+        my $all_have_cds=1;
+        my $none_have_cds=1;
+        my $there_is_cds=undef;
+         
+        
         foreach my $level2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1}}) {
 
           # get level2 id
@@ -134,28 +143,59 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 
             if(test_size($cds_size, $PROT_LENGTH, $opt_test) ){
               $one_pass="true";
+            } else {
+              $all_pass=undef;
+            }
+            $none_have_cds=undef;
+          } else {
+            $all_have_cds=undef;
+          }
+        }
+
+        # ---------- CASE there is at least one CDS -----------
+        if( $there_is_cds ){
+        # Resume the result at transcript level (no isoform taken into account) to save it in the good or bad list
+        # At least one isoform passes the test
+          if ( ! $opt_all_iso ){
+            if( $one_pass ){
+              print "At least one CDS for $gene_id_l1 does pass the test!\n" if ($verbose);
+              push(@good_gene_list, $gene_id_l1);
+              $number_pass++;
+            }
+            else{
+              print "At least one CDS for $gene_id_l1 does not pass the test!\n" if ($verbose);
+              push(@bad_gene_list, $gene_id_l1);
             }
           }
-        }
-        if($there_is_cds){
-          if($one_pass){
-            push(@good_gene_list, $gene_id_l1);
-            $number_pass++;
+
+          # Resume the result at gene level (isoforms taken into account) to save it in the good or bad list
+          # At the isoforms pass the test
+          if ( $opt_all_iso ){
+            if( $all_pass ){
+              print "All CDS for $gene_id_l1 pass the test!\n" if ($verbose);
+              push(@good_gene_list, $gene_id_l1);
+              $number_pass++;
+            }
+            else{
+              print "All CDS for $gene_id_l1 do not pass the test!\n" if ($verbose);
+              push(@bad_gene_list, $gene_id_l1);
+            }
+            # If necessary here we know if all isoforms had a CDS in $all_have_cds
           }
-          else{
-            push(@bad_gene_list, $gene_id_l1);
-          }
         }
+        # ---------- CASE there is no CDS -----------
         else{
           print "No cds for $gene_id_l1\n" if ($verbose);
           push(@good_gene_list, $gene_id_l1);
         }
       }
+
+      # ---------- CASE NO L2 -----------
+      if($no_l2){ # case of l1 feature without child
+        print "No child for $gene_id_l1\n" if ($verbose);
+        push(@good_gene_list, $gene_id_l1);
+      }
     }
-		if($no_l2){ # case of l1 feature without child
-			print "No child for $gene_id_l1\n" if ($verbose);
-			push(@good_gene_list, $gene_id_l1);
-		}
   }
 }
 
@@ -165,7 +205,7 @@ my $number_notpass=$#bad_gene_list+1;
 print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@good_gene_list, output => $gffout_pass} );
 print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@bad_gene_list, output => $gffout_notpass} );
 
-print "$number_pass genes passed the test.\n";
+print "\n$number_pass genes passed the test.\n";
 print "$number_notpass genes didn't pass the test.\n";
 
 # END
@@ -227,6 +267,7 @@ The script reads a gff annotation file, and create two output files,
 one contains the gene models with ORF passing the test, the other contains the rest.
 By default the test is "> 100" that means all gene models that have ORF longer
 than 100 Amino acids, will pass the test.
+By default, the gene will pass the test if at least one isoform pass the test.
 
 =head1 SYNOPSIS
 
@@ -248,6 +289,10 @@ ORF size to apply the test. Default 100.
 =item B<-t> or B<--test>
 Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
 By default it will be ">"
+
+=item B<--all_iso>
+
+Report the gene only if all isoforms pass the test. By default, the gene will pass the test if at least one isoform pass the test.
 
 =item B<-v>
 
