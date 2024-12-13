@@ -6,6 +6,8 @@ The script reads a gff annotation file, and create two output files,
 one contains the gene models with ORF passing the test, the other contains the rest.
 By default the test is "> 100" that means all gene models that have ORF longer
 than 100 Amino acids, will pass the test.
+In the case of isoforms, the isoforms that do not pass the test are removed
+(If all isoforms are removed, the gene is removed).
 
 ## SYNOPSIS
 
@@ -25,8 +27,11 @@ agat_sp_filter_by_ORF_size.pl -h
     ORF size to apply the test. Default 100.
 
 - **-t** or **--test**
-Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
-By default it will be ">"
+
+    Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter like that "<=" otherwise your terminal will complain.
+    By default it will be ">"
+
+
 - **-v**
 
     Verbose. Useful for debugging purpose. Bolean

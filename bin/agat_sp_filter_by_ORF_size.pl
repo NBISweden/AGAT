@@ -5,6 +5,7 @@ use warnings;
 use Carp;
 use POSIX qw(strftime);
 use Getopt::Long;
+use Clone 'clone';
 use Pod::Usage;
 use AGAT::AGAT;
 
@@ -22,7 +23,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s' => \$config,
     "h|help"   => \$opt_help,
     "g|gff=s"  => \$gff,
     't|test=s' => \$opt_test,
@@ -100,73 +101,131 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                });
 print ("GFF3 file parsed\n");
 
-my @good_gene_list;
-my @bad_gene_list;
-my $number_pass=0;
+# Create an empty omniscient hash to store the discarded features and copy the config in
+my %hash_omniscient_discarded;
+    $hash_omniscient_discarded{'config'} = clone($hash_omniscient->{'config'});
+
+my $number_mRNA_discarded=0;
+my $number_gene_discarded=0;
+my $number_gene_affected=0;
 foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_l1 = gene or repeat etc...
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
+    
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
     print "Study gene $gene_id_l1\n" if($verbose);
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-      my $there_is_cds=undef;
-      my $one_pass=undef;
+       
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_l2, $gene_id_l1) ) ){
-				$no_l2 = undef;
+
+        $no_l2 = undef;  
+        my $there_is_cds=undef;
+        my @l2_to_discard; 
+        my @l2_to_keep; 
+
         foreach my $level2_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1}}) {
 
           # get level2 id
           my $id_level2 = lc($level2_feature->_tag_value('ID'));
 
           ##############################
-          #If it's a mRNA = have CDS. #
-					if( exists_keys( $hash_omniscient, ('level3', 'cds', $id_level2 ) ) ) {
+          #If it's a mRNA with a CDS. #
+          if( exists_keys( $hash_omniscient, ('level3', 'cds', $id_level2 ) ) ) {
             $there_is_cds="true";
 
-            ##############
-            # Manage CDS #
+            # Manage the CDS 
             my $cds_size=0;
             foreach my $cds (@{$hash_omniscient->{'level3'}{'cds'}{$id_level2}}){
               $cds_size+= ($cds->end() - $cds->start() + 1);
             }
             $cds_size = ($cds_size - 3) / 3; # Remove the stop codon and divide by 3 to get Amnino acid
-
-            if(test_size($cds_size, $PROT_LENGTH, $opt_test) ){
-              $one_pass="true";
+            # test the CDS
+            if( test_size($cds_size, $PROT_LENGTH, $opt_test) ){
+              push @l2_to_keep, $id_level2;
+            } else {
+              $number_mRNA_discarded++;
+              push @l2_to_discard, $id_level2;
             }
+          } 
+          else {
+            $number_mRNA_discarded++;
+            push @l2_to_discard, $id_level2;
           }
         }
-        if($there_is_cds){
-          if($one_pass){
-            push(@good_gene_list, $gene_id_l1);
-            $number_pass++;
+
+        # ---------- CASE there is at least one CDS -----------
+        if( $there_is_cds ){
+          # All transcript discarded
+          if( @l2_to_keep == 0){
+            print "Case all L2 discarded \n" if ($verbose);
+            $number_gene_discarded++;
+            $number_gene_affected++;
+            # move L3
+            foreach my $level2_ID (@l2_to_discard){ 
+              foreach my $primary_tag_l3 (keys %{$hash_omniscient->{'level3'}}){ # 
+                if ( exists ($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} ) ){
+                  $hash_omniscient_discarded{'level3'}{$primary_tag_l3}{$level2_ID} = delete $hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} 
+                }
+              }
+						}
+            # move L2
+            $hash_omniscient_discarded{'level2'}{$primary_tag_l2}{$gene_id_l1} = delete $hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1};
+            # move L1
+            $hash_omniscient_discarded{'level1'}{$primary_tag_l1}{$gene_id_l1} = delete $hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
           }
-          else{
-            push(@bad_gene_list, $gene_id_l1);
+          # Only part of the isoforms have been discarded
+          elsif ( @l2_to_discard > 0){
+            print "Case some L2 discarded \n" if ($verbose);
+            $number_gene_affected++;
+            # handle L3
+            
+            foreach my $level2_ID (@l2_to_discard){
+              foreach my $primary_tag_l3 (keys %{$hash_omniscient->{'level3'}}){ # 
+                if ( exists ($hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} ) ){
+                  $hash_omniscient_discarded{'level3'}{$primary_tag_l3}{$level2_ID} = delete $hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID} 
+                }
+              }
+            }
+            # handle L2
+            my @new_l2_flist_keep;
+            my @new_l2_flist_discard;
+            if (exists_keys ($hash_omniscient, ('level2', $primary_tag_l2, $gene_id_l1) ) ){ 
+              foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1}}) {
+                my $id_level2 = lc($feature_l2->_tag_value('ID'));
+                if ( grep {$_ eq $id_level2} @l2_to_discard ){
+                  push @new_l2_flist_discard, $feature_l2 ;
+                } else {
+                  push @new_l2_flist_keep, $feature_l2 ;
+                }
+              }
+            }
+            $hash_omniscient_discarded{'level2'}{$primary_tag_l2}{$gene_id_l1} = \@new_l2_flist_discard;
+            $hash_omniscient->{'level2'}{$primary_tag_l2}{$gene_id_l1} = \@new_l2_flist_keep;
+            # handle L1
+            $hash_omniscient_discarded{'level1'}{$primary_tag_l1}{$gene_id_l1} = clone( $hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1} );
           }
         }
+        # ---------- CASE there is no CDS -----------
         else{
           print "No cds for $gene_id_l1\n" if ($verbose);
-          push(@good_gene_list, $gene_id_l1);
         }
       }
+      # ---------- CASE NO L2 -----------
+      if($no_l2){ # case of l1 feature without child
+        print "No child for $gene_id_l1\n" if ($verbose);
+      }
     }
-		if($no_l2){ # case of l1 feature without child
-			print "No child for $gene_id_l1\n" if ($verbose);
-			push(@good_gene_list, $gene_id_l1);
-		}
   }
 }
 
 #resume
+print_omniscient( {omniscient => $hash_omniscient, output => $gffout_pass} );
+print_omniscient( {omniscient => \%hash_omniscient_discarded, output => $gffout_notpass} );
 
-my $number_notpass=$#bad_gene_list+1;
-print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@good_gene_list, output => $gffout_pass} );
-print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@bad_gene_list, output => $gffout_notpass} );
-
-print "$number_pass genes passed the test.\n";
-print "$number_notpass genes didn't pass the test.\n";
+print "\n$number_gene_affected genes have at least one transcript removed.\n";
+print "$number_gene_discarded genes discarded\n";
+print "$number_mRNA_discarded transcripts discarded.\n";
 
 # END
 my $end_run = time();
@@ -227,6 +286,10 @@ The script reads a gff annotation file, and create two output files,
 one contains the gene models with ORF passing the test, the other contains the rest.
 By default the test is "> 100" that means all gene models that have ORF longer
 than 100 Amino acids, will pass the test.
+In the case of isoforms, the isoforms that do not pass the test are removed
+(If all isoforms are removed, the gene is removed).
+A gene with with any transcript having any CDS wiull be considered as non
+coding gene and will not be removed.
 
 =head1 SYNOPSIS
 
@@ -246,7 +309,7 @@ Input GTF/GFF file.
 ORF size to apply the test. Default 100.
 
 =item B<-t> or B<--test>
-Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
+Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter like that "<=" otherwise your terminal will complain.
 By default it will be ">"
 
 =item B<-v>
