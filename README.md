@@ -227,7 +227,7 @@ You will have to install all prerequisites and AGAT manually.
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl
     ```
 
   * Optional
