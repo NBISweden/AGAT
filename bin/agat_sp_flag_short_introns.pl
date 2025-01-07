@@ -20,11 +20,11 @@ my $opt_help = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s' => \$opt_output,
-                  'v|verbose!'      => \$verbose,
-                  'i|intron_size=i'      => \$Xsize,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+                  'o|out|output=s'      => \$opt_output,
+                  'v|verbose!'          => \$verbose,
+                  'i|intron_size=i'     => \$Xsize,
+                  'c|config=s'          => \$config,
+                  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -82,7 +82,7 @@ print("Parsing Finished\n\n");
 #########################
 
 my $nb_cases=0;
-my $tag = "pseudo";
+my $tag = "short_intron";
 ######################
 ### Parse GFF input #
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
@@ -90,74 +90,23 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
     my $shortest_intron=10000000000;
     foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
       if (exists_keys($hash_omniscient,('level2',$tag_l2,$id_l1) ) ){
-        # #MATCH CASE - We ahve to count the L2 match features
-        # if($tag_l2 =~ "match"){
-        #   my $counterL2_match=-1;
-        #   foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
+        foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
+          my $level2_ID = lc($feature_l2->_tag_value('ID'));
 
-        #     my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
-        #     my $indexLastL2 = $#{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
-        #     $counterL2_match++;
-
-        #     if($counterL2_match > 0 and $counterL2_match <= $indexLastL2){
-        #       my $intronSize = $sortedList[$counterL2_match]->start - $sortedList[$counterL2_match-1]->end;
-        #       $shortest_intron = $intronSize if($intronSize < $shortest_intron)
-        #     }
-        #   }
-        # }
-        # else{
-          foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
-            my $level2_ID = lc($feature_l2->_tag_value('ID'));
-
-            # if ( exists_keys($hash_omniscient,('level3','exon',$level2_ID) ) ){
-            #   my $counterL3=-1;
-            #   my $indexLast = $#{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}};
-            #   my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}};
-            #   foreach my $feature_l3 ( @sortedList ){
-            #     #count number feature of tag_l3 type
-            #     $counterL3++;
-            #     #Manage Introns## from the second intron to the last (from index 1 to last index of the table sortedList) ## We go inside this loop only if we have more than 1 feature.
-            #     if($counterL3 > 0 and $counterL3 <= $indexLast){
-            #       my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
-            #       $shortest_intron = $intronSize if($intronSize < $shortest_intron)
-            #     }
-            #   }
-            # }
-            # else{
-              if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID)) ){
-                my $counterL3=-1;
-                my $indexLast = $#{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-                my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-                foreach my $feature_l3 ( @sortedList ){
-                  #count number feature of tag_l3 type
-                  $counterL3++;
-                  #Manage Introns## from the second intron to the last (from index 1 to last index of the table sortedList) ## We go inside this loop only if we have more than 1 feature.
-                  if($counterL3 > 0 and $counterL3 <= $indexLast){
-                    my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
-                    $shortest_intron = $intronSize if($intronSize < $shortest_intron)
-                  }
-                }
+          if ( exists_keys($hash_omniscient,('level3', 'exon', $level2_ID)) ){
+            my $counterL3=-1;
+            my $indexLast = $#{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}};
+            my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}};
+            foreach my $feature_l3 ( @sortedList ){
+              #count number feature of tag_l3 type
+              $counterL3++;
+              #Manage Introns## from the second intron to the last (from index 1 to last index of the table sortedList) ## We go inside this loop only if we have more than 1 feature.
+              if($counterL3 > 0 and $counterL3 <= $indexLast){
+                my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
+                $shortest_intron = $intronSize if($intronSize < $shortest_intron)
               }
-              # foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
-              #   if (index(lc($tag_l3), 'utr') != -1) {
-              #     if ( exists_keys($hash_omniscient,('level3',$tag_l3,$level2_ID)) ){
-              #       my $counterL3=-1;
-              #       my $indexLast = $#{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}};
-              #       my @sortedList = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}};
-              #       foreach my $feature_l3 ( @sortedList ){
-              #         #count number feature of tag_l3 type
-              #         $counterL3++;
-              #         #Manage Introns## from the second intron to the last (from index 1 to last index of the table sortedList) ## We go inside this loop only if we have more than 1 feature.
-              #         if($counterL3 > 0 and $counterL3 <= $indexLast){
-              #           my $intronSize = $sortedList[$counterL3]->start - $sortedList[$counterL3-1]->end;
-              #           $shortest_intron = $intronSize if($intronSize < $shortest_intron)
-              #         }
-              #       }
-              #     }
-              #   }
-              # }
-            #}
-          #}
+            }
+          }
         }
       }
     }
@@ -168,28 +117,17 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 
       my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
       $feature_l1->add_tag_value($tag, $shortest_intron);
-      if($feature_l1->has_tag('product') ){
-        $feature_l1->add_tag_value('note', $feature_l1->get_tag_values('product'));
-        $feature_l1->remove_tag('product');
-      }
+
       foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
         if (exists_keys ($hash_omniscient, ('level2', $tag_l2, $id_l1) ) ) {
           foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
             my $level2_ID = lc($feature_l2->_tag_value('ID'));
             $feature_l2->add_tag_value($tag, $shortest_intron);
-            if($feature_l2->has_tag('product') ){
-              $feature_l2->add_tag_value('note', $feature_l2->get_tag_values('product'));
-              $feature_l2->remove_tag('product');
-            }
 
             foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
               if ( exists_keys($hash_omniscient, ('level3', $tag_l3, $level2_ID) ) ){
                 foreach my $feature_l3 (@{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}){
                   $feature_l3->add_tag_value($tag, $shortest_intron);
-                  if($feature_l3->has_tag('product') ){
-                    $feature_l3->add_tag_value('note', $feature_l3->get_tag_values('product'));
-                    $feature_l3->remove_tag('product');
-                  }
                 }
               }
             }
@@ -234,9 +172,9 @@ agat_sp_flag_short_introns.pl
 
 =head1 DESCRIPTION
 
-The script flags the short introns with the attribute <pseudo>.
-Is is usefull to avoid ERROR when submiting the data to EBI.
-(Typical EBI error message: ********ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy)
+Looking at exon features the script flags each feature of a record with the <short_intron> attribute if 
+it contains an intron with a size below the <--intron_size> threshold (10bp by default).
+The value of this attribute will be the size of the shortest intron found under the threshold.
 
 =head1 SYNOPSIS
 
