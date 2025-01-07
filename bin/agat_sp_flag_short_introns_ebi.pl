@@ -183,7 +183,7 @@ agat_sp_flag_short_introns_ebi.pl
 
 =head1 DESCRIPTION
 
-By default, the script flags short introns within coding sequences (CDS) with the <pseudo> attribute and change the <product> attribute into a <note> attribute.
+The script flags records that contain short introns (default 10bp) within coding sequences (CDS) with the <pseudo> attribute and changes the <product> attribute into a <note> attribute.
 This is useful for avoiding ERROR messages when submitting data to the EBI.
 (Typical EBI error message: ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy.)
 
