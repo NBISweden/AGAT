@@ -288,7 +288,7 @@ By default the test is "> 100" that means all gene models that have ORF longer
 than 100 Amino acids, will pass the test.
 In the case of isoforms, the isoforms that do not pass the test are removed
 (If all isoforms are removed, the gene is removed).
-A gene with with any transcript having any CDS wiull be considered as non
+A gene with with any transcript having any CDS will be considered as non
 coding gene and will not be removed.
 
 =head1 SYNOPSIS
