@@ -349,15 +349,6 @@
 1	irgsp	CDS	147507	147575	.	+	0	ID=CDS:Os01t0102600-01;Parent=transcript:Os01t0102600-01;protein_id=Os01t0102600-01
 1	irgsp	five_prime_UTR	145603	145644	.	+	.	ID=agat-five_prime_utr-30;Parent=transcript:Os01t0102600-01
 1	irgsp	three_prime_UTR	147576	147847	.	+	.	ID=agat-three_prime_utr-29;Parent=transcript:Os01t0102600-01
-1	irgsp	mRNA	147104	147805	.	+	.	ID=transcript:Os01t0102600-02;Parent=gene:Os01g0102600;biotype=protein_coding;transcript_id=Os01t0102600-02
-1	irgsp	exon	147104	147184	.	+	.	ID=Os01t0102600-02.exon1;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon1;constitutive=0;ensembl_end_phase=1;ensembl_phase=-1;exon_id=Os01t0102600-02.exon1;rank=1
-1	irgsp	exon	147311	147375	.	+	.	ID=agat-exon-4;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=1;exon_id=Os01t0102600-02.exon2;rank=2
-1	irgsp	exon	147507	147805	.	+	.	ID=Os01t0102600-02.exon3;Parent=transcript:Os01t0102600-02;Name=Os01t0102600-02.exon3;constitutive=0;ensembl_end_phase=-1;ensembl_phase=0;exon_id=Os01t0102600-02.exon3;rank=3
-1	irgsp	CDS	147106	147184	.	+	0	ID=CDS:Os01t0102600-02;Parent=transcript:Os01t0102600-02;protein_id=Os01t0102600-02
-1	irgsp	CDS	147311	147375	.	+	2	ID=CDS:Os01t0102600-02;Parent=transcript:Os01t0102600-02;protein_id=Os01t0102600-02
-1	irgsp	CDS	147507	147575	.	+	0	ID=CDS:Os01t0102600-02;Parent=transcript:Os01t0102600-02;protein_id=Os01t0102600-02
-1	irgsp	five_prime_UTR	147104	147105	.	+	.	ID=agat-five_prime_utr-31;Parent=transcript:Os01t0102600-02
-1	irgsp	three_prime_UTR	147576	147805	.	+	.	ID=agat-three_prime_utr-30;Parent=transcript:Os01t0102600-02
 1	irgsp	gene	148085	150568	.	+	.	ID=gene:Os01g0102700;biotype=protein_coding;description=Translocon-associated beta family protein. (Os01t0102700-01);gene_id=Os01g0102700;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	148085	150568	.	+	.	ID=transcript:Os01t0102700-01;Parent=gene:Os01g0102700;biotype=protein_coding;transcript_id=Os01t0102700-01
 1	irgsp	exon	148085	148313	.	+	.	ID=Os01t0102700-01.exon1;Parent=transcript:Os01t0102700-01;Name=Os01t0102700-01.exon1;constitutive=1;ensembl_end_phase=2;ensembl_phase=-1;exon_id=Os01t0102700-01.exon1;rank=1
