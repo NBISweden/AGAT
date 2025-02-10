@@ -139,9 +139,9 @@ Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.
 Then:
   ```
 # get the chosen AGAT container version
-docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
+docker pull quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0
 # use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl
-docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
+docker run quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
    </details>
  
