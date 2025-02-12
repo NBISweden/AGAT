@@ -655,6 +655,7 @@ sub _from_gff3_string {
 
     my $size_group = scalar(@groups);
     for my $group (@groups) {
+        next if( ! $group); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
         my ($tag,$value) = split /=/,$group;
         $tag             = unescape($tag);
         my @values       = map {unescape($_)} split /,/,$value;
