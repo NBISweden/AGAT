@@ -479,7 +479,7 @@ sub slurp_gff3_file_JD {
 	}
 
 	if( $config->{check_all_level3_locations} ) {
-			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			#Check relationship L3 feature, exons have to be defined...
 			dual_print ($log, file_text_line({ string => "Check$check_cpt: all level3 locations", char => "-", prefix => "\n" }), $verbose );
 			_check_all_level3_locations($debug, $log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose);
 			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
@@ -2294,7 +2294,7 @@ sub _check_exons{
 					 	}
 				 	}
 
-				 	#Check extremities of exons (If exon is shorter we adapt it to the mRNA size, else we adapt the L2 size to the exon size)
+				 		#Check extremities of exons (If exon is shorter we adapt it to the mRNA size, else we adapt the L2 size to the exon size)
 	 					my $id_l1 = lc($mRNAGeneLink->{lc($id_l2)});
 	 					my $getout=undef;
 	 					foreach my $tag_l2 ( %{$hash_omniscient->{'level2'}} ){
