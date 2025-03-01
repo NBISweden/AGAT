@@ -151,7 +151,7 @@ The result is written to the specified output file, or to STDOUT.
 
 Input GTF/GFF file.
 
-=item B<-f> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 Input fasta file that will be masked
 

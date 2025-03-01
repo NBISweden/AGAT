@@ -25,7 +25,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
                   "feature_copy|fc=s"    => \$primaryTagCopy,
                   "feature_paste|fp=s"   => \$primaryTagPaste,
                   'o|output=s'           => \$opt_output,
-                  "tag|att=s"            => \$attributes,
+                  "a|tag|att|attribute=s"  => \$attributes,
                   'v|verbose!'           => \$opt_verbose,
                   'c|config=s'           => \$config,
                   'h|help!'              => \$opt_help ) )
@@ -349,7 +349,7 @@ You can specify directly all the feature of a particular level:
 By default all feature level3 are used. 
 
 
-=item  B<-a> or B<--attribute>
+=item B<-a>, B<--tag>, B<--att> or B<--attribute>
 
 Attribute that will be copied and pasted. Case sensitive.
 You can specified an attribute (or a coma separated list) by giving its attribute tag value (column9) as: Ontology, Dbxref, etc

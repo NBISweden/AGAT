@@ -1246,11 +1246,11 @@ You can flip the 2.1 and 2.2 test using the priority option.
 
 Input gtf/gff file of an annotation.
 
-=item B<-pgff>
+=item B<--pgff>
 
 Input gff file of aligned proteins.
 
-=item B<-pfasta>
+=item B<--pfasta>
 
 Input protein fasta file where the extra information will be retrieved for each aligned protein.
 
