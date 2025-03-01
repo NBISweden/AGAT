@@ -360,8 +360,6 @@ To use bam with this script you will need samtools in your path.
 
 =head1 OPTIONS
 
-if ( !GetOptions( 'i|input=s' => \$opt_in,
-
 =over 8
 
 =item B<-i> or B<--input>
