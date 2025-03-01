@@ -402,7 +402,7 @@ then the parental level1 and level2 features are removed and will end up in the 
 
 Input GFF3 file that will be read
 
-=item  B<-a> or B<--attribute>
+=item B<-a> or B<--attribute>
 
 Attribute tag to specify the attribute to analyse (attribute example: tag=value).
 

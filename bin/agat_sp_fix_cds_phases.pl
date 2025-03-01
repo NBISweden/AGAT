@@ -20,8 +20,8 @@ my $opt_help = 0;
 # OPTION MANAGMENT
 if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
-                  "fasta|fa=s"      => \$opt_fasta,
-                  "v|vebose!"       => \$opt_verbose,
+                  "f|fa|fasta=s"      => \$opt_fasta,
+                  "v|verbose!"       => \$opt_verbose,
                   'c|config=s'               => \$config,
                   'h|help!'         => \$opt_help ) )
 {
@@ -138,7 +138,7 @@ The phase is REQUIRED for all CDS features.
 
 Input GTF/GFF file.
 
-=item B<-fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 Input fasta file.
 

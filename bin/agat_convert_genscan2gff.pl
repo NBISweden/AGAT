@@ -280,7 +280,7 @@ Input genscan bed file that will be convert.
 
 String - Sequence ID. [default: unknown]
 
-=item B<--verbose>
+=item B<--verbose> or B<-v>
 
 add verbosity
 
