@@ -34,6 +34,10 @@ modified by jacques dainat 2017-11
     otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
     The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
+- **--verbose** or **-v**
+
+    Add verbosity
+        
 - **-h** or **--help**
 
     Display this helpful text.

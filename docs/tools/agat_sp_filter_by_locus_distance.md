@@ -26,7 +26,7 @@ agat_sp_filter_by_locus_distance.pl --help
     The minimum inter-loci distance to allow.  No default (will not apply
     filter by default).
 
-- **--add** or **--add_flag**
+- **--af** or **--add_flag**
 
     Instead of filter the result into two output files, write only one and add the flag &lt;low_dist> in the gff.(tag = Lvalue or tag = Rvalue  where L is left and R right and the value is the distance with accordingle the left or right locus)
 

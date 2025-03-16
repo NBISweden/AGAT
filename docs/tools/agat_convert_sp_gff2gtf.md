@@ -48,7 +48,7 @@ agat_convert_sp_gff2gtf -h
 
     1: GTF1 (5 feature types accepted): CDS, start_codon, stop_codon, exon, intron
 
-- **-o** , **--output** , **--out** , **--outfile** or **--gtf**
+- **-o**, **--output**, **--out** or  **--outfile**
 
     Output GTF file. If no output file is specified, the output will be
     written to STDOUT.
@@ -59,6 +59,10 @@ agat_convert_sp_gff2gtf -h
     otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
     The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
+- **--verbose** or **-v**
+
+    Add verbosity
+        
 - **-h** or **--help**
 
     Display this helpful text.

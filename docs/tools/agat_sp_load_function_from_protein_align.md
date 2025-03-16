@@ -25,11 +25,11 @@ agat_sp_load_function_from_protein_align.pl --help
 
     Input gtf/gff file of an annotation.
 
-- **-pgff**
+- **--pgff**
 
     Input gff file of aligned proteins.
 
-- **-pfasta**
+- **--pfasta**
 
     Input protein fasta file where the extra information will be retrieved for each aligned protein.
 

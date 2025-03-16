@@ -27,21 +27,20 @@ agat_convert_genscan2gff.pl -h
 
     Input bed file that will be convert.
 
-- **--source**
+- **--seqid**
 
-    The source informs about the tool used to produce the data and is stored in 2nd field of a gff file.
-    Example: Stringtie,Maker,Augustus,etc. [default: data]
+    String - Sequence ID. [default: unknown]
 
 - **--primary_tag**
 
     The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
     Example: gene,mRNA,CDS,etc.  [default: gene]
 
-- **--verbose**
+- **--verbose** or **-v**
 
-    add verbosity
+    Add verbosity
 
-- **-o** , **--output** , **--out** , **--outfile** or **--gff**
+- **-o**, **--output**, **--out**, **--outfile** or **--gff**
 
     Output GFF file. If no output file is specified, the output will be
     written to STDOUT.

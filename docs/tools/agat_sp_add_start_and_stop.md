@@ -39,7 +39,7 @@ agat_sp_add_start_and_stop.pl.pl --help
 
     Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
 
-- **-v**
+- **--verbose** or **-v**
 
     Verbose for debugging purpose.
 
