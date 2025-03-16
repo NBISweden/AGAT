@@ -29,7 +29,7 @@ agat_sp_filter_incomplete_gene_coding_models.pl --help
     This option allows specifying the codon table to use.
     It expects an integer [default 1]
 
-- **--ad** or **--add_flag**
+- **--af** or **--add_flag**
 
     Instead of filter the result into two output files, write only one and add the flag &lt;incomplete> in the gff.(tag = inclomplete, value = 1, 2, 3.  1=start missing; 2=stop missing; 3=both)
 

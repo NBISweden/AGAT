@@ -13,7 +13,7 @@ agat_sp_add_attribute_shortest_intron_size.pl --help
 
 ## OPTIONS
 
-- **--gff**, **-f** or **--ref** 
+- **--gff**, **-f**, **--ref** or **--reffile** 
 
     STRING: Input GTF/GFF file.
 
@@ -21,7 +21,7 @@ agat_sp_add_attribute_shortest_intron_size.pl --help
 
     STRING: Output gff3 file where the result will be printed.
 
-- **-v**
+- **--verbose** or **-v**
 
     BOLEAN: Verbose for debugging purpose.
 

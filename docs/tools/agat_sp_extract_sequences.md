@@ -117,7 +117,7 @@ agat_sp_extract_sequences.pl --help
     This option has to be activated with -u and/or -p option.
     /! using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
-- **-f** or **--fasta**
+- **-f**, **--fa** or **--fasta**
 
     String - Input fasta file.
 

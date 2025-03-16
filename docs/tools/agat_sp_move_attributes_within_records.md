@@ -37,7 +37,7 @@ agat_sp_move_attributes_within_records.pl --help
           level3=CDS,exon,UTR,etc
     By default all feature level3 are used. 
 
-- **-a** or **--attribute**
+- **-a**, **--tag**, **--att** or **--attribute**
 
     Attribute that will be copied and pasted. Case sensitive.
     You can specified an attribute (or a coma separated list) by giving its attribute tag value (column9) as: Ontology, Dbxref, etc

@@ -18,7 +18,7 @@ agat_sp_clipN_seqExtremities_and_fixCoordinates.pl --help
 
     Input GTF/GFF file.
 
-- **-f** or **--fasta**
+- **-f**, **--fa** or **--fasta**
 
     Input fasta file.
 

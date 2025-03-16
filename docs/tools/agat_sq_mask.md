@@ -19,7 +19,7 @@ agat_sq_mask.pl --help
 
     Input GTF/GFF file.
 
-- **-f** or **--fasta**
+- **-f**, **--fa**  or **--fasta**
 
     Input fasta file that will be masked
 

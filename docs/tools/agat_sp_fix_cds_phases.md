@@ -53,7 +53,7 @@ agat_sp_fix_cds_phases.pl --help
 
     Input GTF/GFF file.
 
-- **-fa** or **--fasta**
+- **-f**, **--fa** or **--fasta**
 
     Input fasta file.
 
