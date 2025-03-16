@@ -352,7 +352,7 @@ The name of the fasta file containing the genome to work with.
 This option allows specifying the codon table to use.
 It expects an integer [default 1]
 
-=item B<--ad> or B<--add_flag>
+=item B<--af> or B<--add_flag>
 
 Instead of filter the result into two output files, write only one and add the flag <incomplete> in the gff.(tag = inclomplete, value = 1, 2, 3.  1=start missing; 2=stop missing; 3=both)
 

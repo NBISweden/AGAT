@@ -937,7 +937,7 @@ Boolean - Called 'extremity only', this option will extract only the adjacent pa
 This option has to be activated with -u and/or -p option.
 /!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
-=item B<-f> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 String - Input fasta file.
 

@@ -275,7 +275,7 @@ Input GTF/GFF file.
 The minimum inter-loci distance to allow.  No default (will not apply
 filter by default).
 
-=item B<--add> or B<--add_flag>
+=item B<--af> or B<--add_flag>
 
 Instead of filter the result into two output files, write only one and add the flag <low_dist> in the gff.(tag = Lvalue or tag = Rvalue  where L is left and R right and the value is the distance with accordingle the left or right locus)
 
