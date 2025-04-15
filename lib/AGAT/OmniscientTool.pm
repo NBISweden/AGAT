@@ -1738,49 +1738,48 @@ sub remove_shortest_isoforms{
   #################
   # == LEVEL 1 == #
   #################
-  foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
-    foreach my $id_tag_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
+	foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
+		foreach my $id_tag_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
 
-      #################
-      # == LEVEL 2 == #
-      #################
-      foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-        if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_l2, $id_tag_l1) ) ){
+			#################
+			# == LEVEL 2 == #
+			#################
+			foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+				if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_l2, $id_tag_l1) ) ){
 
-          #check if there is isoforms
-          ###########################
+					#check if there is isoforms
+					###########################
+					if ($#{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}} > 0){
 
-          if ($#{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}} > 0){
-
-            my $longestL2cds = undef;
+						my $longestL2cds = undef;
 						my $longestL2exon = undef;
-            my $longestCDSsize = 0;
-            my $longestEXONsize = 0;
+						my $longestCDSsize = 0;
+						my $longestEXONsize = 0;
 
-            foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}}) {
+						foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{$id_tag_l1}}) {
 
-	            my $level2_ID =   lc($feature_level2->_tag_value('ID') ) ;
-	            if ( exists_keys( $hash_omniscient, ('level3','cds',$level2_ID ) ) ) {
+							my $level2_ID =   lc($feature_level2->_tag_value('ID') ) ;
+							if ( exists_keys( $hash_omniscient, ('level3','cds',$level2_ID ) ) ) {
 
-									my $cdsSize=0;
-	                foreach my $cds ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-	                  $cdsSize += ( $cds->end - $cds->start + 1 );
-	                }
+								my $cdsSize=0;
+								foreach my $cds ( @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+									$cdsSize += ( $cds->end - $cds->start + 1 );
+								}
 
-	                if($cdsSize > $longestCDSsize ){
-										if($longestL2cds){ # we found a longest CDS. The previous is shortest
-											$case_cds++;
-											push @list_to_remove, [$longestL2cds, $primary_tag_l1, $id_tag_l1];
-										}
-	                  $longestL2cds = $feature_level2;
-	                  $longestCDSsize = $cdsSize;
-	                }
-									else{ # we have a longest CDS. The current is shortest
+								if($cdsSize > $longestCDSsize ){
+									if($longestL2cds){ # we found a longest CDS. The previous is shortest
 										$case_cds++;
-										push @list_to_remove, [$feature_level2, $primary_tag_l1, $id_tag_l1];
+										push @list_to_remove, [$longestL2cds, $primary_tag_l1, $id_tag_l1];
 									}
-	            }
-	            elsif ( exists_keys( $hash_omniscient, ('level3','exon',$level2_ID ) ) ) {
+									$longestL2cds = $feature_level2;
+									$longestCDSsize = $cdsSize;
+								}
+								else{ # we have a longest CDS. The current is shortest
+									$case_cds++;
+									push @list_to_remove, [$feature_level2, $primary_tag_l1, $id_tag_l1];
+								}
+							}
+							elsif ( exists_keys( $hash_omniscient, ('level3','exon',$level2_ID ) ) ) {
 
 								if ($longestL2cds){
 									# We have a CDS for another isoform so we remove this one that do not have CDS
@@ -1789,35 +1788,35 @@ sub remove_shortest_isoforms{
 								}
 								else{
 									my $exonSize=0;
-	                foreach my $exon ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-	                  $exonSize += ( $exon->end - $exon->start + 1 );
-	                }
-	                if($exonSize > $longestEXONsize ){
+									foreach my $exon ( @{$hash_omniscient->{'level3'}{'exon'}{$level2_ID}} ) { # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+										$exonSize += ( $exon->end - $exon->start + 1 );
+									}
+
+									if($exonSize > $longestEXONsize ){
 										if($longestL2exon){ # we found a longest exon. The previous is shortest
 											push @list_to_remove, [$longestL2exon, $primary_tag_l1, $id_tag_l1];
 											$case_exon++;
 										}
-	                  $longestL2exon = $feature_level2;
-	                  $longestEXONsize = $exonSize;
-	                }
+										$longestL2exon = $feature_level2;
+										$longestEXONsize = $exonSize;
+									}
 									else{ # we have a longest exons. The current is shortest
 										push @list_to_remove, [ $feature_level2, $primary_tag_l1, $id_tag_l1 ];
 										$case_exon++;
 									}
 								}
-            	}
-            }
-          }
-        }
-      }
-    }
-  }
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	# remove listed l2
 	foreach my $infos (@list_to_remove) {
 		my $cases = remove_l2_and_relatives( $hash_omniscient, @$infos);
 	}
-
-  return $case_cds, $case_exon;
+return $case_cds, $case_exon;
 }
 
 # @Purpose: Counter the number of feature level in an omniscient
