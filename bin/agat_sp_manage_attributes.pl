@@ -11,7 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 
 my $gff = undef;
 my $opt_help= 0;
@@ -56,7 +56,7 @@ if ( ! $gff or ! $attributes){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 my $gffout = prepare_gffout( $outfile );
 

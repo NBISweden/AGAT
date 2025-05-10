@@ -12,7 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag=undef;
@@ -49,7 +49,7 @@ if ( ! (defined($gff)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Manage Output
 my $ostream     = IO::File->new();

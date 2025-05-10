@@ -12,7 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $verbose;
 my $intergenicID = 1;
 my $opt_file;
@@ -47,7 +47,7 @@ if ( ! defined( $opt_file) ) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # # START Manage Option #
 # #######################

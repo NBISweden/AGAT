@@ -13,7 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $opt_reffile;
 my $opt_plot;
 my $opt_nbUTR;
@@ -57,7 +57,7 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_reffile });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;

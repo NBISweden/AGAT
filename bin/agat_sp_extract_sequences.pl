@@ -12,7 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $opt_plus_strand = undef;
 my $start_run = time();
 my $codonTable=1;
@@ -96,7 +96,7 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_gfffile });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);

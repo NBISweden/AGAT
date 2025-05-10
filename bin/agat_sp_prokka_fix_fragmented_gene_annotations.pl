@@ -59,7 +59,7 @@ my $SIZE_OPT=21;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfolder = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -112,7 +112,7 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Check codon table
 $codonTable = get_proper_codon_table($codonTable);

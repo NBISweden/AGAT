@@ -13,7 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my %handlers;
 my $gff = undef;
 my $one_tsv = undef;
@@ -57,7 +57,7 @@ if ( ! $gff or ! $attributes ){
 
 # --- Manage config ---
 initialize_agat( config_file_in => $config, input => $gff );
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;

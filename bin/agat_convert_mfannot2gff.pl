@@ -11,7 +11,7 @@ use AGAT::OmniscientI;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $mfannot_file;
 my $verbose;
 my $gff_file;
@@ -37,7 +37,7 @@ if (!defined $mfannot_file) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $mfannot_file });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ## Manage output file
 my $gffout = prepare_gffout( $gff_file );

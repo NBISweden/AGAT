@@ -16,7 +16,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 
 #The cases are exclusive, one result could not be part of several cases.
 my %cases_explanation = (
@@ -83,7 +83,7 @@ if ( ! ($annotation_gff and $protein_gff and $protein_fasta) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $annotation_gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 #               +------------------------------------------------------+
 #               |+----------------------------------------------------+|
@@ -143,7 +143,7 @@ if (defined($opt_output) ) {
   croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/function_added.txt", $! ));
   push (@outputTab, $ostreamFAadded);
   initialize_agat({ ("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
   #2 gff
   my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $CONFIG->{gff_output_version} ) or
   croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$outfile_gff, $! ));

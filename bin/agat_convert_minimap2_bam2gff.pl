@@ -10,7 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
@@ -45,7 +45,7 @@ if ( ! defined( $opt_in) ) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_in });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # ---- set output -----
 my $out_stream = prepare_gffout( $opt_output );

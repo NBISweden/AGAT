@@ -11,7 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $primaryTagCopy="level2";
 my $primaryTagPaste="level3";
 my $opt_output= undef;
@@ -51,7 +51,7 @@ if ( ! $opt_gff  ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ###############
 # Manage Output

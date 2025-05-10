@@ -10,7 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $add_flag=undef;
@@ -50,7 +50,7 @@ if ( ! defined($gff) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #

@@ -17,7 +17,7 @@ my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 
 # PARAMETERS - OPTION
 my $opt_reffile;
@@ -130,7 +130,7 @@ if ( !( defined($opt_reffile) ) ) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_reffile });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 #################################################
 ####### START Manage files (input output) #######

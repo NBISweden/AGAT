@@ -11,7 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfile = undef;
 my $ref = undef;
 my $opt_merge;
@@ -48,7 +48,7 @@ if ( ! (defined($ref)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $ref });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #

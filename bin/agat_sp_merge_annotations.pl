@@ -12,7 +12,7 @@ use File::Glob ':glob';
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfile = undef;
 my @opt_files;
 my $file2 = undef;
@@ -56,7 +56,7 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_files[0] });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #

@@ -11,7 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfile;
 my $embl;
 my $emblmygff3;
@@ -51,7 +51,7 @@ if ( ! (defined($embl)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config , input => $embl });
-$CONFIG->{threads} = $threads if defined($threads);
+$CONFIG->{cpu} = $cpu if defined($cpu);
 my $throw_fasta=$CONFIG->{"throw_fasta"};
 
 ##################

@@ -10,7 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $threads;
+my $cpu;
 my $outfile = undef;
 my $genscan = undef;
 my $seq_id = "unknown";
