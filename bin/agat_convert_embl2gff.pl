@@ -22,6 +22,7 @@ my $help;
 
 if( !GetOptions(
     'c|config=s'                 => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,

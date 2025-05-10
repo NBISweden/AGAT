@@ -38,6 +38,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
                   'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

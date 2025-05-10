@@ -47,6 +47,7 @@ my $opt_help               = 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,

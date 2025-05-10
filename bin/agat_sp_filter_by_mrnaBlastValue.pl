@@ -21,6 +21,7 @@ my $opt_help;
 
 
 if ( !GetOptions(   'c|config=s'=> \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                     "h|help"    => \$opt_help,
                     "gff=s"     => \$gff,
                     "blast=s"   => \$blast,

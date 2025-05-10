@@ -23,6 +23,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref=s'         => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'v|verbose!'          => \$verbose,
                   'h|help!'             => \$opt_help ) )
 {

@@ -34,6 +34,7 @@ if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
                   'o|out|output=s'          => \$opt_output,
                   'p|plot!'                 => \$opt_plot,
                   'c|config=s'              => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'                 => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

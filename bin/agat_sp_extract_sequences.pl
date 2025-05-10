@@ -55,6 +55,7 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
                   'c|config=s'                   => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'                      => \$opt_help,
                   'merge!'                       => \$opt_merge,
                   'mrna|transcript!'             => \$opt_mrna,

@@ -20,6 +20,7 @@ if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
                   'v'           => \$opt_verbose,
                   'o|output=s'  => \$opt_output,
                   'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

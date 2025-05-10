@@ -23,6 +23,7 @@ my $cp = undef;
 
 if ( !GetOptions(
     'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "gff|f=s"                => \$gff,
     "output|outfile|out|o=s" => \$opt_output))

@@ -24,6 +24,7 @@ my $opt_help= 0;
 
 if ( !GetOptions(
     'c|config=s'   => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"       => \$opt_help,
     'o|output=s'   => \$opt_output,
     'percentile=i' => \$opt_percentile,

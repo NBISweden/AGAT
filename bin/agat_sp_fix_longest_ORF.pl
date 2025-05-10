@@ -39,6 +39,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "gff=s"                  => \$gff,
     "fasta|fa|f=s"           => \$file_fasta,

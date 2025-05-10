@@ -22,6 +22,7 @@ my $opt_help= undef;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help" => \$opt_help,
     "ref|r|i=s" => \$ref,
     "add|a=s" => \@opt_files,

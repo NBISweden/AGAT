@@ -21,7 +21,7 @@ my $opt_help;
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
                   'c|config=s'               => \$config,
-                  't|threads=i'              => \$threads,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'o|output=s'               => \$opt_output,
                   'h|help!'                  => \$opt_help ) )
 {

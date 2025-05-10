@@ -19,6 +19,7 @@ my $help;
 
 if( !GetOptions(
     'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                   => \$help,
     "gff|gtf|i=s"              => \$gff,
 	"gtf_version=s"            => \$gtf_version,

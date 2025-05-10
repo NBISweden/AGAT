@@ -17,6 +17,7 @@ my $help;
 
 if( !GetOptions(
     'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$help,
     "gff=s"                  => \$gff,
     "sub=s"                  => \$sub,

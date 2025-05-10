@@ -98,6 +98,7 @@ GetOptions(
  'a|addgntag'               => \$opt_addGnPresentTag,
  'v'                        => \$opt_verbose,
  'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
  'h|help!'                  => \$opt_help
 )
 or pod2usage( {

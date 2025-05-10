@@ -27,6 +27,7 @@ if ( !GetOptions ('f1=s'        => \$folderIn1,
                   'o|output=s'  => \$outfolder,
                   'v|verbose=i' => \$verbose,
                   'c|config=s'  => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

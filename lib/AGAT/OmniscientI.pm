@@ -326,9 +326,9 @@ sub slurp_gff3_file_JD {
 		if(! $gff_in_format){ $gff_in_format = select_gff_format($file);}
 		push @COMONTAG, "common_tag" if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
 		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
-		# set threads
-		my $max_procs = $CONFIG->{threads} || 1; # number of threads to use
-		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs thread(s))", char => "-" }) });
+		# set threads/cpu/core
+		my $max_procs = $CONFIG->{cpu} || 1; # number of threads to use
+		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs cpu)", char => "-" }) });
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
 		my %omniscient_clean = %omniscient_original;
@@ -657,6 +657,10 @@ sub slurp_gff3_file_JD {
 		dual_print ({ 'string' => sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n") });
 
 	}
+
+	#stop alarm
+	alarm(0);
+	
 	#return
 	return \%omniscient_original, \%mRNAGeneLink;
 }

@@ -28,6 +28,7 @@ if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
 					"fasta|fa|f=s"      => \$file_fasta,
 					"table|codon|ct=i"  => \$codonTable,
                  	'c|config=s'        => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                  	'h|help!'           => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',

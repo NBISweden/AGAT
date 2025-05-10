@@ -22,6 +22,7 @@ my $help;
 
 
 if( !GetOptions(    'c|config=s'                => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
 					"h|help"                    => \$help,
 					"g|genscan=s"               => \$genscan,
 					"seqid=s"                   => \$seq_id,
