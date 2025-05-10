@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_attribute = undef;
@@ -51,6 +52,7 @@ if ( ! $opt_gff or ! $opt_attribute ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_gff });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ###############
 # Manage Output

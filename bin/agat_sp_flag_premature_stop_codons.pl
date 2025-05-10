@@ -15,6 +15,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $opt_file;
 my $opt_output;
 my $file_fasta;
@@ -52,6 +53,7 @@ if ( !$opt_file or !$file_fasta) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{threads} = $threads if defined($threads);
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);

@@ -13,6 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $outfile = undef;
 my $gff     = undef;
 my $blast   = undef;
@@ -47,6 +48,7 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{threads} = $threads if defined($threads);
 
 # Open Output files #
 my $out = prepare_gffout( $outfile );

@@ -9,6 +9,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
@@ -50,6 +51,7 @@ if ( ! (defined($bed)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $bed });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ## Manage output file
 my $gffout = prepare_gffout( $outfile );

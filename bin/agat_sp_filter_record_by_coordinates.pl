@@ -50,6 +50,7 @@ if ( ! $opt_gff ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_gff });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ###############
 # Manage Output

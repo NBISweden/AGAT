@@ -22,6 +22,7 @@ my $PREFIX_CPT_MRNA=1;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -65,6 +66,7 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ######################
 # Manage output file #

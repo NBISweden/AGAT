@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $intronID = 1;
 my $opt_file;
 my $opt_output=undef;
@@ -44,6 +45,7 @@ if ( ! defined( $opt_file) ) {
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{threads} = $threads if defined($threads);
 
 # #######################
 # START Manage Option #

@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $opt_test=">";
 my $opt_output= undef;
 my $opt_size = 100;
@@ -48,6 +49,7 @@ if ( ! $opt_gff ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ###############
 # Manage Output

@@ -8,6 +8,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $start_run = time();
 my $opt_gfffile;
 my $opt_verbose=undef;
@@ -43,6 +44,7 @@ if (! defined($opt_gfffile) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+$CONFIG->{threads} = $threads if defined($threads);
 
 ######################
 # Manage output file #

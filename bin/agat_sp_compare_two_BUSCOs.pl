@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $threads;
 my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
@@ -47,6 +48,7 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
 
 # --- Manage config ---
 initialize_agat({ config_file_in => $config, input => $folderIn1 });
+$CONFIG->{threads} = $threads if defined($threads);
 
 # Manage input folder1
 my $fh1;
