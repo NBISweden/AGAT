@@ -47,7 +47,7 @@ if ( ! ( $#opt_files  >= 0) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_files[0] });
 
 # #######################
 # # START Manage Option #
@@ -117,13 +117,11 @@ my %introns;
 foreach my $file (@opt_files){
 
   print "Reading ".$file,"\n";
-
+  my $log = create_log_file({input => $file});
+	$LOGGING->{'log'} = $log ;
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file,
-                                                                   config => $config
-                                                              });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file });
   ### END Parse GFF input #
   #########################
 

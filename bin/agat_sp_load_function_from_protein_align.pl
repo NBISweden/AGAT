@@ -45,7 +45,7 @@ my $opt_help               = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'             => \$config,
     "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,
@@ -81,7 +81,7 @@ if ( ! ($annotation_gff and $protein_gff and $protein_fasta) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $annotation_gff });
 
 #               +------------------------------------------------------+
 #               |+----------------------------------------------------+|
@@ -140,9 +140,9 @@ if (defined($opt_output) ) {
   my $ostreamFAadded = IO::File->new(">".$opt_output."/function_added.txt" ) or
   croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/function_added.txt", $! ));
   push (@outputTab, $ostreamFAadded);
-  _print("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
+  initialize_agat({ ("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
   #2 gff
-  my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $config->{gff_output_version} ) or
+  my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $CONFIG->{gff_output_version} ) or
   croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$outfile_gff, $! ));
   push (@outputTab, $ostreamCoding);
 
@@ -154,11 +154,9 @@ else{
   push (@outputTab, $ostreamFAadded);
    my $ostream  = IO::File->new();
   $ostream->fdopen( fileno(STDOUT), 'w' ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  my $outputGFF = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => $config->{gff_output_version} ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
+  my $outputGFF = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => $CONFIG->{gff_output_version} ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
   push (@outputTab, $outputGFF);
 }
-
-
 
 # Manage species names
 my $db = Bio::DB::Taxonomy->new(-source => 'entrez');
@@ -222,13 +220,9 @@ _print($stringPrint, 0);
 ######################
 ### Parse GFF input #
 _print( "Parsing file $annotation_gff\n",0);
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $annotation_gff,
-                                                                 config => $config
-                                                              });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $annotation_gff });
 _print( "Done\nParsing file $protein_gff\n",0);
-my ($prot_omniscient, $prot_mRNAGeneLink) = slurp_gff3_file_JD({ input => $protein_gff,
-                                                                 config => $config
-                                                              });
+my ($prot_omniscient, $prot_mRNAGeneLink) = slurp_gff3_file_JD({ input => $protein_gff });
 _print( "Done\n",0);
 
 ###########################

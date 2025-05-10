@@ -57,7 +57,7 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
@@ -75,8 +75,8 @@ if ($outfile) {
   $gffout_incomplete_file = $path.$filename."_incomplete".$ext;
 }
 
-my $gffout = prepare_gffout($config, $gffout_file);
-my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
+my $gffout = prepare_gffout( $gffout_file );
+my $gffout_incomplete = prepare_gffout( $gffout_incomplete_file );
 
                 #####################
                 #     MAIN          #
@@ -84,11 +84,7 @@ my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

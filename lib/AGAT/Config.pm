@@ -49,11 +49,7 @@ sub load_config{
 
 	# -------------- INPUT --------------
 	# -- Declare all variables and fill them --
-	my ($verbose, $log, $debug, $path);
-
-	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
-	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
-	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
+	my ($path);
 	if( ! defined($args->{config_file}) ) { warn "No config file provided!"; exit;} else{ $path = $args->{config_file}; }
 
 	my $config = LoadFile($path);
@@ -79,10 +75,8 @@ sub get_config{
 
 	# -------------- INPUT --------------
 	# -- Declare all variables and fill them --
-	my ( $verbose, $log, $debug, $type, $config_file_in ) ;
-	if( ! defined($args->{verbose}) ) { $verbose = 1;} else{ $verbose = $args->{verbose}; }
-	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
-	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
+	my ( $type, $config_file_in ) ;
+
 	if( ! defined($args->{type}) ) { $type = "local";} else{ $type = $args->{type};}
 	if( !$type eq "local" and !$type eq "original" ){
 		warn "type must be local or original. $type unknown!";exit;
@@ -90,7 +84,8 @@ sub get_config{
 	if( ! defined($args->{config_file_in}) ) { $config_file_in = undef;} else{ $config_file_in = $args->{config_file_in}; }
 	
 	my $path=undef;
-
+	my $log_info = "";
+	my $tmp_message = "";
 	# original approach trying to get the local and/or original config file
 	if (! $config_file_in){
 		#set run directory
@@ -100,7 +95,9 @@ sub get_config{
 		if ($type eq "local") {
 			$path = $run_dir."/".$config_file;
 			if (-e $path){
-				dual_print($log, "=> Using $config_file config file found in your working directory.\n", $verbose );
+				$tmp_message = "=> Using $config_file config file found in your working directory.\n";
+				print $tmp_message;
+				$log_info .= $tmp_message;
 			} else {
 				$path = undef;
 			}
@@ -108,19 +105,23 @@ sub get_config{
 		#otherwise use the standard location ones
 		if (! $path) { 
 			$path = dist_file('AGAT', $config_file);
-			dual_print($log, "=> Using standard $path config file\n", $verbose );
+			$tmp_message = "=> Using standard $path config file\n";
+							print $tmp_message;
+				$log_info .= $tmp_message;
 		}
 	}
 	# Config file provided we must load this one !
 	else{
 		if (-e $config_file_in){
 			$path = $config_file_in;
-			dual_print($log, "=> Using provided config file $path.\n", $verbose );
+			$tmp_message = "=> Using provided config file $path.\n";
+			print $tmp_message;
+			$log_info .= $tmp_message;
 		} else{
 			warn "=> Config file $config_file_in does not exist! Please check the path!"; exit;
 		}
 	}
-	return $path;
+	return $path, $log_info;
 }
 
 sub expose_config_hash{
@@ -162,47 +163,47 @@ sub check_config{
 	my $error;
 	if( exists_keys($config,("verbose") ) ){
 		if( $config->{ verbose } < 0 or $config->{ verbose } > 4){
-			print "Verbose parameter must be between 0 and 4.\n";
+			warn "Verbose parameter must be between 0 and 4.\n";
 			$error = 1;
 		}
 	}
 	else{
-		print "verbose parameter missing in the configuration file.\n";
+		warn "verbose parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config,("progress_bar") ) ){
-		print "progress_bar parameter missing in the configuration file.\n";
+		warn "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config,("log") ) ){
-		print "progress_bar parameter missing in the configuration file.\n";
+		warn "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("debug") ) ){
-		print "debug parameter missing in the configuration file.\n";
+		warn "debug parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("tabix") ) ){
-		print "tabix parameter missing in the configuration file.\n";
+		warn "tabix parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("merge_loci") ) ) {
-		print "merge_loci parameter missing in the configuration file.\n";
+		warn "merge_loci parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("throw_fasta") ) ) {
-		print "throw_fasta parameter missing in the configuration file.\n";
+		warn "throw_fasta parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( exists_keys($config, ("force_gff_input_version") ) ) {
 		my %values = (0 => 1, 1 => 1, 2 => 1, 2.5 => 1, 3 => 1);
 		if (! exists_keys(\%values,($config->{ force_gff_input_version }) ) ) {
-			print "force_gff_input_version parameter must be 0, 1, 2, 2.5 or 3.\n";
+			warn "force_gff_input_version parameter must be 0, 1, 2, 2.5 or 3.\n";
 			$error = 1;
 		}
 	}
 	else{
-		print "force_gff_input_version parameter missing in the configuration file.\n";
+		warn "force_gff_input_version parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 
@@ -210,95 +211,95 @@ sub check_config{
 		my %values = ( gff => 1, gtf => 1 ); # case was set to lowercase when loaded into hash
 		$config->{ output_format } = lc($config->{ output_format }); # set it to lowercase
 		if (! exists_keys(\%values,( $config->{ output_format } ) ) ) {
-			print "output_format parameter must be GFF or GTF.\n";
+			warn "output_format parameter must be GFF or GTF.\n";
 			$error = 1;
 		}
 	}
 	else{
-		print "output_format parameter missing in the configuration file.\n";
+		warn "output_format parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 
 	if( exists_keys($config, ("gff_output_version") ) ) {
 		my %values = ( 1 => 1, 2 => 1, 2.5 => 1, 3 => 1 );
 		if (! exists_keys(\%values,($config->{ gff_output_version }) ) ) {
-			print "gff_output_version parameter must be 1, 2, 2.5 or 3.\n";
+			warn "gff_output_version parameter must be 1, 2, 2.5 or 3.\n";
 			$error = 1;
 		}
 	}
 	else{
-		print "gff_output_version parameter missing in the configuration file.\n";
+		warn "gff_output_version parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( exists_keys($config, ("gtf_output_version") ) ) {
 		my %values = ( 1 => 1, 2 => 1, 2.1 => 1, 2.2 => 1, 2.5 => 1, 3 => 1, relax => 1 );
 		if (! exists_keys(\%values,($config->{ gtf_output_version }) ) ) {
-			print "gtf_output_version parameter must be 1, 2, 2.1, 2.2, 2.5, 3 or relax.\n";
+			warn "gtf_output_version parameter must be 1, 2, 2.1, 2.2, 2.5, 3 or relax.\n";
 			$error = 1;
 		}
 	}
 	else{
-		print "gtf_output_version parameter missing in the configuration file.\n";
+		warn "gtf_output_version parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("create_l3_for_l2_orphan") ) ) {
-		print "create_level3_for_level2_orphan parameter missing in the configuration file.\n";
+		warn "create_level3_for_level2_orphan parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("locus_tag") ) ) {
-		print "locus_tag parameter missing in the configuration file.\n";
+		warn "locus_tag parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("prefix_new_id") ) ) {
-		print "prefix_new_id parameter missing in the configuration file.\n";
+		warn "prefix_new_id parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_sequential") ) ) {
-		print "check_sequential parameter missing in the configuration file.\n";
+		warn "check_sequential parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_l2_linked_to_l3") ) ) {
-		print "check_l2_linked_to_l3 parameter missing in the configuration file.\n";
+		warn "check_l2_linked_to_l3 parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_l1_linked_to_l2") ) ) {
-		print "check_l1_linked_to_l2 parameter missing in the configuration file.\n";
+		warn "check_l1_linked_to_l2 parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("remove_orphan_l1") ) ) {
-		print "remove_orphan_l1 parameter missing in the configuration file.\n";
+		warn "remove_orphan_l1 parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_all_level3_locations") ) ) {
-		print "check_all_level3_locations parameter missing in the configuration file.\n";
+		warn "check_all_level3_locations parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_cds") ) ) {
-		print "check_cds parameter missing in the configuration file.\n";
+		warn "check_cds parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_exons") ) ) {
-		print "check_exons parameter missing in the configuration file.\n";
+		warn "check_exons parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_utrs") ) ) {
-		print "check_utrs parameter missing in the configuration file.\n";
+		warn "check_utrs parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_all_level2_locations") ) ) {
-		print "check_all_level2_locations parameter missing in the configuration file.\n";
+		warn "check_all_level2_locations parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_all_level1_locations") ) ) {
-		print "check_all_level1_locations parameter missing in the configuration file.\n";
+		warn "check_all_level1_locations parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("check_identical_isoforms") ) ) {
-		print "check_identical_isoforms parameter missing in the configuration file.\n";
+		warn "check_identical_isoforms parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("clean_attributes_from_template") ) ) {
-		print "clean_attributes_from_template parameter missing in the configuration file.\n";
+		warn "clean_attributes_from_template parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 

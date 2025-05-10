@@ -40,15 +40,15 @@ convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fi
 
 # prepare file handler to print GFF
 sub prepare_gffout{
-	my ($config, $outfile) = @_;
+	my ($outfile) = @_;
 
 	# Selection which version param to use according to output format asked for
 	my $version;
 
-	if ( $config->{output_format} eq "gff"){
-	 	$version = $config->{gff_output_version}
+	if ( $CONFIG->{output_format} eq "gff"){
+	 	$version = $CONFIG->{gff_output_version}
 	} else {
-		$version = $config->{gtf_output_version}
+		$version = $CONFIG->{gtf_output_version}
 	}
 	
 	my $gffout;
@@ -60,11 +60,11 @@ sub prepare_gffout{
 		}
 		else {
 			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
+			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $CONFIG->{output_format}, -version => $version);
 		}
 	}
 	else{
-		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
+		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $CONFIG->{output_format}, -version => $version);
 	}
 	return $gffout;
 }
@@ -108,25 +108,25 @@ sub print_omniscient{
 	my ($omniscient, $gxfout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient!"; exit; }
 	if( defined($args->{output})) {$gxfout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient!"; exit; }
-	my $verbose = $omniscient->{"config"}{"verbose"};
+	my $verbose = $CONFIG->{"verbose"};
 	# -----------------------------------
-	if ( exists_keys($omniscient, ("config", "output_format") ) ){
-		if ( $omniscient->{"config"}{"output_format"} eq "gff" ){
+	if ( exists_keys($CONFIG, ("output_format") ) ){
+		if ( $CONFIG->{"output_format"} eq "gff" ){
 			if ($verbose){
-				my $gff_version = $omniscient->{"config"}{"gff_output_version"};
+				my $gff_version = $CONFIG->{"gff_output_version"};
 				print "Formating output to GFF$gff_version\n";
 			}
 			print_omniscient_as_gff( {omniscient => $omniscient, output => $gxfout} );
 		}
-		elsif( $omniscient->{"config"}{"output_format"} eq "gtf" ){
+		elsif( $CONFIG->{"output_format"} eq "gtf" ){
 			if ($verbose){
-				my $gtf_version = $omniscient->{"config"}{"gtf_output_version"};
+				my $gtf_version = $CONFIG->{"gtf_output_version"};
 				print "Formating output to GTF$gtf_version\n";
 			}
 			print_omniscient_as_gtf( {omniscient => $omniscient, output => $gxfout} );
 		}
 		else{
-			warn $omniscient->{"config"}{"format_output"}." is not a suported format!\n";
+			warn $CONFIG->{"format_output"}." is not a suported format!\n";
 			exit 1;
 		}
 	} else{
@@ -153,7 +153,7 @@ sub print_omniscient_as_gff{
   write_headers($omniscient, $gffout);
 
   # print tabix fashion
-  if($omniscient->{"config"}{"tabix"}){
+  if($CONFIG->{"tabix"}){
 
 		my %tabix_hash;
 		my %seq_id;

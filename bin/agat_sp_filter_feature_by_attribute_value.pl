@@ -59,7 +59,7 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
 
 ###############
 # Test options
@@ -86,10 +86,10 @@ if ($opt_output) {
   $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
 }
 
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file );
+my $fhout_discarded = prepare_gffout( $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
+my $fhout_semidDiscarded = prepare_gffout( $fhout_semidDiscarded_file) if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -151,10 +151,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff });
 ### END Parse GFF input #
 #########################
 # sort by seq id

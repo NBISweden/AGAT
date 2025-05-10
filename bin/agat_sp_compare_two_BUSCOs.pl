@@ -21,12 +21,12 @@ my $opt_help = 0;
 
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('f1=s' => \$folderIn1,
-                  "f2=s" => \$folderIn2,
-                  'o|output=s' => \$outfolder,
+if ( !GetOptions ('f1=s'        => \$folderIn1,
+                  "f2=s"        => \$folderIn2,
+                  'o|output=s'  => \$outfolder,
                   'v|verbose=i' => \$verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help )  )
+                  'c|config=s'  => \$config,
+                  'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -46,7 +46,7 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $folderIn1 });
 
 # Manage input folder1
 my $fh1;
@@ -87,9 +87,9 @@ if ($outfolder) {
 	$gffout_fragmented_path = $outfolder."/"."f1_fragmented.gff";
 	$gffout_duplicated_path = $outfolder."/"."f1_duplicated.gff";
 }
-my $gffout_complete = prepare_gffout($config, $gffout_complete_path);
-my $gffout_fragmented = prepare_gffout($config, $gffout_fragmented_path);
-my $gffout_duplicated = prepare_gffout($config, $gffout_duplicated_path);
+my $gffout_complete = prepare_gffout( $gffout_complete_path);
+my $gffout_fragmented = prepare_gffout( $gffout_fragmented_path);
+my $gffout_duplicated = prepare_gffout( $gffout_duplicated_path);
 
 my %gff_out;
 $gff_out{'complete'}=$gffout_complete;

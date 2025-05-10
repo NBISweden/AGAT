@@ -46,10 +46,10 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # Open Output files #
-my $out = prepare_gffout($config, $outfile);
+my $out = prepare_gffout( $outfile );
 
 #### MAIN ####
 
@@ -57,11 +57,8 @@ my $out = prepare_gffout($config, $outfile);
 my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
-print ("Parse file $gff\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("$gff file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff});
+
 
 # Remove all mRNA specified by the kill-list from their (gene-) parents.
 remove_omniscient_elements_from_level2_ID_list ($hash_omniscient, $killlist);

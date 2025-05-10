@@ -22,7 +22,7 @@ my $opt_help ;
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'i|input|gtf|gff=s'            => \$opt_gff,
-                  "coordinates|tsv|r|ranges=s" => \$opt_coordinates,
+                  "coordinates|tsv|r|ranges=s"   => \$opt_coordinates,
                   "e|exclude!"                   => \$opt_exclude_ov,
                   'o|output=s'                   => \$opt_output,
                   'v|verbose!'                   => \$opt_verbose,
@@ -49,7 +49,7 @@ if ( ! $opt_gff ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
 
 ###############
 # Manage Output
@@ -76,8 +76,8 @@ if ($opt_output) {
   $ostreamReport_file = $opt_output."/report.txt";
 }
 
-my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
-my $ostreamReport =  prepare_fileout($ostreamReport_file);
+my $gffout_notok = prepare_gffout( $gffout_notok_file );
+my $ostreamReport =  prepare_fileout( $ostreamReport_file );
 
 
 # Manage ranges
@@ -115,10 +115,7 @@ else{ print $stringPrint; }
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff });
 ### END Parse GFF input #
 #########################
 
@@ -161,7 +158,7 @@ foreach my $range ( sort { ncmp ($a, $b) } keys %hash_listok ){
   my $hash_ok = subsample_omniscient_from_level1_id_list_intact($hash_omniscient, $listok);
 
 	$gffout_ok_file = "$opt_output/$range.gff3";
-	my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+	my $gffout_ok = prepare_gffout( $gffout_ok_file);
 
   print_omniscient( {omniscient => $hash_ok, output => $gffout_ok} );
   %{$hash_ok} = (); #clean

@@ -49,8 +49,8 @@ if ( ! (defined($embl)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-my $throw_fasta=$config->{"throw_fasta"};
+initialize_agat({ config_file_in => $config , input => $embl });
+my $throw_fasta=$CONFIG->{"throw_fasta"};
 
 ##################
 # MANAGE OPTION  #
@@ -82,7 +82,7 @@ if ($primaryTags){
 
 ##################
 # MANAGE OUTPUT  #
-my $gff_out = prepare_gffout($config, $outfile);
+my $gff_out = prepare_gffout( $outfile);
 
 ### Read embl input file.
 my $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');

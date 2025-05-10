@@ -28,7 +28,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'hm:s'            => \$opt_HardMask,
                   'sm'              => \$opt_SoftMask,
                   'o|output=s'      => \$opt_output,
-                  'c|config=s'               => \$config,
+                  'c|config=s'      => \$config,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -51,7 +51,7 @@ if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defi
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
 
 if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
   print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
@@ -79,7 +79,7 @@ if (defined( $opt_HardMask)){
 my %gff; my $nbLineRead=0;
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $gff_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 

@@ -24,14 +24,14 @@ my $outInOne=undef;
 my $doNotReportEmptyCase=undef;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "d!" => \$doNotReportEmptyCase,
-    "m|merge!" => \$one_tsv,
-    "p|t|l=s" => \$primaryTag,
-    "attribute|a|att=s" => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \$gff,
+    "d!"                     => \$doNotReportEmptyCase,
+    "m|merge!"               => \$one_tsv,
+    "p|t|l=s"                => \$primaryTag,
+    "attribute|a|att=s"      => \$attributes,
+    "output|outfile|out|o=s" => \$outfile ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -55,7 +55,7 @@ if ( ! $gff or ! $attributes ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat( config_file_in => $config, input => $gff );
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
@@ -101,19 +101,13 @@ if ($attributes){
   print "\n";
 }
 
-
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
   foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){

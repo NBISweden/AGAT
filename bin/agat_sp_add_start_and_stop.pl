@@ -58,12 +58,12 @@ if(! $opt_file or ! $file_fasta ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # #######################
 # # START Manage Option #
 # #######################
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 $codon_table_id = get_proper_codon_table($codon_table_id);
 
@@ -83,9 +83,7 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                 config => $config });
-print("Parsing Finished\n\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 

@@ -55,7 +55,7 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_reffile });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
@@ -147,17 +147,14 @@ if (defined($opt_output) ) {
   }
 }
 
-my $ostreamUTR = prepare_gffout($config, $ostreamUTR_file);
-my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
+my $ostreamUTR = prepare_gffout( $ostreamUTR_file);
+my $ostreamUTRdiscarded = prepare_gffout( $ostreamUTRdiscarded_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
-                                                                 config => $config
-                                                              });
-print("Parsing Finished\n\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile });
 ### END Parse GFF input #
 #########################
 

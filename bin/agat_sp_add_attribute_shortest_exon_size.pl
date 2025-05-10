@@ -44,7 +44,7 @@ if ( ! defined($opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # #######################
 # # START Manage Option #
@@ -54,7 +54,7 @@ if (defined($opt_output) ) {
   my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   $ostreamReport_filename=$path.$filename."_report.txt";
 }
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output);
 my $ostreamReport = prepare_fileout($ostreamReport_filename);
 
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
@@ -69,10 +69,7 @@ if($opt_output){print $string1;}
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                 config => $config });
-print("Parsing Finished\n\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 

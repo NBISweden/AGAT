@@ -33,7 +33,7 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'       => \$config,
     "h|help"           => \$opt_help,
     "gff=s"            => \$gff,
     "fasta|fa=s"       => \$file_fasta,
@@ -64,7 +64,7 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 ######################
 # Manage output file #
@@ -81,10 +81,10 @@ if ($outfile) {
   $logout_file = $path.$filename."-report.txt";
 }
 
-my $gffout  = prepare_gffout($config, $gffout_file);
-my $gffout2 = prepare_gffout($config, $gffout2_file);
-my $gffout3 = prepare_gffout($config, $gffout3_file);
-my $logout = prepare_fileout($logout_file);
+my $gffout  = prepare_gffout( $gffout_file );
+my $gffout2 = prepare_gffout( $gffout2_file );
+my $gffout3 = prepare_gffout( $gffout3_file );
+my $logout = prepare_fileout( $logout_file );
 
 $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
 
@@ -103,10 +103,7 @@ else{ print "You didn't use the option stranded. We will look for fusion in all 
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

@@ -21,7 +21,7 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   "size|s=i"            => \$INTRON_LENGTH,
-                  'c|config=s'               => \$config,
+                  'c|config=s'          => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -44,7 +44,7 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -59,10 +59,7 @@ my $fh = prepare_fileout($opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                   config => $config
-                                                              });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 

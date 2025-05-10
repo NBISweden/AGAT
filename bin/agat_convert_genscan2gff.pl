@@ -47,10 +47,10 @@ if ( ! (defined($genscan)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+$config = get_agat_config({ config_file_in => $config, input => $genscan });
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 ## MAIN ##############################################################
 

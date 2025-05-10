@@ -49,7 +49,7 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
 
 ######################
 # Manage output file #
@@ -62,17 +62,13 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-my $gffout = prepare_gffout($config, $opt_output_gff);
+my $gffout = prepare_gffout( $opt_output_gff );
 
 ##### MAIN ####
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                              });
-print "Parsing Finished\n";
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile });
 ### END Parse GFF input #
 #########################
 

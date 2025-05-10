@@ -27,7 +27,7 @@ if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
                   "p|type|l=s"        => \$primaryTag,
                   'o|output=s'        => \$outfile,
                   'q|quiet!'          => \$quiet,
-                  'c|config=s'               => \$config,
+                  'c|config=s'        => \$config,
                   'h|help!'           => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,15 +48,15 @@ if ((!defined($inputFile)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $inputFile });
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 #define the locus tag
 if(! $locus_tag){
@@ -65,8 +65,7 @@ if(! $locus_tag){
 
 # Manage $primaryTag
 my @ptagList;
-my $hash_levels= get_levels_info();
-my $hash_level1 = $hash_levels->{'other'}{'level'}{'level1'};
+my $hash_level1 = $LEVELS->{'level1'};
 
 if(! $primaryTag){
   print "We will work on attributes from all Level1 features.\n";

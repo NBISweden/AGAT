@@ -43,12 +43,12 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # #######################
 # # START Manage Option #
 # #######################
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 # #####################################
 # # END Manage OPTION
@@ -65,9 +65,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                   config => $config });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 

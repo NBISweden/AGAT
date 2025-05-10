@@ -49,10 +49,10 @@ if ( ! (defined($bed)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $bed });
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Ask for specific GFF information
 if (!$source_tag or !$primary_tag){

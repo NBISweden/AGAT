@@ -128,7 +128,7 @@ if ( !( defined($opt_reffile) ) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_reffile });
 
 #################################################
 ####### START Manage files (input output) #######
@@ -182,7 +182,7 @@ if (defined($opt_output)) {
   $ostreamReport_file = $opt_output."/report.txt";
 }
 
-my $ostreamGFF    = prepare_gffout($config, $ostreamGFF_file);
+my $ostreamGFF    = prepare_gffout( $ostreamGFF_file);
 my $ostreamLog    = prepare_fileout($ostreamLog_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
@@ -218,10 +218,8 @@ if ($opt_output) {
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
-                                                                 config => $config
-                                                                });
-print_time("Parsing Finished");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile });
+
 ### END Parse GFF input #
 #########################
 

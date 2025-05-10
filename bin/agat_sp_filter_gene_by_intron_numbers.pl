@@ -25,7 +25,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   "nb|number|n=i"       => \$opt_nb,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
+                  'c|config=s'          => \$config,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -47,7 +47,7 @@ if ( ! $opt_gff ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
 
 ###############
 # Manage Output
@@ -66,9 +66,9 @@ if ($opt_output) {
   $ostreamReport_file = $path.$outfile."_report.txt";
 }
 
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
-my $ostreamReport = prepare_fileout($ostreamReport_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file );
+my $gffout_notok = prepare_gffout( $gffout_notok_file );
+my $ostreamReport = prepare_fileout( $ostreamReport_file );
 
 #Manage test option
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
@@ -91,10 +91,7 @@ else{ print $stringPrint; }
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff });
 ### END Parse GFF input #
 #########################
 # sort by seq id

@@ -48,25 +48,21 @@ if (! $ref or ! @opt_files ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $ref });
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
-
+my $gffout = prepare_gffout( $opt_output );
 
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
-                                                                 config => $config
-                                                              });
-print ("$ref GFF3 file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref });
+
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
@@ -77,12 +73,6 @@ foreach my $next_file (@opt_files){
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
 
-  ################################
-  # First rename ID to be sure to not add feature with ID already used
-  rename_ID_existing_in_omniscient($hash_omniscient, $hash_omniscient2);
-  print ("\n$next_file IDs checked and fixed.\n");
-
-
   # Quick stat hash before complement
   my %quick_stat1;
   foreach my $level ( ('level1', 'level2') ){
@@ -91,9 +81,9 @@ foreach my $next_file (@opt_files){
       $quick_stat1{$level}{$tag} = $nb_tag;
     }
   }
-
+  
   ####### COMPLEMENT #######
-  complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min);
+  complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min); # deal with identical ID by renaming them
   print ("\nComplement done !\n");
 
 

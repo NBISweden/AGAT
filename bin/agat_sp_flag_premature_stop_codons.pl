@@ -51,7 +51,7 @@ if ( !$opt_file or !$file_fasta) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -65,7 +65,7 @@ if (defined($opt_output) ) {
   $ostreamReport_file = $path.$filename."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -86,10 +86,7 @@ activate_warning_limit(\%warnings, 10);
 ######################
 ### Parse GFF input #
 print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-	                                                             config => $config
-                                                              });
-print("Parsing Finished\n\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 

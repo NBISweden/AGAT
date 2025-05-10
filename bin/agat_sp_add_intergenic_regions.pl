@@ -19,7 +19,7 @@ my $opt_output=undef;
 my $opt_help = 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
+if ( !GetOptions( 'f|gff|ref=s'         => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   'c|config=s'          => \$config,
                   'v|verbose!'          => \$verbose,
@@ -45,11 +45,11 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
 
 # # START Manage Option #
 # #######################
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 #                         #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -57,9 +57,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                              config => $config });
-  print("Parsing Finished\n");
+  my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 

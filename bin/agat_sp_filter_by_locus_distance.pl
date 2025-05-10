@@ -48,11 +48,11 @@ if ( ! defined($gff) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
                 #####################
                 #     MAIN          #
@@ -60,10 +60,7 @@ my $gffout = prepare_gffout($config, $outfile);
 
 ######################
 ### Parse GFF input #
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                            config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 #counters
 my $geneCounter_skip=0;

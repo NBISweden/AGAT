@@ -18,7 +18,7 @@ my $verbose;
 my $opt_help = 0;
 
 if ( !GetOptions(
-		'c|config=s'               => \$config,
+		'c|config=s'             => \$config,
 		"h|help"                 => \$opt_help,
 		"f|file|gff3|gff=s"      => \$ref,
 		"merge|m!"               => \$opt_merge,
@@ -46,21 +46,18 @@ if ( ! (defined($ref)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $ref });
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $error_found=undef;
 ### Parse GFF input #
 print ("Parse file $ref\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
-                                                                 config => $config
-                                                              });
-print ("$ref file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref });
 
 # sort by seq id
 my %hash_sortBySeq;

@@ -59,10 +59,10 @@ if ( ! $gff or ! $attributes){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # --- Manage output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # deal with strategy input
 $strategy=lc($strategy);
@@ -144,17 +144,13 @@ if ($attributes){
   print "\n";
 }
 
-my $hash_info= get_levels_info();
-my $hash_level = $hash_info->{'other'}{'level'};
-
-
                 #####################
                 #     MAIN          #
                 #####################
 
 
 # Manage gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
 
@@ -224,7 +220,7 @@ sub  manage_attributes{
     if($ptag eq "all"){
       remove_tag_from_list($feature,$attListOk);
     }
-    elsif( exists_keys($hash_level,(lc($ptag),lc($primary_tag) ) ) ){
+    elsif( exists_keys($LEVELS,(lc($ptag),lc($primary_tag) ) ) ){
       remove_tag_from_list($feature,$attListOk);
     }
     elsif(lc($ptag) eq lc($primary_tag) ){

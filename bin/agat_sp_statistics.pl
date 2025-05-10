@@ -22,16 +22,16 @@ my $opt_verbose = 0;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
-    'o|output=s'  => \$opt_output,
+    'c|config=s'   => \$config,
+    "h|help"       => \$opt_help,
+    'o|output=s'   => \$opt_output,
     'percentile=i' => \$opt_percentile,
     'yaml!'        => \$opt_yaml,
     'r|raw!'       => \$opt_raw,
     'd|p!'         => \$opt_plot,
-    'v|verbose'   => \$opt_verbose,
-    'g|f|gs=s'    => \$opt_genomeSize,
-    "gff|i=s"     => \$gff))
+    'v|verbose'    => \$opt_verbose,
+    'g|f|gs=s'     => \$opt_genomeSize,
+    "gff|i=s"      => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -54,7 +54,7 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
@@ -109,12 +109,7 @@ if($opt_plot){
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               config => $config
-                                                               });
-print "Parsing Finished\n";
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $gff });
 ### END Parse GFF input #
 #########################
 

@@ -35,10 +35,10 @@ if (!defined $mfannot_file) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $mfannot_file });
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $gff_file);
+my $gffout = prepare_gffout( $gff_file );
 
 ## MAIN ##############################################################
 read_mfannot($mfannot_file);

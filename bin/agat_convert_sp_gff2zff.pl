@@ -18,10 +18,10 @@ my $fasta = undef;
 my $help;
 
 if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$help,
-    "gff=s" => \$gff,
-		"fasta=s" => \$fasta,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$help,
+    "gff=s"                  => \$gff,
+    "fasta=s"                => \$fasta,
     "outfile|output|out|o=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line.",
@@ -43,7 +43,7 @@ if ( ! defined($gff) or ! defined($fasta) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 ## Manage output file
 my $zffout;
@@ -70,9 +70,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config });
-# END parsing
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);

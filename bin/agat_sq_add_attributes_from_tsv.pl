@@ -48,13 +48,13 @@ if (! $input_gff or ! $input_tsv){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $input_gff });
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outputFile);
+my $gffout = prepare_gffout( $outputFile );
 
 # Manage GFF Input
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
 print "Reading $input_gff using format GFF$format\n";
 my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);

@@ -22,12 +22,12 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"   => \$opt_help,
-    "g|gff=s"  => \$gff,
-    't|test=s' => \$opt_test,
-    "size|s=i" => \$PROT_LENGTH,
-    "v!"       => \$verbose,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "g|gff=s"                => \$gff,
+    't|test=s'               => \$opt_test,
+    "size|s=i"               => \$PROT_LENGTH,
+    "v!"                     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -51,7 +51,7 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 ######################
 # Option check
@@ -80,8 +80,8 @@ if ($outfile) {
   $gffout_notpass_file = $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff";
 }
 
-my $gffout_pass = prepare_gffout($config, $gffout_pass_file);
-my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
+my $gffout_pass = prepare_gffout( $gffout_pass_file);
+my $gffout_notpass = prepare_gffout( $gffout_notpass_file);
 
 # print usage performed
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
@@ -95,10 +95,7 @@ print $stringPrint;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                               });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 my @good_gene_list;
 my @bad_gene_list;

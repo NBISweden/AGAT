@@ -49,7 +49,7 @@ if ( ! $opt_gff  ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
 
 ###############
 # Manage Output
@@ -63,7 +63,7 @@ if ($opt_output) {
   # set file names
   $gffout_ok_file = $path.$outfile.$ext;
 }
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file);
 
 # Manage $primaryTag for copy
 my @ptagListCopy;
@@ -151,10 +151,8 @@ print $stringPrint;
 my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff });
+
 ### END Parse GFF input #
 #########################
 # sort by seq id

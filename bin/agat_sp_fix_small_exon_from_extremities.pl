@@ -23,13 +23,13 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "table|codon|ct=i" => \$codonTableId,
-    "size|s=i" => \$SIZE_OPT,
-    "v!" => \$verbose,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "gff=s"                  => \$gff,
+    "fasta|fa|f=s"           => \$file_fasta,
+    "table|codon|ct=i"       => \$codonTableId,
+    "size|s=i"               => \$SIZE_OPT,
+    "v!"                     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -53,11 +53,11 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -68,11 +68,7 @@ $codonTableId = get_proper_codon_table($codonTableId);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

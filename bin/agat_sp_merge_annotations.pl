@@ -18,9 +18,9 @@ my $file2 = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \@opt_files,
+    'c|config=s'             => \$config,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \@opt_files,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -54,11 +54,11 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_files[0] });
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -66,18 +66,15 @@ my $gffout = prepare_gffout($config, $outfile);
 ### Parse GFF input #
 
 my $file1 = shift @opt_files;
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1,
-                                                                 config => $config
-                                                              });
-print ("$file1 GFF3 file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1 });
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
-	                                                                   config => $config
-                                                                  });
-  print ("$next_file GFF3 file parsed\n");
+  my $log = create_log_file({input => $next_file});
+  $LOGGING->{'log'} = $log ;
+  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file });
+
   info_omniscient($hash_omniscient2);
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
@@ -89,7 +86,7 @@ foreach my $next_file (@opt_files){
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
 print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
-merge_overlap_loci(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
+merge_overlap_loci($hash_omniscient, $hash_mRNAGeneLink);
 
 
 print ("\nfinal result:\n");

@@ -110,7 +110,7 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -132,7 +132,7 @@ if ($outfolder) {
 		# gff out
 		my $gff_out_path = "$outfolder/$file_gff_in$ext_gff";
 
-		$gff_out = prepare_gffout($config, $gff_out_path);
+		$gff_out = prepare_gffout( $gff_out_path);
 	}
 	if($frags){
 		# fasta out
@@ -161,11 +161,7 @@ if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
-                                                                config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

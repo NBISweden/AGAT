@@ -32,7 +32,7 @@ my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'             => \$config,
     "h|help"                 => \$help,
     "gtf=s"                  => \$gff,
     "threshold|t=i"          => \$valueK,
@@ -61,7 +61,7 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -74,7 +74,7 @@ if ($outfile) {
  	$outReport_file = $outfile_no_extension."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 my $outReport = prepare_fileout($outReport_file);
 
 # Check if dependencies for plot are available
@@ -109,22 +109,19 @@ else{
 ######################
 ### Parse GFF input #
 # checks are deactivated except _remove_orphan_l1
-$config->{"check_sequential"} = 0;
-$config->{"check_l2_linked_to_l3"} = 0;
-$config->{"check_l1_linked_to_l2"} = 0;
-$config->{"remove_orphan_l1"} = 1;
-$config->{"check_all_level3_locations"} = 0;
-$config->{"check_cds"} = 0;
-$config->{"check_exons"} = 0;
-$config->{"check_utrs"} = 0;
-$config->{"check_all_level2_locations"} = 0;
-$config->{"check_all_level1_locations"} = 0;
-$config->{"check_identical_isoforms"} = 0;
+$CONFIG->{"check_sequential"} = 0;
+$CONFIG->{"check_l2_linked_to_l3"} = 0;
+$CONFIG->{"check_l1_linked_to_l2"} = 0;
+$CONFIG->{"remove_orphan_l1"} = 1;
+$CONFIG->{"check_all_level3_locations"} = 0;
+$CONFIG->{"check_cds"} = 0;
+$CONFIG->{"check_exons"} = 0;
+$CONFIG->{"check_utrs"} = 0;
+$CONFIG->{"check_all_level2_locations"} = 0;
+$CONFIG->{"check_all_level1_locations"} = 0;
+$CONFIG->{"check_identical_isoforms"} = 0;
 
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               config => $config
-                                                               });
+my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $gff });
 
 #track stats
 my $nbOriginalGene = nb_feature_level1($hash_omniscient); #total gene at the beginning
@@ -260,17 +257,17 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        }
 
 			# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
-	        $config->{"check_sequential"} = 1;
-			$config->{"check_l2_linked_to_l3"} = 1;
-			$config->{"check_l1_linked_to_l2"} = 1;
-			$config->{"remove_orphan_l1"} = 1;
-			$config->{"check_all_level3_locations"} = 0;
-			$config->{"check_cds"} = 0;
-			$config->{"check_exons"} = 0;
-			$config->{"check_utrs"} = 0;
-			$config->{"check_all_level2_locations"} = 1;
-			$config->{"check_all_level1_locations"} = 1;
-			$config->{"check_identical_isoforms"} = 0;
+	        $CONFIG->{"check_sequential"} = 1;
+			$CONFIG->{"check_l2_linked_to_l3"} = 1;
+			$CONFIG->{"check_l1_linked_to_l2"} = 1;
+			$CONFIG->{"remove_orphan_l1"} = 1;
+			$CONFIG->{"check_all_level3_locations"} = 0;
+			$CONFIG->{"check_cds"} = 0;
+			$CONFIG->{"check_exons"} = 0;
+			$CONFIG->{"check_utrs"} = 0;
+			$CONFIG->{"check_all_level2_locations"} = 1;
+			$CONFIG->{"check_all_level1_locations"} = 1;
+			$CONFIG->{"check_identical_isoforms"} = 0;
 
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
 																						 config => $config

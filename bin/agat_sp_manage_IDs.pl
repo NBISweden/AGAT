@@ -58,9 +58,9 @@ if ( ! (defined($opt_gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Manage $primaryTag
 my %ptagList;
@@ -95,13 +95,10 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff });
 
 # get spreadfeatire in case of collective option set
-my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
+my $spreadfeatures = $LEVELS->{'spread'};
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);

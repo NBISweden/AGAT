@@ -5,7 +5,9 @@ package AGAT::AGAT;
 use strict;
 use warnings;
 use Exporter;
-
+use POSIX qw(strftime);
+use File::Basename;
+use File::Path qw(remove_tree);
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
@@ -18,7 +20,7 @@ use Bio::Tools::GFF;
 
 our $VERSION     = "v1.4.1";
 our @ISA         = qw(Exporter);
-our @EXPORT      = qw(get_agat_header print_agat_version get_agat_config handle_levels);
+our @EXPORT      = qw(get_agat_header print_agat_version initialize_agat handle_levels create_log_file);
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -143,10 +145,22 @@ configuration parameters are used).
 MESSAGE
 }
 
-# load configuration file from local file if any either the one shipped with AGAT
-# return a hash containing the configuration.
-sub get_agat_config{
+# initialize_agat:
+# set logging and save it in global $LOGGING
+# load configuration file from local file if any either the one shipped with AGAT and save it in global $CONFIG 
+# load level file from local file if any either the one shipped with AGAT and save it in global $LEVELS
+
+sub initialize_agat{
 	my ($args)=@_;
+
+	# Needed if log activated
+	my $input;
+	if( defined($args->{input}) ) { $input = $args->{input}; } 
+	else { 
+		warn "no input file provided";
+		my ($package, $filename, $line, $subroutine) = caller(0);
+		print "Called from subroutine: $subroutine at $filename line $line\n";
+	}
 
 	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
 	print AGAT::AGAT::get_agat_header();
@@ -155,11 +169,22 @@ sub get_agat_config{
 	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
 
 	# Get the config file
-	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
+	my ($config_file_checked, $log_info) = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
 	# Load the config
-	my $config = load_config({ config_file => $config_file_checked});
-	check_config({ config => $config});
-	return $config;
+	$CONFIG = load_config({ config_file => $config_file_checked});
+	check_config({ config => $CONFIG});
+	
+	# --- logging --- LOGGING DEFINED INTO UTILITIES
+	$LOGGING = {'verbose' => $CONFIG->{'verbose'}, 'debug_mode' => $CONFIG->{'debug'} };
+	if ( $CONFIG->{log} ){
+		my $log = create_log_file({input => $input});
+		$LOGGING->{'log'} = $log ;
+		# +----------------- Print header ------------------+
+		dual_print ({ string => AGAT::AGAT::get_agat_header(), log_only => 1 });
+		dual_print ({ string => $log_info, log_only => 1 });
+	}
+	# --- set LEVELS variable ---
+	$LEVELS = load_levels();
 }
 
 # ==============================================================================
@@ -408,8 +433,6 @@ sub handle_config {
 			# check config
 			check_config({ config => $config});
 			print "Config checked\n";
-
-			 
 			
 			if ($modified_on_the_fly) {
 				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
@@ -440,6 +463,38 @@ sub _make_bolean{
 		$result="true";
 	}
 	return $result;
+}
+
+# +----------------- create a log file  ------------------+
+sub create_log_file{
+	my ($args)=@_;
+
+	my ($input, $log);
+	if( defined($args->{input}) ) { $input = $args->{input};}
+
+	if( -f $input){
+			my ($filename,$path,$ext) = fileparse($input,qr/\.[^.]*/);
+			$AGAT_LOG = $AGAT_LOG."_".$filename;
+			
+			# create folder if not exist
+			if (-d $AGAT_LOG) {
+				remove_tree($AGAT_LOG) or die "Failed to delete $AGAT_LOG: $!";
+			}
+			# create a tmp directory
+			mkdir $AGAT_LOG or die "Cannot create directory '$AGAT_LOG': $!";
+
+			# create a log file
+			open($log, '>', "$AGAT_LOG/main.log"  ) or
+						warn "Can not open $AGAT_LOG/main.log for printing log: $!" && die;
+			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
+																  char => " ",
+																  extra => "\n"
+																  });
+		}
+		else{
+			warn "File $input provided as input does not exits! Please verify your path and file existence!" && die;
+		}
+	return $log;
 }
 
 1;

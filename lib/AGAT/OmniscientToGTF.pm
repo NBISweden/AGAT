@@ -39,9 +39,9 @@ sub print_omniscient_as_gtf{
 	if( defined($args->{omniscient})) { $hash_omniscient = $args->{omniscient}; } else{ print "Omniscient parameter mandatory to use print_omniscient_as_gtf!"; exit; }
 	if( defined($args->{output})) { $gtf_out = $args->{output}; } else{ print "Output parameter mandatory to use print_omniscient_as_gtf!"; exit; }
 
-	my $gtf_version = $hash_omniscient->{"config"}{"gtf_output_version"};
-	my $verbose = $hash_omniscient->{"config"}{"verbose"};
-	my $debug = $hash_omniscient->{"config"}{"debug"};
+	my $gtf_version = $CONFIG->{"gtf_output_version"};
+	my $verbose = $CONFIG->{"verbose"};
+	my $debug = $CONFIG->{"debug"};
 	my $relax = undef;
 	if ($gtf_version eq "relax"){
 		$relax = 1;

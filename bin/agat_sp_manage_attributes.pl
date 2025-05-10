@@ -22,7 +22,7 @@ my $cp = undef;
 my $overwrite = undef;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'  => \$config,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
@@ -54,9 +54,9 @@ if ( ! $gff or ! $attributes){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Manage $primaryTag
 my @ptagList;
@@ -134,11 +134,7 @@ if ($attributes){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff});
 
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
   foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
