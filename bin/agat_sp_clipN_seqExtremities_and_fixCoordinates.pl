@@ -263,6 +263,10 @@ written to STDOUT.
 Output fixed GFF file.  If no output file is specified, the output will be
 written to STDOUT
 
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer — Number of parallel processes to use for file input parsing (via forking).
+
 =item B<-c> or B<--config>
 
 String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 

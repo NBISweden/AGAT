@@ -1046,6 +1046,10 @@ upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
 
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer — Number of parallel processes to use for file input parsing (via forking).
+
 =item B<-c> or B<--config>
 
 String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 

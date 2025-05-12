@@ -328,7 +328,8 @@ sub slurp_gff3_file_JD {
 		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
 		# set threads/cpu/core
 		my $max_procs = $CONFIG->{cpu} || 1; # number of threads to use
-		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs cpu)", char => "-" }) });
+		my $plural = $max_procs > 1 ? "s" : ""; # singular/plural for print
+		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs cpu$plural)", char => "-" }) });
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
 		my %omniscient_clean = %omniscient_original;
@@ -660,7 +661,7 @@ sub slurp_gff3_file_JD {
 
 	#stop alarm
 	alarm(0);
-	
+
 	#return
 	return \%omniscient_original, \%mRNAGeneLink;
 }

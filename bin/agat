@@ -150,6 +150,10 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							help        => 'To create a config file with the desired name instead of the default agat_config.yaml. Do not forget to mention your config file name when using AGAT, otherwise AGAT will use the agat_config.yaml in your working directory if any or the original agat_config.yaml file shiped along the tool.',
 					 },
 					 {
+							getopt      => 'thread|threads|cpu|cpus|core|cores|job|jobs=i',
+							help        => 'Integer — Number of parallel processes to use for file input parsing (via forking).',
+					 },
+					 {
 							getopt      => 'verbose=i',
 							help        => 'Verbosity during the GFF/GTF parsing. 0 is quiet. 1,2,3 or 4 to increase verbosity.[Default 1]',
 					 },

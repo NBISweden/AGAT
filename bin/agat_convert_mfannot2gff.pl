@@ -27,7 +27,7 @@ GetOptions(
     'gff|g|o=s'      => \$gff_file,
 	'v|verbose!'     => \$verbose,
     'c|config=s'     => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
     'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );
@@ -428,6 +428,10 @@ The mfannot input file
 =item B<-g> or B<-o> or B<--gff>
 
 the gff output file
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer — Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

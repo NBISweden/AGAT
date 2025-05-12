@@ -180,6 +180,10 @@ Option to keep the non-overlping gene only if the CDS size (in nucleotide) is ov
 
 Output gff3 containing the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
 
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer — Number of parallel processes to use for file input parsing (via forking).
+
 =item B<-c> or B<--config>
 
 String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 

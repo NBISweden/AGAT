@@ -175,6 +175,10 @@ sub check_config{
 		warn "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;
 	}
+	if( !  exists_keys($config,("cpu") ) ){
+		warn "cpu parameter missing in the configuration file.\n";
+		$error = 1;
+	}
 	if( !  exists_keys($config,("log") ) ){
 		warn "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;

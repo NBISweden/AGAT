@@ -259,6 +259,7 @@ sub handle_config {
 		my $verbose = $general->{configs}[-1]{verbose};
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
 		my $config_new_name = $general->{configs}[-1]{output};
+		my $cpu = $general->{configs}[-1]{cpu};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
 		my $tabix = $general->{configs}[-1]{tabix};
@@ -301,6 +302,11 @@ sub handle_config {
 			# bolean
 			if( defined($progress_bar) ){
 				$config->{ progress_bar } = _make_bolean($progress_bar);
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($cpu) ){
+				$config->{ cpu } = $cpu;
 				$modified_on_the_fly = 1;
 			}
 			# bolean
