@@ -374,7 +374,6 @@ sub print_omniscient_as_match{
 				}
 			}
 		}
-
 	# --------- deal with fasta seq --------------
 	write_fasta($gffout, $omniscient);
 }
@@ -530,12 +529,34 @@ sub write_fasta {
 	my ($gffout, $omniscient) = @_;
 
 	if ( exists_keys ($omniscient, ('other','fasta') ) ){
+		# print the GFF fasta line
 		$gffout->_print("##FASTA\n");
 
-		my $gffin = $omniscient->{'other'}{'fasta'};
-		my @Bio_Seq_objs =  $gffin->get_seqs();
+		# --- open the gff file ---
+		my $file = $omniscient->{'other'}{'fasta'};
+		my $gff_in_format = $omniscient->{'other'}{'gff_in_format'};
 
-		for my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
+		my $gffio;
+		my ($file_ext) = $file =~ /(\.[^.]+)$/; # get file extension
+		if($file_ext eq ".gz"){
+			my $fh;
+			if ("$^O" eq "darwin"){
+				open( $fh, "zcat < $file |");
+			}
+			else{
+				open( $fh, "zcat $file |");
+			}
+			 $gffio  = AGAT::BioperlGFF->new(-fh => $fh, -gff_version => $gff_in_format);
+		}
+		else{
+			$gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
+		}
+		# --- READ the gff file ---
+		# features need to be conusume to reach the fasta, so just consume them silently
+		1 while $gffio->next_feature;
+		# --- print the fasta seq ---
+		my @Bio_Seq_objs =  $gffio->get_seqs();
+		foreach my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
 
 			if( $Bio_Seq_obj->desc ){
 				$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
@@ -544,26 +565,26 @@ sub write_fasta {
 				$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
 			}
 
-      my $str = $Bio_Seq_obj->seq;
-      my $nuc = 80;       # Number of nucleotides per line
-      my $length = length($str);
+			my $str = $Bio_Seq_obj->seq;
+			my $nuc = 80;       # Number of nucleotides per line
+			my $length = length($str);
 
-      # Calculate the number of nucleotides which fit on whole lines
-      my $whole = int($length / $nuc) * $nuc;
+			# Calculate the number of nucleotides which fit on whole lines
+			my $whole = int($length / $nuc) * $nuc;
 
-      # Print the whole lines
-      my( $i );
-      for ($i = 0; $i < $whole; $i += $nuc) {
-          my $blocks = substr($str, $i, $nuc);
-          $gffout->_print("$blocks\n") || return;
-      }
-      # Print the last line
-      if (my $last = substr($str, $i)) {
-          $gffout->_print("$last\n") || return;
-      }
+			# Print the whole lines
+			my( $i );
+			for ($i = 0; $i < $whole; $i += $nuc) {
+				my $blocks = substr($str, $i, $nuc);
+				$gffout->_print("$blocks\n") || return;
+			}
+			# Print the last line
+			if (my $last = substr($str, $i)) {
+				$gffout->_print("$last\n") || return;
+			}
 		}
 		# Close the gff input FH opened by OmniscientI
-		$gffin->close();
+		$gffio->close();
 	}
 }
 
@@ -603,7 +624,6 @@ sub write_headers{
     if (exists_keys( $omniscient, ('other', 'header') ) ){
       my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
       foreach my $header_line ( @{$omniscient->{'other'}{'header'} } ) {
-		$header_line =~ s/[\r\n]+$//g;
         print $gffXtra $header_line."\n";
       }
     }

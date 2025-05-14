@@ -48,8 +48,7 @@ read_mfannot($mfannot_file);
 
 handle_records();
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient,
-                                                                 config => $config });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient });
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
@@ -431,7 +430,7 @@ the gff output file
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

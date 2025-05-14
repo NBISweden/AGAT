@@ -108,7 +108,7 @@ File where will be written the result. If no output file is specified, the outpu
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

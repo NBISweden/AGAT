@@ -314,7 +314,7 @@ Verbose option, make it easier to follow what is going on for debugging purpose.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

@@ -35,6 +35,7 @@ system("$script config -e \\
 								--no-log \\
 								--no-create_l3_for_l2_orphan  \\
 								--throw_fasta  \\
+								--cpu 2 \\
 								--no-tabix  \\
 								--output_format GTF  \\
 								--gff_output_version 2  \\
@@ -77,7 +78,7 @@ ok( system("if [ -e $new_config_name ];then exit 0;fi") == 0, "rename agat confi
 system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new_config_name -o tmp.gff  2>&1 1>/dev/null");
 #run test 
 ok( system("diff tmp.gff t/gff_syntax/out/28_correct_output.gff") == 0, "Use custom agat config file check");
-
+exit;
 # remove file created for the test
 unlink "tmp.gff";
 unlink $new_config_name;

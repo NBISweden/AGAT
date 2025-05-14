@@ -238,11 +238,9 @@ sub merge_omniscients {
 	if (! $hash_whole_IDs){
 		$hash_whole_IDs = get_all_IDs($hash_omniscient1);
 	}
-	my $hash2_whole_IDs = get_all_IDs($hash_omniscient2);
 
 	my %hash_miscCount;
 	my $miscCount = \%hash_miscCount;
-
 
 	#################
 	# ==  HEADER == #
@@ -282,7 +280,7 @@ sub merge_omniscients {
 			else{
 				#print "INFO level1:  Parent $id_l1 already exist. We generate a new one to avoid collision !\n";
 				my $feature = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1};
-				$uID = replace_by_uniq_ID( $feature, $hash_whole_IDs,  $hash2_whole_IDs, $miscCount);
+				$uID = replace_by_uniq_ID( $feature, $hash_whole_IDs, $miscCount);
 				$hash_omniscient1->{'level1'}{$tag_l1}{lc($uID)} = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
 				$new_parent=1;
 			}
@@ -307,7 +305,7 @@ sub merge_omniscients {
 						if ( exists_keys ( $hash_whole_IDs,($id_l2) ) ){
 
 							#print "INFO level2:  Parent $id_l2 already exist. We generate a new one to avoid collision !\n";
-							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs,  $hash2_whole_IDs, $miscCount);
+							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs, $miscCount);
 							$new_parent_l2=1;
 						}
 						else{$hash_whole_IDs->{$id_l2}++;}
@@ -319,20 +317,47 @@ sub merge_omniscients {
 
 							if (exists_keys ($hash_omniscient2, ('level3', $tag_l3, $id_l2) ) ){
 
-								foreach my $feature_l3 ( @{$hash_omniscient2->{'level3'}{$tag_l3}{$id_l2}}) {
+								# SPREAD FEATURE CASE
+								if (exists_keys($LEVELS,("spread", $tag_l3)) ){
+									my %spreadIDs;
+									# We can generate several times the same ID if already exists in omni1 because they are spread features! 
+									foreach my $feature_l3 ( @{$hash_omniscient2->{'level3'}{$tag_l3}{$id_l2}}) {
 
-									if($new_parent_l2){
-										create_or_replace_tag($feature_l3, 'Parent', $uID_l2);
+										if($new_parent_l2){
+											create_or_replace_tag($feature_l3, 'Parent', $uID_l2);
+										}
+										
+										my $id_l3 = lc($feature_l3->_tag_value('ID'));
+
+										if ( exists_keys ( $hash_whole_IDs,($id_l3) ) ){
+										#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
+											my $uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs, $miscCount);
+											$spreadIDs{$uID_l3}++;
+										}
+										else{$spreadIDs{$id_l3}++;}
 									}
-
-									my $uID_l3 = $feature_l3->_tag_value('ID');
-									my $id_l3 = lc($uID_l3);
-
-									if ( exists_keys ( $hash_whole_IDs,($id_l3) ) ){
-									#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
-										$uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs,  $hash2_whole_IDs, $miscCount);
+									# Save the list of spread IDs generated (pass by a hash because may be several e.g. CDS aprts share the same ID existing, and another part a has a new ID. So we should kept both)
+									# only if integer because replace_by_uniq_ID use the ancient name as value and not an increment value
+									foreach my $key (keys %spreadIDs) {
+										$hash_whole_IDs->{$key}++ unless exists_keys($hash_whole_IDs, ($key) );
 									}
-									else{$hash_whole_IDs->{$id_l3}++;}
+								} 
+								# OTHER CASES
+								else {
+									foreach my $feature_l3 ( @{$hash_omniscient2->{'level3'}{$tag_l3}{$id_l2}}) {
+
+										if($new_parent_l2){
+											create_or_replace_tag($feature_l3, 'Parent', $uID_l2);
+										}
+
+										my $id_l3 = lc($feature_l3->_tag_value('ID'));
+
+										if ( exists_keys ( $hash_whole_IDs,($id_l3) ) ){
+										#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
+											my $uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs, $miscCount);
+										}
+										else{$hash_whole_IDs->{$id_l3}++;}
+									}
 								}
 								#save list feature level3
 								$hash_omniscient1->{'level3'}{$tag_l3}{lc($uID_l2)}  = delete $hash_omniscient2->{'level3'}{$tag_l3}{$id_l2} ;
@@ -455,25 +480,34 @@ sub merge_overlap_loci{
 
 						#let's check at CDS level
 						if(check_feature_overlap_from_l3_to_l1($omniscient, $omniscient , $id_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level to be merged, otherwise any type of feature level3 overlaping is sufficient to decide to merge the level1 together
-              # >>>>>>>>>> OVERLAP <<<<<<<<<<<<<
+             
+			  # >>>>>>>>>> OVERLAP <<<<<<<<<<<<<
 							#they overlap should give them the same name
 							$resume_merge++;
 
-							dual_print ({ 'string' => "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 'log_only' => 1 });
+							my $keep = $id_l1;
+							my $remove = $id2_l1;
+							if ( $id_l1 =~ /^agat-/ and $id2_l1 !~ /^agat-/) {
+								$keep = $id2_l1;
+								$remove = $id_l1;
+							}
+
+							dual_print ({ 'string' => "$id_l1 and $id2_l1 same locus. We merge them together (using $keep as template): Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 'log_only' => 1 });
+
 							# update atttribute except ID and Parent for L1:
-							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
+							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$remove}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
 								if(lc($tag) ne "parent" and lc($tag) ne "id"){
-									my @tag_values = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_tag_values($tag);
-									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$id_l1}, $tag , \@tag_values);
+									my @tag_values = $omniscient->{'level1'}{$tag_l1}{$remove}->get_tag_values($tag);
+									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$keep}, $tag , \@tag_values);
 								}
 							}
 							# remove the level1 of the ovelaping one
-							delete $omniscient->{'level1'}{$tag_l1}{$id2_l1};
+							delete $omniscient->{'level1'}{$tag_l1}{$remove};
 							# remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
 							foreach my $l2_type (%{$omniscient->{'level2'}}){
-								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
-									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$id2_l1}}){
+								if(exists_keys($omniscient,('level2', $l2_type, $remove))){
+									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$remove}}){
 										delete $mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))};
 									}
 								}
@@ -482,17 +516,17 @@ sub merge_overlap_loci{
 							# Let's change the parent of all the L2 features
 							foreach my $l2_type ( keys	%{$omniscient->{'level2'}} ){
 
-								if(exists_keys($omniscient,('level2', $l2_type, $id2_l1))){
+								if(exists_keys($omniscient,('level2', $l2_type, $remove))){
 
 									# >>>>>>>>>> REMOVE THE IDENTICAL ISOFORMS <<<<<<<<<<<<<
 									# first list uniqs
-									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2( $omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1} ); # remove if identical l2 exists
+									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2( $omniscient, $omniscient->{'level2'}{$l2_type}{$keep}, $omniscient->{'level2'}{$l2_type}{$remove} ); # remove if identical l2 exists
 
 									#Now manage the rest
 									foreach my $feature_l2 (@{$list_of_uniqs}){
 										create_or_replace_tag($feature_l2,'Parent', $feature_l1->_tag_value('ID')); #change the parent
 										# Add the corrected feature to its new L2 bucket
-										push (@{$omniscient->{'level2'}{$l2_type}{$id_l1}}, $feature_l2);
+										push (@{$omniscient->{'level2'}{$l2_type}{$keep}}, $feature_l2);
 										# Attach the new parent into the mRNAGeneLink hash
 										$mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
 									}
@@ -512,7 +546,7 @@ sub merge_overlap_loci{
 									}
 								}
 							}
-							check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$tag_l1}{$id_l1} } );
+							check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$tag_l1}{$keep} } );
 						}
 					}
 				}
@@ -1775,7 +1809,7 @@ sub get_all_IDs{
 # @input: 4 => feature objetc, hash of ids, hash of ids, hash of feature counted to give more rapidly a name
 # @output: uniq ID
 sub replace_by_uniq_ID{
-	my ($feature, $hash_whole_IDs, $hash2_whole_IDs, $miscCount) = @_;
+	my ($feature, $hash_whole_IDs, $miscCount) = @_;
 
 	my $id = $feature->_tag_value('ID');
 	my $prefix = $CONFIG->{'prefix_new_id'};
@@ -1789,7 +1823,7 @@ sub replace_by_uniq_ID{
 	}
 
 	my $uID=$id;
-	while( exists_keys($hash_whole_IDs, (lc($uID)) ) or exists_keys($hash2_whole_IDs, (lc($uID)) ) ){	 #loop until we found an uniq tag
+	while( exists_keys( $hash_whole_IDs, (lc($uID) ) ) ){	 #loop until we found an uniq tag
 		$miscCount->{$key}++;
 		$uID = $key."-".$miscCount->{$key};
 	}

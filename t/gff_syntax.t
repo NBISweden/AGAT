@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 use File::Basename;
+use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use Test::More tests => 47;
 
 =head1 DESCRIPTION
@@ -106,8 +107,8 @@ sub cleaning{
   # if a file name is provided
   if($filename){
     my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
-    if (-e "$name.agat.log"){
-      unlink "$name.agat.log";
+    if (-e "agat_log_$name"){
+      remove_tree( "agat_log_$name" );
     }
   }
 }

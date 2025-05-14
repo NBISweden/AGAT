@@ -535,7 +535,7 @@ sub _write_headers_gtf{
     if (exists_keys( $hash_omniscient, ('other', 'header') ) ){
       my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
       foreach my $header_line ( @{$hash_omniscient->{'other'}{'header'} } ) {
-        print $gffXtra $header_line;
+        print $gffXtra $header_line."\n";
       }
     }
     # to avoid to write again the header later in the file

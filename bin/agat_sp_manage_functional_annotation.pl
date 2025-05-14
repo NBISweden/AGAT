@@ -98,7 +98,7 @@ GetOptions(
  'a|addgntag'               => \$opt_addGnPresentTag,
  'v'                        => \$opt_verbose,
  'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+ 'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
  'h|help!'                  => \$opt_help
 )
 or pod2usage( {
@@ -1260,7 +1260,7 @@ Boolean - Verbose, for debug purpose.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

@@ -1264,7 +1264,7 @@ verbose mode. Default off. -v 1 minimum verbosity, -v 3 maximum verbosity
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

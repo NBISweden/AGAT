@@ -154,16 +154,17 @@ sub initialize_agat{
 	my ($args)=@_;
 
 	# Needed if log activated
-	my $input;
+	my ($input, $nolog);
+	if( defined($args->{nolog}) ) { $nolog = $args->{nolog}; } 
 	if( defined($args->{input}) ) { $input = $args->{input}; } 
-	else { 
+	elsif(! $nolog){
 		warn "no input file provided";
 		my ($package, $filename, $line, $subroutine) = caller(0);
 		print "Called from subroutine: $subroutine at $filename line $line\n";
 	}
 
 	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
-	print AGAT::AGAT::get_agat_header();
+	print AGAT::AGAT::get_agat_header() if (! $nolog);
 
 	my ($config_file_provided);
 	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
@@ -173,7 +174,7 @@ sub initialize_agat{
 	# Load the config
 	$CONFIG = load_config({ config_file => $config_file_checked});
 	check_config({ config => $CONFIG});
-	
+	$CONFIG->{log} = undef if ($nolog);
 	# --- logging --- LOGGING DEFINED INTO UTILITIES
 	$LOGGING = {'verbose' => $CONFIG->{'verbose'}, 'debug_mode' => $CONFIG->{'debug'} };
 	if ( $CONFIG->{log} ){
@@ -287,7 +288,7 @@ sub handle_config {
 
 		# Deal with Expose feature OPTION
 		if($expose){
-			my $config_file = get_config({type => "original"});
+			my ($config_file, $log_info) = get_config({type => "original"});
 			my $config = load_config({ config_file => $config_file});
 			print "Config loaded\n";
 
@@ -300,13 +301,13 @@ sub handle_config {
 				$modified_on_the_fly = 1;
 			}
 			# bolean
-			if( defined($progress_bar) ){
-				$config->{ progress_bar } = _make_bolean($progress_bar);
-				$modified_on_the_fly = 1;
-			}
-			# Integer
 			if( defined($cpu) ){
 				$config->{ cpu } = $cpu;
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($progress_bar) ){
+				$config->{ progress_bar } = _make_bolean($progress_bar);
 				$modified_on_the_fly = 1;
 			}
 			# bolean

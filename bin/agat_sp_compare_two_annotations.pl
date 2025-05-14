@@ -54,7 +54,7 @@ if ( ! $gff1 or ! $gff2){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config });
+initialize_agat({ config_file_in => $config, input => $gff1 });
 $CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
@@ -757,7 +757,7 @@ Verbose option, make it easier to follow what is going on.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

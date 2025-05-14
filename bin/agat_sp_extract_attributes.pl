@@ -26,7 +26,7 @@ my $doNotReportEmptyCase=undef;
 
 if ( !GetOptions(
     'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "gff|f=s"                => \$gff,
     "d!"                     => \$doNotReportEmptyCase,
@@ -57,7 +57,7 @@ if ( ! $gff or ! $attributes ){
 }
 
 # --- Manage config ---
-initialize_agat( config_file_in => $config, input => $gff );
+initialize_agat({ config_file_in => $config, input => $gff });
 $CONFIG->{cpu} = $cpu if defined($cpu);
 
 # If one output file we can create it here
@@ -292,7 +292,7 @@ written to STDOUT.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

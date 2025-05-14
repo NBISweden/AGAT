@@ -23,7 +23,7 @@ my $cp = undef;
 
 if ( !GetOptions(
     'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "gff|f=s"                => \$gff,
     "output|outfile|out|o=s" => \$opt_output))
@@ -272,7 +272,7 @@ written to STDOUT.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

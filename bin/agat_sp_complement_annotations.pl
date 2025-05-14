@@ -22,12 +22,12 @@ my $opt_help= undef;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help" => \$opt_help,
-    "ref|r|i=s" => \$ref,
-    "add|a=s" => \@opt_files,
-    "size_min|s=i" => \$size_min,
-    "output|outfile|out|o=s" => \$opt_output))
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                   => \$opt_help,
+    "ref|r|i=s"                => \$ref,
+    "add|a=s"                  => \@opt_files,
+    "size_min|s=i"             => \$size_min,
+    "output|outfile|out|o=s"   => \$opt_output))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -70,9 +70,7 @@ info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
-	                                                                   config => $config
-                                                                });
+  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file });
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
 
@@ -182,7 +180,7 @@ Output gff3 containing the reference annotation with all the non-overlapping new
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

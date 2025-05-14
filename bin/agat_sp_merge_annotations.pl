@@ -74,8 +74,6 @@ info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my $log = create_log_file({input => $next_file});
-  $LOGGING->{'log'} = $log ;
   my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file });
 
   info_omniscient($hash_omniscient2);
@@ -130,7 +128,7 @@ Output gff3 file where the gene incriminated will be write.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

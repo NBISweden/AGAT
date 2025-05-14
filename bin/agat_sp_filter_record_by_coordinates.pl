@@ -11,7 +11,8 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config ;
+my $config;
+my $cpu;
 my $opt_output ;
 my $opt_coordinates ;
 my $opt_exclude_ov ;
@@ -296,7 +297,7 @@ Verbosity.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

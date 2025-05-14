@@ -10,6 +10,7 @@ check_l2_linked_to_l3: false
 check_sequential: false
 check_utrs: false
 clean_attributes_from_template: true
+cpu: 2
 create_l3_for_l2_orphan: false
 debug: true
 force_gff_input_version: 3

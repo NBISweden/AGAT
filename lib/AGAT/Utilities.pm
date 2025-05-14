@@ -14,10 +14,10 @@ sizedPrint activate_warning_limit print_time dual_print file_text_line print_wra
 string_sep_to_hash $LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS);
 
 #	-----------------------------------CONSTANT-----------------------------------
-our $LOGGING = {};   # global hash
-our $CONFIG = {};   # global hash
-our $LEVELS = {};   # global hash
-our $AGAT_TMP="agat_tmp"; # temporary directory
+our $LOGGING  = {};  # global hash
+our $CONFIG   = {};   # global hash
+our $LEVELS   = {};   # global hash
+our $AGAT_TMP ="agat_tmp"; # temporary directory
 our $AGAT_LOG = "agat_log"; # # log directory
 
 =head1 SYNOPSIS

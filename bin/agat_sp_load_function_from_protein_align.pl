@@ -47,7 +47,7 @@ my $opt_help               = 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,
@@ -143,8 +143,7 @@ if (defined($opt_output) ) {
   my $ostreamFAadded = IO::File->new(">".$opt_output."/function_added.txt" ) or
   croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/function_added.txt", $! ));
   push (@outputTab, $ostreamFAadded);
-  initialize_agat({ ("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
-$CONFIG->{cpu} = $cpu if defined($cpu);
+  _print("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
   #2 gff
   my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $CONFIG->{gff_output_version} ) or
   croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$outfile_gff, $! ));
@@ -1300,7 +1299,7 @@ written to STDOUT.
 
 =item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
 
-Integer — Number of parallel processes to use for file input parsing (via forking).
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 
