@@ -77,7 +77,7 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover Devel::Cover::Report::Coveralls
+            install-modules: File::ShareDir::Install Devel::Cover@v1.44 Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
