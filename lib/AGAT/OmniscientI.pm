@@ -1195,7 +1195,7 @@ sub _it_is_duplication{
 	my $id = $hashID->{'uid'}{ lc($feature->_tag_value('ID') ) }; # check the original ID
 
 	if($level eq "level1"){
-		if(! exists_keys($omniscient,($level, $primary_tag, lc($id) ))){
+		if(!$id or ! exists_keys($omniscient,($level, $primary_tag, lc($id) ))){
 			return $is_dupli; #return is not a dupli
 		}
 		else{
@@ -1427,8 +1427,8 @@ sub _create_ID{
   my $uID;
 
   # if id does not exist, or exists and is already in use ($hashID->{'uid'}{lc(id)} ne undef)
-  if(!$id or exists_keys($hashID, ('uid', lc($id) ) ) ){
-	my $key;
+  if(!$id or $hashID->{'uid'}{lc($id)}){
+  	my $key;
 
   	if($prefix){
   		$key=$prefix."-".$primary_tag;
@@ -1447,9 +1447,6 @@ sub _create_ID{
   else{ # It was in the hash but unused
     $uID = $id;
   }
-
-	# case the id did not exist
-	$id = $uID if(!defined($id)); # we will use the new ID as the original id
 
 	#push the new ID
 	$hashID->{'uid'}{lc($uID)}=$id;
