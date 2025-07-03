@@ -100,14 +100,25 @@ $correct_output = "$output_folder/issue448.gtf";
 system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
 system("$script --g $input_folder/issue448.gtf -o $outtmp  2>&1 1>/dev/null");
 
-ok( system("diff $outtmp $correct_output") == 0, "issue441 check");
+ok( system("diff $outtmp $correct_output") == 0, "issue448 check");
 cleaning_log("issue448.gff");
 
 $correct_output = "$output_folder/issue448.gff";
 system("$script --g $input_folder/issue448.gtf -o $outtmp  2>&1 1>/dev/null");
 
-ok( system("diff $outtmp $correct_output") == 0, "issue441 check");
+ok( system("diff $outtmp $correct_output") == 0, "issue448 check");
 cleaning_log("issue448.gff");
+
+# --------- Issue 457 multi-values attributes (gene_name "26266" "MT-TL1";) can be deflated to be compliant with GTF and CellRanger
+
+$script = $script_prefix."bin/agat_convert_sp_gff2gtf.pl";
+$correct_output = "$output_folder/issue457.gtf";
+
+system("$script_agat config --expose --deflate_attribute 2>&1 1>/dev/null");
+system("$script --gff $input_folder/issue457.gff -o $outtmp  2>&1 1>/dev/null");
+
+ok( system("diff $outtmp $correct_output") == 0, "issue457 check");
+cleaning_log("issue457.gff");
 
 # --- convenient function ---
 
