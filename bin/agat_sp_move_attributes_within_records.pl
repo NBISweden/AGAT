@@ -169,6 +169,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 		foreach my $feature_l1 ( @{$hash_sortBySeq->{$seqid}{$tag_l1}} ){
 			my $id_l1 = lc($feature_l1->_tag_value('ID'));
 		  my $copyl1 = check_feature($feature_l1, 'level1', \@ptagListCopy);
+      my $pastel1 = check_feature($feature_l1, 'level1', \@ptagListPaste);
 
 		  #################
 		  # == LEVEL 2 == #
@@ -181,8 +182,13 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
             my $copyl2 = check_feature($feature_l2,'level2', \@ptagListCopy);
             my $pastel2 = check_feature($feature_l2,'level2', \@ptagListPaste);
-            if($pastel2 and $copyl1){
+            #copy attributes from L1 to l2
+            if( $copyl1 and $pastel2 ){
               add_tags_from_to($feature_l1, $feature_l2);
+            }
+            #copy attributes from L2 to l1
+            if($pastel1 and $copyl2){
+              add_tags_from_to($feature_l2, $feature_l1);
             }
 
 				    #################
@@ -201,9 +207,17 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                   if ($copyl1 and $pastel3){
                     add_tags_from_to($feature_l1, $feature_l3);
                   }
-                   #copy attributes from L2 to l3
+                  #copy attributes from L3 to l1
+                  if ($copyl3 and $pastel1){
+                    add_tags_from_to($feature_l3, $feature_l1);
+                  }
+                  #copy attributes from L2 to l3
                   if ($copyl2 and $pastel3){
                     add_tags_from_to($feature_l2, $feature_l3);
+                  }
+                  #copy attributes from L3 to l2
+                  if ($copyl3 and $pastel2){
+                    add_tags_from_to($feature_l3, $feature_l2);
                   }
                   # ------- Case L3 to L3 -------
                   foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
@@ -215,7 +229,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                         if( lc($feature_l3->_tag_value('ID')) ne lc($feature_l3_again->_tag_value('ID')) ){
 
                           my $pastel3_again = check_feature($feature_l3_again, 'level3', \@ptagListPaste);
-                          #copy attributes from L1 to l3
+                          #copy attributes from L3 to l3
                           if ($copyl3 and $pastel3_again){
                               add_tags_from_to($feature_l3, $feature_l3_again);
                           }
@@ -227,7 +241,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 					    }
 					  }
             # ------- Case L2 to L2 -------
-            foreach my $tag_l2_again (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+            foreach my $tag_l2_again (sort keys %{$hash_omniscient->{'level2'}}){ 
 
               if ( exists_keys( $hash_omniscient, ('level2', $tag_l2_again, $id_l1) ) ){
                 my @list_fl2_again = @{$hash_omniscient->{'level2'}{$tag_l2_again}{$id_l1}};
@@ -237,7 +251,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                   if( lc($feature_l2->_tag_value('ID')) ne lc($feature_l2_again->_tag_value('ID')) ){
 
                     my $pastel2_again = check_feature($feature_l2_again, 'level3', \@ptagListPaste);
-                    #copy attributes from L1 to l3
+                    #copy attributes from L2 to l2
                     if ($copyl2 and $pastel2_again){
                       add_tags_from_to($feature_l2, $feature_l2_again);
                     }
@@ -248,6 +262,18 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 				  }
 		    }
 			}
+      foreach my $tag_l1_again (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
+        foreach my $feature_l1_again ( @{$hash_sortBySeq->{$seqid}{$tag_l1_again}} ){
+          my $id_l1_again = lc($feature_l1_again->_tag_value('ID'));
+          if( lc($id_l1) ne lc($id_l1_again) ){
+            my $pastel1_again = check_feature($feature_l1_again, 'level1', \@ptagListPaste);
+            #copy attributes from L1 to l1
+            if ($copyl1 and $pastel1_again){
+              add_tags_from_to($feature_l1, $feature_l1_again);
+            }
+          }
+        }
+      }
 		}
 	}
 }
