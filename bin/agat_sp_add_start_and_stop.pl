@@ -86,7 +86,7 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 
@@ -358,8 +358,8 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
 
 # case we need to check start stop of the features not CDS
 if ($opt_extend){
-  my ($new_hash_omniscient, $new_hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
-                                                                  config => $config });
+  my ($new_hash_omniscient) = slurp_gff3_file_JD({ input => $hash_omniscient,
+                                                   config => $config });
   print_omniscient( {omniscient => $new_hash_omniscient, output => $gffout} );
 } else {
   print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );

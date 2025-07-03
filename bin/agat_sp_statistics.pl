@@ -112,7 +112,7 @@ if($opt_plot){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $gff });
 ### END Parse GFF input #
 #########################
 

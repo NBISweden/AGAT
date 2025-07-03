@@ -124,7 +124,7 @@ if(!($model_to_test)){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) =slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

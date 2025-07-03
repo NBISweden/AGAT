@@ -64,7 +64,7 @@ if($opt_nc ne "keep" and $opt_nc ne "filter" and $opt_nc ne "transcript"){
 }
 
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 # END parsing
 
 

@@ -209,7 +209,7 @@ if (-d $augustus_gff_folder){
             my  $found=undef;
             print $path."\n" if $verbose;
 
-            my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
+            my ($hash_omniscient) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){

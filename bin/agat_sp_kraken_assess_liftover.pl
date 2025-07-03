@@ -124,7 +124,7 @@ $CONFIG->{"check_all_level2_locations"} = 0;
 $CONFIG->{"check_all_level1_locations"} = 0;
 $CONFIG->{"check_identical_isoforms"} = 0;
 
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $gff });
 
 #track stats
 my $nbOriginalGene = nb_feature_level1($hash_omniscient); #total gene at the beginning
@@ -272,9 +272,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 			$CONFIG->{"check_all_level1_locations"} = 1;
 			$CONFIG->{"check_identical_isoforms"} = 0;
 
-	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
-																						 config => $config
-	                                                                                   });
+	        my ($hash_omniscient_clean) = slurp_gff3_file_JD({ input => $hash,
+															   config => $config
+	                                                        });
 	        if($verbose){
 	          print "\nA proper hash:\n";
 	          print_omniscient( {omniscient => $hash_omniscient_clean, output => $gffout} );

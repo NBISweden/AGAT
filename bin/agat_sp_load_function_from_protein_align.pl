@@ -223,9 +223,9 @@ _print($stringPrint, 0);
 ######################
 ### Parse GFF input #
 _print( "Parsing file $annotation_gff\n",0);
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $annotation_gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $annotation_gff });
 _print( "Done\nParsing file $protein_gff\n",0);
-my ($prot_omniscient, $prot_mRNAGeneLink) = slurp_gff3_file_JD({ input => $protein_gff });
+my ($prot_omniscient) = slurp_gff3_file_JD({ input => $protein_gff });
 _print( "Done\n",0);
 
 ###########################

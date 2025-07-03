@@ -20,13 +20,13 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "add_flag|af!" => \$add_flag,
-    "d|dist=i" => \$opt_dist,
-    "v!" => \$verbose,
+    'c|config=s'             => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "gff=s"                  => \$gff,
+    "add_flag|af!"           => \$add_flag,
+    "d|dist=i"               => \$opt_dist,
+    "v!"                     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -63,14 +63,13 @@ my $gffout = prepare_gffout( $outfile );
 
 ######################
 ### Parse GFF input #
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
+my ($omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 #counters
 my $geneCounter_skip=0;
 my $geneCounter_ok=0;
 my $total=0;
 my @gene_id_ok;
-
 
 my $sortBySeq = gather_and_sort_l1_location_by_seq_id($omniscient);
 

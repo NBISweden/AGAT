@@ -71,7 +71,7 @@ my $gffout = prepare_gffout( $opt_output );
 
 ######################
 ### Read gff input file.
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 print "converting to GTF$gtf_version\n";
 # Now print  omniscient
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );

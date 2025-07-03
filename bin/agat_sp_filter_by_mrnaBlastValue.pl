@@ -60,7 +60,7 @@ my $out = prepare_gffout( $outfile );
 my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff});
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff});
 
 
 # Remove all mRNA specified by the kill-list from their (gene-) parents.

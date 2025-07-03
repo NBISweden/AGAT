@@ -48,7 +48,7 @@ read_mfannot($mfannot_file);
 
 handle_records();
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $omniscient });
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

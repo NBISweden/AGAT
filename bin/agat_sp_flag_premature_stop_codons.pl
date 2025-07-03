@@ -89,7 +89,7 @@ activate_warning_limit(\%warnings, 10);
 ######################
 ### Parse GFF input #
 print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 

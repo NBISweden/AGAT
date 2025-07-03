@@ -82,9 +82,9 @@ $verbose=1 if ($debug);
 ######################
 ### Parse GFF input #
 
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1 });
+my ($omniscient1) = slurp_gff3_file_JD({ input => $gff1 });
 
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2 });
+my ($omniscient2) = slurp_gff3_file_JD({ input => $gff2 });
 
 
 my $sortBySeq1 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient1);

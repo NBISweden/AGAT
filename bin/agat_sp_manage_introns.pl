@@ -124,7 +124,7 @@ foreach my $file (@opt_files){
 	$LOGGING->{'log'} = $log ;
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file });
+  my ($hash_omniscient) = slurp_gff3_file_JD({ input => $file });
   ### END Parse GFF input #
   #########################
 

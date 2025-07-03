@@ -137,7 +137,7 @@ if ($attributes){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff});
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff});
 
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
   foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){

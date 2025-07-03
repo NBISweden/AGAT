@@ -71,7 +71,7 @@ else{
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 # ---- List attributes ----
 my $attribute_bucket = get_all_attributes($hash_omniscient);

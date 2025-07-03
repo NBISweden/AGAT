@@ -60,7 +60,7 @@ my $gffout = prepare_gffout( $outfile );
 my $error_found=undef;
 ### Parse GFF input #
 print ("Parse file $ref\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $ref });
 
 # sort by seq id
 my %hash_sortBySeq;

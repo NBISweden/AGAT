@@ -106,7 +106,7 @@ else{ print "You didn't use the option stranded. We will look for fusion in all 
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -895,7 +895,7 @@ sub take_care_mrna_id {
         my $newPrefix="new".$numberMRNA_IDToCheck."_";
         $new_id="$newPrefix$clean_id";
 
-        if( (! defined ($hash_mRNAGeneLink->{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
+        if( (! defined ($hash_omniscient->{'l2tol1'}{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
             $testok=1;
         }
         else{

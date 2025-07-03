@@ -231,6 +231,7 @@ sub complement_omniscients {
 
 # put data from hash_omniscient2 in hash_omniscient1
 # Features are added even if they are identical. If they have similar name, new name will be given too.
+# 
 sub merge_omniscients {
 	# $hash_omniscient1 = omniscient to append !!!
 	my ($hash_omniscient1, $hash_omniscient2, $hash_whole_IDs)=@_;
@@ -300,15 +301,21 @@ sub merge_omniscients {
 						}
 
 						my $uID_l2 = $feature_l2->_tag_value('ID');
+						# need to keep the original name to continue to loop over it in next steps
 						my $id_l2 = lc($uID_l2);
 
 						if ( exists_keys ( $hash_whole_IDs,($id_l2) ) ){
 
 							#print "INFO level2:  Parent $id_l2 already exist. We generate a new one to avoid collision !\n";
+							# the following will fill the hash_whole_IDs lowercase) on the fly
 							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs, $miscCount);
 							$new_parent_l2=1;
+							$hash_omniscient1->{'l2tol1'}{lc($uID_l2)} = $uID; # save the link between L2 and L1
 						}
-						else{$hash_whole_IDs->{$id_l2}++;}
+						else{
+							$hash_whole_IDs->{$id_l2}++;
+							$hash_omniscient1->{'l2tol1'}{lc($id_l2)} = $uID; # save the link between L2 and L1
+							}
 
 						#################
 						# == LEVEL 3 == #
@@ -440,7 +447,7 @@ sub append_omniscient {
 # @input: 2 => hash, integer for verbosity
 # @output: 0
 sub merge_overlap_loci{
-	my ( $omniscient, $mRNAGeneLink) = @_;
+	my ( $omniscient ) = @_;
 	my $resume_merge=undef;
   	my $resume_identic=0;
 
@@ -504,11 +511,11 @@ sub merge_overlap_loci{
 							}
 							# remove the level1 of the ovelaping one
 							delete $omniscient->{'level1'}{$tag_l1}{$remove};
-							# remove the level2 to level1 link stored into the mRNAGeneLink hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
+							# remove the level2 to level1 link stored into the l2tol1 hash. The new links will be added just later after the check to see if we keep the level2 feature or not (we remove it when identical)
 							foreach my $l2_type (%{$omniscient->{'level2'}}){
 								if(exists_keys($omniscient,('level2', $l2_type, $remove))){
 									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$remove}}){
-										delete $mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))};
+										delete $omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))};
 									}
 								}
 							}
@@ -527,8 +534,8 @@ sub merge_overlap_loci{
 										create_or_replace_tag($feature_l2,'Parent', $feature_l1->_tag_value('ID')); #change the parent
 										# Add the corrected feature to its new L2 bucket
 										push (@{$omniscient->{'level2'}{$l2_type}{$keep}}, $feature_l2);
-										# Attach the new parent into the mRNAGeneLink hash
-										$mRNAGeneLink->{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
+										# Attach the new parent into the l2tol1 hash
+										$omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
 									}
 
 									# update atttribute except ID and Parent for L1:
@@ -1051,13 +1058,13 @@ sub create_omniscient {
 #$list_id_l2 has to be lower case
 sub create_omniscient_from_idlevel2list{
 
-	my ($omniscientref, $hash_mRNAGeneLink, $list_id_l2)=@_;
+	my ($omniscientref, $list_id_l2)=@_;
 
 	my %omniscient_new;
 	initialize_omni_from(\%omniscient_new, $omniscientref);
-
+	
 	foreach my $id_l2 (@$list_id_l2){
-		my  $id_l1 = lc($hash_mRNAGeneLink->{$id_l2});
+		my  $id_l1 = lc($omniscientref->{'l2tol1'}{$id_l2});
 
 		# ADD LEVEL1
 		foreach my $tag_l1 (keys %{$omniscientref->{'level1'}}){

@@ -65,7 +65,7 @@ mkdir $opt_output;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 
 my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');

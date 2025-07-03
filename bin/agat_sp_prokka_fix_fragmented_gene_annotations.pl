@@ -164,7 +164,7 @@ if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) =slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #

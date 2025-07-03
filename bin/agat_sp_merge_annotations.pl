@@ -69,12 +69,12 @@ my $gffout = prepare_gffout( $outfile);
 ### Parse GFF input #
 
 my $file1 = shift @opt_files;
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1 });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $file1 });
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file });
+  my ($hash_omniscient2) = slurp_gff3_file_JD({ input => $next_file });
 
   info_omniscient($hash_omniscient2);
 
@@ -87,7 +87,7 @@ foreach my $next_file (@opt_files){
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
 print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
-merge_overlap_loci($hash_omniscient, $hash_mRNAGeneLink);
+merge_overlap_loci($hash_omniscient);
 
 
 print ("\nfinal result:\n");

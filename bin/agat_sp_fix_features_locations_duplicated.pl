@@ -22,7 +22,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$opt_help,
     "f|file|gff3|gff=s"      => \$ref,
     "v|verbose!"             => \$verbose,
@@ -96,7 +96,7 @@ my $nb_gene_removed=0;
 
 ### Parse GFF input #
 print ("Parse file $ref\n");
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref });
+my ($omniscient) = slurp_gff3_file_JD({ input => $ref });
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_location_by_seq_id_and_strand($omniscient);
