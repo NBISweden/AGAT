@@ -2,6 +2,8 @@
 
 use strict;
 use warnings;
+use File::Basename;
+use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use Test::More tests => 3;
 
 =head1 DESCRIPTION
@@ -22,10 +24,11 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 my $script = "";
 my $output_folder = "t/config/out";
 my $config="agat_config.yaml";
+my $outprefix = "tmp";
+my $outtmp = "$outprefix.gff"; # path file where to save temporary output
 
 # remove config in local folder if exists
-unlink $config; 
-unlink "tmp.gff";
+cleaning_log();
 
 # ---- test gzip file and contain fasta ----
 $script = $script_prefix."bin/agat";
@@ -75,10 +78,46 @@ ok( system("if [ -e $new_config_name ];then exit 0;fi") == 0, "rename agat confi
 
 # ----- Test use a renamed config file ----
 
-system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new_config_name -o tmp.gff  2>&1 1>/dev/null");
+system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new_config_name -o $outtmp  2>&1 1>/dev/null");
 #run test 
 ok( system("diff tmp.gff t/gff_syntax/out/28_correct_output.gff") == 0, "Use custom agat config file check");
-exit;
+
 # remove file created for the test
-unlink "tmp.gff";
-unlink $new_config_name;
+cleaning_log("tmp.gff", $new_config_name);
+
+# --- convenient function ---
+
+sub cleaning_log{
+  my ($filename, $local_config)=@_;
+
+  # REMOVE LOG folder if a file name is provided
+  if($filename){
+    my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
+    if (-e "agat_log_$name"){
+      remove_tree( "agat_log_$name" );
+    }
+  }
+
+  # remove config
+  # Si la variable $local_config est définie et vraie (c’est-à-dire qu’elle n’est pas undef, ni vide, ni 0), alors $config_to_remove prendra sa valeur. Sinon, il prendra la valeur de $config.
+  my $config_to_remove = $local_config ? $local_config : $config;
+  if (-e $config){
+    unlink $config;
+  }
+
+  # the rest
+  opendir(my $dh, ".") or die "Cannot open current directory: $!";
+  while (my $file = readdir($dh)) {
+    next if $file =~ /^\./;  # Skip hidden files and . / ..
+    if ($file =~ /^\Q$outprefix\E/ or $file =~ /^\Q$outtmp\E/) {
+      if ( -d $file ) {
+        remove_tree($file);
+        #print "remove_tree $file\n";
+      } else {
+        unlink $file;
+        #print "unlink $file\n";
+      }
+    }
+  }
+  closedir($dh);
+}

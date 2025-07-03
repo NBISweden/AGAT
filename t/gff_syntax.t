@@ -23,14 +23,14 @@ if (exists $ENV{'HARNESS_PERL_SWITCHES'} ) {
 # script to call to check the parser
 my $script_agat = $script_prefix."bin/agat";
 my $script = $script_prefix."bin/agat_convert_sp_gxf2gxf.pl";
-my $pathtmp = "tmp.gff"; # path file where to save temporary output
-unlink $pathtmp; # remove in case it exists
+my $outprefix = "tmp";
+my $outtmp = "$outprefix.gff"; # path file where to save temporary output
 my $expected_output_path = "t/gff_syntax/out/";
 my $input_path = "t/gff_syntax/in/";
 my $config="agat_config.yaml";
 
 # remove config in local folder if exists
-cleaning();
+cleaning_log();
 
 # Loop over test
 my $dir = "t/gff_syntax/in"; # folder where the test files are
@@ -54,61 +54,80 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
 
     # case do not merge loci 8,32,34,36
     if ($file =~ m/^8_/ or $file =~ m/^33_/ or $file =~ m/^34_/ or $file =~ m/^36_/){
-        system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
+        system("$script --gff $input_path/$file -o $outtmp  2>&1 1>/dev/null");
     }
 		# peculiar cases with locus_tag Name
     elsif($file =~ m/^28_/ or $file =~ m/^45_/ or $file =~ m/^46_/){
         system("$script_agat config --expose --locus_tag Name 2>&1 1>/dev/null"); # set special config for the test
-        system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
+        system("$script --gff $input_path/$file -o $outtmp  2>&1 1>/dev/null");
     }
     # standard cases
     else{
 			system("$script_agat config --expose --merge_loci 2>&1 1>/dev/null"); # set special config for the test
-      system("$script --gff $input_path/$file -o $pathtmp  2>&1 1>/dev/null");
+      system("$script --gff $input_path/$file -o $outtmp  2>&1 1>/dev/null");
     }
 
     my @splitname = split /_/, $file;
     my $correct_output = $expected_output_path."/".$splitname[0]."_correct_output.gff";
 
     #run test
-    ok( system("diff $pathtmp $correct_output") == 0, "parse $file");
+    ok( system("diff $outtmp $correct_output") == 0, "parse $file");
 
     # cleaning 
     #if($value and $value == $analyzed){exit;}
-    cleaning($file);
+    cleaning_log($file);
   }
 }
 closedir($dh);
 
 #  ---------------------------- special tests ----------------------------
 my $result = "$expected_output_path/stop_start_an_exon_correct_output.gff";
-system(" $script --gff $input_path/stop_start_an_exon.gtf -o $pathtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_path/stop_start_an_exon.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $pathtmp") == 0, "output stop_start_an_exon");
-cleaning("stop_start_an_exon.gtf");
+ok( system("diff $result $outtmp") == 0, "output stop_start_an_exon");
+cleaning_log("stop_start_an_exon.gtf");
 
 $result = "$expected_output_path/stop_split_over_two_exons_correct_output.gff";
-system(" $script --gff $input_path/stop_split_over_two_exons.gtf -o $pathtmp 2>&1 1>/dev/null");
+system(" $script --gff $input_path/stop_split_over_two_exons.gtf -o $outtmp 2>&1 1>/dev/null");
 #run test
-ok( system("diff $result $pathtmp") == 0, "output stop_split_over_two_exons_correct_output");
-cleaning("stop_split_over_two_exons.gtf");
+ok( system("diff $result $outtmp") == 0, "output stop_split_over_two_exons_correct_output");
+cleaning_log("stop_split_over_two_exons.gtf");
 
 # --- convenient function ---
 
-sub cleaning{
-  my ($filename)=@_;
+# --- convenient function ---
 
-  if (-e $pathtmp){
-    unlink $pathtmp;
-  }
-  if (-e $config){
-    unlink $config;
-  }
-  # if a file name is provided
+sub cleaning_log{
+  my ($filename, $local_config)=@_;
+
+  # REMOVE LOG folder if a file name is provided
   if($filename){
     my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
     if (-e "agat_log_$name"){
       remove_tree( "agat_log_$name" );
     }
   }
+
+  # remove config
+  # Si la variable $local_config est définie et vraie (c’est-à-dire qu’elle n’est pas undef, ni vide, ni 0), alors $config_to_remove prendra sa valeur. Sinon, il prendra la valeur de $config.
+  my $config_to_remove = $local_config ? $local_config : $config;
+  if (-e $config){
+    unlink $config;
+  }
+
+  # the rest
+  opendir(my $dh, ".") or die "Cannot open current directory: $!";
+  while (my $file = readdir($dh)) {
+    next if $file =~ /^\./;  # Skip hidden files and . / ..
+    if ($file =~ /^\Q$outprefix\E/ or $file =~ /^\Q$outtmp\E/) {
+      if ( -d $file ) {
+        remove_tree($file);
+        #print "remove_tree $file\n";
+      } else {
+        unlink $file;
+        #print "unlink $file\n";
+      }
+    }
+  }
+  closedir($dh);
 }

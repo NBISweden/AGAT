@@ -2,9 +2,8 @@
 
 use strict;
 use warnings;
-use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
-
+use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 
 =head1 DESCRIPTION
 
@@ -630,28 +629,28 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-cleaning_log("ref0_query0");
+cleaning_log("ref0.gff3");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-cleaning_log("ref1_query1");
+cleaning_log("ref1.gff3");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-cleaning_log("ref2_query2");
+cleaning_log("ref2.gff3");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
 $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-cleaning_log("ref3_query3");
+cleaning_log("ref3.gff3");
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
 $script = $script_prefix."bin/agat_sp_separate_by_record_type.pl";
@@ -787,16 +786,19 @@ cleaning_log("1.gff");
 # --- convenient function ---
 
 sub cleaning_log{
-  my ($filename)=@_;
+  my ($filename, $local_config)=@_;
 
-  # REMOVE LOG if a file name is provided
+  # REMOVE LOG folder if a file name is provided
   if($filename){
     my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
     if (-e "agat_log_$name"){
       remove_tree( "agat_log_$name" );
     }
   }
+
   # remove config
+  # Si la variable $local_config est définie et vraie (c’est-à-dire qu’elle n’est pas undef, ni vide, ni 0), alors $config_to_remove prendra sa valeur. Sinon, il prendra la valeur de $config.
+  my $config_to_remove = $local_config ? $local_config : $config;
   if (-e $config){
     unlink $config;
   }
