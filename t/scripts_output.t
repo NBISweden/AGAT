@@ -642,6 +642,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
 system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+cleaning_log("1");
 cleaning_log("1_1");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
@@ -649,6 +650,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+cleaning_log("ref0");
 cleaning_log("ref0_query0");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
@@ -656,6 +658,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+cleaning_log("ref1");
 cleaning_log("ref1_query1");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
@@ -663,6 +666,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+cleaning_log("ref2");
 cleaning_log("ref2_query2");
 
 $script = $script_prefix."bin/agat_sp_sensitivity_specificity.pl";
@@ -670,6 +674,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
 system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
+cleaning_log("ref3");
 cleaning_log("ref3_query3");
 # --------check agat_sp_split_by_level2_feature.pl-------------
 
