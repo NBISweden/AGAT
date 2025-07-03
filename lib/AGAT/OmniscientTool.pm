@@ -281,7 +281,7 @@ sub merge_omniscients {
 			else{
 				#print "INFO level1:  Parent $id_l1 already exist. We generate a new one to avoid collision !\n";
 				my $feature = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1};
-				$uID = replace_by_uniq_ID( $feature, $hash_whole_IDs, $miscCount);
+				$uID = replace_by_uniq_ID( $feature, $hash_whole_IDs, $miscCount, "merge_omniscients");
 				$hash_omniscient1->{'level1'}{$tag_l1}{lc($uID)} = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
 				$new_parent=1;
 			}
@@ -308,7 +308,7 @@ sub merge_omniscients {
 
 							#print "INFO level2:  Parent $id_l2 already exist. We generate a new one to avoid collision !\n";
 							# the following will fill the hash_whole_IDs lowercase) on the fly
-							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs, $miscCount);
+							$uID_l2 = replace_by_uniq_ID($feature_l2, $hash_whole_IDs, $miscCount, "merge_omniscients");
 							$new_parent_l2=1;
 							$hash_omniscient1->{'l2tol1'}{lc($uID_l2)} = $uID; # save the link between L2 and L1
 						}
@@ -361,7 +361,7 @@ sub merge_omniscients {
 
 										if ( exists_keys ( $hash_whole_IDs,($id_l3) ) ){
 										#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
-											my $uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs, $miscCount);
+											my $uID_l3 = replace_by_uniq_ID($feature_l3, $hash_whole_IDs, $miscCount, "merge_omniscients");
 										}
 										else{$hash_whole_IDs->{$id_l3}++;}
 									}
@@ -504,9 +504,17 @@ sub merge_overlap_loci{
 							# update atttribute except ID and Parent for L1:
 							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$remove}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
-								if(lc($tag) ne "parent" and lc($tag) ne "id"){
+								if(lc($tag) ne "parent" and lc($tag) ne "id" and lc($tag) ne "gene_id"){
 									my @tag_values = $omniscient->{'level1'}{$tag_l1}{$remove}->get_tag_values($tag);
 									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$keep}, $tag , \@tag_values);
+								} else {
+									my @tag_values = $omniscient->{'level1'}{$tag_l1}{$remove}->get_tag_values($tag);
+									foreach my $tag_value (@tag_values){
+										# the suffix merge_omniscients is added by merge_omniscients when ID had same name. No need to keep the fake ID provided
+										if ( $tag_value !~ /^merge_omniscients/ ) {
+											create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$keep}, "merged_".$tag , $tag_value);
+										}
+									}
 								}
 							}
 							# remove the level1 of the ovelaping one
@@ -547,7 +555,12 @@ sub merge_overlap_loci{
 											my @list_tag_l2 = $common->get_all_tags();
 											foreach my $tag (@list_tag_l2){
 												my @tag_values = $common->get_tag_values($tag);
-												create_or_append_tag($kept_l2, "merged_".$tag , \@tag_values);
+												foreach my $tag_value (@tag_values){
+													# the suffix merge_overlap_loci is added by merge_omniscients when ID had same name. No need to keep the fake ID provided
+													if ( $tag_value !~ /^merge_omniscients/ ) {
+														create_or_append_tag($kept_l2, "merged_".$tag , $tag_value);
+													}
+												}
 											}
 										}
 									}
@@ -1813,13 +1826,15 @@ sub get_all_IDs{
 }
 
 # @Purpose: Replace ID by Uniq ID and modify all parent attribute of child feature to stay in line with the modification
-# @input: 4 => feature objetc, hash of ids, hash of ids, hash of feature counted to give more rapidly a name
+# @input: 5 => feature objetc, hash of ids, hash of ids, hash of feature counted to give more rapidly a name, prefix to choose a specific prefix (may be usefull for downstream process to recognize who/why asked for a new ID)
 # @output: uniq ID
 sub replace_by_uniq_ID{
-	my ($feature, $hash_whole_IDs, $miscCount) = @_;
+	my ($feature, $hash_whole_IDs, $miscCount, $prefix) = @_;
 
 	my $id = $feature->_tag_value('ID');
-	my $prefix = $CONFIG->{'prefix_new_id'};
+	if (! $prefix){
+		$prefix = $CONFIG->{'prefix_new_id'};
+	}
 	my $key;
 
 	if($prefix){
@@ -2537,6 +2552,7 @@ sub collect_l1_info_sorted_by_seqid_and_location{
 	#Check option filterid
 	my $hash_filterid;
 	if ($filterid){
+		$hash_filterid = {};
 		if( ref($filterid) eq 'ARRAY' ){
 			$hash_filterid->{$_}++ for (@{$filterid});
 		}

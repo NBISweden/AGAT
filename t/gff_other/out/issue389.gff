@@ -382,5 +382,5 @@ pHB9	Manual	exon	43804	43975	.	+	.	ID=agat-exon-303;Parent=mRNA_Cp6_W1_E1;Name=U
 pHB9	Manual	exon	84268	86283	.	+	.	ID=agat-exon-308;Parent=mRNA_Cp6_W1_E1;Name=EBNA1_exon
 pHB9	Manual	mRNA	38556	86283	.	+	.	ID=mRNA_Fp_EBNA1;Parent=EBNA1;label=EBNA1_Fp_mRNA
 pHB9	Manual	exon	38556	38784	.	+	.	ID=Fp-exon;Parent=mRNA_Fp_EBNA1;Name=Fp
-pHB9	Manual	exon	43804	43975	.	+	.	ID=U-exon,"";Parent=mRNA_Fp_EBNA1;Name=U-exon
+pHB9	Manual	exon	43804	43975	.	+	.	ID=U-exon;Parent=mRNA_Fp_EBNA1;Name=U-exon
 pHB9	Manual	exon	84268	86283	.	+	.	ID=EBNA1_exon;Parent=mRNA_Fp_EBNA1;Name=EBNA1_exon

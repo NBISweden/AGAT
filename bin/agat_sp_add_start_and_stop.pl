@@ -35,9 +35,9 @@ if ( !GetOptions( 'i|g|gff=s'        => \$opt_file,
                   'o|out|output=s'   => \$opt_output,
                   'e|extend!'        => \$opt_extend,
                   'ni|na!'           => \$opt_no_iupac,
-                  'v!'               => \$verbose,
+                  'v|verbose!'       => \$verbose,
                   'c|config=s'       => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'          => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -633,7 +633,7 @@ Input fasta file. Needed to check that CDS sequences start by start codon and st
 
 Codon table to use. [default 1]
 
-=item  B<--out>, B<--output> or B<-o>
+=item B<--out>, B<--output> or B<-o>
 
 Output gff file updated
 
@@ -645,7 +645,7 @@ Boolean - When no start/stop codon found, try to extend the CDS to meet the next
 
 Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
 
-=item B<-v>
+=item B<-v> or B<--verbose>
 
 Verbose for debugging purpose.
 

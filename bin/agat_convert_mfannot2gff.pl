@@ -438,6 +438,10 @@ String - Input agat config file. By default AGAT takes as input agat_config.yaml
 otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
 The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
+=item B<--verbose> or B<-v>
+
+add verbosity
+
 =item B<-h> or B<--help>
 
 Display this helpful text.

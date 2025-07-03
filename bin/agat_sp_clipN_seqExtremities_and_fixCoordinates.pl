@@ -249,7 +249,7 @@ The annotation from the sequence clipped are modified accrodingly to stay consis
 
 Input GTF/GFF file.
 
-=item B<-f> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 Input fasta file.
 

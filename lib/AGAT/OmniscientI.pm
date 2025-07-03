@@ -504,6 +504,157 @@ sub slurp_gff3_file_JD {
 		remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 	}
 
+<<<<<<< HEAD
+=======
+	#------- Inform user about warnings encountered during parsing ---------------
+	foreach my $thematic (keys %WARNS){
+		my $nbW = $WARNS{$thematic};
+		dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+	}
+
+	# Parsing time
+	dual_print ($log,sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n"), $verbose);
+	$previous_time = time();
+	my $check_time = $previous_time;
+
+	#	+-----------------------------------------+
+	#	|           CHECK OMNISCIENT              |
+	#	+-----------------------------------------+
+
+	# -------------------- Mandatory checks --------------------
+	my $check_cpt = 1;
+	dual_print ($log,sizedPrint("------ Start checks ------",80, "\n"), $verbose);
+
+	dual_print ($log, file_text_line({ string => "Check$check_cpt: feature types", char => "-" }), $verbose );
+	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "ontology", verbose => $verbose });
+	_handle_globalWARNS({ warning => \%globalWARNS, ontology => $ontology, log => $log, type => "agat", verbose => $verbose });
+	delete $globalWARNS{$_} for (keys %globalWARNS); # re-initialize the hash
+	delete $WARNS{$_} for (keys %WARNS); # re-initialize the hash
+	dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-", extra => "\n" }), $verbose );
+	$check_cpt++; $previous_time = time();
+
+	#report detected duplicates
+	dual_print ($log, file_text_line({ string => "Check$check_cpt: duplicates", char => "-" }), $verbose );
+	_check_duplicates($log, \%duplicate, \%omniscient, $verbose);
+	dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+	$check_cpt++; $previous_time = time();
+
+	# -------------------- Extra checks --------------------
+	if( $config->{check_sequential} ) {
+		#Check sequential if we can fix cases. Hash to be done first, else is risky that we remove orphan L1 feature ... that are not yet linked to a sequential bucket
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: sequential bucket", char => "-", prefix => "\n"}), $verbose );
+		if( keys %infoSequential ){ #hash is not empty
+				_check_sequential($debug, $log, \%infoSequential, \%omniscient, \%hashID, \%locusTAG, \%mRNAGeneLink, $verbose);
+				undef %infoSequential;
+		}
+		else{
+				dual_print ($log, "Nothing to check as sequential bucket!\n", $verbose);
+		}
+		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+		$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_l2_linked_to_l3} ) {
+			#Check relationship between l3 and l2
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }), $verbose );
+			_check_l2_linked_to_l3($log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose, $debug); # When creating L2 missing we create as well L1 if missing too
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_l1_linked_to_l2} ) {
+			#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: l1 linked to l2", char => "-", prefix => "\n" }), $verbose );
+			_check_l1_linked_to_l2($log, \%omniscient, \%hashID, \%attachedL2Sequential, $verbose, $debug);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{remove_orphan_l1}) {
+			#check level1 has subfeature else we remove it
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: remove orphan l1", char => "-", prefix => "\n" }), $verbose );
+			dual_print ($log, "We remove only those not supposed to be orphan\n", $verbose );
+			_remove_orphan_l1(\%omniscient, \%hashID, \%mRNAGeneLink, $verbose, $log, $debug); #or fix if level2 is missing (refseq case)
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_all_level3_locations} ) {
+			#Check relationship L3 feature, exons have to be defined...
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: all level3 locations", char => "-", prefix => "\n" }), $verbose );
+			_check_all_level3_locations($debug, $log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_cds}) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }), $verbose );
+			_check_cds($debug, $log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_exons} ) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: check exons", char => "-", prefix => "\n" }), $verbose );
+			_check_exons($debug, $log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_utrs} ) {
+			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+			dual_print ($log, file_text_line({ string => "Check$check_cpt: check utrs", char => "-", prefix => "\n" }), $verbose );
+			_check_utrs($debug, $log, \%omniscient, \%mRNAGeneLink, \%hashID, $verbose);
+			dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+			$check_cpt++; $previous_time = time();
+	}
+	
+	if( $config->{check_all_level2_locations} ) {
+		# Check rna positions compared to its l2 features
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: all level2 locations", char => "-", prefix => "\n" }), $verbose );
+		check_all_level2_locations( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
+		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+		$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_all_level1_locations} ) {
+		# Check gene positions compared to its l2 features
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: all level1 locations", char => "-", prefix => "\n" }), $verbose );
+		check_all_level1_locations( { omniscient => \%omniscient, verbose => $verbose, log => $log } );
+		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-"}), $verbose );
+		$check_cpt++; $previous_time = time();
+	}
+
+	#check loci names (when overlap should be the same if type is the same)
+	if ( $config->{merge_loci} ){
+		# Better probably to keep it before check 10 anyway
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: merge overlaping loci into same locus", char => "-", prefix => "\n" }), $verbose );
+		merge_overlap_loci($log, \%omniscient, \%mRNAGeneLink, $verbose);
+		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+		$check_cpt++; $previous_time = time();
+	}
+
+	if( $config->{check_identical_isoforms} ) {
+		#check identical isoforms
+		dual_print ($log, file_text_line({ string => "Check$check_cpt: remove identical isoforms", char => "-", prefix => "\n"}), $verbose );
+		_check_identical_isoforms($log, \%omniscient, \%mRNAGeneLink, $verbose);
+		dual_print ($log, file_text_line({ string => "	 done in ".(time() - $previous_time)." seconds", char => "-" }), $verbose );
+		$check_cpt++; $previous_time = time();
+	}
+
+	#------- Inform user about warnings encountered during checking ---------------
+	foreach my $thematic (keys %WARNS){
+		my $nbW = $WARNS{$thematic};
+		if($nbW > $nbWarnLimit){
+			dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+		}
+	}
+
+	dual_print ($log,sizedPrint("------ End checks (done in ".(time() - $check_time)." second) ------",80, "\n\n\n"), $verbose);
+
+>>>>>>> master
 	#return
 	return \%omniscient_original;
 }
@@ -1418,7 +1569,11 @@ sub _it_is_duplication{
 	my $id = $hashID->{'uid'}{ lc($feature->_tag_value('ID') ) }; # check the original ID
 
 	if($level eq "level1"){
+<<<<<<< HEAD
 		if(!$id or !exists_keys($omniscient,($level, $primary_tag, lc($id) ))){
+=======
+		if(!$id or ! exists_keys($omniscient,($level, $primary_tag, lc($id) ))){
+>>>>>>> master
 			return $is_dupli; #return is not a dupli
 		}
 		else{
@@ -2524,8 +2679,13 @@ sub _check_exons{
 					 	}
 				 	}
 
+<<<<<<< HEAD
 				 	#Check extremities of exons (If exon is shorter we adapt it to the mRNA size, else we adapt the L2 size to the exon size)
 	 					my $id_l1 = lc($hash_omniscient->{'l2tol1'}{lc($id_l2)});
+=======
+				 		#Check extremities of exons (If exon is shorter we adapt it to the mRNA size, else we adapt the L2 size to the exon size)
+	 					my $id_l1 = lc($mRNAGeneLink->{lc($id_l2)});
+>>>>>>> master
 	 					my $getout=undef;
 	 					foreach my $tag_l2 ( %{$hash_omniscient->{'level2'}} ){
 	 						if( exists_keys($hash_omniscient,('level2', $tag_l2, $id_l1)) ){

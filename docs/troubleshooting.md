@@ -1,5 +1,25 @@
 # Troubleshooting
 
+
+## Installation via conda - perl-clone missing
+
+When installing AGAT via Conda you might encounter the following error message:
+
+```
+LibMambaUnsatisfiableError: Encountered problems while solving:
+  - nothing provides perl-clone needed by agat-1.4.2-pl5321hdfd78af_0
+Could not solve for environment specs
+The following package could not be installed
+|- agat 1.4.2** is not installable because it requires
+   |- perl-clone, which does not exist (perhaps a missing channel).
+```
+
+This issue occurs when using a computer with an ARM64 processor architecture, such as an Apple computer with an M1, M2, M3, or similar processor.
+The perl-clone package requires platform-specific (compiled) code, and a compatible compilation has not yet been produced for this Conda recipe.
+
+Hopefully, this will become available in the future.
+In the meantime, the alternatives are to use the AGAT container via [Docker](https://github.com/NBISweden/AGAT?tab=readme-ov-file#using-docker) or [Singularity](https://github.com/NBISweden/AGAT?tab=readme-ov-file#using-singularity).
+
 ## AGAT throws features out, because the feature type is not yet taken into account
 Feature types (primary_tag) handled by AGAT are defined within `feature_levels.yaml` file. Most common features are already defined in this file. If you encounter GFF/GTF files with feature types not accepted, AGAT will inform you and throw the features out. To keep those feature you must inform AGAT how to handle them:
 First access the feature_levels.yaml files by running:

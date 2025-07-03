@@ -24,7 +24,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   "fasta|fa=s"      => \$opt_fasta,
                   "v|vebose!"       => \$opt_verbose,
                   'c|config=s'      => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -138,7 +138,7 @@ The phase is REQUIRED for all CDS features.
 
 Input GTF/GFF file.
 
-=item B<-fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 Input fasta file.
 

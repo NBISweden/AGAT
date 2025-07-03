@@ -1,17 +1,17 @@
-# agat_sp_flag_short_introns.pl
+# agat_sp_flag_short_introns_ebi.pl
 
 ## DESCRIPTION
 
-Looking at exon features the script flags each feature of a record with the &lt;short_intron> attribute if 
-it contains an intron with a size below the &lt;--intron_size> threshold (10bp by default).
-The value of this attribute will be the size of the shortest intron found under the threshold.
+The script flags records that contain short introns (default 10bp) within coding sequences (CDS) with the &lt;pseudo> attribute and changes the &lt;product> attribute into a &lt;note> attribute.
+This is useful for avoiding ERROR messages when submitting data to the EBI.
+(Typical EBI error message: ERROR: Intron usually expected to be at least 10 nt long. Please check the accuracy.)
 
 
 ## SYNOPSIS
 
 ```
-agat_sp_flag_short_introns.pl --gff infile --out outfile
-agat_sp_flag_short_introns.pl --help
+agat_sp_flag_short_introns_ebi.pl --gff infile --out outfile
+agat_sp_flag_short_introns_ebi.pl --help
 ```
 
 ## OPTIONS

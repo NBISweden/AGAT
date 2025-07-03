@@ -197,6 +197,10 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							getopt      => 'gtf_output_version=s',
 							help        => 'Set the GTF output vesion. Choice 1, 2, 2.1, 2.2, 2.5, 3 or relax. [Default relax]',
 					 },
+					{
+							getopt      => 'deflate_attribute!',
+							help        => 'deflate multi-values attributes:  attribute_tag=att_value1,att_value2,att_value3 will will become attribute_tag=att_value1;attribute_tag2=att_value2;attribute_tag3=att_value3;',
+					 },
 					 {
 							getopt      => 'create_l3_for_l2_orphan!',
 							help        => 'To create l3 feature for l2 feature without any. [Default activated]',

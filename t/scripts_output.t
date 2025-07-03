@@ -483,7 +483,23 @@ cleaning_log("genes_overlap.gff");
 
 # --------check agat_sp_flag_short_introns.pl-------------
 
-# XXX
+$script = $script_prefix."bin/agat_sp_flag_short_introns.pl";
+$result = "$output_folder/agat_sp_flag_short_introns_1.gff";
+system(" $script --gff $input_folder/agat_sp_flag_short_introns.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
+
+# --------check agat_sp_flag_short_introns_ebi.pl-------------
+
+$script = $script_prefix."bin/agat_sp_flag_short_introns_ebi.pl";
+$result = "$output_folder/agat_sp_flag_short_introns_ebi_1.gff";
+system(" $script --gff $input_folder/agat_sp_flag_short_introns_ebi.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+unlink $outprefix."_report.txt";
 
 # --------check agat_sp_flag_premature_stop_codons.pl-------------
 # I use result from another test because it shifted the annotation location, that allows to create pseudogenes because I use the original fasta not shifted
@@ -594,6 +610,12 @@ system(" $script --gff $input_folder/agat_sp_merge_annotations/fileA.gff  --gff 
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
 cleaning_log("fileA.gff");
+
+$result = "$output_folder/agat_sp_merge_annotations_3.gff";
+system(" $script --gff $input_folder/agat_sp_merge_annotations/test457_A.gff  --gff $input_folder/agat_sp_merge_annotations/test457_B.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
 
 # ------------------- check agat_sp_move_attributes_within_records script-------------------
 

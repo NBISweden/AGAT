@@ -48,9 +48,13 @@ my @tag_list;
 my %nameBlast;
 my %geneNameBlast;
 my %mRNANameBlast;
-my %mRNAUniprotIDFromBlast;
 my %mRNAproduct;
-my %geneNameGiven;
+my %mRNAUniprotIDFromBlast; # Uniprot ID of the best candidate (from balst file)
+my %blast_evalue;           # evalue of the best candidate (from balst file)
+my %blast_organism;         # organism (OS) of the best candidate (from balst file)
+my %blast_protEvidence;     # Protein Evidence (PR) of the best candidate (from balst file)
+my %blast_seqVersion;       # Sequence Version (SV) of the best candidate (from balst file)
+my %geneNameGiven;          # Gene Name (GN) of the best candidate (from balst file)
 my %duplicateNameGiven;
 my %fasta_id_gn_hash = ();     # JN: key: 'sp|a6w1c3|hem1_marms' , value: 'hema' etc or undef
 my %l2_gn_present_hash = ();   # JN: Key: 'maker-bi03_p1mp_001088f-est_gff_stringtie-gene-0.2-mrna-1', value: 'yes' or 'no'
@@ -348,12 +352,33 @@ if ($opt_BlastFile || $opt_InterproFile ) {
                 create_or_append_tag($feature_level2, 'Name', $mRNANameBlast{$level2_ID});
                 add_attribute_to_cds($hash_omniscient, $level2_ID, 'Name', $mRNANameBlast{$level2_ID});
               }
+              # add OS attribute
+              if (exists ($blast_organism{$level2_ID})) {
+                create_or_append_tag($feature_level2, 'os', $blast_organism{$level2_ID});
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'os', $blast_organism{$level2_ID});
+              }
+              # add PE attribute
+              if (exists ($blast_protEvidence{$level2_ID})) {
+                create_or_append_tag($feature_level2, 'pe', $blast_protEvidence{$level2_ID});
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'pe', $blast_protEvidence{$level2_ID});
+              }
+              # add SV attribute
+              if (exists ($blast_seqVersion{$level2_ID})) {
+                create_or_append_tag($feature_level2, 'sv', $blast_seqVersion{$level2_ID});
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'sv', $blast_seqVersion{$level2_ID});
+              }
 
               #add UniprotID attribute
               if (exists ($mRNAUniprotIDFromBlast{$level2_ID})) {
                 my $mRNAUniprotID = $mRNAUniprotIDFromBlast{$level2_ID};
                 create_or_replace_tag($feature_level2, 'uniprot_id', $mRNAUniprotID);
                 add_attribute_to_cds($hash_omniscient, $level2_ID, 'uniprot_id', $mRNAUniprotID);
+              }
+
+              #add evalue of the blast
+              if (exists ($blast_evalue{$level2_ID})) {
+                create_or_replace_tag($feature_level2, 'evalue', $blast_evalue{$level2_ID});
+                add_attribute_to_cds($hash_omniscient, $level2_ID, 'evalue', $blast_evalue{$level2_ID});
               }
 
               # JN: Add info on existence of GN= tag in fasta header in blast db file: gn_present=yes|no|NA
@@ -803,9 +828,9 @@ sub parse_blast {
     my $prot_name = $values[1]; # JN: sp|Q4FZT2|PPME1_RAT
     my @prot_name_sliced = split(/\|/, $values[1]);
     my $uniprot_id = $prot_name_sliced[1];
-    print "uniprot_id: ".$uniprot_id."\n" if ($opt_verbose);
+    #print "uniprot_id: ".$uniprot_id."\n" if ($opt_verbose);
     my $evalue = $values[10];
-    print "Evalue: ".$evalue."\n" if ($opt_verbose);
+    #print "Evalue: ".$evalue."\n" if ($opt_verbose);
 
     #if does not exist fill it if over the minimum evalue
     if (! exists_keys(\%candidates, ($l2_name)) or @{$candidates{$l2_name}} > 3 ) { # the second one means we saved an error message as candidates we still have to try to find a proper one
@@ -894,8 +919,8 @@ sub parse_blast {
   my $nb_desc = keys %candidates;
   $ostreamLog->print( "We have $nb_desc description candidates.\n") if ($opt_verbose or $opt_output);
 
-##################################################
-####### Step 2 : go through all candidates ####### report gene name for each mRNA
+  ##################################################
+  ####### Step 2 : go through all candidates ####### report gene name for each mRNA
   my %name_checker;
   foreach my $l2 (sort keys %candidates) {
     # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
@@ -905,9 +930,15 @@ sub parse_blast {
     }
 
     #Save uniprot id of the best match
-    print "save for $l2  ".$candidates{$l2}[2]."\n" if ($opt_verbose);
+   
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    print "save for $l2  ".$candidates{$l2}[2]."\n" if ($opt_verbose);
+    print "save protein ID for $l2 : ".$candidates{$l2}[2]."\n" if ($opt_verbose);
+    
+    #Save evalu
+    $blast_evalue{$l2} = $candidates{$l2}[1];
+    print "save blast evalue for $l2 : ".$candidates{$l2}[1]."\n" if ($opt_verbose);
+
+    # Parse header
     my $header = $candidates{$l2}[0];
     print "header: ".$header."\n" if ($opt_verbose);
 
@@ -918,6 +949,7 @@ sub parse_blast {
       $theRest =~ s/\n//g;
       $theRest =~ s/\r//g;
       my $nameGene = undef;
+      print "description: ".$description."\n" if ($opt_verbose);
       push ( @{ $mRNAproduct{$l2} }, $description );
 
       #deal with the rest
@@ -926,7 +958,7 @@ sub parse_blast {
       while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
         my ($type, $value) = split /=/, $tuple;
-        #print "$protID: type:$type --- value:$value\n";
+        print "$protID: type:$type --- value:$value\n" if ($opt_verbose);
         $hash_rest{lc($type)} = $value;
       }
 
@@ -939,14 +971,11 @@ sub parse_blast {
 
           my $geneID = $hash_omniscient->{'l2tol1'}{$l2};
 
-          # Save mRNA names into gene features (a list because we can have several gene names if mRNA isoorms were refering to different gene names)
+          # Save mRNA names into gene features (a list because we can have several gene names if mRNA isoforms were refering to different gene names)
           if (! exists_keys(\%name_checker,(lc($geneID),lc($nameGene) ))){
             push ( @{ $geneNameBlast{lc($geneID)} }, $nameGene );
-            $name_checker{lc($geneID)}{lc($nameGene)}++
           }
-          else{
-            $name_checker{lc($geneID)}{lc($nameGene)}++
-          }
+          $name_checker{lc($geneID)}{lc($nameGene)}++;
 
         }
         else {
@@ -955,6 +984,21 @@ sub parse_blast {
       }
       else {
         $ostreamLog->print( "No gene name (GN) tag found in the header: $header\n") if ($opt_verbose or $opt_output);
+      }
+
+      # catch organism
+      if (exists($hash_rest{"os"})) {
+        $blast_organism{$l2} = $hash_rest{"os"};
+      }
+
+      # catch Protein evidence
+      if (exists($hash_rest{"pe"})) {
+        $blast_protEvidence{$l2} = $hash_rest{"pe"};
+      }
+
+      # catch Sequence Version
+      if (exists($hash_rest{"sv"})) {
+        $blast_seqVersion{$l2} = $hash_rest{"sv"};
       }
     }
     else {
@@ -992,6 +1036,7 @@ sub stringCatcher {
     return ($newString, $1);
   }
   else {
+    $String =~ s/^\s+|\s+$//g; # Removes leading and trailing spaces
     return (undef, $String);
   }
 }
@@ -1212,7 +1257,7 @@ Float - Maximum e-value to keep the annotation from the blast file. By default 1
 =item B<--pe>
 
 Integer - The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
-You can decide until which protein existence level you want to consider to lift the finctional information. Default 5.
+You can decide until which protein existence level you want to consider to lift the functional information. Default 5.
 
 1. Experimental evidence at protein level
 2. Experimental evidence at transcript level

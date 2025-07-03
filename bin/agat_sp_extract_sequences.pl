@@ -15,37 +15,39 @@ my $config;
 my $cpu;
 my $opt_plus_strand = undef;
 my $start_run = time();
-my $codonTable=1;
 
-my $opt_gfffile;
-my $opt_fastafile;
-my $opt_output;
+
 my $opt_AA=undef;
-my $opt_help = 0;
-my $opt_full=undef;
-my $opt_split=undef;
-my $opt_merge=undef;
-my $opt_extremity_only=undef;
-my $opt_upstreamRegion=undef;
-my $opt_downRegion=undef;
+my $opt_alternative_start_codon = undef;
+my $opt_fastafile;
 my $opt_cdna=undef;
-my $opt_mrna=undef;
-my $opt_OFS=undef;
-my $opt_type = 'cds';
-my $opt_keep_attributes = undef;
-my $opt_keep_parent_attributes = undef;
 my $opt_cleanFinalStop=undef;
 my $opt_cleanInternalStop=undef;
-my $opt_remove_orf_offset = undef;
-my $opt_quiet = undef;
+my $opt_codonTable=1;
+my $opt_downRegion=undef;
+my $opt_extremity_only=undef;
+my $opt_full=undef;
+my $opt_gfffile;
+my $opt_help = 0;
+my $opt_keep_attributes = undef;
+my $opt_keep_parent_attributes = undef;
+my $opt_merge=undef;
+my $opt_mrna=undef;
+my $opt_OFS=undef;
+my $opt_output;
 my $opt_plus_strand_only = undef;
+my $opt_quiet = undef;
+my $opt_remove_orf_offset = undef;
 my $opt_revcomp=undef;
+my $opt_split=undef;
+my $opt_type = 'cds';
+my $opt_upstreamRegion=undef;
 my $opt_verbose=undef;
-my $opt_alternative_start_codon = undef;
 
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
+                  'c|config=s'                   => \$config,
                   'cdna!'                        => \$opt_cdna,
                   'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
                   'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
@@ -55,8 +57,10 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
                   'c|config=s'                   => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'                      => \$opt_help,
+                  'keep_attributes!'             => \$opt_keep_attributes,
+                  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
                   'merge!'                       => \$opt_merge,
                   'mrna|transcript!'             => \$opt_mrna,
                   'ofs=s'                        => \$opt_OFS,
@@ -67,9 +71,7 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
                   'revcomp!'                     => \$opt_revcomp,
                   'split!'                       => \$opt_split,
-                  'keep_attributes!'             => \$opt_keep_attributes,
-                  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
-                  'table|codon|ct=i'             => \$codonTable,
+                  'table|codon|ct=i'             => \$opt_codonTable,
                   't|type=s'                     => \$opt_type,
                   'up|5|five|upstream=i'         => \$opt_upstreamRegion,
                   'verbose|v!'                   => \$opt_verbose ) )
@@ -100,7 +102,7 @@ initialize_agat({ config_file_in => $config, input => $opt_gfffile });
 $CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table
-$codonTable = get_proper_codon_table($codonTable);
+$opt_codonTable = get_proper_codon_table($opt_codonTable);
 
 # activate warnings limit
 my %warnings;
@@ -429,7 +431,7 @@ sub extract_sequences{
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
-    print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
   }
   # --------------------------------------
 
@@ -495,7 +497,7 @@ sub extract_sequences{
       }
 
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
     }
   }
   # --------------------------------------
@@ -575,7 +577,7 @@ sub extract_sequences{
       #create object
       my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
     }
 
     # ---- Non spreaded feature extract them one by one
@@ -624,7 +626,7 @@ sub extract_sequences{
         }
 
         #print object
-        print_seqObj($ostream, $seqObj, $opt_AA, $codonTable, $phase);
+        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
       }
     }
   }
@@ -765,18 +767,18 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $codonTable, $phase) = @_;
+  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase) = @_;
 
 
   if($opt_AA){ #translate if asked
 
 			if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n"; return; }
 
-      my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
+      my $transObj = $seqObj->translate(-CODONTABLE_ID => $opt_codonTable);
 
       # translate alternative start codon by a M
       my $start_codon = substr($seqObj->seq(),0,3); # get start codon
-      my $myCodonTable  = Bio::Tools::CodonTable->new( -id => $codonTable );
+      my $myCodonTable  = Bio::Tools::CodonTable->new( -id => $opt_codonTable );
       my $first_AA = substr($transObj->seq(),0,1);
       if ($phase == 0 and $opt_alternative_start_codon and $myCodonTable->is_start_codon($start_codon)){
         if($first_AA ne "M"){ # if the start codon was not a M while it is a valid start codon we have to replace it by a methionine
@@ -934,7 +936,7 @@ Boolean - Called 'extremity only', this option will extract only the adjacent pa
 This option has to be activated with -u and/or -p option.
 /!\ using -u and -p together builds a chimeric sequence which will be the concatenation of the left and right extremities of a feature.
 
-=item B<-f> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta>
 
 String - Input fasta file.
 

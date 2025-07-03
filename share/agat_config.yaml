@@ -3,6 +3,11 @@
 
 # ----------------------------- LOGGING ----------------------
 
+# deflate multi-values attribute
+# GTF: attribute_tag "att_value1" "att_value2" "att_value3" => attribute_tag "att_value1"; attribute_tag2 "att_value2"; attribute_tag3 "att_value3"
+# GFF: attribute_tag=att_value1,att_value2,att_value3 => attribute_tag=att_value1;attribute_tag2=att_value2;attribute_tag3=att_value3;
+deflate_attribute: false
+
 # Integer - verbosity 0,1,2,3,4. 0 is quiet
 verbose: 1
 

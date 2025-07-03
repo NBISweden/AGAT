@@ -139,9 +139,9 @@ Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.
 Then:
   ```
 # get the chosen AGAT container version
-docker pull quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0
+docker pull quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0
 # use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl
-docker run quay.io/biocontainers/agat:0.8.0--pl5262hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
+docker run quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0 agat_convert_sp_gxf2gxf.pl --help
   ```
    </details>
  
@@ -155,9 +155,9 @@ Secondly have look at the availabe AGAT biocontainers at [quay.io](https://quay.
 Then:
 ```
 # get the chosen AGAT container version
-singularity pull docker://quay.io/biocontainers/agat:1.0.0--pl5321hdfd78af_0
+singularity pull docker://quay.io/biocontainers/agat:1.4.2--pl5321hdfd78af_0
 # run the container
-singularity run agat_1.0.0--pl5321hdfd78af_0.sif
+singularity run agat_1.4.2--pl5321hdfd78af_0.sif
 ```
 
 You are now in the container. You can use an AGAT's tool e.g. agat_convert_sp_gxf2gxf.pl doing
@@ -227,7 +227,7 @@ You will have to install all prerequisites and AGAT manually.
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl
     ```
 
   * Optional

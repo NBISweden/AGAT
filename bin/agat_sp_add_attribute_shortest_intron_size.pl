@@ -173,15 +173,15 @@ The script add the attribute <shortest_intron> to each gene and rna, which will 
 
 =over 8
 
-=item B<--gff>, B<-f>, B<--ref> or B<-reffile>
+=item B<--gff>, B<-f>, B<--ref> or B<--reffile>
 
 STRING: Input GTF/GFF file.
 
-=item  B<--out>, B<--output> or B<-o>
+=item B<--out>, B<--output> or B<-o>
 
 STRING: Output gff3 file where the result will be printed.
 
-=item B<-v>
+=item B<-v> or B<--verbose>
 
 BOLEAN: Verbose for debugging purpose.
 

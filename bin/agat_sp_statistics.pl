@@ -31,9 +31,9 @@ if ( !GetOptions(
     'yaml!'        => \$opt_yaml,
     'r|raw!'       => \$opt_raw,
     'd|p!'         => \$opt_plot,
-    'v|verbose'    => \$opt_verbose,
-    'g|f|gs=s'     => \$opt_genomeSize,
-    "gff|i=s"      => \$gff))
+    'v|verbose'   => \$opt_verbose,
+    'g|f|gs=s'    => \$opt_genomeSize,
+    "gff|i=s"     => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",

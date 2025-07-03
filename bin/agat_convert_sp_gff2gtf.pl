@@ -131,7 +131,7 @@ GTF2 (4 feature types accepted): CDS, start_codon, stop_codon, exon
 
 GTF1 (5 feature types accepted): CDS, start_codon, stop_codon, exon, intron
 
-=item B<-o> , B<--output> , B<--out> , B<--outfile> or B<--gtf>
+=item B<-o>, B<--output>, B<--out> or B<--outfile>
 
 Output GTF file. If no output file is specified, the output will be
 written to STDOUT.
@@ -145,6 +145,10 @@ Integer - Number of parallel processes to use for file input parsing (via forkin
 String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
 otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
 The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
+
+=item B<--verbose> or B<-v>
+
+add verbosity
 
 =item B<-h> or B<--help>
 

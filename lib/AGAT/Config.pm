@@ -180,7 +180,7 @@ sub check_config{
 		$error = 1;
 	}
 	if( !  exists_keys($config,("log") ) ){
-		warn "progress_bar parameter missing in the configuration file.\n";
+		warn "log parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config, ("debug") ) ){
@@ -244,6 +244,10 @@ sub check_config{
 	}
 	else{
 		warn "gtf_output_version parameter missing in the configuration file.\n";
+		$error = 1;
+	}
+	if( ! exists_keys($config, ("deflate_attribute") ) ) {
+		print "deflate_attribute parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("create_l3_for_l2_orphan") ) ) {

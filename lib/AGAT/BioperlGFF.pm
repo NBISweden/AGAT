@@ -149,6 +149,8 @@ package AGAT::BioperlGFF;
 use vars qw($HAS_HTML_ENTITIES);
 use strict;
 
+use AGAT::OmniscientTool;
+use AGAT::AGAT;
 use Bio::Seq::SeqFactory;
 use Bio::LocatableSeq;
 use Bio::SeqFeature::Generic;
@@ -653,6 +655,7 @@ sub _from_gff3_string {
 
     my $size_group = scalar(@groups);
     for my $group (@groups) {
+        next if( ! $group); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
         my ($tag,$value) = split /=/,$group;
         $tag             = unescape($tag);
         my @values       = map {unescape($_)} split /,/,$value;
@@ -699,6 +702,28 @@ sub write_feature {
         $self->_print($line);
     }
     $self->{'_first'} = 0;
+
+    # deflate multi-values attribute if asked by config
+    if ($AGAT::AGAT::CONFIG->{'deflate_attribute'}){
+        foreach my $feature ( @features ) {
+            my @list_tags= $feature->get_all_tags();
+			foreach my $tag (@list_tags){
+				my @tag_values = $feature->get_tag_values($tag);
+                if ($#tag_values >= 1){
+                    my $tag_counter=-1;
+					foreach my $tag_value (@tag_values){
+                        $tag_counter++;
+                        if ($tag_counter == 0){
+                            create_or_replace_tag($feature, $tag , $tag_value);
+                        } else {
+                            create_or_replace_tag($feature, $tag."_".$tag_counter , $tag_value);
+                        }	
+					}
+				}
+			}
+        }
+    }
+
     foreach my $feature ( @features ) {
         $self->_print($self->gxf_string($feature)."\n");
     }

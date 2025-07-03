@@ -1,0 +1,18 @@
+##gff-version 3
+scaffold_4	AGAT	gene	8631766	8635584	.	+	.	ID=gene28773;description=Hypothetical protein | no eggnog hit;pseudo=4
+scaffold_4	Liftoff	mRNA	8631766	8635584	.	+	.	ID=gene28773.t1;Parent=gene28773;description=Hypothetical protein | no eggnog hit;pseudo=4
+scaffold_4	Liftoff	exon	8631766	8634966	.	+	.	ID=gene28773.t1.exon1;Parent=gene28773.t1;pseudo=4
+scaffold_4	Liftoff	exon	8634968	8635584	.	+	.	ID=gene28773.t1.exon2;Parent=gene28773.t1;pseudo=4
+scaffold_4	Liftoff	CDS	8632667	8632951	.	+	0	ID=gene28773.t1.cds1;Parent=gene28773.t1;pseudo=4
+scaffold_4	Liftoff	CDS	8632955	8633056	.	+	0	ID=gene28773.t1.cds1;Parent=gene28773.t1;pseudo=4
+scaffold_4	AGAT	five_prime_UTR	8631766	8632666	.	+	.	ID=agat-five_prime_utr-1269;Parent=gene28773.t1;pseudo=4
+scaffold_4	Liftoff	intron	8634967	8634967	.	+	.	ID=intron_added-90678;Parent=gene28773.t1;pseudo=4
+scaffold_4	AGAT	three_prime_UTR	8632952	8634966	.	+	.	ID=agat-three_prime_utr-854;Parent=gene28773.t1;pseudo=4
+scaffold_4	AGAT	three_prime_UTR	8634968	8635584	.	+	.	ID=agat-three_prime_utr-855;Parent=gene28773.t1;pseudo=4
+scaffold_4	AUGUSTUS	gene	8720203	8721055	.	-	.	ID=gene28774;description=F-box kelch-repeat protein
+scaffold_4	AUGUSTUS	mRNA	8720203	8721055	0.53	-	.	ID=gene28774.t1;Parent=gene28774;description=F-box kelch-repeat protein
+scaffold_4	AUGUSTUS	exon	8720203	8720819	.	-	.	ID=gene28774.t1.exon1;Parent=gene28774.t1
+scaffold_4	AUGUSTUS	exon	8720887	8721055	.	-	.	ID=gene28774.t1.exon2;Parent=gene28774.t1
+scaffold_4	AUGUSTUS	CDS	8720203	8720819	.	-	2	ID=gene28774.t1.cds1;Parent=gene28774.t1
+scaffold_4	AUGUSTUS	CDS	8720887	8721055	.	-	0	ID=gene28774.t1.cds2;Parent=gene28774.t1
+scaffold_4	AUGUSTUS	intron	8720820	8720886	.	-	.	ID=intron_added-90679;Parent=gene28774.t1

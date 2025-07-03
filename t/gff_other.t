@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use File::Basename;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 =head1 DESCRIPTION
 

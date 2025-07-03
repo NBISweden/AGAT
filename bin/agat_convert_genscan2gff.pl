@@ -278,17 +278,11 @@ know if there is the same pronlem elsewhere.)
 
 Input genscan bed file that will be convert.
 
-=item B<--source>
+=item B<--seqid>
 
-The source informs about the tool used to produce the data and is stored in 2nd field of a gff file.
-Example: Stringtie,Maker,Augustus,etc. [default: data]
+String - Sequence ID. [default: unknown]
 
-=item B<--primary_tag>
-
-The primary_tag corresponf to the data type and is stored in 3rd field of a gff file.
-Example: gene,mRNA,CDS,etc.  [default: gene]
-
-=item B<--verbose>
+=item B<--verbose> or B<-v>
 
 add verbosity
 
