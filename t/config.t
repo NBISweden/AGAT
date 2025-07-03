@@ -84,7 +84,7 @@ system("bin/agat_convert_sp_gxf2gxf.pl --gff t/gff_syntax/in/28_test.gff -c $new
 ok( system("diff tmp.gff t/gff_syntax/out/28_correct_output.gff") == 0, "Use custom agat config file check");
 
 # remove file created for the test
-cleaning_log("tmp.gff", $new_config_name);
+cleaning_log("28_test.gff", $new_config_name);
 
 # --- convenient function ---
 
