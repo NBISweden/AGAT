@@ -149,11 +149,11 @@ sub print_omniscient_as_gff{
 
 	#uri_decode_omniscient($omniscient);
 
-  # --------- deal with header --------------
-  write_headers($omniscient, $gffout);
+	# --------- deal with header --------------
+	write_headers($omniscient, $gffout);
 
-  # print tabix fashion
-  if($CONFIG->{"tabix"}){
+	# print tabix fashion
+	if($CONFIG->{"tabix"}){
 
 		my %tabix_hash;
 		my %seq_id;
