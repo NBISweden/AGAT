@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $gff = undef;
 my $opt_help= 0;
 my $force=undef;
@@ -18,6 +19,7 @@ my $outfile=undef;
 
 if ( !GetOptions(
     'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help" => \$opt_help,
     "gff|f=s" => \$gff,
     "force" => \$force,
@@ -44,19 +46,17 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Prepare output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 my $nbNameAdded=0;
 
@@ -155,6 +155,10 @@ If Name attribute already exists, they will be replaced if a new one is found
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

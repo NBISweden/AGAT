@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile;
 my $embl;
 my $emblmygff3;
@@ -21,6 +22,7 @@ my $help;
 
 if( !GetOptions(
     'c|config=s'                 => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
@@ -49,8 +51,9 @@ if ( ! (defined($embl)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-my $throw_fasta=$config->{"throw_fasta"};
+initialize_agat({ config_file_in => $config , input => $embl });
+$CONFIG->{cpu} = $cpu if defined($cpu);
+my $throw_fasta=$CONFIG->{"throw_fasta"};
 
 ##################
 # MANAGE OPTION  #
@@ -82,7 +85,7 @@ if ($primaryTags){
 
 ##################
 # MANAGE OUTPUT  #
-my $gff_out = prepare_gffout($config, $outfile);
+my $gff_out = prepare_gffout( $outfile);
 
 ### Read embl input file.
 my $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
@@ -259,6 +262,10 @@ Bolean - Means that only primary tags provided by the option "primary_tag" will 
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

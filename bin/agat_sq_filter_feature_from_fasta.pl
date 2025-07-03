@@ -20,12 +20,13 @@ my $opt_help = 0;
 
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
-      'f|fasta=s' => \$opt_fastafile,
-      'o|output=s' => \$outfile,
-      'v|verbose!' => \$verbose,
-      'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
+if ( !GetOptions (
+      'file|input|gff=s' => \$opt_gfffile,
+      'f|fasta=s'        => \$opt_fastafile,
+      'o|output=s'       => \$outfile,
+      'v|verbose!'       => \$verbose,
+      'c|config=s'       => \$config,
+      'h|help!'          => \$opt_help )  )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
@@ -45,15 +46,15 @@ if ((!defined($opt_gfffile)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
 
 # Manage input fasta file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 #### read fasta
 my $nbFastaSeq=0;

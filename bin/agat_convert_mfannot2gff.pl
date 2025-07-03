@@ -11,6 +11,7 @@ use AGAT::OmniscientI;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $mfannot_file;
 my $verbose;
 my $gff_file;
@@ -26,6 +27,7 @@ GetOptions(
     'gff|g|o=s'      => \$gff_file,
 	'v|verbose!'     => \$verbose,
     'c|config=s'     => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
     'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );
@@ -35,18 +37,18 @@ if (!defined $mfannot_file) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $mfannot_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $gff_file);
+my $gffout = prepare_gffout( $gff_file );
 
 ## MAIN ##############################################################
 read_mfannot($mfannot_file);
 
 handle_records();
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient,
-                                                                 config => $config });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $omniscient });
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
@@ -425,6 +427,10 @@ The mfannot input file
 =item B<-g> or B<-o> or B<--gff>
 
 the gff output file
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

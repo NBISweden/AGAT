@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_gfffile;
 my $opt_output;
@@ -20,6 +21,7 @@ my $opt_help;
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
                   'c|config=s'               => \$config,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'o|output=s'               => \$opt_output,
                   'h|help!'                  => \$opt_help ) )
 {
@@ -44,11 +46,12 @@ if (! defined($opt_gfffile) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({config_file_in => $config, input => $opt_gfffile});
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
                 #####################
                 #     MAIN          #
@@ -56,11 +59,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
-                                                                input  => $opt_gfffile,
-															    config => $config
-																 });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input  => $opt_gfffile });
 
 ###
 # Print result
@@ -106,6 +105,10 @@ String - Input GTF/GFF file. Compressed file with .gz extension is accepted.
 
 String - Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

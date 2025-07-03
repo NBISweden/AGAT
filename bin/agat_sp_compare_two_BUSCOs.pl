@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
@@ -21,12 +22,13 @@ my $opt_help = 0;
 
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('f1=s' => \$folderIn1,
-                  "f2=s" => \$folderIn2,
-                  'o|output=s' => \$outfolder,
+if ( !GetOptions ('f1=s'        => \$folderIn1,
+                  "f2=s"        => \$folderIn2,
+                  'o|output=s'  => \$outfolder,
                   'v|verbose=i' => \$verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help )  )
+                  'c|config=s'  => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -46,7 +48,8 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $folderIn1 });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Manage input folder1
 my $fh1;
@@ -87,9 +90,9 @@ if ($outfolder) {
 	$gffout_fragmented_path = $outfolder."/"."f1_fragmented.gff";
 	$gffout_duplicated_path = $outfolder."/"."f1_duplicated.gff";
 }
-my $gffout_complete = prepare_gffout($config, $gffout_complete_path);
-my $gffout_fragmented = prepare_gffout($config, $gffout_fragmented_path);
-my $gffout_duplicated = prepare_gffout($config, $gffout_duplicated_path);
+my $gffout_complete = prepare_gffout( $gffout_complete_path);
+my $gffout_fragmented = prepare_gffout( $gffout_fragmented_path);
+my $gffout_duplicated = prepare_gffout( $gffout_duplicated_path);
 
 my %gff_out;
 $gff_out{'complete'}=$gffout_complete;
@@ -206,7 +209,7 @@ if (-d $augustus_gff_folder){
             my  $found=undef;
             print $path."\n" if $verbose;
 
-            my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
+            my ($hash_omniscient) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){
@@ -361,6 +364,10 @@ Integer: For displaying extra information use -v 1.
 =item B<-o> or B<--output>
 
 STRING: Output folder.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

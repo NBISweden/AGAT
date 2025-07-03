@@ -18,11 +18,12 @@ my $genome;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('i|file|input|gff=s' => \@inputFile,
-      'o|output=s' => \$outputFile,
-      'g|genome=s' => \$genome,
-      'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
+if ( !GetOptions (
+      'i|file|input|gff=s' => \@inputFile,
+      'o|output=s'         => \$outputFile,
+      'g|genome=s'         => \$genome,
+      'c|config=s'         => \$config,
+      'h|help!'            => \$opt_help )  )
 {
     pod2usage( { -message => "Failed to parse command line",
                  -verbose => 1,
@@ -42,7 +43,7 @@ if (! @inputFile ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $inputFile[0] });
 
 # Manage Output
 my $ostream = prepare_fileout($outputFile);
@@ -71,7 +72,7 @@ my %check; #track the repeat already annotated to not. Allow to skip already rea
 foreach my $file (@inputFile){
   # Manage input gff file
   print "Reading $file\n";
-  my $format = $config->{force_gff_input_version};
+  my $format = $CONFIG->{force_gff_input_version};
   if(! $format ){ $format = select_gff_format($file); }
   my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
 

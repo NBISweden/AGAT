@@ -8,6 +8,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $sub = "exon";
@@ -15,11 +16,12 @@ my $opt_nc = "keep";
 my $help;
 
 if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$help,
-    "gff=s" => \$gff,
-    "sub=s" => \$sub,
-    "nc=s" => \$opt_nc,
+    'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$help,
+    "gff=s"                  => \$gff,
+    "sub=s"                  => \$sub,
+    "nc=s"                   => \$opt_nc,
     "outfile|output|out|o=s" => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line.",
@@ -41,7 +43,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ## Manage output file
 my $bedout;
@@ -61,8 +64,7 @@ if($opt_nc ne "keep" and $opt_nc ne "filter" and $opt_nc ne "transcript"){
 }
 
 ### Parse GTF input file
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 # END parsing
 
 
@@ -261,6 +263,10 @@ Defaut: exon.
 =item B<--outfile>, B<--out>, B<--output>, or B<-o>
 
 File where will be written the result. If no output file is specified, the output will be written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

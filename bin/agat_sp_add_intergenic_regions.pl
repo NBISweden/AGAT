@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $verbose;
 my $intergenicID = 1;
 my $opt_file;
@@ -19,9 +20,10 @@ my $opt_output=undef;
 my $opt_help = 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
+if ( !GetOptions( 'f|gff|ref=s'         => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'v|verbose!'          => \$verbose,
                   'h|help!'             => \$opt_help ) )
 {
@@ -45,11 +47,12 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # # START Manage Option #
 # #######################
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 #                         #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -57,9 +60,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                              config => $config });
-  print("Parsing Finished\n");
+  my ($omniscient) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 
@@ -214,6 +215,10 @@ Input GTF/GFF file.
 =item  B<--out>, B<--output> or B<-o>
 
 Output file (default GFF3 - see config to modify output format).
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

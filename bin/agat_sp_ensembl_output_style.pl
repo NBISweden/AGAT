@@ -8,6 +8,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_gfffile;
 my $opt_verbose=undef;
@@ -19,6 +20,7 @@ if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile,
                   'v'           => \$opt_verbose,
                   'o|output=s'  => \$opt_output,
                   'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -42,11 +44,12 @@ if (! defined($opt_gfffile) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
                 #####################
                 #     MAIN          #
@@ -54,12 +57,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $opt_gfffile,
-                                                               config => $config
-                                                               });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gfffile });
 
 #######################
 # Convert FULL standard gff3 to ensembl gff type
@@ -104,6 +102,10 @@ Verbose option to see the warning messages when parsing the gff file.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

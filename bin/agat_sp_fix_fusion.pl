@@ -22,6 +22,7 @@ my $PREFIX_CPT_MRNA=1;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -33,7 +34,8 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'       => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"           => \$opt_help,
     "gff=s"            => \$gff,
     "fasta|fa=s"       => \$file_fasta,
@@ -64,7 +66,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
@@ -81,10 +84,10 @@ if ($outfile) {
   $logout_file = $path.$filename."-report.txt";
 }
 
-my $gffout  = prepare_gffout($config, $gffout_file);
-my $gffout2 = prepare_gffout($config, $gffout2_file);
-my $gffout3 = prepare_gffout($config, $gffout3_file);
-my $logout = prepare_fileout($logout_file);
+my $gffout  = prepare_gffout( $gffout_file );
+my $gffout2 = prepare_gffout( $gffout2_file );
+my $gffout3 = prepare_gffout( $gffout3_file );
+my $logout = prepare_fileout( $logout_file );
 
 $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
 
@@ -103,10 +106,7 @@ else{ print "You didn't use the option stranded. We will look for fusion in all 
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -895,7 +895,7 @@ sub take_care_mrna_id {
         my $newPrefix="new".$numberMRNA_IDToCheck."_";
         $new_id="$newPrefix$clean_id";
 
-        if( (! defined ($hash_mRNAGeneLink->{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
+        if( (! defined ($hash_omniscient->{'l2tol1'}{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
             $testok=1;
         }
         else{
@@ -1429,6 +1429,10 @@ Output verbose information.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

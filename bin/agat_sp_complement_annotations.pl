@@ -10,6 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_output = undef;
 my @opt_files;
@@ -21,11 +22,12 @@ my $opt_help= undef;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "ref|r|i=s" => \$ref,
-    "add|a=s" => \@opt_files,
-    "size_min|s=i" => \$size_min,
-    "output|outfile|out|o=s" => \$opt_output))
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                   => \$opt_help,
+    "ref|r|i=s"                => \$ref,
+    "add|a=s"                  => \@opt_files,
+    "size_min|s=i"             => \$size_min,
+    "output|outfile|out|o=s"   => \$opt_output))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,40 +50,29 @@ if (! $ref or ! @opt_files ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $ref });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
-
+my $gffout = prepare_gffout( $opt_output );
 
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
-                                                                 config => $config
-                                                              });
-print ("$ref GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $ref });
+
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
-	                                                                   config => $config
-                                                                });
+  my ($hash_omniscient2) = slurp_gff3_file_JD({ input => $next_file });
   print ("$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2);
-
-  ################################
-  # First rename ID to be sure to not add feature with ID already used
-  rename_ID_existing_in_omniscient($hash_omniscient, $hash_omniscient2);
-  print ("\n$next_file IDs checked and fixed.\n");
-
 
   # Quick stat hash before complement
   my %quick_stat1;
@@ -91,9 +82,9 @@ foreach my $next_file (@opt_files){
       $quick_stat1{$level}{$tag} = $nb_tag;
     }
   }
-
+  
   ####### COMPLEMENT #######
-  complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min);
+  complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min); # deal with identical ID by renaming them
   print ("\nComplement done !\n");
 
 
@@ -186,6 +177,10 @@ Option to keep the non-overlping gene only if the CDS size (in nucleotide) is ov
 =item  B<--out>, B<--output>, B<--outfile> or B<-o>
 
 Output gff3 containing the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

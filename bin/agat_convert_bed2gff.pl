@@ -9,6 +9,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
@@ -20,6 +21,7 @@ my $help;
 
 
 if( !GetOptions(  	'c|config=s'     => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
 					"h|help"         => \$help,
 					"bed=s"          => \$bed,
 					"source=s"       => \$source_tag,
@@ -49,10 +51,11 @@ if ( ! (defined($bed)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $bed });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Ask for specific GFF information
 if (!$source_tag or !$primary_tag){
@@ -491,6 +494,10 @@ add verbosity
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

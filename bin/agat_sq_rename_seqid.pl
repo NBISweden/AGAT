@@ -21,12 +21,12 @@ my $csv;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions (  'gff=s' => \$input_gff,
-                    'o|output=s' => \$outputFile,
-	                'tsv=s' => \$input_tsv,
-                    'csv!' => \$csv,
-			        'v|verbose!' => \$verbose,
-                    'c|config=s'               => \$config,
+if ( !GetOptions (  'gff=s'           => \$input_gff,
+                    'o|output=s'      => \$outputFile,
+	                'tsv=s'           => \$input_tsv,
+                    'csv!'            => \$csv,
+			        'v|verbose!'      => \$verbose,
+                    'c|config=s'      => \$config,
                     'h|help!'         => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -48,13 +48,13 @@ if (! $input_gff or ! $input_tsv){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $input_gff });
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outputFile);
+my $gffout = prepare_gffout( $outputFile);
 
 # Manage GFF Input
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
 my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);
 

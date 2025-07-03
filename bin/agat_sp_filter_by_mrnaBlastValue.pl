@@ -13,6 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff     = undef;
 my $blast   = undef;
@@ -20,6 +21,7 @@ my $opt_help;
 
 
 if ( !GetOptions(   'c|config=s'=> \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                     "h|help"    => \$opt_help,
                     "gff=s"     => \$gff,
                     "blast=s"   => \$blast,
@@ -46,10 +48,11 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Open Output files #
-my $out = prepare_gffout($config, $outfile);
+my $out = prepare_gffout( $outfile );
 
 #### MAIN ####
 
@@ -57,11 +60,8 @@ my $out = prepare_gffout($config, $outfile);
 my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
-print ("Parse file $gff\n");
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("$gff file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff});
+
 
 # Remove all mRNA specified by the kill-list from their (gene-) parents.
 remove_omniscient_elements_from_level2_ID_list ($hash_omniscient, $killlist);
@@ -207,6 +207,10 @@ The list of the all-vs-all blast file (outfmt 6, blastp)
 =item  B<--outfile>
 
 The name of the output file. By default the output is the standard output.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

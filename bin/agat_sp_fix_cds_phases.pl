@@ -10,6 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_fasta = undef;
 my $opt_gfffile;
@@ -20,9 +21,10 @@ my $opt_help = 0;
 # OPTION MANAGMENT
 if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
-                  "f|fa|fasta=s"      => \$opt_fasta,
-                  "v|verbose!"       => \$opt_verbose,
-                  'c|config=s'               => \$config,
+                  "fasta|fa=s"      => \$opt_fasta,
+                  "v|vebose!"       => \$opt_verbose,
+                  'c|config=s'      => \$config,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -46,20 +48,18 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config , input => $opt_gfffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 
 ####################
 # index the genome #
@@ -150,6 +150,10 @@ Add verbosity.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 
