@@ -1908,11 +1908,12 @@ sub replace_by_uniq_ID{
 	}
 
 	my $uID=$id;
+	my $original_value = $omniscient->{'hashID'}{'miscCount'}{$key} ? $omniscient->{'hashID'}{'miscCount'}{$key} : 0; # get the original value of the count for this key
 	while( exists_keys( $omniscient, ( 'hashID', 'uid', lc($uID) ) ) ){	 #loop until we found an uniq tag
-		$omniscient->{'hashID'}{'miscCount'}{$key}++ if (! $dry);
+		$omniscient->{'hashID'}{'miscCount'}{$key}++;
 		$uID = $key."-".$omniscient->{'hashID'}{'miscCount'}{$key};
 	}
-
+	$omniscient->{'hashID'}{'miscCount'}{$key} = $original_value if ( $dry ); # restore the original value of the count for this key in dry mode.
 	#push the new ID
 	$omniscient->{'hashID'}{'uid'}{lc($uID)}=$uID if (! $dry);
 	$omniscient->{'hashID'}{'idtotype'}{lc($uID)}=lc($feature->primary_tag) if (! $dry);
