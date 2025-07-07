@@ -11,14 +11,17 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
 sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash $LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS);
+string_sep_to_hash $LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
 
 #	-----------------------------------CONSTANT-----------------------------------
 our $LOGGING  = {};  # global hash
-our $CONFIG   = {};   # global hash
-our $LEVELS   = {};   # global hash
+our $CONFIG   = {};  # global hash
+our $LEVELS   = {};  # global hash
 our $AGAT_TMP ="agat_tmp"; # temporary directory
 our $AGAT_LOG = "agat_log"; # # log directory
+# Comon_tag is used in old gff format and in gtf (with gene_id) to group features together.
+# Priority to comonTag compare to sequential read. The tag can be specified by the user via the agat yaml config file
+our $COMON_TAG = {}; # global hash
 
 =head1 SYNOPSIS
 

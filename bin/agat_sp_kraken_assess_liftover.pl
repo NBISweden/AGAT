@@ -154,7 +154,6 @@ my %mappedPercentPerGene; #Keep information for R plot
 my %n_omniscient;
 my $nb_noCaseL3=0;
 my $new_omniscient=\%n_omniscient;
-my $list_uID_new_omniscient;
 my $loop=0;
 
 
@@ -413,11 +412,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	            $loop++;
 	          }
 	          elsif($loop == 1){
-	            ($new_omniscient, $list_uID_new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
+	            ($new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
 	            $loop++;
 	          }
 	          else{
-	            ($new_omniscient, $list_uID_new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean, $list_uID_new_omniscient);
+	            ($new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
 	          }
 
 	          #keep track of successful multimap (same sequences) > Cases saved with different GeneID in new_omniscient ()

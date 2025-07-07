@@ -184,7 +184,6 @@ foreach my $type1 (keys %busco1){
 #extract gff from folder1
 my $full_omniscient={};
 my $loop = 0;
-my $list_uID_new_omniscient=undef;
 my $augustus_gff_folder=$folderIn1."/augustus_output/predicted_genes";
 
 if (-d $augustus_gff_folder){
@@ -248,11 +247,11 @@ if (-d $augustus_gff_folder){
                   $loop++;
                 }
                 elsif($loop == 1){
-                  ( $full_omniscient, $list_uID_new_omniscient) = merge_omniscients($full_omniscient, $hash_omniscient);
+                  ( $full_omniscient ) = merge_omniscients($full_omniscient, $hash_omniscient);
                   $loop++;
                 }
                 else{
-                  ( $full_omniscient, $list_uID_new_omniscient) = merge_omniscients($full_omniscient, $hash_omniscient, $list_uID_new_omniscient);
+                  ( $full_omniscient ) = merge_omniscients($full_omniscient, $hash_omniscient);
                 }
               }
               else{
@@ -278,7 +277,6 @@ if (-d $augustus_gff_folder){
     my $out = $gff_out{$type};
     print_omniscient( {omniscient => $full_omniscient, output => $out} );
     %$full_omniscient = (); # empty hash
-    $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};
     $loop = 0;
     print "We found $nb annotations from $type busco\n";
