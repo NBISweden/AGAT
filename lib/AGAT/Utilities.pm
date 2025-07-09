@@ -11,7 +11,8 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
 sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash $LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
+string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline
+$LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
 
 #	-----------------------------------CONSTANT-----------------------------------
 our $LOGGING  = {};  # global hash
@@ -404,6 +405,57 @@ sub string_sep_to_hash {
 		$hash_result{$value}++;
 	}
 	return \%hash_result;
+}
+
+# ------------------------------------ DEBUG -----------------------------------
+
+# print the omniscient hash structure
+sub print_omniscient_keys {
+	my ($omniscient_original) = @_;
+	foreach my $level (keys %{$omniscient_original}) {
+		if ( $level =~ /^level/ ) {
+			foreach my $level2 (keys %{$omniscient_original->{$level}}) {
+				print "* $level - $level2: ".scalar(keys %{$omniscient_original->{$level}{$level2}})." keys\n" ;
+			}
+		}
+		elsif ( $level eq 'hashID' ) {
+			print	"* miscCount: ".scalar(keys %{$omniscient_original->{$level}{'miscCount'}})." keys\n" ;
+			print	"* uid: ".scalar(keys %{$omniscient_original->{$level}{'uid'}})." keys\n";
+			print	"* idtotype: ".scalar(keys %{$omniscient_original->{$level}{'idtotype'}})." keys\n" ;
+			print	"* newToOld: ".scalar(keys %{$omniscient_original->{$level}{'newToOld'}})." keys\n" ;
+		}
+	}
+}
+
+# @Purpose: Print the memory usage of the current process
+sub get_memory_usage {
+	my $pid = $$;
+	my $mem_kb = 0;
+	open my $fh, "<", "/proc/$pid/status" or die "Cannot open /proc/$pid/status: $!";
+	while (<$fh>) {
+		if (/^VmRSS:\s+(\d+)\s+kB/) {
+			$mem_kb = $1;
+			last;
+		}
+	}
+	close $fh;
+	my $mem_mb = sprintf("%.2f", $mem_kb / 1024);  # conversion KB -> MB avec 2 décimales
+	return "${mem_mb} Mo\n";
+}
+
+# @Purpose: Count the number of line in a file
+sub get_nbline {
+	my ($local_file) = @_;
+	my $nb_line_feature = 0;
+
+	open(my $fh, '<', $local_file) or die "Cannot open file '$local_file': $!";
+	while (my $line = <$fh>) {
+		chomp $line;
+		my @cols = split /\t/, $line;
+		$nb_line_feature++ if @cols == 9;
+	}
+	close $fh;
+	return $nb_line_feature;
 }
 
 1;

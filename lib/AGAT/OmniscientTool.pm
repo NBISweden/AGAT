@@ -1897,27 +1897,26 @@ sub replace_by_uniq_ID{
 	if( defined($args->{prefix}) ) { $prefix = $args->{prefix};} else {$prefix = $CONFIG->{'prefix_new_id'};}
 	if( defined($args->{dry}) ) { $dry = $args->{dry};} # dry run - do not update anything else than the ID
 
+	
+	my $key = $prefix ? $prefix."-".lc($feature->primary_tag) : lc($feature->primary_tag); 
+
 	my $id = $feature->_tag_value('ID');
-	my $key;
-
-	if($prefix){
-		$key=$prefix."-".lc($feature->primary_tag);
-	}
-	else{
-		$key=lc($feature->primary_tag);
-	}
-
 	my $uID=$id;
-	my $original_value = $omniscient->{'hashID'}{'miscCount'}{$key} ? $omniscient->{'hashID'}{'miscCount'}{$key} : 0; # get the original value of the count for this key
+
+	
 	while( exists_keys( $omniscient, ( 'hashID', 'uid', lc($uID) ) ) ){	 #loop until we found an uniq tag
 		$omniscient->{'hashID'}{'miscCount'}{$key}++;
 		$uID = $key."-".$omniscient->{'hashID'}{'miscCount'}{$key};
 	}
-	$omniscient->{'hashID'}{'miscCount'}{$key} = $original_value if ( $dry ); # restore the original value of the count for this key in dry mode.
-	#push the new ID
-	$omniscient->{'hashID'}{'uid'}{lc($uID)}=$uID if (! $dry);
-	$omniscient->{'hashID'}{'idtotype'}{lc($uID)}=lc($feature->primary_tag) if (! $dry);
-	$omniscient->{'hashID'}{'newToOld'}{lc($uID)}=$id if (! $dry and lc($uID) ne lc($id)); # we do not want to store the same ID as new and old
+	if ($dry){	
+		$omniscient->{'hashID'}{'miscCount'}{$key}--; # Dry mode is useful for spread features. They may share the same ID, so we do not want to increment the count
+	} else {
+		#push the new ID
+		$omniscient->{'hashID'}{'uid'}{lc($uID)}      = $uID                          ;
+		$omniscient->{'hashID'}{'idtotype'}{lc($uID)} = lc($feature->primary_tag)     ;
+		$omniscient->{'hashID'}{'newToOld'}{lc($uID)} = $id if ( lc($uID) ne lc($id) ); # we do not want to store the same ID as new and old
+	}
+
 	# modify the feature ID with the correct one chosen
 	create_or_replace_tag($feature,'ID', $uID); #modify ID to replace by parent value
 

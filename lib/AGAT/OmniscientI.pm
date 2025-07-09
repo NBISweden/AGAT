@@ -8,6 +8,8 @@ use Try::Tiny;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
+use File::Temp qw(tempfile tempdir);
+use Storable qw(nstore retrieve);
 use POSIX qw(strftime);
 use Sort::Naturally;
 use LWP::UserAgent;
@@ -17,8 +19,7 @@ use Clone 'clone';
 use Exporter;
 use Term::ProgressBar;
 use Parallel::ForkManager; # to handle parallel processing
-use IPC::Shareable; # to handle shared memory between parallel processes
-use Scalar::Util qw(blessed reftype);
+use Scalar::Util qw(blessed reftype weaken);
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientO;
@@ -75,6 +76,8 @@ my $NOTHING_MESSAGE = "Nothing to be done";
 my $SKIP_MESSAGE = "skip check";
 # count for the number of check performed
 our $check_cpt = 1;
+my $tmpdir = tempdir(CLEANUP => 0);
+
 # ====== PURPOSE =======:
 # Save in omniscient hash (sorted in a specific way (3 levels)) a whole gff3 file
 # Parser phylosophy: Parse by Parent/child ELSE
@@ -308,8 +311,32 @@ sub slurp_gff3_file_JD {
 			mkdir $AGAT_TMP or die "Cannot create directory '$AGAT_TMP': $!";
 		}
 
-		my $nb_line_feature=0;
+		# === Création du ForkManager ===
+		my $max_procs = $CONFIG->{cpu} || 1; # number of threads to use
+		my $pm = Parallel::ForkManager->new($max_procs);
+
+		# Ensure cleanup on abrupt exit - on clean exit is made automatically with destroy 1 using END block
+		# has to be defined before the data removed
+		$SIG{INT} = $SIG{TERM} = sub {
+			warn "Caught SIG, cleaning up temp files...\n";
+    		
+			if (-d $AGAT_TMP) {
+				remove_tree($AGAT_TMP, { error => \my $err });
+				warn "Tempdir $AGAT_TMP removed\n";
+			}
+			
+			# Kill all children still running
+			$pm->wait_all_children if $pm;
+			if (-d $tmpdir) {
+				remove_tree($tmpdir, { error => \my $err });
+				warn "Tempdir $tmpdir removed\n";
+			}
+			exit(1);
+
+		};
+
 		# -------------- Get info using perl and split file for parallel processing -----------------------------
+		my $nb_line_feature=0;
 		$nb_line_feature = get_general_info(\%omniscient_original, $file);
 
 		# -------------- read GFF headers -----------------------------
@@ -321,12 +348,11 @@ sub slurp_gff3_file_JD {
 		$COMON_TAG->{'common_tag'}++ if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
 		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
 		# set threads/cpu/core
-		my $max_procs = $CONFIG->{cpu} || 1; # number of threads to use
 		my $plural = $max_procs > 1 ? "s" : ""; # singular/plural for print
 		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs cpu$plural)", char => "-" }) });
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
-		my %omniscient_clean = %omniscient_original;
+		my $omniscient_clean = \%omniscient_original;
 		# -------------- Set progress bar ---------------------
  		my $nb_line_read=0;
 		if ( $progress_bar and $nb_line_feature ){
@@ -347,52 +373,13 @@ sub slurp_gff3_file_JD {
 			alarm(1);
 		}
 
-	 # -------------- Deal with shareable memory  ---------------------
-	 # ---- Set counter for progress bar ----
-		my $counter_key = 'COUNTER';
-		# Clean previous shared memory segment (if any) 
-		eval {
-			my $old = tie $nb_line_read, 'IPC::Shareable', $counter_key, {};
-			$old->remove;
-		};
-		# tie a new shared variable - https://metacpan.org/pod/IPC::Shareable#OPTIONS
-		my $share_counter_obj = tie $nb_line_read, 'IPC::Shareable', $counter_key, {
-			create => 1, # 1 allows creating if it doesn’t exist.
-			exclusive => 0, # 0 allows multiple processes to access the same variable.
-			mode => 0666, # 0666 allows read/write access to all users.
-			destroy => 1, # If set to a true value, the shared memory segment underlying the data binding will be removed when the process that initialized the shared memory segment exits (gracefully)[1]. Only those memory segments that were created by the current process will be removed.
-		};
-	 # ---- Time tracking and check processing ----
-		#my %check_hash;
-		#my $check_key = 'CHECK_HASH';
-		# Clean previous shared memory segment (if any) 
-		#eval {
-		#	my $old = tie %check_hash, 'IPC::Shareable', $check_key, {};
-		#	$old->remove;
-		#};
-		# tie a new shared variable - https://metacpan.org/pod/IPC::Shareable#OPTIONS
-		#my $check_hash_obj = tie %check_hash, 'IPC::Shareable', $check_key, {
-		#	create => 1, # 1 allows creating if it doesn’t exist.
-		#	exclusive => 0, # 0 allows multiple processes to access the same variable.
-		#	mode => 0666, # 0666 allows read/write access to all users.
-		#	destroy => 1, # If set to a true value, the shared memory segment underlying the data binding will be removed when the process that initialized the shared memory segment exits (gracefully)[1]. Only those memory segments that were created by the current process will be removed.
-		#};
-		
-	 # ---- Clean shareable if needed ----
-		# Ensure cleanup on abrupt exit - on clean exit is made automatically with destroy 1 using END block
-		$SIG{INT} = $SIG{TERM} = sub {
-			#$check_hash_obj->remove;
-			$share_counter_obj->remove;
-			exit 0;
-		};
-		
 		# === Récupération des fichiers ===
 		opendir(my $dh, $AGAT_TMP) or die "Cannot open the folder '$AGAT_TMP': $!";
 		my @files = grep { -f "$AGAT_TMP/$_" } readdir($dh);
 		closedir($dh);
 
-		# === Création du ForkManager ===
-		my $pm = Parallel::ForkManager->new($max_procs);
+		# store the pid of child processes and their associated file
+		my %pid_to_file;
 
 		# Print info at start e.g. "Started child 3431 (Job 25)"
 		#$pm->run_on_start(sub {
@@ -400,37 +387,40 @@ sub slurp_gff3_file_JD {
 		#	print "Started child $pid ($ident)\n";
 		#});
 		
+		# ========= Run on finish handler =========
 		$pm->run_on_finish(sub {
-			my ($pid, $exit_code, $ident, $exit_signal, $core_dump, $data_ref) = @_;
+			my ($pid, $exit_code, $ident, $exit_signal, $core_dump) = @_;
 			#print "Finished child $pid ($ident)\n";
-
-			if ($data_ref) {
-				restore_seqfeatures($data_ref); # flat structure re inflated with Bio::SeqFeature::Generic
-				# merge the data
-				my ($hash_null) = merge_omniscients(\%omniscient_original, $data_ref);
-
-			} else {
-				warn "No data received from child $pid\n";
+	
+			if ($exit_code == 0) {			
+				 my $file = File::Spec->catfile($tmpdir, "result_$pid.stor");
+				if (-e $file) {
+    				$pid_to_file{$pid} = $file;
+				} else {
+					warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
+				}
 			}
 		});
 
-
 		my $count_file = 0;
+		my $previous_time = time();
 		foreach my $local_file (@files) {
-			
+
+			my $nbline = get_nbline("$AGAT_TMP/$local_file");
+			dual_print ({ 'string' => "$local_file ($nbline lines)\n", 'debug_only' => 1 });
 			# --- clone empty omniscient hash --- to keep trak of params that are saved in 
 			#/!\ Should avoid to use it by setting general feature  levels as global variables!
-			my %omniscient_clean_clone = %omniscient_clean; # local copy of the hash
+			my $omniscient_clean_clone = $omniscient_clean; # local copy of the hash
 			$count_file++;
 
 			# Lance un processus fils
-			$pm->start("Job $count_file") and next; {
-			
+			$pm->start("Job $count_file: $local_file") and next; {
+				dual_print ({ 'string' => "[CHILD $$] MEMORY BEFORE =".get_memory_usage(), 'debug_only' => 1 });
+
 				# for local parsing time
 				$start_run = time();
 
 				# TEMP SCOPE TO AVOID LINGERING REFERENCES
-				my $nb_line_read_local = 0;
 				#my %check_hash_local;
 				#$LOGGING->{'hash'} = \%check_hash_local;
 				if ( $CONFIG->{log} ){
@@ -449,8 +439,7 @@ sub slurp_gff3_file_JD {
 				while( my $feature = $gffio->next_feature()) {
 					if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 					($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
-					manage_one_feature($ontology, $feature, \%omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
-					$nb_line_read_local++;
+					manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
 				}
 
 				# -------------- Read fastas in GFF file ------------------------
@@ -458,31 +447,60 @@ sub slurp_gff3_file_JD {
 				if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
 				# User want to keep the sequences
 				elsif($gffio->get_seqs()){ 
-					$omniscient_clean_clone{'other'}{'fasta'} = $file;
-					$omniscient_clean_clone{'other'}{'gff_in_format'} = $gff_in_format;
+					$omniscient_clean_clone->{'other'}{'fasta'} = $file;
+					$omniscient_clean_clone->{'other'}{'gff_in_format'} = $gff_in_format;
 				} 
 				# No sequence no need to keep it
-				else{ $gffio->close();}
+				$gffio->close() if $gffio;
+				$gffio = undef;
 				# -------------- Close GFF file handler ------------------------
 
 				# Call post_process handling
-				post_process(\%omniscient_clean_clone, \%duplicate,\%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-
-				# --- Update shared value ----
-				# counter for progress bar
-				tied($nb_line_read)->lock();
-				$nb_line_read += $nb_line_read_local;
-				tied($nb_line_read)->unlock();
+				$previous_time = time();
+				post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 			}
+
+			dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage(), 'debug_only' => 1 });
+			my $merging_time = time();
+			dual_print ({ 'string' => file_text_line({ string => "debless_and_strip_code tasks", char => "-", prefix => "\n" }) });
+			my $deblessed = debless_and_strip_code($omniscient_clean_clone);
+			dual_print ({ 'string' => sizedPrint("------ End debless_and_strip_code (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
 			
-			my $deblessed = debless_and_strip_code(\%omniscient_clean_clone);
-			$pm->finish(0, $deblessed);
+			my $pid = $$;
+			#use Devel::Size qw(total_size);
+			#my $size_bytes = total_size($deblessed);
+			#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
+			#print "  $pid send: ${size_mb} Mo";
+			
+			my $tmpfile = File::Spec->catfile($tmpdir, "result_${pid}.stor");
+			nstore($deblessed, $tmpfile);
+
+			$pm->finish(0); # Pass the data back to the parent process
+			if ($progress_bar){
+				$progress_bar->update($nbline);
+				dual_print ({ 'string' => "\n" });
+			}
 		}
 
 		$pm->wait_all_children;  # Attendre que tous les enfants terminent
-		# clean share counter when done
-		$share_counter_obj->remove;
-		#$check_hash_obj->remove;
+
+		my $merging_time = time();
+		dual_print ({ 'string' => file_text_line({ string => "Merging parallel tasks", char => "-", prefix => "\n" }) });
+		for my $pid (keys %pid_to_file) {
+			my $file = $pid_to_file{$pid};
+			my $data = retrieve($file);  
+			$previous_time = time();
+		    dual_print ({ 'string' => file_text_line({ string => "restore_seqfeatures", char => "-", prefix => "\n" }) });
+			restore_seqfeatures($data); # flat structure re inflated with Bio::SeqFeature::Generic
+			dual_print ({ 'string' => sizedPrint("------ End restore_seqfeatures (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
+			# merge the data
+			$previous_time = time();
+			dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }) });
+			merge_omniscients(\%omniscient_original, $data);
+			dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
+			unlink $file;
+		}
+		dual_print ({ 'string' => sizedPrint("------ End merging (done in ".(time() - $merging_time)." second) ------",80, "\n\n\n") });
 
 		# to deal with a nice rendering at the end of the progress bar => make it at 100%
 		if ($progress_bar){
@@ -490,15 +508,14 @@ sub slurp_gff3_file_JD {
 			dual_print ({ 'string' => "\n" });
 		}
 		
-		# Parsing time
-		dual_print ({ 'string' => sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n") });
-		
 		#stop alarm
 		alarm(0);
 		
 		#remove tmp directory
 		remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 	}
+	# print memory usage
+	dual_print ({ 'string' => "Total memory used = ".get_memory_usage() });	
 
 	#return
 	return \%omniscient_original;
@@ -513,160 +530,162 @@ sub post_process {
 	# +----------------- merge_loci param  ------------------+
 	my $merge_loci = $CONFIG->{merge_loci};
 
+	# Parsing time
+	dual_print ({ 'string' => sizedPrint("------ Parsing done in ".(time() - $start_run)." seconds ------",80, "\n\n\n") });
+	my $previous_time = time();
+	my $check_time = $previous_time;
+	dual_print ({ 'string' => sizedPrint("------ Start checks ------",80, "\n") });
 
-		# Parsing time
-		dual_print ({ 'string' => sizedPrint("------ Parsing done in ".(time() - $start_run)." seconds ------",80, "\n\n\n") });
-		my $previous_time = time();
-		my $check_time = $previous_time;
-		dual_print ({ 'string' => sizedPrint("------ Start checks ------",80, "\n") });
+	# -------------------- Mandatory checks --------------------
+	
+	# check feature types (Ontology and AGAT handling)
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: feature types", char => "-" }) });
+	_handle_globalWARNS({ warning => $globalWARNS, ontology => $ontology, type => "ontology" });
+	_handle_globalWARNS({ warning => $globalWARNS, ontology => $ontology, type => "agat" });
+	delete $globalWARNS->{$_} for (keys %{$globalWARNS}); # re-initialize the hash
+	delete $WARNS->{$_} for (keys %{$WARNS}); # re-initialize the hash
+	dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-", extra => "\n" }) });
+	$check_cpt++; $previous_time = time();
 
-		# -------------------- Mandatory checks --------------------
-		
-		# check feature types (Ontology and AGAT handling)
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: feature types", char => "-" }) });
-		_handle_globalWARNS({ warning => $globalWARNS, ontology => $ontology, type => "ontology" });
-		_handle_globalWARNS({ warning => $globalWARNS, ontology => $ontology, type => "agat" });
-		delete $globalWARNS->{$_} for (keys %{$globalWARNS}); # re-initialize the hash
-		delete $WARNS->{$_} for (keys %{$WARNS}); # re-initialize the hash
-		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-", extra => "\n" }) });
-		$check_cpt++; $previous_time = time();
+	#report detected duplicates
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: duplicates", char => "-" }) });
+	_check_duplicates($duplicate, $omniscient);
+	dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	$check_cpt++; $previous_time = time();
 
-		#report detected duplicates
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: duplicates", char => "-" }) });
-		_check_duplicates($duplicate, $omniscient);
+	# -------------------- Extra checks (each can be deactivated) --------------------
+	
+	# check_sequential
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: sequential bucket", char => "-", prefix => "\n"}) });
+	if( $CONFIG->{check_sequential} ) {
+		#Check sequential if we can fix cases. Hash to be done first, else is risky that we remove orphan L1 feature ... that are not yet linked to a sequential bucket
+		if( keys %{$infoSequential} ){ #hash is not empty
+				_check_sequential($infoSequential, $omniscient, $locusTAG);
+				undef $infoSequential;
+		}
+		else{
+				dual_print({ 'string' => "Check$check_cpt - $NOTHING_MESSAGE\n"});
+		}
 		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		$check_cpt++; $previous_time = time();
+	} 
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# -------------------- Extra checks (each can be deactivated) --------------------
-		
-		# check_sequential
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: sequential bucket", char => "-", prefix => "\n"}) });
-		if( $CONFIG->{check_sequential} ) {
-			#Check sequential if we can fix cases. Hash to be done first, else is risky that we remove orphan L1 feature ... that are not yet linked to a sequential bucket
-			if( keys %{$infoSequential} ){ #hash is not empty
-					_check_sequential($infoSequential, $omniscient, $locusTAG);
-					undef $infoSequential;
-			}
-			else{
-					dual_print({ 'string' => "Check$check_cpt - $NOTHING_MESSAGE\n"});
-			}
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		} 
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	#Check relationship between l3 and l2
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_l2_linked_to_l3} ) {
+		#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
+		_check_l2_linked_to_l3( $omniscient); # When creating L2 missing we create as well L1 if missing too
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });	
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		#Check relationship between l3 and l2
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: l2 linked to l3", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_l2_linked_to_l3} ) {
-			#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
-			_check_l2_linked_to_l3( $omniscient); # When creating L2 missing we create as well L1 if missing too
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });	
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	#Check relationship between l1 and l2
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: l1 linked to l2", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_l1_linked_to_l2} ) {
+		#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
+		_check_l1_linked_to_l2($omniscient, $attachedL2Sequential);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		#Check relationship between l1 and l2
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: l1 linked to l2", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_l1_linked_to_l2} ) {
-			#Check relationship between mRNA and gene.	/ gene position are checked! If No Level1 we create it !
-			_check_l1_linked_to_l2($omniscient, $attachedL2Sequential);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	#Check L1 orphan if normal or not
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: remove orphan l1", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{remove_orphan_l1}) {
+		#check level1 has subfeature else we remove it
+		dual_print ({ 'string' => "Check$check_cpt - We remove only those not supposed to be orphan\n" });
+		_remove_orphan_l1($omniscient); #or fix if level2 is missing (refseq case)
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		#Check L1 orphan if normal or not
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: remove orphan l1", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{remove_orphan_l1}) {
-			#check level1 has subfeature else we remove it
-			dual_print ({ 'string' => "Check$check_cpt - We remove only those not supposed to be orphan\n" });
-			_remove_orphan_l1($omniscient); #or fix if level2 is missing (refseq case)
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	#Check locations of level3 features
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level3 locations", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_all_level3_locations} ) {
+		#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
+		_check_all_level3_locations($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		#Check locations of level3 features
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level3 locations", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_all_level3_locations} ) {
-			#Check relationship L3 feature, exons have to be defined... / mRNA position are checked!
-			_check_all_level3_locations($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	# Check CDS
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_cds}) {
+		_check_cds($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# Check CDS
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check cds", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_cds}) {
-			_check_cds($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	# Check exons
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check exons", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_exons} ) {
+		_check_exons($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# Check exons
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check exons", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_exons} ) {
-			_check_exons($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	# Check UTRs
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check utrs", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_utrs} ) {
+		_check_utrs($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
+	
+	# Check level2 locations based on level3
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level2 locations", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_all_level2_locations} ) {
+		check_all_level2_locations( { omniscient => $omniscient });
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });;
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# Check UTRs
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: check utrs", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_utrs} ) {
-			_check_utrs($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
-		
-		# Check level2 locations based on level3
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level2 locations", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_all_level2_locations} ) {
-			check_all_level2_locations( { omniscient => $omniscient });
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });;
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	# Check level1 locations based on level2 locations
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level1 locations", char => "-", prefix => "\n" }) });
+	if( $CONFIG->{check_all_level1_locations} ) {
+		check_all_level1_locations( { omniscient => $omniscient } );
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# Check level1 locations based on level2 locations
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: all level1 locations", char => "-", prefix => "\n" }) });
-		if( $CONFIG->{check_all_level1_locations} ) {
-			check_all_level1_locations( { omniscient => $omniscient } );
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-"}) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	#check loci names (when overlap should be the same if type is the same)
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: merge overlaping loci into same locus", char => "-", prefix => "\n" }) });
+	if ( $CONFIG->{merge_loci} ){
+		# Better probably to keep it before check 10 anyway
+		merge_overlap_loci($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		#check loci names (when overlap should be the same if type is the same)
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: merge overlaping loci into same locus", char => "-", prefix => "\n" }) });
-		if ( $CONFIG->{merge_loci} ){
-			# Better probably to keep it before check 10 anyway
-			merge_overlap_loci($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	# Check identical isoforms
+	dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: remove identical isoforms", char => "-", prefix => "\n"}) });
+	if( $CONFIG->{check_identical_isoforms} ) {
+		_check_identical_isoforms($omniscient);
+		dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
+	}
+	else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
+	$check_cpt++; $previous_time = time();
 
-		# Check identical isoforms
-		dual_print ({ 'string' => file_text_line({ string => "Check$check_cpt: remove identical isoforms", char => "-", prefix => "\n"}) });
-		if( $CONFIG->{check_identical_isoforms} ) {
-			_check_identical_isoforms($omniscient);
-			dual_print ({ 'string' => file_text_line({ string => "	Check$check_cpt: done in ".(time() - $previous_time)." seconds", char => "-" }) });
-		}
-		else { dual_print({ 'string' => "Check$check_cpt - $SKIP_MESSAGE\n"}); }
-		$check_cpt++; $previous_time = time();
+	dual_print ({ 'string' => sizedPrint("------ All check done in ".(time() - $check_time)." seconds ------",80, "\n\n\n") });
+	dual_print ({ 'string' => sizedPrint("------ Total : ".(time() - $start_run)." seconds ------",80, "\n\n\n") });
 
-		#------- Inform user about warnings encountered during checking ---------------
-		foreach my $thematic (keys %{$WARNS}){
-			my $nbW = $WARNS->{$thematic};
-			if($nbW > $nbWarnLimit){
-				dual_print ({ 'string' => "$nbW warning messages: $thematic\n" });
-			}
+	#------- Inform user about warnings encountered during checking ---------------
+	foreach my $thematic (keys %{$WARNS}){
+		my $nbW = $WARNS->{$thematic};
+		if($nbW > $nbWarnLimit){
+			dual_print ({ 'string' => "$nbW warning messages: $thematic\n" });
 		}
+	}
 }
 
 sub restore_seqfeatures {
@@ -709,13 +728,12 @@ sub get_attributes_as_hash_ref {
     my $feature = shift;
     my %attributes;
 
-    # Loop through all tags and get their values
     foreach my $tag ($feature->get_all_tags) {
-        # Store each tag's values in the hash (the tag is the key)
-        $attributes{$tag} = [ $feature->get_tag_values($tag) ];
+        my @values = $feature->get_tag_values($tag);
+        $attributes{$tag} = (@values == 1) ? $values[0] : \@values;
     }
 
-    return \%attributes;  # Return a reference to the attribute hash
+    return \%attributes;
 }
 
 # needed to remove code and serialize the Generic feature objects (to make it compact). 
@@ -724,55 +742,44 @@ sub debless_and_strip_code {
 
     return $ref unless ref $ref;
 
-    if ( blessed($ref) ){
-		if ( $ref->isa('Bio::SeqFeature::Generic') ){
-			# Create a hash representing the feature
-			my $feature = { agat_flat_feat => {
-				seq_id      => $ref->seq_id,  # Seqname (chromosome or scaffold)
-				source_tag  => $ref->source_tag,  # Source
-				primary_tag => $ref->primary_tag,  # Type (e.g., gene, CDS, exon)
-				start       => $ref->start,  # Start position
-				end         => $ref->end,  # End position
-				score       => $ref->score,  # Score
-				strand      => $ref->strand,  # Strand (+ or -)
-				frame       => $ref->frame,  # Phase (for CDS)
-				tag         => get_attributes_as_hash_ref($ref),  # Parse attributes (key-value pairs)
-			} };
-			return $feature ;
-		}
-		
-		if (reftype($ref) eq 'HASH') {
-			$ref = { %$ref };
-		} elsif (reftype($ref) eq 'ARRAY') {
-			$ref = [ @$ref ];
-		} else {
-			return undef;
-		}
+    # Cas 1 : objet Bio::SeqFeature::Generic à transformer en structure plate
+    if (blessed($ref) && $ref->isa('Bio::SeqFeature::Generic')) {
+        return {
+            agat_flat_feat => {
+                seq_id      => $ref->seq_id,
+                source_tag  => $ref->source_tag,
+                primary_tag => $ref->primary_tag,
+                start       => $ref->start,
+                end         => $ref->end,
+                score       => $ref->score,
+                strand      => $ref->strand,
+                frame       => $ref->frame,
+                tag         => get_attributes_as_hash_ref($ref),
+            }
+        };
     }
 
-    if (reftype($ref) eq 'HASH') {
+    my $type = reftype($ref);
+
+    # Cas 2 : tableau → traitement récursif
+    if ($type eq 'ARRAY') {
+        return [ map { debless_and_strip_code($_) } @$ref ];
+    }
+
+
+    # Cas 3 : hash → traitement récursif
+    if ($type eq 'HASH') {
         for my $key (keys %$ref) {
             my $val = $ref->{$key};
-            my $type = reftype($val);
-            if (defined($type) && $type eq 'CODE') {
-                delete $ref->{$key};  # Remove CODE ref e.g.  sub { "DUMMY" }
-            } else {
-                $ref->{$key} = debless_and_strip_code($val);
-            }
+            my $val_type = reftype($val);
+            next if defined $val_type && $val_type eq 'CODE';  # skip code refs
+            $ref->{$key} = debless_and_strip_code($val);
         }
-    } elsif (reftype($ref) eq 'ARRAY') {
-        for my $i (0 .. $#$ref) {
-            my $val = $ref->[$i];
-            my $type = reftype($val);
-            if (defined($type) && $type eq 'CODE') {
-                $ref->[$i] = undef;  # Remove CODE ref in arrays e.g.  sub { "DUMMY" }
-            } else {
-                $ref->[$i] = debless_and_strip_code($val);
-            }
-        }
+        return $ref;
     }
 
-    return $ref;
+    # Cas 4 : référence d’un type qu’on ne veut pas gérer (CODE, GLOB, etc.)
+    return undef;
 }
 
 ##==============================================================================
@@ -3613,6 +3620,8 @@ sub get_general_info{
 	my %feature_type;
 	my $fasta_present=0;
 	my %info_feature_type;
+	$| = 1; # Autoflush STDOUT so print isn't buffered
+	my $last_print_time = time;
 
 	my $fh;
 	my ($filename,$path,$file_ext) = fileparse($file,qr/\.[^.]*/);
@@ -3635,6 +3644,13 @@ sub get_general_info{
 	my $previous_id = "";
 	while(<$fh>){
 		$nb_line++;
+
+		# Every 1 seconds, print an update
+		my $now = time;
+		if ($now - $last_print_time >= 1) {
+			print "\rLines parsed: $nb_line";
+			$last_print_time = $now;
+		}
 
 		# skip blank lines
 		if($_ =~ /^s*$/){
@@ -3699,12 +3715,12 @@ sub get_general_info{
 		print $out_fh "$_";
 		$nb_line_splitfile++;
 	} 
-
+	# close the read filehandle and the last filehandle write
 	close($fh);
-	# Ne pas oublier de fermer le dernier fichier
 	close $out_fh if defined $out_fh;
-	
 
+	# Final count
+	print "\r";
 	dual_print({ 'string' => "=> Number of line in file: $nb_line\n"});
 	dual_print({ 'string' => "=> Number of comment lines: $nb_comment_line\n"});
 	dual_print({ 'string' => "=> Number of empty lines: $nb_empty_line\n"});

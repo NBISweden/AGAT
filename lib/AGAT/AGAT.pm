@@ -505,7 +505,7 @@ sub create_log_file{
 																  });
 		}
 		else{
-			warn "File $input provided as input does not exits! Please verify your path and file existence!" && die;
+			die "File $input provided as input does not exits! Please verify your path and file existence!";
 		}
 	return $log;
 }
