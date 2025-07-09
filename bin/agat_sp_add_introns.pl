@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $intronID = 1;
 my $opt_file;
 my $opt_output=undef;
@@ -19,9 +20,10 @@ my $opt_help = 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s' => \$opt_output,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+                  'o|out|output=s'      => \$opt_output,
+                  'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -43,15 +45,15 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # #######################
-# # START Manage Option #
-# #######################
-my $gffout = prepare_gffout($config, $opt_output);
+# START Manage Option #
 
-# #####################################
-# # END Manage OPTION
+my $gffout = prepare_gffout( $opt_output );
+
+# END Manage OPTION
 # #####################################
 
 #                         #######################
@@ -65,9 +67,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                   config => $config });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 
@@ -197,6 +197,10 @@ Input GTF/GFF file.
 =item  B<--out>, B<--output> or B<-o>
 
 Output GFF3 file.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

@@ -9,16 +9,17 @@ use Sort::Naturally;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_gfffile;
 my $opt_output;
 my $opt_help = 0;
 
 # OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
+if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'o|output=s'      => \$opt_output,
-
-                  'c|config=s'               => \$config,
+                  'c|config=s'      => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -42,7 +43,8 @@ if (! defined($opt_gfffile) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
@@ -63,11 +65,7 @@ mkdir $opt_output;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 
 my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
@@ -79,7 +77,7 @@ foreach my $tag_l1 ( sort { ncmp ($a, $b) } keys %{$hash_omniscient->{'level1'}}
 	# deal with topfeatures and standalone feature type
 	if ( exists_keys ($topfeatures, ($tag_l1) ) or  exists_keys ($standalones, ($tag_l1) ) ){
 
-		$gffout = prepare_gffout($config, $opt_output."/".$tag_l1.".gff");
+		$gffout = prepare_gffout( $opt_output."/".$tag_l1.".gff");
 
 		foreach my $key_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			$gffout->write_feature($hash_omniscient->{'level1'}{$tag_l1}{$key_l1});
@@ -100,7 +98,7 @@ foreach my $tag_l1 ( sort { ncmp ($a, $b) } keys %{$hash_omniscient->{'level1'}}
 	          #manage handler
 	          if(! exists_keys ( \%handlers, ($tag_l2) ) ) {
 
-	          $gffout = prepare_gffout($config, $opt_output."/".$tag_l2.".gff");
+	          $gffout = prepare_gffout( $opt_output."/".$tag_l2.".gff");
 
 	            $handlers{$tag_l2}=$gffout;
 	          }
@@ -210,6 +208,10 @@ Input GTF/GFF file.
 =item B<-o> or B<--output>
 
 Output folder.  If no output folder provided, the default name will be <split_result>.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

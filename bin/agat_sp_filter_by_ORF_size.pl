@@ -12,6 +12,7 @@ use AGAT::AGAT;
 my $start_run = time();
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $PROT_LENGTH = 100;
 my $file_fasta=undef;
 my $outfile = undef;
@@ -23,12 +24,13 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 Getopt::Long::Configure ('bundling');
 if ( !GetOptions(
-    'c|config=s' => \$config,
-    "h|help"   => \$opt_help,
-    "g|gff=s"  => \$gff,
-    't|test=s' => \$opt_test,
-    "size|s=i" => \$PROT_LENGTH,
-    "v!"       => \$verbose,
+    'c|config=s'             => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "g|gff=s"                => \$gff,
+    't|test=s'               => \$opt_test,
+    "size|s=i"               => \$PROT_LENGTH,
+    "v!"                     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -52,7 +54,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Option check
@@ -81,8 +84,8 @@ if ($outfile) {
   $gffout_notpass_file = $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff";
 }
 
-my $gffout_pass = prepare_gffout($config, $gffout_pass_file);
-my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
+my $gffout_pass = prepare_gffout( $gffout_pass_file);
+my $gffout_notpass = prepare_gffout( $gffout_notpass_file);
 
 # print usage performed
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
@@ -96,10 +99,7 @@ print $stringPrint;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                               });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 # Create an empty omniscient hash to store the discarded features and copy the config in
 my %hash_omniscient_discarded;
@@ -320,6 +320,10 @@ Verbose. Useful for debugging purpose. Bolean
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

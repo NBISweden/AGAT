@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $primaryTagCopy="level2";
 my $primaryTagPaste="level3";
 my $opt_output= undef;
@@ -28,6 +29,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
                   "a|tag|att|attribute=s"  => \$attributes,
                   'v|verbose!'           => \$opt_verbose,
                   'c|config=s'           => \$config,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'              => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -49,7 +51,8 @@ if ( ! $opt_gff  ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ###############
 # Manage Output
@@ -63,7 +66,7 @@ if ($opt_output) {
   # set file names
   $gffout_ok_file = $path.$outfile.$ext;
 }
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file);
 
 # Manage $primaryTag for copy
 my @ptagListCopy;
@@ -151,10 +154,8 @@ print $stringPrint;
 my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gff });
+
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -174,7 +175,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 		  #################
 		  # == LEVEL 2 == #
 		  #################
-		  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+		  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ 
 
 		    if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
 			    my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
@@ -196,7 +197,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 				    #################
 			      my $id_l2 = lc($feature_l2->_tag_value('ID'));
 
-				    foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+				    foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ 
 				      if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
 				       	my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
 				       	foreach my $feature_l3 ( @list_fl3 ) {
@@ -220,7 +221,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                     add_tags_from_to($feature_l3, $feature_l2);
                   }
                   # ------- Case L3 to L3 -------
-                  foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                  foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ 
 				            if ( exists_keys( $hash_omniscient, ('level3', $tag_l3_again, $id_l2) ) ){
 				       	      my @list_fl3_again = @{$hash_omniscient->{'level3'}{$tag_l3_again}{$id_l2}};
 				              foreach my $feature_l3_again ( @list_fl3_again ) {
@@ -374,14 +375,12 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature level3 are used. 
 
-
 =item B<-a>, B<--tag>, B<--att> or B<--attribute>
 
 Attribute that will be copied and pasted. Case sensitive.
 You can specified an attribute (or a coma separated list) by giving its attribute tag value (column9) as: Ontology, Dbxref, etc
 Default: all_attributes
 /!\ <all_attributes> is a specific parameter meaning all the attributes will be use.
-
 
 =item B<-o> or B<--output>
 
@@ -391,6 +390,10 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option for debugging purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

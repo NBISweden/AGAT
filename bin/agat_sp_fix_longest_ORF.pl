@@ -26,6 +26,7 @@ my $SIZE_OPT=21;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $model_to_test = undef;
@@ -37,14 +38,15 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "split|s" => \$split_opt,
-    "table|codon|ct=i" => \$codonTable,
-    "m|model=s" => \$model_to_test,
-    "v=i" => \$verbose,
+    'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "gff=s"                  => \$gff,
+    "fasta|fa|f=s"           => \$file_fasta,
+    "split|s"                => \$split_opt,
+    "table|codon|ct=i"       => \$codonTable,
+    "m|model=s"              => \$model_to_test,
+    "v=i"                    => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -68,7 +70,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -92,11 +95,11 @@ if ($outfile) {
   $report_file  = $path.$outfile."-report.txt";
 }
 
-my $gffout  = prepare_gffout($config, $gffout_file);
-my $gffout2 = prepare_gffout($config, $gffout2_file);
-my $gffout3 = prepare_gffout($config, $gffout3_file);
-#my $gffout4 = prepare_gffout($config, $gffout4_file);
-my $report  = prepare_fileout($report_file);
+my $gffout  = prepare_gffout( $gffout_file );
+my $gffout2 = prepare_gffout( $gffout2_file );
+my $gffout3 = prepare_gffout( $gffout3_file );
+#my $gffout4 = prepare_gffout( $gffout4_file);
+my $report  = prepare_fileout( $report_file );
 
 my %ListModel;
 if(!($model_to_test)){
@@ -121,11 +124,7 @@ if(!($model_to_test)){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
-                                                                config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) =slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -387,7 +386,7 @@ fil_cds_frame($hash_omniscient, $db, $verbose);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
 print "removing duplicates\n" if $verbose;
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+merge_overlap_loci(\%omniscient_modified_gene, undef);
 
 ########
 # Print results
@@ -401,7 +400,7 @@ print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2}
 print "print all with name of overlapping features resolved...\n";
 my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+merge_overlap_loci(\%omniscient_modified_gene, undef);
 print_omniscient( {omniscient => $hash_all, output => $gffout3} );
 
 #print_omniscient(\%omniscient_pseudogene, $gffout4); #print putative pseudogene in file
@@ -1262,6 +1261,10 @@ written to STDOUT.
 =item B<-v>
 
 verbose mode. Default off. -v 1 minimum verbosity, -v 3 maximum verbosity
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

@@ -8,6 +8,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_output;
 my $gff;
 my $relax;
@@ -18,6 +19,7 @@ my $help;
 
 if( !GetOptions(
     'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                   => \$help,
     "gff|gtf|i=s"              => \$gff,
 	"gtf_version=s"            => \$gtf_version,
@@ -44,7 +46,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # check GTF versions
 if ($gtf_version){
@@ -55,24 +58,20 @@ if ($gtf_version){
     }
     print "GTF version $gtf_version selected by command line interface.\n";
 } else {
-    $gtf_version = $config->{gtf_output_version};
+    $gtf_version = $CONFIG->{gtf_output_version};
     print "GTF version $gtf_version selected from the agat config file.\n";
 }
 
 # Update config
-$config->{"gtf_output_version"}=$gtf_version;
-$config->{"output_format"}="gtf";
+$CONFIG->{"gtf_output_version"}=$gtf_version;
+$CONFIG->{"output_format"}="gtf";
 
-## Manage output file
-# Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+# Manage output file 
+my $gffout = prepare_gffout( $opt_output );
 
-print "Reading input file\n";
 ######################
-### Parse GFF input #
 ### Read gff input file.
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 print "converting to GTF$gtf_version\n";
 # Now print  omniscient
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
@@ -136,6 +135,10 @@ GTF1 (5 feature types accepted): CDS, start_codon, stop_codon, exon, intron
 
 Output GTF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

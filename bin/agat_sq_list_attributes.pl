@@ -47,7 +47,7 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
 
 # Manage $primaryTag
 my @ptagList;
@@ -63,7 +63,7 @@ else{
 }
 
 # Manage input fasta file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
 

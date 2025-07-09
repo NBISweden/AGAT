@@ -469,7 +469,7 @@ sub get_omniscient_statistics_for_topfeature{
 	return \%all_info, \%extra_info;
 }
 
-# Parse omiscient by L2 to seprate statistics e.g not mixing exon from mRNA of
+# Parse omniscient by L2 to seprate statistics e.g not mixing exon from mRNA of
 # those tRNA
 sub get_omniscient_statistics_from_l2{
 	my ($hash_omniscient, $tag_l2, $verbose) = @_;

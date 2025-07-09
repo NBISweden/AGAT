@@ -207,7 +207,9 @@ spread:
    utr: 1
    uorf: 1
    3utr: 1
+   3'-utr: 1
    5utr: 1
+   5'-utr: 1
 
 
 # features from level3 to not merge when overlap.

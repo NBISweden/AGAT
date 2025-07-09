@@ -27,14 +27,13 @@ my $config="agat_config.yaml";
 unlink $config;
 
 # get standard config
-$config = get_agat_config();
-$config->{verbose}=0;
-$config->{progress_bar}=0;
+initialize_agat({ nolog => 1 });
+$CONFIG->{progress_bar}=0;
+$LOGGING->{verbose} = 0;
+
 
 # Get one omnisceint to work with
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/in/1.gff",
-                                                                config => $config
-                                                                });
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/in/1.gff" });
 
 #run remove_omniscient_elements_from_level1_id_list test
 my $nb_gene2 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};

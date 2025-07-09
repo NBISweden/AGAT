@@ -13,6 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -26,6 +27,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'                => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                    => \$opt_help,
     "gff=s"                     => \$gff,
     "fasta|fa|f=s"              => \$file_fasta,
@@ -57,7 +59,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
@@ -75,8 +78,8 @@ if ($outfile) {
   $gffout_incomplete_file = $path.$filename."_incomplete".$ext;
 }
 
-my $gffout = prepare_gffout($config, $gffout_file);
-my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
+my $gffout = prepare_gffout( $gffout_file );
+my $gffout_incomplete = prepare_gffout( $gffout_incomplete_file );
 
                 #####################
                 #     MAIN          #
@@ -84,11 +87,7 @@ my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -372,6 +371,10 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option, make it easier to follow what is going on for debugging purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

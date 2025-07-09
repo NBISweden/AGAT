@@ -10,18 +10,20 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
 my $opt_output=undef;
 my $opt_help = 0;
 
-if ( !GetOptions( 'i|input=s' => \$opt_in,
-                  'b|bam!' => \$opt_bam,
-                  's|sam!' => \$opt_sam,
+if ( !GetOptions( 'i|input=s'      => \$opt_in,
+                  'b|bam!'         => \$opt_bam,
+                  's|sam!'         => \$opt_sam,
                   'o|out|output=s' => \$opt_output,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+                  'c|config=s'     => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+                  'h|help!'        => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -43,10 +45,11 @@ if ( ! defined( $opt_in) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_in });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # ---- set output -----
-my $out_stream = prepare_gffout($config, $opt_output);
+my $out_stream = prepare_gffout( $opt_output );
 
 # ----- Parse input ------
 my $is_sam=undef;
@@ -378,6 +381,10 @@ To force to use the input file as sam file.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

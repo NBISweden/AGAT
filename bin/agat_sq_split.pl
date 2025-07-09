@@ -44,10 +44,10 @@ if ( !(defined($inputFile)) or !(defined($outfolder)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $inputFile });
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
@@ -76,7 +76,7 @@ my $count_feature=0;
 my $count_file=1;
 my ($file_name,$path,$ext) = fileparse($inputFile,qr/\.[^.]*/);
 
-my $gffout = prepare_gffout($config, $outfolder."/".$file_name."_".$count_file.".gff");
+my $gffout = prepare_gffout( $outfolder."/".$file_name."_".$count_file.".gff");
 
 while (my $feature = $ref_in->next_feature() ) {
   $line_cpt++;
@@ -86,7 +86,7 @@ while (my $feature = $ref_in->next_feature() ) {
     if($count_feature == $interval){
       close $gffout;
       $count_file++;
-			$gffout = prepare_gffout($config,  $outfolder."/".$file_name."_".$count_file.".gff");
+			$gffout = prepare_gffout(  $outfolder."/".$file_name."_".$count_file.".gff");
       $count_feature=0;
     }
     $count_feature++;

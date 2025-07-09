@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_run = time();
 my $opt_gfffile;
 my $opt_fastafile;
@@ -26,6 +27,7 @@ if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'of=s'            => \$opt_output_fasta,
                   'og=s'            => \$opt_output_gff,
                   'c|config=s'      => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -49,7 +51,8 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
@@ -62,17 +65,13 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-my $gffout = prepare_gffout($config, $opt_output_gff);
+my $gffout = prepare_gffout( $opt_output_gff );
 
 ##### MAIN ####
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                              });
-print "Parsing Finished\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 ### END Parse GFF input #
 #########################
 
@@ -263,6 +262,10 @@ written to STDOUT.
 
 Output fixed GFF file.  If no output file is specified, the output will be
 written to STDOUT
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

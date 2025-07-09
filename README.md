@@ -206,7 +206,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
 
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https Term::ProgressBar
+    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https Term::ProgressBar Parallel::ForkManager IPC::Shareable
     ```
 
     * using conda

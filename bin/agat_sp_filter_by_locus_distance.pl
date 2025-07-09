@@ -10,6 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff = undef;
 my $add_flag=undef;
@@ -19,12 +20,13 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "add_flag|af!" => \$add_flag,
-    "d|dist=i" => \$opt_dist,
-    "v!" => \$verbose,
+    'c|config=s'             => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "gff=s"                  => \$gff,
+    "add_flag|af!"           => \$add_flag,
+    "d|dist=i"               => \$opt_dist,
+    "v!"                     => \$verbose,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -48,11 +50,12 @@ if ( ! defined($gff) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
                 #####################
                 #     MAIN          #
@@ -60,17 +63,13 @@ my $gffout = prepare_gffout($config, $outfile);
 
 ######################
 ### Parse GFF input #
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                            config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 #counters
 my $geneCounter_skip=0;
 my $geneCounter_ok=0;
 my $total=0;
 my @gene_id_ok;
-
 
 my $sortBySeq = gather_and_sort_l1_location_by_seq_id($omniscient);
 
@@ -287,6 +286,10 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option, make it easier to follow what is going on for debugging purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

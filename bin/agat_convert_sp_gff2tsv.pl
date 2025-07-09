@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag=undef;
@@ -21,9 +22,10 @@ my $add = undef;
 my $cp = undef;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"          => \$opt_help,
-    "gff|f=s"         => \$gff,
+    'c|config=s'             => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \$gff,
     "output|outfile|out|o=s" => \$opt_output))
 
 {
@@ -47,7 +49,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Manage Output
 my $ostream     = IO::File->new();
@@ -68,9 +71,7 @@ else{
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 # ---- List attributes ----
 my $attribute_bucket = get_all_attributes($hash_omniscient);
@@ -268,6 +269,10 @@ Input GTF/GFF file.
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

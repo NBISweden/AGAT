@@ -15,6 +15,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $start_id = 1;
 my $stop_id = 1;
 
@@ -36,6 +37,7 @@ if ( !GetOptions( 'i|g|gff=s'        => \$opt_file,
                   'ni|na!'           => \$opt_no_iupac,
                   'v|verbose!'       => \$verbose,
                   'c|config=s'       => \$config,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'          => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -58,12 +60,13 @@ if(! $opt_file or ! $file_fasta ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # #######################
 # # START Manage Option #
 # #######################
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 $codon_table_id = get_proper_codon_table($codon_table_id);
 
@@ -83,9 +86,7 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                 config => $config });
-print("Parsing Finished\n\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 
@@ -357,8 +358,8 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
 
 # case we need to check start stop of the features not CDS
 if ($opt_extend){
-  my ($new_hash_omniscient, $new_hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $hash_omniscient,
-                                                                  config => $config });
+  my ($new_hash_omniscient) = slurp_gff3_file_JD({ input => $hash_omniscient,
+                                                   config => $config });
   print_omniscient( {omniscient => $new_hash_omniscient, output => $gffout} );
 } else {
   print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
@@ -647,6 +648,10 @@ Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is use
 =item B<-v> or B<--verbose>
 
 Verbose for debugging purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

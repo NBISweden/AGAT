@@ -59,6 +59,7 @@ my $SIZE_OPT=21;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfolder = undef;
 my $gff = undef;
 my $file_fasta=undef;
@@ -74,6 +75,7 @@ my $opt_help= 0;
 my @copyARGV=@ARGV;
 if ( !GetOptions(
     'c|config=s'         => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"             => \$opt_help,
     "gff=s"              => \$gff,
     "fasta|fa|f=s"       => \$file_fasta,
@@ -110,7 +112,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -132,7 +135,7 @@ if ($outfolder) {
 		# gff out
 		my $gff_out_path = "$outfolder/$file_gff_in$ext_gff";
 
-		$gff_out = prepare_gffout($config, $gff_out_path);
+		$gff_out = prepare_gffout( $gff_out_path);
 	}
 	if($frags){
 		# fasta out
@@ -161,11 +164,7 @@ if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
-                                                                config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) =slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -1068,6 +1067,10 @@ Output folder. Mandatory.
 =item B<-v>
 
 verbose mode. Default off.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 
