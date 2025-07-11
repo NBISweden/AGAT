@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Time::Piece;
 use Time::Seconds;
+use Scalar::Util qw(reftype);
 use Exporter;
 
 our @ISA = qw(Exporter);
@@ -411,20 +412,24 @@ sub string_sep_to_hash {
 
 # print the omniscient hash structure
 sub print_omniscient_keys {
-	my ($omniscient_original) = @_;
-	foreach my $level (keys %{$omniscient_original}) {
-		if ( $level =~ /^level/ ) {
-			foreach my $level2 (keys %{$omniscient_original->{$level}}) {
-				print "* $level - $level2: ".scalar(keys %{$omniscient_original->{$level}{$level2}})." keys\n" ;
-			}
-		}
-		elsif ( $level eq 'hashID' ) {
-			print	"* miscCount: ".scalar(keys %{$omniscient_original->{$level}{'miscCount'}})." keys\n" ;
-			print	"* uid: ".scalar(keys %{$omniscient_original->{$level}{'uid'}})." keys\n";
-			print	"* idtotype: ".scalar(keys %{$omniscient_original->{$level}{'idtotype'}})." keys\n" ;
-			print	"* newToOld: ".scalar(keys %{$omniscient_original->{$level}{'newToOld'}})." keys\n" ;
-		}
-	}
+    my ($ref, $prefix) = @_;
+    $prefix //= '';
+
+    if (ref $ref eq 'HASH') {
+        my @keys = keys %$ref;
+        my $key_path = $prefix eq '' ? '(root)' : $prefix;
+        print "[$key_path] has ", scalar(@keys), " key(s)\n";
+
+        foreach my $key (@keys) {
+            my $val = $ref->{$key};
+            my $type = reftype($val) || '';
+
+            if ($type eq 'HASH') {
+                my $new_prefix = $prefix eq '' ? $key : "$prefix.$key";
+                print_omniscient_keys($val, $new_prefix);
+            }
+        }
+    }
 }
 
 # @Purpose: Print the memory usage of the current process
