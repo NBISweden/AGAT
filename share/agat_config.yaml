@@ -24,7 +24,16 @@ debug: false
 # ----------------------------- GENERAL ----------------------
 
 # Integer - Number of parallel processes to use for file input parsing (via forking).
+# Setting this to 1 means one fork is made for each sequence identifier (see minimum_chunk_size).
+# Setting this to 0 means no forking, and the script will run in a single process (similar to agat =<1.5.0).
 cpu: 1
+
+# Integer – AGAT is designed to parallelize processing by assigning one sequence per worker process. 
+# However, if a sequence contains a small number of features, AGAT will combine it with the following sequence(s)
+# to avoid creating many tiny chunks, which can hurt performance and increase overhead.
+# The parameter `minimum_chunk_size` sets the minimum number of features required per chunk. 
+# If a chunk has fewer than this threshold, it will be merged with subsequent chunk(s).
+minimum_chunk_size: 100000
 
 # ----------------------------- INPUT ----------------------
 

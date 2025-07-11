@@ -965,11 +965,11 @@ sub parse_blast {
       if (exists($hash_rest{"gn"})) {
         $nameGene = $hash_rest{"gn"};
 
-        if (exists_keys($hash_omniscient, ('l2tol1', $l2) ) ){
+        if (exists_keys($hash_omniscient, ('other', 'l2tol1', $l2) ) ){
           # Save mRNA name into mRNA features
           $mRNANameBlast{$l2} = $nameGene;
 
-          my $geneID = $hash_omniscient->{'l2tol1'}{$l2};
+          my $geneID = $hash_omniscient->{'other'}{'l2tol1'}{$l2};
 
           # Save mRNA names into gene features (a list because we can have several gene names if mRNA isoforms were refering to different gene names)
           if (! exists_keys(\%name_checker,(lc($geneID),lc($nameGene) ))){
@@ -1061,9 +1061,9 @@ sub parse_interpro_tsv {
     if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
       push ( @{$functionData{$db_name}{$mRNAID}}, $db_tuple );
-      if (exists_keys($hash_omniscient, ('l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
+      if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
         $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-        $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'l2tol1'}{$mRNAID}}++;
+        $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
       }
     }
 
@@ -1079,9 +1079,9 @@ sub parse_interpro_tsv {
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
         $TotalTerm{$db_name}++;
         push ( @{$functionData{$db_name}{$mRNAID}}, $interpro_tuple );
-        if (exists_keys($hash_omniscient, ('l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
+        if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
           $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-          $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'l2tol1'}{$mRNAID}}++;
+          $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
         }
       }
     }
@@ -1099,9 +1099,9 @@ sub parse_interpro_tsv {
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}}, $go_tuple );
-          if (exists_keys($hash_omniscient, ('l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
+          if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
             $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'l2tol1'}{$mRNAID}}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
           }
         }
       }
@@ -1121,9 +1121,9 @@ sub parse_interpro_tsv {
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
-          if (exists_keys($hash_omniscient, ('l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
+          if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
             $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'l2tol1'}{$mRNAID}}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
           }
         }
       }

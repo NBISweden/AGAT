@@ -445,7 +445,7 @@ sub get_memory_usage {
 	}
 	close $fh;
 	my $mem_mb = sprintf("%.2f", $mem_kb / 1024);  # conversion KB -> MB avec 2 décimales
-	return "${mem_mb} Mo\n";
+	return "${mem_mb} Mo";
 }
 
 # @Purpose: Count the number of line in a file

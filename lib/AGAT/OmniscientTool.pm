@@ -237,13 +237,13 @@ sub merge_omniscients {
 	my ($hash_omniscient1, $hash_omniscient2)=@_;
 
 	#if (! exists_keys($hash_omniscient1, ('hashID', 'uid') ) ){
-	#	$hash_omniscient1->{'hashID'}{'uid'} = get_all_IDs($hash_omniscient1);
+	#	$hash_omniscient1->{'other'}{'hashID'}{'uid'} = get_all_IDs($hash_omniscient1);
 	#}
 
 	# ==  HEADER/other/l2tol1 == #
 	foreach my $level ( sort { ncmp ($a, $b) } keys %{$hash_omniscient2}){
 	
-		if ($level !~ /level/) {
+		if ($level eq 'other') {
 			foreach my $thing (keys %{$hash_omniscient2->{$level}}){
 				# append new header lines
 				if ($thing eq 'header'){
@@ -254,7 +254,7 @@ sub merge_omniscients {
 					}
 				}
 				# Must be filled later
-				elsif($level eq 'hashID' or $level eq 'l2tol1') {
+				elsif($thing eq 'hashID' or $thing eq 'l2tol1') {
 					next;
 				}
 				# For other thing we take only if no values/key
@@ -272,21 +272,21 @@ sub merge_omniscients {
 					my $new_parent=undef;
 					my $uID = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}->_tag_value('ID');
 
-					if ( exists_keys ( $hash_omniscient1,('hashID', 'uid', $id_l1) ) ){
+					if ( exists_keys ( $hash_omniscient1,('other', 'hashID', 'uid', $id_l1) ) ){
 						#print "INFO level1:  Parent $id_l1 already exist. We generate a new one to avoid collision !\n";
 						my $feature = $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1};
 						$uID = replace_by_uniq_ID({ feature => $feature,
 													omniscient => $hash_omniscient1
 												 });
-						delete $hash_omniscient2->{'hashID'}{'uid'}{$id_l1};
-						delete $hash_omniscient2->{'hashID'}{'idtotype'}{$id_l1};
+						delete $hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l1};
+						delete $hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l1};
 						$hash_omniscient1->{'level1'}{$tag_l1}{lc($uID)} = delete $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
 						$new_parent=1;
 					} 
 					else {
 						$hash_omniscient1->{'level1'}{$tag_l1}{$id_l1}    = delete $hash_omniscient2->{'level1'}{$tag_l1}{$id_l1}; # save feature level1
-						$hash_omniscient1->{'hashID'}{'uid'}{$id_l1}      = delete $hash_omniscient2->{'hashID'}{'uid'}{$id_l1};
-						$hash_omniscient1->{'hashID'}{'idtotype'}{$id_l1} = delete $hash_omniscient2->{'hashID'}{'idtotype'}{$id_l1};
+						$hash_omniscient1->{'other'}{'hashID'}{'uid'}{$id_l1}      = delete $hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l1};
+						$hash_omniscient1->{'other'}{'hashID'}{'idtotype'}{$id_l1} = delete $hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l1};
 					}
 
 					#################
@@ -303,13 +303,13 @@ sub merge_omniscients {
 								my $id_l2 = lc($uID_l2);
 
 								if($new_parent){
-									$hash_omniscient1->{'l2tol1'}{$id_l2} = $uID; # save the link between L2 and L1
+									$hash_omniscient1->{'other'}{'l2tol1'}{$id_l2} = $uID; # save the link between L2 and L1
 									create_or_replace_tag($feature_l2, 'Parent', $hash_omniscient1->{'level1'}{$tag_l1}{lc($uID)}->_tag_value('ID'));
 								}
 								my $new_parent_l2=undef;
 
 
-								if ( exists_keys ( $hash_omniscient1,('hashID', 'uid', $id_l2) ) ){
+								if ( exists_keys ( $hash_omniscient1,('other', 'hashID', 'uid', $id_l2) ) ){
 
 									#print "INFO level2:  Parent $id_l2 already exist. We generate a new one to avoid collision !\n";
 									# the following will fill the hashID lowercase) on the fly
@@ -317,14 +317,14 @@ sub merge_omniscients {
 																	omniscient => $hash_omniscient1
 																});
 									$new_parent_l2=1;
-									$hash_omniscient1->{'l2tol1'}{lc($uID_l2)} = $uID; # save the link between L2 and L1
-									delete($hash_omniscient2->{'l2tol1'}{$id_l2}); # remove the old link from l2
-									delete($hash_omniscient2->{'hashID'}{'uid'}{$id_l2}); # remove the old link from l2
-									delete($hash_omniscient2->{'hashID'}{'idtotype'}{$id_l2});
+									$hash_omniscient1->{'other'}{'l2tol1'}{lc($uID_l2)} = $uID; # save the link between L2 and L1
+									delete($hash_omniscient2->{'other'}{'l2tol1'}{$id_l2}); # remove the old link from l2
+									delete($hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l2}); # remove the old link from l2
+									delete($hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l2});
 								} else{
-									$hash_omniscient1->{'hashID'}{'uid'}{$id_l2}      = delete $hash_omniscient2->{'hashID'}{'uid'}{$id_l2};
-									$hash_omniscient1->{'hashID'}{'idtotype'}{$id_l2} = delete $hash_omniscient2->{'hashID'}{'idtotype'}{$id_l2};
-									$hash_omniscient1->{'l2tol1'}{lc($id_l2)}         = $uID; # save the link between L2 and L1 uID may have been modified it is why we do not copy the value via delete
+									$hash_omniscient1->{'other'}{'hashID'}{'uid'}{$id_l2}      = delete $hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l2};
+									$hash_omniscient1->{'other'}{'hashID'}{'idtotype'}{$id_l2} = delete $hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l2};
+									$hash_omniscient1->{'other'}{'l2tol1'}{lc($id_l2)}         = $uID; # save the link between L2 and L1 uID may have been modified it is why we do not copy the value via delete
 
 								}
 
@@ -347,7 +347,7 @@ sub merge_omniscients {
 												
 										 		my $id_l3 = $feature_l3->_tag_value('ID');
 
-										 		if ( exists_keys ( $hash_omniscient1,('hashID', 'uid', lc($id_l3) ) ) ){
+										 		if ( exists_keys ( $hash_omniscient1,('other', 'hashID', 'uid', lc($id_l3) ) ) ){
 										 		#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
 										 			my $uID_l3 = replace_by_uniq_ID({ feature => $feature_l3,
 																					  omniscient => $hash_omniscient1,
@@ -361,11 +361,15 @@ sub merge_omniscients {
 										 	# Save the list of spread IDs generated (pass by a hash because may be several e.g. CDS aprts share the same ID existing, and another part a has a new ID. So we should kept both)
 										 	# only if integer because replace_by_uniq_ID use the ancient name as value and not an increment value
 										 	foreach my $key (keys %spreadIDs) {
-												# I may have check presence in hash_omniscient2 to remove on the fly mais flemmme
-										 		$hash_omniscient1->{'hashID'}{'uid'}{lc($key)} = $key;
-										 		$hash_omniscient1->{'hashID'}{'idtotype'}{lc($key)} = $tag_l3;
-												$hash_omniscient1->{'hashID'}{'newToOld'}{lc($key)}=$spreadIDs{$key} if ($key ne $spreadIDs{$key} );
-												$hash_omniscient1->{'hashID'}{'miscCount'}{$tag_l3}++ if ($key ne $spreadIDs{$key} ); 
+												foreach my $key2 (keys %{$spreadIDs{$key}}) {
+													# I may have check presence in hash_omniscient2 to remove on the fly mais flemmme
+													$hash_omniscient1->{'other'}{'hashID'}{'uid'}{lc($key)} = $key;
+													$hash_omniscient1->{'other'}{'hashID'}{'idtotype'}{lc($key)} = $tag_l3;
+													if ($key ne $key2 ){
+														$hash_omniscient1->{'other'}{'hashID'}{'newToOld'}{lc($key)}=$key2; 
+														$hash_omniscient1->{'other'}{'hashID'}{'miscCount'}{$tag_l3}++;
+													}
+												}
 										 	}
 										 } 
 										 # OTHER CASES
@@ -378,17 +382,17 @@ sub merge_omniscients {
 
 												my $id_l3 = lc($feature_l3->_tag_value('ID'));
 
-												if ( exists_keys ( $hash_omniscient1,('hashID', 'uid', $id_l3) ) ){
+												if ( exists_keys ( $hash_omniscient1,('other', 'hashID', 'uid', $id_l3) ) ){
 												#	print "INFO level3:  Parent $id_l3 already exist. We generate a new one to avoid collision !\n";
 													my $uID_l3 = replace_by_uniq_ID({ feature => $feature_l3, 
 																					  omniscient => $hash_omniscient1
 																					});
-													delete($hash_omniscient2->{'hashID'}{'uid'}{$id_l3}); 
-													delete($hash_omniscient2->{'hashID'}{'idtotype'}{$id_l3});
+													delete($hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l3}); 
+													delete($hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l3});
 												}
 												else{
-													$hash_omniscient1->{'hashID'}{'uid'}{$id_l3} = delete $hash_omniscient2->{'hashID'}{'uid'}{$id_l3};
-													$hash_omniscient1->{'hashID'}{'idtotype'}{$id_l3} = delete $hash_omniscient2->{'hashID'}{'idtotype'}{$id_l3};
+													$hash_omniscient1->{'other'}{'hashID'}{'uid'}{$id_l3} = delete $hash_omniscient2->{'other'}{'hashID'}{'uid'}{$id_l3};
+													$hash_omniscient1->{'other'}{'hashID'}{'idtotype'}{$id_l3} = delete $hash_omniscient2->{'other'}{'hashID'}{'idtotype'}{$id_l3};
 												}
 											}
 										}
@@ -407,21 +411,21 @@ sub merge_omniscients {
 	}
 
 	# now fill the hashID
-	if( exists_keys($hash_omniscient2,('hashID') ) ) {
-		foreach my $tag ( keys %{$hash_omniscient2->{'hashID'}} ) {
+	if( exists_keys($hash_omniscient2,('other', 'hashID') ) ) {
+		foreach my $tag ( keys %{$hash_omniscient2->{'other'}{'hashID'}} ) {
 			# tag can be ft, uid, idtotype
-			foreach my $tag2 ( keys %{$hash_omniscient2->{'hashID'}{$tag}} ){
-				if ( ! exists_keys($hash_omniscient1, ( 'hashID', $tag, $tag2) ) ){
-					$hash_omniscient1->{'hashID'}{$tag}{$tag2} = delete $hash_omniscient2->{'hashID'}{$tag}{$tag2};
+			foreach my $tag2 ( keys %{$hash_omniscient2->{'other'}{'hashID'}{$tag}} ){
+				if ( ! exists_keys($hash_omniscient1, ('other', 'hashID', $tag, $tag2) ) ){
+					$hash_omniscient1->{'other'}{'hashID'}{$tag}{$tag2} = delete $hash_omniscient2->{'other'}{'hashID'}{$tag}{$tag2};
 				}
 			}
 		}
 	}
 	# now fill the l2tol1
-	if( exists_keys($hash_omniscient2,('l2tol1') ) ) {
-		foreach my $value ( keys %{$hash_omniscient2->{'l2tol1'} } ) {
-			if ( ! exists_keys($hash_omniscient1, ( 'l2tol1', $value) ) ){
-				$hash_omniscient1->{'l2tol1'}{$value} = delete $hash_omniscient2->{'l2tol1'}{$value};
+	if( exists_keys($hash_omniscient2,('other', 'l2tol1') ) ) {
+		foreach my $value ( keys %{$hash_omniscient2->{'other'}{'l2tol1'} } ) {
+			if ( ! exists_keys($hash_omniscient1, ('other', 'l2tol1', $value) ) ){
+				$hash_omniscient1->{'other'}{'l2tol1'}{$value} = delete $hash_omniscient2->{'other'}{'l2tol1'}{$value};
 			}
 		}
 	}
@@ -561,8 +565,8 @@ sub merge_overlap_loci{
 								}
 								foreach my $tag_value (@tag_values){
 									# get original ID if it is one created by AGAT to avoid collision to understand what was the original feature
-									if ( exists_keys($omniscient, ('hashID','newToOld', lc($tag_value) ) ) ) {
-										$tag_value = $omniscient->{'hashID'}{'newToOld'}{lc($tag_value)};
+									if ( exists_keys($omniscient, ('other', 'hashID','newToOld', lc($tag_value) ) ) ) {
+										$tag_value = $omniscient->{'other'}{'hashID'}{'newToOld'}{lc($tag_value)};
 									}
 									create_or_append_tag($omniscient->{'level1'}{$tag_l1}{$keep}, $tag, $tag_value); 
 								}
@@ -574,7 +578,7 @@ sub merge_overlap_loci{
 							foreach my $l2_type (%{$omniscient->{'level2'}}){
 								if(exists_keys($omniscient,('level2', $l2_type, $remove))){
 									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$remove}}){
-										delete $omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))};
+										delete $omniscient->{'other'}{'l2tol1'}{lc($feature_l2->_tag_value('ID'))};
 									}
 								}
 							}
@@ -594,7 +598,7 @@ sub merge_overlap_loci{
 										# Add the corrected feature to its new L2 bucket
 										push (@{$omniscient->{'level2'}{$l2_type}{$keep}}, $feature_l2);
 										# Attach the new parent into the l2tol1 hash
-										$omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
+										$omniscient->{'other'}{'l2tol1'}{lc($feature_l2->_tag_value('ID'))}=$feature_l2->_tag_value('Parent');
 									}
 
 									# L2 - update attribute (except ID, Parent, gene_id) or create a new with merged_ prefix :
@@ -614,8 +618,8 @@ sub merge_overlap_loci{
 												}
 												foreach my $tag_value (@tag_values){
 													# get original ID if it is one created by AGAT to avoid collision to understand what was the original feature
-													if ( exists_keys($omniscient, ('hashID','newToOld', lc( $tag_value ) ) ) ) {
-														$tag_value = $omniscient->{'hashID'}{'newToOld'}{ lc($tag_value) };
+													if ( exists_keys($omniscient, ('other', 'hashID','newToOld', lc( $tag_value ) ) ) ) {
+														$tag_value = $omniscient->{'other'}{'hashID'}{'newToOld'}{ lc($tag_value) };
 													}
 													create_or_append_tag($kept_l2, $tag , $tag_value); 
 												}
@@ -1135,7 +1139,7 @@ sub create_omniscient_from_idlevel2list{
 	initialize_omni_from(\%omniscient_new, $omniscientref);
 	
 	foreach my $id_l2 (@$list_id_l2){
-		my  $id_l1 = lc($omniscientref->{'l2tol1'}{$id_l2});
+		my  $id_l1 = lc($omniscientref->{'other'}{'l2tol1'}{$id_l2});
 
 		# ADD LEVEL1
 		foreach my $tag_l1 (keys %{$omniscientref->{'level1'}}){
@@ -1904,17 +1908,17 @@ sub replace_by_uniq_ID{
 	my $uID=$id;
 
 	
-	while( exists_keys( $omniscient, ( 'hashID', 'uid', lc($uID) ) ) ){	 #loop until we found an uniq tag
-		$omniscient->{'hashID'}{'miscCount'}{$key}++;
-		$uID = $key."-".$omniscient->{'hashID'}{'miscCount'}{$key};
+	while( exists_keys( $omniscient, ( 'other', 'hashID', 'uid', lc($uID) ) ) ){	 #loop until we found an uniq tag
+		$omniscient->{'other'}{'hashID'}{'miscCount'}{$key}++;
+		$uID = $key."-".$omniscient->{'other'}{'hashID'}{'miscCount'}{$key};
 	}
 	if ($dry){	
-		$omniscient->{'hashID'}{'miscCount'}{$key}--; # Dry mode is useful for spread features. They may share the same ID, so we do not want to increment the count
+		$omniscient->{'other'}{'hashID'}{'miscCount'}{$key}--; # Dry mode is useful for spread features. They may share the same ID, so we do not want to increment the count
 	} else {
 		#push the new ID
-		$omniscient->{'hashID'}{'uid'}{lc($uID)}      = $uID                          ;
-		$omniscient->{'hashID'}{'idtotype'}{lc($uID)} = lc($feature->primary_tag)     ;
-		$omniscient->{'hashID'}{'newToOld'}{lc($uID)} = $id if ( lc($uID) ne lc($id) ); # we do not want to store the same ID as new and old
+		$omniscient->{'other'}{'hashID'}{'uid'}{lc($uID)}      = $uID                          ;
+		$omniscient->{'other'}{'hashID'}{'idtotype'}{lc($uID)} = lc($feature->primary_tag)     ;
+		$omniscient->{'other'}{'hashID'}{'newToOld'}{lc($uID)} = $id if ( lc($uID) ne lc($id) ); # we do not want to store the same ID as new and old
 	}
 
 	# modify the feature ID with the correct one chosen

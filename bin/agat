@@ -154,6 +154,10 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							help        => 'Integer - Number of parallel processes to use for file input parsing (via forking).',
 					 },
 					 {
+							getopt      => 'minimum_chunk_size=i',
+							help        => 'Integer - Number of parallel processes to use for file input parsing (via forking).',
+					 },
+					 {
 							getopt      => 'verbose=i',
 							help        => 'Verbosity during the GFF/GTF parsing. 0 is quiet. 1,2,3 or 4 to increase verbosity.[Default 1]',
 					 },

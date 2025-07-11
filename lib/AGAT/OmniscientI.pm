@@ -278,9 +278,13 @@ sub slurp_gff3_file_JD {
 						}
 				}
 			}
-			# Case where we have 'other'. | 'hashID' && 'l2tol1' must be throw away because ID will net seen as uniq as already in the hash.
+			# Case where we have 'other'.
 			elsif ($level eq 'other') {
-				$omniscient_original{$level} = delete $file->{$level}; # save the header
+				foreach my $other_type ( keys %{$file->{$level}}){
+					if ($other_type ne 'hashID' && $other_type ne 'l2tol1' ) { # 'hashID' && 'l2tol1' must be throw away because ID will net seen as uniq as already in the hash.
+						$omniscient_original{$level}{$other_type} = delete $file->{$level}{$other_type}; # save the header
+					}
+				}
 			}
 		}
 
@@ -289,7 +293,6 @@ sub slurp_gff3_file_JD {
 
 	}
 	# ============================> FILE CASE <============================
-	#  HERE PARALLELISATION can be done
 	else{
 
 		# -------------- check we read a file -----------------------------
@@ -298,8 +301,8 @@ sub slurp_gff3_file_JD {
 			exit 1;
 		}
 
-		# +----------------- create a tmp directory  ------------------+
-		if( -f $file){
+		# +----------------- create a tmp directory if parallelisation ------------------+
+		if( -f $file and $CONFIG->{cpu} > 0){
 			my ($filename,$path,$ext) = fileparse($file,qr/\.[^.]*/);
 			$AGAT_TMP = $AGAT_TMP."_".$filename;
 			if (-d $AGAT_TMP) {
@@ -308,25 +311,6 @@ sub slurp_gff3_file_JD {
 			# create a tmp directory
 			mkdir $AGAT_TMP or die "Cannot create directory '$AGAT_TMP': $!";
 		}
-
-		# === Création du ForkManager ===
-		my $max_procs = $CONFIG->{cpu} || 1; # number of threads to use
-		my $pm = Parallel::ForkManager->new($max_procs);
-
-		# Ensure cleanup on abrupt exit - on clean exit is made automatically with destroy 1 using END block
-		# has to be defined before the data removed
-		$SIG{INT} = $SIG{TERM} = sub {
-			warn "Caught SIG, cleaning up temp files...\n";
-    					
-			# Kill all children still running
-			$pm->wait_all_children if $pm;
-			if (-d $AGAT_TMP) {
-				remove_tree($AGAT_TMP, { error => \my $err });
-				warn "Tempdir $AGAT_TMP removed\n";
-			}
-			exit(1);
-
-		};
 
 		# -------------- Get info using perl and split file for parallel processing -----------------------------
 		my $nb_line_feature=0;
@@ -341,11 +325,11 @@ sub slurp_gff3_file_JD {
 		$COMON_TAG->{'common_tag'}++ if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
 		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
 		# set threads/cpu/core
-		my $plural = $max_procs > 1 ? "s" : ""; # singular/plural for print
-		dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis ($max_procs cpu$plural)", char => "-" }) });
+
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
 		my $omniscient_clean = \%omniscient_original;
+
 		# -------------- Set progress bar ---------------------
  		my $nb_line_read=0;
 		if ( $progress_bar and $nb_line_feature ){
@@ -366,134 +350,211 @@ sub slurp_gff3_file_JD {
 			alarm(1);
 		}
 
-		# === Récupération des fichiers ===
-		opendir(my $dh, $AGAT_TMP) or die "Cannot open the folder '$AGAT_TMP': $!";
-		my @files = grep { -f "$AGAT_TMP/$_" } readdir($dh);
-		closedir($dh);
-
-		# store the pid of child processes and their associated file
-		my %pid_to_file;
-
-		# Print info at start e.g. "Started child 3431 (Job 25)"
-		#$pm->run_on_start(sub {
-		#	my ($pid, $ident) = @_;
-		#	print "Started child $pid ($ident)\n";
-		#});
+		# ------------------ PARALLEL PROCESSING -------------------
+		if ($CONFIG->{cpu} > 0){
+			
+			# check CPU number
+			my $max_procs = $CONFIG->{cpu}; # number of threads to use
 		
-		# ========= Run on finish handler =========
-		$pm->run_on_finish(sub {
-			my ($pid, $exit_code, $ident, $exit_signal, $core_dump) = @_;
-			#print "Finished child $pid ($ident)\n";
-	
-			if ($exit_code == 0) {			
-				 my $file = File::Spec->catfile($AGAT_TMP, "result_$pid.stor");
-				if (-e $file) {
-    				$pid_to_file{$pid} = $file;
-				} else {
-					warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
+			# === Retrieve the processed files ===
+			opendir(my $dh, $AGAT_TMP) or die "Cannot open the folder '$AGAT_TMP': $!";
+			my @files = grep { -f "$AGAT_TMP/$_" } readdir($dh);
+			closedir($dh);
+
+			# === Check CPU ===
+			my $nb_files = scalar(@files);
+			if (scalar(@files) < $max_procs) {
+				dual_print ({ 'string' => "$nb_files chunk(s) to process, while $max_procs CPUs requested, setting CPU to $nb_files to avoid wasting resources.\n" });
+				$max_procs = $nb_files; # set max_procs to the number of files
+			}
+			dual_print ({ 'string' => "\n\n"});
+			my $plural = $max_procs > 1 ? "s" : ""; # singular/plural for print
+			dual_print ({ 'string' => sizedPrint("------ Start of in-depth analysis (file by chunck $max_procs CPU$plural)  ------",80, "\n") });
+
+			# === Create ForkManager ===
+			my $pm = Parallel::ForkManager->new($max_procs);
+
+			# Ensure cleanup on abrupt exit - on clean exit is made automatically with destroy 1 using END block
+			# has to be defined before the data removed
+			$SIG{INT} = $SIG{TERM} = sub {
+				warn "Caught SIG, cleaning up temp files...\n";
+							
+				# Kill all children still running
+				$pm->wait_all_children if $pm;
+				if (-d $AGAT_TMP) {
+					remove_tree($AGAT_TMP, { error => \my $err });
+					warn "Tempdir $AGAT_TMP removed\n";
+				}
+				exit(1);
+
+			};
+
+			# store the pid of child processes and their associated file
+			my %pid_to_file;
+
+			# Print info at start e.g. "Started child 3431 (Job 25)"
+			#$pm->run_on_start(sub {
+			#	my ($pid, $ident) = @_;
+			#	print "Started child $pid ($ident)\n";
+			#});
+			
+			# ========= Run on finish handler =========
+			$pm->run_on_finish(sub {
+				my ($pid, $exit_code, $ident, $exit_signal, $core_dump) = @_;
+				#print "Finished child $pid ($ident)\n";
+		
+				if ($exit_code == 0) {			
+					my $file = File::Spec->catfile($AGAT_TMP, "result_$pid.stor");
+					if (-e $file) {
+						$pid_to_file{$pid} = $file;
+					} else {
+						warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
+					}
+				}
+			});
+
+			my $count_file = 0;
+			my $previous_time = time();
+			foreach my $local_file (@files) {
+
+				my $nbline = get_nbline("$AGAT_TMP/$local_file");
+				dual_print ({ 'string' => "$local_file ($nbline lines)\n", 'debug_only' => 1 });
+				# --- clone empty omniscient hash --- to keep trak of params that are saved in 
+				#/!\ Should avoid to use it by setting general feature  levels as global variables!
+				my $omniscient_clean_clone = $omniscient_clean; # local copy of the hash
+				$count_file++;
+
+				# Lance un processus fils
+				$pm->start("Job $count_file: $local_file") and next; {
+					dual_print ({ 'string' => "[CHILD $$] MEMORY BEFORE =".get_memory_usage()."\n", 'debug_only' => 1 });
+
+					# for local parsing time
+					$start_run = time();
+
+					# TEMP SCOPE TO AVOID LINGERING REFERENCES
+					#my %check_hash_local;
+					#$LOGGING->{'hash'} = \%check_hash_local;
+					if ( $CONFIG->{log} ){
+						my $local_log = _create_log_file($local_file); # create log file
+						$LOGGING->{'hash'}{'local_log'} = $local_log; # save it in the hash
+					}
+
+					# === Traitement du fichier ===
+					my $filepath = "$AGAT_TMP/$local_file";
+					dual_print ({ 'string' => "Traitement de $filepath dans le PID $$\n", 'debug_only' => 1 });
+
+					# -------------- Create GFF file handler ----------------------
+					my $gffio = AGAT::BioperlGFF->new(-file => $filepath, -gff_version => $gff_in_format);
+
+					# -------------- Read features in GFF file ---------------------
+					while( my $feature = $gffio->next_feature()) {
+						if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
+						($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
+						manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
+					}
+
+					# -------------- Read fastas in GFF file ------------------------
+					# User dont want to keep the sequences
+					if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
+					# User want to keep the sequences
+					elsif($gffio->get_seqs()){ 
+						$omniscient_clean_clone->{'other'}{'fasta'} = $file;
+						$omniscient_clean_clone->{'other'}{'gff_in_format'} = $gff_in_format;
+					} 
+					# No sequence no need to keep it
+					$gffio->close() if $gffio;
+					$gffio = undef;
+					# -------------- Close GFF file handler ------------------------
+
+					# Call post_process handling
+					$previous_time = time();
+					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
+				}
+
+				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
+				my $merging_time = time();
+				dual_print ({ 'string' => file_text_line({ string => "debless_and_strip_code tasks", char => "-", prefix => "\n" }) });
+				my $deblessed = undef;
+				my @levels = ('level1', 'level2', 'level3');
+				foreach my $level ( @levels ){
+					debless_and_strip_code($omniscient_clean_clone->{$level});
+				}
+				
+				dual_print ({ 'string' => sizedPrint("------ End debless_and_strip_code (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
+				
+				my $pid = $$;
+				#use Devel::Size qw(total_size);
+				#my $size_bytes = total_size($deblessed);
+				#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
+				#print "  $pid send: ${size_mb} Mo";
+				
+				my $tmpfile = File::Spec->catfile($AGAT_TMP, "result_${pid}.stor");
+				nstore($omniscient_clean_clone, $tmpfile);
+
+				$pm->finish(0); # Pass the data back to the parent process
+				if ($progress_bar){
+					$progress_bar->update($nbline);
+					dual_print ({ 'string' => "\n" });
 				}
 			}
-		});
 
-		my $count_file = 0;
-		my $previous_time = time();
-		foreach my $local_file (@files) {
+			$pm->wait_all_children;  # Attendre que tous les enfants terminent
 
-			my $nbline = get_nbline("$AGAT_TMP/$local_file");
-			dual_print ({ 'string' => "$local_file ($nbline lines)\n", 'debug_only' => 1 });
-			# --- clone empty omniscient hash --- to keep trak of params that are saved in 
-			#/!\ Should avoid to use it by setting general feature  levels as global variables!
-			my $omniscient_clean_clone = $omniscient_clean; # local copy of the hash
-			$count_file++;
-
-			# Lance un processus fils
-			$pm->start("Job $count_file: $local_file") and next; {
-				dual_print ({ 'string' => "[CHILD $$] MEMORY BEFORE =".get_memory_usage(), 'debug_only' => 1 });
-
-				# for local parsing time
-				$start_run = time();
-
-				# TEMP SCOPE TO AVOID LINGERING REFERENCES
-				#my %check_hash_local;
-				#$LOGGING->{'hash'} = \%check_hash_local;
-				if ( $CONFIG->{log} ){
-					my $local_log = _create_log_file($local_file); # create log file
-					$LOGGING->{'hash'}{'local_log'} = $local_log; # save it in the hash
-				}
-
-				# === Traitement du fichier ===
-				my $filepath = "$AGAT_TMP/$local_file";
-				dual_print ({ 'string' => "Traitement de $filepath dans le PID $$\n", 'debug_only' => 1 });
-
-				# -------------- Create GFF file handler ----------------------
-				my $gffio = AGAT::BioperlGFF->new(-file => $filepath, -gff_version => $gff_in_format);
-
-				# -------------- Read features in GFF file ---------------------
-				while( my $feature = $gffio->next_feature()) {
-					if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
-					($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
-					manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
-				}
-
-				# -------------- Read fastas in GFF file ------------------------
-				# User dont want to keep the sequences
-				if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
-				# User want to keep the sequences
-				elsif($gffio->get_seqs()){ 
-					$omniscient_clean_clone->{'other'}{'fasta'} = $file;
-					$omniscient_clean_clone->{'other'}{'gff_in_format'} = $gff_in_format;
-				} 
-				# No sequence no need to keep it
-				$gffio->close() if $gffio;
-				$gffio = undef;
-				# -------------- Close GFF file handler ------------------------
-
-				# Call post_process handling
-				$previous_time = time();
-				post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-			}
-
-			dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage(), 'debug_only' => 1 });
 			my $merging_time = time();
-			dual_print ({ 'string' => file_text_line({ string => "debless_and_strip_code tasks", char => "-", prefix => "\n" }) });
-			my $deblessed = debless_and_strip_code($omniscient_clean_clone);
-			dual_print ({ 'string' => sizedPrint("------ End debless_and_strip_code (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
-			
-			my $pid = $$;
-			#use Devel::Size qw(total_size);
-			#my $size_bytes = total_size($deblessed);
-			#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
-			#print "  $pid send: ${size_mb} Mo";
-			
-			my $tmpfile = File::Spec->catfile($AGAT_TMP, "result_${pid}.stor");
-			nstore($deblessed, $tmpfile);
-
-			$pm->finish(0); # Pass the data back to the parent process
-			if ($progress_bar){
-				$progress_bar->update($nbline);
-				dual_print ({ 'string' => "\n" });
+			dual_print ({ 'string' => file_text_line({ string => "Merging parallel tasks", char => "-", prefix => "\n" }) });
+			for my $pid (keys %pid_to_file) {
+				my $file = $pid_to_file{$pid};
+				my $data = retrieve($file);  
+				$previous_time = time();
+				
+				# Restore BioPerl SeqFeature objects
+				dual_print ({ 'string' => file_text_line({ string => "restore_seqfeatures", char => "-", prefix => "\n" }), 'debug_only' => 1 });
+				my @levels = ('level1', 'level2', 'level3');
+				foreach my $level ( @levels ){
+					restore_seqfeatures($data->{$level}); # flat structure re inflated with Bio::SeqFeature::Generic
+				}			
+				dual_print ({ 'string' => sizedPrint("------ End restore_seqfeatures (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
+				
+				# merge the data
+				$previous_time = time();
+				dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }) });
+				merge_omniscients(\%omniscient_original, $data);
+				dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
+				unlink $file;
 			}
-		}
+			dual_print ({ 'string' => sizedPrint("------ End merging (done in ".(time() - $merging_time)." second) ------",80, "\n\n\n") });
 
-		$pm->wait_all_children;  # Attendre que tous les enfants terminent
-
-		my $merging_time = time();
-		dual_print ({ 'string' => file_text_line({ string => "Merging parallel tasks", char => "-", prefix => "\n" }) });
-		for my $pid (keys %pid_to_file) {
-			my $file = $pid_to_file{$pid};
-			my $data = retrieve($file);  
-			$previous_time = time();
-		    dual_print ({ 'string' => file_text_line({ string => "restore_seqfeatures", char => "-", prefix => "\n" }) });
-			restore_seqfeatures($data); # flat structure re inflated with Bio::SeqFeature::Generic
-			dual_print ({ 'string' => sizedPrint("------ End restore_seqfeatures (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
-			# merge the data
-			$previous_time = time();
-			dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }) });
-			merge_omniscients(\%omniscient_original, $data);
-			dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
-			unlink $file;
+			#remove tmp directory
+			remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 		}
-		dual_print ({ 'string' => sizedPrint("------ End merging (done in ".(time() - $merging_time)." second) ------",80, "\n\n\n") });
+		# Old fashion way NO CHUNCK
+		else {
+			dual_print ({ 'string' => "\n\n"});
+			dual_print ({ 'string' => sizedPrint("------  Start of in-depth analysis (whole file with 1 cpu)  ------",80, "\n") });
+
+			# -------------- Create GFF file handler ----------------------
+			my $gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
+
+			# -------------- Read features in GFF file ---------------------
+			while( my $feature = $gffio->next_feature()) {
+				if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
+				($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
+				manage_one_feature($ontology, $feature, \%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
+			}
+
+			# -------------- Read fastas in GFF file ------------------------
+			# User dont want to keep the sequences
+			if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
+			# User want to keep the sequences
+			elsif($gffio->get_seqs()){ 
+				$omniscient_original{'other'}{'fasta'} = $file;
+				$omniscient_original{'other'}{'gff_in_format'} = $gff_in_format;
+			} 
+			# No sequence no need to keep it
+			$gffio->close() if $gffio;
+			$gffio = undef;
+			post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
+		}
 
 		# to deal with a nice rendering at the end of the progress bar => make it at 100%
 		if ($progress_bar){
@@ -502,14 +563,12 @@ sub slurp_gff3_file_JD {
 		}
 		
 		#stop alarm
-		alarm(0);
-		
-		#remove tmp directory
-		remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
+		alarm(0);	
 	}
+
 	# print memory usage
-	dual_print ({ 'string' => "Total memory used = ".get_memory_usage() });
-	dual_print ({ 'string' => "Total time used = ".(time() - $start_run) ) });		
+	my $string = "Total time: ".(time() - $start_run)." seconds\nTotal memory: ".get_memory_usage();
+	dual_print({ 'string' => surround_text($string,80,".","\n") });
 
 	#return
 	return \%omniscient_original;
@@ -671,7 +730,6 @@ sub post_process {
 	$check_cpt++; $previous_time = time();
 
 	dual_print ({ 'string' => sizedPrint("------ All check done in ".(time() - $check_time)." seconds ------",80, "\n\n\n") });
-	dual_print ({ 'string' => sizedPrint("------ Total : ".(time() - $start_run)." seconds ------",80, "\n\n\n") });
 
 	#------- Inform user about warnings encountered during checking ---------------
 	foreach my $thematic (keys %{$WARNS}){
@@ -789,11 +847,11 @@ sub debless_and_strip_code {
 # $omniscient{levelX} => hash to store all the gff feature in 3 levels structures
 # 		example at level1: $omniscient->{"level1"}{$primary_tag}{$id}=$feature;
 # 		example at other levels: $omniscient->{"levelX"}{$primary_tag}{$parent}= [$feature];
-# $omniscient{l2tol1} => subhash to keep track link from L2 to l1 (avoid to go through the whole omniscient to retrieve this information)
-# $omniscient{hashID} => # Hash to store any counter. Will be use to create a new uniq ID / %uniqID;# Hash to follow up with an uniq identifier every feature # Hash to follow up with an uniq identifier every feature type
-#         => {$hashID}{"ft"}{$primary_tag}++; => hash that contains a counter for each feature type. It is used to create uniq ID # ex %miscCount
-#         => {$hashID}{"uid"}{$uID}=$id => hash of uniqID (UniqID link to the original ID) # ex %uniqID
-#         => {$hashID}{"idtotype"}{$uID}=$primary_tag => hash to keep track about the feature type linked to the uniqID (useful for handling SPREADFEATURES)
+# $omniscient{other}{l2tol1} => subhash to keep track link from L2 to l1 (avoid to go through the whole omniscient to retrieve this information)
+# $omniscient{other}{hashID} => # Hash to store any counter. Will be use to create a new uniq ID / %uniqID;# Hash to follow up with an uniq identifier every feature # Hash to follow up with an uniq identifier every feature type
+#         		=> {$hashID}{"ft"}{$primary_tag}++; => hash that contains a counter for each feature type. It is used to create uniq ID # ex %miscCount
+#         		=> {$hashID}{"uid"}{$uID}=$id => hash of uniqID (UniqID link to the original ID) # ex %uniqID
+#         		=> {$hashID}{"idtotype"}{$uID}=$primary_tag => hash to keep track about the feature type linked to the uniqID (useful for handling SPREADFEATURES)
 # $duplicate => hash to keep track of duplicates found
 # 		example: duplicate->{$level}{$primary_tag}{$id} = [$feature];
 # $locusTAG_uniq = %locusTAG => hash of comon tag found when reading the grouped features sequentialy
@@ -1000,8 +1058,8 @@ sub manage_one_feature{
 								push (@{ $attachedL2Sequential->{lc($l1_ID)}}, $id );
 
 								# keep track of link between level2->leve1 #
-								if (! exists_keys($omniscient, ('l2tol1', lc($id) ) ) ){
-										$omniscient->{'l2tol1'}{lc($id)}=$l1_ID;
+								if (! exists_keys($omniscient, ('other', 'l2tol1', lc($id) ) ) ){
+										$omniscient->{'other'}{'l2tol1'}{lc($id)}=$l1_ID;
 				 				}
 								return $l1_ID , $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;	#### STOP HERE AND RETURN
 						}
@@ -1013,8 +1071,8 @@ sub manage_one_feature{
 
 						############################################
 						# keep track of link between level2->leve1 #
-						if (! exists_keys($omniscient, ('l2tol1', lc($id) ) ) ){
-								$omniscient->{'l2tol1'}{lc($id)}=$parent;
+						if (! exists_keys($omniscient, ('other', 'l2tol1', lc($id) ) ) ){
+								$omniscient->{'other'}{'l2tol1'}{lc($id)}=$parent;
 				 		}
 
 				 		####################
@@ -1298,10 +1356,10 @@ sub _fix_parent_attribute_when_id_l1_l2_identical{
   if (! $last_l1_f or ! $last_l2_f){return;}
 	my $last_l1_id = $last_l1_f->_tag_value('ID');
 	my $last_l2_id = $last_l2_f->_tag_value('ID');
-	if (! exists_keys ($omniscient, ( 'hashID', 'uid', $last_l2_id ) ) ){ return;} # case the previous L2 was a duplicate
-	if (! defined($omniscient->{'hashID'}{'uid'}{ lc($last_l2_id) }) ){ return;} # case the previous L2 was a creation on the fly so cannot be a duplicated id
+	if (! exists_keys ($omniscient, ('other', 'hashID', 'uid', $last_l2_id ) ) ){ return;} # case the previous L2 was a duplicate
+	if (! defined($omniscient->{'other'}{'hashID'}{'uid'}{ lc($last_l2_id) }) ){ return;} # case the previous L2 was a creation on the fly so cannot be a duplicated id
 
-	my $previous_l2_original_id = lc( $omniscient->{'hashID'}{'uid'}{ lc($last_l2_id) } );
+	my $previous_l2_original_id = lc( $omniscient->{'other'}{'hashID'}{'uid'}{ lc($last_l2_id) } );
 
 	if ( lc($last_l1_id) eq lc($previous_l2_original_id) ){
 		dual_print({'string' => "l1 and l2 had same ID, not normal but I will fix it.\nprevious_l2_original_id $previous_l2_original_id\n", 'debug_only' => 1});
@@ -1409,7 +1467,7 @@ sub _it_is_duplication{
 	my @potentialList=();
 
 	my $primary_tag = lc($feature->primary_tag);
-	my $id = $omniscient->{'hashID'}{'uid'}{ lc($feature->_tag_value('ID') ) }; # check the original ID
+	my $id = $omniscient->{'other'}{'hashID'}{'uid'}{ lc($feature->_tag_value('ID') ) }; # check the original ID
 
 	if($level eq "level1"){
 		if(!$id or !exists_keys($omniscient,($level, $primary_tag, lc($id) ))){
@@ -1426,8 +1484,8 @@ sub _it_is_duplication{
 		foreach my $one_parent_ID (@parent){
 
 			my $one_parent_uID = $one_parent_ID; # In case where the parent have not yet been processed, we cannot have his uID, we will check the current ID
-			if ( exists_keys( $omniscient, ( 'hashID', 'uid', lc($one_parent_ID) ) ) ){
-				$one_parent_uID = lc($omniscient->{'hashID'}{'uid'}{ lc($one_parent_ID) } ); # check the original ID
+			if ( exists_keys( $omniscient, ('other', 'hashID', 'uid', lc($one_parent_ID) ) ) ){
+				$one_parent_uID = lc($omniscient->{'other'}{'hashID'}{'uid'}{ lc($one_parent_ID) } ); # check the original ID
 			}
 
 			if (exists_keys($omniscient,($level, $primary_tag, $one_parent_uID))){
@@ -1448,28 +1506,28 @@ sub _it_is_duplication{
 					#primary tag already checked when catching potential
 
 					# check the original ID
-					my $id_in_omni = $omniscient->{'hashID'}{'uid'}{ lc($feature_in_omniscient->_tag_value('ID') ) };
+					my $id_in_omni = $omniscient->{'other'}{'hashID'}{'uid'}{ lc($feature_in_omniscient->_tag_value('ID') ) };
 
 					if($level eq "level1"){
 						if($id eq $id_in_omni){
 							$is_dupli=1;
 							push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
-							delete $omniscient->{'hashID'}{'uid'}{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
+							delete $omniscient->{'other'}{'hashID'}{'uid'}{ lc($feature->_tag_value('ID') ) }; # clear uniq ID that has been created for nothing
 							last;
 						}
 					}
 					else{
 						# get parent info
 						my $parent = undef;
-						if(exists_keys($omniscient,( 'hashID', 'uid', lc($feature->_tag_value('Parent') ) ) ) ) {
-							$parent = $omniscient->{'hashID'}{'uid'}{ lc($feature->_tag_value('Parent') ) };
+						if(exists_keys($omniscient,('other', 'hashID', 'uid', lc($feature->_tag_value('Parent') ) ) ) ) {
+							$parent = $omniscient->{'other'}{'hashID'}{'uid'}{ lc($feature->_tag_value('Parent') ) };
 						}
 						else{
 							$parent = $feature->_tag_value('Parent');
 						}
 						my $parent_in_omni = undef;
-						if(exists_keys($omniscient,( 'hashID', 'uid', lc($feature_in_omniscient->_tag_value('Parent') ) ) ) ){
-							$parent_in_omni = $omniscient->{'hashID'}{'uid'}{ lc($feature_in_omniscient->_tag_value('Parent') )};
+						if(exists_keys($omniscient,('other', 'hashID', 'uid', lc($feature_in_omniscient->_tag_value('Parent') ) ) ) ){
+							$parent_in_omni = $omniscient->{'other'}{'hashID'}{'uid'}{ lc($feature_in_omniscient->_tag_value('Parent') )};
 						}
 						else{
 							$parent_in_omni = $feature_in_omniscient->_tag_value('Parent');
@@ -1498,12 +1556,12 @@ sub _it_is_duplication{
 							push (@{$duplicate->{$level}{$primary_tag}{$id}}, $feature);
 							# --- delete useless info in hashID ---
 							my $id_delete = lc($feature->_tag_value('ID'));
-							delete $omniscient->{'hashID'}{'uid'}{ $id_delete }; # clear uniq ID that has been created for nothing
-							delete $omniscient->{'hashID'}{'idtotype'}{ $id_delete }; # clear uniq ID that has been created for nothing
+							delete $omniscient->{'other'}{'hashID'}{'uid'}{ $id_delete }; # clear uniq ID that has been created for nothing
+							delete $omniscient->{'other'}{'hashID'}{'idtotype'}{ $id_delete }; # clear uniq ID that has been created for nothing
 							# now de-crement the ft value to be synchornised
 							my ($idtag) = $id_delete =~ m/(.*)-\d+/g;
-							if (exists_keys($omniscient, ('hashID', 'ft', $idtag))){
-								$omniscient->{'hashID'}{'ft'}{$idtag}--;
+							if (exists_keys($omniscient, ('other', 'hashID', 'ft', $idtag))){
+								$omniscient->{'other'}{'hashID'}{'ft'}{$idtag}--;
 							}
 							last;
 						}
@@ -1598,15 +1656,15 @@ sub _check_uniq_id_feature{
 		# In case of spread feature ( CDS and UTR that can share identical IDs)
 		else{
 			# First time we see this ID => No problem;
-	 		if(! exists($omniscient->{'hashID'}{'uid'}{ lc($id) })){
+	 		if(! exists($omniscient->{'other'}{'hashID'}{'uid'}{ lc($id) })){
 			 	#push the uID
 			 	$uID = $id;
-			 	$omniscient->{'hashID'}{'uid'}{lc($uID)}=$id;
-			 	$omniscient->{'hashID'}{'idtotype'}{lc($id)}=$primary_tag;
+			 	$omniscient->{'other'}{'hashID'}{'uid'}{lc($uID)}=$id;
+			 	$omniscient->{'other'}{'hashID'}{'idtotype'}{lc($id)}=$primary_tag;
 			}
 		  # NOT the first time we have this ID
 			# check if it's the same type (To not mix a same ID between UTR and CDS);
-			elsif( $omniscient->{'hashID'}{'idtotype'}{lc($id)} eq $primary_tag ){ # Same type, so we can keep this ID, let's continue
+			elsif( $omniscient->{'other'}{'hashID'}{'idtotype'}{lc($id)} eq $primary_tag ){ # Same type, so we can keep this ID, let's continue
 			 	$uID = $id;
 			}
 			else{ # The spread feature type is different
@@ -1643,8 +1701,8 @@ sub _create_ID{
 
   my $uID;
 
-  # if id does not exist, or exists and is already in use (omniscient->{'hashID'}{'uid'}{lc(id)} ne undef)
-  if(!$id or $omniscient->{'hashID'}{'uid'}{lc($id)}){
+  # if id does not exist, or exists and is already in use (omniscient->{'other'}{'hashID'}{'uid'}{lc(id)} ne undef)
+  if(!$id or $omniscient->{'other'}{'hashID'}{'uid'}{lc($id)}){
   	my $key;
 
   	if($prefix){
@@ -1656,9 +1714,9 @@ sub _create_ID{
 
   	$uID = $id ? $id : $key."-1";
 
-  	while( exists_keys($omniscient, ('hashID','uid', lc ($uID) ) )){	 #loop until we found an uniq tag
-  		$omniscient->{'hashID'}{'ft'}{$key}++;
-  		$uID = $key."-".$omniscient->{'hashID'}{'ft'}{$key};
+  	while( exists_keys($omniscient, ('other', 'hashID','uid', lc ($uID) ) )){	 #loop until we found an uniq tag
+  		$omniscient->{'other'}{'hashID'}{'ft'}{$key}++;
+  		$uID = $key."-".$omniscient->{'other'}{'hashID'}{'ft'}{$key};
   	}
   }
   else{ # It was in the hash but unused
@@ -1667,8 +1725,8 @@ sub _create_ID{
 
 	#push the new ID
 	#$id = $uID if (! $id); # if id was not defined, we set it to the new ID
-	$omniscient->{'hashID'}{'uid'}{lc($uID)}=$id;
-	$omniscient->{'hashID'}{'idtotype'}{lc($uID)}=$primary_tag;
+	$omniscient->{'other'}{'hashID'}{'uid'}{lc($uID)}=$id;
+	$omniscient->{'other'}{'hashID'}{'idtotype'}{lc($uID)}=$primary_tag;
 
 	return $uID;
 }
@@ -1924,7 +1982,7 @@ sub _check_l2_linked_to_l3{
  		foreach my $id_l2 (sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}{$tag_l3}}){
 
  			#check if L2 exits
-			if (! exists_keys($hash_omniscient, ('l2tol1', $id_l2) ) ){
+			if (! exists_keys($hash_omniscient, ('other', 'l2tol1', $id_l2) ) ){
  				$resume_case++;
 
 	 			#L3 linked directly to L1
@@ -2018,7 +2076,7 @@ sub _check_l2_linked_to_l3{
 					} else {
 						$l2_feature = @{$hash_omniscient->{"level2"}{$has_gemoma_l2}{lc($l1_ID)}}[0];
 						$id_l2_to_replace = $has_l1_feature->_tag_value('ID');
-						delete $hash_omniscient->{'l2tol1'}{lc($l2_feature->_tag_value('ID'))}
+						delete $hash_omniscient->{'other'}{'l2tol1'}{lc($l2_feature->_tag_value('ID'))}
 					}
 
 					#Modify parent L2 (and L1 id if necessary)
@@ -2026,14 +2084,14 @@ sub _check_l2_linked_to_l3{
 					create_or_replace_tag($l2_feature,'ID', $id_l2_to_replace) if ($id_l2_to_replace); #modify ID to replace by parent value
 					check_level2_positions($hash_omniscient, $l2_feature);
 
-					if ( exists_keys ($hash_omniscient,('hashID', 'uid', lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
+					if ( exists_keys ($hash_omniscient,('other', 'hashID', 'uid', lc($id_l2) ) ) ){ #the easiest is to modifiy the gene id
 
 						my $new_l1id = _check_uniq_id_feature($hash_omniscient, $has_l1_feature); # to check if ID was already in used by level1 feature
 						create_or_replace_tag($l2_feature,'Parent', $new_l1id); #modify ID to replace by parent value
 						my $primary_tag_l1 =$has_l1_feature->primary_tag();
 						$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_l1id)} = delete $hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($l1_ID)}; # now save it in omniscient
 						#fill the l2tol1 hash
-						$hash_omniscient->{'l2tol1'}{ $id_l2 } = $new_l1id;
+						$hash_omniscient->{'other'}{'l2tol1'}{ $id_l2 } = $new_l1id;
 						if ($has_gemoma_l2){
 							$hash_omniscient->{'level2'}{lc($l2_feature->primary_tag)}{lc($new_l1id)} = delete $hash_omniscient->{'level2'}{lc($l2_feature->primary_tag)}{lc($l1_ID)};
 						}
@@ -2043,7 +2101,7 @@ sub _check_l2_linked_to_l3{
 					}
 					else{
 						#fill the l2tol1 hash
-						$hash_omniscient->{'l2tol1'}{ $id_l2 } = $l1_ID; # Always need to keep track about l2->l1, else the method _check_l2_linked_to_l3 will recreate a l1 thinking this relationship is not fill
+						$hash_omniscient->{'other'}{'l2tol1'}{ $id_l2 } = $l1_ID; # Always need to keep track about l2->l1, else the method _check_l2_linked_to_l3 will recreate a l1 thinking this relationship is not fill
 						push(@{$hash_omniscient->{"level2"}{lc($l2_feature->primary_tag)}{lc($l1_ID)}}, $l2_feature);
 					}
 					dual_print({ 'string' => "L3 had a L1 feature but no L2 feature. Corrected by creating the intermediate L2 feature:\n".$l2_feature->gff_string()."\nUsing this feature template:\n".$hash_omniscient->{"level3"}{$tag_l3}{$id_l2}[0]->gff_string()."\n"});
@@ -2052,7 +2110,7 @@ sub _check_l2_linked_to_l3{
 
 				# ------------ No L1 features found ------------
         		# it was not previous case (L3 linked directly to L1)
-				if (! exists_keys($hash_omniscient, ('l2tol1', $id_l2) ) ){
+				if (! exists_keys($hash_omniscient, ('other', 'l2tol1', $id_l2) ) ){
 	 				# ---- start fill L2 ----
 					# select primary tag
 					my $primary_tag_l2;
@@ -2101,7 +2159,7 @@ sub _check_l2_linked_to_l3{
 					check_level1_positions({ omniscient => $hash_omniscient, feature => $l1_feature});	# check start stop if isoforms exists
 					# save new feature L1
 					$hash_omniscient->{"level1"}{lc($primary_tag_l1)}{lc($new_ID_l1)} = $l1_feature; # now save it in omniscient
-					$hash_omniscient->{'l2tol1'}{lc($id_l2)} = $new_ID_l1;
+					$hash_omniscient->{'other'}{'l2tol1'}{lc($id_l2)} = $new_ID_l1;
 					dual_print({ 'string' => "L1 and L2 created: \n".$l1_feature->gff_string()."\n".$l2_feature->gff_string()."\n" });
 
 
@@ -2519,7 +2577,7 @@ sub _check_exons{
 				 	}
 
 				 	#Check extremities of exons (If exon is shorter we adapt it to the mRNA size, else we adapt the L2 size to the exon size)
-	 					my $id_l1 = lc($hash_omniscient->{'l2tol1'}{lc($id_l2)});
+	 					my $id_l1 = lc($hash_omniscient->{'other'}{'l2tol1'}{lc($id_l2)});
 	 					my $getout=undef;
 	 					foreach my $tag_l2 ( %{$hash_omniscient->{'level2'}} ){
 	 						if( exists_keys($hash_omniscient,('level2', $tag_l2, $id_l1)) ){
@@ -3137,12 +3195,12 @@ sub _check_sequential{ # Goes through from L3 to l1
 						" - $locusNameHIS $bucket! ".$feature_l2->gff_string."\n", 'debug_only' => 1});
 
 					# We add it to omniscient l2tol1
-					if(! exists_keys($omniscient, ('l2tol1', $bucket) ) ){
+					if(! exists_keys($omniscient, ('other', 'l2tol1', $bucket) ) ){
 						dual_print({ 'string' => "level2 does not exits in omniscient!".
 							$feature_l2->gff_string."\n", 'debug_only' => 1});
 
 						push (@{$omniscient->{"level2"}{lc($feature_l2->primary_tag)}{lc($feature_l2->_tag_value('Parent'))} }, $feature_l2);
-						$omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))} = $feature_l2->_tag_value('Parent');
+						$omniscient->{'other'}{'l2tol1'}{lc($feature_l2->_tag_value('ID'))} = $feature_l2->_tag_value('Parent');
 						$resume_case_l2++;
 					}
 					if( ! exists_keys($omniscient,('level3', "exon", lc($feature_l2->_tag_value("ID")))) ){ #check if an exon exist in the omniscient
@@ -3176,9 +3234,9 @@ sub _check_sequential{ # Goes through from L3 to l1
 								my $common_tag = _get_comon_tag_value($feature_L3, $locusTAG_uniq, 'level1'); # check presence of common_tag, maybe we will play a different game
 
 		 						#take L2 from omniscient if already exits
-								if(exists_keys($omniscient, ('l2tol1', $bucket) ) ){
+								if(exists_keys($omniscient, ('other', 'l2tol1', $bucket) ) ){
 
-		 							my $l1_id = $omniscient->{'l2tol1'}{$bucket};
+		 							my $l1_id = $omniscient->{'other'}{'l2tol1'}{$bucket};
 		 							foreach my $tag_l2 (keys %{$omniscient->{'level2'}}){
 		 								if(exists_keys($omniscient, ('level2', $tag_l2, lc($l1_id) ) ) ){
 				 							foreach my $featureL2 (@{$omniscient->{'level2'}{$tag_l2}{lc($l1_id)}}){
@@ -3257,7 +3315,7 @@ sub _check_sequential{ # Goes through from L3 to l1
 									}
 									create_or_replace_tag($feature_l2,'Parent', $parentID ); # change parentID
 									push (@{$omniscient->{"level2"}{lc($primary_tag_l2)}{lc($parentID)}}, $feature_l2);
-									$omniscient->{'l2tol1'}{$bucket} = $parentID; # Always need to keep track about l2->l1, else the method check_l3_link_to_l2 will recreate a l1 thinking this relationship is not fill
+									$omniscient->{'other'}{'l2tol1'}{$bucket} = $parentID; # Always need to keep track about l2->l1, else the method check_l3_link_to_l2 will recreate a l1 thinking this relationship is not fill
 									$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level2'} = $feature_l2;
 									dual_print({ 'string' => "feature level2 created: ".$feature_l2->gff_string."\n"});
 									dual_print({ 'string' => "push-omniscient: level2 || ".lc($primary_tag_l2)." || ".lc($parentID)." == ".$feature_l2->gff_string."\n", 'debug_only' => 1});
@@ -3268,9 +3326,9 @@ sub _check_sequential{ # Goes through from L3 to l1
 							$feature_l2=$infoSequential->{'locus'}{$locusNameHIS}{$bucket}{'level2'};
 							dual_print({ 'string' => "level2 exits in sequential - $locusNameHIS $bucket! ".$feature_l2->gff_string."\n", 'debug_only' => 1 });
 
-							if(! exists_keys($omniscient, ('l2tol1', $bucket) ) ){
+							if(! exists_keys($omniscient, ('other', 'l2tol1', $bucket) ) ){
 								push (@{$omniscient->{"level2"}{lc($feature_l2->primary_tag)}{lc($feature_l2->_tag_value('Parent'))} }, $feature_l2);
-								$omniscient->{'l2tol1'}{lc($feature_l2->_tag_value('ID'))} = $feature_l2->_tag_value('Parent');
+								$omniscient->{'other'}{'l2tol1'}{lc($feature_l2->_tag_value('ID'))} = $feature_l2->_tag_value('Parent');
 								dual_print({ 'string' => "level2 does not exits in l2tol1 (omniscient) !".$feature_l2->gff_string."\n", 'debug_only' => 1 });
 								$resume_case_l2++;
 							}
@@ -3368,7 +3426,7 @@ sub _check_identical_isoforms{
 						#Has to be removed once we finished to go through the l2 list
 						my $ID_to_remove = lc($feature2->_tag_value('ID'));
 						push(@L2_list_to_remove,$ID_to_remove);
-						delete $omniscient->{'l2tol1'}{$ID_to_remove};
+						delete $omniscient->{'other'}{'l2tol1'}{$ID_to_remove};
 					}
 				}
 
@@ -3684,30 +3742,33 @@ sub get_general_info{
 			}
 		}
 
-		# Si l'identifiant change, on change de fichier // At least 10 000 lines per file to avoid tiny files - $nb_field != 9 to not cut if we are in a middle of a fasta or comment
-		if  ( $id and ( ( $id ne $previous_id and $nb_line_splitfile >= 10000 and $col_nb == 9 ) or $start_split ) ) {
-			
-			# Fermer le précédent filehandle s'il existe
-			close $out_fh if defined $out_fh;
+		# in case of parallelization, we need to chunck file by sequence
+		if ($CONFIG->{cpu} > 0){
+			# Si l'identifiant change, on change de fichier // At least 10 000 lines per file to avoid tiny files - $nb_field != 9 to not cut if we are in a middle of a fasta or comment
+			if  ( $id and ( ( $id ne $previous_id and $nb_line_splitfile >= 10000 and $col_nb == 9 ) or $start_split ) ) {
+				
+				# Fermer le précédent filehandle s'il existe
+				close $out_fh if defined $out_fh;
 
-			# Ouvrir un nouveau fichier pour le nouvel ID
-			open($out_fh, '>>', "$AGAT_TMP/$filename"."_".$id) or die "Impossible de créer $AGAT_TMP/$filename"."_"."$id : $!" if ( $id );
-			# reset counter
-			$nb_line_splitfile=0;
-			
-			# unlock it only when we encounter the first feature line
-			if($start_split){
-				$start_split = 0;
-				print $out_fh $collect_start_info;
+				# Ouvrir un nouveau fichier pour le nouvel ID
+				open($out_fh, '>>', "$AGAT_TMP/$filename"."_".$id) or die "Impossible de créer $AGAT_TMP/$filename"."_"."$id : $!" if ( $id );
+				# reset counter
+				$nb_line_splitfile=0;
+				
+				# unlock it only when we encounter the first feature line
+				if($start_split){
+					$start_split = 0;
+					print $out_fh $collect_start_info;
+				}
+			} elsif ($start_split){
+				$collect_start_info .= "$_";
+				next;
 			}
-		} elsif ($start_split){
-			$collect_start_info .= "$_";
-			next;
-		}
 
-		$previous_id = $id if $id;
-		print $out_fh "$_";
-		$nb_line_splitfile++;
+			$previous_id = $id if $id;
+			print $out_fh "$_";
+			$nb_line_splitfile++;
+		}
 	} 
 	# close the read filehandle and the last filehandle write
 	close($fh);

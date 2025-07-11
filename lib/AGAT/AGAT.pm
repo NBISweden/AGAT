@@ -261,6 +261,7 @@ sub handle_config {
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
 		my $config_new_name = $general->{configs}[-1]{output};
 		my $cpu = $general->{configs}[-1]{cpu};
+		my $minimum_chunk_size = $general->{configs}[-1]{minimum_chunk_size};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
 		my $tabix = $general->{configs}[-1]{tabix};
@@ -301,9 +302,14 @@ sub handle_config {
 				$config->{ verbose } = $verbose;
 				$modified_on_the_fly = 1;
 			}
-			# bolean
+			# Integer
 			if( defined($cpu) ){
 				$config->{ cpu } = $cpu;
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($minimum_chunk_size) ){
+				$config->{ minimum_chunk_size } = $minimum_chunk_size;
 				$modified_on_the_fly = 1;
 			}
 			# bolean

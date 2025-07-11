@@ -179,6 +179,10 @@ sub check_config{
 		warn "cpu parameter missing in the configuration file.\n";
 		$error = 1;
 	}
+	if( !  exists_keys($config,("minimum_chunk_size") ) ){
+		warn "minimum_chunk_size parameter missing in the configuration file.\n";
+		$error = 1;
+	}
 	if( !  exists_keys($config,("log") ) ){
 		warn "log parameter missing in the configuration file.\n";
 		$error = 1;

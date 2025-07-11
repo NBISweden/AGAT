@@ -174,7 +174,7 @@ foreach my $tag_l3 ( keys %{$hash_omniscient->{'level3'}} ) {
 
        foreach my $id_l2 ( keys %{$hash_omniscient->{'level3'}{$tag_l3}} ){
 
-         my $geneID = $hash_omniscient->{'l2tol1'}{$id_l2};
+         my $geneID = $hash_omniscient->{'other'}{'l2tol1'}{$id_l2};
          my $feature_l2 = get_feature_l2_from_id_l2_l1($hash_omniscient, $id_l2, $geneID);
          my $strand = $feature_l2->strand();
          my $cds_feature_example =  $hash_omniscient->{'level3'}{'cds'}{$id_l2}[0]; #if utr exists, cds should exists
@@ -282,33 +282,33 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
       if ($opt_utr3 and $tag eq "three_prime_utr"){
         if ($UTRbymRNA{$tag}{$id_level2} >= $opt_nbUTR){
           push @listIDl2discarded, $id_level2 ;
-          $geneName{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }
       # case only opt_utr5
       if ($opt_utr5 and $tag eq "five_prime_utr"){
         if ($UTRbymRNA{$tag}{$id_level2} >=  $opt_nbUTR){
           push @listIDl2discarded, $id_level2 ;
-          $geneName{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push  @listIDlok, $id_level2;
-          $geneName_ok{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }                                           ### REMOVE OPTION BOTH ?
       # case both side together (when added) should be over $opt_nbUTR)
       if ($opt_bst and $tag eq "both"){
         if ($UTRbymRNA{$tag}{$id_level2} >=  $opt_nbUTR){
           push @listIDl2discarded, $id_level2;
-          $geneName{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }
       # case both side independant (side 3 and and5 should be over $opt_nbUTR)
@@ -316,7 +316,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
       # case no option print all so put all in @listIDlok
       if(! $opt_utr3 and ! $opt_utr5 and ! $opt_bst) { # in case where no option, We do by default side3 side5 idependant. On sufficiant to discard the mRNA
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_omniscient->{'l2tol1'}{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
       }
     }
   }

@@ -895,7 +895,7 @@ sub take_care_mrna_id {
         my $newPrefix="new".$numberMRNA_IDToCheck."_";
         $new_id="$newPrefix$clean_id";
 
-        if( (! defined ($hash_omniscient->{'l2tol1'}{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
+        if( (! defined ($hash_omniscient->{'other'}{'l2tol1'}{lc($new_id)})) and (! defined ($id_to_avoid{lc($new_id)})) ) {
             $testok=1;
         }
         else{
