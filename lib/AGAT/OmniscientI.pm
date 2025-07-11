@@ -4,33 +4,32 @@ package AGAT::OmniscientI;
 
 use strict;
 use warnings;
-use Try::Tiny;
-use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
-use File::Basename;
-use File::ShareDir ':ALL';
-use File::Temp qw(tempfile tempdir);
-use Storable qw(nstore retrieve);
-use POSIX qw(strftime);
-use Sort::Naturally;
-use LWP::UserAgent;
-use Bio::OntologyIO::obo;
-use Bio::Ontology::OntologyEngineI;
-use Clone 'clone';
-use Exporter;
-use Term::ProgressBar;
-use Parallel::ForkManager; # to handle parallel processing
-use Scalar::Util qw(blessed reftype weaken);
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
 use AGAT::OmniscientO;
 use AGAT::Levels;
 use AGAT::Utilities;
 use AGAT::BioperlGFF;
+use Bio::OntologyIO::obo;
+use Bio::Ontology::OntologyEngineI;
+use Clone 'clone';
+use Exporter;
+use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
+use File::Basename;
+use File::ShareDir ':ALL';
+use LWP::UserAgent;
+use Parallel::ForkManager; # to handle parallel processing
+use POSIX qw(strftime);
+use Scalar::Util qw(blessed reftype);
+use Sort::Naturally;
+use Storable qw(nstore retrieve);
+use Term::ProgressBar;
+use Try::Tiny;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(get_level select_gff_format
-							modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop
-							slurp_gff3_file_JD);
+				 modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop
+				 slurp_gff3_file_JD);
 
 =head1 SYNOPSIS
 
@@ -76,7 +75,6 @@ my $NOTHING_MESSAGE = "Nothing to be done";
 my $SKIP_MESSAGE = "skip check";
 # count for the number of check performed
 our $check_cpt = 1;
-my $tmpdir = tempdir(CLEANUP => 0);
 
 # ====== PURPOSE =======:
 # Save in omniscient hash (sorted in a specific way (3 levels)) a whole gff3 file
@@ -319,17 +317,12 @@ sub slurp_gff3_file_JD {
 		# has to be defined before the data removed
 		$SIG{INT} = $SIG{TERM} = sub {
 			warn "Caught SIG, cleaning up temp files...\n";
-    		
+    					
+			# Kill all children still running
+			$pm->wait_all_children if $pm;
 			if (-d $AGAT_TMP) {
 				remove_tree($AGAT_TMP, { error => \my $err });
 				warn "Tempdir $AGAT_TMP removed\n";
-			}
-			
-			# Kill all children still running
-			$pm->wait_all_children if $pm;
-			if (-d $tmpdir) {
-				remove_tree($tmpdir, { error => \my $err });
-				warn "Tempdir $tmpdir removed\n";
 			}
 			exit(1);
 
@@ -393,7 +386,7 @@ sub slurp_gff3_file_JD {
 			#print "Finished child $pid ($ident)\n";
 	
 			if ($exit_code == 0) {			
-				 my $file = File::Spec->catfile($tmpdir, "result_$pid.stor");
+				 my $file = File::Spec->catfile($AGAT_TMP, "result_$pid.stor");
 				if (-e $file) {
     				$pid_to_file{$pid} = $file;
 				} else {
@@ -472,7 +465,7 @@ sub slurp_gff3_file_JD {
 			#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
 			#print "  $pid send: ${size_mb} Mo";
 			
-			my $tmpfile = File::Spec->catfile($tmpdir, "result_${pid}.stor");
+			my $tmpfile = File::Spec->catfile($AGAT_TMP, "result_${pid}.stor");
 			nstore($deblessed, $tmpfile);
 
 			$pm->finish(0); # Pass the data back to the parent process
@@ -515,7 +508,8 @@ sub slurp_gff3_file_JD {
 		remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 	}
 	# print memory usage
-	dual_print ({ 'string' => "Total memory used = ".get_memory_usage() });	
+	dual_print ({ 'string' => "Total memory used = ".get_memory_usage() });
+	dual_print ({ 'string' => "Total time used = ".(time() - $start_run) ) });		
 
 	#return
 	return \%omniscient_original;
