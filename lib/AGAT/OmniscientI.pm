@@ -17,6 +17,7 @@ use Exporter;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
+use IPC::ShareLite; # to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
@@ -107,9 +108,9 @@ sub slurp_gff3_file_JD {
 	# Turn on autoflushing as by default output is buffered until a newline is seen. (Or until the buffer is full, but that won't happen for a progress meter.)
 	$| = 1;
 
-#	+-----------------------------------------+
-#	|              HANDLE ARGUMENTS	          |
-#	+-----------------------------------------+
+	#	+-----------------------------------------+
+	#	|              HANDLE ARGUMENTS	          |
+	#	+-----------------------------------------+
 	my ($args) = @_	;
 
 	# +----------------- Check we receive a hash as ref ------------------+
@@ -156,31 +157,31 @@ sub slurp_gff3_file_JD {
 	# +-- fasta param --+
 	if( exists_keys( $CONFIG, ("throw_fasta") ) ) { dual_print ({ 'string' => "=> FASTA within the file will be thrown away!\n" }); } # skip checks
 
-#	+-----------------------------------------+
-#	|            PRINT GENERAL INFO           |
-#	+-----------------------------------------+
+	#	+-----------------------------------------+
+	#	|            PRINT GENERAL INFO           |
+	#	+-----------------------------------------+
 	dual_print ({ 'string' => "=> Machine information:\n"});
 	dual_print ({ 'string' => "	This script is being run by perl ".$^V."\n"});
 	dual_print ({ 'string' => "	Bioperl location being used: ".substr($INC{"Bio/Tools/GFF.pm"}, 0 , -12)."\n"});
 	dual_print ({ 'string' => "	Operating system being used: $^O \n"});
 
-#	+-----------------------------------------+
-#	|            HANDLE GFF HEADER            |
-#	+-----------------------------------------+
+	#	+-----------------------------------------+
+	#	|            HANDLE GFF HEADER            |
+	#	+-----------------------------------------+
 	my $gff3headerInfo = _check_header($file);
 
-#	+-----------------------------------------+
-#	|     HANDLE SOFA (feature-ontology)      |
-#	+-----------------------------------------+
+	#	+-----------------------------------------+
+	#	|     HANDLE SOFA (feature-ontology)      |
+	#	+-----------------------------------------+
 	my $ontology = {};
 	my $ontology_obj = _handle_ontology($gff3headerInfo);
 	if($ontology_obj){
 		$ontology = create_term_and_id_hash($ontology_obj);
 	}
 
-#	+-----------------------------------------+
-#	|             HANDLE WARNING              |
-#	+-----------------------------------------+
+	#	+-----------------------------------------+
+	#	|             HANDLE WARNING              |
+	#	+-----------------------------------------+
 	my %WARNS;
 	my %globalWARNS;
 	my $nbWarnLimit = $LOGGING->{debug_mode} ? undef : 10; # limit number of warning if not debug mode
@@ -219,9 +220,9 @@ sub slurp_gff3_file_JD {
 		}
 	};
 
-#	+-------------------------------------------------------------------------+
-#	|				HANDLE FEATUTRES PARSING ACCORDING TO TYPE OF INPUTS			|
-#	+-------------------------------------------------------------------------+
+	#	+-------------------------------------------------------------------------+
+	#	|				HANDLE FEATUTRES PARSING ACCORDING TO TYPE OF INPUTS      |
+	#	+-------------------------------------------------------------------------+
 	my %duplicate;# Hash to store duplicated feature info
 	my %locusTAG; # Hash to follow up the locus tag met
 	my %infoSequential;# Hash to store sequential bucket features
@@ -245,6 +246,7 @@ sub slurp_gff3_file_JD {
 		# Call post_process handling
 		post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 	}
+
 	# ============================> HASH CASE <============================
 	elsif(ref($file) eq 'HASH'){
 
@@ -292,6 +294,7 @@ sub slurp_gff3_file_JD {
 		post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 
 	}
+
 	# ============================> FILE CASE <============================
 	else{
 
@@ -313,7 +316,7 @@ sub slurp_gff3_file_JD {
 		}
 
 		# -------------- Get info using perl and split file for parallel processing -----------------------------
-		my $nb_line_feature=0;
+		my $nb_line_feature=0; my $nb_line_read=0;
 		$nb_line_feature = get_general_info(\%omniscient_original, $file);
 
 		# -------------- read GFF headers -----------------------------
@@ -325,51 +328,65 @@ sub slurp_gff3_file_JD {
 		$COMON_TAG->{'common_tag'}++ if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
 		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
 		# set threads/cpu/core
-
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
 		my $omniscient_clean = \%omniscient_original;
 
-		# -------------- Set progress bar ---------------------
- 		my $nb_line_read=0;
-		if ( $progress_bar and $nb_line_feature ){
-			$progress_bar = Term::ProgressBar->new({
-					name  => 'Parsing',
-					count => $nb_line_feature,
-					ETA   => 'linear',
-					term_width => 80 ,
-				});
-
-			# Define the handler
-			$SIG{ALRM} = sub {
-				$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
-				# Re-arm the alarm
-				alarm(1);
-			};
-			# Set the initial alarm
-			alarm(1);
-		}
-
-		# ------------------ PARALLEL PROCESSING -------------------
+		#	+-----------------------------------------+
+		#	|    PARALLEL parsing with CHUNCKS	      |
+		#	+-----------------------------------------+
 		if ($CONFIG->{cpu} > 0){
 			
-			# check CPU number
-			my $max_procs = $CONFIG->{cpu}; # number of threads to use
-		
 			# === Retrieve the processed files ===
 			opendir(my $dh, $AGAT_TMP) or die "Cannot open the folder '$AGAT_TMP': $!";
 			my @files = grep { -f "$AGAT_TMP/$_" } readdir($dh);
 			closedir($dh);
 
 			# === Check CPU ===
+			my $max_procs = $CONFIG->{cpu}; # number of threads to use
 			my $nb_files = scalar(@files);
 			if (scalar(@files) < $max_procs) {
 				dual_print ({ 'string' => "$nb_files chunk(s) to process, while $max_procs CPUs requested, setting CPU to $nb_files to avoid wasting resources.\n" });
 				$max_procs = $nb_files; # set max_procs to the number of files
 			}
-			dual_print ({ 'string' => "\n\n"});
 			my $plural = $max_procs > 1 ? "s" : ""; # singular/plural for print
-			dual_print ({ 'string' => sizedPrint("------ Start of in-depth analysis (file by chunck $max_procs CPU$plural)  ------",80, "\n") });
+			my $plural2 = $nb_files > 1 ? "s" : ""; # singular/plural for print
+			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (file by chunck $max_procs CPU$plural - $nb_files chunck$plural2)", char => "-", prefix => "\n" }) });
+
+			# === Set progress bar (parsing) ===
+			if ( $progress_bar and $nb_line_feature ){
+				$progress_bar = Term::ProgressBar->new({
+						name  => 'Parsing',
+						count => $nb_line_feature,
+						ETA   => 'linear',
+						term_width => 80 ,
+					});
+
+				# Define the handler
+				$SIG{ALRM} = sub {
+					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
+					# Re-arm the alarm
+					alarm(1);
+				};
+				# Set the initial alarm
+				alarm(1);
+			}
+
+			# === Deal with shareable memory  ===
+			# ---- Set counter for progress bar ----
+			my $counter_key = 'COUNTER';
+			# Clean previous shared memory segment (if any) 
+			eval {
+				my $old = tie $nb_line_read, 'IPC::Shareable', $counter_key, {};
+				$old->remove;
+			};
+			# tie a new shared variable - https://metacpan.org/pod/IPC::ShareLite
+			my $share_counter_obj = tie $nb_line_read, 'IPC::Shareable', $counter_key, {
+				create => 1, # 1 allows creating if it doesn’t exist.
+				exclusive => 0, # 0 allows multiple processes to access the same variable.
+				mode => 0666, # 0666 allows read/write access to all users.
+				destroy => 1, # If set to a true value, the shared memory segment underlying the data binding will be removed when the process that initialized the shared memory segment exits (gracefully)[1]. Only those memory segments that were created by the current process will be removed.
+			};
 
 			# === Create ForkManager ===
 			my $pm = Parallel::ForkManager->new($max_procs);
@@ -385,6 +402,8 @@ sub slurp_gff3_file_JD {
 					remove_tree($AGAT_TMP, { error => \my $err });
 					warn "Tempdir $AGAT_TMP removed\n";
 				}
+
+				$share_counter_obj->remove;
 				exit(1);
 
 			};
@@ -413,8 +432,10 @@ sub slurp_gff3_file_JD {
 				}
 			});
 
+			# ========= Process each file in parallel =========
 			my $count_file = 0;
 			my $previous_time = time();
+			my $parsing_time = time();
 			foreach my $local_file (@files) {
 
 				my $nbline = get_nbline("$AGAT_TMP/$local_file");
@@ -430,8 +451,8 @@ sub slurp_gff3_file_JD {
 
 					# for local parsing time
 					$start_run = time();
-
 					# TEMP SCOPE TO AVOID LINGERING REFERENCES
+					my $nb_line_read_local = 0;
 					#my %check_hash_local;
 					#$LOGGING->{'hash'} = \%check_hash_local;
 					if ( $CONFIG->{log} ){
@@ -451,6 +472,7 @@ sub slurp_gff3_file_JD {
 						if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 						($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 						manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
+						$nb_line_read_local++;
 					}
 
 					# -------------- Read fastas in GFF file ------------------------
@@ -469,6 +491,12 @@ sub slurp_gff3_file_JD {
 					# Call post_process handling
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
+				
+					# --- Update shared value ----
+					# counter for progress bar
+					tied($nb_line_read)->lock();
+					$nb_line_read += $nb_line_read_local;
+					tied($nb_line_read)->unlock();
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -498,11 +526,36 @@ sub slurp_gff3_file_JD {
 				}
 			}
 
-			$pm->wait_all_children;  # Attendre que tous les enfants terminent
+			# === Wait for all child processes to finish ===
+			$pm->wait_all_children;  
 
+			# clean share counter when done
+			$share_counter_obj->remove;
+
+			# to deal with a nice rendering at the end of the progress bar => make it at 100%
+			if ($progress_bar){
+				$progress_bar->update($nb_line_feature);
+			}
+			my $plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
+			dual_print ({ 'string' => "\nParsing (done in ".(time() - $parsing_time)." second$plural )" });
+
+			# === Merge results from all child processes ===
 			my $merging_time = time();
 			dual_print ({ 'string' => file_text_line({ string => "Merging parallel tasks", char => "-", prefix => "\n" }) });
+
+			my $merge_progress_bar = undef;
+			if ( $progress_bar && $nb_files > 1){
+				$merge_progress_bar = Term::ProgressBar->new({
+																name  => 'Merging',
+																count => $nb_files,
+																ETA   => 'linear',
+																term_width => 80 ,
+															});
+			}
+
+			my $nb_chunck_processed = 0;
 			for my $pid (keys %pid_to_file) {
+
 				my $file = $pid_to_file{$pid};
 				my $data = retrieve($file);  
 				$previous_time = time();
@@ -517,20 +570,46 @@ sub slurp_gff3_file_JD {
 				
 				# merge the data
 				$previous_time = time();
-				dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }) });
+				dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }), 'debug_only' => 1 });
 				merge_omniscients(\%omniscient_original, $data);
-				dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
+				dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
 				unlink $file;
+				$nb_chunck_processed ++;
+				if ($progress_bar and $nb_files > 1) {
+					$merge_progress_bar->update($nb_chunck_processed);
+				}
 			}
-			dual_print ({ 'string' => sizedPrint("------ End merging (done in ".(time() - $merging_time)." second) ------",80, "\n\n\n") });
+			my $plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
+			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
 
 			#remove tmp directory
 			remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 		}
-		# Old fashion way NO CHUNCK
+		
+		#	+-----------------------------------------+
+		#	|    Old fashion parsing NO CHUNCK 	      |
+		#	+-----------------------------------------+
 		else {
-			dual_print ({ 'string' => "\n\n"});
-			dual_print ({ 'string' => sizedPrint("------  Start of in-depth analysis (whole file with 1 cpu)  ------",80, "\n") });
+			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (whole file with 1 cpu)", char => "-", prefix => "" }) });
+
+			# -------------- Set progress bar (parsing) ----------------------
+			if ( $progress_bar and $nb_line_feature ){
+				$progress_bar = Term::ProgressBar->new({
+						name  => 'Parsing',
+						count => $nb_line_feature,
+						ETA   => 'linear',
+						term_width => 80 ,
+					});
+
+				# Define the handler
+				$SIG{ALRM} = sub {
+					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
+					# Re-arm the alarm
+					alarm(1);
+				};
+				# Set the initial alarm
+				alarm(1);
+			}
 
 			# -------------- Create GFF file handler ----------------------
 			my $gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
@@ -554,14 +633,13 @@ sub slurp_gff3_file_JD {
 			$gffio->close() if $gffio;
 			$gffio = undef;
 			post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-		}
-
-		# to deal with a nice rendering at the end of the progress bar => make it at 100%
-		if ($progress_bar){
-			$progress_bar->update($nb_line_feature);
-			dual_print ({ 'string' => "\n" });
-		}
 		
+			# to deal with a nice rendering at the end of the progress bar => make it at 100%
+			if ($progress_bar){
+				$progress_bar->update($nb_line_feature);
+				dual_print ({ 'string' => "\n" });
+			}
+		}
 		#stop alarm
 		alarm(0);	
 	}
@@ -3745,7 +3823,7 @@ sub get_general_info{
 		# in case of parallelization, we need to chunck file by sequence
 		if ($CONFIG->{cpu} > 0){
 			# Si l'identifiant change, on change de fichier // At least 10 000 lines per file to avoid tiny files - $nb_field != 9 to not cut if we are in a middle of a fasta or comment
-			if  ( $id and ( ( $id ne $previous_id and $nb_line_splitfile >= 10000 and $col_nb == 9 ) or $start_split ) ) {
+			if  ( $id and ( ( $id ne $previous_id and $nb_line_splitfile >= $CONFIG->{"minimum_chunk_size"} and $col_nb == 9 ) or $start_split ) ) {
 				
 				# Fermer le précédent filehandle s'il existe
 				close $out_fh if defined $out_fh;
