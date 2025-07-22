@@ -552,6 +552,12 @@ system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
 ok( system("diff $result $outtmp") == 0, "output $script");
 unlink $outtmp;
 
+$result = "$output_folder/agat_sp_keep_longest_isoform_2.gff";
+system(" $script --gff $input_folder/agat_sp_keep_longest_isoform_2.gff -o $outtmp 2>&1 1>/dev/null");
+#run test
+ok( system("diff $result $outtmp") == 0, "output $script");
+unlink $outtmp;
+
 # --------check agat_sp_kraken_assess_liftover.pl-------------
 
 $script = $script_prefix."bin/agat_sp_kraken_assess_liftover.pl";
