@@ -17,7 +17,7 @@ our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_
 l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient
 complement_omniscients rename_ID_existing_in_omniscient keep_only_uniq_from_list2
 check_feature_overlap_from_l3_to_l1 location_overlap_update location_overlap nb_feature_level1
-check_gene_positions gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand
+gather_and_sort_l1_location_by_seq_id gather_and_sort_l1_location_by_seq_id_and_strand
 gather_and_sort_l1_by_seq_id gather_and_sort_l1_by_seq_id_and_strand extract_cds_sequence group_l1features_from_omniscient
 create_omniscient_from_idlevel2list get_feature_l2_from_id_l2_l1 remove_omniscient_elements_from_level2_feature_list
 remove_omniscient_elements_from_level2_ID_list featuresList_identik group_features_from_omniscient featuresList_overlap
@@ -960,58 +960,66 @@ sub remove_l1_and_relatives{
 # @input: 5 => hash(omniscient hash), featureL2,  primary tag l1, id l1, optional fh to write case removed
 # @output: 1 => hash (nb feature removed)
 sub remove_l2_and_relatives{
-  my ($omniscient, $feature, $ptag_l1, $id_l1, $fh_removed, $keep_parental)=@_;
+	my ($omniscient, $feature, $ptag_l1, $id_l1, $fh_removed, $keep_parental)=@_;
 
-  my %cases;
-  my $cases_l1 = 0; my $cases_l2 = 0; my $cases_l3 = 0;
-  my $ptag_l2 = lc($feature->primary_tag);
-  my $level2_Parent_ID = lc($feature->_tag_value('Parent'));
-  my $level2_ID = lc($feature->_tag_value('ID'));
+	my %cases;
+	my $cases_l1 = 0; my $cases_l2 = 0; my $cases_l3 = 0;
+	my $ptag_l2 = lc($feature->primary_tag);
+	my $level2_Parent_ID = lc($feature->_tag_value('Parent'));
+	my $level2_ID = lc($feature->_tag_value('ID'));
 
-  if ( exists_keys( $omniscient, ('level2', $ptag_l2, $id_l1) ) ){ # just extra security in case
-    foreach my $feature_l2 ( @{$omniscient->{'level2'}{$ptag_l2}{$id_l1}}) {
+	if ( exists_keys( $omniscient, ('level2', $ptag_l2, $id_l1) ) ){ # just extra security in case
+		foreach my $feature_l2 ( @{$omniscient->{'level2'}{$ptag_l2}{$id_l1}}) {
 
-      if($level2_ID eq lc($feature_l2->_tag_value('ID')) ){
-        # let's delete all l3 subfeatures before to remove the l2
-        foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-          if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID)  ) ){
-            foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
-        		$cases_l3++;
-				print_feature_safe( $feature_l3, $fh_removed );
-            }
-            delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
-          }
-        }
-      }
-    }
-	
-    # delete level2 and the hash pointer if the list is empty (no isoform left)
-    my @id_concern_list=($id_l1);
-    my @id_list_to_remove=($level2_ID);
-    my @list_tag_key=('all');
-    $cases_l2++;
-	print_feature_safe( $feature, $fh_removed );
-    remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
-
-	if (! $keep_parental){
-		if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-			my $anotherL2Linked=0;
-			foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
-				if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-					$anotherL2Linked=1;
-				}
-			}
-			#The list was empty so l2 has been removed, we can now remove l1
-			if(! $anotherL2Linked){
-				if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
-					$cases_l1++;
-					print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
-					delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+			if($level2_ID eq lc($feature_l2->_tag_value('ID')) ){
+				# let's delete all l3 subfeatures before to remove the l2
+				foreach my $ptag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+					if ( exists_keys( $omniscient, ('level3', $ptag_l3, $level2_ID)  ) ){
+						foreach my $feature_l3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID}}) {
+							$cases_l3++;
+							print_feature_safe( $feature_l3, $fh_removed );
+						}
+						delete $omniscient->{'level3'}{$ptag_l3}{$level2_ID} # delete level3
+					}
 				}
 			}
 		}
+	
+		# delete level2 and the hash pointer if the list is empty (no isoform left)
+		my @id_concern_list=($id_l1);
+		my @id_list_to_remove=($level2_ID);
+		my @list_tag_key=('all');
+		$cases_l2++;
+		print_feature_safe( $feature, $fh_removed );
+		remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
+		
+		# check L1 positions
+		check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$ptag_l1}{$id_l1} } );	
+
+		# remove parents
+		if (! $keep_parental){
+			if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+				my $anotherL2Linked=0;
+				foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
+					if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+						$anotherL2Linked=1;
+					}
+				}
+				#The list was empty so l2 has been removed, we can now remove l1
+				if(! $anotherL2Linked){
+					if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+						$cases_l1++;
+						print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
+						delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+					}
+				}
+				# case we removed on M2 and still one left
+				else {
+					check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$ptag_l1}{$id_l1} } );	
+				} 
+			}
+		}
 	}
-  }
 
 	$cases{'l1'} = $cases_l1;
 	$cases{'l2'} = $cases_l2;
@@ -1046,39 +1054,56 @@ sub remove_l3_and_relatives{
 				remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level3','false', \@list_tag_key);
 			}
 		}
-	}
 
-	if (! $keep_parental){
-		# List empty check if we remove l2 or other l3 linked to it
-		if( ! exists_keys($omniscient, ('level3', $ptag_l3, $id_l2)) ){
-			foreach my $tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
-				if ( exists_keys( $omniscient, ('level3', $tag_l3, $id_l2) ) ){
-					$cases{'l1'} = $cases_l1;
-					$cases{'l2'} = $cases_l2;
-					$cases{'l3'} = $cases_l3;
-					$cases{'all'} = $cases_l1+$cases_l2+$cases_l3;
-					return \%cases;
+		# check positions
+		my $feature_l2 = get_feature_l2_from_id_l2_l1($omniscient,  $id_l2, $id_l1);
+		check_level2_positions( $omniscient, $feature_l2 );
+		check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$ptag_l1}{$id_l1} } );
+
+		# remove parents if needed
+		if (! $keep_parental){
+			# List empty check if we remove l2 or other l3 linked to it
+			if( ! exists_keys($omniscient, ('level3', $ptag_l3, $id_l2)) ){
+				foreach my $tag_l3 (keys %{$omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+					if ( exists_keys( $omniscient, ('level3', $tag_l3, $id_l2) ) ){
+						$cases{'l1'} = $cases_l1;
+						$cases{'l2'} = $cases_l2;
+						$cases{'l3'} = $cases_l3;
+						$cases{'all'} = $cases_l1+$cases_l2+$cases_l3;
+						return \%cases;
+					}
 				}
-			}
 
-			# if we arrive here it means no more L3 feature is attached to L2
-			# we remove the L2 parent properly (if isoforms they are kept)
-			if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1)) ){
-				my @id_concern_list=($id_l1);
-				my @id_list_to_remove=($id_l2);
-				my @list_tag_key=('all');
-				$cases_l2++;
-				my $feature_l2 = get_feature_l2_from_id_l2_l1($omniscient,  $id_l2, $id_l1);
-				print_feature_safe( $feature_l2, $fh_removed );
-				remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
+				# if we arrive here it means no more L3 feature is attached to L2
+				# we remove the L2 parent properly (if isoforms they are kept)
+				if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1)) ){
+					my @id_concern_list=($id_l1);
+					my @id_list_to_remove=($id_l2);
+					my @list_tag_key=('all');
+					$cases_l2++;
+					print_feature_safe( $feature_l2, $fh_removed );
+					remove_element_from_omniscient(\@id_concern_list, \@id_list_to_remove, $omniscient, 'level2','false', \@list_tag_key);
 
-				# Should we remove l1 too?
-				if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
-					#The list was empty so l2 has been removed, we can now remove l1
-					if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
-						$cases_l1++;
-						print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
-						delete $omniscient->{'level1'}{$ptag_l1}{$id_l1}
+					# We extra check if another L2 type is attached to the same L1 before removing the L1
+					if( ! exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+						my $anotherL2Linked=0;
+						foreach my $ptag_l2 (keys %{$omniscient->{'level2'}}){
+							if( exists_keys($omniscient, ('level2', $ptag_l2, $id_l1) ) ){
+								$anotherL2Linked=1;
+							}
+						}
+						#The list was empty so l2 has been removed, we can now remove l1
+						if(! $anotherL2Linked){
+							if( exists_keys($omniscient, ('level1', $ptag_l1, $id_l1) ) ){
+								$cases_l1++;
+								print_feature_safe( $omniscient->{'level1'}{$ptag_l1}{$id_l1}, $fh_removed );
+								delete $omniscient->{'level1'}{$ptag_l1}{$id_l1};
+							}
+						}
+						# case we removed on M2 and still one left
+						else {
+							check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$ptag_l1}{$id_l1} } );	
+						} 
 					}
 				}
 			}
@@ -2247,43 +2272,6 @@ sub check_feature_overlap_from_l3_to_l1{
   return $overlap_ft;
 }
 
-# @Purpose: Check the start and end of gene feature based on its mRNAs and eventualy fix it.
-# @input: 2 => hash(omniscient hash), string(gene identifier)
-# @output: none
-sub check_gene_positions {
-
-  my ($hash_omniscient, $gene_feature)=@_;
-
-  my $gene_id=lc($gene_feature->_tag_value('ID'));
-
-  #####
-  #Modify gene start-end (have to check size of each mRNA)
-  my $geneExtremStart=1000000000000;
-  my $geneExtremEnd=0;
-  foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-  	if (exists_keys($hash_omniscient, ('level2', $primary_tag_l2, lc($gene_id) ) ) ){ # check if they have mRNA avoiding autovivifcation
-	    foreach my $mrna_feature ( @{$hash_omniscient->{'level2'}{$primary_tag_l2}{lc($gene_id)}}) {
-	      	my $start=$mrna_feature->start();
-	      	my $end=$mrna_feature->end();
-
-	      if ($start < $geneExtremStart){
-	        $geneExtremStart=$start;
-	      }
-	      if($end > $geneExtremEnd){
-	        $geneExtremEnd=$end;
-	      }
-	    }
-		}
-  }
-
-  if ($gene_feature->start != $geneExtremStart){
-    $gene_feature->start($geneExtremStart);
-  }
-  if($gene_feature->end != $geneExtremEnd){
-    $gene_feature->end($geneExtremEnd);
-  }
-}
-
 # Check the start and end of level1 feature based on all features level2;
 sub check_all_level1_locations {
 	my ($args) = @_;
@@ -2417,7 +2405,7 @@ sub check_level1_positions {
 	if( defined($args->{log}) ) { $log = $args->{log}; }
 
 
-	my $extrem_start=1000000000000;
+	my $extrem_start=undef;
 	my $extrem_end=0;
 	my $check_existence_feature_l2=undef;
 	my $id_l1 = lc($feature_l1->_tag_value('ID'));
@@ -2436,22 +2424,22 @@ sub check_level1_positions {
     	if ( exists_keys ($hash_omniscient, ('level2', $tag_level2, $id_l1) ) ){
     		$check_existence_feature_l2=1;
 
-	    	my $extrem_start_A=1000000000000;
+	    	my $extrem_start_A=undef;
 		  	my $extrem_end_A=0;
 	   		foreach my $feature ( @{$hash_omniscient->{'level2'}{$tag_level2}{$id_l1}}) {
-          if( $feature->seq_id eq $feature_l1->seq_id ){
-	      		my $start=$feature->start();
-	      		my $end=$feature->end();
-	      		if ($start < $extrem_start_A){
-	       			$extrem_start_A=$start;
-	      		}
-	      		if($end > $extrem_end_A){
-	        		$extrem_end_A=$end;
-	      		}
-          }
-	      }
+				if( $feature->seq_id eq $feature_l1->seq_id ){
+					my $start=$feature->start();
+					my $end=$feature->end();
+					if (!defined($extrem_start_A) || $start < $extrem_start_A){
+						$extrem_start_A=$start;
+					}
+					if($end > $extrem_end_A){
+						$extrem_end_A=$end;
+					}
+				}
+	      	}
 
-	    	if ($extrem_start_A < $extrem_start){
+	    	if (!defined($extrem_start) || $extrem_start_A < $extrem_start){
 	    		$extrem_start=$extrem_start_A;
 	    	}
 	    	if($extrem_end_A > $extrem_end){
@@ -2484,41 +2472,32 @@ sub check_level1_positions {
 sub check_level2_positions {
 	my ($hash_omniscient, $level2_feature)=@_;
 
-	 my @values = $level2_feature->get_tag_values('ID');
-     my $level2_feature_name = lc(shift @values) ;
+	my $level2_feature_name = lc($level2_feature->_tag_value('ID'));
 
-	my $extrem_start=1000000000000;
-	my $extrem_end=0;
+	my $extrem_start=undef;
+	my $extrem_end=undef;
 	foreach my $tag_level3 (keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
-    	my $extrem_start_A=1000000000000;
-		my $extrem_end_A=0;
 		if( exists_keys ($hash_omniscient, ('level3', $tag_level3, $level2_feature_name) ) ){
 	  		foreach my $feature ( @{$hash_omniscient->{'level3'}{$tag_level3}{$level2_feature_name}}) {
 	   			my $start=$feature->start();
 	   			my $end=$feature->end();
-	   			if ($start < $extrem_start_A){
-	   				$extrem_start_A=$start;
+	   			if (!defined($extrem_start) || $start < $extrem_start){
+	   				$extrem_start=$start;
 	   			}
-	   			if($end > $extrem_end_A){
-	      			$extrem_end_A=$end;
+	   			if(!defined($extrem_end) || $end > $extrem_end){
+	      			$extrem_end=$end;
 	   			}
 	   		}
 	   	}
-   		if ($extrem_start_A < $extrem_start){
-    		$extrem_start=$extrem_start_A;
-    	}
-   		if($extrem_end_A > $extrem_end){
-    		$extrem_end=$extrem_end_A;
-    	}
     }
 
     # modify START if needed
-    if($level2_feature->start != $extrem_start){
+    if( defined($extrem_start) && $level2_feature->start != $extrem_start){
     	$level2_feature->start($extrem_start);
     }
 
     # modify END if needed
-    if($level2_feature->end != $extrem_end){
+    if( defined($extrem_end) && $level2_feature->end != $extrem_end){
     	$level2_feature->end($extrem_end);
     }
 }
