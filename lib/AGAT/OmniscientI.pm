@@ -17,7 +17,7 @@ use Exporter;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
-use IPC::ShareLite; # to share memory between processes
+use IPC::Shareable; # to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
@@ -405,7 +405,6 @@ sub slurp_gff3_file_JD {
 
 				$share_counter_obj->remove;
 				exit(1);
-
 			};
 
 			# store the pid of child processes and their associated file
@@ -536,7 +535,7 @@ sub slurp_gff3_file_JD {
 			if ($progress_bar){
 				$progress_bar->update($nb_line_feature);
 			}
-			my $plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
+			$plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nParsing (done in ".(time() - $parsing_time)." second$plural )" });
 
 			# === Merge results from all child processes ===
@@ -967,9 +966,9 @@ sub manage_one_feature{
 		my $parent= undef;
 		my $locusTAGvalue=undef;
 
-#		+-------------------------------+
-#		|	 CKECK SEQUENCE ONTOLOGY	|
-#		+-------------------------------+
+		#+-------------------------------+
+		#|	 CKECK SEQUENCE ONTOLOGY	|
+		#+-------------------------------+
 		# We have ontology values (otherwise we inform the user in _handle_globalWARNS)
 		if( keys %{$ontology} ){
 			# The tag is not part of the ontology let's save this info
@@ -978,9 +977,9 @@ sub manage_one_feature{
 			}
 		}
 
-#	+----------------------------------------------------------------------------+
-#							MANAGE LEVEL1 => feature WITHOUT parent
-#	+----------------------------------------------------------------------------+
+		#+----------------------------------------------------------------------------+
+		#|						MANAGE LEVEL1 => feature WITHOUT parent
+		#+----------------------------------------------------------------------------+
 		if( get_level($omniscient, $feature) eq 'level1' ) {
 
 				##########
@@ -1034,9 +1033,9 @@ sub manage_one_feature{
 				return $id, $last_l1_f, $last_l2_f, $last_l3_f, $last_l1_f, $lastL1_new;
 		 }
 
-# +----------------------------------------------------------------------------+
-#					MANAGE LEVEL2 => feature WITH child and WITH parent
-# +----------------------------------------------------------------------------+
+		# +----------------------------------------------------------------------------+
+		#					MANAGE LEVEL2 => feature WITH child and WITH parent
+		# +----------------------------------------------------------------------------+
 		elsif ( get_level($omniscient, $feature) eq 'level2' ) {
 
 				#reinitialization
@@ -1162,16 +1161,16 @@ sub manage_one_feature{
 				return $last_locusTAGvalue, $last_l1_f, $feature, $last_l3_f, $feature, $lastL1_new;
 		}
 
-# +----------------------------------------------------------------------------+
-#									MANAGE LEVEL3 => feature WITHOUT child
-# +----------------------------------------------------------------------------+
+		# +----------------------------------------------------------------------------+
+		#						MANAGE LEVEL3 => feature WITHOUT child
+		# +----------------------------------------------------------------------------+
 		elsif ( get_level($omniscient, $feature) eq 'level3' ){
 
 				# get ID #
 				$id = _check_uniq_id_feature($omniscient, $feature, 'level3');
 
 				#		+-------------------------------+
-				#		|					GET PARENT L3					 |
+				#		|		GET PARENT L3			 |
 				#		+-------------------------------+
 				my @parentList;
 
@@ -1335,7 +1334,7 @@ sub manage_one_feature{
 			#######################
 
 			#		+--------------------------------------+
-			#		|					HANDLE PARENT(S) L3					 |
+			#		|		HANDLE PARENT(S) L3				 |
 			#		+--------------------------------------+
 				#	Save feature and check duplicates
 				# (treat also cases where there is multiple parent. => In that case we expand to create a uniq feature for each)
@@ -1411,9 +1410,9 @@ sub manage_one_feature{
 			return $last_locusTAGvalue, $last_l1_f, $last_l2_f, $feature, $feature, $lastL1_new;
 		}
 
-# +----------------------------------------------------------------------------+
-# |MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
-# +----------------------------------------------------------------------------+
+		# +----------------------------------------------------------------------------+
+		# |	MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
+		# +----------------------------------------------------------------------------+
 		else{
 				warn "AGAT gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
 				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n";
