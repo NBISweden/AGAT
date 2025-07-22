@@ -155,7 +155,7 @@ mean introns in cdss per mrna                               3.5
 mean introns in exons per mrna                              4.0
 mean introns in five_prime_utrs per mrna                    0.3
 mean introns in three_prime_utrs per mrna                   0.2
-Total gene length (bp)                                      158829
+Total gene length (bp)                                      155823
 Total mrna length (bp)                                      155823
 Total cds length (bp)                                       53754
 Total exon length (bp)                                      83174
@@ -165,7 +165,7 @@ Total intron length per cds (bp)                            60743
 Total intron length per exon (bp)                           72649
 Total intron length per five_prime_utr (bp)                 11112
 Total intron length per three_prime_utr (bp)                794
-mean gene length (bp)                                       3054
+mean gene length (bp)                                       2997
 mean mrna length (bp)                                       2997
 mean cds length (bp)                                        1054
 mean exon length (bp)                                       320
@@ -178,7 +178,7 @@ mean intron in cds length (bp)                              336
 mean intron in exon length (bp)                             349
 mean intron in five_prime_utr length (bp)                   617
 mean intron in three_prime_utr length (bp)                  88
-median gene length (bp)                                     2540
+median gene length (bp)                                     2468
 median mrna length (bp)                                     2468
 median cds length (bp)                                      125
 median exon length (bp)                                     160
@@ -204,7 +204,7 @@ median intron in three_prime_utr length (bp)                79
 90 percentile intron in exon length (bp)                    770
 90 percentile intron in five_prime_utr length (bp)          3593
 90 percentile intron in three_prime_utr length (bp)         na
-Longest gene (bp)                                           8045
+Longest gene (bp)                                           7833
 Longest mrna (bp)                                           7833
 Longest cds (bp)                                            2937
 Longest exon (bp)                                           2854
