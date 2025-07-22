@@ -455,7 +455,7 @@ sub find_overlap_between_geneFeature_and_sortBySeqId {
       ###
       # check end and start of the new feature
       my $gene_id=lc($reference_feature->_tag_value('ID'));
-      check_gene_positions($hashT, $reference_feature);
+      check_level1_positions( { omniscient => $hashT, feature => $reference_feature } );
       return 1;
   }
   else{return undef;}
@@ -733,7 +733,7 @@ sub split_gene_model{
 
                   #########
                   #RE-SHAPE gene extremities
-                  check_gene_positions($tmpOmniscient, $gene_feature);
+                  check_level1_positions( { omniscient => $tmpOmniscient, feature => $gene_feature } );
 
         ###################################
         # Remodelate New Prediction
@@ -778,7 +778,7 @@ sub split_gene_model{
                     # change gene ID
                     $gene_id = $overlaping_gene_ft->_tag_value('ID');
                     #print "We use $gene_id\n";
-                    check_gene_positions($tmpOmniscient, $overlaping_gene_ft);
+                    check_level1_positions( { omniscient => $tmpOmniscient, feature => $overlaping_gene_ft } );
                     @level1_list=($overlaping_gene_ft);
                   }
 
@@ -796,10 +796,10 @@ sub split_gene_model{
 
                     #Now we have the new transcript we can test the gene end and start
                     if ( $new_gene ){
-                      check_gene_positions($tmpOmniscient, $level1_list[0]);
+                      check_level1_positions( { omniscient => $tmpOmniscient, feature => $level1_list[0] } );
                     }
                     else{
-                      check_gene_positions($tmpOmniscient, $overlaping_gene_ft);
+                      check_level1_positions( { omniscient => $tmpOmniscient, feature => $overlaping_gene_ft } );
                     }
                   }
                   else{

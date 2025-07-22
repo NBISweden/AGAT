@@ -194,7 +194,7 @@
 1	irgsp	mRNA	58658	61090	.	+	.	ID=transcript:Os01t0101150-00;Parent=gene:Os01g0101150;biotype=protein_coding;transcript_id=Os01t0101150-00
 1	irgsp	exon	58658	61090	.	+	.	ID=Os01t0101150-00.exon1;Parent=transcript:Os01t0101150-00;Name=Os01t0101150-00.exon1;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0101150-00.exon1;rank=1
 1	irgsp	CDS	58658	61090	.	+	0	ID=CDS:Os01t0101150-00;Parent=transcript:Os01t0101150-00;protein_id=Os01t0101150-00
-1	irgsp	gene	62060	65537	.	+	.	ID=gene:Os01g0101200;biotype=protein_coding;description=2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01)%3B2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02);gene_id=Os01g0101200;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	62060	63576	.	+	.	ID=gene:Os01g0101200;biotype=protein_coding;description=2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01)%3B2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02);gene_id=Os01g0101200;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	62060	63576	.	+	.	ID=transcript:Os01t0101200-01;Parent=gene:Os01g0101200;biotype=protein_coding;transcript_id=Os01t0101200-01
 1	irgsp	exon	62060	62295	.	+	.	ID=Os01t0101200-01.exon1;Parent=transcript:Os01t0101200-01;Name=Os01t0101200-01.exon1;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0101200-01.exon1;rank=1
 1	irgsp	exon	62385	62905	.	+	.	ID=Os01t0101200-02.exon2;Parent=transcript:Os01t0101200-01;Name=Os01t0101200-02.exon2;constitutive=1;ensembl_end_phase=2;ensembl_phase=0;exon_id=Os01t0101200-02.exon2;rank=2
@@ -399,7 +399,7 @@
 1	irgsp	CDS	173004	173072	.	-	0	ID=CDS:Os01t0103000-01;Parent=transcript:Os01t0103000-01;protein_id=Os01t0103000-01
 1	irgsp	five_prime_UTR	173073	173144	.	-	.	ID=agat-five_prime_utr-37;Parent=transcript:Os01t0103000-01
 1	irgsp	three_prime_UTR	170798	171044	.	-	.	ID=agat-three_prime_utr-34;Parent=transcript:Os01t0103000-01
-1	irgsp	gene	178607	180575	.	+	.	ID=gene:Os01g0103100;biotype=protein_coding;description=TGF-beta receptor%2C type I/II extracellular region family protein. (Os01t0103100-01)%3BSimilar to predicted protein. (Os01t0103100-02);gene_id=Os01g0103100;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	178607	180548	.	+	.	ID=gene:Os01g0103100;biotype=protein_coding;description=TGF-beta receptor%2C type I/II extracellular region family protein. (Os01t0103100-01)%3BSimilar to predicted protein. (Os01t0103100-02);gene_id=Os01g0103100;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	178607	180548	.	+	.	ID=transcript:Os01t0103100-01;Parent=gene:Os01g0103100;biotype=protein_coding;transcript_id=Os01t0103100-01
 1	irgsp	exon	178607	180548	.	+	.	ID=Os01t0103100-01.exon1;Parent=transcript:Os01t0103100-01;Name=Os01t0103100-01.exon1;constitutive=0;ensembl_end_phase=-1;ensembl_phase=-1;exon_id=Os01t0103100-01.exon1;rank=1
 1	irgsp	CDS	178642	180462	.	+	0	ID=CDS:Os01t0103100-01;Parent=transcript:Os01t0103100-01;protein_id=Os01t0103100-01
@@ -421,7 +421,7 @@
 1	irgsp	five_prime_UTR	185828	185828	.	-	.	ID=agat-five_prime_utr-41;Parent=transcript:Os01t0103400-01
 1	irgsp	three_prime_UTR	185189	185434	.	-	.	ID=agat-three_prime_utr-38;Parent=transcript:Os01t0103400-01
 1	irgsp	repeat_region	186000	186100	.	+	.	ID=fakeRepeat2
-1	irgsp	gene	186250	190904	.	-	.	ID=gene:Os01g0103600;biotype=protein_coding;description=Similar to sterol-8%2C7-isomerase. (Os01t0103600-01)%3BEmopamil-binding family protein. (Os01t0103600-02);gene_id=Os01g0103600;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	186250	190262	.	-	.	ID=gene:Os01g0103600;biotype=protein_coding;description=Similar to sterol-8%2C7-isomerase. (Os01t0103600-01)%3BEmopamil-binding family protein. (Os01t0103600-02);gene_id=Os01g0103600;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	186250	190262	.	-	.	ID=transcript:Os01t0103600-02;Parent=gene:Os01g0103600;biotype=protein_coding;transcript_id=Os01t0103600-02
 1	irgsp	exon	186250	186771	.	-	.	ID=Os01t0103600-02.exon4;Parent=transcript:Os01t0103600-02;Name=Os01t0103600-02.exon4;constitutive=0;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0103600-02.exon4;rank=4
 1	irgsp	exon	189607	189715	.	-	.	ID=Os01t0103600-02.exon3;Parent=transcript:Os01t0103600-02;Name=Os01t0103600-02.exon3;constitutive=0;ensembl_end_phase=2;ensembl_phase=1;exon_id=Os01t0103600-02.exon3;rank=3
@@ -499,7 +499,7 @@
 1	irgsp	CDS	205534	205543	.	+	1	ID=CDS:Os01t0103900-01;Parent=transcript:Os01t0103900-01;protein_id=Os01t0103900-01
 1	irgsp	five_prime_UTR	201944	202041	.	+	.	ID=agat-five_prime_utr-49;Parent=transcript:Os01t0103900-01
 1	irgsp	three_prime_UTR	205544	206202	.	+	.	ID=agat-three_prime_utr-46;Parent=transcript:Os01t0103900-01
-1	irgsp	gene	206131	209606	.	-	.	ID=gene:Os01g0104000;biotype=protein_coding;description=C-type lectin domain containing protein. (Os01t0104000-01)%3BSimilar to predicted protein. (Os01t0104000-02);gene_id=Os01g0104000;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	206134	209606	.	-	.	ID=gene:Os01g0104000;biotype=protein_coding;description=C-type lectin domain containing protein. (Os01t0104000-01)%3BSimilar to predicted protein. (Os01t0104000-02);gene_id=Os01g0104000;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	206134	209606	.	-	.	ID=transcript:Os01t0104000-01;Parent=gene:Os01g0104000;biotype=protein_coding;transcript_id=Os01t0104000-01
 1	irgsp	exon	206134	207029	.	-	.	ID=Os01t0104000-01.exon4;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon4;constitutive=0;ensembl_end_phase=-1;ensembl_phase=2;exon_id=Os01t0104000-01.exon4;rank=4
 1	irgsp	exon	207706	208276	.	-	.	ID=Os01t0104000-01.exon3;Parent=transcript:Os01t0104000-01;Name=Os01t0104000-01.exon3;constitutive=0;ensembl_end_phase=2;ensembl_phase=1;exon_id=Os01t0104000-01.exon3;rank=3
@@ -536,7 +536,7 @@
 1	irgsp	exon	216884	217345	.	+	.	ID=Os01t0104200-00.exon2;Parent=transcript:Os01t0104200-00;Name=Os01t0104200-00.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104200-00.exon2;rank=2
 1	irgsp	CDS	216212	216769	.	+	0	ID=CDS:Os01t0104200-00;Parent=transcript:Os01t0104200-00;protein_id=Os01t0104200-00
 1	irgsp	CDS	216884	217345	.	+	0	ID=CDS:Os01t0104200-00;Parent=transcript:Os01t0104200-00;protein_id=Os01t0104200-00
-1	irgsp	gene	226897	229301	.	+	.	ID=gene:Os01g0104400;biotype=protein_coding;description=Ricin B-related lectin domain containing protein. (Os01t0104400-01)%3BRicin B-related lectin domain containing protein. (Os01t0104400-02)%3BRicin B-related lectin domain containing protein. (Os01t0104400-03);gene_id=Os01g0104400;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	226897	229229	.	+	.	ID=gene:Os01g0104400;biotype=protein_coding;description=Ricin B-related lectin domain containing protein. (Os01t0104400-01)%3BRicin B-related lectin domain containing protein. (Os01t0104400-02)%3BRicin B-related lectin domain containing protein. (Os01t0104400-03);gene_id=Os01g0104400;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	226897	229229	.	+	.	ID=transcript:Os01t0104400-01;Parent=gene:Os01g0104400;biotype=protein_coding;transcript_id=Os01t0104400-01
 1	irgsp	exon	226897	227634	.	+	.	ID=Os01t0104400-01.exon1;Parent=transcript:Os01t0104400-01;Name=Os01t0104400-01.exon1;constitutive=0;ensembl_end_phase=0;ensembl_phase=-1;exon_id=Os01t0104400-01.exon1;rank=1
 1	irgsp	exon	227742	227864	.	+	.	ID=Os01t0104400-03.exon2;Parent=transcript:Os01t0104400-01;Name=Os01t0104400-03.exon2;constitutive=1;ensembl_end_phase=0;ensembl_phase=0;exon_id=Os01t0104400-03.exon2;rank=2
@@ -558,7 +558,7 @@
 1	irgsp	five_prime_UTR	241680	241702	.	+	.	ID=agat-five_prime_utr-56;Parent=transcript:Os01t0104500-01
 1	irgsp	five_prime_UTR	241866	241907	.	+	.	ID=agat-five_prime_utr-57;Parent=transcript:Os01t0104500-01
 1	irgsp	three_prime_UTR	242978	243440	.	+	.	ID=agat-three_prime_utr-54;Parent=transcript:Os01t0104500-01
-1	irgsp	gene	248828	256872	.	-	.	ID=gene:Os01g0104600;Name=DE-ETIOLATED1;biotype=protein_coding;description=Homolog of Arabidopsis DE-ETIOLATED1 (DET1)%2C Modulation of the ABA signaling pathway and ABA biosynthesis%2C Regulation of chlorophyll content (Os01t0104600-01)%3BSimilar to Light-mediated development protein DET1 (Deetiolated1 homolog) (tDET1) (High pigmentation protein 2) (Protein dark green). (Os01t0104600-02);gene_id=Os01g0104600;logic_name=irgspv1.0-20170804-genes
+1	irgsp	gene	248828	256571	.	-	.	ID=gene:Os01g0104600;Name=DE-ETIOLATED1;biotype=protein_coding;description=Homolog of Arabidopsis DE-ETIOLATED1 (DET1)%2C Modulation of the ABA signaling pathway and ABA biosynthesis%2C Regulation of chlorophyll content (Os01t0104600-01)%3BSimilar to Light-mediated development protein DET1 (Deetiolated1 homolog) (tDET1) (High pigmentation protein 2) (Protein dark green). (Os01t0104600-02);gene_id=Os01g0104600;logic_name=irgspv1.0-20170804-genes
 1	irgsp	mRNA	248828	256571	.	-	.	ID=transcript:Os01t0104600-02;Parent=gene:Os01g0104600;biotype=protein_coding;transcript_id=Os01t0104600-02
 1	irgsp	exon	248828	249107	.	-	.	ID=Os01t0104600-01.exon11;Parent=transcript:Os01t0104600-02;Name=Os01t0104600-01.exon11;constitutive=1;ensembl_end_phase=-1;ensembl_phase=1;exon_id=Os01t0104600-01.exon11;rank=11
 1	irgsp	exon	249369	249468	.	-	.	ID=Os01t0104600-01.exon10;Parent=transcript:Os01t0104600-02;Name=Os01t0104600-01.exon10;constitutive=1;ensembl_end_phase=1;ensembl_phase=0;exon_id=Os01t0104600-01.exon10;rank=10

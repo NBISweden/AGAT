@@ -16,7 +16,7 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 
-our $VERSION     = "v1.4.3";
+our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
 our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels );
