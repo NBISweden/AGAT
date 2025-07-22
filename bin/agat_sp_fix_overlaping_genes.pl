@@ -166,7 +166,7 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
         } #END FEATURE TO HANDLE
         ###
         # check end and start of the new feature
-        check_gene_positions($hash_omniscient, $reference_feature);
+        check_level1_positions( { omniscient => $hash_omniscient, feature => $reference_feature } );
         print "\n\n";
       }
     }
