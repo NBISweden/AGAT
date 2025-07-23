@@ -34,10 +34,8 @@ jobs:
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.36'
-            install-modules-with: cpanm
-            install-modules-args: --notest --force
-            
-      - name: Set up cache for cpanm (local::lib)
+
+      - name: Cache perl modules
         uses: actions/cache@v4
         with:
           path: ~/perl5
@@ -45,12 +43,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-perl5-
     
+      - name: Install ExtUtils::MakeMaker & File::ShareDir::Install
+        run: |
+          cpanm --local-lib=~/perl5 --notest --force \
+            ExtUtils::MakeMaker File::ShareDir::Install
+        env:
+          PERL5LIB: "$HOME/perl5/lib/perl5"
+          PATH: "$HOME/perl5/bin:$PATH"
+          
       - name: install AGAT dependencies
         run: |
-          cpanm --local-lib=~/perl5 --installdeps --notest --force File::ShareDir::Install ExtUtils::MakeMaker
           cpanm --local-lib=~/perl5 --installdeps --notest --force .
         env:
-          PERL_CPANM_OPT: "--notest --local-lib=~/perl5"
           PERL5LIB: "$HOME/perl5/lib/perl5"
           PATH: "$HOME/perl5/bin:$PATH"
 
