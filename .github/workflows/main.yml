@@ -35,8 +35,9 @@ jobs:
         with:
             perl-version: '5.36'
             install-modules-with: cpanm
-            install-modules-args: --notest --force
+            install-modules-args: --local-lib=~/perl5 --notest --force
             install-modules: ExtUtils::MakeMaker File::ShareDir::Install
+            enable-modules-cache: true
 
       - name: Cache perl modules
         uses: actions/cache@v4
@@ -48,7 +49,7 @@ jobs:
 
       - name: install AGAT dependencies
         run: |
-          cpanm --local-lib=~/perl5 --installdeps . --notest --force
+          cpanm --local-lib=~/perl5 --installdeps --notest --force .
         env:
           PERL5LIB: "$HOME/perl5/lib/perl5"
           PATH: "$HOME/perl5/bin:$PATH"
