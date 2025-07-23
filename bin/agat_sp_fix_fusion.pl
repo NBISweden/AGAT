@@ -274,8 +274,6 @@ foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_ta
 
 # 5) Print modified genes
 print "print modified...\n";
-if (exists_undef_value(\%omniscient_modified_gene)){print"there is an undef value";exit;}
-
 print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2} );
 
 # 6) Print all together
