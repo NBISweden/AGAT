@@ -22,6 +22,7 @@ locus_tag:
   - test2
 log: false
 merge_loci: true
+minimum_chunk_size: 100000
 output_format: gtf
 prefix_new_id: nbisTEST
 progress_bar: false
