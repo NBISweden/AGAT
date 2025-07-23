@@ -34,6 +34,8 @@ jobs:
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.36'
+            install-modules-args: --notest --force
+            install-modules: ExtUtils::MakeMaker File::ShareDir::Install
 
       - name: Cache perl modules
         uses: actions/cache@v4
@@ -42,14 +44,6 @@ jobs:
           key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
           restore-keys: |
             ${{ runner.os }}-perl5-
-    
-      - name: Install ExtUtils::MakeMaker & File::ShareDir::Install
-        run: |
-          cpanm --local-lib=~/perl5 --notest --force \
-            ExtUtils::MakeMaker File::ShareDir::Install
-        env:
-          PERL5LIB: "$HOME/perl5/lib/perl5"
-          PATH: "$HOME/perl5/bin:$PATH"
 
       - name: install AGAT dependencies
         run: |
