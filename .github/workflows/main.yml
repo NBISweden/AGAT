@@ -34,6 +34,7 @@ jobs:
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.36'
+            install-modules-with: cpanm
             install-modules-args: --notest --force
             install-modules: ExtUtils::MakeMaker File::ShareDir::Install
 
