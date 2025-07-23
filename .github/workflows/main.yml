@@ -89,13 +89,27 @@ jobs:
             install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
             enable-modules-cache: true
 
+      - name: Cache perl modules
+        uses: actions/cache@v4
+        with:
+          path: local
+          key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl5-
+
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
+      
+      - name: Show cpanm build log on failure
+        if: failure()
+        run: cat ~/.cpanm/build.log || echo "No build log found"
+
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
