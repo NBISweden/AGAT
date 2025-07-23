@@ -13,7 +13,7 @@ use AGAT::Utilities;
 use AGAT::Levels;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
+our @EXPORT = qw(is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
 l1_has_l3_type check_record_positions l2_identical group_l1IDs_from_omniscient
 complement_omniscients keep_only_uniq_from_list2
 check_feature_overlap_from_l3_to_l1 location_overlap_update location_overlap nb_feature_level1
