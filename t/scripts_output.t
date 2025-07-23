@@ -531,7 +531,7 @@ $result = "$output_folder/agat_sp_keep_longest_isoform_2.gff";
 system(" $script --gff $input_folder/agat_sp_keep_longest_isoform_2.gff -o $outtmp 2>&1 1>/dev/null");
 #run test
 ok( system("diff $result $outtmp") == 0, "output $script");
-unlink $outtmp;
+cleaning_log("agat_sp_keep_longest_isoform_2.gff");
 
 # --------check agat_sp_kraken_assess_liftover.pl-------------
 
@@ -830,8 +830,8 @@ sub cleaning_log{
   # remove config
   # Si la variable $local_config est définie et vraie (c’est-à-dire qu’elle n’est pas undef, ni vide, ni 0), alors $config_to_remove prendra sa valeur. Sinon, il prendra la valeur de $config.
   my $config_to_remove = $local_config ? $local_config : $config;
-  if (-e $config){
-    unlink $config;
+  if (-e $config_to_remove){
+    unlink $config_to_remove;
   }
 
   # the rest
