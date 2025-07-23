@@ -10,6 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $genscan = undef;
 my $seq_id = "unknown";
@@ -21,6 +22,7 @@ my $help;
 
 
 if( !GetOptions(    'c|config=s'                => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
 					"h|help"                    => \$help,
 					"g|genscan=s"               => \$genscan,
 					"seqid=s"                   => \$seq_id,
@@ -47,10 +49,10 @@ if ( ! (defined($genscan)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config , input => $genscan });
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 ## MAIN ##############################################################
 
@@ -288,6 +290,10 @@ add verbosity
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

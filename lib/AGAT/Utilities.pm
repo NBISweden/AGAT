@@ -6,12 +6,24 @@ use strict;
 use warnings;
 use Time::Piece;
 use Time::Seconds;
+use Scalar::Util qw(reftype);
 use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
 sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash);
+string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline
+$LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
+
+#	-----------------------------------CONSTANT-----------------------------------
+our $LOGGING  = {};  # global hash
+our $CONFIG   = {};  # global hash
+our $LEVELS   = {};  # global hash
+our $AGAT_TMP ="agat_tmp"; # temporary directory
+our $AGAT_LOG = "agat_log"; # # log directory
+# Comon_tag is used in old gff format and in gtf (with gene_id) to group features together.
+# Priority to comonTag compare to sequential read. The tag can be specified by the user via the agat yaml config file
+our $COMON_TAG = {}; # global hash
 
 =head1 SYNOPSIS
 
@@ -291,20 +303,87 @@ sub print_time{
   print $line;
 }
 
-# @purpose: print to screen when verbose not 0 and always print to log if any log
-# @input: 3 => fh, string, integer
+# @purpose: Save to a hash and print once parallel excecution merge
+# @input: 3 => hash, fh, string, integer
 # @output 0 => None
 sub dual_print{
-	my ($fh, $string, $verbose) = @_;
-	if(! defined($verbose)){$verbose = 1;}#if verbose no set we set it to activate
+	# -------------- INPUT --------------
+	my ($args) = @_;
+	# Check we receive a hash as ref
+	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for dual_print. Please check the call.\n";
+							my ($package, $filename, $line, $subroutine) = caller(0);
+							print "Called from subroutine: $subroutine at $filename line $line\n";
+							exit;
+	}
+	# Fill the parameters
+	my ($string);
+	if( defined($args->{string})) {$string = $args->{string};} else {
+		my ($package, $filename, $line, $subroutine) = caller(0);
+		print "No string provided to dual_print! Called from subroutine: $subroutine at $filename line $line\n";
+	} ;
+	
+	my ($local_verbose,$debug_only, $log_only, $perl_warning);
+	if( defined($args->{local_verbose})) { $local_verbose = $args->{local_verbose}; } # /!\ autdeactivate 
+	if( defined($args->{debug_only})) {$debug_only = $args->{debug_only};} ; # Print if it is for debug and debug_mode activated /!\ autdeactivate 
+	if( defined($args->{log_only})) {$log_only = $args->{log_only};} ; # Print if ii is for debug and debug_mode activated /!\ autdeactivate 
+	if( defined($args->{perl_warning})) { $perl_warning = $args->{perl_warning}; } # In case of hash (parallel processing) need to print to screen if warning from perl!
 
-	if($verbose > 0 ){ #only 0 is quite mode
-		print $string;
+
+	# contained in the CONSTANT GLOBAL LOGGNING hash
+	my ($hash, $log, $verbose, $debug_mode);
+	
+	if ( !$LOGGING ) {warn "Global LOGGING variable need to be defined!\n"; exit 1;}
+	if( defined($LOGGING->{log})) {$log = $LOGGING->{log};} ; #log_file handler
+	if( defined($LOGGING->{verbose})) {$verbose = $LOGGING->{verbose};} else { $verbose = 1; }; #if verbose no set (undef) we activate it with level1
+	if( defined($LOGGING->{debug_mode})) {$debug_mode = $LOGGING->{debug_mode};} ; # If we are in debbug mode or not
+	if( defined($LOGGING->{hash})) {$hash = $LOGGING->{hash};} ; # hash to store the message to print in case of parallel execution
+
+	# If debug_mode on we always print
+	# If debug_mode off we print only if it is not debug_only (specific a debug)
+	if (!$debug_only or ($debug_mode)){
+
+		if( $verbose) {  # only 0 is quite mode
+			if ( !$local_verbose or ($verbose >= $local_verbose) ){ # filter by verbosity level if set for the message
+			 	# ----- Case Screen -----
+				# skip if it is only for log
+				if ( !$log_only ){ 
+					# ---- parallel execution ----
+					if ($hash){ 
+						my $local_log = $LOGGING->{'hash'}{'local_log'};
+						# perl warning case
+						if ($perl_warning){
+							print $string;
+						}
+						# split $string by space 
+						my @checks=split / /,$string ;;
+						$hash->{"message"}{$checks[0]}=$string;
+					} else {
+						print $string;
+					}
+				}
+				# ----- Case log -----
+				if($log){
+					# ---- parallel execution ----
+					if ($hash){
+						my $local_log = $LOGGING->{'hash'}{'local_log'};
+						# perl warning case 
+						if ($perl_warning){
+							print $string;
+						}
+
+						print $local_log $string;
+	
+					} else {
+						print $log $string;
+					}
+				}
+			}
+		}
 	}
-	# print in log in any provided
-	if($fh){
-		print $fh $string;
-	}
+	# auto deactivate 
+	$args->{debug_only} = undef if (defined($args->{debug_only}));
+	$args->{log_only} = undef if (defined($args->{log_only}));
+	$args->{local_verbose} = undef if (defined($args->{local_verbose}));
 }
 
 # @Purpose: transform a String with separator into hash
@@ -327,6 +406,61 @@ sub string_sep_to_hash {
 		$hash_result{$value}++;
 	}
 	return \%hash_result;
+}
+
+# ------------------------------------ DEBUG -----------------------------------
+
+# print the omniscient hash structure
+sub print_omniscient_keys {
+    my ($ref, $prefix) = @_;
+    $prefix //= '';
+
+    if (ref $ref eq 'HASH') {
+        my @keys = keys %$ref;
+        my $key_path = $prefix eq '' ? '(root)' : $prefix;
+        print "[$key_path] has ", scalar(@keys), " key(s)\n";
+
+        foreach my $key (@keys) {
+            my $val = $ref->{$key};
+            my $type = reftype($val) || '';
+
+            if ($type eq 'HASH') {
+                my $new_prefix = $prefix eq '' ? $key : "$prefix.$key";
+                print_omniscient_keys($val, $new_prefix);
+            }
+        }
+    }
+}
+
+# @Purpose: Print the memory usage of the current process
+sub get_memory_usage {
+	my $pid = $$;
+	my $mem_kb = 0;
+	open my $fh, "<", "/proc/$pid/status" or die "Cannot open /proc/$pid/status: $!";
+	while (<$fh>) {
+		if (/^VmRSS:\s+(\d+)\s+kB/) {
+			$mem_kb = $1;
+			last;
+		}
+	}
+	close $fh;
+	my $mem_mb = sprintf("%.2f", $mem_kb / 1024);  # conversion KB -> MB avec 2 décimales
+	return "${mem_mb} Mo";
+}
+
+# @Purpose: Count the number of line in a file
+sub get_nbline {
+	my ($local_file) = @_;
+	my $nb_line_feature = 0;
+
+	open(my $fh, '<', $local_file) or die "Cannot open file '$local_file': $!";
+	while (my $line = <$fh>) {
+		chomp $line;
+		my @cols = split /\t/, $line;
+		$nb_line_feature++ if @cols == 9;
+	}
+	close $fh;
+	return $nb_line_feature;
 }
 
 1;

@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $gff = undef;
 my $opt_output = undef;
 my $opt_yaml = undef;
@@ -22,9 +23,10 @@ my $opt_verbose = 0;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
-    'o|output=s'  => \$opt_output,
+    'c|config=s'   => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"       => \$opt_help,
+    'o|output=s'   => \$opt_output,
     'percentile=i' => \$opt_percentile,
     'yaml!'        => \$opt_yaml,
     'r|raw!'       => \$opt_raw,
@@ -54,7 +56,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
@@ -109,12 +112,7 @@ if($opt_plot){
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               config => $config
-                                                               });
-print "Parsing Finished\n";
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $gff });
 ### END Parse GFF input #
 #########################
 
@@ -191,6 +189,10 @@ Bolean - When this option is used, the raw data (same as used to create histogra
 =item B<--yaml>
 
 Bolean - When this option is activated, a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided).
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

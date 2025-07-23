@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
@@ -37,6 +38,7 @@ if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
                   'o|output=s'          => \$opt_output,
                   'v|verbose!'          => \$opt_verbose,
                   'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -59,7 +61,8 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ###############
 # Test options
@@ -86,10 +89,10 @@ if ($opt_output) {
   $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
 }
 
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file );
+my $fhout_discarded = prepare_gffout( $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
+my $fhout_semidDiscarded = prepare_gffout( $fhout_semidDiscarded_file) if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -151,10 +154,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gff });
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -447,6 +447,10 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option for debugging purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

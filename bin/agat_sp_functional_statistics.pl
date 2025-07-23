@@ -11,17 +11,19 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $gff = undef;
 my $opt_output = "output_functional_statistics";
 my $opt_genomeSize = undef;
 my $opt_help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"     => \$opt_help,
-    'g|gs=s'     => \$opt_genomeSize,
-    'o|output=s' => \$opt_output,
-    "gff|f=s"    => \$gff))
+    'c|config=s'  => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"      => \$opt_help,
+    'g|gs=s'      => \$opt_genomeSize,
+    'o|output=s'  => \$opt_output,
+    "gff|f=s"     => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -44,7 +46,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -63,11 +66,7 @@ my $stat_out = prepare_fileout($stat_file);
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print "Parsing Finished\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 ### END Parse GFF input #
 #########################
 
@@ -465,6 +464,10 @@ You can give the size in Nucleotide or directly the fasta file.
 =item B<--output> or B<-o>
 
 Folder where will be written the results. [Default output_functional_statistics]
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

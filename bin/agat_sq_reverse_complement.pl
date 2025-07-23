@@ -46,10 +46,10 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
@@ -60,7 +60,7 @@ open(my $fh_fasta, '>', $fasta_out) or die "Could not open file '$fasta_out' $!"
 $fasta_out = Bio::SeqIO->new(-fh => $fh_fasta , -format => 'Fasta');
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 #### rt fasta
 my $seqio = Bio::SeqIO->new(-file => $opt_fastafile, -format => "fasta");

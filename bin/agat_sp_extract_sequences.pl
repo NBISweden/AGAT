@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_plus_strand = undef;
 my $start_run = time();
 
@@ -55,6 +56,7 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'f|fa|fasta=s'                 => \$opt_fastafile,
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
+                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'                      => \$opt_help,
                   'keep_attributes!'             => \$opt_keep_attributes,
                   'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
@@ -95,7 +97,8 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table
 $opt_codonTable = get_proper_codon_table($opt_codonTable);
@@ -140,16 +143,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                              });
-print "Parsing Finished\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 ### END Parse GFF input #
 #########################
 
 # extract level
-my $hash_level = $hash_omniscient->{'other'}{'level'};
 my $hash_l1_grouped = group_l1features_from_omniscient($hash_omniscient);
 
 #### read fasta
@@ -510,7 +508,7 @@ sub extract_sequences{
     my $feature_type = $sortedList[0]->primary_tag;
 
     # ------ SPREADED feature need to be collapsed else only if merge option activated ------
-    if( exists_keys($hash_level,'spread',lc($feature_type) ) or ( $opt_merge ) ){
+    if( exists_keys($LEVELS,('spread',lc($feature_type) ) ) or ( $opt_merge ) ){
 
     	my $sequence="";my $info = "";
 
@@ -1048,6 +1046,10 @@ Integer - It will take that number of nucleotide in more at the 5' extremity.
 upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

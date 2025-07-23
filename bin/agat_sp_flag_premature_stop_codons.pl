@@ -15,6 +15,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_file;
 my $opt_output;
 my $file_fasta;
@@ -27,6 +28,7 @@ if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
 					"fasta|fa|f=s"      => \$file_fasta,
 					"table|codon|ct=i"  => \$codonTable,
                  	'c|config=s'        => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                  	'h|help!'           => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -51,7 +53,8 @@ if ( !$opt_file or !$file_fasta) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -65,7 +68,7 @@ if (defined($opt_output) ) {
   $ostreamReport_file = $path.$filename."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -86,10 +89,7 @@ activate_warning_limit(\%warnings, 10);
 ######################
 ### Parse GFF input #
 print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-	                                                             config => $config
-                                                              });
-print("Parsing Finished\n\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 
@@ -307,6 +307,10 @@ Codon table to use. [default 1]
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the result will be printed.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

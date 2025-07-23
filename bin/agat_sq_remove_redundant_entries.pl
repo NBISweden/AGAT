@@ -17,11 +17,11 @@ my $outfile;
 my $opt_help = 0;
 
 Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('i|file|input|gff=s' => \$inputFile,
-                    'v|verbose!' => \$verbose,
-                    'o|output=s' => \$outfile,
-                    'c|config=s'               => \$config,
-                    'h|help!'         => \$opt_help )  )
+if ( !GetOptions (  'i|file|input|gff=s' => \$inputFile,
+                    'v|verbose!'         => \$verbose,
+                    'o|output=s'         => \$outfile,
+                    'c|config=s'         => \$config,
+                    'h|help!'            => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -42,15 +42,15 @@ if ((!defined($inputFile)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $inputFile });
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 #time to calcul progression
 my $startP=time;

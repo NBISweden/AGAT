@@ -17,6 +17,7 @@ my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 
 # PARAMETERS - OPTION
 my $opt_reffile;
@@ -101,6 +102,7 @@ GetOptions(
  'a|addgntag'               => \$opt_addGnPresentTag,
  'v'                        => \$opt_verbose,
  'c|config=s'               => \$config,
+ 'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
  'h|help!'                  => \$opt_help
 )
 or pod2usage( {
@@ -132,7 +134,8 @@ if ( !( defined($opt_reffile) ) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_reffile });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 #################################################
 ####### START Manage files (input output) #######
@@ -186,7 +189,7 @@ if (defined($opt_output)) {
   $ostreamReport_file = $opt_output."/report.txt";
 }
 
-my $ostreamGFF    = prepare_gffout($config, $ostreamGFF_file);
+my $ostreamGFF    = prepare_gffout( $ostreamGFF_file);
 my $ostreamLog    = prepare_fileout($ostreamLog_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
@@ -222,10 +225,8 @@ if ($opt_output) {
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
-                                                                 config => $config
-                                                                });
-print_time("Parsing Finished");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_reffile });
+
 ### END Parse GFF input #
 #########################
 
@@ -275,7 +276,7 @@ if (defined $opt_BlastFile) {
 
   # parse blast output
   print( "Reading features from $opt_BlastFile...\n");
-  parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink);
+  parse_blast($streamBlast, $opt_blastEvalue, $hash_omniscient);
 }
 
 ########################
@@ -813,7 +814,7 @@ sub addFunctions {
 
 # method to parse blast file
 sub parse_blast {
-  my($file_in, $opt_blastEvalue, $hash_mRNAGeneLink) = @_;
+  my($file_in, $opt_blastEvalue, $hash_omniscient) = @_;
 
 #################################################################################
 ####### Step 1 : CATCH all candidates (the better candidate for each mRNA)####### (with a gene name)
@@ -964,11 +965,11 @@ sub parse_blast {
       if (exists($hash_rest{"gn"})) {
         $nameGene = $hash_rest{"gn"};
 
-        if (exists_keys ($hash_mRNAGeneLink, ($l2)) ) {
+        if (exists_keys($hash_omniscient, ('other', 'l2tol1', $l2) ) ){
           # Save mRNA name into mRNA features
           $mRNANameBlast{$l2} = $nameGene;
 
-          my $geneID = $hash_mRNAGeneLink->{$l2};
+          my $geneID = $hash_omniscient->{'other'}{'l2tol1'}{$l2};
 
           # Save mRNA names into gene features (a list because we can have several gene names if mRNA isoforms were refering to different gene names)
           if (! exists_keys(\%name_checker,(lc($geneID),lc($nameGene) ))){
@@ -978,7 +979,7 @@ sub parse_blast {
 
         }
         else {
-          $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_mRNAGeneLink (created by the gff file).\n") if ($opt_verbose or $opt_output);
+          $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_omniscient{l2tol1} (created by the gff file).\n") if ($opt_verbose or $opt_output);
         }
       }
       else {
@@ -1060,9 +1061,9 @@ sub parse_interpro_tsv {
     if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
       push ( @{$functionData{$db_name}{$mRNAID}}, $db_tuple );
-      if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+      if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
         $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-        $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+        $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
       }
     }
 
@@ -1078,9 +1079,9 @@ sub parse_interpro_tsv {
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
         $TotalTerm{$db_name}++;
         push ( @{$functionData{$db_name}{$mRNAID}}, $interpro_tuple );
-        if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+        if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
           $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-          $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+          $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
         }
       }
     }
@@ -1098,9 +1099,9 @@ sub parse_interpro_tsv {
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}}, $go_tuple );
-          if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+          if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
             $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
           }
         }
       }
@@ -1120,9 +1121,9 @@ sub parse_interpro_tsv {
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;
           push ( @{$functionData{$db_name}{$mRNAID}} , $pathway_tuple );
-          if ( exists $hash_mRNAGeneLink->{$mRNAID}) { ## check if exists among our current gff annotation file analyzed
+          if (exists_keys($hash_omniscient, ('other', 'l2tol1', $mRNAID) ) ){ ## check if exists among our current gff annotation file analyzed
             $mRNAAssociatedToTerm{$db_name}{$mRNAID}++;
-            $GeneAssociatedToTerm{$db_name}{$hash_mRNAGeneLink->{$mRNAID}}++;
+            $GeneAssociatedToTerm{$db_name}{$hash_omniscient->{'other'}{'l2tol1'}{$mRNAID}}++;
           }
         }
       }
@@ -1300,6 +1301,10 @@ Boolean - pcds stands for populate cds. It copies the Name, product, Ontology_te
 =item B<-v>
 
 Boolean - Verbose, for debug purpose.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 
