@@ -49,6 +49,13 @@ jobs:
 
           echo -e "\ncpanm install base:"
           cpanm --show File::ShareDir::Install || echo "Not found"
+          
+      - name: List installed Perl modules
+        run: |
+          perl -MExtUtils::Installed -le '
+            my $inst = ExtUtils::Installed->new();
+            print for $inst->modules;
+          '
 
       - name: Cache perl modules
         uses: actions/cache@v4
