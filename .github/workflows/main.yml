@@ -24,7 +24,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install required system packages
-        run: sudo apt-get -y install libdb-dev r-base make
+        run: sudo apt-get -y install libdb-dev r-base
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout AGAT code
@@ -47,8 +47,8 @@ jobs:
     
       - name: install AGAT dependencies
         run: |
-          cpanm --local-lib=~/perl5 --notest --force File::ShareDir::Install ExtUtils::MakeMaker
-          cpanm --local-lib=~/perl5 --installdeps . --notest --force 
+          cpanm --local-lib=~/perl5 --installdeps --notest --force File::ShareDir::Install ExtUtils::MakeMaker
+          cpanm --local-lib=~/perl5 --installdeps --notest --force .
         env:
           PERL_CPANM_OPT: "--notest --local-lib=~/perl5"
           PERL5LIB: "$HOME/perl5/lib/perl5"
