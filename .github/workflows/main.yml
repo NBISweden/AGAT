@@ -24,7 +24,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install required system packages
-        run: sudo apt-get -y install libdb-dev r-base make
+        run: sudo apt-get -y install libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout AGAT code
@@ -91,7 +91,9 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager IPC::Shareable
+            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
+            enable-modules-cache: true
+
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
