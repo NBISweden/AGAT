@@ -39,42 +39,17 @@ jobs:
             install-modules: ExtUtils::MakeMaker File::ShareDir::Install
             enable-modules-cache: true
 
-      - name: Check Perl @INC paths and installed modules
-        run: |
-          echo "Perl include paths (\@INC):"
-          perl -le 'print for @INC'
-
-          echo -e "\nWhich cpanm:"
-          which cpanm
-
-          echo -e "\ncpanm install base:"
-          cpanm --show File::ShareDir::Install || echo "Not found"
-
-      - name: Show full path of installed Perl modules
-        run: |
-          echo "Showing installation path for Perl modules:"
-          perl -MExtUtils::Installed -le '
-            my $inst = ExtUtils::Installed->new();
-            for my $module ($inst->modules) {
-              my $dir = $inst->directory($module);
-              print "$module => $dir";
-            }
-          '
-
       - name: Cache perl modules
         uses: actions/cache@v4
         with:
-          path: ~/perl5
+          path: local
           key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
           restore-keys: |
             ${{ runner.os }}-perl5-
 
       - name: install AGAT dependencies
         run: |
-          cpanm --local-lib=~/perl5 --installdeps --notest --force .
-        env:
-          PERL5LIB: "$HOME/perl5/lib/perl5"
-          PATH: "$HOME/perl5/bin:$PATH"
+          cpanm --installdeps --notest --force .
 
       - name: Show cpanm build log on failure
         if: failure()
@@ -83,8 +58,6 @@ jobs:
       - name: Run test
         run: make test  
         env:
-          PERL5LIB: "$HOME/perl5/lib/perl5"
-          PATH: "$HOME/perl5/bin:$PATH"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
 
