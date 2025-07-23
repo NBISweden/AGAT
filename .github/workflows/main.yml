@@ -47,7 +47,7 @@ jobs:
 
       - name: install AGAT dependencies
         run: |
-          cpanm --local-lib=~/perl5 --installdeps --notest --force .
+          cpanm --local-lib=~/perl5 --installdeps . --notest --force
         env:
           PERL5LIB: "$HOME/perl5/lib/perl5"
           PATH: "$HOME/perl5/bin:$PATH"
