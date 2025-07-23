@@ -2,6 +2,8 @@
 
 use strict;
 use warnings;
+use File::Basename;
+use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use Test::More tests => 15;
 use Bio::Tools::GFF;
 use AGAT::AGAT;
@@ -31,9 +33,11 @@ initialize_agat({ nolog => 1 });
 $CONFIG->{progress_bar}=0;
 $LOGGING->{verbose} = 0;
 
+# --- Manage config ---
+initialize_agat({ input => "t/scripts_output/in/1.gff" });
 
 # Get one omnisceint to work with
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => "t/scripts_output/in/1.gff" });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => "t/scripts_output/in/1.gff" });
 
 #run remove_omniscient_elements_from_level1_id_list test
 my $nb_gene2 = scalar keys %{$hash_omniscient->{"level1"}{"gene"}};
@@ -94,3 +98,27 @@ ok( check_features_overlap($feature1, $feature2), "check_features_overlap");
 # run is_single_exon_gene
 $feature1 = $hash_omniscient->{"level1"}{"gene"}{"gene:os01g0100650"};
 ok( is_single_exon_gene($hash_omniscient, $feature1), "is_single_exon_gene");
+
+
+cleaning_log("1.gff");
+# --- convenient function ---
+
+sub cleaning_log{
+  my ($filename, $local_config)=@_;
+
+  # REMOVE LOG folder if a file name is provided
+  if($filename){
+    my ($name, $path, $suffix) = fileparse($filename, qr/\.[^.]*/);
+    if (-e "agat_log_$name"){
+      remove_tree( "agat_log_$name" );
+    }
+  }
+
+  # remove config
+  # Si la variable $local_config est définie et vraie (c’est-à-dire qu’elle n’est pas undef, ni vide, ni 0), alors $config_to_remove prendra sa valeur. Sinon, il prendra la valeur de $config.
+  my $config_to_remove = $local_config ? $local_config : $config;
+  if (-e $config_to_remove){
+    unlink $config_to_remove;
+  }
+
+}
