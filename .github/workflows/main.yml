@@ -35,9 +35,20 @@ jobs:
         with:
             perl-version: '5.36'
             install-modules-with: cpanm
-            install-modules-args: --local-lib=~/perl5 --notest --force
+            install-modules-args: --notest --force
             install-modules: ExtUtils::MakeMaker File::ShareDir::Install
             enable-modules-cache: true
+
+      - name: Check Perl @INC paths and installed modules
+        run: |
+          echo "Perl include paths (\@INC):"
+          perl -le 'print for @INC'
+
+          echo -e "\nWhich cpanm:"
+          which cpanm
+
+          echo -e "\ncpanm install base:"
+          cpanm --show File::ShareDir::Install || echo "Not found"
 
       - name: Cache perl modules
         uses: actions/cache@v4
