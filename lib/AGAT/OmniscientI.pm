@@ -578,7 +578,7 @@ sub slurp_gff3_file_JD {
 					$merge_progress_bar->update($nb_chunck_processed);
 				}
 			}
-			my $plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
+			$plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
 
 			#remove tmp directory
@@ -1541,6 +1541,8 @@ sub _it_is_duplication{
 	my ($duplicate, $omniscient, $feature, $level)=@_;
 
 	my $is_dupli=undef;
+	my $feature_start = $feature->start;
+	my $feature_end = $feature->end;
 	my @potentialList=();
 
 	my $primary_tag = lc($feature->primary_tag);
@@ -1577,8 +1579,8 @@ sub _it_is_duplication{
 
 	#Check the list of all putative duplicate already saved in omniscient
 	foreach my $feature_in_omniscient ( @potentialList ){
-		if ($feature->start == $feature_in_omniscient->start){
-			if ($feature->end == $feature_in_omniscient->end){
+		if ($feature_start == $feature_in_omniscient->start){
+			if ($feature_end == $feature_in_omniscient->end){
 				if ($feature->seq_id eq $feature_in_omniscient->seq_id){
 					#primary tag already checked when catching potential
 
@@ -2990,6 +2992,8 @@ sub merge_features{
 	my %skip_because_consumed;
 	while( @sorted_features ){
 		my $l3_feature = shift @sorted_features;
+		my $l3_feature_start = $l3_feature->start();
+		my $l3_feature_end = $l3_feature->end();
 
 		#========           <-
 		#    ==========
@@ -3002,30 +3006,38 @@ sub merge_features{
 
 		foreach my $l3_feature_next (@sorted_features){
 			my $IDunique_next = get_uniq_id($hash_omniscient, $l3_feature_next);# to be safe with spread feature sharing same ID
+			my $l3_feature_next_start = $l3_feature_next->start();
+			my $l3_feature_next_end = $l3_feature_next->end();
 			#Check if adjacent
 			if ($method eq "adjacent"){
-				if ( $l3_feature->end()+1 == $l3_feature_next->start() ){ #locations are consecutives consecutive
+				if ( $l3_feature_end+1 == $l3_feature_next_start ){ #locations are consecutives consecutive
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
 						dual_print({ 'string' => $message, 'only_log' => 1}); #print log only
-						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
+						if ($l3_feature_next_end > $l3_feature_end){
+							$l3_feature_end = $l3_feature_next_end;
+							$l3_feature->end($l3_feature_end);
+						}
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
 				}
 				#if after we stop
-				elsif($l3_feature_next->start() > $l3_feature->end){
+				elsif($l3_feature_next_start > $l3_feature_end){
 					last;
 				}
 			}
 			else{
-				if ( ($l3_feature_next->start() <= $l3_feature->end()+1) and ($l3_feature_next->end()+1 >= $l3_feature->start() ) ){ #it overlaps or are consecutive/adjacent
+				if ( ($l3_feature_next_start <= $l3_feature_end+1) and ($l3_feature_next_end+1 >= $l3_feature_start ) ){ #it overlaps or are consecutive/adjacent
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
 						dual_print({ 'string' => $message, 'only_log' => 1}); #print log only
-						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
+						if ($l3_feature_next_end > $l3_feature_end){
+							$l3_feature_end = $l3_feature_next_end;
+							$l3_feature->end($l3_feature_end) ;
+						}
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
 				}
 				#if after we stop
-				elsif($l3_feature_next->start() > $l3_feature->end){
+				elsif($l3_feature_next_start > $l3_feature_end){
 					last;
 				}
 			}
@@ -3467,19 +3479,21 @@ sub _check_identical_isoforms{
 
 				my @L2_list_to_remove;
 				my %checked;
-				foreach my $feature2 (sort {$b->_tag_value('ID') cmp $a->_tag_value('ID')} @{$omniscient->{'level2'}{$l2_type}{$id2_l1}}){
-					$checked{lc($feature2->_tag_value('ID'))}{lc($feature2->_tag_value('ID'))}++;
-
+				foreach my $feature2 (sort {$b->_tag_value('ID') cmp $a->_tag_value('ID')} @{$omniscient->{'level2'}{$l2_type}{$id2_l1}}){		
+					my $feature2_id = $feature2->_tag_value('ID');
+					my $feature2_start = $feature2->start();
+					my $feature2_end = $feature2->end();
+					$checked{lc($feature2_id)}{lc($feature2_id)}++;
 					my $keep = 1;
 					foreach my $feature1 (sort {$b cmp $a} @{$omniscient->{'level2'}{$l2_type}{$id2_l1}}){
-
+						my $feature1_id = $feature1->_tag_value('ID');
 						# If not itself and not already checked (A -> B is the same as B -> A), and A or B already removed and must now be skiped (skipme key)
-						if( (! exists_keys(\%checked, (lc($feature2->_tag_value('ID')), "skipme"))) and (! exists_keys(\%checked, (lc($feature1->_tag_value('ID')), "skipme"))) and ! exists_keys(\%checked, ( lc($feature2->_tag_value('ID')), lc($feature1->_tag_value('ID')) ) ) ){ #
-							$checked{lc($feature2->_tag_value('ID'))}{lc($feature1->_tag_value('ID'))}++;
-							$checked{lc($feature1->_tag_value('ID'))}{lc($feature2->_tag_value('ID'))}++;
+						if( (! exists_keys(\%checked, (lc($feature2_id), "skipme"))) and (! exists_keys(\%checked, (lc($feature1_id), "skipme"))) and ! exists_keys(\%checked, ( lc($feature2_id), lc($feature1_id) ) ) ){ #
+							$checked{lc($feature2_id)}{lc($feature1_id)}++;
+							$checked{lc($feature1_id)}{lc($feature2_id)}++;
 
 							#check their position are identical
-							if($feature1->start().$feature1->end() eq $feature2->start().$feature2->end()){
+							if($feature1->start().$feature1->end() eq $feature2_start.$feature2_end){
 
 								#Check their subfeature are	identicals
 								if(l2_identical($omniscient, $feature1, $feature2)){ 
@@ -3492,16 +3506,16 @@ sub _check_identical_isoforms{
 					# We dont keep the l2 feature so we have to remove all related features and itself
 					if(! $keep){
 						$resume_case++;
-						dual_print({ 'string' => "Lets remove isoform ".$feature2->_tag_value('ID')."\n"});
-						$checked{lc($feature2->_tag_value('ID'))}{"skipme"}++;# will be removed later do not check anymore this one
+						dual_print({ 'string' => "Lets remove isoform ".$feature2_id."\n"});
+						$checked{lc($feature2_id)}{"skipme"}++;# will be removed later do not check anymore this one
 
 						foreach my $tag (keys %{$omniscient->{'level3'}}){
-							if(exists_keys($omniscient, ('level3', $tag, lc($feature2->_tag_value('ID'))))){
-								delete $omniscient->{'level3'}{$tag}{lc($feature2->_tag_value('ID'))};
+							if(exists_keys($omniscient, ('level3', $tag, lc($feature2_id)))){
+								delete $omniscient->{'level3'}{$tag}{lc($feature2_id)};
 							}
 						}
 						#Has to be removed once we finished to go through the l2 list
-						my $ID_to_remove = lc($feature2->_tag_value('ID'));
+						my $ID_to_remove = lc($feature2_id);
 						push(@L2_list_to_remove,$ID_to_remove);
 						delete $omniscient->{'other'}{'l2tol1'}{$ID_to_remove};
 					}
