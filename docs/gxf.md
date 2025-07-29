@@ -142,9 +142,9 @@ Here is an example of GFF1:
 **17/11/99**: **Gene Feature Finding** Version 2 format is conceptually generalized to be the **General Feature Format**
 
 The GFF2 format is conceptualized since the 16/12/98 but becomes officially the default version the 2000-9-29.
-[Here is the official description](snapshots/sanger_gff2.md) which is a snapshot from here: https://web.archive.org/web/20010208224442/http://www.sanger.ac.uk:80/Software/formats/GFF/GFF_Spec.shtml.  
+[Here is the official description](https://raw.githubusercontent.com/NBISweden/AGAT/master/docs/snapshots/sanger_gff2.html) which is a snapshot from here: https://web.archive.org/web/20010208224442/http://www.sanger.ac.uk:80/Software/formats/GFF/GFF_Spec.shtml.  
 
-You can find the first description (03 Feb 2000) of the GFF2 [here](snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
+You can find the first description (03 Feb 2000) of the GFF2 [here](https://raw.githubusercontent.com/NBISweden/AGAT/master/docs/snapshots/GFF2_Spec_first_draft_03_feb_2000.html) that comes from here: ftp://ftp.sanger.ac.uk/pub/resources/software/gff-old/gff/.
 
 Here we will review changes from GFF1.
 
@@ -420,7 +420,8 @@ Originally Ensembl has created the GTF format that has been then slightly modifi
 ## Resume
 
 ### Timeline of the different formats  
-![](img/gff_history.jpg "gff_history")
+
+<img src="https://raw.githubusercontent.com/NBISweden/AGAT/master/docs/img/gff_history.jpg" alt="gff_history" title="gff_history" height="300" width="450">
 
 ### Main points and differences between GFF formats
 
