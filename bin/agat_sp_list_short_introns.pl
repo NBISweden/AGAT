@@ -12,6 +12,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_file;
 my $INTRON_LENGTH = 10;
 my $opt_output=undef;
@@ -21,7 +22,8 @@ my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
                   'o|out|output=s'      => \$opt_output,
                   "size|s=i"            => \$INTRON_LENGTH,
-                  'c|config=s'               => \$config,
+                  'c|config=s'          => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -44,7 +46,8 @@ if ( ! defined( $opt_file) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_file });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -59,10 +62,7 @@ my $fh = prepare_fileout($opt_output);
 
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-                                                                   config => $config
-                                                              });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
   ### END Parse GFF input #
   #########################
 
@@ -200,6 +200,10 @@ Default value = 10.
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the gene incriminated will be write.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

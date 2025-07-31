@@ -13,6 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my %handlers;
 my $gff = undef;
 my $one_tsv = undef;
@@ -24,14 +25,15 @@ my $outInOne=undef;
 my $doNotReportEmptyCase=undef;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "d!" => \$doNotReportEmptyCase,
-    "m|merge!" => \$one_tsv,
-    "p|t|l=s" => \$primaryTag,
-    "attribute|a|att=s" => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+    'c|config=s'             => \$config,
+    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+    "h|help"                 => \$opt_help,
+    "gff|f=s"                => \$gff,
+    "d!"                     => \$doNotReportEmptyCase,
+    "m|merge!"               => \$one_tsv,
+    "p|t|l=s"                => \$primaryTag,
+    "attribute|a|att=s"      => \$attributes,
+    "output|outfile|out|o=s" => \$outfile ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -55,7 +57,8 @@ if ( ! $gff or ! $attributes ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
@@ -101,19 +104,13 @@ if ($attributes){
   print "\n";
 }
 
-
                 #####################
                 #     MAIN          #
                 #####################
 
-
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
   foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
@@ -292,6 +289,10 @@ By default when an attribute is not found for a feature, a dot (.) is reported. 
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

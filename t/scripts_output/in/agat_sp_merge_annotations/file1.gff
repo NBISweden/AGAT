@@ -10,5 +10,3 @@ chr10	BestRefSeq	CDS	123353223	123353331	.	-	0	ID=cds-NP_075259.4;Parent=rna-NM_
 chr10	BestRefSeq	five_prime_UTR	123353332	123353481	.	-	.	ID=agat-five_prime_utr-54403;Parent=rna-NM_022970.3;
 chr10	BestRefSeq	five_prime_UTR	123357476	123357992	.	-	.	ID=agat-five_prime_utr-54403;Parent=rna-NM_022970.3;
 chr10	BestRefSeq	three_prime_UTR	123237824	123239370	.	-	.	ID=agat-three_prime_utr-54427;Parent=rna-NM_022970.3;
-
-	

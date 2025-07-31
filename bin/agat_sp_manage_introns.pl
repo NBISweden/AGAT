@@ -10,6 +10,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 
 my @opt_files;
 my $opt_output=undef;
@@ -25,6 +26,7 @@ if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
                   'x|p=f'               => \$Xpercent,
                   'plot!'               => \$opt_plot,
                   'c|config=s'               => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -47,7 +49,8 @@ if ( ! ( $#opt_files  >= 0) ) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_files[0] });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # #######################
 # # START Manage Option #
@@ -117,13 +120,11 @@ my %introns;
 foreach my $file (@opt_files){
 
   print "Reading ".$file,"\n";
-
+  my $log = create_log_file({input => $file});
+	$LOGGING->{'log'} = $log ;
   ######################
   ### Parse GFF input #
-  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file,
-                                                                   config => $config
-                                                              });
-  print("Parsing Finished\n\n");
+  my ($hash_omniscient) = slurp_gff3_file_JD({ input => $file });
   ### END Parse GFF input #
   #########################
 
@@ -358,6 +359,10 @@ Allows to create an histogram in pdf of intron sizes distribution.
 =item  B<--out>, B<--output> or B<-o>
 
 Output gff3 file where the gene incriminated will be write.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

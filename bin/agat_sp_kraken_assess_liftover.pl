@@ -13,6 +13,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 
 #####
 # What we call parial gene (containing "_partial_part-" in the ID) ?
@@ -32,7 +33,8 @@ my $opt_plot;
 my $help= 0;
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'             => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"                 => \$help,
     "gtf=s"                  => \$gff,
     "threshold|t=i"          => \$valueK,
@@ -61,7 +63,8 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -74,7 +77,7 @@ if ($outfile) {
  	$outReport_file = $outfile_no_extension."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 my $outReport = prepare_fileout($outReport_file);
 
 # Check if dependencies for plot are available
@@ -109,22 +112,19 @@ else{
 ######################
 ### Parse GFF input #
 # checks are deactivated except _remove_orphan_l1
-$config->{"check_sequential"} = 0;
-$config->{"check_l2_linked_to_l3"} = 0;
-$config->{"check_l1_linked_to_l2"} = 0;
-$config->{"remove_orphan_l1"} = 1;
-$config->{"check_all_level3_locations"} = 0;
-$config->{"check_cds"} = 0;
-$config->{"check_exons"} = 0;
-$config->{"check_utrs"} = 0;
-$config->{"check_all_level2_locations"} = 0;
-$config->{"check_all_level1_locations"} = 0;
-$config->{"check_identical_isoforms"} = 0;
+$CONFIG->{"check_sequential"} = 0;
+$CONFIG->{"check_l2_linked_to_l3"} = 0;
+$CONFIG->{"check_l1_linked_to_l2"} = 0;
+$CONFIG->{"remove_orphan_l1"} = 1;
+$CONFIG->{"check_all_level3_locations"} = 0;
+$CONFIG->{"check_cds"} = 0;
+$CONFIG->{"check_exons"} = 0;
+$CONFIG->{"check_utrs"} = 0;
+$CONFIG->{"check_all_level2_locations"} = 0;
+$CONFIG->{"check_all_level1_locations"} = 0;
+$CONFIG->{"check_identical_isoforms"} = 0;
 
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
-                                                               input => $gff,
-                                                               config => $config
-                                                               });
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $gff });
 
 #track stats
 my $nbOriginalGene = nb_feature_level1($hash_omniscient); #total gene at the beginning
@@ -154,7 +154,6 @@ my %mappedPercentPerGene; #Keep information for R plot
 my %n_omniscient;
 my $nb_noCaseL3=0;
 my $new_omniscient=\%n_omniscient;
-my $list_uID_new_omniscient;
 my $loop=0;
 
 
@@ -260,21 +259,21 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        }
 
 			# We skip _check_exons and _check_utrs to not fit the exon to the old mRNA size that was making big last or first exon
-	        $config->{"check_sequential"} = 1;
-			$config->{"check_l2_linked_to_l3"} = 1;
-			$config->{"check_l1_linked_to_l2"} = 1;
-			$config->{"remove_orphan_l1"} = 1;
-			$config->{"check_all_level3_locations"} = 0;
-			$config->{"check_cds"} = 0;
-			$config->{"check_exons"} = 0;
-			$config->{"check_utrs"} = 0;
-			$config->{"check_all_level2_locations"} = 1;
-			$config->{"check_all_level1_locations"} = 1;
-			$config->{"check_identical_isoforms"} = 0;
+	        $CONFIG->{"check_sequential"} = 1;
+			$CONFIG->{"check_l2_linked_to_l3"} = 1;
+			$CONFIG->{"check_l1_linked_to_l2"} = 1;
+			$CONFIG->{"remove_orphan_l1"} = 1;
+			$CONFIG->{"check_all_level3_locations"} = 0;
+			$CONFIG->{"check_cds"} = 0;
+			$CONFIG->{"check_exons"} = 0;
+			$CONFIG->{"check_utrs"} = 0;
+			$CONFIG->{"check_all_level2_locations"} = 1;
+			$CONFIG->{"check_all_level1_locations"} = 1;
+			$CONFIG->{"check_identical_isoforms"} = 0;
 
-	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
-																						 config => $config
-	                                                                                   });
+	        my ($hash_omniscient_clean) = slurp_gff3_file_JD({ input => $hash,
+															   config => $config
+	                                                        });
 	        if($verbose){
 	          print "\nA proper hash:\n";
 	          print_omniscient( {omniscient => $hash_omniscient_clean, output => $gffout} );
@@ -413,11 +412,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	            $loop++;
 	          }
 	          elsif($loop == 1){
-	            ($new_omniscient, $list_uID_new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
+	            ($new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
 	            $loop++;
 	          }
 	          else{
-	            ($new_omniscient, $list_uID_new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean, $list_uID_new_omniscient);
+	            ($new_omniscient) = merge_omniscients($new_omniscient, $hash_omniscient_clean);
 	          }
 
 	          #keep track of successful multimap (same sequences) > Cases saved with different GeneID in new_omniscient ()
@@ -771,6 +770,10 @@ Allows to create an histogram in pdf. It shows the distribution of percentage of
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

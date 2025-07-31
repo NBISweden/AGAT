@@ -9,6 +9,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;
@@ -24,6 +25,7 @@ my $verbose;
 
 if ( !GetOptions(
     'c|config=s'     => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help!"        => \$opt_help,
     "gff|f=s"        => \$opt_gff,
     "nb=i"           => \$opt_nbIDstart,
@@ -58,9 +60,10 @@ if ( ! (defined($opt_gff)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $opt_gff });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Manage $primaryTag
 my %ptagList;
@@ -95,13 +98,10 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 
 # get spreadfeatire in case of collective option set
-my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
+my $spreadfeatures = $LEVELS->{'spread'};
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
@@ -435,6 +435,10 @@ By default all feature are taken into account. fill the option by the value "all
 
 String - Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

@@ -11,6 +11,7 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
+my $cpu;
 my $outfile = undef;
 my $gff1 = undef;
 my $gff2 = undef;
@@ -19,7 +20,8 @@ my $opt_help= 0;
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
+    'c|config=s'  => \$config,
+                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
     "h|help"      => \$opt_help,
     "gff1=s"      => \$gff1,
     "gff2=s"      => \$gff2,
@@ -49,7 +51,8 @@ if ( ! $gff1 or ! $gff2){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $config, input => $gff1 });
+$CONFIG->{cpu} = $cpu if defined($cpu);
 
 ######################
 # Manage output file #
@@ -59,16 +62,11 @@ my $report = prepare_fileout($outfile);
 
 ######################
 ### Parse GFF input #
-print ("Parsing $gff1\n");
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
-                                                              config => $config
-                                                              });
-print ("\n\nParsing $gff2\n");
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
-                                                              config => $config
-                                                              });
-print ("-- Files parsed --\n");
+my ($omniscient1) = slurp_gff3_file_JD({ input => $gff1 });
 
+my $log = create_log_file({input => $gff2});
+$LOGGING->{'log'} = $log ;
+my ($omniscient2) = slurp_gff3_file_JD({ input => $gff2 });
 
 my $sortBySeq1 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient1);
 my $sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient2);
@@ -685,6 +683,10 @@ written to STDOUT.
 =item B<-v>
 
 Verbose option for debug purposes.
+
+=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 
