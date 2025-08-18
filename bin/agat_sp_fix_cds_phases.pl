@@ -48,6 +48,14 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ######################
 # Manage output file #
 my $gffout = prepare_gffout($config, $opt_output);
@@ -59,12 +67,12 @@ my $gffout = prepare_gffout($config, $opt_output);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                             });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($opt_fasta);
-print ("Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n");
 
 ###
 # Fix frame
@@ -76,7 +84,9 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 __END__
 
 =head1 NAME

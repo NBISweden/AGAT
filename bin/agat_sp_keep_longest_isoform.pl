@@ -45,6 +45,14 @@ if ( ! (defined($gff)) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $gffout = prepare_gffout($config, $opt_output);
@@ -53,11 +61,11 @@ my $gffout = prepare_gffout($config, $opt_output);
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
+dual_print($log, "Reading file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print "Parsing Finished\n";
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -67,12 +75,14 @@ my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash
 # print omniscientNew containing only the longest isoform per gene
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n";
-print $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n";
+dual_print($log, $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n");
+dual_print($log, $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n");
 
 # END STATISTICS #
 ##################
-print "Done\n";
+dual_print($log, "Done\n");
+
+close $log if $log;
 
 
 

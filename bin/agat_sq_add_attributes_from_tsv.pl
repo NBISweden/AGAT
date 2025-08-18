@@ -50,13 +50,21 @@ if (! $input_gff or ! $input_tsv){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Manage Output
 my $gffout = prepare_gffout($config, $outputFile);
 
 # Manage GFF Input
 my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
-print "Reading $input_gff using format GFF$format\n";
+dual_print($log, "Reading $input_gff using format GFF$format\n");
 my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);
 
 # Manage tsv input
@@ -85,7 +93,7 @@ while (<INPUT>) {
 
 	if ($line == 1){
 		$nb_header = scalar @splitline;
-		print "$nb_header headers\n" if $verbose;
+             dual_print($log, "$nb_header headers\n", $verbose);
 		my $cpt = 0;
 		foreach my $header_title (@splitline){
 			$header{$cpt++} = $header_title;
@@ -93,7 +101,7 @@ while (<INPUT>) {
 	}
 	else{
 		my $nb_column = scalar @splitline;
-		if($nb_column != $nb_header) { print "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"; }
+             if($nb_column != $nb_header) { dual_print($log, "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"); }
 		for(my $i = 1; $i <= $#splitline; $i++){
 			$tsv{lc($splitline[0])}{$header{$i}} = $splitline[$i];
 		}
@@ -111,17 +119,17 @@ while (my $feature = $gff_in->next_feature() ) {
 				if($feature->has_tag($att)){
 					my @originalvalues = $feature->get_tag_values($att);
 					if (grep( /$tsv{$id}{$att}/, @originalvalues)){
-						print "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n" if ($verbose);
+                                            dual_print($log, "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n", $verbose);
 					}
 					#add attribute
 					else{
-						print "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n" if ($verbose);
+                                            dual_print($log, "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n", $verbose);
 						$feature->add_tag_value($att, $tsv{$id}{$att});
 					}
 				}
 				# new attribute
 				else{
-					print "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n" if ($verbose);
+                                    dual_print($log, "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n", $verbose);
 					$feature->add_tag_value($att, $tsv{$id}{$att});
 				}
 			}
@@ -132,7 +140,9 @@ while (my $feature = $gff_in->next_feature() ) {
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 
 __END__
 

@@ -147,24 +147,32 @@ MESSAGE
 # load configuration file from local file if any either the one shipped with AGAT
 # return a hash containing the configuration.
 sub get_agat_config{
-	my ($args)=@_;
+        my ($args)=@_;
 
-	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
-	print AGAT::AGAT::get_agat_header();
+        my ($config_file_provided);
+        if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
 
-	my ($config_file_provided);
-	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+        # First retrieve the config file path without printing anything yet
+        my $config_file_checked = get_config({type => "local",
+                                              config_file_in => $config_file_provided,
+                                              verbose => 0});
+        # Load and check the configuration
+        my $config = load_config({ config_file => $config_file_checked});
+        check_config({ config => $config});
 
-	# Get the config file
-	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
-	# Load the config
-	my $config = load_config({ config_file => $config_file_checked});
-	check_config({ config => $config});
+        # Print header and config information only if verbosity allows it
+        if ($config->{verbose} > 0){
+                print AGAT::AGAT::get_agat_header();
+                # Re-run get_config to display the message about which file is used
+                get_config({type => "local",
+                            config_file_in => $config_file_provided,
+                            verbose => $config->{verbose}});
+        }
 
-	# Store the config in a Global variable accessible from everywhere.
-	$CONFIG = $config;
-	
-	return $config;
+        # Store the config in a Global variable accessible from everywhere.
+        $CONFIG = $config;
+
+        return $config;
 }
 
 # ==============================================================================

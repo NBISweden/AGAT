@@ -48,6 +48,14 @@ if ( ! defined($opt_file) ) {
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $ostreamReport_file;
@@ -66,18 +74,18 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
+print $ostreamReport $string1 if $ostreamReport;
+dual_print($log, $string1);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
+dual_print($log, "Reading ".$opt_file."\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config
                                                               });
-print("Parsing Finished\n\n");
+dual_print($log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 
@@ -110,9 +118,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
         }
       }
     }
-    print "Shortest intron for $id_l1:".$shortest_intron."\n" if($shortest_intron != 10000000000 and $verbose);
+    dual_print($log, "Shortest intron for $id_l1:".$shortest_intron."\n", ($shortest_intron != 10000000000 and $verbose));
     if ($shortest_intron < $Xsize){
-      print "flag the gene $id_l1\n";
+      dual_print($log, "flag the gene $id_l1\n");
       $nb_cases++;
 
       my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
@@ -150,8 +158,10 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 }
 
 my $toprint = "We found $nb_cases cases where introns were < $Xsize, we flagged them with the attribute $tag. The value of this tag is size of the shortest intron found in this gene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+print $ostreamReport $toprint if $ostreamReport;
+dual_print($log, $toprint);
+
+close $log if $log;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
