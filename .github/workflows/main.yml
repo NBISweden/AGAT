@@ -43,8 +43,13 @@ jobs:
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      # cpanm should use Makefile.PL, not cpanfile (which is for Codex agent)
       - name: install AGAT deps
-        run: cpanm --installdeps --notest --force .
+        run: |
+          mv cpanfile cpanfile.off
+          cpanm --installdeps --notest --force .
+          mv cpanfile.off cpanfile
+          
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
