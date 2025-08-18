@@ -46,6 +46,7 @@ test_requires 'Test::Differences';
 test_requires 'Test::More', '0.98';
 test_requires 'Test::Exception';
 test_requires 'Test::TempDir::Tiny';
+test_requires 'File::chdir';
 test_requires 'Path::Tiny';
 
 
