@@ -24,7 +24,7 @@ $config     = $common->{config};
 $opt_output = $common->{output};
 $verbose    = $common->{verbose};
 
-my @copyARGV = @ARGV;
+my @copyARGV = @{$common->{argv} // \@ARGV};
 if (
     !GetOptions(
         "h|help"   => \$opt_help,

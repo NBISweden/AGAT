@@ -150,6 +150,7 @@ MESSAGE
 sub parse_common_options {
         my ($argv) = @_;
         $argv //= \@ARGV;
+        my @original = @{$argv};
         my %options;
         my $parser = Getopt::Long::Parser->new(config => ['pass_through']);
         $parser->getoptionsfromarray($argv, \%options,
@@ -157,6 +158,7 @@ sub parse_common_options {
                 'output|out|o=s',
                 'verbose|v!'
         ) or return;
+        $options{argv} = \@original;
         return \%options;
 }
 
