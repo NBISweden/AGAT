@@ -65,10 +65,11 @@ sub exists_undef_value {
 }
 
 # @Purpose: check if the table codon is available in bioperl
-# @input: 1 =>  integer
+# @input: 1 =>  integer, 2 => verbose
 # @output 1 => integer
 sub get_proper_codon_table {
-  my ($codon_table_id_original) = @_;
+  my ($codon_table_id_original, $verbose) = @_;
+  if (! defined $verbose) { $verbose = 1; }
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
   
@@ -82,8 +83,10 @@ sub get_proper_codon_table {
     "see https://github.com/bioperl/bioperl-live/pull/315\n".
     "It uses codon table $codon_table_id_bioperl instead.");
   }
-  
-  print "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n";
+
+  dual_print(undef, "Codon table ".$codon_table_id_bioperl.
+                     " in use. You can change it using the appropriate parameter.\n",
+             $verbose);
   return $codon_table_id_bioperl;
 }
 

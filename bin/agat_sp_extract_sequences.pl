@@ -95,10 +95,12 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 }
 
 # --- Manage config ---
+# --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
 # --- Check codon table
-$opt_codonTable = get_proper_codon_table($opt_codonTable);
+# --- Check codon table
+$opt_codonTable = get_proper_codon_table($opt_codonTable, $config->{verbose});
 
 # activate warnings limit
 my %warnings;
@@ -122,7 +124,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-print "We will extract the $opt_type sequences.\n";
+dual_print(undef, "We will extract the $opt_type sequences.\n", $config->{verbose});
 $opt_type=lc($opt_type);
 
 # deal with OFS
@@ -140,11 +142,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-print "Reading file $opt_gfffile\n";
+dual_print(undef, "Reading file $opt_gfffile\n", $config->{verbose});
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-print "Parsing Finished\n";
+dual_print(undef, "Parsing Finished\n", $config->{verbose});
 ### END Parse GFF input #
 #########################
 
@@ -160,7 +162,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-print ("Fasta file parsed\n");
+dual_print(undef, "Fasta file parsed\n", $config->{verbose});
 # ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
@@ -227,24 +229,30 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 }
 
 #END
-print "usage: $0 @copyARGV\n";
+dual_print(undef, "usage: $0 @copyARGV\n", $config->{verbose});
 
 if($opt_upstreamRegion and $opt_downRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n";
+  dual_print(undef,
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n",
+              $config->{verbose});
 }
 elsif($opt_upstreamRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n";
+  dual_print(undef,
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n",
+              $config->{verbose});
 }
 elsif($opt_downRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n";
+  dual_print(undef,
+              "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n",
+              $config->{verbose});
 }
 else{
-  print "$nbFastaSeq $opt_type converted in fasta.\n";
+  dual_print(undef, "$nbFastaSeq $opt_type converted in fasta.\n", $config->{verbose});
 }
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print(undef, "Job done in $run_time seconds\n", $config->{verbose});
 
 #######################################################################################################################
         ####################
@@ -432,7 +440,7 @@ sub extract_sequences{
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
-    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
+    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
   }
   # --------------------------------------
 
@@ -498,7 +506,7 @@ sub extract_sequences{
       }
 
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
     }
   }
   # --------------------------------------
@@ -578,7 +586,7 @@ sub extract_sequences{
       #create object
       my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
     }
 
     # ---- Non spreaded feature extract them one by one
@@ -627,7 +635,7 @@ sub extract_sequences{
         }
 
         #print object
-        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase);
+        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
       }
     }
   }
@@ -768,7 +776,7 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase) = @_;
+  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $verbose) = @_;
 
 
   if($opt_AA){ #translate if asked
@@ -785,7 +793,9 @@ sub print_seqObj{
         if($first_AA ne "M"){ # if the start codon was not a M while it is a valid start codon we have to replace it by a methionine
           my $translated_seq = substr($transObj->seq(),1); # removing first AA
           $transObj->seq("M".$translated_seq);  # adding M as first AA
-          print "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n";
+          dual_print(undef,
+                     "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n",
+                     $verbose);
         }
       }
 
