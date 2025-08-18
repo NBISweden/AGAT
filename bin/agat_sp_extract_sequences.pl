@@ -120,9 +120,9 @@ if($opt_cdna){$opt_type="exon"; $opt_merge=1; $opt_revcomp=1;}
 # shortcut for mrna/transcript
 if($opt_mrna){$opt_type="exon"; $opt_merge=1;}
 
-if( $opt_full   and $opt_split){print "Options --full and --split cannot be used concomitantly.\n"; exit;}
-if( $opt_full   and $opt_merge){print "Options --full and --merge cannot be used concomitantly.\n"; exit;}
-if( $opt_split   and $opt_merge){print "Options --split and --merge cannot be used concomitantly.\n"; exit;}
+if( $opt_full   and $opt_split){dual_print($log, "Options --full and --split cannot be used concomitantly.\n", 1); exit;}
+if( $opt_full   and $opt_merge){dual_print($log, "Options --full and --merge cannot be used concomitantly.\n", 1); exit;}
+if( $opt_split   and $opt_merge){dual_print($log, "Options --split and --merge cannot be used concomitantly.\n", 1); exit;}
 
 my $ostream;
 if ($opt_output) {
@@ -186,7 +186,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
       my $id_seq = clean_string($id_l1);
       my $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
 			if($opt_keep_attributes){
-				print "Extract attributes level1\n" if ($opt_verbose);
+                           dual_print($log, "Extract attributes level1\n", $opt_verbose);
 				my $attributes = extract_attributes($feature_l1);
 				$description.=$OFS.$attributes;
 			}
@@ -211,7 +211,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
           if( $opt_type eq $ptag_l2 or $opt_type eq "l2" or $opt_type eq "level2" ){
 
 						if($opt_keep_attributes ){
-							print "Extract attributes level2\n" if ($opt_verbose);
+                                                   dual_print($log, "Extract attributes level2\n", $opt_verbose);
 							my @List_l1=($feature_l1);
 							my $attributes = extract_attributes( $feature_l2, \@List_l1 );
 							$description.=$OFS.$attributes;
@@ -439,7 +439,7 @@ sub extract_sequences{
 
 		# catch attributes for Level3
 		if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-			print "Extract attributes level3 full\n" if ($opt_verbose);
+                   dual_print($log, "Extract attributes level3 full\n", $opt_verbose);
 			my $attributes = extract_attributes(\@sortedList, $lpa);
 			$description.=$OFS.$attributes;
 		}
@@ -500,7 +500,7 @@ sub extract_sequences{
 
 				# catch attributes for Level3
 				if( $opt_keep_attributes ){ #update header's id information
-					print "Extract attributes level3 split\n" if ($opt_verbose);
+                                   dual_print($log, "Extract attributes level3 split\n", $opt_verbose);
 					my $attributes = extract_attributes($feature, $lpa);
 					$updated_description.=$OFS.$attributes;
 				}
@@ -585,7 +585,7 @@ sub extract_sequences{
 
 			# catch attributes for Level3
 			if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-				print "Extract attributes level3 natural spread merged\n" if ($opt_verbose);
+                           dual_print($log, "Extract attributes level3 natural spread merged\n", $opt_verbose);
 				my $attributes = extract_attributes(\@sortedList, $lpa);
 				$description.=$OFS.$attributes;
 			}
@@ -629,7 +629,7 @@ sub extract_sequences{
 
 					# catch attributes for Level3
 					if( $opt_keep_attributes ){ #update header's id information
-						print "Extract attributes level3 natural not spread or spread not merged\n" if ($opt_verbose);
+                                           dual_print($log, "Extract attributes level3 natural not spread or spread not merged\n", $opt_verbose);
 						my $attributes = extract_attributes($feature, $lpa);
 						$updated_description.=$OFS.$attributes;
 					}

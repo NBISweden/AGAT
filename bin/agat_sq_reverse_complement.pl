@@ -48,6 +48,14 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($opt_gfffile); }
@@ -72,7 +80,7 @@ while(my $seqObj = $seqio->next_seq) {
 #### read fasta again for DB
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-print ("Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n");
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -134,13 +142,15 @@ my $nb_error = 0;
 $nb_error  =  keys %{$info{"error"}};
 
 
-print "Annotations on $nb_flip sequences have been reverse complemented.\n";
-print "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n";
-print "$nb_error sequences from the fasta file were absent from the gff.\n";
+dual_print($log, "Annotations on $nb_flip sequences have been reverse complemented.\n");
+dual_print($log, "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n");
+dual_print($log, "$nb_error sequences from the fasta file were absent from the gff.\n");
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 
 __END__
 

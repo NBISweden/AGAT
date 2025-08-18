@@ -61,10 +61,19 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ###############
 # Test options
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
+  dual_print($log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.");
+  exit;
 }
 
 ###############
@@ -122,8 +131,8 @@ my $value_hash = string_sep_to_hash({ string => $opt_value,
 foreach my $value (keys %{$value_hash}){
   if( ! looks_like_number($value) ){
     if($opt_test ne "=" and $opt_test ne "!"){
-      print "This test $opt_test is not possible with string value.\n";
-      exit; 
+      dual_print($log, "This test $opt_test is not possible with string value.\n");
+      exit;
     }
   }
 }
@@ -138,11 +147,8 @@ if ($opt_value_insensitive){
    $stringPrint .= " case sensitive.\n";
 }
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -154,7 +160,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -271,10 +277,10 @@ if($opt_na_aside){
   $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
 }
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
+
+close $log if $log;
 
 #######################################################################################################################
         ####################
@@ -329,18 +335,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          print "String case\n" if $opt_verbose;
+          dual_print($log, "String case\n", $opt_verbose);
           if ($opt_test eq "="){
-            if ($file_value eq $given_value) { print "equal\n" if $opt_verbose; return 1; }
-            else { print "not equal\n" if $opt_verbose; }
+            if ($file_value eq $given_value) { dual_print($log, "equal\n", $opt_verbose); return 1; }
+            else { dual_print($log, "not equal\n", $opt_verbose); }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ print "different\n" if $opt_verbose; return 1; }
-            else { print "not different\n" if $opt_verbose; }
+            if ($file_value ne $given_value){ dual_print($log, "different\n", $opt_verbose); return 1; }
+            else { dual_print($log, "not different\n", $opt_verbose); }
           }
-        } 
+        }
         else{
-          print "Number case\n" if $opt_verbose;
+          dual_print($log, "Number case\n", $opt_verbose);
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -364,7 +370,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    print "Attribute not found  case\n" if $opt_verbose;
+    dual_print($log, "Attribute not found  case\n", $opt_verbose);
     return 2;
   }
 }

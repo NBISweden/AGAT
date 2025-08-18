@@ -52,6 +52,14 @@ if ( ! $opt_gff or ! $opt_kill_list ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ###############
 # Manage Output
 
@@ -110,11 +118,8 @@ $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will discard $print_feature_string that share the value of the $opt_attribute attribute with the kill list.\n";
 $stringPrint .= "The kill list contains $nb_to_kill uniq IDs\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -124,7 +129,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -216,10 +221,10 @@ $stringPrint = $all_cases{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
 $stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
 $stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
+
+close $log if $log;
 
 #######################################################################################################################
         ####################

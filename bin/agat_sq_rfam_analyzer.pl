@@ -44,6 +44,14 @@ if (! @inputFile ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Manage Output
 my $ostream = prepare_fileout($outputFile);
 
@@ -70,7 +78,7 @@ my %check; #track the repeat already annotated to not. Allow to skip already rea
 
 foreach my $file (@inputFile){
   # Manage input gff file
-  print "Reading $file\n";
+  dual_print($log, "Reading $file\n");
   my $format = $config->{force_gff_input_version};
   if(! $format ){ $format = select_gff_format($file); }
   my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
@@ -79,7 +87,7 @@ foreach my $file (@inputFile){
   my $nbLine=`wc -l < $file`;
   $nbLine =~ s/ //g;
   chomp $nbLine;
-  print "$nbLine line to process...\n";
+  dual_print($log, "$nbLine line to process...\n");
   my $line_cpt=0;
 
   local $| = 1; # Or use IO::Handle; STDOUT->autoflush; Use to print progression bar
@@ -110,11 +118,11 @@ foreach my $file (@inputFile){
     if ((30 - (time - $startP)) < 0) {
       my $done = ($line_cpt*100)/$nbLine;
       $done = sprintf ('%.0f', $done);
-          print "\rProgress : $done %";
+          dual_print($log, "\rProgress : $done %");
       $startP= time;
     }
   }
-  print "\rProgress : 100 %\n";
+  dual_print($log, "\rProgress : 100 %\n");
 }
 
 my $totalNumber=0;
@@ -164,7 +172,9 @@ else{
 
   my $end_run = time();
   my $run_time = $end_run - $start_run;
-  print "Job done in $run_time seconds\n";
+  dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 
 __END__
 
