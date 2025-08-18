@@ -68,14 +68,18 @@ sub exists_undef_value {
 # @input: 1 =>  integer, 2 => verbose
 # @output 1 => integer
 sub get_proper_codon_table {
-  my ($codon_table_id_original, $verbose) = @_;
+  my ($codon_table_id_original, $log, $verbose) = @_;
+  if (defined $log && !ref($log) && !defined $verbose) {
+    $verbose = $log;
+    $log     = undef;
+  }
   if (! defined $verbose) { $verbose = 1; }
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
-  
+
   # To deal with empty result in version of bioperl < april 2024 when asking with table 0 (it was reutrning an empty string)
   if (! defined($codon_table_id_bioperl)){
-	$codon_table_id_bioperl = 1 ; # default codon table
+        $codon_table_id_bioperl = 1 ; # default codon table
   }
 
   if ($codon_table_id_original == 0 and  $codon_table_id_original != $codon_table_id_bioperl){
@@ -84,8 +88,7 @@ sub get_proper_codon_table {
     "It uses codon table $codon_table_id_bioperl instead.");
   }
 
-  dual_print(undef, "Codon table ".$codon_table_id_bioperl.
-                     " in use. You can change it using the appropriate parameter.\n",
+  dual_print($log, "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n",
              $verbose);
   return $codon_table_id_bioperl;
 }

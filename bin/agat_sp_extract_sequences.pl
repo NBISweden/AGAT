@@ -8,6 +8,7 @@ use Getopt::Long;
 use Sort::Naturally;
 use Bio::SeqIO;
 use Bio::DB::Fasta;
+use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
@@ -98,9 +99,17 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file,$path,$ext) = fileparse($opt_gfffile, qr/\.[^.]*/);
+  my $log_name = $file.".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # --- Check codon table
 # --- Check codon table
-$opt_codonTable = get_proper_codon_table($opt_codonTable, $config->{verbose});
+$opt_codonTable = get_proper_codon_table($opt_codonTable, $log, $config->{verbose});
 
 # activate warnings limit
 my %warnings;
@@ -124,7 +133,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-dual_print(undef, "We will extract the $opt_type sequences.\n", $config->{verbose});
+dual_print($log, "We will extract the $opt_type sequences.\n", $config->{verbose});
 $opt_type=lc($opt_type);
 
 # deal with OFS
@@ -142,11 +151,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-dual_print(undef, "Reading file $opt_gfffile\n", $config->{verbose});
+dual_print($log, "Reading file $opt_gfffile\n", $config->{verbose});
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print(undef, "Parsing Finished\n", $config->{verbose});
+dual_print($log, "Parsing Finished\n", $config->{verbose});
 ### END Parse GFF input #
 #########################
 
@@ -162,7 +171,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-dual_print(undef, "Fasta file parsed\n", $config->{verbose});
+dual_print($log, "Fasta file parsed\n", $config->{verbose});
 # ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
@@ -229,30 +238,31 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 }
 
 #END
-dual_print(undef, "usage: $0 @copyARGV\n", $config->{verbose});
+dual_print($log, "usage: $0 @copyARGV\n", $config->{verbose});
 
 if($opt_upstreamRegion and $opt_downRegion){
-  dual_print(undef,
+  dual_print($log,
               "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n",
               $config->{verbose});
 }
 elsif($opt_upstreamRegion){
-  dual_print(undef,
+  dual_print($log,
               "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n",
               $config->{verbose});
 }
 elsif($opt_downRegion){
-  dual_print(undef,
+  dual_print($log,
               "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n",
               $config->{verbose});
 }
 else{
-  dual_print(undef, "$nbFastaSeq $opt_type converted in fasta.\n", $config->{verbose});
+  dual_print($log, "$nbFastaSeq $opt_type converted in fasta.\n", $config->{verbose});
 }
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print(undef, "Job done in $run_time seconds\n", $config->{verbose});
+dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
+close $log if $log;
 
 #######################################################################################################################
         ####################
@@ -440,7 +450,7 @@ sub extract_sequences{
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
-    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
+    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose}, $log);
   }
   # --------------------------------------
 
@@ -506,7 +516,7 @@ sub extract_sequences{
       }
 
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose}, $log);
     }
   }
   # --------------------------------------
@@ -586,7 +596,7 @@ sub extract_sequences{
       #create object
       my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose}, $log);
     }
 
     # ---- Non spreaded feature extract them one by one
@@ -635,7 +645,7 @@ sub extract_sequences{
         }
 
         #print object
-        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose});
+        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $config->{verbose}, $log);
       }
     }
   }
@@ -776,7 +786,7 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $verbose) = @_;
+  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $verbose, $log) = @_;
 
 
   if($opt_AA){ #translate if asked
@@ -793,7 +803,7 @@ sub print_seqObj{
         if($first_AA ne "M"){ # if the start codon was not a M while it is a valid start codon we have to replace it by a methionine
           my $translated_seq = substr($transObj->seq(),1); # removing first AA
           $transObj->seq("M".$translated_seq);  # adding M as first AA
-          dual_print(undef,
+          dual_print($log,
                      "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n",
                      $verbose);
         }
