@@ -25,27 +25,23 @@ use AGAT::AGAT;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $model_to_test = undef;
-my $file_fasta=undef;
-my $split_opt=undef;
-my $codonTable=1;
-my $verbose = 0;
-my $opt_help= 0;
+my ($config, $outfile, $gff, $model_to_test, $file_fasta, $split_opt,
+    $codonTable, $verbose, $opt_help);
 
-my @copyARGV=@ARGV;
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+my @copyARGV = @{ $common->{argv} // [@ARGV] };
+
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,
     "split|s" => \$split_opt,
     "table|codon|ct=i" => \$codonTable,
     "m|model=s" => \$model_to_test,
-    "v=i" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+    ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
