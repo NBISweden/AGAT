@@ -19,20 +19,24 @@ my $verbose = undef;
 my $debug = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"         => \$opt_help,
-    "gff1=s"         => \$gff1,
-    "gff2=s"         => \$gff2,
-	"debug|d!"       => \$debug,
-    "verbose|v!"     => \$verbose,
-    "output|out|o=s" => \$opt_output))
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$verbose    = $common->{verbose};
 
+my @copyARGV = @ARGV;
+if (
+    !GetOptions(
+        "h|help"   => \$opt_help,
+        "gff1=s"   => \$gff1,
+        "gff2=s"   => \$gff2,
+        "debug|d!" => \$debug,
+    )
+  )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+    pod2usage({-message => 'Failed to parse command line',
+                -verbose => 1,
+                -exitval => 1});
 }
 
 # Print Help and exit
