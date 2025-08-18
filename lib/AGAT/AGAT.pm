@@ -15,7 +15,7 @@ use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
-use Getopt::Long qw(GetOptionsFromArray);
+use Getopt::Long;
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
@@ -152,12 +152,16 @@ sub parse_common_options {
         $argv //= \@ARGV;
         my @original = @{$argv};
         my %options;
-        my $parser = Getopt::Long::Parser->new(config => ['pass_through']);
-        $parser->getoptionsfromarray($argv, \%options,
+        my $parser = Getopt::Long::Parser->new( config => ['pass_through'] );
+        $parser->getoptionsfromarray(
+                $argv, \%options,
                 'config|c=s',
                 'output|out|o=s',
-                'verbose|v!'
-        ) or return;
+                'verbose|v!',
+                'debug|d!',
+                'help|h'
+        )
+          or return;
         $options{argv} = \@original;
         return \%options;
 }

@@ -11,32 +11,26 @@ use Sort::Naturally;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_output = undef;
-my $gff1 = undef;
-my $gff2 = undef;
-my $verbose = undef;
-my $debug = undef;
-my $opt_help= 0;
+my ( $config, $opt_output, $gff1, $gff2, $verbose, $debug, $opt_help );
 
 my $common = parse_common_options() || {};
 $config     = $common->{config};
 $opt_output = $common->{output};
 $verbose    = $common->{verbose};
+$debug      = $common->{debug};
+$opt_help   = $common->{help};
 
-my @copyARGV = @{$common->{argv} // \@ARGV};
+my @copyARGV = @{ $common->{argv} // [@ARGV] };
 if (
     !GetOptions(
-        "h|help"   => \$opt_help,
-        "gff1=s"   => \$gff1,
-        "gff2=s"   => \$gff2,
-        "debug|d!" => \$debug,
+        "gff1=s" => \$gff1,
+        "gff2=s" => \$gff2,
     )
   )
 {
-    pod2usage({-message => 'Failed to parse command line',
+    pod2usage({ -message => 'Failed to parse command line',
                 -verbose => 1,
-                -exitval => 1});
+                -exitval => 1 });
 }
 
 # Print Help and exit
