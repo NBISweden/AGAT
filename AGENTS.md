@@ -6,18 +6,11 @@
 - It is a suite of multiple scripts. Some contain similar problems, check all scripts before fixing in only one of them.
 
 ## Dependency bootstrap (run first)
-- Linux: `sudo apt-get update && sudo apt-get install -y libdb-dev make gcc libexpat1-dev libxml2-dev cpanminus`
-- Install cpm and then Perl deps:
-    ```
-    curl -fsSL https://raw.githubusercontent.com/skaji/cpm/main/cpm > cpm && chmod +x cpm
-    ./cpm install -g --no-test --with-develop --workers $(nproc) --show-build-log-on-failure
-    ```
-  - Fallback: `cpanm --quiet --notest --installdeps .`
-- Locked env (if cpanfile.snapshot present): `carton install --deployment`
+- Install cpanm and deps: `sudo apt-get update && sudo apt-get install -y libdb-dev make gcc libexpat1-dev libxml2-dev cpanminus`
+- Install Perl deps and prepare makefile via cpanm using Makefile.PL in repository root: `cpanm --installdeps --notest --force .`
 
 ## Environment
 - Perl versions: 5.36–5.42 preferred.
-- Build: `perl Makefile.PL && make`
 
 ## Tests
 - Fast suite (PR gate): `prove -lr t`   # keep under ~5 min
