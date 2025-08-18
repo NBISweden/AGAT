@@ -11,6 +11,8 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my ($config, @opt_files, $opt_output, $opt_plot, $opt_breaks, $Xpercent, $opt_help);
 
+$Xpercent = 1;
+
 my $common = parse_common_options() || {};
 $config     = $common->{config};
 $opt_output = $common->{output};

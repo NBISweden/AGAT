@@ -12,6 +12,8 @@ my ($config, $opt_gff, $opt_help, $opt_gap, $opt_tair, @opt_tag, $outfile,
     $opt_ensembl, $opt_prefix, $opt_collective, $opt_nbIDstart,
     $opt_type_dependent, $verbose);
 
+$opt_nbIDstart = 1;
+
 my $common = parse_common_options() || {};
 $config   = $common->{config};
 $outfile  = $common->{output};
