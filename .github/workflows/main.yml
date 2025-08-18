@@ -45,10 +45,7 @@ jobs:
           run: cat /home/runner/.cpanm/build.log
       # cpanm should use Makefile.PL, not cpanfile (which is for Codex agent)
       - name: install AGAT deps
-        run: |
-          mv cpanfile cpanfile.off
-          cpanm --installdeps --notest --force .
-          mv cpanfile.off cpanfile
+        run: cpanm --installdeps --notest --force .
           
       - name: test
         env:
