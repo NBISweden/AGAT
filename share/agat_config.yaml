@@ -31,6 +31,7 @@ progress_bar: true
 # Create a log file while parsing the input file to keep track of modification
 # made by AGAT
 log: true
+log_path: "" # by default: <input>.agat.log
 
 # Extra verbosity for debugging
 debug: false

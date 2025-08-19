@@ -18,12 +18,15 @@ my $gff     = undef;
 my $blast   = undef;
 my $opt_help;
 
+my $common = parse_common_options() || {};
+$config  = $common->{config};
+$outfile = $common->{output};
+my $verbose = $common->{verbose};
+$opt_help = $common->{help};
 
-if ( !GetOptions(   'c|config=s'=> \$config,
-                    "h|help"    => \$opt_help,
-                    "gff=s"     => \$gff,
-                    "blast=s"   => \$blast,
-                    "outfile=s" => \$outfile ))
+
+if ( !GetOptions(   "gff=s"     => \$gff,
+                    "blast=s"   => \$blast ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -49,12 +52,9 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
 $config = get_agat_config({config_file_in => $config});
 
 my $log;
-if ($config->{log}) {
-  my ($file) = $0 =~ /([^\/]+)$/;
-  my $log_name = $file . ".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # Open Output files #
 my $out = prepare_gffout($config, $outfile);

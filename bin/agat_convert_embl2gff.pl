@@ -19,15 +19,19 @@ my $discard;
 my $keep;
 my $help;
 
+my $common = parse_common_options() || {};
+$config  = $common->{config};
+$outfile = $common->{output};
+my $verbose = $common->{verbose};
+$help   = $common->{help};
+
 if( !GetOptions(
-    'c|config=s'                 => \$config,
-    "h|help"                     => \$help,
     "embl=s"                     => \$embl,
     "primary_tag|pt|t=s"         => \$primaryTags,
     "d!"                         => \$discard,
     "k!"                         => \$keep,
     "emblmygff3!"                => \$emblmygff3,
-    "outfile|output|o|out|gff=s" => \$outfile))
+    "gff=s"                      => \$outfile))
 {
     pod2usage( { -message => "Failed to parse command line\n$header",
                  -verbose => 1,
@@ -53,12 +57,9 @@ $config = get_agat_config({config_file_in => $config});
 my $throw_fasta=$config->{"throw_fasta"};
 
 my $log;
-if ($config->{log}) {
-  my ($file) = $0 =~ /([^\/]+)$/;
-  my $log_name = $file . ".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ##################
 # MANAGE OPTION  #

@@ -6,7 +6,8 @@ use AGAT::AGAT;
 
 {
     my @args = (
-        '--config', 'foo.yaml', '--output', 'bar',
+        '--config', 'foo.yaml', '--outfile', 'bar',
+        '--log', 'baz.log',
         '--verbose', '--debug', '--help', '--extra', 'val'
     );
     local @ARGV = @args;
@@ -14,7 +15,7 @@ use AGAT::AGAT;
     my $orig = delete $opts->{argv};
     is_deeply(
         $opts,
-        { config => 'foo.yaml', output => 'bar', verbose => 1, debug => 1, help => 1 },
+        { config => 'foo.yaml', output => 'bar', log => 'baz.log', verbose => 1, debug => 1, help => 1 },
         'parsed values'
     );
     is_deeply( \@ARGV, [ '--extra', 'val' ], 'remaining args preserved' );

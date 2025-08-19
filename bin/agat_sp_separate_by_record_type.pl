@@ -14,12 +14,14 @@ my $opt_gfffile;
 my $opt_output;
 my $opt_help = 0;
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+my $verbose = $common->{verbose};
+$opt_help   = $common->{help};
 
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+# OPTION MANAGMENT
+if ( !GetOptions( 'g|gff=s' => \$opt_gfffile ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -45,12 +47,9 @@ if (! defined($opt_gfffile) ){
 $config = get_agat_config({config_file_in => $config});
 
 my $log;
-if ($config->{log}) {
-  my ($file) = $0 =~ /([^\/]+)$/;
-  my $log_name = $file . ".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ######################
 # Manage output file #
