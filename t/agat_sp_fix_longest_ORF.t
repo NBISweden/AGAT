@@ -16,10 +16,10 @@ my $input_folder = catdir($Bin, 'scripts_output', 'in');
 my $output_folder = catdir($Bin, 'scripts_output', 'out');
 my $config = 'agat_config.yaml';
 
-# --------check agat_sp_fix_fusion.pl-------------
+# --------agat_sp_fix_longest_ORF.pl-------------
 
-my $script = $script_prefix . catfile( $bin_dir, "agat_sp_fix_fusion.pl" );
-my $result = "$output_folder/agat_sp_fix_fusion_1.txt";
+my $script = $script_prefix . catfile( $bin_dir, "agat_sp_fix_longest_ORF.pl" );
+my $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp    = catfile( $dir, 'tmp.gff' );
