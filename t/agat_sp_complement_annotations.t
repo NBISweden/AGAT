@@ -25,9 +25,13 @@ my $result = "$output_folder/agat_sp_complement_annotations_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --ref " . catfile($Bin, 'gff_syntax', 'in', '25_test.gff') .
-           "  --add " . catfile($Bin, 'gff_syntax', 'in', '9_test.gff') .
-           " -o $outtmp 2>&1 1>/dev/null");
+    system(
+        " $script --ref "
+          . catfile( $Bin, 'gff', 'gff_syntax', 'in', '25_test.gff' )
+          . "  --add "
+          . catfile( $Bin, 'gff', 'gff_syntax', 'in', '9_test.gff' )
+          . " -o $outtmp 2>&1 1>/dev/null"
+    );
     check_diff( $outtmp, $result, "output $script" );
 }
 

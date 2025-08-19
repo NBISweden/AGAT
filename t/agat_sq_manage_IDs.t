@@ -16,7 +16,7 @@ my $input_folder = catdir($Bin, 'scripts_output', 'in');
 my $output_folder = catdir($Bin, 'scripts_output', 'out');
 my $config = 'agat_config.yaml';
 
-# --------check agat_sq_manage_ID.pl-------------
+# --------check agat_sq_manage_IDs.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sq_manage_IDs.pl");
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }

@@ -75,10 +75,15 @@ $script = $script_prefix . catfile($root, 'bin', 'agat');
     my $new_config_name = catfile( $dir, 'agat_config_renamed.yml' );
     system("$script config -e --output $new_config_name --locus_tag Name");
     my $tmp = catfile( $dir, 'tmp.gff' );
-    system(catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl') .
-           " --gff " . catfile($Bin, 'gff_syntax', 'in', '28_test.gff') .
-           " -c $new_config_name -o $tmp  2>&1 1>/dev/null");
-    check_diff( $tmp, catfile($Bin, 'gff_syntax', 'out', '28_correct_output.gff'),
-                'Use custom agat config file check' );
+    system(
+        catfile( $root, 'bin', 'agat_convert_sp_gxf2gxf.pl' ) .
+          " --gff " . catfile( $Bin, 'gff', 'gff_syntax', 'in', '28_test.gff' ) .
+          " -c $new_config_name -o $tmp  2>&1 1>/dev/null"
+    );
+    check_diff(
+        $tmp,
+        catfile( $Bin, 'gff', 'gff_syntax', 'out', '28_correct_output.gff' ),
+        'Use custom agat config file check'
+    );
 }
 
