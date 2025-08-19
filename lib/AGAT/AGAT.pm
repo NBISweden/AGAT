@@ -15,11 +15,12 @@ use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
+use Getopt::Long;
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options );
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -142,6 +143,27 @@ The configuration can be used to change output format, to merge loci,
 to activate tabix output, etc. (For _sq_ scripts only input/output format 
 configuration parameters are used).
 MESSAGE
+}
+
+# Parse common command-line options shared by many scripts.
+# Options removed from @ARGV to allow further processing by callers.
+sub parse_common_options {
+        my ($argv) = @_;
+        $argv //= \@ARGV;
+        my @original = @{$argv};
+        my %options;
+        my $parser = Getopt::Long::Parser->new( config => ['pass_through'] );
+        $parser->getoptionsfromarray(
+                $argv, \%options,
+                'config|c=s',
+                'output|out|o=s',
+                'verbose|v!',
+                'debug|d!',
+                'help|h'
+        )
+          or return;
+        $options{argv} = \@original;
+        return \%options;
 }
 
 # load configuration file from local file if any either the one shipped with AGAT

@@ -24,20 +24,23 @@ my $cp = undef;
 my $overwrite = undef;
 my $cpt_case=0;
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$opt_help = $common->{help};
+
 if ( !GetOptions(
-    'c|config=s'  => \$config,
-    "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
-		"overwrite"   => \$overwrite,
+                "overwrite"   => \$overwrite,
     "cp"          => \$cp,
     "value=s"     => \$value,
     "strategy=s"  => \$strategy,
     "p|type|l=s"  => \$primaryTag,
     "tag|att=s"   => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+    ))
 
-{
+{ 
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );

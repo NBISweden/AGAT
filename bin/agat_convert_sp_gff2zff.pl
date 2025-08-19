@@ -12,17 +12,19 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my $config;
 my $outfile = undef;
-my $gff = undef;
+my $gff     = undef;
 my $model_id = -1;
-my $fasta = undef;
-my $help;
+my $fasta   = undef;
+my $help    = 0;
+
+my $common = parse_common_options() || {};
+$config  = $common->{config};
+$outfile = $common->{output};
+$help    = $common->{help};
 
 if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$help,
-    "gff=s" => \$gff,
-		"fasta=s" => \$fasta,
-    "outfile|output|out|o=s" => \$outfile))
+    "gff=s"   => \$gff,
+    "fasta=s" => \$fasta))
 {
     pod2usage( { -message => "Failed to parse command line.",
                  -verbose => 1,

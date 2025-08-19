@@ -21,27 +21,23 @@ my $PREFIX_CPT_EXON=1;
 my $PREFIX_CPT_MRNA=1;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $file_fasta=undef;
-my $opt_codonTableID=1;
-my $stranded=undef;
-my $threshold=undef;
-my $verbose=undef;
-my $opt_help= 0;
+my ($config, $outfile, $gff, $file_fasta, $opt_codonTableID, $stranded,
+    $threshold, $verbose, $opt_help);
 
-my @copyARGV=@ARGV;
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+my @copyARGV = @{ $common->{argv} // [@ARGV] };
+
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"           => \$opt_help,
     "gff=s"            => \$gff,
     "fasta|fa=s"       => \$file_fasta,
     "stranded|s"       => \$stranded,
     "table|codon|ct=i" => \$opt_codonTableID,
-    "verbose|v"        => \$verbose,
     "threshold|t=i"    => \$threshold,
-    "output|outfile|out|o=s" => \$outfile))
+    ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',

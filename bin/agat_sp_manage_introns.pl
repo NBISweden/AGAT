@@ -9,23 +9,20 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my ($config, @opt_files, $opt_output, $opt_plot, $opt_breaks, $Xpercent, $opt_help);
 
-my @opt_files;
-my $opt_output=undef;
-my $opt_plot;
-my $opt_breaks;
-my $Xpercent=1;
-my $opt_help = 0;
+$Xpercent = 1;
 
-my @copyARGV=@ARGV;
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
+my @copyARGV = @{ $common->{argv} // [@ARGV] };
+
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
-                  'o|out|output=s'      => \$opt_output,
                   'w|window|b|break|breaks=i'  => \$opt_breaks,
                   'x|p=f'               => \$Xpercent,
-                  'plot!'               => \$opt_plot,
-                  'c|config=s'               => \$config,
-                  'h|help!'             => \$opt_help ) )
+                  'plot!'               => \$opt_plot ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

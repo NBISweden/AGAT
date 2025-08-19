@@ -18,12 +18,15 @@ my $start_run = time();
 my $outfile=undef;
 my $cpt_case=0;
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$opt_help = $common->{help};
+
 if ( !GetOptions(
-    'c|config=s'  => \$config,
-    "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "tag|att=s"   => \$attribute,
-    "output|outfile|out|o=s" => \$outfile))
+    ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',

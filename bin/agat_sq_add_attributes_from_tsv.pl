@@ -20,14 +20,16 @@ my $verbose;
 my $csv;
 my $opt_help = 0;
 
-Getopt::Long::Configure ('bundling');
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$outputFile = $common->{output};
+$verbose    = $common->{verbose};
+$opt_help   = $common->{help};
+
 if ( !GetOptions (  'gff=s' => \$input_gff,
-                    'o|output=s' => \$outputFile,
-			        'tsv=s' => \$input_tsv,
+                                'tsv=s' => \$input_tsv,
                     'csv!' => \$csv,
-			        'v|verbose!' => \$verbose,
-                    'c|config=s'               => \$config,
-                    'h|help!'         => \$opt_help )  )
+                    )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

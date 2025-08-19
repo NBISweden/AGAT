@@ -19,13 +19,15 @@ my $outfile=undef;
 my $opt_help = 0;
 
 
-Getopt::Long::Configure ('bundling');
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+
 if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
       'f|fasta=s' => \$opt_fastafile,
-      'o|output=s' => \$outfile,
-      'v|verbose!' => \$verbose,
-      'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
+      )  )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,

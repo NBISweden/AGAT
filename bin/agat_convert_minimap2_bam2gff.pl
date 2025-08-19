@@ -13,15 +13,17 @@ my $config;
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
-my $opt_output=undef;
-my $opt_help = 0;
+my $opt_output = undef;
+my $opt_help   = 0;
+
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
 
 if ( !GetOptions( 'i|input=s' => \$opt_in,
-                  'b|bam!' => \$opt_bam,
-                  's|sam!' => \$opt_sam,
-                  'o|out|output=s' => \$opt_output,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+                  'b|bam!'    => \$opt_bam,
+                  's|sam!'    => \$opt_sam ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

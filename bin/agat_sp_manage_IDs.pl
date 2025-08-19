@@ -8,23 +8,19 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_gff = undef;
-my $opt_help= 0;
-my $opt_gap=0;
-my $opt_tair=undef;
-my @opt_tag=();
-my $outfile=undef;
-my $opt_ensembl=undef;
-my $opt_prefix=undef;
-my $opt_collective=undef;
-my $opt_nbIDstart=1;
-my $opt_type_dependent = undef;
-my $verbose;
+my ($config, $opt_gff, $opt_help, $opt_gap, $opt_tair, @opt_tag, $outfile,
+    $opt_ensembl, $opt_prefix, $opt_collective, $opt_nbIDstart,
+    $opt_type_dependent, $verbose);
+
+$opt_nbIDstart = 1;
+
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
 
 if ( !GetOptions(
-    'c|config=s'     => \$config,
-    "h|help!"        => \$opt_help,
     "gff|f=s"        => \$opt_gff,
     "nb=i"           => \$opt_nbIDstart,
     "gap=i"          => \$opt_gap,
@@ -33,9 +29,8 @@ if ( !GetOptions(
     "prefix=s"       => \$opt_prefix,
     "p|t|l=s"        => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
-		"collective!"    => \$opt_collective,
-    "verbose|v!"     => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+    "collective!"    => \$opt_collective,
+    ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',

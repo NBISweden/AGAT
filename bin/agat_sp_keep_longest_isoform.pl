@@ -9,17 +9,14 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_output = undef;
-my $opt_genomeSize = undef;
-my $opt_plot = undef;
-my $opt_help= 0;
+my ($config, $gff, $opt_output, $opt_genomeSize, $opt_plot, $opt_help);
+
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
 
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"          => \$opt_help,
-    'o|output=s'      => \$opt_output,
     "gff|f=s"         => \$gff))
 
 {

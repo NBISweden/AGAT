@@ -23,14 +23,17 @@ my $hardMaskChar;
 my $width = 60; # line length printed
 
 # OPTION MANAGMENT
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
+
 if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'f|fa|fasta=s'    => \$opt_fastafile,
                   'hm:s'            => \$opt_HardMask,
                   'sm'              => \$opt_SoftMask,
-                  'o|output=s'      => \$opt_output,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
-{
+                  ) )
+{ 
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );

@@ -20,16 +20,18 @@ my $quiet = undef;
 my $locus_cpt=1;
 my $tag_in=undef;
 
-Getopt::Long::Configure ('bundling');
+my $common = parse_common_options() || {};
+$config    = $common->{config};
+$outfile   = $common->{output};
+$opt_help  = $common->{help};
+
 if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
                   'to|lo=s'           => \$locus_tag,
                   'ti|li=s'           => \$tag_in,
                   "p|type|l=s"        => \$primaryTag,
-                  'o|output=s'        => \$outfile,
                   'q|quiet!'          => \$quiet,
-                  'c|config=s'               => \$config,
-                  'h|help!'           => \$opt_help )  )
-{
+                  )  )
+{ 
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
