@@ -18,6 +18,8 @@ my $config = 'agat_config.yaml';
 
 # --------check agat_sp_filter_by_locus_distance.pl-------------
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_by_locus_distance.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_filter_by_locus_distance_1.gff";
 {
     my $dir = setup_tempdir();

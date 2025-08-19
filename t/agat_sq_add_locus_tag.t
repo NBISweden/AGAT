@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sq_add_locus_tag.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sq_add_locus_tag.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sq_add_locus_tag_1.gff";
 {
     my $dir = setup_tempdir();

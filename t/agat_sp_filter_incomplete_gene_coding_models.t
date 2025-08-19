@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_filter_incomplete_gene_coding_models.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_incomplete_gene_coding_models.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_filter_incomplete_gene_coding_models_1.gff";
 my $result2 = "$output_folder/agat_sp_filter_incomplete_gene_coding_models_incomplete_1.gff";
 {

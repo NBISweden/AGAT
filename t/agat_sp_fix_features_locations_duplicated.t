@@ -20,6 +20,8 @@ my $config = 'agat_config.yaml';
 # removed because order can change. So not reproducible at 100%
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_fix_features_locations_duplicated.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
 {
     my $dir = setup_tempdir();

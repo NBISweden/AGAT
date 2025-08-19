@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_to_tabulated.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_convert_sp_gff2tsv.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_convert_sp_gff2tsv_1.tsv";
 {
     my $dir = setup_tempdir();

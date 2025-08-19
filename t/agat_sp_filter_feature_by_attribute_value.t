@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_filter_feature_by_attribute_value.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_by_attribute_value.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
 {
     my $dir = setup_tempdir();

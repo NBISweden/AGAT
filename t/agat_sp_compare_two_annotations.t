@@ -18,6 +18,8 @@ my $config = 'agat_config.yaml';
 
 # ------------------- check agat_sp_compare_two_annotations script-------------------
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_compare_two_annotations.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
 {
     my $dir = setup_tempdir();

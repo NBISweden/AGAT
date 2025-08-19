@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_flag_premature_stop_codons.pl-------------
 # I use result from another test because it shifted the annotation location, that allows to create pseudogenes because I use the original fasta not shifted
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_flag_premature_stop_codons.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_flag_premature_stop_codons_1.gff";
 {
     my $dir = setup_tempdir();

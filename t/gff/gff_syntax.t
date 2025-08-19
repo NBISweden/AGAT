@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Test::More tests => 47;
 use FindBin qw($Bin);
-use lib "$Bin/lib";
+use lib "$Bin/../lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
 use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
@@ -19,7 +19,7 @@ Test to verify the parser deals properly with the different flavor / bugged gff 
 my $script_prefix = script_prefix();
 
 # script to call to check the parser
-my $root = abs_path(catdir($Bin, '..'));
+my $root = abs_path(catdir($Bin, '..', '..'));
 my $script_agat = $script_prefix . catfile($root, 'bin', 'agat');
 my $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
 my $expected_output_path = catdir($Bin, 'gff_syntax', 'out');

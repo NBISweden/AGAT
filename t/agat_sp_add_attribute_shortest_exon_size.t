@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # -------------------------- check agat_sp_add_attribute_shortest_exon_size -------------------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_add_attribute_shortest_exon_size.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_add_attribute_shortest_exon_size.gff";
 {
     my $dir = setup_tempdir();

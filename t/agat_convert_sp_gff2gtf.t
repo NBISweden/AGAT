@@ -20,6 +20,8 @@ my $config = 'agat_config.yaml';
 my $convert_sp_gff2gtf_folder = "$input_folder/agat_convert_sp_gff2gtf";
 
 my $script = $script_prefix . catfile($bin_dir, "agat_convert_sp_gff2gtf.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
 {
     my $dir = setup_tempdir();

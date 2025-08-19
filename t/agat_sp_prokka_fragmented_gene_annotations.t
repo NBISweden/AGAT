@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # ------------------- check agat_sp_prokka_fragmented_gene_annotations script-------------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_prokka_fix_fragmented_gene_annotations.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.gff";
 my $result2 = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.fa";
 {

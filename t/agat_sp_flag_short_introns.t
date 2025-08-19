@@ -19,6 +19,8 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_flag_short_introns.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_flag_short_introns.pl");
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
 my $result = "$output_folder/agat_sp_flag_short_introns_1.gff";
 {
     my $dir = setup_tempdir();

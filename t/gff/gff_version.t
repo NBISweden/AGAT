@@ -5,7 +5,7 @@ use warnings;
 use AGAT::AGAT;
 use Test::More tests => 6; # half of file to test but each tested twice
 use FindBin qw($Bin);
-use lib "$Bin/lib";
+use lib "$Bin/../lib";
 use File::Spec::Functions qw(catdir catfile);
 use AGAT::TestUtilities qw(setup_tempdir check_diff);
 
