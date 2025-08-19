@@ -654,7 +654,8 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_fix_fusion.pl");
 $result = "$output_folder/agat_sp_fix_fusion_1.txt";
 {
     my $dir = setup_tempdir();
-    my $outtmp   = catfile( $dir, 'tmp.gff' );
+    my $outtmp    = catfile( $dir, 'tmp.gff' );
+    my $outprefix = catfile( $dir, 'tmp' );
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
     #run test
     check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^usage:'" );
@@ -667,7 +668,8 @@ $script = $script_prefix . catfile($bin_dir, "agat_sp_fix_longest_ORF.pl");
 $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
 {
     my $dir = setup_tempdir();
-    my $outtmp   = catfile( $dir, 'tmp.gff' );
+    my $outtmp    = catfile( $dir, 'tmp.gff' );
+    my $outprefix = catfile( $dir, 'tmp' );
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
     #run test
     check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^usage:'" );
