@@ -49,16 +49,24 @@ if ( ! (defined($gff)) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print($log, "We will work on attributes from all features\n");
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-      print "We will work on attributes from $tag feature.\n";
+      dual_print($log, "We will work on attributes from $tag feature.\n");
    }
 }
 
@@ -82,7 +90,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n");
 
 my $geneName=undef;
 my $line_cpt=0;
@@ -96,7 +104,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -127,7 +135,9 @@ foreach my $attribute ( sort keys %all_attributes){
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "\nJob done in $run_time seconds\n";
+dual_print($log, "\nJob done in $run_time seconds\n");
+
+close $log if $log;
 
 #######################################################################################################################
         ####################

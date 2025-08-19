@@ -51,6 +51,14 @@ if (( $interval > 2 or $interval < 1) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
@@ -65,7 +73,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my $count=0;
@@ -108,7 +116,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -118,12 +126,14 @@ while (my $feature = $ref_in->next_feature() ) {
 $count++;
 
 if($count > 0){
-  print "$count line added !\n";
+  dual_print($log, "$count line added !\n");
 }
-else{print "No line added !\n";}
+else{dual_print($log, "No line added !\n");}
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 
 
 sub _write_bucket{

@@ -46,6 +46,14 @@ if ( ! (defined($gff)) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 # Prepare output
 my $gffout = prepare_gffout($config, $outfile);
 
@@ -56,7 +64,7 @@ my $gffout = prepare_gffout($config, $outfile);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 my $nbNameAdded=0;
 
@@ -82,9 +90,9 @@ foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
         $nbNameAdded++;
       }
       elsif($feature->has_tag('Name') and ( ! $force)){
-        print "Feature contains already an attribute Name. You can force it replacement by using the option --force\n";
+        dual_print($log, "Feature contains already an attribute Name. You can force it replacement by using the option --force\n");
       }
-      print "Name found in gene attribute = $name\n";
+      dual_print($log, "Name found in gene attribute = $name\n");
     }# Name not found in gene attribute. So we try to get the name included in the inference attribute.
     elsif($feature->has_tag('inference')){
       my @inferenceAtt=$feature->get_tag_values('inference');
@@ -111,14 +119,16 @@ foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
           $nbNameAdded++;
         }
         elsif($feature->has_tag('Name') and ( ! $force)){
-          print "Feature contains already an attribute Name. You can force it replacement by using the option --force\n";
+          dual_print($log, "Feature contains already an attribute Name. You can force it replacement by using the option --force\n");
         }
-        print "My Name get in inference attribute = $name\n";
+        dual_print($log, "My Name get in inference attribute = $name\n");
       }
     }
   }
 }
-print "We added $nbNameAdded Name attributes\n";
+dual_print($log, "We added $nbNameAdded Name attributes\n");
+
+close $log if $log;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

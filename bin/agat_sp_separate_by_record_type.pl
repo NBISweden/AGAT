@@ -44,16 +44,24 @@ if (! defined($opt_gfffile) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ######################
 # Manage output file #
 
 if (! $opt_output) {
-  print "Default output name: split_result\n";
+  dual_print($log, "Default output name: split_result\n");
   $opt_output="split_result";
 }
 
 if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+  dual_print($log, "The output directory choosen already exists. Please give me another Name.\n", 1);exit();
 }
 mkdir $opt_output;
 
@@ -66,7 +74,7 @@ mkdir $opt_output;
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 
 my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
@@ -177,7 +185,9 @@ foreach my $key (keys %handlers){
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 __END__
 
 =head1 NAME

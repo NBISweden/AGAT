@@ -52,10 +52,18 @@ if ( ! (defined($embl)) ){
 $config = get_agat_config({config_file_in => $config});
 my $throw_fasta=$config->{"throw_fasta"};
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ##################
 # MANAGE OPTION  #
 if($discard and $keep){
-  print "Cannot discard and keep the same primary tag. You have to choose if you want to discard it or to keep it.\n";
+  dual_print($log, "Cannot discard and keep the same primary tag. You have to choose if you want to discard it or to keep it.\n", 1);
 }
 
 ### If primaryTags given, parse them:
@@ -65,18 +73,20 @@ if ($primaryTags){
   @listprimaryTags= split(/,/, $primaryTags);
 
   if($discard){
-    print "We will not keep the following primary tag:\n";
+    dual_print($log, "We will not keep the following primary tag:\n");
     foreach my $tag (@listprimaryTags){
-      print $tag,"\n";
+      dual_print($log, $tag."\n");
     }
   }
   elsif($keep){ # Attribute we have to replace by a new name
-    print "We will keep only the following primary tag:\n";
+    dual_print($log, "We will keep only the following primary tag:\n");
     foreach my $tag (@listprimaryTags){
-      print $tag,"\n";
+      dual_print($log, $tag."\n");
     }
   }
-  else{print "You gave a list of primary tag wihtout telling me what you want I do with. Discard them or keep only them ?\n";}
+  else{dual_print($log, "You gave a list of primary tag wihtout telling me what you want I do with. Discard them or keep only them ?\n", 1);}
+
+close $log if $log;
 }
 
 

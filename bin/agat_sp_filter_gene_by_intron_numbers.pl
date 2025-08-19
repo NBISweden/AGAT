@@ -49,6 +49,14 @@ if ( ! $opt_gff ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
+my $log;
+if ($config->{log}) {
+  my ($file) = $0 =~ /([^\/]+)$/;
+  my $log_name = $file . ".agat.log";
+  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+  dual_print($log, $header, 0);
+}
+
 ###############
 # Manage Output
 
@@ -72,7 +80,8 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 #Manage test option
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";exit;
+  dual_print($log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.");
+  exit;
 }
 
 # start with some interesting information
@@ -80,11 +89,8 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will select genes that contain $opt_test $opt_nb introns.\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -94,7 +100,7 @@ else{ print $stringPrint; }
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -165,10 +171,10 @@ my $test_fail = scalar @list2;
 
 $stringPrint = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
 $stringPrint .= "$test_fail remaining genes that not pass the test.\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
+
+close $log if $log;
 
 #######################################################################################################################
         ####################
