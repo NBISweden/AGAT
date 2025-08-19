@@ -11,24 +11,27 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $primaryTagCopy="level2";
-my $primaryTagPaste="level3";
-my $opt_output= undef;
-my $attributes="all_attributes";
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my $primaryTagCopy  = "level2";
+my $primaryTagPaste = "level3";
+my $opt_output      = undef;
+my $attributes      = "all_attributes";
+my $opt_gff         = undef;
+my $opt_verbose     = undef;
+my $opt_help        = 0;
+my @copyARGV;
+
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_verbose = $common->{verbose} // 0;
+$opt_help   = $common->{help};
+@copyARGV   = @{$common->{argv}};
 
 # OPTION MANAGMENT
-my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
                   "feature_copy|fc=s"    => \$primaryTagCopy,
                   "feature_paste|fp=s"   => \$primaryTagPaste,
-                  'o|output=s'           => \$opt_output,
-                  "a|tag|att|attribute=s"  => \$attributes,
-                  'v|verbose!'           => \$opt_verbose,
-                  'c|config=s'           => \$config,
-                  'h|help!'              => \$opt_help ) )
+                  "a|tag|att|attribute=s"  => \$attributes ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

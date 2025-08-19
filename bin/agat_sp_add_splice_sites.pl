@@ -12,16 +12,19 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $spliceID = 1;
+my $spliceID  = 1;
 my $opt_file;
-my $opt_output=undef;
-my $opt_help = 0;
+my $opt_output = undef;
+my $opt_help   = 0;
+my @copyARGV;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'c|config=s'          => \$config,
-                  'h|help!'             => \$opt_help ) )
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
+@copyARGV   = @{$common->{argv}};
+
+if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,

@@ -12,18 +12,20 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my $config;
 my $outfile = undef;
-my $ref = undef;
+my $ref     = undef;
 my $opt_merge;
-my $verbose;
+my $verbose = 0;
 my $opt_help = 0;
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose} // 0;
+$opt_help = $common->{help};
+
 if ( !GetOptions(
-		'c|config=s'               => \$config,
-		"h|help"                 => \$opt_help,
-		"f|file|gff3|gff=s"      => \$ref,
-		"merge|m!"               => \$opt_merge,
-		"output|outfile|out|o=s" => \$outfile,
-		"verbose|v!"             => \$verbose))
+                "f|file|gff3|gff=s"      => \$ref,
+                "merge|m!"               => \$opt_merge))
 
 {
     pod2usage( { -message => 'Failed to parse command line',

@@ -12,17 +12,19 @@ my $opt_output;
 my $gff;
 my $relax;
 my $gtf_version;
-my $verbose;
-my $help;
+my $verbose = 0;
+my $help    = 0;
+
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$verbose    = $common->{verbose} // 0;
+$help       = $common->{help};
 
 
 if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"                   => \$help,
-    "gff|gtf|i=s"              => \$gff,
-	"gtf_version=s"            => \$gtf_version,
-	"verbose|v!"               => \$verbose,
-    "outfile|output|o|out=s"   => \$opt_output))
+    "gff|gtf|i=s"      => \$gff,
+    "gtf_version=s"    => \$gtf_version ))
 {
     pod2usage( { -message => "Failed to parse command line.",
                  -verbose => 1,
