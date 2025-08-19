@@ -106,6 +106,7 @@ my %WriteMakefileArgs = (
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
   clean => { FILES => 'AGAT-*' },
+  test  => { TESTS => 't/*.t t/*/*.t' },
 );
 
 my %FallbackPrereqs = %prereq_hash;
