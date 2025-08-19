@@ -43,14 +43,14 @@ jobs:
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
-      # cpanm should use Makefile.PL, not cpanfile (which is for Codex agent)
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
-          
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make test
+        run: |
+          perl Makefile.PL
+          HARNESS_OPTIONS=j$(nproc) make test
 
   # This workflow contains a first job called "build"
   build_perl530:

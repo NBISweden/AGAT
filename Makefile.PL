@@ -3,8 +3,12 @@ use strict;
 use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 use File::ShareDir::Install;
+use Cwd qw(abs_path);
 
 install_share dist => 'share';
+
+# ensure temporary test directories are isolated
+$ENV{HARNESS_PERL_SWITCHES} = join ' ', '-I' . abs_path('t/lib') . ' -MAGAT::TestUtilities', ($ENV{HARNESS_PERL_SWITCHES} // '');
 
 # ------------------- CREATE LIST OF EXE FILE ----------------------------------
 
@@ -82,8 +86,11 @@ my %WriteMakefileArgs = (
   BUILD_REQUIRES  => {"ExtUtils::MakeMaker" => 6.31,
                       "File::ShareDir::Install" => 0
                     },
-  TEST_REQUIRES   => {"Test::More" => 0
-                     },
+  TEST_REQUIRES   => {
+                     "Test::More"        => 0,
+                     "Test::TempDir::Tiny" => 0,
+                     "File::chdir"       => 0,
+                    },
   EXE_FILES       => $ref_list_exe,
   META_MERGE      => {
       'meta-spec' => { version => 2 },
@@ -99,6 +106,7 @@ my %WriteMakefileArgs = (
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
   clean => { FILES => 'AGAT-*' },
+  test  => { TESTS => 't/*.t t/*/*.t' },
 );
 
 my %FallbackPrereqs = %prereq_hash;
