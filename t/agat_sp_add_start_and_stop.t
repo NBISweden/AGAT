@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_add_start_and_stop_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $input_folder/1.fa --ni -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -37,7 +36,6 @@ $result = "$output_folder/agat_sp_add_start_and_stop_2.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/agat_sp_add_start_and_stop.gff --fasta $input_folder/1.fa -e --ni -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

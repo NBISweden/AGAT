@@ -28,7 +28,6 @@ while (my $file = readdir(DIR)) {
    {
        my $dir = setup_tempdir();
        print "$path -h 1>/dev/null\n";
-       #run test - check the script can run calling the help.
        ok( system("$path -h 1>/dev/null") == 0, "test $file" );
    }
 }

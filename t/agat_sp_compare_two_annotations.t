@@ -23,7 +23,6 @@ my $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 
@@ -34,7 +33,6 @@ $result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 
@@ -45,7 +43,6 @@ $result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 

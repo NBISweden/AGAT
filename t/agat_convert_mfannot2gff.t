@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_convert_mfannot2gff_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --mfannot $input_folder/test.mfannot -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -37,7 +36,6 @@ $result = "$output_folder/agat_convert_mfannot2gff_2.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --mfannot $input_folder/test.mfannot2 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

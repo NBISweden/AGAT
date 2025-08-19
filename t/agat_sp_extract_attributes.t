@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_extract_attributes_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --att protein_id -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "${outprefix}_protein_id.gff", $result, "output $script" );
 }
 

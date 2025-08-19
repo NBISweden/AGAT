@@ -24,7 +24,6 @@ my $result = "$output_folder/agat_convert_minimap2_bam2gff_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script -i $input_folder/test_minimap2.sam -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

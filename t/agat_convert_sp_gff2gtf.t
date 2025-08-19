@@ -26,7 +26,6 @@ my $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -37,7 +36,6 @@ $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_2.gtf";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $convert_sp_gff2gtf_folder/stop_start_an_exon.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -48,7 +46,6 @@ $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_3.gtf";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -59,7 +56,6 @@ $result = "$convert_sp_gff2gtf_folder/result_issue_245.gtf";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $convert_sp_gff2gtf_folder/issue_245.gff --gtf_version 3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

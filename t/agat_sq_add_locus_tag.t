@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sq_add_locus_tag_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

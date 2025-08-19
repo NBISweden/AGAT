@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_separate_by_record_type_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/trna.gff", $result, "output $script" );
 }
 

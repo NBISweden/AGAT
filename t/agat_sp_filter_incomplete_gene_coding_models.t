@@ -26,7 +26,6 @@ my $result2 = "$output_folder/agat_sp_filter_incomplete_gene_coding_models_incom
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
     check_diff( $outprefix . "_incomplete.gff", $result2, "output $script" );
 }

@@ -35,7 +35,6 @@ my $output_folder = catdir($Bin, 'gff_other', 'out');
 
     system("$script --gff " . catfile($input_folder, 'zip_and_fasta.gff.gz') . " -o $pathtmp  2>&1 1>/dev/null");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "zip_and_fasta check" );
 }
 
@@ -49,7 +48,6 @@ my $output_folder = catdir($Bin, 'gff_other', 'out');
     system("$script_agat config --expose --tabix 2>&1 1>/dev/null");
     system("$script --gff " . catfile($Bin, 'scripts_output', 'in', '1.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "tabix check" );
 }
 
@@ -62,7 +60,6 @@ my $output_folder = catdir($Bin, 'gff_other', 'out');
 
     system("$script --gff " . catfile($input_folder, 'issue329.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "issue329 check" );
 }
 
@@ -75,7 +72,6 @@ my $output_folder = catdir($Bin, 'gff_other', 'out');
 
     system("$script --gff " . catfile($input_folder, 'issue368.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "issue368 check" );
 }
 
@@ -88,7 +84,6 @@ my $output_folder = catdir($Bin, 'gff_other', 'out');
 
     system("$script --gff " . catfile($input_folder, 'issue389.gff') . " -o $pathtmp 2>&1 1>/dev/null");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "issue389 check" );
 }
 

@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_move_attributes_within_records.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/agat_sp_move_attributes_within_records.gff --fp exon,CDS --fc mRNA -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

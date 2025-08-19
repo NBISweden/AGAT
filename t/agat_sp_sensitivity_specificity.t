@@ -24,7 +24,6 @@ my $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
     system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -35,7 +34,6 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -46,7 +44,6 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -57,7 +54,6 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -68,7 +64,6 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
     system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 

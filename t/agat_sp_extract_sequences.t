@@ -25,7 +25,6 @@ my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test1" );
 }
 
@@ -37,7 +36,6 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_spl
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --split -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test2" );
 }
 
@@ -49,7 +47,6 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_mer
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -t exon --merge -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test3" );
 }
 
@@ -61,7 +58,6 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_ful
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --full -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test4" );
 }
 
@@ -73,7 +69,6 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_att
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_attributes -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test5" );
 }
 
@@ -85,7 +80,6 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_par
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_parent_attributes -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script test6" );
 }
 

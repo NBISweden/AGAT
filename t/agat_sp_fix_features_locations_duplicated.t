@@ -26,7 +26,6 @@ my $result = "$output_folder/agat_sp_fix_features_locations_duplicated_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/agat_sp_fix_features_locations_duplicated/test.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

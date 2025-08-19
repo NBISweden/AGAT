@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_functional_statistics_1.txt";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/function.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/gene\@mrna/table_per_feature_type.txt", "$output_folder/agat_sp_functional_statistics/table_gene_mrna.txt", "output $script" );
     check_diff( "$outtmp/repeat_region/table_per_feature_type.txt", "$output_folder/agat_sp_functional_statistics/table_repeat.txt", "output $script" );
 }

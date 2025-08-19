@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_manage_IDs_1.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff --prefix NBIS --ensembl --tair --type_dependent -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

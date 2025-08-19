@@ -24,7 +24,6 @@ my $result = "$output_folder/agat_sp_filter_by_ORF_size_sup100.gff";
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "${outprefix}_sup100.gff", $result, "output $script" );
 }
 

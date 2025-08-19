@@ -24,7 +24,6 @@ my $result = "$output_folder/agat_convert_genscan2gff_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     system(" $script --genscan $input_folder/test.genscan -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

@@ -68,7 +68,6 @@ foreach my $file (sort { (($a =~ /^(\d+)/)[0] || 0) <=> (($b =~ /^(\d+)/)[0] || 
     my @splitname = split /_/, $file;
     my $correct_output = catfile($expected_output_path, "$splitname[0]_correct_output.gff");
 
-    #run test
     check_diff( $pathtmp, $correct_output, "parse $file" );
 
     # cleaning

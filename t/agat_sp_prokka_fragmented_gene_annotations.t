@@ -26,7 +26,6 @@ my $result2 = "$output_folder/agat_sp_prokka_fix_fragmented_gene_annotations_1.f
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
     system(" $script --gff $input_folder/prokka_cav_10DC88.gff --fasta $input_folder/prokka_cav_10DC88.fa --db $input_folder/prokka_bacteria_sprot.fa --skip_hamap --frags -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outtmp/prokka_cav_10DC88.gff", $result, "output $script" );
     check_diff( "$outtmp/prokka_cav_10DC88.fa", $result2, "output $script" );
 }

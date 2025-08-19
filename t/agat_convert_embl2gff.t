@@ -24,7 +24,6 @@ my $result = "$output_folder/agat_convert_embl2gff_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     system(" $script --embl $input_folder/agat_convert_embl2gff_1.embl -o $outtmp --emblmygff3 2>&1 1>/dev/null");
-    #run test
     check_diff( $outtmp, $result, "output $script" );
 }
 

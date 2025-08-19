@@ -25,7 +25,6 @@ my $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
     my $outtmp    = catfile( $dir, 'tmp.gff' );
     my $outprefix = catfile( $dir, 'tmp' );
     system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
-    #run test
     check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^usage:'" );
 }
 
