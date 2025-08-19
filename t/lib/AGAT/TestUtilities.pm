@@ -19,7 +19,6 @@ sub setup_tempdir {
 sub check_diff {
     my ( $got, $expected, $label, $opts ) = @_;
     $opts //= '';
-    diag("Comparing files: $got <-> $expected");
     my $diff_output = qx(diff $opts $got $expected 2>&1);
     my $exit_code   = $? >> 8;
     diag("Diff output:\n$diff_output") if $exit_code != 0;
