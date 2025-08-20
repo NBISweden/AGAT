@@ -19,16 +19,11 @@ bash .agents/bootstrap.sh
 AUTHOR_TESTING=1 .agents/with-perl-local.sh prove -lr xt/author
 ```
 
-## Dependency bootstrap (run first)
-- Install cpanm and deps: `sudo apt-get update && sudo apt-get install -y libdb-dev make gcc libexpat1-dev libxml2-dev cpanminus`
-- Install Perl deps and prepare makefile via cpanm using Makefile.PL in repository root: `cpanm --installdeps --notest --force .`
-
 ## Environment
 - Perl versions: 5.36–5.42 preferred.
 
 ## Tests
-- Fast suite (PR gate): `prove -lr t`   # keep under ~5 min
-- Full suite (nightly/main): `make test`
+- Full suite: `make test`
 - Coverage (optional): `cover -test` (uploader: Coveralls/Codecov if configured)
 - Config management: `agat config --expose 2>&1 1>/dev/null` (redirecting to suppress messages). By default, it creates `agat_config.yaml` in the workdir. Use `--output <local_config_path>` to rename and `--config <local_config_path>` when invoking scripts.
 
