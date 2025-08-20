@@ -18,13 +18,15 @@ my $verbose=undef;
 my $Xsize=10;
 my $opt_help = 0;
 
+my $common = parse_common_options() || {};
+$config    = $common->{config};
+$opt_output = $common->{output};
+$verbose   = $common->{verbose};
+$opt_help  = $common->{help};
+
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'v|verbose!'          => \$verbose,
-                  'i|intron_size=i'     => \$Xsize,
-                  'c|config=s'          => \$config,
-                  'h|help!'             => \$opt_help ) )
+                  'i|intron_size=i'     => \$Xsize ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -49,12 +51,9 @@ if ( ! defined($opt_file) ) {
 $config = get_agat_config({config_file_in => $config});
 
 my $log;
-if ($config->{log}) {
-  my ($file) = $0 =~ /([^\/]+)$/;
-  my $log_name = $file . ".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

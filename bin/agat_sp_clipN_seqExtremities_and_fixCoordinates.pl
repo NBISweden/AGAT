@@ -19,14 +19,18 @@ my $opt_output_gff;
 my $opt_help;
 my $width = 60; # line length printed
 
+my $common = parse_common_options() || {};
+$config        = $common->{config};
+$opt_output_gff = $common->{output};
+my $verbose    = $common->{verbose};
+$opt_help      = $common->{help};
+
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
                   'f|fa|fasta=s'    => \$opt_fastafile,
                   'of=s'            => \$opt_output_fasta,
-                  'og=s'            => \$opt_output_gff,
-                  'c|config=s'      => \$config,
-                  'h|help!'         => \$opt_help ) )
+                  'og=s'            => \$opt_output_gff ) )
 {
     pod2usage( { -message => "Failed to parse command line",
                  -verbose => 1,
@@ -52,12 +56,9 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 $config = get_agat_config({config_file_in => $config});
 
 my $log;
-if ($config->{log}) {
-  my ($file) = $0 =~ /([^\/]+)$/;
-  my $log_name = $file . ".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ######################
 # Manage output file #

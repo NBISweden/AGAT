@@ -16,11 +16,14 @@ my $opt_output = "output_functional_statistics";
 my $opt_genomeSize = undef;
 my $opt_help= 0;
 
+my $common = parse_common_options() || {};
+$config      = $common->{config};
+$opt_output  = $common->{output} // $opt_output;
+my $verbose  = $common->{verbose};
+$opt_help    = $common->{help};
+
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"     => \$opt_help,
     'g|gs=s'     => \$opt_genomeSize,
-    'o|output=s' => \$opt_output,
     "gff|f=s"    => \$gff))
 
 {
@@ -45,6 +48,11 @@ if ( ! (defined($gff)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

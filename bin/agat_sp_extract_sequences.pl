@@ -44,10 +44,15 @@ my $opt_type = 'cds';
 my $opt_upstreamRegion=undef;
 my $opt_verbose=undef;
 
+my $common = parse_common_options() || {};
+$config       = $common->{config};
+$opt_output   = $common->{output};
+$opt_verbose  = $common->{verbose};
+$opt_help     = $common->{help};
+
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
-                  'c|config=s'                   => \$config,
                   'cdna!'                        => \$opt_cdna,
                   'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
                   'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
@@ -56,13 +61,11 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'f|fa|fasta=s'                 => \$opt_fastafile,
                   'full!'                        => \$opt_full,
                   'g|gff=s'                      => \$opt_gfffile,
-                  'h|help!'                      => \$opt_help,
                   'keep_attributes!'             => \$opt_keep_attributes,
                   'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
                   'merge!'                       => \$opt_merge,
                   'mrna|transcript!'             => \$opt_mrna,
                   'ofs=s'                        => \$opt_OFS,
-                  'o|output=s'                   => \$opt_output,
                   'plus_strand_only!'            => \$opt_plus_strand_only,
                   'p|protein|aa!'                => \$opt_AA,
                   'q|quiet!'                     => \$opt_quiet,
@@ -71,8 +74,7 @@ if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codo
                   'split!'                       => \$opt_split,
                   'table|codon|ct=i'             => \$opt_codonTable,
                   't|type=s'                     => \$opt_type,
-                  'up|5|five|upstream=i'         => \$opt_upstreamRegion,
-                  'verbose|v!'                   => \$opt_verbose ) )
+                  'up|5|five|upstream=i'         => \$opt_upstreamRegion ) )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
@@ -96,16 +98,12 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
 }
 
 # --- Manage config ---
-# --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
 my $log;
-if ($config->{log}) {
-  my ($file,$path,$ext) = fileparse($opt_gfffile, qr/\.[^.]*/);
-  my $log_name = $file.".agat.log";
-  open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-  dual_print($log, $header, 0);
-}
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # --- Check codon table
 # --- Check codon table

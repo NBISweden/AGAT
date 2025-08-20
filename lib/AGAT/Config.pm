@@ -174,10 +174,14 @@ sub check_config{
 		print "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;
 	}
-	if( !  exists_keys($config,("log") ) ){
-		print "log parameter missing in the configuration file.\n";
-		$error = 1;
-	}
+        if( !  exists_keys($config,("log") ) ){
+                print "log parameter missing in the configuration file.\n";
+                $error = 1;
+        }
+        if( !  exists_keys($config,("log_path") ) ){
+                print "log_path parameter missing in the configuration file.\n";
+                $error = 1;
+        }
 	if( !  exists_keys($config, ("debug") ) ){
 		print "debug parameter missing in the configuration file.\n";
 		$error = 1;

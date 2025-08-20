@@ -14,6 +14,7 @@ my $config;
 my $mfannot_file;
 my $verbose;
 my $gff_file;
+my $opt_help;
 my %startend_hash;     # Stores start and end positions of each feature reported
 my %sorted_hash;
 my %hash_uniqID;
@@ -21,14 +22,24 @@ my %filtered_result;
 my $omniscient={}; #Hash where all the features will be saved
 my $hashID={}; # ex %miscCount;# Hash to store any counter.
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$gff_file = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+
 GetOptions(
     'mfannot|m|i=s'  => \$mfannot_file,
     'gff|g|o=s'      => \$gff_file,
-	'v|verbose!'     => \$verbose,
+    'v|verbose!'     => \$verbose,
     'c|config=s'     => \$config,
-    'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
+    'h|help!'        => \$opt_help,
     'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 ) or pod2usage ( -exitstatus=>2, -verbose=>2 );
+
+if ($opt_help) {
+    pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" );
+}
 
 if (!defined $mfannot_file) {
     pod2usage( -message=>"Insufficient options supplied", -exitstatus=>2 );
@@ -36,6 +47,11 @@ if (!defined $mfannot_file) {
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ## Manage output file
 my $gffout = prepare_gffout($config, $gff_file);

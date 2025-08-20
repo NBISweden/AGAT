@@ -20,6 +20,7 @@ locus_tag:
   - test1
   - test2
 log: false
+log_path: ''
 merge_loci: true
 output_format: gtf
 prefix_new_id: nbisTEST

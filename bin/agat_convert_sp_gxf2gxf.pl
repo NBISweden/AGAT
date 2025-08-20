@@ -16,6 +16,11 @@ my $opt_gfffile;
 my $opt_output;
 my $opt_help;
 
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_help   = $common->{help};
+
 # OPTION MANAGMENT
 my @copyARGV=@ARGV;
 if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
@@ -45,6 +50,11 @@ if (! defined($opt_gfffile) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ######################
 # Manage output file #

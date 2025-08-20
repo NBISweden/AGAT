@@ -21,16 +21,19 @@ my $add = undef;
 my $cp = undef;
 my $overwrite = undef;
 
+my $common = parse_common_options() || {};
+$config  = $common->{config};
+$outfile = $common->{output};
+my $verbose = $common->{verbose};
+$opt_help = $common->{help};
+
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,
     "add"         => \$add,
-		"overwrite"   => \$overwrite,
+                "overwrite"   => \$overwrite,
     "cp"          => \$cp,
     "p|type|l=s"  => \$primaryTag,
-    "tag|att=s"   => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+    "tag|att=s"   => \$attributes))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -55,6 +58,11 @@ if ( ! $gff or ! $attributes){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 my $gffout = prepare_gffout($config, $outfile);
 

@@ -20,7 +20,7 @@ use Getopt::Long;
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path );
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -156,7 +156,8 @@ sub parse_common_options {
         $parser->getoptionsfromarray(
                 $argv, \%options,
                 'config|c=s',
-                'output|out|o=s',
+                'output|outfile|out|o=s',
+                'log=s',
                 'verbose|v!',
                 'debug|d!',
                 'help|h'
@@ -164,6 +165,16 @@ sub parse_common_options {
           or return;
         $options{argv} = \@original;
         return \%options;
+}
+
+sub get_log_path {
+        my ($common, $config) = @_;
+        $common ||= {};
+        $config ||= {};
+        return $common->{log} || $config->{log_path} || do {
+                my ($file) = $0 =~ /([^\\\/]+)$/;
+                $file . ".agat.log";
+        };
 }
 
 # load configuration file from local file if any either the one shipped with AGAT

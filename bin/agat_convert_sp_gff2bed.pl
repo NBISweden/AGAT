@@ -14,6 +14,11 @@ my $sub = "exon";
 my $opt_nc = "keep";
 my $help;
 
+my $common = parse_common_options() || {};
+$config  = $common->{config};
+$outfile = $common->{output};
+$help    = $common->{help};
+
 if( !GetOptions(
     'c|config=s'               => \$config,
     "h|help" => \$help,
@@ -42,6 +47,11 @@ if ( ! (defined($gff)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ## Manage output file
 my $bedout;

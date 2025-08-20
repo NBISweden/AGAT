@@ -18,14 +18,16 @@ my $ref = undef;
 my $verbose = undef;
 my $opt_help= 0;
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"                 => \$opt_help,
     "f|file|gff3|gff=s"      => \$ref,
-    "v|verbose!"              => \$verbose,
-    "m|model=s"              => \$model_to_test,
-    "output|outfile|out|o=s" => \$outfile))
+    "m|model=s"              => \$model_to_test ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -49,6 +51,11 @@ if ( ! (defined($ref)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 ######################
 # Manage output file #
