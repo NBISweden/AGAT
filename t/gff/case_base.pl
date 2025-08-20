@@ -21,11 +21,12 @@ my $file = $FILE // die 'No $FILE provided';
 my $expected_override = $EXPECTED; # may be undef
 
 my $script_prefix = script_prefix();
-my $root = abs_path(catdir($CASE_DIR, '..', '..', '..'));
+my $root = abs_path(catdir($CASE_DIR, '..', '..'));
 my $script_agat = $script_prefix . catfile($root, 'bin', 'agat');
 my $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
-my $expected_output_path = catdir($CASE_DIR, 'out');
-my $input_path = catdir($CASE_DIR, 'in');
+my $fixtures = catdir($CASE_DIR, 'gff_syntax');
+my $expected_output_path = catdir($fixtures, 'out');
+my $input_path = catdir($fixtures, 'in');
 
 my $dir = setup_tempdir();
 my $pathtmp = catfile($dir, 'tmp.gff');
