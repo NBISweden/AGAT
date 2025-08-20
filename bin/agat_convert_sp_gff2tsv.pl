@@ -17,6 +17,11 @@ my $opt_help= 0;
 my $primaryTag=undef;
 my $attributes=undef;
 my $opt_output=undef;
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$opt_output = $common->{output};
+$opt_help  = $common->{help};
+
 my $add = undef;
 my $cp = undef;
 
@@ -48,6 +53,11 @@ if ( ! (defined($gff)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # Manage Output
 my $ostream     = IO::File->new();
