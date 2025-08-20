@@ -90,5 +90,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
-          HARNESS_OPTIONS: "j$(nproc)"
-        run: cover -test -report Coveralls
+        run: |
+          export HARNESS_OPTIONS=j$(nproc)
+          cover -test -report Coveralls
