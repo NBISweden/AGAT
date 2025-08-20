@@ -16,11 +16,12 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 use Getopt::Long;
+use AGAT::AppEaser ();
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options );
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -175,6 +176,21 @@ sub get_log_path {
                 my ($file) = $0 =~ /([^\\\/]+)$/;
                 $file . ".agat.log";
         };
+}
+
+# Merge command-line options with configuration defaults using AppEaser,
+# returning a unified hash where CLI values take precedence.
+sub resolve_common_options {
+        my ($argv) = @_;
+        $argv //= \@ARGV;
+
+        my $cli = parse_common_options($argv) || {};
+        my $config_file = delete $cli->{config};
+        my $config = get_agat_config({ config_file_in => $config_file });
+        for my $k (qw(verbose log debug)) {
+                $config{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
+        }
+        return AGAT::AppEaser::hash_merge($config, $cli);
 }
 
 # load configuration file from local file if any either the one shipped with AGAT
