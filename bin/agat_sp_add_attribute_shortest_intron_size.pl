@@ -5,51 +5,39 @@ use warnings;
 use POSIX qw(strftime);
 use File::Basename;
 use Carp;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use IO::File;
 use Pod::Usage;
 use AGAT::AGAT;
+use AGAT::CLI::Common qw(common_spec resolve_config);
 
 my $header = get_agat_header();
 my $config;
 my $opt_file;
-my $opt_output=undef;
-my $verbose=undef;
-my $opt_help = 0;
+my $opt_output;
+my $verbose;
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$verbose    = $common->{verbose};
-$opt_help   = $common->{help};
+my @copyARGV = @ARGV;
+my ( $opt, $usage );
+eval {
+    ( $opt, $usage ) = describe_options(
+        "$header\n\n%c %o",
+        [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+        common_spec(),
+    );
+    1;
+} or pod2usage( { -message => $@, -exitstatus => 1, -verbose => 1 } );
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
+  if $opt->help;
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined($opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+$config     = resolve_config($opt);
+$opt_output = $opt->out;
+$opt_file   = $opt->gff;
+$verbose    = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
+my $log_name = $config->{log_path};
 open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
 dual_print($log, $header, 0);
 

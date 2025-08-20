@@ -9,23 +9,24 @@ use Getopt::Long::Descriptive;
 use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
+use AGAT::CLI::Common qw(common_spec resolve_config);
 
 my $header = get_agat_header();
-my $opt;
+my ( $opt, $usage );
 eval {
-    ( $opt ) = describe_options(
+    ( $opt, $usage ) = describe_options(
         "$header\n\n%c %o",
         [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
-        [ 'help|h',              'Show this help', { shortcircuit => 1 } ],
-        { getopt_conf => ['pass_through'] },
+        common_spec(),
     );
     1;
 } or pod2usage( { -message => $@, -exitstatus => 1, -verbose => 1 } );
+
 pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
   if $opt->help;
 
 my $opt_file = $opt->gff;
-my $config   = resolve_common_options( \@ARGV );
+my $config   = resolve_config($opt);
 my $intronID = 1;
 
 # #######################
