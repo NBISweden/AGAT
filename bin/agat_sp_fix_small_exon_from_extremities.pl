@@ -21,16 +21,18 @@ my $SIZE_OPT=15;
 my $verbose = undef;
 my $opt_help= 0;
 
+my $common = parse_common_options() || {};
+$config   = $common->{config};
+$outfile  = $common->{output};
+$verbose  = $common->{verbose};
+$opt_help = $common->{help};
+
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
     "gff=s" => \$gff,
     "fasta|fa|f=s" => \$file_fasta,
     "table|codon|ct=i" => \$codonTableId,
-    "size|s=i" => \$SIZE_OPT,
-    "v!" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+    "size|s=i" => \$SIZE_OPT ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -54,6 +56,11 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

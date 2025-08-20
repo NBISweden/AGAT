@@ -41,6 +41,11 @@ my $nbIDstart = 1;
 my $prefixName = undef;
 my %tag_hash;
 my @tag_list;
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$opt_verbose = $common->{verbose};
+$opt_help   = $common->{help};
 # END PARAMETERS - OPTION
 
 # FOR FUNCTIONS BLAST#
@@ -97,11 +102,7 @@ GetOptions(
  'id=s'                     => \$opt_name,
  'idau=s'                   => \$opt_nameU,
  'nb=i'                     => \$nbIDstart,
- 'o|output=s'               => \$opt_output,
- 'a|addgntag'               => \$opt_addGnPresentTag,
- 'v'                        => \$opt_verbose,
- 'c|config=s'               => \$config,
- 'h|help!'                  => \$opt_help
+ 'a|addgntag'               => \$opt_addGnPresentTag
 )
 or pod2usage( {
   -message => 'Failed to parse command line',
@@ -133,6 +134,11 @@ if ( !( defined($opt_reffile) ) ) {
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 #################################################
 ####### START Manage files (input output) #######

@@ -71,20 +71,23 @@ my $skip_hamap;
 my $verbose = 0;
 my $opt_help= 0;
 
+my $common = parse_common_options() || {};
+$config    = $common->{config};
+$outfolder = $common->{output};
+$verbose   = $common->{verbose};
+$opt_help  = $common->{help};
+
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'         => \$config,
-    "h|help"             => \$opt_help,
     "gff=s"              => \$gff,
     "fasta|fa|f=s"       => \$file_fasta,
-	"db=s"               => \$file_db,
-	"frags!"             => \$frags,
-	"pseudo!"            => \$pseudo,
-	"hamap_size=s"       => \$hamap_size,
+        "db=s"               => \$file_db,
+        "frags!"             => \$frags,
+        "pseudo!"            => \$pseudo,
+        "hamap_size=s"       => \$hamap_size,
     "table|codon|ct=i"   => \$codonTable,
-	"skip_hamap!"        => \$skip_hamap,
-    "v=i"                => \$verbose,
-    "output|out|o=s"     => \$outfolder))
+        "skip_hamap!"        => \$skip_hamap,
+        ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -111,6 +114,11 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 # Check codon table
 $codonTable = get_proper_codon_table($codonTable);

@@ -42,11 +42,14 @@ my $verbose                = undef;
 my $method_opt             = "replace";
 my $opt_help               = 0;
 
+my $common = parse_common_options() || {};
+$config     = $common->{config};
+$opt_output = $common->{output};
+$verbose    = $common->{verbose};
+$opt_help   = $common->{help};
 
 my @copyARGV=@ARGV;
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"                 => \$opt_help,
     "annotation|a=s"         => \$annotation_gff,
     "pgff=s"                 => \$protein_gff,
     "sp:s"                   => \$sort_method_by_species,
@@ -56,9 +59,8 @@ if ( !GetOptions(
     "fasta|pfasta=s"         => \$protein_fasta,
     "w"                      => \$whole_sequence_opt,
     "value|threshold=i"      => \$valueK,
-    'method|m:s'             => \$method_opt,
-    "verbose|v"              => \$verbose,
-    "output|out|o=s"         => \$opt_output))
+    'method|m:s'             => \$method_opt
+    ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -82,6 +84,11 @@ if ( ! ($annotation_gff and $protein_gff and $protein_fasta) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 #               +------------------------------------------------------+
 #               |+----------------------------------------------------+|

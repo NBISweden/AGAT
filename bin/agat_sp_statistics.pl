@@ -21,17 +21,19 @@ my $opt_raw = undef;
 my $opt_verbose = 0;
 my $opt_help= 0;
 
+my $common = parse_common_options() || {};
+$config      = $common->{config};
+$opt_output  = $common->{output};
+$opt_verbose = $common->{verbose};
+$opt_help    = $common->{help};
+
 if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
-    'o|output=s'  => \$opt_output,
     'percentile=i' => \$opt_percentile,
     'yaml!'        => \$opt_yaml,
     'r|raw!'       => \$opt_raw,
     'd|p!'         => \$opt_plot,
-    'v|verbose'   => \$opt_verbose,
     'g|f|gs=s'    => \$opt_genomeSize,
-    "gff|i=s"     => \$gff))
+    'gff|i=s'     => \$gff))
 
 {
     pod2usage( { -message => "Failed to parse command line",
@@ -55,6 +57,11 @@ if ( ! (defined($gff)) ){
 
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
+
+my $log;
+my $log_name = get_log_path($common, $config);
+open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
+dual_print($log, $header, 0);
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
