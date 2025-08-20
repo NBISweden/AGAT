@@ -9,7 +9,7 @@ use Cwd qw(abs_path);
 
 BEGIN {
     our $CASE_DIR = dirname(abs_path(__FILE__));
-    unshift @INC, "$CASE_DIR/../../lib";
+    unshift @INC, "$CASE_DIR/../lib", "$CASE_DIR/../../lib";
 }
 
 use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
