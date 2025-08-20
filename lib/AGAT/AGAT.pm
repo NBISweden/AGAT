@@ -159,7 +159,7 @@ sub parse_common_options {
                 'config|c=s',
                 'output|outfile|out|o=s',
                 'log=s',
-                'verbose|v!',
+                'verbose|v=i',
                 'debug|d!',
                 'help|h'
         )
@@ -188,7 +188,7 @@ sub resolve_common_options {
         my $config_file = delete $cli->{config};
         my $config = get_agat_config({ config_file_in => $config_file });
         for my $k (qw(verbose log debug)) {
-                $config{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
+                $config->{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
         }
         return AGAT::AppEaser::hash_merge($config, $cli);
 }
