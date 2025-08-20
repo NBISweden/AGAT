@@ -1,2 +1,0 @@
-libdb-dev
-r-base

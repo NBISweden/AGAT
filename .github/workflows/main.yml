@@ -23,12 +23,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Read apt packages
-        id: apt-packages
-        run: echo "list=$(tr '\n' ' ' < .github/workflows_config/apt-packages.txt)" >> "$GITHUB_OUTPUT"
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: ${{ steps.apt-packages.outputs.list }}
+          packages: libdb-dev r-base
           version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -69,12 +66,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Read apt packages
-        id: apt-packages
-        run: echo "list=$(tr '\n' ' ' < .github/workflows_config/apt-packages.txt)" >> "$GITHUB_OUTPUT"
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: ${{ steps.apt-packages.outputs.list }}
+          packages: libdb-dev r-base
           version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
