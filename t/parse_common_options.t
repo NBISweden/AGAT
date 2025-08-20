@@ -8,7 +8,7 @@ use AGAT::AGAT;
     my @args = (
         '--config', 'foo.yaml', '--outfile', 'bar',
         '--log', 'baz.log',
-        '--verbose', '--debug', '--help', '--extra', 'val'
+        '--verbose', '1', '--debug', '--help', '--extra', 'val'
     );
     local @ARGV = @args;
     my $opts = parse_common_options();
