@@ -424,7 +424,10 @@ sub params_validate ($self, $spec, $args) {
    my $validator = $spec->{validate}
      // $self->{application}{configuration}{validate} // return;
    require Params::Validate;
-   Params::Validate::validate($self->{configs}[-1]->%*, $validator);
+   Params::Validate::validate_with(
+      params => $self->{configs}[-1],
+      spec   => $validator,
+   );
 } ## end sub params_validate
 
 sub print_commands ($self, $target) {

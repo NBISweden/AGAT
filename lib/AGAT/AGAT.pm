@@ -192,7 +192,7 @@ sub resolve_common_options {
         $cli->{log_path} = delete $cli->{log} if exists $cli->{log};
 
         for my $k (qw(verbose log_path debug)) {
-                $config{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
+                $config->{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
         }
 
         my $merged = AGAT::AppEaser::hash_merge($config, $cli);
