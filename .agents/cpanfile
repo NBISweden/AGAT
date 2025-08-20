@@ -1,0 +1,14 @@
+on 'test' => sub {
+  requires 'Test2::V0';
+  requires 'Test::Deep';
+  requires 'Test::Warnings';
+  # whichever temp dir helper you actually use:
+  requires 'Test::TempDir::Tiny', '0'; # or File::Tempdir::Tiny / File::Temp
+  requires 'Capture::Tiny', '0';
+};
+
+on 'develop' => sub {
+  requires 'Perl::Critic', '1.150';
+  requires 'Devel::Cover', '1.44';
+  requires 'Pod::Coverage::TrustPod', '0';
+};
