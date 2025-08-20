@@ -23,16 +23,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Cache apt packages
-        uses: actions/cache@v3
+      - name: Read apt packages
+        id: apt-packages
+        run: echo "list=$(tr '\n' ' ' < .github/workflows_config/apt-packages.txt)" >> "$GITHUB_OUTPUT"
+      - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows_config/apt-packages.txt') }}
-          restore-keys: ${{ runner.os }}-apt-
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo xargs -a .github/workflows_config/apt-packages.txt apt-get install -y
+          packages: ${{ steps.apt-packages.outputs.list }}
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- name: Checkout AGAT
@@ -72,16 +69,13 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Cache apt packages
-        uses: actions/cache@v3
+      - name: Read apt packages
+        id: apt-packages
+        run: echo "list=$(tr '\n' ' ' < .github/workflows_config/apt-packages.txt)" >> "$GITHUB_OUTPUT"
+      - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows_config/apt-packages.txt') }}
-          restore-keys: ${{ runner.os }}-apt-
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo xargs -a .github/workflows_config/apt-packages.txt apt-get install -y
+          packages: ${{ steps.apt-packages.outputs.list }}
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
