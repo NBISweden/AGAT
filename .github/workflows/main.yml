@@ -71,6 +71,7 @@ jobs:
         run: sudo apt-get -y install r-base
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
       - uses: actions/checkout@v2
       - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
@@ -78,7 +79,7 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover Devel::Cover::Report::Coveralls
+            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
