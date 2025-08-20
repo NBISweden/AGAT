@@ -23,10 +23,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libdb-dev r-base
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- name: Checkout AGAT
@@ -66,10 +66,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libdb-dev r-base
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
