@@ -47,10 +47,14 @@ else {
     system("$script --gff " . catfile($input_path, $file) . " -o $pathtmp 2>&1 1>/dev/null");
 }
 
-my $correct_output = $expected_override;
-if (!defined $correct_output) {
+my $correct_output;
+if (defined $expected_override) {
+    $correct_output = catfile($expected_output_path, $expected_override);
+} else {
     my ($num) = $file =~ /^(\d+)_/;
-    $correct_output = catfile($expected_output_path, "$num\_correct_output.gff");
+    $correct_output = catfile($expected_output_path, "${num}_correct_output.gff");
 }
 
 check_diff($pathtmp, $correct_output, "parse $file");
+
+1;

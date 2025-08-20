@@ -32,8 +32,7 @@ sub script_prefix {
       ) ? 'perl -MDevel::Cover ' : '';
 }
 
-
-INIT {
+BEGIN {
     setup_tempdir();
 }
 
