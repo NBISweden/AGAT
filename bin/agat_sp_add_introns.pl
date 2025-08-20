@@ -8,6 +8,7 @@ use Carp;
 use Clone 'clone';
 use AGAT::AGAT;
 
+
 my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
@@ -45,7 +46,9 @@ my $gffout = prepare_gffout( $config, $config->{output} );
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config });
+
   dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
+  
   ### END Parse GFF input #
   #########################
 
@@ -134,7 +137,9 @@ my $intron_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
+
 dual_print( $log, "$intron_added introns added\nBye Bye\n", $config->{verbose} );
+
       #########################
       ######### END ###########
       #########################

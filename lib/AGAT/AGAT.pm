@@ -24,6 +24,7 @@ our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
 our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
+
 sub import {
     my ($class, @args) = @_;
     $class->export_to_level(1, @args); # export our symbols
