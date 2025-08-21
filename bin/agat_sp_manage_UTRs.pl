@@ -18,7 +18,7 @@ my $DefaultUTRnb=5;
 my @copyARGV = @ARGV;
 my ( $opt, $usage, $cfg ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
-    [ 'n|t|nb|number=i',     'Threshold of exon\'s number of the UTR' ],
+    [ 'number|n|t|nb=i',     'Threshold of exon\'s number of the UTR' ],
     [ 'mode' => 'hidden', { one_of => [
             [ 'three|3|three_prime_utr' => 'Apply threshold on the 3\'UTR' ],
             [ 'five|5|five_prime_utr'   => 'Apply threshold on the 5\'UTR' ],

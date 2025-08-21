@@ -190,7 +190,7 @@ sub common_spec {
                 [ 'log=s',               'Log file path' ],
                 [ 'verbose|v=i',         'Verbosity level' ],
                 [ 'debug|d',             'Enable debug output' ],
-                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef } ],
+                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef, hidden => 1 } ],
                 [ 'quiet|q',             'Disable progress bar and verbose output',
                         { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
                 [ 'help|h',              'Show this help', { shortcircuit => 1 } ],

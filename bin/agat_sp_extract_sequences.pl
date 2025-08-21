@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Pod::Usage;
 use Clone 'clone';
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Sort::Naturally;
 use Bio::SeqIO;
 use Bio::DB::Fasta;
@@ -12,98 +12,67 @@ use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_plus_strand = undef;
 my $start_run = time();
+my @copyARGV  = @ARGV;
 
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s',          'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|f|fa=s',     'Input reference fasta file', { required => 1 } ],
+    [ 'alternative_start_codon|asc!', 'Allow alternative start codon' ],
+    [ 'cdna!',                        'Extract cDNA sequences' ],
+    [ 'clean_final_stop|cfs!',        'Remove final stop codon' ],
+    [ 'clean_internal_stop|cis!',     'Remove internal stop codons' ],
+    [ 'downstream|do|3|three|down=i', 'Downstream region size' ],
+    [ 'extremity_only|eo!',           'Extract only extremities' ],
+    [ 'full!',                        'Extract full sequences' ],
+    [ 'keep_attributes!',             'Keep attributes' ],
+    [ 'keep_parent_attributes!',      'Keep parent attributes' ],
+    [ 'merge!',                       'Merge sequences' ],
+    [ 'mrna|transcript!',             'Extract mRNA sequences' ],
+    [ 'ofs=s',                        'Output field separator' ],
+    [ 'plus_strand_only!',            'Only plus strand features' ],
+    [ 'protein|p|aa!',                'Translate to amino acids' ],
+    [ 'remove_orf_offset|roo!',       'Remove ORF offset' ],
+    [ 'revcomp!',                     'Reverse complement sequences' ],
+    [ 'split!',                       'Split sequences' ],
+    [ 'table|codon|ct=i',             'Codon translation table', { default => 1 } ],
+    [ 'type|t=s',                     'Feature type', { default => 'cds' } ],
+    [ 'upstream|up|5|five=i',         'Upstream region size' ],
+);
 
-my $opt_AA=undef;
-my $opt_alternative_start_codon = undef;
-my $opt_fastafile;
-my $opt_cdna=undef;
-my $opt_cleanFinalStop=undef;
-my $opt_cleanInternalStop=undef;
-my $opt_codonTable=1;
-my $opt_downRegion=undef;
-my $opt_extremity_only=undef;
-my $opt_full=undef;
-my $opt_gfffile;
-my $opt_help = 0;
-my $opt_keep_attributes = undef;
-my $opt_keep_parent_attributes = undef;
-my $opt_merge=undef;
-my $opt_mrna=undef;
-my $opt_OFS=undef;
-my $opt_output;
-my $opt_plus_strand_only = undef;
-my $opt_quiet = undef;
-my $opt_remove_orf_offset = undef;
-my $opt_revcomp=undef;
-my $opt_split=undef;
-my $opt_type = 'cds';
-my $opt_upstreamRegion=undef;
-my $opt_verbose=undef;
+my $opt_gfffile   = $opt->gff;
+my $opt_fastafile = $opt->fasta;
+my $opt_output    = $opt->out;
 
-my $common = parse_common_options() || {};
-$config       = $common->{config};
-$opt_output   = $common->{output};
-$opt_verbose  = $common->{verbose};
-$opt_help     = $common->{help};
-
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
-                  'cdna!'                        => \$opt_cdna,
-                  'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
-                  'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
-                  'do|3|three|down|downstream=i' => \$opt_downRegion,
-                  'eo!'                          => \$opt_extremity_only,
-                  'f|fa|fasta=s'                 => \$opt_fastafile,
-                  'full!'                        => \$opt_full,
-                  'g|gff=s'                      => \$opt_gfffile,
-                  'keep_attributes!'             => \$opt_keep_attributes,
-                  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
-                  'merge!'                       => \$opt_merge,
-                  'mrna|transcript!'             => \$opt_mrna,
-                  'ofs=s'                        => \$opt_OFS,
-                  'plus_strand_only!'            => \$opt_plus_strand_only,
-                  'p|protein|aa!'                => \$opt_AA,
-                  'q|quiet!'                     => \$opt_quiet,
-                  'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
-                  'revcomp!'                     => \$opt_revcomp,
-                  'split!'                       => \$opt_split,
-                  'table|codon|ct=i'             => \$opt_codonTable,
-                  't|type=s'                     => \$opt_type,
-                  'up|5|five|upstream=i'         => \$opt_upstreamRegion ) )
-{
-    pod2usage( { -message => "$header\nFailed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
-    pod2usage( {
-           -message => "\nAt least 2 parametes are mandatory:\nInput reference gff file (-g);  Input reference fasta file (-f)\n\n".
-           "Output is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_alternative_start_codon = $opt->alternative_start_codon;
+my $opt_cdna                    = $opt->cdna;
+my $opt_cleanFinalStop          = $opt->clean_final_stop;
+my $opt_cleanInternalStop       = $opt->clean_internal_stop;
+my $opt_downRegion              = $opt->downstream;
+my $opt_extremity_only          = $opt->extremity_only;
+my $opt_full                    = $opt->full;
+my $opt_keep_attributes         = $opt->keep_attributes;
+my $opt_keep_parent_attributes  = $opt->keep_parent_attributes;
+my $opt_merge                   = $opt->merge;
+my $opt_mrna                    = $opt->mrna;
+my $opt_OFS                     = $opt->ofs;
+my $opt_plus_strand_only        = $opt->plus_strand_only;
+my $opt_AA                      = $opt->protein;
+my $opt_remove_orf_offset       = $opt->remove_orf_offset;
+my $opt_revcomp                 = $opt->revcomp;
+my $opt_split                   = $opt->split;
+my $opt_codonTable              = $opt->table;
+my $opt_type                    = $opt->type;
+my $opt_upstreamRegion          = $opt->upstream;
+my $opt_verbose                 = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( defined $config->{log_path} ) {
+    open( $log, '>', $config->{log_path} )
+      or die "Can not open $config->{log_path} for printing: $!";
+}
+dual_print( $log, $header, 0 );
 
 # --- Check codon table
 # --- Check codon table
@@ -359,12 +328,12 @@ sub clean_string{
       if($string =~ m/\Q$OFS/){
         if ($OFS eq " "){
           warn "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
-          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
+          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if $opt_verbose;
           $string="\"".$string."\"";
         }
         else{
           warn "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
-          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
+          "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if $opt_verbose;
           eval "\$string =~ tr/\Q$OFS\E/\Q$replaceBy\E/";
         }
       }
