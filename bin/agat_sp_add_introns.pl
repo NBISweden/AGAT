@@ -16,6 +16,13 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
 my $opt_file = $opt->gff;
 my $intronID = 1;
 
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
+
 # #######################
 # # START Manage Option #
 # #######################
@@ -38,7 +45,7 @@ my $gffout = prepare_gffout( $config, $config->{output} );
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config });
-  print("Parsing Finished\n\n") if $config->{verbose};
+  dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
   ### END Parse GFF input #
   #########################
 
@@ -63,7 +70,10 @@ my $intron_added=0;
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){
+        dual_print( $log, "Problem ! We didnt retrieve the level1 feature with id $id_l1\n", $config->{verbose} );
+        exit;
+      }
 
       #####
       # get all level2
@@ -124,7 +134,7 @@ my $intron_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "$intron_added introns added\nBye Bye\n" if $config->{verbose};
+dual_print( $log, "$intron_added introns added\nBye Bye\n", $config->{verbose} );
       #########################
       ######### END ###########
       #########################

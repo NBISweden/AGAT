@@ -2,59 +2,33 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_test=">";
-my $opt_output= undef;
-my $opt_size = 100;
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
+    [ 'test|t=s',           'Test to apply',              { default => '>' } ],
+    [ 'size|s=i',           'Gene size threshold',        { default => 100 } ],
+);
 
-my $common = parse_common_options() || {};
-$config      = $common->{config};
-$opt_output  = $common->{output};
-$opt_verbose = $common->{verbose};
-$opt_help    = $common->{help};
-
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  't|test=s'            => \$opt_test,
-                  "s|size=i"            => \$opt_size ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\n1) Input reference gff file: --gff\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gff   = $opt->gff;
+my $opt_test  = $opt->test;
+my $opt_size  = $opt->size;
+my $opt_output = $config->{output};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
+my $opt_verbose = $config->{verbose};
+
+# OPTION MANAGMENT
+my @copyARGV = @ARGV;
 
 ###############
 # Manage Output
@@ -78,8 +52,9 @@ my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 #Manage test option
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";exit;
+if ( $opt_test ne "<" && $opt_test ne ">" && $opt_test ne "<=" && $opt_test ne ">=" && $opt_test ne "=" ) {
+  dual_print( $log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.\n", $opt_verbose );
+  exit;
 }
 
 # start with some interesting information
@@ -87,21 +62,20 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will select l1 feature (e.g. gene) that have length $opt_test $opt_size bp.\n";
 
-if ($opt_output){
+if ($opt_output) {
   print $ostreamReport $stringPrint;
-  print $stringPrint;
 }
-else{ print $stringPrint; }
+dual_print( $log, $stringPrint, $opt_verbose );
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
+my ( $hash_omniscient, $hash_mRNAGeneLink ) = slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print( $log, "Parsing Finished\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -149,26 +123,26 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    }
       # case we had exon (we look at the longest mRNA)
       if($longer_concat_exon){
-        print "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n" if $opt_verbose;
+        dual_print( $log, "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n", $opt_verbose );
         if( test_size( $longer_concat_exon, $opt_test, $opt_size ) ){
-          print "$id_l1 pass the test\n" if $opt_verbose;
+          dual_print( $log, "$id_l1 pass the test\n", $opt_verbose );
           push @listok, $id_l1;
         }
         else{
-          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          dual_print( $log, "$id_l1 do not pass the test\n", $opt_verbose );
           push @listNotOk, $id_l1;
         }
       }
       else{
-        print "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n" if $opt_verbose;
+        dual_print( $log, "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n", $opt_verbose );
         # No exon, L1 pass test
         if($successl1){
-          print "$id_l1 pass the test\n" if $opt_verbose;
+          dual_print( $log, "$id_l1 pass the test\n", $opt_verbose );
           push @listok, $id_l1;
         }
         # No exon, L1 do not pass test
         else{
-          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          dual_print( $log, "$id_l1 do not pass the test\n", $opt_verbose );
           push @listNotOk, $id_l1;
         }
       }
@@ -192,10 +166,10 @@ my $test_fail = scalar @listNotOk;
 
 $stringPrint = "$test_success l1 feature (e.g. gene) selected with a length $opt_test $opt_size bp.\n";
 $stringPrint .= "$test_fail remaining l1 feature (e.g. gene) do not pass the test.\n";
-if ($opt_output){
+if ($opt_output) {
   print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+}
+dual_print( $log, $stringPrint, $opt_verbose );
 
 #######################################################################################################################
         ####################
