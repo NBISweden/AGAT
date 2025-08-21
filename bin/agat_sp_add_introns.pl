@@ -5,32 +5,15 @@ use warnings;
 use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
-use Getopt::Long::Descriptive;
-use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
-use AGAT::CLI::Common qw(common_spec resolve_config);
 
 my $header = get_agat_header();
-my ( $opt, $usage );
-eval {
-    ( $opt, $usage ) = describe_options(
-        "$header\n\n%c %o",
-        [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
-        common_spec(),
-    );
-    1;
-} or do {
-    ( my $err = $@ ) =~ s/\s+in call to .*//;
-    $err =~ s/\s+at .*//s;
-    pod2usage( { -message => $err, -exitstatus => 1, -verbose => 1 } );
-};
-
-pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
-  if $opt->help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
 my $opt_file = $opt->gff;
-my $config   = resolve_config($opt);
 my $intronID = 1;
 
 # #######################

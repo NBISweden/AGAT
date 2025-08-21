@@ -4,6 +4,8 @@ use warnings;
 use Exporter 'import';
 use Test::TempDir::Tiny qw(tempdir);
 use File::chdir;
+use File::Copy qw(copy);
+use File::Spec;
 use Test::More;
 
 our @EXPORT = qw(setup_tempdir check_diff script_prefix);
@@ -11,6 +13,7 @@ my @DIRS;    # keep temp dirs alive until program end
 
 sub setup_tempdir {
     my $dir = tempdir();
+    copy('share/agat_config.yaml', File::Spec->catfile($dir, 'agat_config.yaml'));
     $CWD = $dir;
     push @DIRS, $dir;
     return $dir;

@@ -16,12 +16,14 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 use Getopt::Long;
+use Getopt::Long::Descriptive qw(describe_options);
+use Pod::Usage;
 use AGAT::AppEaser ();
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
 sub import {
     my ($class, @args) = @_;
     $class->export_to_level(1, @args); # export our symbols
@@ -178,6 +180,50 @@ sub parse_common_options {
           or return;
         $options{argv} = \@original;
         return \%options;
+}
+
+# Return shared Getopt::Long::Descriptive option descriptors
+sub common_spec {
+        return (
+                [ 'config|c=s',          'Configuration file' ],
+                [ 'out|o|output=s',      'Output GFF3 file' ],
+                [ 'log=s',               'Log file path' ],
+                [ 'verbose|v=i',         'Verbosity level' ],
+                [ 'debug|d',             'Enable debug output' ],
+                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef } ],
+                [ 'quiet|q',             'Disable progress bar and verbose output',
+                        { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
+                [ 'help|h',              'Show this help', { shortcircuit => 1 } ],
+                { getopt_conf => ['pass_through'] },
+        );
+}
+
+# Merge CLI values with configuration defaults and compute log path
+sub resolve_config {
+        my ($opt) = @_;
+        my %cli = %{ $opt || {} };
+        $cli{output} = delete $cli{out} if exists $cli{out};
+        return resolve_common_options( \%cli );
+}
+
+# Helper to parse script-specific options together with common ones
+sub describe_script_options {
+        my ($header, @spec) = @_;
+        my ($opt, $usage);
+        eval {
+                ( $opt, $usage ) = describe_options( "$header\n\n%c %o", @spec, common_spec() );
+                1;
+        } or do {
+                ( my $err = $@ ) =~ s/\s+in call to .*//;
+                $err =~ s/\s+at .*//s;
+                pod2usage( { -message => $err, -exitstatus => 1, -verbose => 1 } );
+        };
+
+        pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
+          if $opt->help;
+
+        my $config = resolve_config($opt);
+        return ( $opt, $usage, $config );
 }
 
 # Merge command-line options with configuration defaults using AppEaser,

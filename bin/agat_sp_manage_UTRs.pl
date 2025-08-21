@@ -8,44 +8,35 @@ use Try::Tiny;
 use File::Basename;
 use IO::File;
 use Pod::Usage;
-use Getopt::Long qw(:config no_auto_abbrev);
+use Getopt::Long::Descriptive;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $opt_reffile;
-my $opt_plot;
-my $opt_nbUTR;
-my $opt_bst=undef;
-my $opt_utr3=undef;
-my $opt_utr5=undef;
-my $opt_output=undef;
-my $opt_help = 0;
 my $DefaultUTRnb=5;
 
-my @copyARGV=@ARGV;
-print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
-                  'n|t|nb|number=i'         => \$opt_nbUTR,
-                  '3|three|three_prime_utr!'=> \$opt_utr3,
-                  '5|five|five_prime_utr!'  => \$opt_utr5,
-                  'b|both|bs!'              => \$opt_bst,
-                  'o|out|output=s'          => \$opt_output,
-                  'p|plot!'                 => \$opt_plot,
-                  'c|config=s'              => \$config,
-                  'h|help!'                 => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $cfg ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'n|t|nb|number=i',     'Threshold of exon\'s number of the UTR' ],
+    [ 'mode' => 'hidden', { one_of => [
+            [ 'three|3|three_prime_utr' => 'Apply threshold on the 3\'UTR' ],
+            [ 'five|5|five_prime_utr'   => 'Apply threshold on the 5\'UTR' ],
+            [ 'both|b|bs'               => 'Apply threshold on both UTRs' ],
+        ] } ],
+    [ 'p|plot', 'Allows to create an histogram in pdf of UTR sizes distribution' ],
+);
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
+my $opt_reffile = $opt->gff;
+my $opt_nbUTR   = $opt->number;
+my $mode        = $opt->mode;
+my $opt_plot    = $opt->plot;
+my $opt_output  = $opt->out;
+$config         = $cfg;
+
+my $opt_utr3 = ($mode && $mode eq 'three') ? 1 : 0;
+my $opt_utr5 = ($mode && $mode eq 'five') ? 1 : 0;
+my $opt_bst  = ($mode && $mode eq 'both') ? 1 : 0;
 
 if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_plot) ) {
     pod2usage( {
@@ -53,9 +44,6 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
            -verbose => 0,
            -exitval => 1 } );
 }
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;

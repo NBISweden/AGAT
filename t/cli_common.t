@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Test::More;
 use Getopt::Long::Descriptive;
-use AGAT::CLI::Common qw(common_spec);
+use AGAT::AGAT qw(common_spec);
 
 my @args = (
     '--config', 'foo.yaml', '--output', 'bar',
