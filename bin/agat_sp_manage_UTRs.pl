@@ -48,15 +48,15 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
 if (defined($opt_output) ) {
-  my ($path,$ext);
-  ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+  my ($name,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+  $opt_output = $path.$name;
   if (-d $opt_output){
     print "The output directory choosen already exists. Please geve me another Name.\n";exit();
   }
   else{
     mkdir $opt_output;
   }
-	$ostreamReport_file = $opt_output."/report.txt";
+  $ostreamReport_file = $opt_output."/report.txt";
 }
 
 my $ostreamReport = prepare_fileout($ostreamReport_file);

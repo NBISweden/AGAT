@@ -68,7 +68,7 @@ sub exists_undef_value {
 # @input: 1 =>  integer, 2 => verbose
 # @output 1 => integer
 sub get_proper_codon_table {
-  my ($codon_table_id_original, $log) = @_;
+  my ($codon_table_id_original, $log, $verbose) = @_;
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
 
@@ -84,7 +84,9 @@ sub get_proper_codon_table {
   }
 
   dual_print($log,
-             "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n");
+             "Codon table ".$codon_table_id_bioperl.
+             " in use. You can change it using the appropriate parameter.\n",
+             $verbose // 1);
   return $codon_table_id_bioperl;
 }
 

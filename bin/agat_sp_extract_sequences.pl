@@ -20,22 +20,24 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     [ 'gff|g=s',          'Input reference gff file',   { required => 1 } ],
     [ 'fasta|f|fa=s',     'Input reference fasta file', { required => 1 } ],
     [ 'alternative_start_codon|asc!', 'Allow alternative start codon' ],
-    [ 'cdna!',                        'Extract cDNA sequences' ],
+    [ 'cdna!', 'Extract cDNA sequences', { implies => { type => 'exon', merge => 1, revcomp => 1 } } ],
     [ 'clean_final_stop|cfs!',        'Remove final stop codon' ],
     [ 'clean_internal_stop|cis!',     'Remove internal stop codons' ],
     [ 'downstream|do|3|three|down=i', 'Downstream region size' ],
     [ 'extremity_only|eo!',           'Extract only extremities' ],
-    [ 'full!',                        'Extract full sequences' ],
+    [ 'mode' => 'hidden', { one_of => [
+        [ 'full!',  'Extract full sequences' ],
+        [ 'split!', 'Split sequences' ],
+        [ 'merge!', 'Merge sequences' ],
+    ] } ],
     [ 'keep_attributes!',             'Keep attributes' ],
     [ 'keep_parent_attributes!',      'Keep parent attributes' ],
-    [ 'merge!',                       'Merge sequences' ],
-    [ 'mrna|transcript!',             'Extract mRNA sequences' ],
+    [ 'mrna|transcript!', 'Extract mRNA sequences', { implies => { type => 'exon', merge => 1 } } ],
     [ 'ofs=s',                        'Output field separator' ],
     [ 'plus_strand_only!',            'Only plus strand features' ],
     [ 'protein|p|aa!',                'Translate to amino acids' ],
     [ 'remove_orf_offset|roo!',       'Remove ORF offset' ],
     [ 'revcomp!',                     'Reverse complement sequences' ],
-    [ 'split!',                       'Split sequences' ],
     [ 'table|codon|ct=i',             'Codon translation table', { default => 1 } ],
     [ 'type|t=s',                     'Feature type', { default => 'cds' } ],
     [ 'upstream|up|5|five=i',         'Upstream region size' ],
@@ -46,7 +48,6 @@ my $opt_fastafile = $opt->fasta;
 my $opt_output    = $opt->out;
 
 my $opt_alternative_start_codon = $opt->alternative_start_codon;
-my $opt_cdna                    = $opt->cdna;
 my $opt_cleanFinalStop          = $opt->clean_final_stop;
 my $opt_cleanInternalStop       = $opt->clean_internal_stop;
 my $opt_downRegion              = $opt->downstream;
@@ -55,7 +56,6 @@ my $opt_full                    = $opt->full;
 my $opt_keep_attributes         = $opt->keep_attributes;
 my $opt_keep_parent_attributes  = $opt->keep_parent_attributes;
 my $opt_merge                   = $opt->merge;
-my $opt_mrna                    = $opt->mrna;
 my $opt_OFS                     = $opt->ofs;
 my $opt_plus_strand_only        = $opt->plus_strand_only;
 my $opt_AA                      = $opt->protein;
@@ -72,24 +72,17 @@ if ( defined $config->{log_path} ) {
     open( $log, '>', $config->{log_path} )
       or die "Can not open $config->{log_path} for printing: $!";
 }
-dual_print( $log, $header, 0 );
+dual_print( $log, $header, $opt_verbose );
 
 # --- Check codon table
 # --- Check codon table
-$opt_codonTable = get_proper_codon_table($opt_codonTable, $log);
+$opt_codonTable = get_proper_codon_table($opt_codonTable, $log, $opt_verbose);
 
 # activate warnings limit
 my %warnings;
 activate_warning_limit(\%warnings, 10);
 
-# shortcut for cdna
-if($opt_cdna){$opt_type="exon"; $opt_merge=1; $opt_revcomp=1;}
-# shortcut for mrna/transcript
-if($opt_mrna){$opt_type="exon"; $opt_merge=1;}
 
-if( $opt_full   and $opt_split){dual_print($log, "Options --full and --split cannot be used concomitantly.\n", 1); exit;}
-if( $opt_full   and $opt_merge){dual_print($log, "Options --full and --merge cannot be used concomitantly.\n", 1); exit;}
-if( $opt_split   and $opt_merge){dual_print($log, "Options --split and --merge cannot be used concomitantly.\n", 1); exit;}
 
 my $ostream;
 if ($opt_output) {
@@ -100,7 +93,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-dual_print($log, "We will extract the $opt_type sequences.\n");
+dual_print($log, "We will extract the $opt_type sequences.\n", $opt_verbose);
 $opt_type=lc($opt_type);
 
 # deal with OFS
@@ -118,11 +111,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-dual_print($log, "Reading file $opt_gfffile\n");
+dual_print($log, "Reading file $opt_gfffile\n", $opt_verbose);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n");
+dual_print($log, "Parsing Finished\n", $opt_verbose);
 ### END Parse GFF input #
 #########################
 
@@ -138,7 +131,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-dual_print($log, "Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n", $opt_verbose);
 # ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
@@ -205,27 +198,30 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 }
 
 #END
-dual_print($log, "usage: $0 @copyARGV\n");
+dual_print($log, "usage: $0 @copyARGV\n", $opt_verbose);
 
 if($opt_upstreamRegion and $opt_downRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n");
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n",
+              $opt_verbose);
 }
 elsif($opt_upstreamRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n");
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n",
+              $opt_verbose);
 }
 elsif($opt_downRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n");
+              "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n",
+              $opt_verbose);
 }
 else{
-  dual_print($log, "$nbFastaSeq $opt_type converted in fasta.\n");
+  dual_print($log, "$nbFastaSeq $opt_type converted in fasta.\n", $opt_verbose);
 }
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n");
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 close $log if $log;
 
 #######################################################################################################################
@@ -414,7 +410,7 @@ sub extract_sequences{
     # create object
     my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
     # print object
-    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log);
+    print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $opt_verbose);
   }
   # --------------------------------------
 
@@ -480,7 +476,7 @@ sub extract_sequences{
       }
 
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $opt_verbose);
     }
   }
   # --------------------------------------
@@ -560,7 +556,7 @@ sub extract_sequences{
       #create object
       my $seqObj = create_seqObj($sequence, $id_seq, $description, $minus, $info);
       #print object
-      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log);
+      print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $opt_verbose);
     }
 
     # ---- Non spreaded feature extract them one by one
@@ -609,7 +605,7 @@ sub extract_sequences{
         }
 
         #print object
-        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log);
+        print_seqObj($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $opt_verbose);
       }
     }
   }
@@ -750,7 +746,7 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log) = @_;
+  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $verbose) = @_;
 
 
   if($opt_AA){ #translate if asked
@@ -768,7 +764,8 @@ sub print_seqObj{
           my $translated_seq = substr($transObj->seq(),1); # removing first AA
           $transObj->seq("M".$translated_seq);  # adding M as first AA
           dual_print($log,
-                     "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n");
+                     "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n",
+                     $verbose);
         }
       }
 
