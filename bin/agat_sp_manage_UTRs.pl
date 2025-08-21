@@ -24,13 +24,13 @@ my ( $opt, $usage, $cfg ) = AGAT::AGAT::describe_script_options( $header,
             [ 'five|5|five_prime_utr'   => 'Apply threshold on the 5\'UTR' ],
             [ 'both|b|bs'               => 'Apply threshold on both UTRs' ],
         ] } ],
-    [ 'p|plot', 'Allows to create an histogram in pdf of UTR sizes distribution' ],
+    [ 'p|plot!', 'Allows to create an histogram in pdf of UTR sizes distribution' ],
 );
 
 my $opt_reffile = $opt->gff;
 my $opt_nbUTR   = $opt->number;
 my $mode        = $opt->mode;
-my $opt_plot    = $opt->plot;
+my $opt_plot    = $opt->{plot};
 my $opt_output  = $opt->out;
 $config         = $cfg;
 
