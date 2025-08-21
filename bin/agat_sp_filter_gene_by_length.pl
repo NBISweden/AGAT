@@ -10,7 +10,15 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
-    [ 'test|t=s',           'Test to apply',              { default => '>' } ],
+    [ 'test|t=s', 'Test to apply', {
+        default   => '>',
+        callbacks => {
+            allowed => sub {
+                shift =~ /^(?:<|>|<=|>=|=)$/
+                  or die 'Test to apply must be one of <, >, <=, >= or =';
+            },
+        },
+    } ],
     [ 'size|s=i',
       'Gene size threshold',
       {
@@ -58,12 +66,6 @@ if ($opt_output) {
 my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
 my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-
-#Manage test option
-if ( $opt_test ne "<" && $opt_test ne ">" && $opt_test ne "<=" && $opt_test ne ">=" && $opt_test ne "=" ) {
-  dual_print( $log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.\n", $opt_verbose );
-  exit;
-}
 
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
