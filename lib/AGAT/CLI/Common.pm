@@ -14,7 +14,9 @@ sub common_spec {
         [ 'log=s',               'Log file path' ],
         [ 'verbose|v=i',         'Verbosity level' ],
         [ 'debug|d',             'Enable debug output' ],
-        [ 'quiet',               'Disable progress bar and verbose output' ],
+        [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef } ],
+        [ 'quiet|q',             'Disable progress bar and verbose output',
+            { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
         [ 'help|h',              'Show this help', { shortcircuit => 1 } ],
         { getopt_conf => ['pass_through'] },
     );
@@ -23,10 +25,6 @@ sub common_spec {
 sub resolve_config {
     my ($opt) = @_;
     my %cli = %{ $opt || {} };
-    if ( delete $cli{quiet} ) {
-        $cli{verbose}      = 0;
-        $cli{progress_bar} = 0;
-    }
     $cli{output} = delete $cli{out} if exists $cli{out};
     return AGAT::AGAT::resolve_common_options( \%cli );
 }

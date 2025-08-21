@@ -46,7 +46,18 @@ copy('share/agat_config.yaml', $config_path);
     is($cfg->{log_path}, "$file.agat.log", 'default log path derived from script name');
 }
 
-# 5. quiet profile overrides config
+# 5. logging disabled when config sets log: false
+{
+    my $no_log_path = File::Spec->catfile($tmpdir, 'no_log.yaml');
+    copy($config_path, $no_log_path);
+    system("perl -i -pe 's/^log: true/log: false/' $no_log_path");
+    local @ARGV = ('--config', $no_log_path);
+    my ($opt) = describe_options('test %o', common_spec());
+    my $cfg = resolve_config($opt);
+    ok(!defined $cfg->{log_path}, 'log disabled yields undef log_path');
+}
+
+# 6. quiet profile overrides config
 {
     local @ARGV = ('--config', $config_path, '--quiet');
     my ($opt) = describe_options('test %o', common_spec());

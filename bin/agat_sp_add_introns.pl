@@ -20,7 +20,11 @@ eval {
         common_spec(),
     );
     1;
-} or pod2usage( { -message => $@, -exitstatus => 1, -verbose => 1 } );
+} or do {
+    ( my $err = $@ ) =~ s/\s+in call to .*//;
+    $err =~ s/\s+at .*//s;
+    pod2usage( { -message => $err, -exitstatus => 1, -verbose => 1 } );
+};
 
 pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
   if $opt->help;

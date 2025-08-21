@@ -151,10 +151,11 @@ sub get_log_path {
         my ($common, $config) = @_;
         $common ||= {};
         $config ||= {};
-        return $common->{log} || $config->{log_path} || do {
-                my ($file) = $0 =~ /([^\\\/]+)$/;
-                $file . ".agat.log";
-        };
+        return $common->{log} if defined $common->{log};
+        return undef if defined $config->{log} && !$config->{log};
+        return $config->{log_path} if $config->{log_path};
+        my ($file) = $0 =~ /([^\\\/]+)$/;
+        return $file . ".agat.log";
 }
 
 # Parse common command-line options shared by many scripts.
