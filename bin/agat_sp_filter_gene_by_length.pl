@@ -11,7 +11,15 @@ my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
     [ 'test|t=s',           'Test to apply',              { default => '>' } ],
-    [ 'size|s=i',           'Gene size threshold',        { default => 100 } ],
+    [ 'size|s=i',
+      'Gene size threshold',
+      {
+        default   => 100,
+        callbacks => {
+          positive => sub { shift() > 0 or die 'Gene size threshold must be positive' },
+        },
+      }
+    ],
 );
 
 my $opt_gff   = $opt->gff;
