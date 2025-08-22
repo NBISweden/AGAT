@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use Bio::DB::Fasta;
 use File::Basename;
@@ -10,42 +10,22 @@ use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff     = undef;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',   'Input GFF file',   { required => 1 } ],
+    [ 'fasta=s', 'Input FASTA file', { required => 1 } ],
+);
+
+my $outfile  = $opt->out;
+my $gff      = $opt->gff;
+my $fasta    = $opt->fasta;
 my $model_id = -1;
-my $fasta   = undef;
-my $help    = 0;
 
-my $common = parse_common_options() || {};
-$config  = $common->{config};
-$outfile = $common->{output};
-$help    = $common->{help};
-
-if( !GetOptions(
-    "gff=s"   => \$gff,
-    "fasta=s" => \$fasta))
-{
-    pod2usage( { -message => "Failed to parse command line.",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-# Print Help and exit
-if ($help) {
-    pod2usage( { -message => "$header",
-                 -verbose => 99,
-                 -exitval => 0 } );
-}
-
-if ( ! defined($gff) or ! defined($fasta) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\n  Input gff file (--gff)\nInput fasta file (--fasta)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
 my $zffout;
@@ -86,15 +66,15 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	#print fasta sequence
 	my $seq_id_correct = undef;
-	if( exists $allIDs{lc($seqid)}){
-		$seq_id_correct = $allIDs{lc($seqid)};
-		my $seqObj = Bio::Seq->new( '-format' => 'fasta' , -seq =>  $db->seq($seq_id_correct));
-		$seqObj->id($seq_id_correct);
-		$fastaout->write_seq($seqObj);
-	}
-	else{
-		warn "$seqid sequence ID not found among the fasta file!\n";
-	}
+        if( exists $allIDs{lc($seqid)}){
+                $seq_id_correct = $allIDs{lc($seqid)};
+                my $seqObj = Bio::Seq->new( '-format' => 'fasta' , -seq =>  $db->seq($seq_id_correct));
+                $seqObj->id($seq_id_correct);
+                $fastaout->write_seq($seqObj);
+        }
+        else{
+                dual_print( $log, "$seqid sequence ID not found among the fasta file!\n", 1 );
+        }
 
 	print $zffout ">".$seqid."\n";
 

@@ -4,55 +4,27 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_help= 0;
-my $force=undef;
-my $outfile=undef;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s', 'Input GFF file', { required => 1 } ],
+    [ 'force',   'Replace existing Name attributes' ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-my $verbose = $common->{verbose};
-$opt_help = $common->{help};
-
-if ( !GetOptions(
-    "gff|f=s" => \$gff,
-    "force" => \$force))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $gff     = $opt->gff;
+my $force   = $opt->force;
+my $outfile = $opt->out;
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # Prepare output
 my $gffout = prepare_gffout($config, $outfile);
