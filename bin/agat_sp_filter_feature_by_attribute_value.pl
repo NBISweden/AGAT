@@ -20,7 +20,17 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'na_aside!',           'Output NA values in a separate file' ],
     [ 'type|p|l=s',          'Comma-separated list of feature types or level1/2/3' ],
     [ 'a|attribute=s',       'Attribute tag to test', { required => 1 } ],
-    [ 'test|t=s',            'Comparison test (<,>,<=,>=,!,=)', { default => '=' } ],
+    [ 'test|t=s',            'Comparison test (<,>,<=,>=,!,=)',
+      { default => '=',
+        callbacks => {
+            valid => sub {
+                $_[0] =~ /^(?:<|>|<=|>=|=|!)$/
+                  or die 'Test to apply must be one of <, >, <=, >=, ! or =';
+                return 1;
+            }
+        }
+      }
+    ],
 );
 
 my $opt_gff              = $opt->gff;
@@ -36,21 +46,6 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header, 0 );
-}
-
-###############
-# Test options
-if ( $opt_test ne '<'
-    and $opt_test ne '>'
-    and $opt_test ne '<='
-    and $opt_test ne '>='
-    and $opt_test ne '='
-    and $opt_test ne '!' )
-{
-  dual_print( $log,
-    "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.",
-    $config->{verbose} );
-  exit;
 }
 
 ###############
