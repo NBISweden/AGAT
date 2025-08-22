@@ -2,83 +2,69 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use Sort::Naturally;
-use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my ($config, $opt_gff, $opt_help, $opt_gap, $opt_tair, @opt_tag, $outfile,
-    $opt_ensembl, $opt_prefix, $opt_collective, $opt_nbIDstart,
-    $opt_type_dependent, $verbose);
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f=s', 'Input reference gff file', { required => 1 } ],
+    [ 'nb=i', 'Starting number for IDs',
+      { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ 'gap=i', 'Gap between IDs',
+      { callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ mode => hidden => { one_of => [
+        [ 'tair!'    => 'Use TAIR ID style' ],
+        [ 'ensembl!' => 'Use Ensembl prefix' ],
+        [ 'prefix=s' => 'Prefix for generated IDs' ],
+    ] } ],
+    [ 'p|t|l=s@',      'Feature level/tag to process' ],
+    [ 'type_dependent!', 'Prefix depends on feature type' ],
+    [ 'collective!',   'Use collective spread features' ],
+);
 
-$opt_nbIDstart = 1;
+my $opt_gff           = $opt->gff;
+my $opt_nbIDstart     = $opt->nb;
+my $opt_gap           = $opt->gap;
+my $opt_tair          = $opt->tair;
+my $opt_ensembl       = $opt->ensembl;
+my $opt_prefix        = $opt->prefix;
+my @opt_tag           = $opt->p ? @{ $opt->p } : ();
+my $opt_type_dependent = $opt->type_dependent;
+my $opt_collective    = $opt->collective;
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
-
-if ( !GetOptions(
-    "gff|f=s"        => \$opt_gff,
-    "nb=i"           => \$opt_nbIDstart,
-    "gap=i"          => \$opt_gap,
-    "tair!"          => \$opt_tair,
-    "ensembl!"       => \$opt_ensembl,
-    "prefix=s"       => \$opt_prefix,
-    "p|t|l=s"        => \@opt_tag,
-    "type_dependent!" => \$opt_type_dependent,
-    "collective!"    => \$opt_collective,
-    ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $outfile = $config->{output};
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
+my $verbose = $config->{verbose};
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($opt_gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 # Manage $primaryTag
 my %ptagList;
-if(! @opt_tag){
-  print "We will work on attributes from all features\n";
-  $ptagList{'level1'}++;
-  $ptagList{'level2'}++;
-  $ptagList{'level3'}++;
+if ( !@opt_tag ) {
+    dual_print( $log, "We will work on attributes from all features\n", $verbose );
+    $ptagList{'level1'}++;
+    $ptagList{'level2'}++;
+    $ptagList{'level3'}++;
 }
-else{
-  foreach my $tag (@opt_tag){
-    if($tag eq ""){next;}
-    if($tag eq "all"){
-      print "We will work on attributes from all features\n";
-      $ptagList{'level1'}++;
-      $ptagList{'level2'}++;
-      $ptagList{'level3'}++;
+else {
+    foreach my $tag (@opt_tag) {
+        next if $tag eq "";
+        if ( $tag eq "all" ) {
+            dual_print( $log, "We will work on attributes from all features\n", $verbose );
+            $ptagList{'level1'}++;
+            $ptagList{'level2'}++;
+            $ptagList{'level3'}++;
+        }
+        else {
+            dual_print( $log, "We will work on attributes from all the $tag features\n", $verbose );
+            $ptagList{ lc($tag) }++;
+        }
     }
-    else{
-      print "We will work on attributes from all the $tag features\n";
-      $ptagList{lc($tag)}++;
-    }
-  }
 }
                 #####################
                 #     MAIN          #
@@ -90,10 +76,10 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ( $hash_omniscient, $hash_mRNAGeneLink ) = slurp_gff3_file_JD({ input => $opt_gff,
+                                                                   config => $config
+                                                               });
+dual_print( $log, "GFF3 file parsed\n", $verbose );
 
 # get spreadfeatire in case of collective option set
 my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
@@ -243,28 +229,28 @@ sub  manage_attributes{
   else{
     $prefix = $opt_prefix;
   }
-  print "prefix $prefix \n" if $verbose;
+  dual_print( $log, "prefix $prefix \n", $verbose );
 
   #  ----- deal with value independent or not of the feature type--------
   my $tag = $opt_type_dependent ? $primary_tag : 'all';
-  print "tag: $tag\n" if $verbose;
-  print "primary_tag: $primary_tag\n" if $verbose;
+  dual_print( $log, "tag: $tag\n", $verbose );
+  dual_print( $log, "primary_tag: $primary_tag\n", $verbose );
 
   if ($opt_tair){
     if ($level eq 'level1') {
       my $ID_number = get_id_number($tag, $level);
       $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
       $result="$prefix$ID_number";
-      print "tair l1: $result\n" if $verbose;
+      dual_print( $log, "tair l1: $result\n", $verbose );
     }
     if($level eq 'level2'){
       $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
-        print "tair l2: $result\n" if $verbose;
+        dual_print( $log, "tair l2: $result\n", $verbose );
     }
     elsif ($level eq 'level3'){
       my $ID_number = get_id_number("$parent_id$tag", $level);
       $result = $parent_id."-"."$primary_tag$ID_number";
-      print "tair l3: $result\n" if $verbose;
+      dual_print( $log, "tair l3: $result\n", $verbose );
     }
 
   }
@@ -374,7 +360,7 @@ Input GTF/GFF file.
 
 =item B<--gap>
 
-Integer - Increment the next gene (level1 feature) suffix with this value. Defauft 0.
+Integer - Increment the next gene (level1 feature) suffix with this value. Must be positive.
 
 =item B<--ensembl>
 
@@ -383,7 +369,7 @@ $opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to h
 
 =item B<--prefix>
 
-String - Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
+String - Add a specific prefix to the ID. By default it will be the feature type (3rd column).
 
 =item B<--type_dependent>
 
@@ -415,7 +401,7 @@ NbV1Ch01    TAIR10  exon    5928    8737   .       -       .        ID=AT1G01020
 
 =item B<--nb>
 
-Integer - Start numbering to this value. Default 1.
+Integer - Start numbering to this value. Must be positive. Default 1.
 
 =item B<-p>,  B<-t> or  B<-l>
 
@@ -424,22 +410,9 @@ You can specified a specific feature by given its primary tag name (column 3) as
 You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
       level3=CDS,exon,UTR,etc
-By default all feature are taken into account. fill the option by the value "all" will have the same behaviour.
+By default all feature are taken into account. Fill the option by the value "all" will have the same behaviour.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
-
-String - Output GFF file. If no output file is specified, the output will be
-written to STDOUT.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
-=item B<-h> or B<--help>
-
-Boolean - Display this helpful text.
+Options C<--tair>, C<--ensembl> and C<--prefix> are mutually exclusive.
 
 =back
 

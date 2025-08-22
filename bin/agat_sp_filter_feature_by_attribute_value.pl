@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use File::Basename;
 use POSIX qw(strftime);
 use Scalar::Util qw(looks_like_number);
@@ -11,93 +11,67 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $primaryTag=undef;
-my $opt_output= undef;
-my $opt_value = undef;
-my $opt_keep_parental = undef;
-my $opt_na_aside = undef;
-my $opt_value_insensitive = undef;
-my $opt_attribute = undef;
-my $opt_test = "=";
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference GFF file', { required => 1 } ],
+    [ 'value=s',             'Value (string or int) used for filtering', { required => 1 } ],
+    [ 'value_insensitive!',  'Case-insensitive match on value' ],
+    [ 'keep_parental!',      'Keep parental feature' ],
+    [ 'na_aside!',           'Output NA values in a separate file' ],
+    [ 'type|p|l=s',             'Comma-separated list of feature types or level1/2/3' ],
+    [ 'attribute|att|a=s',      'Attribute tag to test', { required => 1 } ],
+    [ 'test|t=s',            'Comparison test (<,>,<=,>=,!,=)',
+      { default => '=',
+        callbacks => {
+            valid => sub {
+                $_[0] =~ /^(?:<|>|<=|>=|=|!)$/
+                  or die 'Test to apply must be one of <, >, <=, >=, ! or =';
+                return 1;
+            }
+        }
+      }
+    ],
+);
 
-my $common = parse_common_options() || {};
-$config      = $common->{config};
-$opt_output  = $common->{output};
-$opt_verbose = $common->{verbose};
-$opt_help    = $common->{help};
-
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'value=s'             => \$opt_value,
-                  'value_insensitive!'  => \$opt_value_insensitive,
-                  'keep_parental!'      => \$opt_keep_parental,
-                  'na_aside!'           => \$opt_na_aside,
-                  "p|type|l=s"          => \$primaryTag,
-                  'a|attribute=s'       => \$opt_attribute,
-                  't|test=s'            => \$opt_test ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
-    pod2usage( {
-           -message => "$header\nAt least 3 parameters are mandatory:\n1) Input reference gff file: --gff\n".
-           "2) An attribute tag: -a\n3) A value (string or int) that will be used for filtering: --value\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gff              = $opt->gff;
+my $opt_value            = $opt->value;
+my $opt_value_insensitive = $opt->value_insensitive;
+my $opt_keep_parental    = $opt->keep_parental;
+my $opt_na_aside         = $opt->na_aside;
+my $primaryTag           = $opt->type;
+my $opt_attribute        = $opt->attribute;
+my $opt_test             = $opt->test;
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
-
-###############
-# Test options
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
-  dual_print($log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.");
-  exit;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
 
 ###############
 # Manage Output
 
 ## FOR GFF FILE
-my $gffout_ok_file ;
-my $fhout_discarded_file ;
+my $gffout_ok_file;
+my $fhout_discarded_file;
 my $ostreamReport_file;
 my $fhout_semidDiscarded_file if $opt_na_aside;
 
-if ($opt_output) {
-  my ($outfile,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+if ( my $out = $config->{output} ) {
+  my ( $outfile, $path, $ext ) = fileparse( $out, qr/\.[^.]*/ );
 
   # set file names
-  $gffout_ok_file = $path.$outfile.$ext;
-  $fhout_discarded_file = $path.$outfile."_discarded.gff";
-  $ostreamReport_file = $path.$outfile."_report.txt";
-  $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
+  $gffout_ok_file          = $path . $outfile . $ext;
+  $fhout_discarded_file    = $path . $outfile . "_discarded.gff";
+  $ostreamReport_file      = $path . $outfile . "_report.txt";
+  $fhout_semidDiscarded_file = $path . $outfile . "_na.gff";
 }
 
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
-my $ostreamReport = prepare_fileout($ostreamReport_file);
-my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
+my $gffout_ok            = prepare_gffout( $config, $gffout_ok_file );
+my $fhout_discarded      = prepare_gffout( $config, $fhout_discarded_file );
+my $ostreamReport        = prepare_fileout($ostreamReport_file);
+my $fhout_semidDiscarded = prepare_gffout( $config, $fhout_semidDiscarded_file )
+  if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -139,14 +113,15 @@ foreach my $value (keys %{$value_hash}){
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
+$stringPrint .=
+  "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
 if ($opt_value_insensitive){
   $stringPrint .= " case insensitive.\n";
 }else{
    $stringPrint .= " case sensitive.\n";
 }
 
-dual_print($log, $stringPrint);
+dual_print( $log, $stringPrint, $config->{verbose} );
 print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -159,7 +134,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n");
+dual_print( $log, "Parsing Finished\n", $config->{verbose} );
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -276,7 +251,7 @@ if($opt_na_aside){
   $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
 }
 
-dual_print($log, $stringPrint);
+dual_print( $log, $stringPrint, $config->{verbose} );
 print $ostreamReport $stringPrint if $ostreamReport;
 
 close $log if $log;
@@ -334,18 +309,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          dual_print($log, "String case\n", $opt_verbose);
-          if ($opt_test eq "="){
-            if ($file_value eq $given_value) { dual_print($log, "equal\n", $opt_verbose); return 1; }
-            else { dual_print($log, "not equal\n", $opt_verbose); }
+          dual_print( $log, "String case\n", $config->{verbose} );
+          if ($opt_test eq "="){ 
+            if ($file_value eq $given_value) { dual_print( $log, "equal\n", $config->{verbose} ); return 1; }
+            else { dual_print( $log, "not equal\n", $config->{verbose} ); }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ dual_print($log, "different\n", $opt_verbose); return 1; }
-            else { dual_print($log, "not different\n", $opt_verbose); }
+            if ($file_value ne $given_value){ dual_print( $log, "different\n", $config->{verbose} ); return 1; }
+            else { dual_print( $log, "not different\n", $config->{verbose} ); }
           }
         }
         else{
-          dual_print($log, "Number case\n", $opt_verbose);
+          dual_print( $log, "Number case\n", $config->{verbose} );
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -369,7 +344,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    dual_print($log, "Attribute not found  case\n", $opt_verbose);
+    dual_print( $log, "Attribute not found  case\n", $config->{verbose} );
     return 2;
   }
 }

@@ -5,46 +5,22 @@ use warnings;
 use POSIX qw(strftime);
 use File::Basename;
 use Carp;
-use Getopt::Long;
 use IO::File;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_file;
-my $opt_output=undef;
-my $verbose=undef;
-my $opt_help = 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
-                  'o|out|output=s' => \$opt_output,
-                  'v|verbose!'      => \$verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+my $opt_file   = $opt->gff;
+my $opt_output = $opt->out;
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
+pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } ) if $opt->help;
 
-if ( ! defined($opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # #######################
 # # START Manage Option #
@@ -54,6 +30,12 @@ if (defined($opt_output) ) {
   my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   $ostreamReport_filename=$path.$filename."_report.txt";
 }
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+  open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+  dual_print( $log, $header, 0 );
+}
+
 my $gffout = prepare_gffout($config, $opt_output);
 my $ostreamReport = prepare_fileout($ostreamReport_filename);
 
@@ -61,7 +43,7 @@ my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+dual_print( $log, $string1, $config->{verbose} ) if $opt_output;
 
                                                       #######################
                                                       #        MAIN         #
@@ -69,10 +51,10 @@ if($opt_output){print $string1;}
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
+dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config });
-print("Parsing Finished\n\n");
+dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
 ### END Parse GFF input #
 #########################
 
@@ -123,7 +105,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 
 my $toprint = "$nb_cases_l1 $tag flags/attributes added to level1 features and $nb_cases_l2 $tag flags/attributes added to level2 features. The value of the attribute is size of the shortest exon found.\n";
 print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+dual_print( $log, $toprint, $config->{verbose} ) if $opt_output;
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
       #########################
       ######### END ###########

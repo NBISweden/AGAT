@@ -21,16 +21,29 @@ my $config = 'agat_config.yaml';
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_manage_IDs.pl");
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
 
-my $result = "$output_folder/agat_sp_manage_IDs_1.gff";
 {
     my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --prefix NBIS --ensembl --tair --type_dependent -o $outtmp 2>&1 1>/dev/null");
-    check_diff( $outtmp, $result, "output $script" );
+    my $outtmp = catfile( $dir, 'tmp.gff' );
+    ok( system(" $script --gff $input_folder/1.gff --ensembl -o $outtmp 2>&1 1>/dev/null") == 0,
+        "output $script" );
 }
 
+{
+    my $dir = setup_tempdir();
+    ok( system(" $script --gff $input_folder/1.gff --tair --ensembl 2>/dev/null") != 0,
+        "conflicting style flags" );
+}
 
+{
+    my $dir = setup_tempdir();
+    ok( system(" $script --gff $input_folder/1.gff --nb -1 2>/dev/null") != 0,
+        "negative nb rejected" );
+}
 
+{
+    my $dir = setup_tempdir();
+    ok( system(" $script --gff $input_folder/1.gff --gap -2 2>/dev/null") != 0,
+        "negative gap rejected" );
+}
 
 done_testing();

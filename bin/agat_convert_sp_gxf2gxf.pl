@@ -5,56 +5,26 @@
 use strict;
 use warnings;
 use Pod::Usage;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
-my $opt_gfffile;
-my $opt_output;
-my $opt_help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|gxf|gtf|g=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_help   = $common->{help};
-
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
-                  'c|config=s'               => \$config,
-                  'o|output=s'               => \$opt_output,
-                  'h|help!'                  => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! defined($opt_gfffile) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\n --gff (Input reference gff file).\n\n".
-           "Invoke the help for more information (--help).\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my @copyARGV = @ARGV;
+my $opt_gfffile = $opt->gff;
+my $opt_output  = $opt->out;
+my $start_run   = time();
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ######################
 # Manage output file #
@@ -68,9 +38,9 @@ my $gffout = prepare_gffout($config, $opt_output);
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                 input  => $opt_gfffile,
-															    config => $config
-																 });
-print ("GFF3 file parsed\n");
+                                                                config => $config
+});
+dual_print($log, "GFF3 file parsed\n", $config->{verbose});
 
 ###
 # Print result
@@ -80,8 +50,8 @@ print_omniscient( {omniscient => $hash_omniscient,
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "usage: $0 @copyARGV\n";
-print "Job done in $run_time seconds\n";
+dual_print($log, "usage: $0 @copyARGV\n", $config->{verbose});
+dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
 
 __END__
 =head1 NAME
@@ -97,7 +67,7 @@ add missing features when possible (e.g. add exon if only CDS described, add UTR
 fix feature locations (e.g. check exon is embedded in the parent features mRNA, gene), etc...
 
 All AGAT's scripts with the _sp_ prefix use the AGAT parser, before to perform any supplementary task.
-So, it is not necessary to run this script prior the use of any other _sp_ script. 
+So, it is not necessary to run this script prior the use of any other _sp_ script.
 
 =head1 SYNOPSIS
 
@@ -119,7 +89,7 @@ written to STDOUT.
 
 =item B<-c> or B<--config>
 
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any,
 otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
 The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 

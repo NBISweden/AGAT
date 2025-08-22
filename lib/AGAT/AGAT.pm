@@ -16,22 +16,26 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 use Getopt::Long;
+use Getopt::Long::Descriptive qw(describe_options);
+use Pod::Usage;
 use AGAT::AppEaser ();
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
+
 sub import {
-    AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-    AGAT::OmniscientI->export_to_level(1, @_);
-    AGAT::OmniscientO->export_to_level(1, @_);
-    AGAT::OmniscientTool->export_to_level(1, @_);
-    AGAT::Config->export_to_level(1, @_);
-    AGAT::Levels->export_to_level(1, @_);
-    AGAT::OmniscientStat->export_to_level(1, @_);
-    AGAT::Utilities->export_to_level(1, @_);
-    AGAT::PlotR->export_to_level(1, @_);
+    my ($class, @args) = @_;
+    $class->export_to_level(1, @args); # export our symbols
+    AGAT::OmniscientI->export_to_level(1);
+    AGAT::OmniscientO->export_to_level(1);
+    AGAT::OmniscientTool->export_to_level(1);
+    AGAT::Config->export_to_level(1);
+    AGAT::Levels->export_to_level(1);
+    AGAT::OmniscientStat->export_to_level(1);
+    AGAT::Utilities->export_to_level(1);
+    AGAT::PlotR->export_to_level(1);
 }
 
 =head1 SYNOPSIS
@@ -146,6 +150,17 @@ configuration parameters are used).
 MESSAGE
 }
 
+sub get_log_path {
+        my ($common, $config) = @_;
+        $common ||= {};
+        $config ||= {};
+        return $common->{log} if defined $common->{log};
+        return undef if defined $config->{log} && !$config->{log};
+        return $config->{log_path} if $config->{log_path};
+        my ($file) = $0 =~ /([^\\\/]+)$/;
+        return $file . ".agat.log";
+}
+
 # Parse common command-line options shared by many scripts.
 # Options removed from @ARGV to allow further processing by callers.
 sub parse_common_options {
@@ -168,30 +183,72 @@ sub parse_common_options {
         return \%options;
 }
 
-sub get_log_path {
-        my ($common, $config) = @_;
-        $common ||= {};
-        $config ||= {};
-        return $common->{log} || $config->{log_path} || do {
-                my ($file) = $0 =~ /([^\\\/]+)$/;
-                $file . ".agat.log";
+# Return shared Getopt::Long::Descriptive option descriptors
+sub common_spec {
+        return (
+                [ 'config|c=s',          'Configuration file' ],
+                [ 'out|o|output=s',      'Output GFF3 file' ],
+                [ 'log=s',               'Log file path' ],
+                [ 'verbose|v=i',         'Verbosity level' ],
+                [ 'debug|d',             'Enable debug output' ],
+                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef, hidden => 1 } ],
+                [ 'quiet|q',             'Disable progress bar and verbose output',
+                        { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
+                [ 'help|h',              'Show this help', { shortcircuit => 1 } ],
+                { getopt_conf => ['pass_through'] },
+        );
+}
+
+# Merge CLI values with configuration defaults and compute log path
+sub resolve_config {
+        my ($opt) = @_;
+        my %cli = %{ $opt || {} };
+        $cli{output} = delete $cli{out} if exists $cli{out};
+        return resolve_common_options( \%cli );
+}
+
+# Helper to parse script-specific options together with common ones
+sub describe_script_options {
+        my ($header, @spec) = @_;
+        my ($opt, $usage);
+        eval {
+                ( $opt, $usage ) = describe_options( "$header\n\n%c %o", @spec, common_spec() );
+                1;
+        } or do {
+                ( my $err = $@ ) =~ s/\s+in call to .*//;
+                $err =~ s/\s+at .*//s;
+                pod2usage( { -message => $err, -exitstatus => 1, -verbose => 1 } );
         };
+
+        pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
+          if $opt->help;
+
+        my $config = resolve_config($opt);
+        return ( $opt, $usage, $config );
 }
 
 # Merge command-line options with configuration defaults using AppEaser,
 # returning a unified hash where CLI values take precedence.
 sub resolve_common_options {
-        my ($argv) = @_;
-        $argv //= \@ARGV;
+        my ($cli) = @_;
+        $cli ||= {};
 
-        my $cli = parse_common_options($argv) || {};
-        my $config_file = delete $cli->{config};
+        my %cli = %{$cli};
+        my $config_file = delete $cli{config};
         my $config = get_agat_config({ config_file_in => $config_file });
-        for my $k (qw(verbose log debug)) {
+
+        my $log_path = get_log_path( \%cli, $config );
+        $cli{log_path} = delete $cli{log} if exists $cli{log};
+
+        for my $k (qw(verbose log_path debug progress_bar)) {
                 $config->{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
         }
-        return AGAT::AppEaser::hash_merge($config, $cli);
+
+        my $merged = AGAT::AppEaser::hash_merge( $config, \%cli );
+        $merged->{log_path} = $log_path;
+        return $merged;
 }
+
 
 # load configuration file from local file if any either the one shipped with AGAT
 # return a hash containing the configuration.

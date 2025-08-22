@@ -2,56 +2,28 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $sub = "exon";
-my $opt_nc = "keep";
-my $help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s', 'Input GFF file', { required => 1 } ],
+    [ 'sub=s', 'Level3 feature to report', { default => 'exon' } ],
+    [ 'nc=s',  'Handle non-coding', { default => 'keep' } ],
+);
 
-my $common = parse_common_options() || {};
-$config  = $common->{config};
-$outfile = $common->{output};
-$help    = $common->{help};
-
-if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$help,
-    "gff=s" => \$gff,
-    "sub=s" => \$sub,
-    "nc=s" => \$opt_nc,
-    "outfile|output|out|o=s" => \$outfile))
-{
-    pod2usage( { -message => "Failed to parse command line.",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-# Print Help and exit
-if ($help) {
-    pod2usage( { -message => "$header",
-                 -verbose => 99,
-                 -exitval => 0 } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameters is mandatory. Input gff file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $outfile = $opt->out;
+my $gff     = $opt->gff;
+my $sub     = $opt->sub;
+my $opt_nc  = $opt->nc;
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ## Manage output file
 my $bedout;
@@ -66,8 +38,8 @@ else{
 }
 
 if($opt_nc ne "keep" and $opt_nc ne "filter" and $opt_nc ne "transcript"){
-	print "Parameter --nc accepts only [keep,filter,transcript] values.\n";
-	exit;
+        dual_print( $log, "Parameter --nc accepts only [keep,filter,transcript] values.\n", 1 );
+        exit;
 }
 
 ### Parse GTF input file

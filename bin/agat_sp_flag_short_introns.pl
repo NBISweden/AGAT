@@ -5,58 +5,35 @@ use warnings;
 use POSIX qw(strftime);
 use File::Basename;
 use Carp;
-use Getopt::Long;
 use IO::File;
 use Pod::Usage;
 use AGAT::AGAT;
 
+
 my $header = get_agat_header();
-my $config;
-my $opt_file;
-my $opt_output=undef;
-my $verbose=undef;
-my $Xsize=10;
-my $opt_help = 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'intron_size|i=i',     'Minimum intron size', { default => 10 } ],
+);
+my $opt_file = $opt->gff;
+my $Xsize    = $opt->intron_size;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'v|verbose!'          => \$verbose,
-                  'i|intron_size=i'     => \$Xsize,
-                  'c|config=s'          => \$config,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined($opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $ostreamReport_file;
-if (defined($opt_output) ) {
-  my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
-  $ostreamReport_file = $path.$filename."_report.txt";
+if ( my $out = $config->{output} ) {
+  my ( $filename, $path, $ext ) = fileparse( $out, qr/\.[^.]*/ );
+  $ostreamReport_file = $path . $filename . "_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $config, $config->{output} );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 
@@ -66,18 +43,18 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
+print $ostreamReport $string1 if $ostreamReport;
+dual_print( $log, $string1, $config->{verbose} );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
+dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config
                                                               });
-print("Parsing Finished\n\n");
+dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
 ### END Parse GFF input #
 #########################
 
@@ -110,9 +87,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
         }
       }
     }
-    print "Shortest intron for $id_l1:".$shortest_intron."\n" if($shortest_intron != 10000000000 and $verbose);
+    dual_print( $log, "Shortest intron for $id_l1:".$shortest_intron."\n", ($shortest_intron != 10000000000 && $config->{verbose}) );
     if ($shortest_intron < $Xsize){
-      print "flag the gene $id_l1\n";
+      dual_print( $log, "flag the gene $id_l1\n", $config->{verbose} );
       $nb_cases++;
 
       my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
@@ -139,8 +116,8 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 }
 
 my $toprint = "We found $nb_cases cases where introns were < $Xsize, we flagged them with the attribute $tag. The value of this tag is size of the shortest intron found in this gene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+print $ostreamReport $toprint if $ostreamReport;
+dual_print( $log, $toprint, $config->{verbose} );
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

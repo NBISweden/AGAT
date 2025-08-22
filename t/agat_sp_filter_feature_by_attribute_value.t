@@ -30,6 +30,12 @@ my $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
     check_diff( $outtmp, $result, "output $script" );
 }
 
+{
+    my $dir = setup_tempdir();
+    my $err = `$script --gff $input_folder/1.gff --value foo -p level3 -a protein_id --test foo 2>&1`;
+    like( $err, qr/Test to apply must be one of <, >, <=, >=, ! or =/, 'reject invalid test operator' );
+}
+
 
 
 

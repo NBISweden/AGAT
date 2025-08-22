@@ -30,6 +30,19 @@ my $result = "$output_folder/agat_sp_filter_gene_by_length_1.gff";
     check_diff( $outtmp, $result, "output $script" );
 }
 
+{
+    my $dir = setup_tempdir();
+    my $err = `$script --gff $input_folder/1.gff --size -5 2>&1`;
+    like( $err, qr/Gene size threshold must be positive/,
+        'reject negative size' );
+}
+
+{
+    my $dir = setup_tempdir();
+    my $err = `$script --gff $input_folder/1.gff --size 1000 --test foo 2>&1`;
+    like( $err, qr/Test to apply must be one of <, >, <=, >= or =/, 'reject invalid test operator' );
+}
+
 
 
 

@@ -4,53 +4,31 @@ use strict;
 use warnings;
 use Carp;
 use Pod::Usage;
-use Getopt::Long;
-use IO::File ;
+use Getopt::Long::Descriptive;
+use IO::File;
 use AGAT::AGAT;
 
 my $start_run = time();
 my $header = get_agat_header();
-my $config;
-my $inputFile=undef;
-my $outfile=undef;
-my $primaryTag=undef;
-my $opt_help = 0;
-my $locus_tag="locus";
-my $quiet = undef;
-my $locus_cpt=1;
-my $tag_in=undef;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'file|input|gff=s', 'Input GFF file', { required => 1 } ],
+    [ 'to|lo=s',          'Name of locus tag attribute', { default => 'locus' } ],
+    [ 'ti|li=s',          'Input attribute to derive locus tag' ],
+    [ 'p|type|l=s',       'Comma-separated list of feature types' ],
+);
 
-my $common = parse_common_options() || {};
-$config    = $common->{config};
-$outfile   = $common->{output};
-$opt_help  = $common->{help};
+my $inputFile  = $opt->file;
+my $locus_tag  = $opt->to;
+my $tag_in     = $opt->ti;
+my $primaryTag = $opt->p;
+my $locus_cpt  = 1;
 
-if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
-                  'to|lo=s'           => \$locus_tag,
-                  'ti|li=s'           => \$tag_in,
-                  "p|type|l=s"        => \$primaryTag,
-                  'q|quiet!'          => \$quiet,
-                  )  )
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ((!defined($inputFile)) ){
-   pod2usage( { -message => "$header\nAt least 1 parameter is mandatory: -i",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -58,6 +36,7 @@ if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
+my $outfile = $config->{output};
 my $gffout = prepare_gffout($config, $outfile);
 
 #define the locus tag
@@ -71,21 +50,22 @@ my $hash_levels= get_levels_info();
 my $hash_level1 = $hash_levels->{'other'}{'level'}{'level1'};
 
 if(! $primaryTag){
-  print "We will work on attributes from all Level1 features.\n";
+  dual_print($log, "We will work on attributes from all Level1 features.\n", $config->{verbose});
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if ( exists_keys ( $hash_level1, ( lc($tag) ) ) ){
-        print "We will work on attributes from <$tag> feature.\n";
+        dual_print($log, "We will work on attributes from <$tag> feature.\n", $config->{verbose});
       }
       else{
-        print "<$tag> feature is not a level1 feature. Current accepted value are:\n";
+        dual_print($log, "<$tag> feature is not a level1 feature. Current accepted value are:\n", $config->{verbose});
         foreach my $key ( keys %{$hash_level1}){
-          print $key." ";
+          dual_print($log, $key." ", $config->{verbose});
         }
-        print "\n"; exit;
+        dual_print($log, "\n", $config->{verbose});
+        exit;
       }
    }
 }
@@ -95,7 +75,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n", $config->{verbose});
 
 my $line_cpt=0;
 my $locus=undef;
@@ -115,9 +95,9 @@ while (my $feature = $ref_in->next_feature() ) {
           $locus = $feature->_tag_value($tag_in);
         }
         else{
-          print "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n" if (! $quiet);
+          dual_print($log, "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n", $config->{verbose});
           $locus = $locus_tag.$locus_cpt;$locus_cpt++;
-          print "We will use the created locus_tag value: $locus instead to name the locus!\n" if (! $quiet);
+          dual_print($log, "We will use the created locus_tag value: $locus instead to name the locus!\n", $config->{verbose});
         }
       }
       else{
@@ -145,7 +125,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print($log, "\rProgression : $done % processed.\n", $config->{verbose});
     $startP= time;
   }
 }
@@ -154,7 +134,7 @@ while (my $feature = $ref_in->next_feature() ) {
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
 
 
 #######################################################################################################################

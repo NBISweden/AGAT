@@ -5,50 +5,27 @@ use warnings;
 use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $verbose;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref=s', 'Input GTF/GFF file', { required => 1 } ],
+);
+
+my $opt_file   = $opt->gff;
+my $opt_output = $opt->out;
 my $intergenicID = 1;
-my $opt_file;
-my $opt_output=undef;
-my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'c|config=s'          => \$config,
-                  'v|verbose!'          => \$verbose,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined( $opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data GFF/GTF file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-# # START Manage Option #
-# #######################
 my $gffout = prepare_gffout($config, $opt_output);
 
 #                         #######################
@@ -59,19 +36,20 @@ my $gffout = prepare_gffout($config, $opt_output);
   ### Parse GFF input #
   my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                               config => $config });
-  print("Parsing Finished\n");
+  dual_print($log, "Parsing Finished\n", $config->{verbose});
   ### END Parse GFF input #
   #########################
 
 if(! exists_keys($omniscient,('level1', "gene") ) ){
-  print "No gene feature found in $opt_file, intergenic regions cannot be determinded!", exit 0;
+  dual_print($log, "No gene feature found in $opt_file, intergenic regions cannot be determinded!", 1);
+  exit 0;
 }
 
 # Gather all Level1 features
 my $sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, 'gene');
 
 # --------------------------- COLLECT GENE LOCATIONS -----------------------
-print "Now colleting the gene locations\n" if ($verbose);
+dual_print($log, "Now colleting the gene locations\n", $config->{verbose});
 my $flattened_locations = {};
 foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
   # check if gene  exits for this sequence
@@ -92,7 +70,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 # --------------------------- FIX OVERLAPPING LOCATIONS -----------------------
 # Will merge locations that overlap
 
-print "Now flattening the locations\n" if ($verbose);
+dual_print($log, "Now flattening the locations\n", $config->{verbose});
 foreach my $locusID (  keys %{$flattened_locations} ){
 
   my @newlocations;
@@ -130,7 +108,7 @@ foreach my $locusID (  keys %{$flattened_locations} ){
 }
 
 # --------------------------- NOW creating intergenic location -----------------------
-print "Now creating intergenic regions\n" if ($verbose);
+dual_print($log, "Now creating intergenic regions\n", $config->{verbose});
 my $intergenic_added=0;
 # Go through location from left to right ### !! if not empty
 foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or repeat etc...

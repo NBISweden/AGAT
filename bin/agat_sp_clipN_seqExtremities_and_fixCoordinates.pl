@@ -2,63 +2,32 @@
 
 use strict;
 use warnings;
-use Pod::Usage;
-use Getopt::Long;
 use Bio::SeqIO ;
 use Bio::DB::Fasta;
 use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_gfffile;
-my $opt_fastafile;
-my $opt_output_fasta;
-my $opt_output_gff;
-my $opt_help;
-my $width = 60; # line length printed
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s',      'Input GFF file',   { required => 1 } ],
+    [ 'fasta|fa|f=s', 'Input FASTA file', { required => 1 } ],
+    [ 'of=s',         'Output FASTA file' ],
+    [ 'og=s',         'Output GFF3 file' ],
+);
 
-my $common = parse_common_options() || {};
-$config        = $common->{config};
-$opt_output_gff = $common->{output};
-my $verbose    = $common->{verbose};
-$opt_help      = $common->{help};
-
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'f|fa|fasta=s'    => \$opt_fastafile,
-                  'of=s'            => \$opt_output_fasta,
-                  'og=s'            => \$opt_output_gff ) )
-{
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parametes are mandatory:\nInput reference gff file (-g);  Input reference fasta file (-f)\n\n".
-           "Output is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gfffile    = $opt->gff;
+my $opt_fastafile  = $opt->fasta;
+my $opt_output_fasta = $opt->of;
+my $opt_output_gff   = $opt->og // $config->{output};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ######################
 # Manage output file #
@@ -72,16 +41,15 @@ else{
 }
 
 my $gffout = prepare_gffout($config, $opt_output_gff);
-
 ##### MAIN ####
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-dual_print($log, "Reading file $opt_gfffile\n");
+dual_print($log, "Reading file $opt_gfffile\n", $config->{verbose} );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n");
+dual_print($log, "Parsing Finished\n", $config->{verbose} );
 ### END Parse GFF input #
 #########################
 
@@ -172,13 +140,13 @@ foreach my $seq_id (@ids ){
 # print annotation whith shifter location
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print($log, "We found $cpt_Nleft sequence(s) starting with N\n");
-dual_print($log, "We found $cpt_Nright sequence(s) ending with N\n");
-dual_print($log, "We found $cpt_Nboth sequence(s) having N both extremities\n");
+dual_print($log, "We found $cpt_Nleft sequence(s) starting with N\n", $config->{verbose} );
+dual_print($log, "We found $cpt_Nright sequence(s) ending with N\n", $config->{verbose} );
+dual_print($log, "We found $cpt_Nboth sequence(s) having N both extremities\n", $config->{verbose} );
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n");
+dual_print($log, "Job done in $run_time seconds\n", $config->{verbose} );
 
 close $log if $log;
 

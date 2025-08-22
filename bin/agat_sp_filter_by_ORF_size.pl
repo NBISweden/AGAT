@@ -4,66 +4,41 @@ use strict;
 use warnings;
 use Carp;
 use POSIX qw(strftime);
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Clone 'clone';
 use Pod::Usage;
 use AGAT::AGAT;
 
 my $start_run = time();
-my $header = get_agat_header();
-my $config;
-my $PROT_LENGTH = 100;
-my $file_fasta=undef;
-my $outfile = undef;
-my $verbose = undef;
-my $opt_test = undef;
-my $gff = undef;
-my $opt_help= 0;
+my $header    = get_agat_header();
+my @copyARGV  = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'test|t=s',              'Comparison test (<,>,<=,>=,==,=)',
+      { default => '>',
+        callbacks => {
+            valid => sub {
+                $_[0] =~ /^(?:<|>|<=|>=|==|=)$/
+                  or die 'Test to apply must be one of <, >, <=, >=, == or =';
+                return 1;
+            }
+        }
+      }
+    ],
+    [ 'size|s=i', 'Protein length threshold', { default => 100 } ],
+);
 
-my @copyARGV=@ARGV;
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions(
-    'c|config=s' => \$config,
-    "h|help"   => \$opt_help,
-    "g|gff=s"  => \$gff,
-    't|test=s' => \$opt_test,
-    "size|s=i" => \$PROT_LENGTH,
-    "v!"       => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+my $gff         = $opt->gff;
+my $opt_test    = $opt->test;
+my $PROT_LENGTH = $opt->size;
+my $outfile     = $config->{output};
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\n Input reference gff file (--gff)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-######################
-# Option check
-
-if($opt_test){
-  if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "=="){
-    print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.";exit;
-  }
-}
-else{
-  $opt_test = ">";
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
 
 # To avoid > < character in output files
@@ -88,7 +63,7 @@ my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint = "Launched the ".$stringPrint."\nusage: $0 @copyARGV\n";
 $stringPrint .= "We are filtering the gene with protein size $opt_test $PROT_LENGTH\n";
-print $stringPrint;
+dual_print( $log, $stringPrint, $config->{verbose} );
 
                 #####################
                 #     MAIN          #
@@ -96,10 +71,10 @@ print $stringPrint;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                               });
-print ("GFF3 file parsed\n");
+  my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
+                                                                   config => $config
+                                                                 });
+  dual_print( $log, "GFF3 file parsed\n", $config->{verbose} );
 
 # Create an empty omniscient hash to store the discarded features and copy the config in
 my %hash_omniscient_discarded;
@@ -112,7 +87,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
     
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
-    print "Study gene $gene_id_l1\n" if($verbose);
+      dual_print( $log, "Study gene $gene_id_l1\n", $config->{verbose} );
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -158,7 +133,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         if( $there_is_cds ){
           # All transcript discarded
           if( @l2_to_keep == 0){
-            print "Case all L2 discarded \n" if ($verbose);
+            dual_print( $log, "Case all L2 discarded \n", $config->{verbose} );
             $number_gene_discarded++;
             $number_gene_affected++;
             # move L3
@@ -176,7 +151,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
           }
           # Only part of the isoforms have been discarded
           elsif ( @l2_to_discard > 0){
-            print "Case some L2 discarded \n" if ($verbose);
+            dual_print( $log, "Case some L2 discarded \n", $config->{verbose} );
             $number_gene_affected++;
             # handle L3
             
@@ -208,12 +183,12 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         }
         # ---------- CASE there is no CDS -----------
         else{
-          print "No cds for $gene_id_l1\n" if ($verbose);
+          dual_print( $log, "No cds for $gene_id_l1\n", $config->{verbose} );
         }
       }
       # ---------- CASE NO L2 -----------
       if($no_l2){ # case of l1 feature without child
-        print "No child for $gene_id_l1\n" if ($verbose);
+        dual_print( $log, "No child for $gene_id_l1\n", $config->{verbose} );
       }
     }
   }
@@ -223,14 +198,14 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_pass} );
 print_omniscient( {omniscient => \%hash_omniscient_discarded, output => $gffout_notpass} );
 
-print "\n$number_gene_affected genes have at least one transcript removed.\n";
-print "$number_gene_discarded genes discarded\n";
-print "$number_mRNA_discarded transcripts discarded.\n";
+dual_print( $log, "\n$number_gene_affected genes have at least one transcript removed.\n", $config->{verbose} );
+dual_print( $log, "$number_gene_discarded genes discarded\n", $config->{verbose} );
+dual_print( $log, "$number_mRNA_discarded transcripts discarded.\n", $config->{verbose} );
 
 # END
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
 #######################################################################################################################
         ####################
          #     METHODS    #

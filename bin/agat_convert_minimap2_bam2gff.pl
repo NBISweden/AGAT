@@ -3,49 +3,31 @@ use strict;
 use warnings;
 use Cwd;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use AGAT::AGAT;
 
 
 my $header = get_agat_header();
-my $config;
-my $opt_in;
-my $opt_bam;
-my $opt_sam;
-my $opt_output = undef;
-my $opt_help   = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'input|i=s', 'Input SAM/BAM file', { required => 1 } ],
+    [ 'bam',       'Force BAM input' ],
+    [ 'sam',       'Force SAM input' ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_help   = $common->{help};
+my $opt_in     = $opt->input;
+my $opt_bam    = $opt->bam;
+my $opt_sam    = $opt->sam;
+my $opt_output = $opt->out;
 
-if ( !GetOptions( 'i|input=s' => \$opt_in,
-                  'b|bam!'    => \$opt_bam,
-                  's|sam!'    => \$opt_sam ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# --- Manage log ---
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined( $opt_in) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters: Input sam or bam file (-i)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # ---- set output -----
 my $out_stream = prepare_gffout($config, $opt_output);
