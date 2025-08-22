@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -26,7 +26,7 @@ my $result = "$output_folder/agat_sp_manage_functional_annotation_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv --clean_name -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv --clean_name -o $outtmp");
     check_diff( "$outtmp/02413F.gff", $result, "output $script" );
 }
 

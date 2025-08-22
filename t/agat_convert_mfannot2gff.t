@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -26,7 +26,7 @@ my $result = "$output_folder/agat_convert_mfannot2gff_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --mfannot $input_folder/test.mfannot -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --mfannot $input_folder/test.mfannot -o $outtmp");
     check_diff( $outtmp, $result, "output $script" );
 }
 
@@ -37,7 +37,7 @@ $result = "$output_folder/agat_convert_mfannot2gff_2.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --mfannot $input_folder/test.mfannot2 -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --mfannot $input_folder/test.mfannot2 -o $outtmp");
     check_diff( $outtmp, $result, "output $script" );
 }
 

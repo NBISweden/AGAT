@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -26,7 +26,7 @@ my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp");
     check_diff( $outtmp, $result, "output $script test1" );
 }
 
@@ -37,7 +37,7 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_spl
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --split -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --split -o $outtmp");
     check_diff( $outtmp, $result, "output $script test2" );
 }
 
@@ -48,7 +48,7 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_mer
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -t exon --merge -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -t exon --merge -o $outtmp");
     check_diff( $outtmp, $result, "output $script test3" );
 }
 
@@ -59,7 +59,7 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_ful
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --full -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --full -o $outtmp");
     check_diff( $outtmp, $result, "output $script test4" );
 }
 
@@ -70,7 +70,7 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_att
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_attributes -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_attributes -o $outtmp");
     check_diff( $outtmp, $result, "output $script test5" );
 }
 
@@ -81,7 +81,7 @@ $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_par
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_parent_attributes -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa --keep_parent_attributes -o $outtmp");
     check_diff( $outtmp, $result, "output $script test6" );
 }
 

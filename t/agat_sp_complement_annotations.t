@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -25,12 +25,12 @@ my $result = "$output_folder/agat_sp_complement_annotations_1.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(
+    check_quiet_run(
         " $script --ref "
           . catfile( $Bin, 'gff', 'gff_syntax', 'in', '25_test.gff' )
           . "  --add "
           . catfile( $Bin, 'gff', 'gff_syntax', 'in', '9_test.gff' )
-          . " -o $outtmp 2>&1 1>/dev/null"
+          . " -o $outtmp"
     );
     check_diff( $outtmp, $result, "output $script" );
 }
@@ -41,7 +41,7 @@ $result = "$output_folder/agat_sp_complement_annotations_2.gff";
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
     my $outprefix = catfile($dir, 'tmp');
-    system(" $script --ref $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff  --add $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --ref $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff  --add $input_folder/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o $outtmp");
     check_diff( $outtmp, $result, "output $script" );
 }
 

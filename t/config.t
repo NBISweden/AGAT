@@ -7,7 +7,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 
 =head1 DESCRIPTION
 
@@ -75,10 +75,10 @@ $script = $script_prefix . catfile($root, 'bin', 'agat');
     my $new_config_name = catfile( $dir, 'agat_config_renamed.yml' );
     system("$script config -e --output $new_config_name --locus_tag Name");
     my $tmp = catfile( $dir, 'tmp.gff' );
-    system(
+    check_quiet_run(
         catfile( $root, 'bin', 'agat_convert_sp_gxf2gxf.pl' ) .
           " --gff " . catfile( $Bin, 'gff', 'gff_syntax', 'in', '28_test.gff' ) .
-          " -c $new_config_name -o $tmp  2>&1 1>/dev/null"
+          " -c $new_config_name -o $tmp"
     );
     check_diff(
         $tmp,

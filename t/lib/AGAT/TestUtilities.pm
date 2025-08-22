@@ -8,7 +8,7 @@ use File::Copy qw(copy);
 use File::Spec;
 use Test::More;
 
-our @EXPORT = qw(setup_tempdir check_diff script_prefix);
+our @EXPORT = qw(setup_tempdir check_diff script_prefix check_quiet_run);
 my @DIRS;    # keep temp dirs alive until program end
 
 sub setup_tempdir {
@@ -34,6 +34,16 @@ sub script_prefix {
         $ENV{HARNESS_PERL_SWITCHES}
           && $ENV{HARNESS_PERL_SWITCHES} =~ m/Devel::Cover/
       ) ? 'perl -MDevel::Cover ' : '';
+}
+
+sub check_quiet_run {
+    my ($cmd) = @_;
+    my $stdout = File::Spec->catfile( $CWD, 'stdout.txt' );
+    my $stderr = File::Spec->catfile( $CWD, 'stderr.txt' );
+    my $exit = system("$cmd --quiet 1>$stdout 2>$stderr");
+    ok( -z $stdout, 'stdout is empty' );
+    ok( -z $stderr, 'stderr is empty' );
+    return $exit;
 }
 
 BEGIN {
