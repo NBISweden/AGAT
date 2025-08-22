@@ -5,61 +5,34 @@
 use strict;
 use warnings;
 use Pod::Usage;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile;
-my $embl;
-my $emblmygff3;
-my $primaryTags;
-my $discard;
-my $keep;
-my $help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'embl=s',             'Input EMBL file', { required => 1 } ],
+    [ 'primary_tag|pt|t=s', 'Comma-separated primary tags' ],
+    [ 'discard|d',          'Discard listed primary tags' ],
+    [ 'keep|k',             'Keep only listed primary tags' ],
+    [ 'emblmygff3',         'Output as EMBL mygff3' ],
+);
 
-my $common = parse_common_options() || {};
-$config  = $common->{config};
-$outfile = $common->{output};
-my $verbose = $common->{verbose};
-$help   = $common->{help};
-
-if( !GetOptions(
-    "embl=s"                     => \$embl,
-    "primary_tag|pt|t=s"         => \$primaryTags,
-    "d!"                         => \$discard,
-    "k!"                         => \$keep,
-    "emblmygff3!"                => \$emblmygff3,
-    "gff=s"                      => \$outfile))
-{
-    pod2usage( { -message => "Failed to parse command line\n$header",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($embl)) ){
-    pod2usage( {
-           -message => "$header\nMissing the --embl argument",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-my $throw_fasta=$config->{"throw_fasta"};
+my $outfile     = $opt->out;
+my $embl        = $opt->embl;
+my $emblmygff3  = $opt->emblmygff3;
+my $primaryTags = $opt->primary_tag;
+my $discard     = $opt->discard;
+my $keep        = $opt->keep;
+my $throw_fasta = $config->{throw_fasta};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ##################
 # MANAGE OPTION  #
@@ -86,8 +59,6 @@ if ($primaryTags){
     }
   }
   else{dual_print($log, "You gave a list of primary tag wihtout telling me what you want I do with. Discard them or keep only them ?\n", 1);}
-
-close $log if $log;
 }
 
 

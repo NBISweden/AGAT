@@ -14,7 +14,6 @@ my $header = get_agat_header();
 my @copyARGV = @ARGV;
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref=s', 'Input GTF/GFF file', { required => 1 } ],
-    [ 'out|o|output=s', 'Output GFF3 file' ],
 );
 
 my $opt_file   = $opt->gff;
