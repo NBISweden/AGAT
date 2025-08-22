@@ -5,55 +5,44 @@ use warnings;
 use Carp;
 use warnings;
 use Pod::Usage;
-use Getopt::Long;
 use IO::File ;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'tsv=s', 'Input tsv file',      { required => 1 } ],
+    [ 'delimiter=s',
+      'Field delimiter for TSV/CSV file',
+      { default   => "\t",
+        callbacks => {
+            allowed => sub {
+                my $d = shift;
+                ( $d eq "\t" || $d eq "," )
+                  or die 'delimiter must be "\t" or ","';
+            }
+        } } ],
+    [ 'csv!' => 'Input file is comma-separated', { implies => { delimiter => ',' } } ],
+);
+
+my $input_gff = $opt->gff;
+my $input_tsv = $opt->tsv;
+my $outfile   = $config->{output};
+my $delimiter = $opt->delimiter;
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
+
 my $start_run = time();
-my $input_gff;
-my $input_tsv;
-my $outputFile;
-my $verbose;
-my $csv;
-my $opt_help = 0;
-
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$outputFile = $common->{output};
-$verbose    = $common->{verbose};
-$opt_help   = $common->{help};
-
-if ( !GetOptions (  'gff=s' => \$input_gff,
-                        'tsv=s' => \$input_tsv,
-                    'csv!' => \$csv,
-                    )  )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! $input_gff or ! $input_tsv){
-   pod2usage( {  -message => "$header\nAt least 2 input file are mandatory:\n".
-                 "--gff input.gff\n--tsv input.tsv",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outputFile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 # Manage GFF Input
 my $format = $config->{force_gff_input_version};
@@ -71,14 +60,8 @@ while (<INPUT>) {
 	$_=~ s/^\s+//; #removing leading spaces
 	$_=~ s/\s+$//; #removing trailing spaces
 
-	# split line
-	my @splitline;
-	if ($csv){
-		@splitline = split /,/, $_;
-	}
-  	else{
-	  @splitline = split /\t/, $_; # split at tabulation
-  	}
+        # split line
+        my @splitline = split /\Q$delimiter\E/, $_;
 
 	$tsv{$splitline[0]} = $splitline[1];
 }
@@ -93,7 +76,7 @@ while (my $feature = $gff_in->next_feature() ) {
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
 
 __END__
 
@@ -115,7 +98,9 @@ number of chromosomes or scaffolding is large, sed replacement is time-consuming
 
 =head1 SYNOPSIS
 
-    agat_sq_rename_seqid.pl --gff input.gff --tsv input.tsv [ -o output.gff3 ]
+    agat_sq_rename_seqid.pl --gff input.gff --tsv mapping.tsv [ -o output.gff3 ]
+    agat_sq_rename_seqid.pl --gff input.gff --tsv mapping.csv --csv
+    agat_sq_rename_seqid.pl --gff input.gff --tsv mapping.tsv --delimiter ","
     agat_sq_rename_seqid.pl --help
 
 =head1 OPTIONS
@@ -132,26 +117,12 @@ STRING: Input tsv file
 
 =item B<--csv>
 
-BOLEAN: Inform the script that the tsv input file is actually a csv (coma-separated).
+Boolean: convenience flag setting the delimiter to a comma.
 
-=item B<-v> or B<--verbose>
+=item B<--delimiter>
 
-BOLEAN: Add verbosity
-
-=item B<-o> or B<--output>
-
-STRING: Output file. If no output file is specified, the output will be written
-to STDOUT. The result is in tabulate format.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
-=item B<--help> or B<-h>
-
-Display this helpful text.
+STRING: Column separator in the mapping file. Allowed values are "\t" and ",".
+Defaults to a tab character. Using C<--csv> automatically sets this to a comma.
 
 =back
 

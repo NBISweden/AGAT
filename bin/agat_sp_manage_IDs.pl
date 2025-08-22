@@ -7,12 +7,16 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
-    [ 'gff|f=s',       'Input reference gff file', { required => 1 } ],
-    [ 'nb=i',          'Starting number for IDs',  { default  => 1 } ],
-    [ 'gap=i',         'Gap between IDs' ],
-    [ 'tair!',         'Use TAIR ID style' ],
-    [ 'ensembl!',      'Use Ensembl prefix' ],
-    [ 'prefix=s',      'Prefix for generated IDs' ],
+    [ 'gff|f=s', 'Input reference gff file', { required => 1 } ],
+    [ 'nb=i', 'Starting number for IDs',
+      { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ 'gap=i', 'Gap between IDs',
+      { callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ mode => hidden => { one_of => [
+        [ 'tair!'    => 'Use TAIR ID style' ],
+        [ 'ensembl!' => 'Use Ensembl prefix' ],
+        [ 'prefix=s' => 'Prefix for generated IDs' ],
+    ] } ],
     [ 'p|t|l=s@',      'Feature level/tag to process' ],
     [ 'type_dependent!', 'Prefix depends on feature type' ],
     [ 'collective!',   'Use collective spread features' ],
@@ -356,7 +360,7 @@ Input GTF/GFF file.
 
 =item B<--gap>
 
-Integer - Increment the next gene (level1 feature) suffix with this value. Defauft 0.
+Integer - Increment the next gene (level1 feature) suffix with this value. Must be positive.
 
 =item B<--ensembl>
 
@@ -365,7 +369,7 @@ $opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to h
 
 =item B<--prefix>
 
-String - Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
+String - Add a specific prefix to the ID. By default it will be the feature type (3rd column).
 
 =item B<--type_dependent>
 
@@ -397,7 +401,7 @@ NbV1Ch01    TAIR10  exon    5928    8737   .       -       .        ID=AT1G01020
 
 =item B<--nb>
 
-Integer - Start numbering to this value. Default 1.
+Integer - Start numbering to this value. Must be positive. Default 1.
 
 =item B<-p>,  B<-t> or  B<-l>
 
@@ -406,22 +410,9 @@ You can specified a specific feature by given its primary tag name (column 3) as
 You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
       level3=CDS,exon,UTR,etc
-By default all feature are taken into account. fill the option by the value "all" will have the same behaviour.
+By default all feature are taken into account. Fill the option by the value "all" will have the same behaviour.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
-
-String - Output GFF file. If no output file is specified, the output will be
-written to STDOUT.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
-=item B<-h> or B<--help>
-
-Boolean - Display this helpful text.
+Options C<--tair>, C<--ensembl> and C<--prefix> are mutually exclusive.
 
 =back
 
