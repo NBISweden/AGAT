@@ -2,59 +2,27 @@
 
 use strict;
 use warnings;
-use Pod::Usage;
-use Getopt::Long;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_gfffile;
-my $opt_comonTag=undef;
-my $opt_verbose=undef;
-my $opt_output;
-my $opt_help = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_verbose = $common->{verbose};
-$opt_help   = $common->{help};
-
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'     => \$opt_gfffile ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! defined($opt_gfffile) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (-g).\n\n".
-           "Ouptut is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gfffile = $opt->gff;
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $config, $config->{output} );
 
                 #####################
                 #     MAIN          #
@@ -66,7 +34,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $opt_gfffile,
                                                                config => $config
                                                                });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n", $config->{verbose} );
 
 ###
 # Print result
@@ -74,7 +42,7 @@ print_omniscient_as_match( {omniscient => $hash_omniscient, output => $gffout} )
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
 __END__
 
 =head1 NAME
