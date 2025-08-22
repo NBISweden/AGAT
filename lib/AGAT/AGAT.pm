@@ -6,15 +6,7 @@ use strict;
 use warnings;
 use Exporter;
 
-use AGAT::OmniscientI;
-use AGAT::OmniscientO;
-use AGAT::OmniscientTool;
 use AGAT::Config;
-use AGAT::Levels;
-use AGAT::OmniscientStat;
-use AGAT::Utilities;
-use AGAT::PlotR;
-use Bio::Tools::GFF;
 use Getopt::Long;
 use Getopt::Long::Descriptive qw(describe_options);
 use Pod::Usage;
@@ -28,14 +20,10 @@ our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle
 sub import {
     my ($class, @args) = @_;
     $class->export_to_level(1, @args); # export our symbols
-    AGAT::OmniscientI->export_to_level(1);
-    AGAT::OmniscientO->export_to_level(1);
-    AGAT::OmniscientTool->export_to_level(1);
     AGAT::Config->export_to_level(1);
-    AGAT::Levels->export_to_level(1);
-    AGAT::OmniscientStat->export_to_level(1);
-    AGAT::Utilities->export_to_level(1);
-    AGAT::PlotR->export_to_level(1);
+    for my $mod (qw(AGAT::OmniscientI AGAT::OmniscientO AGAT::OmniscientTool AGAT::Levels AGAT::OmniscientStat AGAT::Utilities AGAT::PlotR)) {
+        eval { require $mod; $mod->export_to_level(1); 1 };
+    }
 }
 
 =head1 SYNOPSIS
@@ -231,9 +219,13 @@ sub describe_script_options {
 # returning a unified hash where CLI values take precedence.
 sub resolve_common_options {
         my ($cli) = @_;
-        $cli ||= {};
+        my %cli = %{ $cli || {} };
 
-        my %cli = %{$cli};
+        if (!%cli) {
+                my ($opt) = describe_options('%c %o', common_spec());
+                %cli = %{$opt};
+        }
+
         my $config_file = delete $cli{config};
         my $config = get_agat_config({ config_file_in => $config_file });
 
