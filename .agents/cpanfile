@@ -1,14 +1,54 @@
-on 'test' => sub {
-  requires 'Test2::V0';
-  requires 'Test::Deep';
-  requires 'Test::Warnings';
-  # whichever temp dir helper you actually use:
-  requires 'Test::TempDir::Tiny', '0'; # or File::Tempdir::Tiny / File::Temp
-  requires 'Capture::Tiny', '0';
-};
+requires 'Bio::DB::Fasta';
+requires 'Bio::DB::Taxonomy';
+requires 'Bio::OntologyIO::obo';
+requires 'Bio::Ontology::OntologyEngineI';
+requires 'Bio::Seq';
+requires 'Bio::SeqIO';
+requires 'Bio::Tools::CodonTable';
+requires 'Bio::Tools::GFF';
+requires 'Carp';
+requires 'Clone';
+requires 'Cwd';
+requires 'DB_File';
+requires 'Exporter';
+requires 'ExtUtils::InstallPaths';
+requires 'File::Basename';
+requires 'File::Copy';
+requires 'File::Glob';
+requires 'File::Share';
+requires 'File::ShareDir';
+requires 'File::Spec';
+requires 'Getopt::Long';
+requires 'Getopt::Long';
+requires 'IO::File';
+requires 'IO::Uncompress::Gunzip';
+requires 'IPC::Open2';
+requires 'YAML';
+requires 'LWP::UserAgent';
+requires 'LWP::Protocol::https';
+requires 'List::MoreUtils';
+requires 'Moose';
+requires 'POSIX';
+requires 'Pod::Usage';
+requires 'Scalar::Util';
+requires 'Sort::Naturally';
+requires 'Term::ProgressBar';
+requires 'Time::Piece';
+requires 'Time::Seconds';
+requires 'Try::Tiny';
+requires 'URI::Escape';
 
-on 'develop' => sub {
-  requires 'Perl::Critic', '1.150';
-  requires 'Devel::Cover', '1.44';
-  requires 'Pod::Coverage::TrustPod', '0';
-};
+recommends 'Parallel::ForkManager';
+
+requires 'Capture::Tiny';
+requires 'File::ShareDir';
+requires 'Test::Differences';
+requires 'Test::More', '0.98';
+requires 'Test::Exception';
+requires 'Test::TempDir::Tiny';
+requires 'Path::Tiny';
+
+
+requires 'Perl::Critic';
+requires 'Devel::Cover';
+requires 'Devel::Cover::Report::Coveralls';
