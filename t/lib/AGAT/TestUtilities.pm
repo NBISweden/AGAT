@@ -14,6 +14,7 @@ my @DIRS;    # keep temp dirs alive until program end
 sub setup_tempdir {
     my $dir = tempdir();
     copy('share/agat_config.yaml', File::Spec->catfile($dir, 'agat_config.yaml'));
+    copy('share/feature_levels.yaml', File::Spec->catfile($dir, 'feature_levels.yaml'));
     $CWD = $dir;
     push @DIRS, $dir;
     return $dir;
