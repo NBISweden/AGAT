@@ -120,7 +120,7 @@ my $intron_added=0;
         if(@introns){
           my $it = natatime 2, @introns;
           while (my @tuple = $it->()) {
-						$intron_added++;
+            $intron_added++;
             my $intron_feature = clone($feature_example);
             $intron_feature->primary_tag('intron');
             my $ID='intron_added-'.$intronID;
