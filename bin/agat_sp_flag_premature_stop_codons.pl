@@ -6,7 +6,6 @@ use POSIX qw(strftime);
 use File::Basename;
 use Sort::Naturally;
 use Carp;
-use Getopt::Long;
 use IO::File;
 use Pod::Usage;
 use Bio::DB::Fasta;
@@ -14,58 +13,32 @@ use AGAT::AGAT;
 
 
 my $header = get_agat_header();
-my $config;
-my $opt_file;
-my $opt_output;
-my $file_fasta;
-my $codonTable = 1;
-my $opt_help = 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'fasta|fa=s',          'Input fasta file',  { required => 1 } ],
+    [ 'ct|table|codon=i',    'Codon table to use', { default => 1 } ],
+);
+my $opt_file   = $opt->gff;
+my $file_fasta = $opt->fasta;
+my $codonTable = $opt->ct;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
-                	'o|out|output=s'    => \$opt_output,
-					"fasta|fa|f=s"      => \$file_fasta,
-					"table|codon|ct=i"  => \$codonTable,
-                 	'c|config=s'        => \$config,
-                 	'h|help!'           => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( !$opt_file or !$file_fasta) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 2 parameters:\n".
-					 "Reference data gff3 file (--gff)\n".
-					 "Reference data fasta file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-# --- Check codon table
-$codonTable = get_proper_codon_table($codonTable);
-
+$codonTable = get_proper_codon_table( $codonTable, $log, $config->{verbose} );
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $ostreamReport_file;
-if (defined($opt_output) ) {
-  my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
-
-  $ostreamReport_file = $path.$filename."_report.txt";
+if ( my $out = $config->{output} ) {
+  my ( $filename, $path, $ext ) = fileparse( $out, qr/\.[^.]*/ );
+  $ostreamReport_file = $path . $filename . "_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $config, $config->{output} );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -74,8 +47,8 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
+print $ostreamReport $string1 if $ostreamReport;
+dual_print( $log, $string1, $config->{verbose} );
 
 # activate warnings limit
 my %warnings;
@@ -85,11 +58,11 @@ activate_warning_limit(\%warnings, 10);
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
+dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
 	                                                             config => $config
                                                               });
-print("Parsing Finished\n\n");
+dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
 ### END Parse GFF input #
 #########################
 
@@ -100,7 +73,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %allIDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print( $log, "Fasta file parsed\n", $config->{verbose} );
 
 
 my $nb_cases=0;
@@ -133,7 +106,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 						# create sequence
 						foreach my $feature ( @sortedList ){
-							 $sequence .= get_sequence($db_fasta, $feature->seq_id, $feature->start, $feature->end);
+                                                         $sequence .= get_sequence($db_fasta, $feature->seq_id, $feature->start, $feature->end, $config);
 						}
 
 						# Deal with offset
@@ -142,7 +115,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$start_position = $sortedList[$#sortedList]->end();
 
 							if ( $sortedList[$#sortedList]->frame eq "." ){
-								warn_no_phase();
+                                                            warn_no_phase($config);
 							}
 							elsif ( $sortedList[$#sortedList]->frame != 0 ){
 								$sequence = substr $sequence, 0, -$sortedList[$#sortedList]->frame; # remove offset end
@@ -153,7 +126,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$start_position = $sortedList[0]->start();
 
 							if ( $sortedList[0]->frame  eq "." ){
-								warn_no_phase();
+                                                        warn_no_phase($config);
 							}
 							elsif( $sortedList[0]->frame != 0 ){
 								$sequence = substr $sequence, $sortedList[0]->frame; # remove offset start
@@ -166,7 +139,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 						 #check if need to be reverse complement
 						 $seqObj=$seqObj->revcom if $minus;
-						if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n"; return; }
+                                                if ( length($seqObj->seq()) < 3 ){warn "Sequence to translate for ".$seqObj->id()." < 3 nucleotides! Skipped...\n" if $config->{verbose}; return; }
 
 						# translate
 						my $transObj = $seqObj->translate(-CODONTABLE_ID => $codonTable);
@@ -190,8 +163,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							}
 							$feature_l2->add_tag_value('pseudo', @positions);
 							my $arrSize = @positions;
-							my $toprint = "We flag the $tag_l2 $level2_ID that contained $arrSize premature stop codons\n";
-							print $ostreamReport $toprint; print $toprint;
+                                                    my $toprint = "We flag the $tag_l2 $level2_ID that contained $arrSize premature stop codons\n";
+                                                    print $ostreamReport $toprint if $ostreamReport;
+                                                    dual_print( $log, $toprint, $config->{verbose} );
 						  $nb_cases++;
 							$nb_this_l2_pseudo++;
 						}
@@ -202,7 +176,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 					$nb_cases_l1++;
 				}
 				elsif($nb_this_l2_pseudo){
-					print "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n";
+                                dual_print( $log, "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n", $config->{verbose} );
 				}
 			}
 	  }
@@ -210,9 +184,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 }
 
 my $toprint = "We found $nb_cases cases where mRNAs contain premature stop codons. They have been flagged as pseudogene.\n".
-							"$nb_cases_l1 genes have been flagged as pseudogene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+                                                        "$nb_cases_l1 genes have been flagged as pseudogene.\n";
+print $ostreamReport $toprint if $ostreamReport;
+dual_print( $log, $toprint, $config->{verbose} );
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
@@ -236,7 +210,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 # extract the sequence from the DB
 sub  get_sequence{
- my  ($db, $seq_id, $start, $end) = @_;
+ my  ($db, $seq_id, $start, $end, $config) = @_;
 
  my $sequence="";
  my $seq_id_correct = undef;
@@ -247,7 +221,7 @@ sub  get_sequence{
    $sequence = $db->subseq($seq_id_correct, $start, $end);
 
    if($sequence eq ""){
-     warn "Problem ! no sequence extracted for - $seq_id !\n";  exit;
+     warn "Problem ! no sequence extracted for - $seq_id !\n" if $config->{verbose};  exit;
    }
    if( length($sequence) != abs($end-$start+1) ){
      my $wholeSeq = $db->subseq($seq_id_correct);
@@ -255,19 +229,20 @@ sub  get_sequence{
      warn "Problem ! The size of the sequence extracted ".length($sequence)." is different than the specified span: ".abs($end-$start+1).
      ".\nThat often occurs when the fasta file does not correspond to the annotation file. Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
      "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n",
-     "Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; $seq_id sequence length: $wholeSeq )\n";
+     "Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; $seq_id sequence length: $wholeSeq )\n" if $config->{verbose};
    }
- }
- else{
-   warn "Problem ! ID $seq_id not found !\n";
- }
+}
+else{
+   warn "Problem ! ID $seq_id not found !\n" if $config->{verbose};
+}
 
  return $sequence;
 }
 
 # warning
 sub warn_no_phase{
-	warn "No phase is specify in the CDS. We will assume it start in phase 0.";
+        my ($config) = @_;
+        warn "No phase is specify in the CDS. We will assume it start in phase 0." if $config->{verbose};
 }
 __END__
 
