@@ -10,7 +10,20 @@ my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     $header,
     [ 'gff|gtf|i=s', 'Input GFF/GTF file', { required => 1 } ],
-    [ 'gtf_version=s', 'GTF version to output' ],
+    [
+        'gtf_version=s',
+        'GTF version to output',
+        {
+            callbacks => {
+                'valid version' => sub {
+                    my %allowed = map { $_ => 1 } qw(1 2 2.1 2.2 2.5 3 relax);
+                    return 1 if $allowed{ $_[0] };
+                    die
+                      "$_[0] is not a valid GTF version. Please choose one among this list: 1 2 2.1 2.2 2.5 3 relax\n";
+                }
+            }
+        }
+    ],
 );
 
 my $opt_output  = $opt->out;
@@ -23,18 +36,17 @@ if ( my $log_name = $config->{log_path} ) {
     dual_print( $log, $header, 0 );
 }
 
-# check GTF versions
-if ($gtf_version){
-    my @gtf_version_list = (1, 2, 2.1, 2.2, 2.5, 3, "relax");
-    my %gtf_version_hash = map { $_ => 1 } @gtf_version_list;
-    if(! exists_keys (\%gtf_version_hash, ("$gtf_version") ) ) {
-        dual_print( $log, "$gtf_version is not a valid GTF version. Please choose one among this list: @gtf_version_list\n", 1 );
-        exit;
-    }
-    dual_print( $log, "GTF version $gtf_version selected by command line interface.\n", $config->{verbose} );
-} else {
+# resolve version
+if ( defined $gtf_version ) {
+    dual_print( $log,
+        "GTF version $gtf_version selected by command line interface.\n",
+        $config->{verbose} );
+}
+else {
     $gtf_version = $config->{gtf_output_version};
-    dual_print( $log, "GTF version $gtf_version selected from the agat config file.\n", $config->{verbose} );
+    dual_print( $log,
+        "GTF version $gtf_version selected from the agat config file.\n",
+        $config->{verbose} );
 }
 
 # Update config

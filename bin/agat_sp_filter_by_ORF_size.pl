@@ -41,19 +41,6 @@ if ( my $log_name = $config->{log_path} ) {
     dual_print( $log, $header, 0 );
 }
 
-######################
-# Option check
-
-if($opt_test){
-  if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "=="){ 
-    dual_print( $log, "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.\n", 1 );
-    exit;
-  }
-}
-else{
-  $opt_test = ">";
-}
-
 # To avoid > < character in output files
 my $opt_test_to_print = $opt_test;
 $opt_test_to_print =~ s/>/sup/ig;
