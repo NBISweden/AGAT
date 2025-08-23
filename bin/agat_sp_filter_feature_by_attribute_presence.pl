@@ -2,62 +2,35 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $primaryTag=undef;
-my $opt_output= undef;
-my $opt_attribute = undef;
-my $opt_test = undef;
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my @copyARGV  = @ARGV;
 
-my $common = parse_common_options() || {};
-$config      = $common->{config};
-$opt_output  = $common->{output};
-$opt_verbose = $common->{verbose};
-$opt_help    = $common->{help};
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
+    [ 'type|p|l=s',          'Feature type(s) to handle' ],
+    [ 'attribute|att|a=s',   'Attribute tag(s)',         { required => 1 } ],
+    [ 'flip!',               'Keep features with the attribute instead of discarding' ],
+);
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  "p|type|l=s"          => \$primaryTag,
-                  'a|att|attribute=s'   => \$opt_attribute,
-                  'flip!'               => \$opt_test ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff or ! $opt_attribute ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\n1) Input reference gff file: -f\n".
-           "2) An attribute tag: -a\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gff      = $opt->gff;
+my $primaryTag   = $opt->type;
+my $opt_attribute = $opt->attribute;
+my $opt_test     = $opt->flip;
+my $opt_output   = $config->{output};
+my $opt_verbose  = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ###############
 # Manage Output
@@ -112,10 +85,10 @@ if ($opt_attribute){
 
   foreach my $attribute (@attList){
       push @attListOk, $attribute;
-      dual_print($log, "$attribute attribute will be processed.\n");
+      dual_print($log, "$attribute attribute will be processed.\n", $opt_verbose);
 
   }
-  dual_print($log, "\n");
+  dual_print($log, "\n", $opt_verbose);
 }
 
 # start with some interesting information
@@ -123,7 +96,7 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute.\n";
 
-dual_print($log, $stringPrint);
+dual_print($log, $stringPrint, $opt_verbose);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 													#######################
@@ -136,7 +109,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n");
+dual_print($log, "Parsing Finished\n", $opt_verbose);
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -228,7 +201,7 @@ $stringPrint = $all_cases{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
 $stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
 $stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
-dual_print($log, $stringPrint);
+dual_print($log, $stringPrint, $opt_verbose);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 close $log if $log;

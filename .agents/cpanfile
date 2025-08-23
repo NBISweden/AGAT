@@ -40,15 +40,17 @@ requires 'URI::Escape';
 
 recommends 'Parallel::ForkManager';
 
-requires 'Capture::Tiny';
-requires 'File::ShareDir';
-requires 'Test::Differences';
-requires 'Test::More', '0.98';
-requires 'Test::Exception';
-requires 'Test::TempDir::Tiny';
-requires 'Path::Tiny';
+on 'test' => sub {
+  requires 'Test::More', '0.98';
+  requires 'Test::Exception';
+  requires 'Test::Differences';
+  requires 'Test::TempDir::Tiny';
+  requires 'Capture::Tiny';
+  requires 'Path::Tiny';
+};
 
-
-requires 'Perl::Critic';
-requires 'Devel::Cover';
-requires 'Devel::Cover::Report::Coveralls';
+on 'develop' => sub {
+  requires 'Perl::Critic';
+  requires 'Devel::Cover';
+  requires 'Devel::Cover::Report::Coveralls';  # or Codecov
+};

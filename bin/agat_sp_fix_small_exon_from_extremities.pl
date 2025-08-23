@@ -4,63 +4,36 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
-my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $file_fasta=undef;
-my $codonTableId=1;
-my $SIZE_OPT=15;
-my $verbose = undef;
-my $opt_help= 0;
+my $header   = get_agat_header();
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',        'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa|f=s', 'Input reference fasta file', { required => 1 } ],
+    [ 'table|codon|ct=i', 'Codon translation table',
+        { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ 'size|s=i', 'Minimal exon size',
+        { default => 15, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
-
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "table|codon|ct=i" => \$codonTableId,
-    "size|s=i" => \$SIZE_OPT ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($file_fasta)) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff) and Input fasta file (--fasta)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $gff         = $opt->gff;
+my $file_fasta  = $opt->fasta;
+my $codonTableId = $opt->table;
+my $SIZE_OPT    = $opt->size;
+my $outfile     = $config->{output};
+my $verbose     = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -78,13 +51,13 @@ $codonTableId = get_proper_codon_table($codonTableId);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n", $verbose );
 
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Fasta file parsed\n");
+dual_print( $log, "Fasta file parsed\n", $verbose );
 
 ####################
 
@@ -99,7 +72,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print( $log, "gene_id = $gene_id\n", $verbose );
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id) ) ){
@@ -130,7 +103,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $exonCounter++;
               $exonFix=1;
 
-              print "left_exon start fixed\n" if $verbose;
+              dual_print( $log, "left_exon start fixed\n", $verbose );
 
               #take care of CDS if needed
               if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -153,7 +126,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                      #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                     if(! $codonTable->is_start_codon( $this_codon )){
-                      print "first exon plus strand : this is not a start codon\n";exit;
+                      die "first exon plus strand : this is not a start codon\n";
                     }
 
                   }
@@ -164,7 +137,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                     #Check if it is not terminal codon, otherwise we have to extend the CDS.
                     if(! $codonTable->is_ter_codon( $this_codon )){
-                      print "first exon minus strand : this is not a terminal codon\n";exit;
+                      die "first exon minus strand : this is not a terminal codon\n";
                     }
                   }
                 }
@@ -188,7 +161,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 $exonCounter++;
                 $exonFix=1;
 
-                print "right_exon end fixed\n" if $verbose;
+                dual_print( $log, "right_exon end fixed\n", $verbose );
 
                 #take care of CDS if needed
                 if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -208,17 +181,17 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                     my $this_codon = substr( $sequence, $original_cds_end-3, 3);
 
                     if($strand eq "+" or $strand == "1"){
-                      print "last plus strand\n" if $verbose;
+                      dual_print( $log, "last plus strand\n", $verbose );
                        #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                       if(! $codonTable->is_ter_codon( $this_codon )){
 
-                        print "last exon plus strand : $this_codon is not a stop codon\n";exit;
+                        die "last exon plus strand : $this_codon is not a stop codon\n";
                       }
 
                     }
                     if($strand eq "-" or $strand == "-1"){
-                      print "last minus strand\n" if $verbose;
+                      dual_print( $log, "last minus strand\n", $verbose );
 
                       #reverse complement
                       my $seqobj = Bio::Seq->new(-seq => $this_codon);
@@ -226,7 +199,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                       #Check if it is not terminal codon, otherwise we have to extend the CDS.
                       if(! $codonTable->is_start_codon( $this_codon )){
-                        print "last exon minus strand : $this_codon is not a start codon\n";exit;
+                        die "last exon minus strand : $this_codon is not a start codon\n";
                       }
                     }
                   }
@@ -255,11 +228,11 @@ $string_to_print .="Results:\n";
 $string_to_print .="nb gene affected: $geneCounter\n";
 $string_to_print .="nb rna affected: $mrnaCounter\n";
 $string_to_print .="nb exon affected: $exonCounter\n";
-print $string_to_print;
+dual_print( $log, $string_to_print, $verbose );
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "Bye Bye.\n";
+dual_print( $log, "Bye Bye.\n", $verbose );
 #######################################################################################################################
         ####################
          #     METHODS    #

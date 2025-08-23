@@ -17,11 +17,16 @@ my $stop_id  = 1;
 
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     $header,
-    [ 'gff|i|g=s',        'Input GTF/GFF file', { required => 1 } ],
-    [ 'fasta|fa|f=s',     'Input FASTA file',   { required => 1 } ],
-    [ 'table|codon|ct=i', 'Codon table id',     { default => 1 } ],
-    [ 'extend|e!',        'Try to extend the sequence' ],
-    [ 'no_iupac|ni|na!',  'Disable IUPAC in codon table' ],
+    [ 'gff|i|g=s',    'Input GTF/GFF file', { required => 1 } ],
+    [ 'fasta|fa|f=s', 'Input FASTA file',   { required => 1 } ],
+    [ 'table|codon|ct=i', 'Codon table id', {
+            default   => 1,
+            callbacks => {
+                positive => sub { shift() > 0 or die 'Codon table id must be positive' },
+            },
+        } ],
+    [ 'extend|e!',       'Try to extend the sequence' ],
+    [ 'no_iupac|ni|na!', 'Disable IUPAC in codon table' ],
 );
 
 my $opt_file       = $opt->gff;
@@ -29,6 +34,7 @@ my $file_fasta     = $opt->fasta;
 my $codon_table_id = $opt->table;
 my $opt_extend     = $opt->extend;
 my $opt_no_iupac   = $opt->no_iupac;
+my $opt_verbose    = $config->{verbose};
 
 my $log;
 if ( my $log_name = $config->{log_path} ) {
@@ -61,14 +67,14 @@ my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config });
-dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
+dual_print( $log, "Parsing Finished\n\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-dual_print( $log, "Fasta file parsed\n", $config->{verbose} );
+dual_print( $log, "Fasta file parsed\n", $opt_verbose );
 
 my $counter_start_missing = 0;
 my $counter_start_added = 0;
@@ -88,9 +94,9 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
       if ($feature_l2->strand == -1 or $feature_l2->strand eq "-"){
         $strand="-";
       }
-      dual_print( $log, "feature strand = $strand\n", $config->{verbose} );
+      dual_print( $log, "feature strand = $strand\n", $opt_verbose );
       my $seq_id = $feature_l2->seq_id();
-      dual_print( $log, "sequence length ".$db->length($seq_id)."\n", $config->{verbose} );
+      dual_print( $log, "sequence length ".$db->length($seq_id)."\n", $opt_verbose );
       
       ##############################
       #If it's a mRNA = have CDS. #
@@ -105,20 +111,20 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         #-------------------------
         #       START CASE
         #-------------------------
-        dual_print( $log, "---START CODON TEST---\n", $config->{verbose} );
+        dual_print( $log, "---START CODON TEST---\n", $opt_verbose );
         if ( exists ($hash_omniscient->{'level3'}{'start_codon'}{$id_level2} ) ){
-          dual_print( $log, "start_codon already exists for $id_level2\n", $config->{verbose} );
+          dual_print( $log, "start_codon already exists for $id_level2\n", $opt_verbose );
         }
         else{
           # ----- Find the start codon -----
           my $extension=0;
           my $start_codon = undef;
           if ( !$start_codon ){
-            dual_print( $log, " Try find a start codon in the CDS (GFF and GTF case) \n", $config->{verbose} );
+            dual_print( $log, " Try find a start codon in the CDS (GFF and GTF case) \n", $opt_verbose );
             $start_codon = next_codon_is_start(\@cds_feature_list, -3);
           } 
           if ( $opt_extend and !$start_codon ){
-            dual_print( $log, " Try to extend the sequence to find a start codon further...\n", $config->{verbose} );
+            dual_print( $log, " Try to extend the sequence to find a start codon further...\n", $opt_verbose );
             $extension += 3;  
             # check end of seq
             my $out=undef;
@@ -211,9 +217,9 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         #-------------------------
         #       STOP CASE
         #-------------------------
-        dual_print( $log, "---STOP CODON TEST---\n", $config->{verbose} );
+        dual_print( $log, "---STOP CODON TEST---\n", $opt_verbose );
         if ( exists ($hash_omniscient->{'level3'}{'stop_codon'}{$id_level2} ) ){
-          dual_print( $log, "stop_codon already exists for $id_level2\n", $config->{verbose} );
+          dual_print( $log, "stop_codon already exists for $id_level2\n", $opt_verbose );
         }
         else{ 
           # ----- Find a stop codon -----
@@ -221,11 +227,11 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
           my $extension = 0;
           my $terminal_codon = undef;
           if ( !$terminal_codon ){
-            dual_print( $log, " Try find a stop codon in the CDS (GFF case) \n", $config->{verbose} );
+            dual_print( $log, " Try find a stop codon in the CDS (GFF case) \n", $opt_verbose );
             $terminal_codon = next_codon_is_ter(\@cds_feature_list, -3);
           } 
           if ( !$terminal_codon ){
-              dual_print( $log, " Try find a stop codon next codon out of the CDS (GTF case) \n", $config->{verbose} );
+              dual_print( $log, " Try find a stop codon next codon out of the CDS (GTF case) \n", $opt_verbose );
             $terminal_codon = next_codon_is_ter(\@cds_feature_list, 0);
 
             if($strand eq "+"){
@@ -235,7 +241,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
             }
           } # with extend option 
           if ($opt_extend and !$terminal_codon){
-            dual_print( $log, " Try to extend the sequence to find a stop codon further...\n", $config->{verbose} );
+            dual_print( $log, " Try to extend the sequence to find a stop codon further...\n", $opt_verbose );
             $extension += 3;  
             # check end of seq
             my $out=undef;
@@ -340,9 +346,9 @@ if ($opt_extend){
   print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 }
 
-dual_print( $log, "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n", $config->{verbose} );
-dual_print( $log, "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n", $config->{verbose} );
-dual_print( $log, "bye bye\n", $config->{verbose} );
+dual_print( $log, "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n", $opt_verbose );
+dual_print( $log, "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n", $opt_verbose );
+dual_print( $log, "bye bye\n", $opt_verbose );
 
       #########################
       ######### END ###########
@@ -371,10 +377,10 @@ sub create_cds_object{
     my $seqid=$feature->seq_id();
     $seq .= $db->seq( $seqid, $start, $end );
   }
-  dual_print( $log, "sequence: $seq\n", $config->{verbose} );
+  dual_print( $log, "sequence: $seq\n", $opt_verbose );
   my $debut = $db->seq( $feature_list->[0]->seq_id(), $feature_list->[0]->start-1, $feature_list->[0]->start -3 );
   my $fin = $db->seq( $feature_list->[0]->seq_id(), $feature_list->[-1]->end+1, $feature_list->[-1]->end+ 3 );
-  dual_print( $log, "sequence_extended: $debut$seq$fin\n", $config->{verbose} );
+  dual_print( $log, "sequence_extended: $debut$seq$fin\n", $opt_verbose );
 
   #create the cds object
   my $cds_obj = Bio::Seq->new(-seq => $seq, -alphabet => 'dna' );
@@ -384,8 +390,8 @@ sub create_cds_object{
   if ($feature_list->[0]->strand == -1 or $feature_list->[0]->strand eq "-"){
       $cds_obj = $cds_obj->revcom();
       $strand = "-";
-      dual_print( $log, "feature on minus strand\n", $config->{verbose} );
-      dual_print( $log, "sequence: ".$cds_obj->seq."\n", $config->{verbose} );
+      dual_print( $log, "feature on minus strand\n", $opt_verbose );
+      dual_print( $log, "sequence: ".$cds_obj->seq."\n", $opt_verbose );
   }
   
   return $cds_obj;
@@ -396,7 +402,7 @@ sub next_codon_is_start{
   if(! $more){
     $more=0;
   }
-  dual_print( $log, "next_codon_is_start test: \n", $config->{verbose} );
+  dual_print( $log, "next_codon_is_start test: \n", $opt_verbose );
   my $cds_obj;
   my $seqid=$feature_list->[0]->seq_id();
 
@@ -406,20 +412,20 @@ sub next_codon_is_start{
       my $seq = $db->seq( $seqid,$end+1+$more, $end+3+$more);
       $cds_obj = Bio::Seq->new(-seq => $seq, -alphabet => 'dna' );
       $cds_obj = $cds_obj->revcom();
-      dual_print( $log, "  Minus strand - most right side: ".($end+3+$more)."\n", $config->{verbose} );
+      dual_print( $log, "  Minus strand - most right side: ".($end+3+$more)."\n", $opt_verbose );
   }
   else{ # Plus strand
       my $start=$feature_list->[0]->start();
       my $seq = $db->seq( $seqid, $start-3-$more,  $start-1-$more);
       $cds_obj = Bio::Seq->new(-seq => $seq, -alphabet => 'dna' );
-      dual_print( $log, "  Plus strand - most right side: ".($start-3-$more)."\n", $config->{verbose} );
+      dual_print( $log, "  Plus strand - most right side: ".($start-3-$more)."\n", $opt_verbose );
   }
 
   my $codon = $cds_obj->seq ;
-  dual_print( $log, "  codon tested is = $codon \n", $config->{verbose} );
+  dual_print( $log, "  codon tested is = $codon \n", $opt_verbose );
 
   if ( !is_ambiguous_codon($codon) and $codon_table->is_start_codon( $codon )){
-    dual_print( $log, "  It is considered as a start codon!\n", $config->{verbose} );;
+    dual_print( $log, "  It is considered as a start codon!\n", $opt_verbose );;
     return 1;
   } else{
     return 0;
@@ -432,7 +438,7 @@ sub next_codon_is_ter{
   if(! $more){
     $more=0;
   }
-  dual_print( $log, "next_codon_is_ter test: \n", $config->{verbose} );
+  dual_print( $log, "next_codon_is_ter test: \n", $opt_verbose );
   my $cds_obj;
   my $seqid=$feature_list->[0]->seq_id();
 
@@ -442,20 +448,20 @@ sub next_codon_is_ter{
       my $seq = $db->seq( $seqid,$start-3-$more, $start-1-$more);
       $cds_obj = Bio::Seq->new(-seq => $seq, -alphabet => 'dna' );
       $cds_obj = $cds_obj->revcom();
-      dual_print( $log, "  Minus strand - most right side: ".($start-3-$more)."\n", $config->{verbose} );
+      dual_print( $log, "  Minus strand - most right side: ".($start-3-$more)."\n", $opt_verbose );
   }
   else{ # Plus strand
       my $end=$feature_list->[-1]->end();
       my $seq = $db->seq( $seqid, $end+1+$more,  $end+3+$more);
       $cds_obj = Bio::Seq->new(-seq => $seq, -alphabet => 'dna' );
-      dual_print( $log, "  Plus strand - most right side: ".($end+3+$more)."\n", $config->{verbose} );
+      dual_print( $log, "  Plus strand - most right side: ".($end+3+$more)."\n", $opt_verbose );
   }
   
   my $codon = $cds_obj->seq ;
-  dual_print( $log, "  codon tested is = $codon \n", $config->{verbose} );
+  dual_print( $log, "  codon tested is = $codon \n", $opt_verbose );
 
   if ( !is_ambiguous_codon($codon) and $codon_table->is_ter_codon( $codon )){
-    dual_print( $log, "  It is considered as a stop codon!\n", $config->{verbose} );
+    dual_print( $log, "  It is considered as a stop codon!\n", $opt_verbose );
     return 1;
   } else{
     return 0;
@@ -477,13 +483,13 @@ sub is_out_of_seq_start{
   if($strand eq "+"){
     if( $feature_list->[0]->start() - $more < 1 ){
       $out = 1;
-      dual_print( $log, "is_out_of_seq_start!! Plus strand - Most left out of seq: ".($feature_list->[0]->start() - $more)."\n", $config->{verbose} );
+      dual_print( $log, "is_out_of_seq_start!! Plus strand - Most left out of seq: ".($feature_list->[0]->start() - $more)."\n", $opt_verbose );
     }
   }
   else{
     if( $feature_list->[-1]->end() + $more > $length_seqid ){
       $out = 1;
-      dual_print( $log, "is_out_of_seq_start!! Minus strand - Most right out of seq: ".($feature_list->[-1]->end() + $more)."\n", $config->{verbose} );
+      dual_print( $log, "is_out_of_seq_start!! Minus strand - Most right out of seq: ".($feature_list->[-1]->end() + $more)."\n", $opt_verbose );
     }
   }
   return $out;
@@ -503,13 +509,13 @@ sub is_out_of_seq_stop{
   if($strand eq "+"){
     if( $feature_list->[-1]->end() + $more > $length_seqid ){
       $out = 1;
-      dual_print( $log, "is_out_of_seq_stop!! Plus strand - Most right out of seq: ".($feature_list->[-1]->end() + $more)."\n", $config->{verbose} );
+      dual_print( $log, "is_out_of_seq_stop!! Plus strand - Most right out of seq: ".($feature_list->[-1]->end() + $more)."\n", $opt_verbose );
     }
   }
   else{
     if( $feature_list->[0]->start() - $more < 1 ){
       $out = 1;
-      dual_print( $log, "is_out_of_seq_stop!! Minus strand - Most right out of seq: ".($feature_list->[0]->start() - $more)."\n", $config->{verbose} );
+      dual_print( $log, "is_out_of_seq_stop!! Minus strand - Most right out of seq: ".($feature_list->[0]->start() - $more)."\n", $opt_verbose );
     }
   }
   return $out;
@@ -522,7 +528,7 @@ sub is_ambiguous_codon{
 
   if ($opt_no_iupac){
     if ( $codon !~ /[ATGC]{3}/) {
-      dual_print( $log, "$codon is an ambiguous codon we skip it because the no_iupac option is activated!\n", $config->{verbose} );
+      dual_print( $log, "$codon is an ambiguous codon we skip it because the no_iupac option is activated!\n", $opt_verbose );
       return 1;
     } 
   }

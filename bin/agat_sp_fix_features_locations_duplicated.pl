@@ -3,59 +3,40 @@
 use strict;
 use warnings;
 use Carp;
-use Getopt::Long;
 use POSIX qw(strftime);
-use Pod::Usage;
 use File::Basename;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
-my $header = get_agat_header();
-my $config;
-my $model_to_test = undef;
-my $outfile = undef;
-my $ref = undef;
-my $verbose = undef;
-my $opt_help= 0;
+my $header   = get_agat_header();
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|file|gff3=s', 'Input reference gff file', { required => 1 } ],
+    [ 'model|m=s',         'Model(s) to test',
+      { callbacks => {
+            allowed => sub {
+                my $val = shift;
+                $val =~ /^([1-5](,[1-5])*)?$/
+                  or die 'model must be comma-separated list of integers 1-5';
+                1;
+            }
+        }
+      }
+    ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
-
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    "f|file|gff3|gff=s"      => \$ref,
-    "m|model=s"              => \$model_to_test ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($ref)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameters is mandatory:\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $ref          = $opt->gff;
+my $model_to_test = $opt->model;
+my $outfile      = $config->{output};
+my $verbose      = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 ######################
 # Manage output file #
@@ -65,7 +46,7 @@ if ($outfile) {
   $reportout_file = $path.$filename."_report.txt" ;
 }
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout   = prepare_gffout( $config, $outfile );
 my $reportout = prepare_fileout($reportout_file);
 
 # END Manage Ouput Directory / File #
@@ -81,29 +62,25 @@ if(!($model_to_test)){
 }else{
   my @fields= split(',', $model_to_test);
   foreach my $field (@fields){
-    if($field =~ m/^[12345]$/){
       $ListModel{$field}=0;
-    }else{
-      print "This model $field is not known. Must be an Integer !\n";exit;
-    }
   }
 }
 
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 print $reportout $string1;
-if($outfile){print $string1;}
+dual_print( $log, $string1, $verbose );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $nb_gene_removed=0;
 
 ### Parse GFF input #
-print ("Parse file $ref\n");
+dual_print( $log, "Parse file $ref\n", $verbose );
 my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                             config => $config
                                                               });
-print ("$ref file parsed\n");
+dual_print( $log, "$ref file parsed\n", $verbose );
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_location_by_seq_id_and_strand($omniscient);
@@ -128,7 +105,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
 
         #################################################
         # START Take care of isoforms with duplicated location:
-        print "START Take care of isoforms with duplicated locations\n" if $verbose;
+        dual_print( $log, "START Take care of isoforms with duplicated locations\n", $verbose );
         my @L2_list_to_remove = ();
         foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
@@ -157,25 +134,25 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
 
                           #Check their subfeature are  identicals
                           if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
-                            print "case1: $id_l2_2 and $id_l2_1 have same exon list\n" if ($verbose);
+                            dual_print( $log, "case1: $id_l2_2 and $id_l2_1 have same exon list\n", $verbose );
 
                             my $size_cds1 =  cds_size($omniscient, $id_l2_1);
                             my $size_cds2 =  cds_size($omniscient, $id_l2_2);
                             if($size_cds1 >= $size_cds2 ){
                               push(@L2_list_to_remove, $id_l2_2);
-                              print "case1: push1\n" if $verbose;
+                              dual_print( $log, "case1: push1\n", $verbose );
                             }
                             elsif($size_cds1 < $size_cds2){
                               push(@L2_list_to_remove, $id_l2_1);
-                              print "case1: push2\n" if $verbose;
+                              dual_print( $log, "case1: push2\n", $verbose );
                             }
                             elsif($size_cds1){
                               push(@L2_list_to_remove, $id_l2_2);
-                              print "case1: push3\n" if $verbose;
+                              dual_print( $log, "case1: push3\n", $verbose );
                             }
                             else{
                               push(@L2_list_to_remove, $id_l2_1);
-                              print "case1: push4\n" if $verbose;
+                              dual_print( $log, "case1: push4\n", $verbose );
                             }
                           }
                         }
@@ -192,7 +169,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
           if (exists($ListModel{1})){
             my @L2_list_to_remove_filtered = uniq(@L2_list_to_remove);
             $ListModel{1} += scalar @L2_list_to_remove_filtered;
-            print "case1 (removing mRNA isoform identic ): ".join(",", @L2_list_to_remove_filtered)."\n";
+            dual_print( $log, "case1 (removing mRNA isoform identic ): ".join(",", @L2_list_to_remove_filtered)."\n", $verbose );
             remove_omniscient_elements_from_level2_ID_list($omniscient, \@L2_list_to_remove_filtered);
           }
         }
@@ -204,7 +181,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
         #######################################################
         # START Take care of other gene with duplicated location
         #
-        print "START Take care of gene with duplicated locations\n" if $verbose;
+        dual_print( $log, "START Take care of gene with duplicated locations\n", $verbose );
         #foreach my $gene_feature_id2 (@sorted_genefeature_ids){
         foreach my $location2 (sort {$a->[1].$a->[0] cmp $b->[1].$b->[0]}  @{$hash_sortBySeq->{$seqid}{$tag}}){
           my $gene_feature_id2 = lc($location2->[0]);
@@ -222,7 +199,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
             #The two genes overlap
             if( ($gene_feature2->start <= $gene_feature->end() ) and ($gene_feature2->end >= $gene_feature->start) ){
 
-              print "$gene_feature_id and $gene_feature_id2 overlap\n" if $verbose;
+              dual_print( $log, "$gene_feature_id and $gene_feature_id2 overlap\n", $verbose );
 
               # Loop over the L2 from the first gene feature
               foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -241,7 +218,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                         #check their position are identical
                         if($l2_2->start().$l2_2->end() eq $l2_1->start().$l2_1->end()){
 
-                          print "$id_l2_2  and $id_l2_1 have same start and stop\n" if $verbose;
+                          dual_print( $log, "$id_l2_2  and $id_l2_1 have same start and stop\n", $verbose );
 
                           if(exists_keys($omniscient,('level3', 'exon', $id_l2_1))){
                             if(exists_keys($omniscient,('level3', 'exon', $id_l2_2))){
@@ -249,16 +226,16 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                               my $resu_overlap = check_feature_overlap_from_l3_to_l1($omniscient, $omniscient , $gene_feature_id, $gene_feature_id2);
                               if ($resu_overlap){
 
-                                print "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n" if $verbose;
+                                dual_print( $log, "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n", $verbose );
 
                                 #EXON identicals
                                 if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
 
-                                  print "$id_l2_2 and $id_l2_1 have same exon list\n" if $verbose;
+                                  dual_print( $log, "$id_l2_2 and $id_l2_1 have same exon list\n", $verbose );
                                   # NO CDS
                                   if ( ! exists_keys($omniscient, ('level3','cds',$id_l2_1)) and  ! exists_keys($omniscient, ('level3','cds',$id_l2_2) ) ) {
                                     if (exists($ListModel{2})){
-                                       print "case2: $id_l2_2 and $id_l2_1 have no CDS\n" if $verbose;
+                                       dual_print( $log, "case2: $id_l2_2 and $id_l2_1 have no CDS\n", $verbose );
                                        $ListModel{2}++;
                                        push(@L2_list_to_remove, $id_l2_2);
                                     }
@@ -266,7 +243,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                   else{ # WITH CDS
                                     if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose ) ){
                                       if ( exists($ListModel{3}) ){
-                                        print "case3: $id_l2_2 and $id_l2_1 have same CDS list\n" if $verbose;
+                                        dual_print( $log, "case3: $id_l2_2 and $id_l2_1 have same CDS list\n", $verbose );
                                         $ListModel{3}++;
                                         #identik because no CDS, we could remove one randomly
 
@@ -274,19 +251,19 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                         my $size_cds2 =  cds_size($omniscient, $id_l2_2);
                                         if($size_cds1 >= $size_cds2 ){
                                           push(@L2_list_to_remove, $id_l2_2);
-                                          print "case3: push1 $size_cds1 $size_cds2\n" if $verbose;
+                                          dual_print( $log, "case3: push1 $size_cds1 $size_cds2\n", $verbose );
                                         }
                                         elsif($size_cds1 < $size_cds2){
                                           push(@L2_list_to_remove, $id_l2_1);
-                                          print "case3: push2\n" if $verbose;
+                                          dual_print( $log, "case3: push2\n", $verbose );
                                         }
                                         elsif($size_cds1){
                                           push(@L2_list_to_remove, $id_l2_2);
-                                          print "case3: push3\n" if $verbose;
+                                          dual_print( $log, "case3: push3\n", $verbose );
                                         }
                                         else{
                                           push(@L2_list_to_remove, $id_l2_1);
-                                          print "case3: push4\n" if $verbose;
+                                          dual_print( $log, "case3: push4\n", $verbose );
                                         }
                                       }
                                     }
@@ -294,7 +271,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                     # CDS are not identic Let's reshape UTRS
                                     elsif ( exists($ListModel{4})){
                                       $ListModel{4}++;
-                                      print "case4 (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
+                                      dual_print( $log, "case4 (Exon structure identic from different genes, but CDS different, Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n", $verbose );
                                       reshape_the_2_l2_models($omniscient, $gene_feature, $l2_1, $gene_feature2, $l2_2, $verbose, 4);
                                     }
                                   }
@@ -302,13 +279,13 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                 # Exon structure different inside
                                 elsif ( exists($ListModel{5})) {
                                   $ListModel{5}++;
-                                  print "case5 (Exons overlap but structure different (Same extremities but different internal locations) Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n";
+                                  dual_print( $log, "case5 (Exons overlap but structure different (Same extremities but different internal locations) Let's reshape the UTRs to make them different.): $id_l2_1 <=> $id_l2_2\n", $verbose );
                                   reshape_the_2_l2_models($omniscient, $gene_feature, $l2_1, $gene_feature2, $l2_2, $verbose, 5);
                                 }
                               }
                               # CDS and Exon does not overlap
                               else{
-                                print "CDS and Exon does not overlap\n" if ($verbose);
+                                dual_print( $log, "CDS and Exon does not overlap\n", $verbose );
 
                               }
                             }
@@ -320,7 +297,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                 }
               }
               if(@L2_list_to_remove){
-                print "case2 (removing mRNA identic from different genes: ".join(",", @L2_list_to_remove)."\n";
+                dual_print( $log, "case2 (removing mRNA identic from different genes: ".join(",", @L2_list_to_remove)."\n", $verbose );
                 remove_omniscient_elements_from_level2_ID_list($omniscient, \@L2_list_to_remove);
                 if (! exists_keys($omniscient, ('level1',$tag,$gene_feature_id2) ) or ! exists_keys($omniscient, ('level1',$tag,$gene_feature_id) ) ){ $nb_gene_removed++;}
               }
@@ -361,7 +338,7 @@ $string_print .= "AGAT removed $nb_gene_removed genes because no more l2 were li
 print_omniscient( {omniscient => $omniscient, output => $gffout} );
 
 print $reportout $string_print;
-if($outfile){print $string_print;}
+dual_print( $log, $string_print, $verbose );
 
 #######################################################################################################################
         ####################
@@ -394,35 +371,35 @@ sub reshape_the_2_l2_models{
   my $right_UTR2 = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_2, "UTR", "right");
 
   if ($left_UTR1){
-    print "modify $id_l2_1 left\n" if $verbose;
+    dual_print( $log, "modify $id_l2_1 left\n", $verbose );
     $left_UTR1->start($left_UTR1->start+1);
     my $left_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature, $id_l2_1, "exon", "left");
     $left_exon->start($left_exon->start+1);
     check_record_positions($omniscient, $parent_l2_1);
   }
   elsif ($right_UTR1){
-    print "modify $id_l2_1 right\n" if $verbose;
+    dual_print( $log, "modify $id_l2_1 right\n", $verbose );
     $right_UTR1->end($right_UTR1->end-1);
     my $right_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature, $id_l2_1, "exon", "right");
     $right_exon->end($right_exon->end-1);
     check_record_positions($omniscient, $parent_l2_1);
   }
   elsif ($left_UTR2){
-    print "modify $id_l2_2 left\n" if $verbose;
+    dual_print( $log, "modify $id_l2_2 left\n", $verbose );
     $left_UTR2->start($left_UTR2->start+1);
     my $left_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_1, "exon", "left");
     $left_exon->start($left_exon->start-1);
     check_record_positions($omniscient, $parent_l2_2);
   }
   elsif ($right_UTR2){
-    print "modify $id_l2_2 right\n" if $verbose;
+    dual_print( $log, "modify $id_l2_2 right\n", $verbose );
     $right_UTR2->end($right_UTR2->end-1);
     my $right_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_1, "exon", "right");
     $right_exon->end($right_exon->end-1);
     check_record_positions($omniscient, $parent_l2_2);
   }
   else{
-    print "$id_l2_1 and $id_l2_2 do not have UTRs, we cannot modify one to make the features different.".
+    dual_print( $log, "$id_l2_1 and $id_l2_2 do not have UTRs, we cannot modify one to make the features different.\n", $verbose );
     "You might try EvidenceModeler to choose or modify the gene models automatically,".
     " or you can manually modify them.\n";
     # We might add UTR but in someway we should avoid to goes over extremities
@@ -436,7 +413,7 @@ sub get_extremity_feature_l3_from_l2id{
 
   my $result = undef;
   my $feature = undef;
-  if($side ne "right" and $side ne "left"){print "Error - must be right or left\n";exit 1;}
+  if($side ne "right" and $side ne "left"){ die "Error - must be right or left\n"; }
 
   if($tag eq "UTR"){
     foreach my $tag ( keys %{$omniscient->{'level3'}} ){

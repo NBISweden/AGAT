@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use File::Basename;
 use POSIX qw(strftime);
+use IO::File;
 use AGAT::AGAT;
 
 my @copyARGV = @ARGV;
@@ -28,6 +29,7 @@ if ( my $log_name = $config->{log_path} ) {
     dual_print( $log, $header, 0 );
 }
 my $opt_verbose = $config->{verbose};
+
 
 ###############
 # Manage Output
@@ -89,6 +91,7 @@ if ($opt_output){
   print $ostreamReport $stringPrint;
 }
 dual_print( $log, $stringPrint, $opt_verbose );
+
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -175,6 +178,7 @@ if ($opt_output){
 }
 dual_print( $log, $stringPrint, $opt_verbose );
 
+
 #######################################################################################################################
         ####################
          #     methods    #
@@ -208,9 +212,12 @@ sub check_feature{
 	    }
 	  }
 	}
-	else{
-		warn "No attribute $opt_attribute found for the following feature:\n".$feature->gff_string."\n";
-	}
+        else{
+                my $msg = "No attribute $opt_attribute found for the following feature:\n" .
+                          $feature->gff_string . "\n";
+                dual_print( $log, $msg, 0 );
+                warn $msg if $opt_verbose;
+        }
   return $keepit;
 }
 

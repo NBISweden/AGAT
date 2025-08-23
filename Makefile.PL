@@ -84,14 +84,18 @@ my %WriteMakefileArgs = (
   LICENSE         => 'gpl_3',
   PREREQ_PM       => \%prereq_hash, # give a ref to the hash
   MIN_PERL_VERSION => '5.006',
-  BUILD_REQUIRES  => {"ExtUtils::MakeMaker" => 6.31,
-                      "File::ShareDir::Install" => 0
-                    },
-  TEST_REQUIRES   => {
-                     "Test::More"        => 0,
-                     "Test::TempDir::Tiny" => 0,
-                     "File::chdir"       => 0,
-                    },
+  CONFIGURE_REQUIRES => {
+						     'ExtUtils::MakeMaker'     => '6.64',
+						     'File::ShareDir::Install' => '0.14',
+					    },
+  BUILD_REQUIRES  =>    {
+					         "ExtUtils::MakeMaker" => 6.31,
+                        },
+  TEST_REQUIRES   =>    {
+		                     "Test::More"        => 0,
+		                     "Test::TempDir::Tiny" => 0,
+		                     "File::chdir"       => 0,
+                         },
   EXE_FILES       => $ref_list_exe,
   META_MERGE      => {
       'meta-spec' => { version => 2 },
