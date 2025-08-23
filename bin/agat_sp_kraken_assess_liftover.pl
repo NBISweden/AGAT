@@ -4,31 +4,60 @@ use strict;
 use warnings;
 use Carp;
 use File::Basename;
+use Getopt::Long;
 use IO::File;
+use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Clone 'clone';
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 use AGAT::AGAT;
 
-my $header = get_agat_header();
-my @copyARGV = @ARGV;
-my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
-    $header,
-    [ 'gff|gtf|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
-    [ 'threshold|t=i', 'Percent threshold to keep genes', { default => 0,
-        callbacks => { range => sub { my $v = shift; ( $v >= 0 && $v <= 100 ) or die 'Threshold must be between 0 and 100'; } } } ],
-    [ 'plot!', 'Generate plot' ],
-);
+my $header  = get_agat_header();
+my $config;
 
-my $gff         = $opt->gff;
-my $valueK      = $opt->threshold;
-my $opt_plot    = $opt->plot;
-my $opt_output  = $config->{output};
-my $opt_verbose = $config->{verbose};
-my $kraken_tag = 'kraken_mapped';
-my $kraken_tag_alt = 'Kraken_mapped';
+my $outfile = undef;
+my $gff = undef;
+my $valueK = undef;
+my $verbose = undef;
+my $kraken_tag = "Kraken_mapped";
+my $kraken_tag_alt = 'kraken_mapped';
+my $opt_plot;
+my $help = 0;
 
+if ( !GetOptions(
+    'c|config=s'               => \$config,
+    'h|help'                   => \$help,
+    'gtf=s'                    => \$gff,
+    'threshold|t=i'            => \$valueK,
+    'p|plot!'                  => \$opt_plot,
+    'verbose|v!'               => \$verbose,
+    'outfile|output|out|o=s'   => \$outfile ) )
+{
+    pod2usage( { -message => 'Failed to parse command line',
+                 -verbose => 1,
+                 -exitval => 1 } );
+}
+
+# Print Help and exit
+if ($help) {
+    pod2usage( { -message => "$header\n",
+                 -verbose => 99,
+                 -exitval => 0 } );
+}
+
+if ( ! (defined($gff)) ){
+    pod2usage( {
+           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gtf file (--f)\n\n",
+           -verbose => 0,
+           -exitval => 1 } );
+}
+
+# --- Manage config ---
+$config = get_agat_config({config_file_in => $config});
+
+my $opt_verbose = $verbose;
+my $opt_output  = $outfile;
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
