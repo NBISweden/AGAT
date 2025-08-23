@@ -2,55 +2,35 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $primaryTag=undef;
-my $opt_output= undef;
-my $opt_keep_list = undef;
-my $opt_attribute = 'ID';
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my @copyARGV  = @ARGV;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'kl|keep_list=s'      => \$opt_keep_list,
-                  "p|type|l=s"          => \$primaryTag,
-                  'o|output=s'          => \$opt_output,
-                  'a|attribute=s'       => \$opt_attribute,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
+    [ 'keep_list|kl=s',      'File with IDs to keep',    { required => 1 } ],
+    [ 'type|p|l=s',          'Feature type(s) to handle' ],
+    [ 'attribute|a=s',       'Attribute to match',       { default => 'ID' } ],
+);
+
+my $opt_gff       = $opt->gff;
+my $opt_keep_list = $opt->keep_list;
+my $primaryTag    = $opt->type;
+my $opt_attribute = $opt->attribute;
+my $opt_output    = $config->{output};
+my $opt_verbose   = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff or ! $opt_keep_list ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\n1) Input reference gff file: --gff\n".
-           "2) A keep list (one value per line): --keep_list\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ###############
 # Manage Output
@@ -108,11 +88,8 @@ $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
 $stringPrint .= "The keep list contains $nb_to_keep uniq IDs\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print( $log, $stringPrint, $opt_verbose );
+print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -122,7 +99,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n", $opt_verbose);
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -195,9 +172,11 @@ my $hash_kept = subsample_omniscient_from_level1_id_list_delete($hash_omniscient
 print_omniscient( {omniscient => $hash_kept, output => $gffout_ok} );#print gene modified in file
 $stringPrint = ($#keeplist+1)." records kept!\n";
 if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+  print $ostreamReport $stringPrint if $ostreamReport;
+  dual_print($log, $stringPrint, $opt_verbose);
+} else{
+  dual_print($log, $stringPrint, $opt_verbose);
+}
 
 #######################################################################################################################
         ####################
@@ -232,9 +211,12 @@ sub check_feature{
 	    }
 	  }
 	}
-	else{
-		warn "No attribute $opt_attribute found for the following feature:\n".$feature->gff_string."\n";
-	}
+        else{
+                my $msg = "No attribute $opt_attribute found for the following feature:\n" .
+                          $feature->gff_string . "\n";
+                dual_print( $log, $msg, 0 );
+                warn $msg if $opt_verbose;
+        }
   return $keepit;
 }
 

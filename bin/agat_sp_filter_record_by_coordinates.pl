@@ -3,64 +3,45 @@
 use strict;
 use warnings;
 use Sort::Naturally;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config ;
-my $opt_output ;
-my $opt_coordinates ;
-my $opt_exclude_ov ;
-my $opt_gff ;
-my $opt_verbose ;
-my $opt_help ;
+my @copyARGV  = @ARGV;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'i|input|gtf|gff=s'            => \$opt_gff,
-                  "coordinates|tsv|r|ranges=s" => \$opt_coordinates,
-                  "e|exclude!"                   => \$opt_exclude_ov,
-                  'o|output=s'                   => \$opt_output,
-                  'v|verbose!'                   => \$opt_verbose,
-                  'c|config=s'                   => \$config,
-                  'h|help!'                      => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|i|input|gtf=s',            'Input reference gff file', { required => 1 } ],
+    [ 'coordinates|tsv|ranges|r=s',   'File containing one range per line', { required => 1 } ],
+    [ 'exclude|e!',                   'Exclude overlapping features' ],
+);
+
+my $opt_gff        = $opt->gff;
+my $opt_coordinates = $opt->coordinates;
+my $opt_exclude_ov = $opt->exclude;
+my $opt_output     = $config->{output};
+my $opt_verbose    = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\n1) Input reference gff file: --gff\n".
-           "2) A file containing one range per line (see help for syntax): --coordinates\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ###############
 # Manage Output
 
 if (! $opt_output) {
-  print "Default output name: filter_record_by_coordinates\n";
+  dual_print( $log, "Default output name: filter_record_by_coordinates\n", $opt_verbose );
   $opt_output="filter_record_by_coordinates";
 }
 
 if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+  dual_print( $log, "The output directory choosen already exists. Please give me another Name.\n", $opt_verbose );
+  exit();
 }
 mkdir $opt_output;
 
@@ -96,7 +77,7 @@ while (my $line = <$in_range>) {
       $nb_ranges++;
     }
     else{
-      print "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n";
+      dual_print( $log, "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n", $opt_verbose );
     }
 }
 
@@ -105,11 +86,8 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will get features that are within the $nb_ranges selected ranges.\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print( $log, $stringPrint, $opt_verbose );
+print $ostreamReport $stringPrint if $ostreamReport;
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -118,7 +96,7 @@ else{ print $stringPrint; }
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n", $opt_verbose);
 ### END Parse GFF input #
 #########################
 
@@ -177,10 +155,10 @@ my $test_fail = scalar @listNotOk;
 
 $stringPrint = "$test_success record(s) selected within the range(s).\n";
 $stringPrint .= "$test_fail record(s) out of the range(s).\n";
-if ($opt_output){
+if ($ostreamReport){
   print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+}
+dual_print( $log, $stringPrint, $opt_verbose );
 
 #######################################################################################################################
         ####################
@@ -204,14 +182,14 @@ sub test_overlap_with_ranges{
     foreach my $range ( @{$range_hash{lc($feature_l1->seq_id)}} ){
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
-          print "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n" if $opt_verbose;
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n", $opt_verbose );
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
-          print "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n" if $opt_verbose;
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n", $opt_verbose );
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }

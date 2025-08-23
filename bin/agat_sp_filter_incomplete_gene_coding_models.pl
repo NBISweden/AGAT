@@ -4,63 +4,45 @@ use strict;
 use warnings;
 use Carp;
 use File::Basename;
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $file_fasta=undef;
-my $codonTableId=1;
-my $skip_start_check=undef;
-my $skip_stop_check=undef;
-my $add_flag=undef;
-my $verbose = undef;
-my $opt_help= 0;
+my @copyARGV  = @ARGV;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'                => \$config,
-    "h|help"                    => \$opt_help,
-    "gff=s"                     => \$gff,
-    "fasta|fa|f=s"              => \$file_fasta,
-    "table|codon|ct=i"          => \$codonTableId,
-    "add_flag|af!"              => \$add_flag,
-    "skip_start_check|sstartc!" => \$skip_start_check,
-    "skip_stop_check|sstopc!"   => \$skip_stop_check,
-    "v!"                        => \$verbose,
-    "output|outfile|out|o=s"    => \$outfile))
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',              'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa|f=s',       'Input reference fasta file', { required => 1 } ],
+    [ 'table|codon|ct=i',   'Codon translation table',    {
+        default   => 1,
+        callbacks => { positive => sub { shift() > 0 or die 'Codon translation table must be positive' } },
+    } ],
+    [ 'add_flag|af!',              'Add incomplete attribute flag' ],
+    [ 'skip_start_check|sstartc!', 'Skip start codon check' ],
+    [ 'skip_stop_check|sstopc!',   'Skip stop codon check' ],
+);
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $gff              = $opt->gff;
+my $file_fasta       = $opt->fasta;
+my $codonTableId     = $opt->table;
+my $add_flag         = $opt->add_flag;
+my $skip_start_check = $opt->skip_start_check;
+my $skip_stop_check  = $opt->skip_stop_check;
+my $opt_output       = $config->{output};
+my $opt_verbose      = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($file_fasta)) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff) and Input fasta file (--fasta)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # --- Check codon table ---
-$codonTableId = get_proper_codon_table($codonTableId);
+$codonTableId = get_proper_codon_table($codonTableId, $log, $opt_verbose);
 
 my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 
@@ -68,10 +50,10 @@ my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 # Manage output file #
 my $gffout_file;
 my $gffout_incomplete_file;
-if ($outfile) {
-  my ($filename,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
+if ($opt_output) {
+  my ($filename,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
 
-	$gffout_file = $path.$filename.$ext;
+  $gffout_file = $path.$filename.$ext;
   $gffout_incomplete_file = $path.$filename."_incomplete".$ext;
 }
 
@@ -87,7 +69,7 @@ my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n", $opt_verbose );
 
 
 ####################
@@ -97,7 +79,7 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 my @ids      = $db->get_all_primary_ids;
 my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print( $log, "Fasta file parsed\n", $opt_verbose );
 ####################
 
 #counters
@@ -111,7 +93,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print( $log, "gene_id = $gene_id\n", $opt_verbose );
 
     my @level1_list=();
     my @level2_list=();
@@ -141,7 +123,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               if (! $skip_start_check){
                 my $start_codon = $seqobj->subseq(1,3);
                 if(! $codonTable->is_start_codon( $start_codon )){
-                  print "start= $start_codon  is not a valid start codon\n" if ($verbose);
+                  dual_print( $log, "start= $start_codon  is not a valid start codon\n", $opt_verbose );
                   $start_missing="true";
                   if($add_flag){
                     create_or_replace_tag($level2_feature, 'incomplete', '1');
@@ -154,7 +136,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
                 if(! $codonTable->is_ter_codon( $stop_codon )){
-                  print "stop= $stop_codon is not a valid stop codon\n" if ($verbose);
+                  dual_print( $log, "stop= $stop_codon is not a valid stop codon\n", $opt_verbose );
                   $stop_missing="true";
                   if($add_flag){
                     if($start_missing){
@@ -168,11 +150,11 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               }
             }
             else{ #short CDS
-              print "CDS too short ($length_CDS nt) we skip it\n" if ($verbose);
+              dual_print( $log, "CDS too short ($length_CDS nt) we skip it\n", $opt_verbose );
             }
           }
           else{ #No CDS
-            print "Not a coding rna (no CDS) we skip it\n" if ($verbose);
+            dual_print( $log, "Not a coding rna (no CDS) we skip it\n", $opt_verbose );
           }
 
           if($start_missing or $stop_missing){
@@ -211,7 +193,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      print "This is a non coding gene (no cds to any of its RNAs)" if ($verbose);
+      dual_print( $log, "This is a non coding gene (no cds to any of its RNAs)", $opt_verbose );
     }
   }
 }
@@ -231,7 +213,7 @@ if ($geneCounter) {
 else{
   $string_to_print .="No gene with incomplete mRNA!\n";
 }
-print $string_to_print;
+dual_print( $log, $string_to_print, $opt_verbose );
 
 if(! $add_flag){
   #clean for printing
@@ -245,15 +227,15 @@ if(! $add_flag){
   }
 }
 
-print "Now printing complete models\n";
+dual_print( $log, "Now printing complete models\n", $opt_verbose );
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 if(@incomplete_mRNA){
-  print "Now printing incomplete models\n";
+  dual_print( $log, "Now printing incomplete models\n", $opt_verbose );
   print_omniscient( {omniscient => \%omniscient_incomplete, output => $gffout_incomplete} );
 }
 
-print "Bye Bye.\n";
+dual_print( $log, "Bye Bye.\n", $opt_verbose );
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -297,21 +279,28 @@ sub  get_sequence{
     $sequence = $db->subseq($seq_id_correct, $start, $end);
 
     if($sequence eq ""){
-      warn "Problem ! no sequence extracted for - $seq_id !\n";  exit;
+      my $msg = "Problem ! no sequence extracted for - $seq_id !\n";
+      dual_print( $log, $msg, 0 );
+      warn $msg if $opt_verbose;
+      exit;
     }
     if( length($sequence) != ($end-$start+1) ){
       my $wholeSeq = $db->subseq($seq_id_correct);
       $wholeSeq = length($wholeSeq);
-      warn "Problem ! The size of the sequence extracted ".length($sequence).
-			" is different than the specified span: ".($end-$start+1).".\n".
-			"That often occurs when the fasta file does not correspond to the annotation file.".
-			" Or the index file comes from another fasta file which had the same name and haven't been removed.\n".
-      "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n".
-			"Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; sequence length: $wholeSeq )\n";
+      my $msg = "Problem ! The size of the sequence extracted " . length($sequence) .
+                " is different than the specified span: " . ($end-$start+1) . ".\n" .
+                "That often occurs when the fasta file does not correspond to the annotation file." .
+                " Or the index file comes from another fasta file which had the same name and haven't been removed.\n" .
+                "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n" .
+                "Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; sequence length: $wholeSeq )\n";
+      dual_print( $log, $msg, 0 );
+      warn $msg if $opt_verbose;
     }
   }
   else{
-    warn "Problem ! ID $seq_id not found !\n";
+    my $msg = "Problem ! ID $seq_id not found !\n";
+    dual_print( $log, $msg, 0 );
+    warn $msg if $opt_verbose;
   }
 
   return $sequence;
