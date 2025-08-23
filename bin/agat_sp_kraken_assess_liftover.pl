@@ -20,6 +20,7 @@ my $outfile = undef;
 my $gff = undef;
 my $valueK = undef;
 my $verbose = undef;
+my $quiet   = 0;
 my $kraken_tag = "Kraken_mapped";
 my $kraken_tag_alt = 'kraken_mapped';
 my $opt_plot;
@@ -32,6 +33,7 @@ if ( !GetOptions(
     'threshold|t=i'            => \$valueK,
     'p|plot!'                  => \$opt_plot,
     'verbose|v!'               => \$verbose,
+    'quiet|q'                  => \$quiet,
     'outfile|output|out|o=s'   => \$outfile ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -56,7 +58,13 @@ if ( ! (defined($gff)) ){
 # --- Manage config ---
 $config = get_agat_config({config_file_in => $config});
 
-my $opt_verbose = $verbose;
+if ($quiet) {
+    $verbose = 0;
+    $config->{verbose}      = 0;
+    $config->{progress_bar} = 0;
+}
+
+my $opt_verbose = defined $verbose ? $verbose : $config->{verbose};
 my $opt_output  = $outfile;
 my $log;
 if ( my $log_name = $config->{log_path} ) {
@@ -793,6 +801,10 @@ Gene mapping percentage over which a gene must be reported. By default the value
 =item B<--verbose> or B<-v>
 
 Verbose information.
+
+=item B<--quiet> or B<-q>
+
+Run quietly. Implies B<--verbose> 0 and disables the progress bar.
 
 =item  B<--p> or B<--plot>
 
