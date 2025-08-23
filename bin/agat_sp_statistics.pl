@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use Getopt::Long qw(:config no_auto_abbrev);
 use Pod::Usage;
 use IO::File;
 use Try::Tiny;
@@ -10,58 +9,30 @@ use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_output = undef;
-my $opt_yaml = undef;
-my $opt_percentile = 90;
-my $opt_genomeSize = undef;
-my $opt_plot = undef;
-my $opt_raw = undef;
-my $opt_verbose = 0;
-my $opt_help= 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'percentile=i', 'Percentile to compute', { default => 90, callbacks => { range => sub { $_[0] > 0 && $_[0] <= 100 or die 'Percentile must be between 1 and 100' } } } ],
+    [ 'yaml!', 'Print YAML output' ],
+    [ 'raw|r!', 'Print raw data' ],
+    [ 'plot|d|p!', 'Generate distribution plots' ],
+    [ 'genome|g|f|gs=s', 'Genome size or fasta file' ],
+    [ 'gff|i=s', 'Input reference gff file', { required => 1, callbacks => { file => sub { -e $_[0] or die "gff file $_[0] not found" } } } ],
+);
 
-my $common = parse_common_options() || {};
-$config      = $common->{config};
-$opt_output  = $common->{output};
-$opt_verbose = $common->{verbose};
-$opt_help    = $common->{help};
-
-if ( !GetOptions(
-    'percentile=i' => \$opt_percentile,
-    'yaml!'        => \$opt_yaml,
-    'r|raw!'       => \$opt_raw,
-    'd|p!'         => \$opt_plot,
-    'g|f|gs=s'    => \$opt_genomeSize,
-    'gff|i=s'     => \$gff))
-
-{
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $gff            = $opt->gff;
+my $opt_yaml       = $opt->yaml;
+my $opt_raw        = $opt->raw;
+my $opt_plot       = $opt->plot;
+my $opt_percentile = $opt->percentile;
+my $opt_genomeSize = $opt->genome;
+my $opt_output     = $config->{output};
+my $opt_verbose    = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
@@ -80,10 +51,12 @@ if($opt_raw){
     $opt_raw = "raw_data";
 
     if (-f $opt_raw){
-      print "Cannot create a directory with the name $opt_raw because a file with this name already exists.\n";exit();
+      warn "Cannot create a directory with the name $opt_raw because a file with this name already exists.\n" if $opt_verbose;
+      exit();
     }
     if (-d $opt_raw){
-      print "Cannot create a directory with the name $opt_raw because a folder with this name already exists.\n";exit();
+      warn "Cannot create a directory with the name $opt_raw because a folder with this name already exists.\n" if $opt_verbose;
+      exit();
     }
   }
 }
@@ -103,10 +76,12 @@ if($opt_plot){
       $opt_plot = "distribution_plots";
 
       if (-f $opt_plot){
-        print "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n";exit();
+        warn "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n" if $opt_verbose;
+        exit();
       }
       if (-d $opt_plot){
-        print "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n";exit();
+        warn "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n" if $opt_verbose;
+        exit();
       }
     }
   }
@@ -116,18 +91,18 @@ if($opt_plot){
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
+dual_print( $log, "Reading file $gff\n", $opt_verbose );
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $gff,
                                                                config => $config
                                                                });
-print "Parsing Finished\n";
+dual_print( $log, "Parsing Finished\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 
 ##############
 # STATISTICS #
-print "Compute statistics\n";
+dual_print( $log, "Compute statistics\n", $opt_verbose );
 print_omniscient_statistics ({ input   => $hash_omniscient,
 															 genome  => $opt_genomeSize,
                                percentile => $opt_percentile,
@@ -141,7 +116,7 @@ print_omniscient_statistics ({ input   => $hash_omniscient,
 # END STATISTICS #
 ##################
 
-print "Bye Bye.\n";
+dual_print( $log, "Bye Bye.\n", $opt_verbose );
 
 __END__
 

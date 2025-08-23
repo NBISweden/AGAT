@@ -4,56 +4,33 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_help= 0;
-my $attribute='transcript_id';
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s', 'Input reference gff file', { required => 1, callbacks => { file => sub { -e $_[0] or die "gff file $_[0] not found" } } } ],
+    [ 'tag|att=s', 'Attribute to investigate', { default => 'transcript_id' } ],
+);
+
+my $gff       = $opt->gff;
+my $attribute = $opt->tag;
+my $outfile   = $config->{output};
+my $verbose   = $config->{verbose};
 my $start_run = time();
-my $outfile=undef;
-my $cpt_case=0;
+my $cpt_case  = 0;
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$opt_help = $common->{help};
-
-if ( !GetOptions(
-    "gff|f=s"     => \$gff,
-    "tag|att=s"   => \$attribute,
-    ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $gff ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff)\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-print "Looking to $attribute attribute.\n";
+dual_print( $log, "Looking to $attribute attribute.\n", $verbose );
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -65,7 +42,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print( $log, "$nbLine line to process...\n", $verbose );
 
 my $line_cpt=0;
 my %hash_values;
@@ -84,7 +61,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print( $log, "\rProgression : $done % processed.\n", $verbose );
     $startP= time;
   }
 }
@@ -96,9 +73,9 @@ my $run_time = $end_run - $start_run;
 
 my $result = scalar keys %hash_values;
 
-print "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n".
-"There is $result unique value within $attribute attribute\n";
-print "Job done in $run_time seconds\n";
+dual_print( $log, "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n", $verbose );
+dual_print( $log, "There is $result unique value within $attribute attribute\n", $verbose );
+dual_print( $log, "Job done in $run_time seconds\n", $verbose );
 
 __END__
 
