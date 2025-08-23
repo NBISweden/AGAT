@@ -186,15 +186,15 @@ sub parse_common_options {
 # Return shared Getopt::Long::Descriptive option descriptors
 sub common_spec {
         return (
-                [ 'config|c=s',          'Configuration file' ],
-                [ 'out|o|output=s',      'Output GFF3 file' ],
-                [ 'log=s',               'Log file path' ],
-                [ 'verbose|v=i',         'Verbosity level' ],
-                [ 'debug|d',             'Enable debug output' ],
+                [ 'config|c=s',                'Configuration file' ],
+                [ 'out|o|outfile|output=s',    'Output file or folder' ],
+                [ 'log=s',                     'Log file path' ],
+                [ 'verbose|v=i',               'Verbosity level' ],
+                [ 'debug',                     'Enable debug output' ],
                 [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef, hidden => 1 } ],
-                [ 'quiet|q',             'Disable progress bar and verbose output',
+                [ 'quiet|q',                   'Disable progress bar and verbose output',
                         { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
-                [ 'help|h',              'Show this help', { shortcircuit => 1 } ],
+                [ 'help|h',                    'Show this help', { shortcircuit => 1 } ],
                 { getopt_conf => ['pass_through'] },
         );
 }
