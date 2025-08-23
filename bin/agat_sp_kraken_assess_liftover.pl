@@ -19,10 +19,10 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     [ 'plot!', 'Generate plot' ],
 );
 
-my $gff        = $opt->gff;
-my $valueK     = $opt->threshold;
-my $opt_plot   = $opt->plot;
-my $opt_output = $opt->out;
+my $gff         = $opt->gff;
+my $valueK      = $opt->threshold;
+my $opt_plot    = $opt->plot;
+my $opt_output  = $config->{output};
 my $opt_verbose = $config->{verbose};
 my $kraken_tag = 'kraken_mapped';
 
