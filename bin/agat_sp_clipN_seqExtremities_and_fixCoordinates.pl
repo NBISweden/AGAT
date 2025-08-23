@@ -21,6 +21,7 @@ my $opt_gfffile    = $opt->gff;
 my $opt_fastafile  = $opt->fasta;
 my $opt_output_fasta = $opt->of;
 my $opt_output_gff   = $opt->og // $config->{output};
+my $opt_verbose     = $config->{verbose};
 
 my $log;
 if ( my $log_name = $config->{log_path} ) {
@@ -45,11 +46,11 @@ my $gffout = prepare_gffout($config, $opt_output_gff);
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-dual_print($log, "Reading file $opt_gfffile\n", $config->{verbose} );
+dual_print($log, "Reading file $opt_gfffile\n", $opt_verbose );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n", $config->{verbose} );
+dual_print($log, "Parsing Finished\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 
@@ -140,13 +141,13 @@ foreach my $seq_id (@ids ){
 # print annotation whith shifter location
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print($log, "We found $cpt_Nleft sequence(s) starting with N\n", $config->{verbose} );
-dual_print($log, "We found $cpt_Nright sequence(s) ending with N\n", $config->{verbose} );
-dual_print($log, "We found $cpt_Nboth sequence(s) having N both extremities\n", $config->{verbose} );
+dual_print($log, "We found $cpt_Nleft sequence(s) starting with N\n", $opt_verbose );
+dual_print($log, "We found $cpt_Nright sequence(s) ending with N\n", $opt_verbose );
+dual_print($log, "We found $cpt_Nboth sequence(s) having N both extremities\n", $opt_verbose );
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $config->{verbose} );
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose );
 
 close $log if $log;
 
