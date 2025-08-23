@@ -4,67 +4,80 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Pod::Usage;
-use Getopt::Long;
-use IO::File ;
+use IO::File;
 use List::Util 'first';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $folderIn1=undef;
-my $folderIn2=undef;
-my $outfolder=undef;
-my $verbose=undef;
-my $opt_help = 0;
+my @copyARGV  = @ARGV;
 
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'f1=s', 'BUSCO folder 1',
+      { required => 1,
+        callbacks => {
+          full_table => sub {
+              my $dir = remove_slash_path_folder(shift);
+              opendir( my $dh, $dir )
+                or die "Unable to read Directory $dir : $!";
+              my @files = grep(/^full_table/, readdir($dh));
+              @files or die "full_table[_abinitio].tsv file missing in $dir";
+              1;
+          }
+        }
+      }
+    ],
+    [ 'f2=s', 'BUSCO folder 2',
+      { required => 1,
+        callbacks => {
+          full_table => sub {
+              my $dir = remove_slash_path_folder(shift);
+              opendir( my $dh, $dir )
+                or die "Unable to read Directory $dir : $!";
+              my @files = grep(/^full_table/, readdir($dh));
+              @files or die "full_table[_abinitio].tsv file missing in $dir";
+              1;
+          }
+        }
+      }
+    ],
+);
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('f1=s' => \$folderIn1,
-                  "f2=s" => \$folderIn2,
-                  'o|output=s' => \$outfolder,
-                  'v|verbose=i' => \$verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help )  )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $folderIn1 = $opt->f1;
+my $folderIn2 = $opt->f2;
+my $outfolder = $config->{output};
+my $verbose   = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
 
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( !defined($folderIn1) or  !defined($folderIn2) ){
-   pod2usage( {  -message => "$header\nAt least 2 parameters are mandatory: --f1 and --f2",
-                 -verbose => 0,
-                 -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-# Manage input folder1
+#########################
+# Manage input folder1 #
+#########################
 my $fh1;
 $folderIn1 = remove_slash_path_folder($folderIn1);
-opendir(DIR, "$folderIn1")  or die "Unable to read Directory : $!";
-my @files_table1 = grep(/^full_table/,readdir(DIR));
-if (! @files_table1){print "full_table[_abinitio].tsv file missing in $folderIn1\n"; exit;}
-my $path1=$folderIn1."/".$files_table1[0];
-open($fh1, '<', $path1) or die "Could not open file '$path1' $!";
+opendir( my $dir1, $folderIn1 )
+  or die "Unable to read Directory $folderIn1 : $!";
+my ($file1) = grep(/^full_table/, readdir($dir1));
+my $path1 = $folderIn1 . '/' . $file1;
+open( $fh1, '<', $path1 )
+  or die "Could not open file '$path1' $!";
 
-#Manage input folder2
+#########################
+# Manage input folder2 #
+#########################
 my $fh2;
 $folderIn2 = remove_slash_path_folder($folderIn2);
-opendir(DIR, "$folderIn2") or die "Unable to read Directory $folderIn2 : $!";;
-my @files_table2 = grep(/^full_table/,readdir(DIR));
-if (! @files_table2){print "full_table[_abinitio].tsv file missing in $folderIn2\n"; exit;}
-my $path2=$folderIn2."/".$files_table2[0];
-open($fh2, '<', $path2) or die "Could not open file '$path2' $!";
+opendir( my $dir2, $folderIn2 )
+  or die "Unable to read Directory $folderIn2 : $!";
+my ($file2) = grep(/^full_table/, readdir($dir2));
+my $path2 = $folderIn2 . '/' . $file2;
+open( $fh2, '<', $path2 )
+  or die "Could not open file '$path2' $!";
 
 
 #Manage output folder
@@ -74,7 +87,8 @@ if ($outfolder) {
     mkdir $outfolder;
   }
   else{
-    print "$outfolder output folder already exists !\n"; exit;
+    warn "$outfolder output folder already exists !\n" if $verbose;
+    exit;
   }
 }
 
@@ -167,7 +181,7 @@ foreach my $type1 (keys %busco1){
             print $streamOut  $busco1{$type1}{$id1};
           }
           else{
-            print "$id1 was $type1 and it is now $type2\n";
+            dual_print( $log, "$id1 was $type1 and it is now $type2\n", $verbose );
           }
         }
       }
@@ -191,7 +205,7 @@ if (-d $augustus_gff_folder){
   my %track_found;
   my @list_cases=("complete","fragmented","duplicated");
   foreach my $type (@list_cases){
-    print "extract gff for $type cases\n" if $verbose;
+    dual_print( $log, "extract gff for $type cases\n", $verbose );
     foreach my $id (sort keys %{$busco1{$type}}){
       my @list = split(/\s/,$busco1{$type}{$id});
       my $seqId = $list[2];
@@ -204,13 +218,13 @@ if (-d $augustus_gff_folder){
           my $path = $augustus_gff_folder."/".$match;
           if (-f $path ){
             my  $found=undef;
-            print $path."\n" if $verbose;
+            dual_print( $log, "$path\n", $verbose );
 
             my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){
-              print "No gene found for $path\n";exit;
+              die "No gene found for $path\n";
             }
 
             my @listIDl1ToRemove;
@@ -236,7 +250,7 @@ if (-d $augustus_gff_folder){
 
               if ($found){
                 if(@listIDl1ToRemove){
-                  print "lets remove those supernumary annotation: @listIDl1ToRemove \n" if $verbose;
+                  dual_print( $log, "lets remove those supernumary annotation: @listIDl1ToRemove \n", $verbose );
                   remove_omniscient_elements_from_level1_id_list($hash_omniscient, \@listIDl1ToRemove);
                 }
 
@@ -253,23 +267,23 @@ if (-d $augustus_gff_folder){
                 }
               }
               else{
-                print "No annotation as described in the tsv file found in the gff file $path\n" if $verbose;
+                dual_print( $log, "No annotation as described in the tsv file found in the gff file $path\n", $verbose );
               }
             }
             else{
-              print "No annotation in the file $path, lets look the next one.\n" if $verbose;
+              dual_print( $log, "No annotation in the file $path, lets look the next one.\n", $verbose );
             }
           }
           else{
-            print "A) file $id not found among augustus gff output\n" if $verbose;
+            dual_print( $log, "A) file $id not found among augustus gff output\n", $verbose );
           }
         }
       }
       else{
-        print "file $id not found among augustus gff output\n" if $verbose;
+        dual_print( $log, "file $id not found among augustus gff output\n", $verbose );
       }
       if(! exists_keys(\%track_found,($type,$id))){
-        print "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n";
+        warn "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n" if $verbose;
       }
     }
     my $out = $gff_out{$type};
@@ -278,11 +292,11 @@ if (-d $augustus_gff_folder){
     $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};
     $loop = 0;
-    print "We found $nb annotations from $type busco\n";
+    dual_print( $log, "We found $nb annotations from $type busco\n", $verbose );
   }
 
 }
-else{ print "$augustus_gff_folder folder doesn't exits\n"; exit;}
+else{ die "$augustus_gff_folder folder doesn't exits\n"; }
 
 
 
@@ -290,7 +304,7 @@ else{ print "$augustus_gff_folder folder doesn't exits\n"; exit;}
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n", $verbose );
 #######################################################################################################################
         ####################
          #     methods    #
