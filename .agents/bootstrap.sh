@@ -14,7 +14,7 @@ if command -v apt-get >/dev/null 2>&1; then
   if command -v sudo >/dev/null 2>&1; then SUDO=sudo; else SUDO=""; fi
   $SUDO apt-get update -y
   $SUDO apt-get install -y --no-install-recommends \
-    build-essential curl ca-certificates libdb-dev libexpat1-dev libxml2-dev
+    build-essential curl ca-certificates libdb-dev libexpat1-dev libxml2-dev cpanminus
 fi
 
 # 2) Local install root (no global pollution)
