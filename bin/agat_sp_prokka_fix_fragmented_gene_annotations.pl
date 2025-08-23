@@ -5,7 +5,6 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use File::Basename;
-use Getopt::Long;
 use Pod::Usage;
 use LWP::UserAgent;
 use List::MoreUtils qw(uniq);
@@ -58,70 +57,41 @@ use case_info;
 my $SIZE_OPT=21;
 
 my $header = get_agat_header();
-my $config;
-my $outfolder = undef;
-my $gff = undef;
-my $file_fasta=undef;
-my $file_db=undef;
-my $codonTable=1;
-my $hamap_size="high";
-my $pseudo;
-my $frags;
-my $skip_hamap;
-my $verbose = 0;
-my $opt_help= 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',          'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa|f=s',   'Input reference fasta file', { required => 1 } ],
+    [ 'db=s',           'Input db file',              { required => 1 } ],
+    [ 'frags!',         'Output fragments' ],
+    [ 'pseudo!',        'Output pseudogenes' ],
+    [ 'hamap_size=s',   'HAMAP size category', { default => 'high',
+        callbacks => { allowed => sub { $_[0] =~ /^(?:high|low|middle)$/ or die 'Wrong value provided for the option --hamap_size: accepted value: high, low or middle'; } } } ],
+    [ 'table|codon|ct=i', 'Codon translation table', { default => 1,
+        callbacks => { positive => sub { $_[0] > 0 or die 'Codon translation table must be positive'; } } } ],
+    [ 'skip_hamap!',    'Skip hamap processing' ],
+);
 
-my $common = parse_common_options() || {};
-$config    = $common->{config};
-$outfolder = $common->{output};
-$verbose   = $common->{verbose};
-$opt_help  = $common->{help};
+my $gff        = $opt->gff;
+my $file_fasta = $opt->fasta;
+my $file_db    = $opt->db;
+my $frags      = $opt->frags;
+my $pseudo     = $opt->pseudo;
+my $hamap_size = $opt->hamap_size;
+my $codonTable = $opt->table;
+my $skip_hamap = $opt->skip_hamap;
+my $outfolder  = $opt->out;
+my $verbose    = $config->{verbose};
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    "gff=s"              => \$gff,
-    "fasta|fa|f=s"       => \$file_fasta,
-        "db=s"               => \$file_db,
-        "frags!"             => \$frags,
-        "pseudo!"            => \$pseudo,
-        "hamap_size=s"       => \$hamap_size,
-    "table|codon|ct=i"   => \$codonTable,
-        "skip_hamap!"        => \$skip_hamap,
-        ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
-    pod2usage( {
-           -message => "$header\nAt least 3 parameters are mandatory:\n".
-					 	"Input reference gff file (--gff)\n".
-						"Input db file (--db)\n".
-						"Input fasta file (--fasta)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my @copyARGV = @ARGV;
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+}
+dual_print($log, $header, $verbose);
 
 # Check codon table
-$codonTable = get_proper_codon_table($codonTable);
+$codonTable = get_proper_codon_table($codonTable, $log, $verbose);
 
 ######################
 # Manage output file #
@@ -131,10 +101,13 @@ my ($file_fasta_in,$path_fasta,$ext_fasta) = fileparse($file_fasta,qr/\.[^.]*/);
 my ($file_gff_in,$path_gff,$ext_gff) = fileparse($gff,qr/\.[^.]*/);
 
 if ($outfolder) {
-	if (-d $outfolder){
-		  print "Provided output folder exists. Exit!\n";exit;
-	}
-	mkdir $outfolder;
+        if (-d $outfolder){
+                  my $msg = "Provided output folder exists. Exit!\n";
+                  dual_print($log, $msg, 0);
+                  warn $msg if $verbose;
+                  exit;
+        }
+        mkdir $outfolder;
 
 	if($frags or $pseudo){
 		# gff out
@@ -154,13 +127,12 @@ if ($outfolder) {
 	open($report, '>', $report_out_path) or die "Could not open file '$report_out_path' $!";
 }
 else{
-  print "No output folder provided. Exit!\n";exit;
+  my $msg = "No output folder provided. Exit!\n";
+  dual_print($log, $msg, 0);
+  warn $msg if $verbose;
+  exit;
 }
-# check $hamap_size parameter
 $hamap_size = lc($hamap_size);
-if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
-	print "Wrong value provided for the option --hamap_size: $hamap_size\n;Accepted value: high, low or middle";exit;
-}
 
                 #####################
                 #     MAIN          #
@@ -172,7 +144,7 @@ if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
 my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
                                                                 config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n", $verbose);
 
 
 ####################
@@ -182,7 +154,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %all_db_fasta_IDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$all_db_fasta_IDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n", $verbose);
 
 
 my $db_db = Bio::DB::Fasta->new($file_db);
@@ -190,7 +162,7 @@ my $db_db = Bio::DB::Fasta->new($file_db);
 my %all_db_db_IDs;
 my @ids_db_db     = $db_db->get_all_primary_ids;
 foreach my $id (@ids_db_db ){$all_db_db_IDs{lc($id)}=$id;}
-print ("db file parsed\n");
+dual_print($log, "db file parsed\n", $verbose);
 
 ####################
 
@@ -441,7 +413,7 @@ $stringprint .= "\nWhen a FRAGS is detected you shoud think about few things...\
 								"In a case of pseudogene, if the pseudogene is not recent, other mutations should be accumulated in the sequence after the first premature stop codon...\n";
 $stringprint .=  "\nBye Bye.\n";
 
-print $stringprint;
+dual_print($log, $stringprint, $verbose);
 print $report $stringprint;
 
 
@@ -765,7 +737,9 @@ sub check_long_orf_if_can_be_merged{
 				print "ERROR ".$gene_feature1->seq_id." not found among the db!";
 			}
 			if (! $found){
-				warn "subseq2 not found in any frame. There is a problem when preparing subseq2\n"
+                                my $msg = "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
+                                dual_print($log, $msg, 0);
+                                warn $msg if $verbose;
 			}
 			elsif($found>1){
 				print "interesting, subseq2 found in $found frames\n";
@@ -831,7 +805,9 @@ sub check_long_orf_if_can_be_merged{
 					$merged++;
 				}
 				if (! $found){
-					warn "subseq2 not found in any frame. There is a problem when preparing subseq2\n"
+                                my $msg = "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
+                                dual_print($log, $msg, 0);
+                                warn $msg if $verbose;
 				}
 				elsif($found>1){
 					print "interesting, subseq2 found in $found frames\n";
@@ -902,7 +878,9 @@ sub retrieve_expected_protein_length{
 			}
 		}
 		else{
-			warn "No inference attribute found\n";
+                        my $msg = "No inference attribute found\n";
+                        dual_print($log, $msg, 0);
+                        warn $msg if $verbose;
 		}
 		$obj_case->{hash_sub_gene_obj}{$obj_sub_gene->{id}} = $obj_sub_gene;
 	}

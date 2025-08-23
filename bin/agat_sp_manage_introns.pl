@@ -3,48 +3,34 @@
 use strict;
 use warnings;
 use Carp;
-use Getopt::Long;
 use IO::File;
 use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my ($config, @opt_files, $opt_output, $opt_plot, $opt_breaks, $Xpercent, $opt_help);
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s@', 'Input reference gff files', { required => 1 } ],
+    [ 'breaks|w|window|b=i', 'Breaks value', { default => 1000 } ],
+    [ 'x|p=f', 'Percent value', { default => 1,
+        callbacks => { range => sub { $_[0] > 0 && $_[0] <= 100 or die 'Percent must be between 0 and 100'; } } } ],
+    [ 'plot!', 'Generate plots' ],
+);
 
-$Xpercent = 1;
+my @opt_files = @{ $opt->gff };
+my $opt_breaks = $opt->breaks;
+my $Xpercent   = $opt->x;
+my $opt_plot   = $opt->plot;
+my $opt_output = $opt->out;
+my $opt_verbose = $config->{verbose};
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_help   = $common->{help};
-my @copyARGV = @{ $common->{argv} // [@ARGV] };
+my @copyARGV = @ARGV;
 
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
-                  'w|window|b|break|breaks=i'  => \$opt_breaks,
-                  'x|p=f'               => \$Xpercent,
-                  'plot!'               => \$opt_plot ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! ( $#opt_files  >= 0) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+dual_print( $log, $header, $opt_verbose );
 
 # #######################
 # # START Manage Option #
@@ -52,7 +38,10 @@ $config = get_agat_config({config_file_in => $config});
 my $ostreamReport_file;
 if (defined($opt_output) ) {
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
+    dual_print($log, $msg, 0);
+    warn $msg if $opt_verbose;
+    exit();
   }
   else{
     mkdir $opt_output;
@@ -65,7 +54,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 .= "usage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+dual_print($log, $string1, $opt_output ? $opt_verbose : 0);
 
 
 #############################
@@ -83,9 +72,12 @@ if(! $opt_breaks){
 my $outputPDF_prefix;
 if (defined($opt_output) ) {
   if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+      my $msg = "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
+      dual_print($log, $msg, 0);
+      warn $msg if $opt_verbose;
+      exit();
   }
- $outputPDF_prefix=$opt_output."/intronPlot_";
+  $outputPDF_prefix=$opt_output."/intronPlot_";
 }
 else{
   $outputPDF_prefix="intronPlot_";
@@ -113,19 +105,19 @@ if($opt_plot){
 my %introns;
 foreach my $file (@opt_files){
 
-  print "Reading ".$file,"\n";
+  dual_print($log, "Reading $file\n", $opt_verbose);
 
   ######################
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file,
                                                                    config => $config
                                                               });
-  print("Parsing Finished\n\n");
+  dual_print($log, "Parsing Finished\n\n", $opt_verbose);
   ### END Parse GFF input #
   #########################
 
   #print statistics
-	print "Compute statistics\n";
+        dual_print($log, "Compute statistics\n", $opt_verbose);
 	print_omniscient_statistics ({ input => $hash_omniscient,
 																 output => $ostreamReport
 															 });
@@ -148,7 +140,12 @@ foreach my $file (@opt_files){
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){
+        my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
+        dual_print($log, $msg, 0);
+        warn $msg if $opt_verbose;
+        exit;
+      }
 
       #####
       # get all level2

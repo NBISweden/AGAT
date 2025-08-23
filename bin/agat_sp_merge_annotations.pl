@@ -3,7 +3,6 @@
 use strict;
 use warnings;
 use Carp;
-use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
@@ -11,30 +10,20 @@ use File::Spec;
 use File::Glob ':glob';
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my @opt_files;
-my $file2 = undef;
-my $opt_help= 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s@', 'Input GTF/GFF files or directories', { required => 1 } ],
+);
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \@opt_files,
-    "output|outfile|out|o=s" => \$outfile))
+my @opt_files = @{ $opt->gff };
+my $outfile   = $opt->out;
+my $opt_verbose = $config->{verbose};
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
+dual_print( $log, $header, $opt_verbose );
 
 my @expanded_files;
 foreach my $file_or_dir (@opt_files) {
@@ -53,9 +42,6 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
 ######################
 # Manage output file #
 my $gffout = prepare_gffout($config, $outfile);
@@ -69,7 +55,7 @@ my $file1 = shift @opt_files;
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1,
                                                                  config => $config
                                                               });
-print ("$file1 GFF3 file parsed\n");
+dual_print($log, "$file1 GFF3 file parsed\n", $opt_verbose);
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
@@ -77,22 +63,22 @@ foreach my $next_file (@opt_files){
   my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
 	                                                                   config => $config
                                                                   });
-  print ("$next_file GFF3 file parsed\n");
+  dual_print($log, "$next_file GFF3 file parsed\n", $opt_verbose);
   info_omniscient($hash_omniscient2);
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  print ("\nTotal raw data of files together:\n");
+  dual_print($log, "\nTotal raw data of files together:\n", $opt_verbose);
   info_omniscient($hash_omniscient);
 }
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
-print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
+dual_print($log, "\nNow merging overlaping loci, and removing identical isoforms:\n", $opt_verbose);
 merge_overlap_loci(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
 
 
-print ("\nfinal result:\n");
+dual_print($log, "\nfinal result:\n", $opt_verbose);
 info_omniscient($hash_omniscient);
 
 ########
