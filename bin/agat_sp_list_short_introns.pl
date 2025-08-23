@@ -5,55 +5,27 @@ use warnings;
 use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
-use Getopt::Long;
-use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_file;
-my $INTRON_LENGTH = 10;
-my $opt_output=undef;
-my $opt_help = 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Reference data gff3 file', { required => 1 } ],
+    [ 'size|s=i', 'Intron size threshold', { default => 10, callbacks => { positive => sub { shift() > 0 or die 'Intron size threshold must be positive' } } } ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-my $verbose = $common->{verbose};
-$opt_help   = $common->{help};
-
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  "size|s=i"            => \$INTRON_LENGTH,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined( $opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_file      = $opt->gff;
+my $INTRON_LENGTH = $opt->size;
+my $opt_output    = $config->{output};
+my $verbose       = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -71,7 +43,7 @@ my $fh = prepare_fileout($opt_output);
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config
                                                               });
-  print("Parsing Finished\n\n");
+  dual_print( $log, "Parsing Finished\n\n", $verbose );
   ### END Parse GFF input #
   #########################
 
@@ -100,7 +72,12 @@ my %result;
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){
+        my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
+        dual_print( $log, $msg, 0 );
+        warn $msg if $verbose;
+        exit;
+      }
 
       #####
       # get all level2
@@ -157,6 +134,7 @@ foreach my $seqid (keys %result){
 
 my $gene_number = keys %total_gene;
 print $fh "\n$total_intron introns found for $gene_number uniq genes\n";
+close $log if $log;
       #########################
       ######### END ###########
       #########################

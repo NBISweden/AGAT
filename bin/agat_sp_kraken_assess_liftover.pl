@@ -4,15 +4,33 @@ use strict;
 use warnings;
 use Carp;
 use File::Basename;
-use Getopt::Long;
 use IO::File;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|gtf|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'threshold|t=i', 'Percent threshold to keep genes', { default => 0,
+        callbacks => { range => sub { my $v = shift; ( $v >= 0 && $v <= 100 ) or die 'Threshold must be between 0 and 100'; } } } ],
+    [ 'plot!', 'Generate plot' ],
+);
+
+my $gff        = $opt->gff;
+my $valueK     = $opt->threshold;
+my $opt_plot   = $opt->plot;
+my $opt_output = $opt->out;
+my $opt_verbose = $config->{verbose};
+my $kraken_tag = 'kraken_mapped';
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 #####
 # What we call parial gene (containing "_partial_part-" in the ID) ?
@@ -23,65 +41,25 @@ my $config;
 # TODO: add tag kraken_cn (for copy number) with nb of mapping. 1 if only one liftover.
 # Ask Manfred why some region map at different location.
 
-my $outfile = undef;
-my $gff = undef;
-my $valueK = undef;
-my $verbose = undef;
-my $kraken_tag = "Kraken_mapped";
-my $opt_plot;
-my $help= 0;
-
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"                 => \$help,
-    "gtf=s"                  => \$gff,
-    "threshold|t=i"          => \$valueK,
-    'p|plot!'                => \$opt_plot,
-    "verbose|v!"             => \$verbose,
-    "outfile|output|out|o=s" => \$outfile))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($help) {
-    pod2usage( { -message => "$header\n",
-                 -verbose => 99,
-                 -exitval => 0 } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gtf file (--f)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ## Manage output file
 my $outfile_no_extension ;
 my $outReport_file ;
-if ($outfile) {
-	my ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
-	my $outfile_no_extension = $path.$outfile_pref;
- 	$outReport_file = $outfile_no_extension."_report.txt";
+if ($opt_output) {
+        my ($outfile_pref,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+        $outfile_no_extension = $path.$outfile_pref;
+        $outReport_file = $outfile_no_extension."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout($config, $opt_output);
 my $outReport = prepare_fileout($outReport_file);
 
 # Check if dependencies for plot are available
-if($opt_plot){
-	if ( ! may_i_plot() ) {
-		$opt_plot = undef;
-	}
+if ($opt_plot) {
+        if ( !may_i_plot() ) {
+                $opt_plot = undef;
+        }
 }
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -97,12 +75,8 @@ if ( defined($valueK) ){
 $messageValue.="The kraken attribute tag that will be used is: ".$kraken_tag."\n";
 
 #print info
-if ($outfile) {
-  print $outReport $messageValue;
-}
-else{
-	print $messageValue;
-}
+print $outReport $messageValue if $opt_output;
+dual_print( $log, $messageValue, $opt_verbose );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -275,11 +249,11 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
 																						 config => $config
 	                                                                                   });
-	        if($verbose){
-	          print "\nA proper hash:\n";
-	          print_omniscient( {omniscient => $hash_omniscient_clean, output => $gffout} );
-	          print "\n";
-	        }
+                if ($opt_verbose) {
+                  dual_print( $log, "\nA proper hash:\n", $opt_verbose );
+                  print_omniscient( { omniscient => $hash_omniscient_clean, output => $gffout } );
+                  dual_print( $log, "\n", $opt_verbose );
+                }
 
 	        ###################################################################################
 	        # NOW we call deal properly with each proper hash containing only mapped features
@@ -294,7 +268,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	            $gene_feature = $hash_omniscient_clean->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1};
 	            my @ListmrnaNoMatch;
-	            print "\n\nlevel1 feature:\n".$gene_feature->gff_string."\n\n" if $verbose;
+                dual_print( $log, "\n\nlevel1 feature:\n" . $gene_feature->gff_string . "\n\n", $opt_verbose );
 
 	            ################
 	            # == LEVEL 2
@@ -305,7 +279,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	              if ( exists_keys($hash_omniscient_clean, ('level2',$primary_tag_key_level2,$id_tag_key_level1) ) ){
 	                foreach my $feature_level2 ( @{$hash_omniscient_clean->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-	                  print "level2 feature:\n".$feature_level2->gff_string."\n" if $verbose;
+                      dual_print( $log, "level2 feature:\n" . $feature_level2->gff_string . "\n", $opt_verbose );
 
 	                  my $percentMatch=0;
 
@@ -339,14 +313,20 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                    if($feature->has_tag($kraken_tag)){
 	                      $mapping_state = lc($feature->_tag_value($kraken_tag));
 	                    }
-	                    else{ print "error !! No $kraken_tag attribute found for the feature".$feature->gff_string()."\n";}
+                        else{
+                          my $msg = "error !! No $kraken_tag attribute found for the feature" . $feature->gff_string() . "\n";
+                          dual_print( $log, $msg, 0 );
+                          warn $msg if $opt_verbose;
+                        }
 
 	                    if( $mapping_state eq "true"){
 	                        $matchSize+=($end-$start)+1;
 	                        $matchFeatureExample=$feature;
 	                    }
 	                    elsif(! $mapping_state eq "false"){
-	                      print "error !! We don't understand the $kraken_tag attribute value found for the feature".$feature->gff_string()."\n Indeed, we expect false or true.\n";
+                          my $msg = "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() . "\n Indeed, we expect false or true.\n";
+                          dual_print( $log, $msg, 0 );
+                          warn $msg if $opt_verbose;
 	                    }
 	                  }
 
@@ -357,7 +337,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	                  #compute the MATCH. A MATCH can be over 100% because we compute the size of the original feature l3 against the new feature l3. The new feature l3 (i.e exon) could have been strenghten to fit a new size/map of feature l2.
 	                  $percentMatch=($matchSize*100)/$totalSize;
-	                  print "$id_tag_key_level1 / $level2_ID  maps at ".$percentMatch." percent.\n" if $verbose;
+                      dual_print( $log, "$id_tag_key_level1 / $level2_ID  maps at $percentMatch percent.\n", $opt_verbose );
 	                  #if($percentMatch > 100){
 	                  #  print $id_tag_key_level1."\n";exit;
 	                  #}
@@ -431,7 +411,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    #keep track of successful multimap (different sequences) => Cases saved with different GeneID in new_omniscient
 	    if($nbMapTrueHere > 1 and $sucessMapL0 > 1){
 	      if( $sucessMapL1OusideScope > 1){
-	        $bothCase++; print "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n" if $verbose;
+            $bothCase++;
+            dual_print( $log, "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n", $opt_verbose );
 	        $nb_total_multiMap_seqdif_bothcase+=$sucessMapL0;
 	        $nb_total_multiMap_sameseq_bothcase+=$sucessMapL1OusideScope;
 	        $nb_multiMap_sameseq--;
@@ -445,14 +426,14 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	  }
 	}
 }
-print "Calcul of mapped percentage length finished !\n";
+dual_print( $log, "Calcul of mapped percentage length finished !\n", $opt_verbose );
 
 
 ######################
 # Check if nothing mapped
 my $nbKey = keys %mappedPercentPerGene;
 if ($nbKey == 0){
- print "No succefully mapped feature found!\n";
+ dual_print( $log, "No succefully mapped feature found!\n", $opt_verbose );
 }
 
 ########
@@ -485,9 +466,8 @@ if( $nb_noCaseL3 ){
 $messageEnd.= "\n";
 
 #print info
-if ($outfile) {
-print $outReport $messageEnd;
-}else{print $messageEnd;}
+print $outReport $messageEnd if $opt_output;
+dual_print( $log, $messageEnd, $opt_verbose );
 
 #############
 #PLOT
@@ -500,10 +480,10 @@ if ($opt_plot){
   	$ostreamPlotFile = new IO::File;
   	$pathPlotFile="geneMapped.txt";
   	$pathOutPlot="geneMapped_plot.pdf";
-  	if ($outfile) {
-  	  $pathPlotFile=$outfile_no_extension."-geneMapped.txt";
-  	  $pathOutPlot=$outfile_no_extension."-geneMapped_plot.pdf";
-  	}
+    if ($opt_output) {
+      $pathPlotFile=$outfile_no_extension."-geneMapped.txt";
+      $pathOutPlot=$outfile_no_extension."-geneMapped_plot.pdf";
+    }
   	$ostreamPlotFile->open($pathPlotFile, 'w' ) or
           croak(
             sprintf( "Can not open '%s' for writing %s", $pathPlotFile, $! )
@@ -512,13 +492,15 @@ if ($opt_plot){
   	###############
   	# print the value per gene in a temporary file for R plot
   	foreach my $key (keys %mappedPercentPerGene){
-  		if ($mappedPercentPerGene{$key} > 100){
-  				print $ostreamPlotFile "100\n";
-  				warn "Warning: $key mapped value over 100%: ".$mappedPercentPerGene{$key}."%\n";
-  		}
-  		else{
-  	   print $ostreamPlotFile $mappedPercentPerGene{$key}."\n";
-  	 	}
+                if ($mappedPercentPerGene{$key} > 100){
+                                print $ostreamPlotFile "100\n";
+                                my $msg = "Warning: $key mapped value over 100%: " . $mappedPercentPerGene{$key} . "%\n";
+                                dual_print( $log, $msg, 0 );
+                                warn $msg if $opt_verbose;
+                }
+                else{
+           print $ostreamPlotFile $mappedPercentPerGene{$key}."\n";
+                }
   	}
 
   	my $messagePlot;
@@ -539,17 +521,18 @@ if ($opt_plot){
   	  $messagePlot = "Cannot perform any plot without data.\n";
   	}
 
-  	#print info
-  	if ($outfile) {
-  	  print $outReport $messagePlot;
-  	}
-  	else{print $messagePlot;}
+        #print info
+        if ($opt_output) {
+          print $outReport $messagePlot;
+        }
+        else{ dual_print( $log, $messagePlot, $opt_verbose ); }
 
   	# Delete temporary file
   	#unlink "$pathPlotFile";
 }
 #END
-print "We finished !! Bye Bye.\n";
+dual_print( $log, "We finished !! Bye Bye.\n", $opt_verbose );
+close $log if $log;
 
 #######################################################################################################################
         ####################
@@ -572,7 +555,7 @@ print "We finished !! Bye Bye.\n";
 sub compute_total_size{
   my ($hash_omniscient, $l1_original_id, $feature_l3)=@_;
 
-		print $l1_original_id." = l1_original_id\n" if ($verbose);
+            dual_print( $log, $l1_original_id . " = l1_original_id\n", $opt_verbose );
 
 		  my $l2_transcipt_id = lc($feature_l3->_tag_value('transcript_id'));
 		  my $total_size=0;
@@ -602,13 +585,16 @@ sub compute_total_size{
             }
           }
           if(! $found){
-            print "l2_transcipt_id $l2_transcipt_id not found in hash_omniscient\n";
+            my $msg = "l2_transcipt_id $l2_transcipt_id not found in hash_omniscient\n";
+            dual_print( $log, $msg, 0 );
+            warn $msg if $opt_verbose;
           }
         }
 
   }
   if($total_size == 0){
-    print "Something went wrong, total_size is 0 while we expect a positive value.\n";
+    dual_print( $log, "Something went wrong, total_size is 0 while we expect a positive value.\n", 0 );
+    warn "Something went wrong, total_size is 0 while we expect a positive value.\n" if $opt_verbose;
   }
   return $total_size;
 }
@@ -683,7 +669,9 @@ sub takeOneListLevel3From1idLevel2 {
       $refListFetaureL3 = $refListUTR;
     }
     else{
-      print "No feature level3 expected found for ".$level2_ID." level2 ! (Probalby an error from kraken that have added a fake l1 and consequently a fake l2. So we will remove the case.)\n";
+      my $msg = "No feature level3 expected found for $level2_ID level2 ! (Probalby an error from kraken that have added a fake l1 and consequently a fake l2. So we will remove the case.)\n";
+      dual_print( $log, $msg, 0 );
+      warn $msg if $opt_verbose;
     }
   }
   return  $refListFetaureL3;

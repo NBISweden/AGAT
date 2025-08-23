@@ -2,50 +2,27 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
-use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my ($config, $gff, $opt_output, $opt_genomeSize, $opt_plot, $opt_help);
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_help   = $common->{help};
-
-if ( !GetOptions(
-    "gff|f=s"         => \$gff))
-
-{
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $gff        = $opt->gff;
+my $opt_output = $config->{output};
+my $opt_verbose = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -55,11 +32,11 @@ my $gffout = prepare_gffout($config, $opt_output);
 
 ######################
 ### Parse GFF input #
-dual_print($log, "Reading file $gff\n");
+dual_print( $log, "Reading file $gff\n", $opt_verbose );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n");
+dual_print( $log, "Parsing Finished\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 
@@ -69,12 +46,12 @@ my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash
 # print omniscientNew containing only the longest isoform per gene
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print($log, $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n");
-dual_print($log, $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n");
+dual_print( $log, $nb_iso_removed_cds . " L2 isoforms with CDS removed (shortest CDS)\n", $opt_verbose );
+dual_print( $log, $nb_iso_removed_exon . " L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n", $opt_verbose );
 
 # END STATISTICS #
 ##################
-dual_print($log, "Done\n");
+dual_print( $log, "Done\n", $opt_verbose );
 
 close $log if $log;
 
