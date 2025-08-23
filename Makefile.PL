@@ -137,27 +137,27 @@ package MY;
 use File::ShareDir::Install;
 
 sub postamble {
-  File::ShareDir::Install::postamble() . <<'POSTAMBLE';
+  File::ShareDir::Install::postamble(@_) . <<'POSTAMBLE';
 test_agat_convert :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_convert*.t)"
 
 test_agat_add :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_add_*.t)"
 
-test_agat_sp_extract :
-	$(MAKE) test TEST_FILES="$(wildcard t/agat_sp_extract_*.t)"
+test_agat_extract :
+	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_extract_*.t)"
 
-test_agat_sp_filter :
-	$(MAKE) test TEST_FILES="$(wildcard t/agat_sp_filter_*.t)"
+test_agat_filter :
+	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_filter_*.t)"
 
-test_agat_sp_fix :
-	$(MAKE) test TEST_FILES="$(wildcard t/agat_sp_fix_*.t)"
+test_agat_fix :
+	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_fix_*.t)"
 
-test_agat_sp_manage :
-	$(MAKE) test TEST_FILES="$(wildcard t/agat_sp_manage_*.t)"
+test_agat_manage :
+	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_manage_*.t)"
 
 test_agat_other :
-	$(MAKE) test TEST_FILES="$(filter-out $(wildcard t/agat_s[pq]_add_*.t) $(wildcard t/agat_sp_extract_*.t) $(wildcard t/agat_sp_filter_*.t) $(wildcard t/agat_sp_fix_*.t) $(wildcard t/agat_sp_manage_*.t), $(wildcard t/agat_s*_*.t))"
+	$(MAKE) test TEST_FILES="$(filter-out $(wildcard t/agat_s[pq]_add_*.t) $(wildcard t/agat_s[pq]_extract_*.t) $(wildcard t/agat_s[pq]_filter_*.t) $(wildcard t/agat_s[pq]_fix_*.t) $(wildcard t/agat_s[pq]_manage_*.t), $(wildcard t/agat_s*_*.t))"
 
 test_gff :
 	$(MAKE) test TEST_FILES="$(wildcard t/gff/*.t)"
