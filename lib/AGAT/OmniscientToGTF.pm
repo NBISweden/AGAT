@@ -326,7 +326,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+                                                                                               print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n" if $verbose;
 											}
 										}
 									}
@@ -354,7 +354,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+                                                                                               print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n" if $verbose;
 											}
 										}
 									}

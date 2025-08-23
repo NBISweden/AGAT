@@ -126,13 +126,19 @@ sub load_levels{
 
 # @Purpose: copy the yaml level feature file in the current directory 
 sub expose_levels{
-	
+
+	my ($args) = @_;
+	my $verbose = 0;
+	if ( defined $args && ref($args) eq 'HASH' ) {
+		$verbose = $args->{verbose} // 0;
+	}
+
 	my	$path = dist_file('AGAT', $feature_levels_file);
-	print "Path where $feature_levels_file is standing according to dist_file: $path\n";
-	
+	print "Path where $feature_levels_file is standing according to dist_file: $path\n" if $verbose;
+
 	# copy the json files locally
 	my $run_dir = cwd;
-	copy($path, $run_dir) or die print "Copy failed: $!";
+	copy($path, $run_dir) or die "Copy failed: $!";
 }
 
 1;
