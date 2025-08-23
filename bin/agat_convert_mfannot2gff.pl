@@ -25,6 +25,10 @@ if ( my $log_name = $config->{log_path} ) {
 ## Manage output file
 my $gffout = prepare_gffout( $config, $config->{output} );
 
+my %startend_hash;
+my $omniscient = {};
+my $hashID     = {};
+
 ## MAIN ##############################################################
 read_mfannot($mfannot_file);
 

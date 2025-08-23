@@ -6,6 +6,12 @@ use strict;
 use warnings;
 use Exporter;
 
+use Getopt::Long;
+use Getopt::Long::Descriptive qw(describe_options);
+use Pod::Usage;
+use AGAT::AppEaser ();
+use Bio::Tools::GFF;
+
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
@@ -14,11 +20,6 @@ use AGAT::Levels;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
-use Bio::Tools::GFF;
-use Getopt::Long;
-use Getopt::Long::Descriptive qw(describe_options);
-use Pod::Usage;
-use AGAT::AppEaser ();
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
@@ -26,16 +27,15 @@ our @ISA         = qw( Exporter );
 our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
 
 sub import {
-    my ($class, @args) = @_;
-    $class->export_to_level(1, @args); # export our symbols
-    AGAT::OmniscientI->export_to_level(1);
-    AGAT::OmniscientO->export_to_level(1);
-    AGAT::OmniscientTool->export_to_level(1);
-    AGAT::Config->export_to_level(1);
-    AGAT::Levels->export_to_level(1);
-    AGAT::OmniscientStat->export_to_level(1);
-    AGAT::Utilities->export_to_level(1);
-    AGAT::PlotR->export_to_level(1);
+    AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+    AGAT::OmniscientI->export_to_level(1, @_);
+    AGAT::OmniscientO->export_to_level(1, @_);
+    AGAT::OmniscientTool->export_to_level(1, @_);
+    AGAT::Config->export_to_level(1, @_);
+    AGAT::Levels->export_to_level(1, @_);
+    AGAT::OmniscientStat->export_to_level(1, @_);
+    AGAT::Utilities->export_to_level(1, @_);
+    AGAT::PlotR->export_to_level(1, @_);
 }
 
 =head1 SYNOPSIS
@@ -231,9 +231,13 @@ sub describe_script_options {
 # returning a unified hash where CLI values take precedence.
 sub resolve_common_options {
         my ($cli) = @_;
-        $cli ||= {};
+        my %cli = %{ $cli || {} };
 
-        my %cli = %{$cli};
+        if (!%cli) {
+                my ($opt) = describe_options('%c %o', common_spec());
+                %cli = %{$opt};
+        }
+
         my $config_file = delete $cli{config};
         my $config = get_agat_config({ config_file_in => $config_file });
 
