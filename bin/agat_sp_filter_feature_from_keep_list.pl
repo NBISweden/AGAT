@@ -7,14 +7,13 @@ use POSIX qw(strftime);
 use IO::File;
 use AGAT::AGAT;
 
+my @copyARGV = @ARGV;
 my $header = get_agat_header();
-my @copyARGV  = @ARGV;
-
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     $header,
     [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
-    [ 'keep_list|kl=s',      'File with IDs to keep',    { required => 1 } ],
-    [ 'type|p|l=s',          'Feature type(s) to handle' ],
+    [ 'keep_list|kl=s',      'Keep list file',           { required => 1 } ],
+    [ 'type|p|l=s',          'Primary tag(s) or levels', { default => 'all' } ],
     [ 'attribute|a=s',       'Attribute to match',       { default => 'ID' } ],
 );
 
@@ -23,14 +22,14 @@ my $opt_keep_list = $opt->keep_list;
 my $primaryTag    = $opt->type;
 my $opt_attribute = $opt->attribute;
 my $opt_output    = $config->{output};
-my $opt_verbose   = $config->{verbose};
 
 my $log;
 if ( my $log_name = $config->{log_path} ) {
-    open( $log, '>', $log_name )
-      or die "Can not open $log_name for printing: $!";
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header, 0 );
 }
+my $opt_verbose = $config->{verbose};
+
 
 ###############
 # Manage Output
@@ -88,8 +87,11 @@ $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
 $stringPrint .= "The keep list contains $nb_to_keep uniq IDs\n";
 
+if ($opt_output){
+  print $ostreamReport $stringPrint;
+}
 dual_print( $log, $stringPrint, $opt_verbose );
-print $ostreamReport $stringPrint if $ostreamReport;
+
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -99,7 +101,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print( $log, "Parsing Finished\n", $opt_verbose );
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -172,11 +174,10 @@ my $hash_kept = subsample_omniscient_from_level1_id_list_delete($hash_omniscient
 print_omniscient( {omniscient => $hash_kept, output => $gffout_ok} );#print gene modified in file
 $stringPrint = ($#keeplist+1)." records kept!\n";
 if ($opt_output){
-  print $ostreamReport $stringPrint if $ostreamReport;
-  dual_print($log, $stringPrint, $opt_verbose);
-} else{
-  dual_print($log, $stringPrint, $opt_verbose);
+  print $ostreamReport $stringPrint;
 }
+dual_print( $log, $stringPrint, $opt_verbose );
+
 
 #######################################################################################################################
         ####################

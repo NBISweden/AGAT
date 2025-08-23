@@ -22,6 +22,7 @@ if ( my $log_name = $config->{log_path} ) {
       or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header, 0 );
 }
+my $opt_verbose = $config->{verbose};
 
 ## Manage output file
 my $gffout = prepare_gffout( $config, $config->{output} );

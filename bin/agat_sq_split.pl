@@ -2,112 +2,89 @@
 
 use strict;
 use warnings;
-use Carp;
-use Pod::Usage;
-use Getopt::Long;
 use File::Basename;
-use IO::File ;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g|file|input=s', 'Input reference gff file', { required => 1 } ],
+    [ 'feature_type|ft=s',  'Top feature type of the group', { default => 'gene' } ],
+    [ 'interval|i=i',       'Number of top features per file', { default => 1000, callbacks => { positive => sub { shift > 0 or die "Interval must be positive" } } } ],
+);
+
+my $opt_gff      = $opt->gff;
+my $feature_type = $opt->feature_type;
+my $interval     = $opt->interval;
+my $opt_output   = $config->{output};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
+my $opt_verbose = $config->{verbose};
+
 my $start_run = time();
-my $inputFile=undef;
-my $outfolder=undef;
-my $opt_help = 0;
-my $interval=10;
-my $feature_type="gene";
 
-my $common = parse_common_options() || {};
-$config    = $common->{config};
-$outfolder = $common->{output};
-$opt_help  = $common->{help};
-
-if ( !GetOptions ('file|input|gff=s' => \$inputFile,
-      'ft|feature_type=s'        => \$feature_type,
-      'i|interval=i'             => \$interval,
-      )  )
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( !(defined($inputFile)) or !(defined($outfolder)) ){
-   pod2usage( { -message => "$header\nAt least 2 parameters are mandatory: -i inputFile and -o $outfolder",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-# Manage input gff file
 my $format = $config->{force_gff_input_version};
-if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
+if ( !$format ) { $format = select_gff_format($opt_gff); }
+my $ref_in = AGAT::BioperlGFF->new( -file => $opt_gff, -gff_version => $format );
 
-# Manage Output
-if (-d $outfolder) {
-  print "The output directory <$outfolder> already exists.\n";exit;
+if ( -d $opt_output ) {
+    warn "The output directory <$opt_output> already exists.\n" if $opt_verbose;
+    exit;
+} else {
+    my ( $path, $ext );
+    ( $opt_output, $path, $ext ) = fileparse( $opt_output, qr/\.[^.]*$/ );
+    dual_print( $log, "Creating the $opt_output folder\n", $opt_verbose );
+    mkdir $opt_output;
 }
-else{
-  my ($path,$ext);
-  ($outfolder,$path,$ext) = fileparse($outfolder,qr/\.[^.]*/);
-  print "Creating the $outfolder folder\n";
-  mkdir $outfolder;
-}
 
-print "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currenlty defined by <$feature_type>.\n";
+dual_print( $log,
+    "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currently defined by <$feature_type>.\n",
+    $opt_verbose );
 
-#time to calcul progression
-my $startP=time;
-my $nbLine=`wc -l < $inputFile`;
+my $startP = time;
+my $nbLine = `wc -l < $opt_gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
-my $line_cpt=0;
+dual_print( $log, "$nbLine line to process...\n", $opt_verbose );
+my $line_cpt = 0;
 
-my $count_feature=0;
-my $count_file=1;
-my ($file_name,$path,$ext) = fileparse($inputFile,qr/\.[^.]*/);
+my $count_feature = 0;
+my $count_file    = 1;
+my ( $file_name, $path, $ext ) = fileparse( $opt_gff, qr/\.[^.]*$/ );
 
-my $gffout = prepare_gffout($config, $outfolder."/".$file_name."_".$count_file.".gff");
+my $gffout = prepare_gffout( $config, $opt_output . "/" . $file_name . "_" . $count_file . ".gff" );
 
-while (my $feature = $ref_in->next_feature() ) {
-  $line_cpt++;
+while ( my $feature = $ref_in->next_feature() ) {
+    $line_cpt++;
 
-  #What do we follow
-  if($feature->primary_tag eq $feature_type){
-    if($count_feature == $interval){
-      close $gffout;
-      $count_file++;
-			$gffout = prepare_gffout($config,  $outfolder."/".$file_name."_".$count_file.".gff");
-      $count_feature=0;
+    if ( $feature->primary_tag eq $feature_type ) {
+        if ( $count_feature == $interval ) {
+            close $gffout;
+            $count_file++;
+            $gffout =
+              prepare_gffout( $config, $opt_output . "/" . $file_name . "_" . $count_file . ".gff" );
+            $count_feature = 0;
+        }
+        $count_feature++;
     }
-    $count_feature++;
-  }
-  $gffout->write_feature($feature);
+    $gffout->write_feature($feature);
 
-  #Display progression
-  if ((30 - (time - $startP)) < 0) {
-    my $done = ($line_cpt*100)/$nbLine;
-    $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
-    $startP= time;
-  }
+    if ( ( 30 - ( time - $startP ) ) < 0 ) {
+        my $done = ( $line_cpt * 100 ) / $nbLine;
+        $done = sprintf( '%.0f', $done );
+        dual_print( $log, "\rProgression : $done % processed.\n", $opt_verbose );
+        $startP = time;
+    }
 }
 close $gffout;
 
-my $end_run = time();
+my $end_run  = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n", $opt_verbose );
 
 __END__
 
@@ -146,7 +123,7 @@ STRING: Output file.  If no output file is specified, the output will be written
 
 =item B<-c> or B<--config>
 
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
+String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any,
 otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
 The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
@@ -183,3 +160,4 @@ https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
 =cut
 
 AUTHOR - Jacques Dainat
+

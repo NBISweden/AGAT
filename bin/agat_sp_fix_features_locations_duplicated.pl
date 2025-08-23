@@ -399,10 +399,10 @@ sub reshape_the_2_l2_models{
     check_record_positions($omniscient, $parent_l2_2);
   }
   else{
-    dual_print( $log, "$id_l2_1 and $id_l2_2 do not have UTRs, we cannot modify one to make the features different.\n", $verbose );
-    "You might try EvidenceModeler to choose or modify the gene models automatically,".
-    " or you can manually modify them.\n";
-    # We might add UTR but in someway we should avoid to goes over extremities
+    dual_print( $log, "$id_l2_1 and $id_l2_2 do not have UTRs, we cannot modify one to make the features different.\n" .
+    "You might try EvidenceModeler to choose or modify the gene models automatically," .
+    " or you can manually modify them.\n", $verbose );
+    # We might add UTR but in someway we should avoid to goes over extremities" 
     $ListModel{$case}--;
     $ListModel{"noclip"}{$case}++;
   }
