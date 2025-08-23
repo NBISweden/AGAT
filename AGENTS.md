@@ -20,7 +20,7 @@
 ## Tests
 - Full suite: `make test`
 - Coverage (optional): `cover -test` (uploader: Coveralls/Codecov if configured)
-- Config management: `agat config --expose 2>&1 1>/dev/null` (redirecting to suppress messages). By default, it creates `agat_config.yaml` in the workdir. Use `--output <local_config_path>` to rename and `--config <local_config_path>` when invoking scripts.
+- Config management: `agat config --quiet --expose` (creates `agat_config.yaml` in the workdir). Use `--output <local_config_path>` to rename and `--config <local_config_path>` when invoking scripts.
 
 ### Default parser config
 If not overriden by --expose invokation with custom parameters, tests use these `share/agat_config.yaml` defaults:
