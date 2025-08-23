@@ -3,57 +3,31 @@
 use strict;
 use warnings;
 use Carp;
-use Pod::Usage;
-use Getopt::Long;
 use Bio::DB::Fasta;
-use IO::File ;
+use IO::File;
 use File::Basename;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_gfffile=undef;
-my $verbose=undef;
-my $opt_fastafile=undef;
-my $outfile=undef;
-my $opt_help = 0;
 
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|file|input=s', 'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|f=s',        'Input reference fasta file', { required => 1 } ],
+);
 
-my $common = parse_common_options() || {};
-$config  = $common->{config};
-$outfile = $common->{output};
-$verbose = $common->{verbose};
-$opt_help= $common->{help};
-
-if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
-                        'f|fasta=s'  => \$opt_fastafile,
-                        )  )
-{
-    pod2usage( { -message => "$header\nFailed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header \n" } );
-}
-
-if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
-   pod2usage( { -message => "At least 2 parameters are mandatory:\n * A gff/gtf file (--gff)\n * A fasta file (--fasta)",
-                 -verbose => 0,
-                 -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_gfffile   = $opt->gff;
+my $opt_fastafile = $opt->fasta;
+my $outfile       = $config->{output};
+my $opt_verbose   = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -79,7 +53,7 @@ while(my $seqObj = $seqio->next_seq) {
 #### read fasta again for DB
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-dual_print($log, "Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n", $opt_verbose);
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -141,13 +115,14 @@ my $nb_error = 0;
 $nb_error  =  keys %{$info{"error"}};
 
 
-dual_print($log, "Annotations on $nb_flip sequences have been reverse complemented.\n");
-dual_print($log, "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n");
-dual_print($log, "$nb_error sequences from the fasta file were absent from the gff.\n");
+dual_print($log, "Annotations on $nb_flip sequences have been reverse complemented.\n", $opt_verbose);
+dual_print($log, "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n", $opt_verbose);
+warn "$nb_error sequences from the fasta file were absent from the gff.\n" if $opt_verbose && $nb_error;
+dual_print($log, "$nb_error sequences from the fasta file were absent from the gff.\n", $opt_verbose);
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n");
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 
 close $log if $log;
 

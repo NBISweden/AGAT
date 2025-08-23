@@ -3,51 +3,30 @@
 use strict;
 use warnings;
 use Carp;
-use Pod::Usage;
-use Getopt::Long;
 use Bio::DB::Fasta;
-use IO::File ;
+use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_gfffile=undef;
-my $verbose=undef;
-my $opt_fastafile=undef;
-my $outfile=undef;
-my $opt_help = 0;
 
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|file|input=s',  'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|f=s',         'Input reference fasta file', { required => 1 } ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
+my $opt_gfffile   = $opt->gff;
+my $opt_fastafile = $opt->fasta;
+my $outfile       = $config->{output};
+my $opt_verbose   = $config->{verbose};
 
-if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
-      'f|fasta=s' => \$opt_fastafile,
-      )  )
-{
-    pod2usage( { -message => "$header\nFailed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header \n" } );
-}
-
-if ((!defined($opt_gfffile)) ){
-   pod2usage( { -message => 'at least 2 parameters are mandatory',
-                 -verbose => 0,
-                 -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage input fasta file
 my $format = $config->{force_gff_input_version};
@@ -60,7 +39,7 @@ my $gffout = prepare_gffout($config, $outfile);
 #### read fasta
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-print ("Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n", $opt_verbose);
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -83,17 +62,21 @@ while (my $feature = $ref_in->next_feature() ) {
     $cpt_kept++;
   }
   else{
-    print "SequenceID ".$feature->seq_id." is absent from the fasta file\n" if($verbose);
+    warn "SequenceID ".$feature->seq_id." is absent from the fasta file\n" if $opt_verbose;
     $cpt_removed++;
   }
 }
 
-print "We removed $cpt_removed annotations.\n";
+dual_print($log, "We removed $cpt_removed annotations.\n", $opt_verbose);
 my $nbSeqWithAnnotation = scalar keys %seqNameSeen;
-print "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n";
+dual_print(
+    $log,
+    "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n",
+    $opt_verbose
+);
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 
 __END__
 

@@ -4,69 +4,42 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
-use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
 my %handlers;
-my $gff = undef;
-my $opt_help= 0;
-my $primaryTag=undef;
-my $outfile=undef;
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$opt_help = $common->{help};
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s',            'Input reference gff file', { required => 1 } ],
+    [ 'primary_tag|p|t|l=s','Feature type list',        { default => 'all' } ],
+);
 
-if ( !GetOptions(
-    "gff|f=s"                => \$gff,
-    "p|t|l=s"                => \$primaryTag,
-    ))
-
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $gff        = $opt->gff;
+my $primaryTag = $opt->primary_tag;
+my $outfile    = $config->{output};
+my $opt_verbose = $config->{verbose};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  dual_print($log, "We will work on attributes from all features\n");
+  dual_print($log, "We will work on attributes from all features\n", $opt_verbose);
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-      dual_print($log, "We will work on attributes from $tag feature.\n");
+     dual_print($log, "We will work on attributes from $tag feature.\n", $opt_verbose);
    }
 }
 
@@ -90,7 +63,8 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print($log, "$nbLine line to process...\n");
+dual_print($log, "$nbLine line to process...\n", $opt_verbose);
+warn "Input file $gff is empty\n" if $opt_verbose && $nbLine == 0;
 
 my $geneName=undef;
 my $line_cpt=0;
@@ -104,7 +78,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print($log, "\rProgression : $done % processed.\n");
+        dual_print($log, "\rProgression : $done % processed.\n", $opt_verbose);
     $startP= time;
   }
 }
@@ -135,7 +109,7 @@ foreach my $attribute ( sort keys %all_attributes){
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "\nJob done in $run_time seconds\n");
+dual_print($log, "\nJob done in $run_time seconds\n", $opt_verbose);
 
 close $log if $log;
 
