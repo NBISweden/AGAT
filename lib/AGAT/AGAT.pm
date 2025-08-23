@@ -18,25 +18,15 @@ our @ISA         = qw( Exporter );
 our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
 
 sub import {
-    my ($class, @args) = @_;
-    $class->export_to_level(1, @args); # export our symbols
-    AGAT::Config->export_to_level(1);
-    for my $mod (qw(
-            AGAT::OmniscientI
-            AGAT::OmniscientO
-            AGAT::OmniscientTool
-            AGAT::Levels
-            AGAT::OmniscientStat
-            AGAT::Utilities
-            AGAT::PlotR
-        )) {
-        eval {
-            (my $file = $mod) =~ s{::}{/}g;
-            require "$file.pm";    ## no critic:BuiltinFunctions::ProhibitStringyEval
-            $mod->export_to_level(1);
-            1;
-        };
-    }
+    AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
+    AGAT::OmniscientI->export_to_level(1, @_);
+    AGAT::OmniscientO->export_to_level(1, @_);
+    AGAT::OmniscientTool->export_to_level(1, @_);
+    AGAT::Config->export_to_level(1, @_);
+    AGAT::Levels->export_to_level(1, @_);
+    AGAT::OmniscientStat->export_to_level(1, @_);
+    AGAT::Utilities->export_to_level(1, @_);
+    AGAT::PlotR->export_to_level(1, @_);
 }
 
 =head1 SYNOPSIS
