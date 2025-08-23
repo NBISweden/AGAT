@@ -5,57 +5,36 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use File::Basename;
-use Getopt::Long;
-use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my %handlers;
-my $gff = undef;
-my $one_tsv = undef;
-my $opt_help= undef;
-my $primaryTag=undef;
-my $attributes=undef;
-my $outfile=undef;
-my $outInOne=undef;
-my $doNotReportEmptyCase=undef;
+my @copyARGV = @ARGV;
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "d!" => \$doNotReportEmptyCase,
-    "m|merge!" => \$one_tsv,
-    "p|t|l=s" => \$primaryTag,
-    "attribute|a|att=s" => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f=s', 'Input reference gff file', { required => 1 } ],
+    [ 'd!',      'Do not report empty cases' ],
+    [ 'merge|m!', 'Merge all attributes into one TSV' ],
+    [ 'p|t|l=s', 'Feature level/tag to process' ],
+    [ 'attribute|a|att=s', 'Attribute tag to investigate', { required => 1 } ],
+);
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $gff        = $opt->gff;
+my $doNotReportEmptyCase = $opt->d;
+my $one_tsv    = $opt->merge;
+my $primaryTag = $opt->p;
+my $attributes = $opt->attribute;
+my $outfile    = $config->{output};
+my $verbose    = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $gff or ! $attributes ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff)\n".
-           "Attribute tag to investigate --att \n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
@@ -63,26 +42,27 @@ if ($outfile) {
     ($outfile_pref,$path,$ext) = fileparse($outfile,qr/\.[^.]*/);
 }
 
-if($one_tsv){
-	$outInOne = prepare_fileout($outfile);
+my $outInOne;
+if ($one_tsv) {
+    $outInOne = prepare_fileout($outfile);
 }
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print( $log, "We will work on attributes from all features\n", $verbose );
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
+  dual_print( $log, "We will work on attributes from all the $primaryTag features\n", $verbose );
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
+        dual_print( $log, "We will work on attributes from all the $tag features\n", $verbose );
       }
       else{
-       print "We will work on attributes from $tag feature.\n";
+       dual_print( $log, "We will work on attributes from $tag feature.\n", $verbose );
       }
    }
 }
@@ -95,10 +75,10 @@ if ($attributes){
 
   foreach my $attribute (@attList){
       push @attListOk, $attribute;
-      print "$attribute attribute will be processed.\n";
+      dual_print( $log, "$attribute attribute will be processed.\n", $verbose );
 
   }
-  print "\n";
+  dual_print( $log, "\n", $verbose );
 }
 
 
@@ -112,7 +92,7 @@ if ($attributes){
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n", $verbose );
 
 
 foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
