@@ -49,6 +49,8 @@ jobs:
         run: perl Makefile.PL
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
+      - name: test_gff
+        run: HARNESS_OPTIONS=j$(nproc) make test_gff
       - name: test_config
         run: HARNESS_OPTIONS=j$(nproc) make test_config
       - name: test_agat_convert
@@ -65,8 +67,7 @@ jobs:
         run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_manage
       - name: test_agat_other
         run: HARNESS_OPTIONS=j$(nproc) make test_agat_other
-      - name: test_gff
-        run: HARNESS_OPTIONS=j$(nproc) make test_gff
+
 
   # Run tests with coverage on Perl 5.30
   test_coverage:
