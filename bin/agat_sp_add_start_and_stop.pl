@@ -48,7 +48,7 @@ if ( my $log_name = $config->{log_path} ) {
 # #######################
 my $gffout = prepare_gffout( $config, $config->{output} );
 
-$codon_table_id = get_proper_codon_table($codon_table_id);
+$codon_table_id = get_proper_codon_table($codon_table_id, $log, $opt_verbose);
 
 my $codon_table = Bio::Tools::CodonTable->new( -id => $codon_table_id, -no_iupac => 0 );
 # #####################################

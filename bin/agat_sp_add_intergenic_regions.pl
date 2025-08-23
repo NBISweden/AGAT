@@ -41,7 +41,7 @@ my $gffout = prepare_gffout($config, $opt_output);
   #########################
 
 if(! exists_keys($omniscient,('level1', "gene") ) ){
-  dual_print($log, "No gene feature found in $opt_file, intergenic regions cannot be determinded!", 1);
+  dual_print($log, "No gene feature found in $opt_file, intergenic regions cannot be determinded!\n", $config->{verbose});
   exit 0;
 }
 
@@ -147,7 +147,7 @@ foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or rep
 # print result
 print_omniscient( {omniscient => $omniscient, output => $gffout} );
 
-print "$intergenic_added intergenic_region added!\nBye Bye\n";
+dual_print($log, "$intergenic_added intergenic_region added!\nBye Bye\n", $config->{verbose});
       #########################
       ######### END ###########
       #########################

@@ -42,7 +42,7 @@ my $gffout = prepare_gffout($config, $outfile);
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # --- Check codon table
-$codonTableId = get_proper_codon_table($codonTableId);
+$codonTableId = get_proper_codon_table($codonTableId, $log, $verbose);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 

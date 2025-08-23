@@ -65,7 +65,7 @@ my $gffout2 = prepare_gffout($config, $gffout2_file);
 my $gffout3 = prepare_gffout($config, $gffout3_file);
 my $logout = prepare_fileout($logout_file);
 
-$opt_codonTableID = get_proper_codon_table($opt_codonTableID);
+$opt_codonTableID = get_proper_codon_table($opt_codonTableID, $log, $verbose);
 
 if(!$threshold){
   $threshold=100;
