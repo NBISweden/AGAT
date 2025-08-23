@@ -28,14 +28,14 @@ our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle
 
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-    AGAT::OmniscientI->export_to_level(1, @_);
-    AGAT::OmniscientO->export_to_level(1, @_);
-    AGAT::OmniscientTool->export_to_level(1, @_);
-    AGAT::Config->export_to_level(1, @_);
-    AGAT::Levels->export_to_level(1, @_);
-    AGAT::OmniscientStat->export_to_level(1, @_);
-    AGAT::Utilities->export_to_level(1, @_);
-    AGAT::PlotR->export_to_level(1, @_);
+    AGAT::OmniscientI->export_to_level(1);
+    AGAT::OmniscientO->export_to_level(1);
+    AGAT::OmniscientTool->export_to_level(1);
+    AGAT::Config->export_to_level(1);
+    AGAT::Levels->export_to_level(1);
+    AGAT::OmniscientStat->export_to_level(1);
+    AGAT::Utilities->export_to_level(1);
+    AGAT::PlotR->export_to_level(1);
 }
 
 =head1 SYNOPSIS
