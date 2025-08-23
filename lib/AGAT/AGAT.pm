@@ -365,10 +365,11 @@ sub handle_config {
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
 		my $config_new_name = $general->{configs}[-1]{output};
 		my $log = $general->{configs}[-1]{log};
-		my $debug = $general->{configs}[-1]{debug};
-		my $tabix = $general->{configs}[-1]{tabix};
-		my $merge_loci = $general->{configs}[-1]{merge_loci};
-		my $throw_fasta = $general->{configs}[-1]{throw_fasta};
+                my $debug = $general->{configs}[-1]{debug};
+                my $quiet = $general->{configs}[-1]{quiet};
+                my $tabix = $general->{configs}[-1]{tabix};
+                my $merge_loci = $general->{configs}[-1]{merge_loci};
+                my $throw_fasta = $general->{configs}[-1]{throw_fasta};
 		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
 		my $output_format = $general->{configs}[-1]{output_format};
 		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
@@ -387,12 +388,18 @@ sub handle_config {
 		my $check_utrs = $general->{configs}[-1]{check_utrs};
 		my $check_all_level2_locations = $general->{configs}[-1]{check_all_level2_locations};
 		my $check_all_level1_locations = $general->{configs}[-1]{check_all_level1_locations};
-		my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
-		my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
+                my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
+                my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
 
-		# Deal with Expose feature OPTION
-		if($expose){
-			my $config_file = get_config({type => "original"});
+                if ($quiet) {
+                        $verbose = 0;
+                        $progress_bar = 0;
+                        $debug = 0;
+                }
+
+                # Deal with Expose feature OPTION
+                if($expose){
+                        my $config_file = get_config({type => "original"});
 			my $config = load_config({ config_file => $config_file});
                         print "Config loaded\n" if $verbose;
 

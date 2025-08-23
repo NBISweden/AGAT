@@ -72,7 +72,7 @@ Example of gene_id/transcript_id relationship used by the GTF format:
   **2. ELSE Parsing approach 2: by a common attribute/tag** 
 
   a common attribute (or common tag) is an attribute value shared by feature that must be grouped together. AGAT uses default attributes (`gene_id` and `locus_tag`) displayed in the log but can be set by the user modifying the AGAT configuration file `agat_config.yaml`.  
-  You can modify the `agat_config.yaml` either running `agat config --expose` to access it (it will be copied in the current directory) and then modifying it manually; or running `agat config --expose --locus_tag attribute_name` that will copy the `agat_config.yaml` locally with the modification of the `locus_tag` parameter accordingly.
+  You can modify the `agat_config.yaml` either running `agat config --expose` to access it (it will be copied in the current directory) and then modifying it manually; or running `agat config --expose --locus_tag attribute_name` that will copy the `agat_config.yaml` locally with the modification of the `locus_tag` parameter accordingly. Add `--quiet` (or `-q`) to suppress verbose messages, the progress bar, and debug output.
 
 Example of relationship made using a common tag (here locus_tag):
 
