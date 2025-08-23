@@ -133,10 +133,11 @@ sub slurp_gff3_file_JD {
 	else{ dual_print($log, "Input data (input) is mandatory when using slurp_gff3_file_JD!"); exit;}
 
 	# +----------------- first define verbosity ------------------+
-	$verbose = $config->{verbose};
+        $verbose = $config->{verbose};
 
-	# +----------------- hide progressbar ------------------+
-	$progress_bar = $config->{progress_bar};
+        # +----------------- hide progressbar ------------------+
+        $progress_bar = $config->{progress_bar};
+        $progress_bar = 0 if $verbose == 0;    # quiet mode disables progress bar
 
 	# +----------------- create a log file  ------------------+
 	if($config->{log}){
@@ -224,33 +225,33 @@ sub slurp_gff3_file_JD {
 	my %WARNS;
 	my %globalWARNS;
 	my $nbWarnLimit = $debug ? undef : 10; # limit number of warning if not debug mode
-		local $SIG{__WARN__} = sub {
-		my $message = shift;
-		my @thematic=split /@/,$message ;
+                local $SIG{__WARN__} = sub {
+                my $message   = shift;
+                my @thematic = split /@/, $message;
 
-		if($thematic[0] eq "GLOBAL"){ #extract global warning (about feature type in ontology and if AGAT deal with it)
-			push @{$globalWARNS{$thematic[1]}}, $thematic[2];
-		}
-		else{
-			# Print  a limited amount of warning
-			$WARNS{$thematic[0]}++;
-			if($nbWarnLimit){
-				if ($WARNS{$thematic[0]} <= $nbWarnLimit){
-					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-					dual_print($log, $message, $verbose);
-				}
-				if($WARNS{$thematic[0]} == $nbWarnLimit){
-					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-					dual_print($log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose);
-				}
-			}
-			# Print all warning
-			else{
-				print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-				dual_print($log, $message, $verbose);
-			}
-		}
-	};
+                if ( $thematic[0] eq 'GLOBAL' ) {    # extract global warning (about feature type in ontology and if AGAT deal with it)
+                        push @{ $globalWARNS{ $thematic[1] } }, $thematic[2];
+                }
+                else {
+                        # Print  a limited amount of warning
+                        $WARNS{ $thematic[0] }++;
+                        if ($nbWarnLimit) {
+                                if ( $WARNS{ $thematic[0] } <= $nbWarnLimit ) {
+                                        print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                        dual_print( $log, $message, $verbose );
+                                }
+                                if ( $WARNS{ $thematic[0] } == $nbWarnLimit ) {
+                                        print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                        dual_print( $log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose );
+                                }
+                        }
+                        # Print all warning
+                        else {
+                                print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                dual_print( $log, $message, $verbose );
+                        }
+                }
+        };
 
 #	+-------------------------------------------------------------------------+
 #	|				HANDLE FEATUTRES PARSING ACCORDING TO TYPE OF INPUTS			|
@@ -3628,10 +3629,10 @@ sub select_gff_format{
 
 	close($fh);
 
-	if($problem3){
-		dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"));
-		$gff_in_format{1}++;
-	}
+        if($problem3){
+                dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"), $verbose);
+                $gff_in_format{1}++;
+        }
 
 	if (%gff_in_format){
 			my $number_of_format = scalar keys %gff_in_format;
@@ -3642,26 +3643,26 @@ sub select_gff_format{
 				dual_print ($log, $stringprint, $verbose);
 		}
 	}
-	else{
-		my $nb_col = scalar @col_tab;
-		if ($nb_col == 8){
-			dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") );
-			$gff_in_format{1}++;
-		}
-		elsif ($nb_col < 8){
-			dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!") );
-			exit;
-		}
-		else{
-			dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") );
-		}
-		$gff_in_format{3}++;
-	}
+        else{
+                my $nb_col = scalar @col_tab;
+                if ($nb_col == 8){
+                        dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!"), $verbose );
+                        $gff_in_format{1}++;
+                }
+                elsif ($nb_col < 8){
+                        dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!"), $verbose );
+                        exit;
+                }
+                else{
+                        dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!"), $verbose );
+                }
+                $gff_in_format{3}++;
+        }
 	my $nb_col_in_attribute = scalar @attribute_tab;
-	if ($nb_col_in_attribute > 1){
-		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
-		$gff_in_format{1}++;
-	}
+        if ($nb_col_in_attribute > 1){
+                dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!"), $verbose );
+                $gff_in_format{1}++;
+        }
 
 	if($gff_in_format{3}){return 3;}
 	if($gff_in_format{2}){return 2;}

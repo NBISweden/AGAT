@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More;
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
@@ -87,3 +87,4 @@ $script = $script_prefix . catfile($root, 'bin', 'agat');
     );
 }
 
+done_testing();
