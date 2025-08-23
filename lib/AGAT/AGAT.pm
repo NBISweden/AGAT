@@ -21,8 +21,21 @@ sub import {
     my ($class, @args) = @_;
     $class->export_to_level(1, @args); # export our symbols
     AGAT::Config->export_to_level(1);
-    for my $mod (qw(AGAT::OmniscientI AGAT::OmniscientO AGAT::OmniscientTool AGAT::Levels AGAT::OmniscientStat AGAT::Utilities AGAT::PlotR)) {
-        eval { require $mod; $mod->export_to_level(1); 1 };
+    for my $mod (qw(
+            AGAT::OmniscientI
+            AGAT::OmniscientO
+            AGAT::OmniscientTool
+            AGAT::Levels
+            AGAT::OmniscientStat
+            AGAT::Utilities
+            AGAT::PlotR
+        )) {
+        eval {
+            (my $file = $mod) =~ s{::}{/}g;
+            require "$file.pm";    ## no critic:BuiltinFunctions::ProhibitStringyEval
+            $mod->export_to_level(1);
+            1;
+        };
     }
 }
 
