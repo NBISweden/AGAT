@@ -336,14 +336,15 @@ sub handle_main {
 sub handle_levels {
 		my ($general, $config, $args) = @_;
 
-		my $expose = $general->{configs}[-1]{expose};
-		my $help = $general->{configs}[-1]{help};
+                my $expose = $general->{configs}[-1]{expose};
+                my $help = $general->{configs}[-1]{help};
+                my $verbose = $general->{configs}[-1]{verbose};
 
 		# Deal with Expose feature OPTION
-		if($expose){
-			expose_levels();
-			print "Feature_levels YAML file copied in your working directory\n";
-		}
+                if($expose){
+                        expose_levels({ verbose => $verbose });
+                        print "Feature_levels YAML file copied in your working directory\n" if $verbose;
+                }
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help
 		my $nb_args = keys %{$general->{configs}[-1]};
@@ -392,7 +393,7 @@ sub handle_config {
 		if($expose){
 			my $config_file = get_config({type => "original"});
 			my $config = load_config({ config_file => $config_file});
-			print "Config loaded\n";
+                        print "Config loaded\n" if $verbose;
 
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
@@ -536,12 +537,12 @@ sub handle_config {
 			}
 
 			if ($modified_on_the_fly) {
-					print "Config modified\n";
+                                        print "Config modified\n" if $verbose;
 			}
 
 			# check config
 			check_config({ config => $config});
-			print "Config checked\n";
+                        print "Config checked\n" if $verbose;
 
 			 
 			
@@ -556,7 +557,7 @@ sub handle_config {
 			if($config_new_name){
 				$config_file_used = $config_new_name;
 			} else { $config_file_used = "agat_config.yaml"; }
-			print "Config file written in your working directory ($config_file_used)\n";
+                        print "Config file written in your working directory ($config_file_used)\n" if $verbose;
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help
