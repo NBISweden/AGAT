@@ -1572,33 +1572,34 @@ sub _get_cds_start_phase {
 
 sub info_omniscient {
 
-	my ($hash_omniscient)=@_;
+        my ( $hash_omniscient, $log, $verbose ) = @_;
 
-	my %resu;
+        my %resu;
 
-	foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
-    	my $nb=keys %{$hash_omniscient->{'level1'}{$tag}};
-    	$resu{$tag}=$nb;
-	}
+        foreach my $tag ( keys %{ $hash_omniscient->{'level1'} } ) {
+                my $nb = keys %{ $hash_omniscient->{'level1'}{$tag} };
+                $resu{$tag} = $nb;
+        }
 
-	foreach my $level (keys %{$hash_omniscient}){
-  		if ($level eq 'level2' or $level eq 'level3'){
-    			foreach my $tag (keys %{$hash_omniscient->{$level}}){
-      				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
-        				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
-						if(exists_keys(\%resu,($tag))){
-						        $resu{$tag} += $nb;
-						}
-						else{
-							$resu{$tag}=$nb;
-						}
-     				}
-    			}
-  		}
-	}
-	foreach my $tag (keys %resu){
-		print "There is $resu{$tag} $tag\n";
-	}
+        foreach my $level ( keys %{$hash_omniscient} ) {
+                if ( $level eq 'level2' or $level eq 'level3' ) {
+                        foreach my $tag ( keys %{ $hash_omniscient->{$level} } ) {
+                                foreach my $id ( keys %{ $hash_omniscient->{$level}{$tag} } ) {
+                                        my $nb =
+                                          $# { $hash_omniscient->{$level}{$tag}{$id} } + 1;
+                                        if ( exists_keys( \%resu, ($tag) ) ) {
+                                                $resu{$tag} += $nb;
+                                        }
+                                        else {
+                                                $resu{$tag} = $nb;
+                                        }
+                                }
+                        }
+                }
+        }
+        foreach my $tag ( keys %resu ) {
+                dual_print( $log, "There is $resu{$tag} $tag\n", $verbose );
+        }
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)

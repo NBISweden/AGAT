@@ -56,7 +56,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1
                                                                  config => $config
                                                               });
 dual_print($log, "$file1 GFF3 file parsed\n", $opt_verbose);
-info_omniscient($hash_omniscient);
+info_omniscient($hash_omniscient, $log, $opt_verbose);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
@@ -64,12 +64,12 @@ foreach my $next_file (@opt_files){
 	                                                                   config => $config
                                                                   });
   dual_print($log, "$next_file GFF3 file parsed\n", $opt_verbose);
-  info_omniscient($hash_omniscient2);
+  info_omniscient($hash_omniscient2, $log, $opt_verbose);
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
   dual_print($log, "\nTotal raw data of files together:\n", $opt_verbose);
-  info_omniscient($hash_omniscient);
+  info_omniscient($hash_omniscient, $log, $opt_verbose);
 }
 
 # Now all the feature are in the same omniscient
@@ -79,7 +79,7 @@ merge_overlap_loci(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
 
 
 dual_print($log, "\nfinal result:\n", $opt_verbose);
-info_omniscient($hash_omniscient);
+info_omniscient($hash_omniscient, $log, $opt_verbose);
 
 ########
 # Print results

@@ -48,7 +48,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                                  config => $config
                                                               });
 dual_print( $log, "$ref GFF3 file parsed\n", $verbose );
-info_omniscient($hash_omniscient);
+info_omniscient($hash_omniscient, $log, $verbose);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
@@ -56,7 +56,7 @@ foreach my $next_file (@opt_files){
 	                                                                   config => $config
                                                                 });
   dual_print( $log, "$next_file GFF3 file parsed\n", $verbose );
-  info_omniscient($hash_omniscient2);
+  info_omniscient($hash_omniscient2, $log, $verbose);
 
   ################################
   # First rename ID to be sure to not add feature with ID already used
@@ -113,7 +113,7 @@ foreach my $next_file (@opt_files){
   }
   else{
     dual_print( $log, "\nNow the data contains:\n", $verbose );
-    info_omniscient($hash_omniscient);
+    info_omniscient($hash_omniscient, $log, $verbose);
   }
 }
 
