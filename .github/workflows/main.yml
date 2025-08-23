@@ -13,8 +13,8 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:  
 
-  # This workflow contains a second job called "build2"
-  build_perl536:
+  # Run tests on Perl 5.36
+  test:
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
@@ -52,8 +52,9 @@ jobs:
           perl Makefile.PL
           HARNESS_OPTIONS=j$(nproc) make test
 
-  # This workflow contains a first job called "build"
-  build_perl530:
+  # Run tests with coverage on Perl 5.30
+  test_coverage:
+    needs: test
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
