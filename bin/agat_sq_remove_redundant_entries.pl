@@ -3,48 +3,27 @@
 use strict;
 use warnings;
 use Carp;
-use Pod::Usage;
-use Getopt::Long;
-use IO::File ;
+use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $inputFile;
-my $verbose;
-my $outfile;
-my $opt_help = 0;
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|i|file|input=s', 'Input reference gff file', { required => 1 } ],
+);
 
-if ( !GetOptions ('i|file|input|gff=s' => \$inputFile,
-                    )  )
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $inputFile   = $opt->gff;
+my $outfile     = $config->{output};
+my $opt_verbose = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ((!defined($inputFile)) ){
-   pod2usage( { -message => "$header\nAt least 1 parameter is mandatory: -i",
-                 -verbose => 0,
-                 -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -59,7 +38,8 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n", $opt_verbose);
+warn "Input file $inputFile is empty\n" if $opt_verbose && $nbLine == 0;
 my $line_cpt=0;
 
 my $count=0;
@@ -82,7 +62,7 @@ while (my $feature = $ref_in->next_feature() ) {
 
   if(exists ($check{$position} ) ){
     $count++;
-    if ($verbose){print "remove: ".$feature->gff_string."\n";}
+    warn "remove: ".$feature->gff_string."\n" if $opt_verbose;
     next;
   }
   else{
@@ -94,18 +74,18 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "Progression : $done % processed.\n";
+        dual_print($log, "Progression : $done % processed.\n", $opt_verbose);
     $startP= time;
   }
 }
 
 if($count > 0){
-  print "$count entries removed !\n";
+  dual_print($log, "$count entries removed !\n", $opt_verbose);
 }
-else{print "No entry removed !\n";}
+else{dual_print($log, "No entry removed !\n", $opt_verbose);}
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 
 __END__
 

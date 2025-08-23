@@ -2,79 +2,65 @@
 
 use strict;
 use warnings;
-use Pod::Usage;
-use Getopt::Long;
-use Bio::SeqIO ;
-use IO::File ;
+use Bio::SeqIO;
+use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_HardMask;
-my $opt_SoftMask;
-my $opt_gfffile;
-my $opt_fastafile;
-my $opt_output;
-my $opt_help = 0;
-
-# Character for hardMask
 my $hardMaskChar;
-my $width = 60; # line length printed
+my $width = 60;    # line length printed
 
-# OPTION MANAGMENT
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$opt_help   = $common->{help};
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s',          'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|f|fa=s',     'Input reference fasta file', { required => 1 } ],
+    [ 'maskmode' => 'hidden',
+      { required => 1, one_of => [
+            [ 'hard_mask|hm:s', 'Hard mask genome (optional character)', {
+                    callbacks => {
+                        one_char => sub {
+                            my $c = shift // 'n';
+                            length($c) == 1 or die 'Hard mask character must be a single character';
+                            return 1;
+                        },
+                    },
+                }
+            ],
+            [ 'soft_mask|sm!', 'Soft mask genome' ],
+        ]
+      }
+    ],
+);
 
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'f|fa|fasta=s'    => \$opt_fastafile,
-                  'hm:s'            => \$opt_HardMask,
-                  'sm'              => \$opt_SoftMask,
-                  ) )
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+my $opt_gfffile   = $opt->gff;
+my $opt_fastafile = $opt->fasta;
+my $opt_HardMask  = $opt->hard_mask;
+my $opt_SoftMask  = $opt->soft_mask;
+my $opt_output    = $config->{output};
+my $opt_verbose   = $config->{verbose};
 
-if ($opt_help) {
-    pod2usage( {  -verbose => 99,
-                  -exitval => 0,
-                  -message => "$header\n" } );
-}
-
-if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defined($opt_HardMask) && (! defined($opt_SoftMask))) ) ){
-    pod2usage( {
-           -message => "$header\nAt least 3 parametes are mandatory:\nInput reference gff file (-g);  Input reference fasta file (-f); Mask type (--hm for hard mask or --sm for soft mask)\n\n".
-           "Ouptut is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
-  print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
 
 my $ostream = prepare_fileout($opt_output);
 
-if (defined( $opt_HardMask)){
-  print "You choose to Hard Mask the genome.\n";
-	if (! $opt_HardMask){
-	  $hardMaskChar = "n";
-	}
-	elsif(length($opt_HardMask) == 1){
-	  $hardMaskChar = $opt_HardMask;
-	}
-	else{print "$opt_HardMask cannot be used to Mask. A character is mandatory.\n";exit;}
-	print "Charcater uses for Mask: $hardMaskChar\n";
+if ( defined $opt_HardMask ) {
+    dual_print( $log, "You choose to Hard Mask the genome.\n", $opt_verbose );
+    if ( $opt_HardMask eq '' ) {
+        $hardMaskChar = 'n';
+    }
+    else {
+        $hardMaskChar = $opt_HardMask;
+    }
+    dual_print( $log, "Charcater uses for Mask: $hardMaskChar\n", $opt_verbose );
 }
-if (defined( $opt_HardMask)){
-  print "You choose to Soft Mask the genome.\n";
+if ($opt_SoftMask) {
+    dual_print( $log, "You choose to Soft Mask the genome.\n", $opt_verbose );
 }
 ##### MAIN ####
 
@@ -87,7 +73,7 @@ if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $gff_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 
-print( "Reading features from $opt_gfffile...\n");
+dual_print($log, "Reading features from $opt_gfffile...\n", $opt_verbose);
   while (my $feature = $gff_in->next_feature()) {
     my $seqname=$feature->seq_id();
     my $start=$feature->start();
@@ -96,7 +82,8 @@ print( "Reading features from $opt_gfffile...\n");
     $nbLineRead++;
    }
 $gff_in->close();
-print "$nbLineRead lines read\n";
+dual_print($log, "$nbLineRead lines read\n", $opt_verbose);
+warn "Input file $opt_gfffile is empty\n" if $opt_verbose && $nbLineRead == 0;
 
 #### read fasta
 my $nbFastaSeq=0;
@@ -124,11 +111,11 @@ while ($_=$inFasta->next_seq()) {
     $nbFastaSeq++;
 }
 $inFasta->close();
-print "$nbFastaSeq fasta sequences read.\n";
-print "$nucl_masked nucleotides masked.\n";
+dual_print($log, "$nbFastaSeq fasta sequences read.\n", $opt_verbose);
+dual_print($log, "$nucl_masked nucleotides masked.\n", $opt_verbose);
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 __END__
 
 =head1 NAME
