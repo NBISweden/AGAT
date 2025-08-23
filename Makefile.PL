@@ -144,16 +144,16 @@ test_agat_convert :
 test_agat_add :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_add_*.t)"
 
-test_agat_extract :
+test_agat_sp_extract :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_extract_*.t)"
 
-test_agat_filter :
+test_agat_sp_filter :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_filter_*.t)"
 
-test_agat_fix :
+test_agat_sp_fix :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_fix_*.t)"
 
-test_agat_manage :
+test_agat_sp_manage :
 	$(MAKE) test TEST_FILES="$(wildcard t/agat_s[pq]_manage_*.t)"
 
 test_agat_other :

@@ -39,7 +39,7 @@ jobs:
             perl-version: '5.36'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install
+            install-modules: File::ShareDir::Install Getopt::Long::Descriptive
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
@@ -55,14 +55,14 @@ jobs:
         run: HARNESS_OPTIONS=j$(nproc) make test_agat_convert
       - name: test_agat_add
         run: HARNESS_OPTIONS=j$(nproc) make test_agat_add
-      - name: test_agat_extract
-        run: HARNESS_OPTIONS=j$(nproc) make test_agat_extract
-      - name: test_agat_filter
-        run: HARNESS_OPTIONS=j$(nproc) make test_agat_filter
-      - name: test_agat_fix
-        run: HARNESS_OPTIONS=j$(nproc) make test_agat_fix
-      - name: test_agat_manage
-        run: HARNESS_OPTIONS=j$(nproc) make test_agat_manage
+      - name: test_agat_sp_extract
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_extract
+      - name: test_agat_sp_filter
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_filter
+      - name: test_agat_sp_fix
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_fix
+      - name: test_agat_sp_manage
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_manage
       - name: test_agat_other
         run: HARNESS_OPTIONS=j$(nproc) make test_agat_other
       - name: test_gff
@@ -96,7 +96,7 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls
+            install-modules: File::ShareDir::Install Getopt::Long::Descriptive Devel::Cover@1.44 Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
