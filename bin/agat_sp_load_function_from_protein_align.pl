@@ -7,15 +7,51 @@ use Try::Tiny;
 use File::Basename;
 use POSIX qw(strftime);
 use Bio::DB::Taxonomy;
-use Getopt::Long;
 use Bio::DB::Fasta;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
+use IO::File;
+use Bio::Tools::GFF;
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
-
 my $header = get_agat_header();
-my $config;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'annotation|a=s', 'Input annotation GTF/GFF file', { required => 1 } ],
+    [ 'pgff=s',         'Input protein GFF file',        { required => 1 } ],
+    [ 'pfasta|fasta=s', 'Input protein fasta file',      { required => 1 } ],
+    [ 'value|threshold|t=i', 'Gene mapping percentage threshold', { default => 50 } ],
+    [ 'test=s', 'Test to apply', { default => '=', callbacks => { valid => sub { $_[0] =~ /^(?:<|>|<=|>=|=)$/ } } } ],
+    [ 'pe:i', 'Protein existence value', { default => 1, callbacks => { range => sub { $_[0] >= 1 && $_[0] <= 5 } } } ],
+    [ 'sp:s', 'Species prioritization list' ],
+    [ 'priority|p=s', 'Priority order', { default => 'pe', one_of => ['pe','sp'] } ],
+    [ 'method|m=s', 'Loading method', { default => 'replace', one_of => ['replace','complete','add'] } ],
+    [ 'w', 'Compute overlap score on whole sequence' ],
+);
+
+print $usage and exit if $opt->help;
+
+my $annotation_gff         = $opt->annotation;
+my $protein_gff            = $opt->pgff;
+my $protein_fasta          = $opt->pfasta;
+my $valueK                 = $opt->value;
+my $opt_test               = $opt->test;
+my $whole_sequence_opt     = $opt->w;
+my $priority_opt           = $opt->priority;
+my $sort_method_by_species = $opt->sp;
+my $sort_method_by_pe      = $opt->pe;
+my $method_opt             = $opt->method;
+my $opt_output             = $config->{output};
+our $opt_verbose           = $config->{verbose};
+
+our @outputTab;
+our $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
 
 #The cases are exclusive, one result could not be part of several cases.
 my %cases_explanation = (
@@ -27,145 +63,54 @@ my %cases_explanation = (
   3   => "There is protein alignment that overlap the gene model, the overlap is over the threshold defined."
 );
 
-my $opt_output             = undef;
-my $annotation_gff         = undef;
-my $protein_gff            = undef;
-my $protein_fasta          = undef;
-my $valueK                 = 50;
-my $opt_test               = "=";
-my $attributes             = undef ;
-my $whole_sequence_opt     = undef ;
-my $priority_opt           = "pe";
-my $sort_method_by_species = undef ;
-my $sort_method_by_pe      = undef ;
-my $verbose                = undef;
-my $method_opt             = "replace";
-my $opt_help               = 0;
-
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$opt_output = $common->{output};
-$verbose    = $common->{verbose};
-$opt_help   = $common->{help};
-
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    "annotation|a=s"         => \$annotation_gff,
-    "pgff=s"                 => \$protein_gff,
-    "sp:s"                   => \$sort_method_by_species,
-    'test=s'                 => \$opt_test,
-    'pe:i'                   => \$sort_method_by_pe,
-    'priority|p=s'           => \$priority_opt,
-    "fasta|pfasta=s"         => \$protein_fasta,
-    "w"                      => \$whole_sequence_opt,
-    "value|threshold=i"      => \$valueK,
-    'method|m:s'             => \$method_opt
-    ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! ($annotation_gff and $protein_gff and $protein_fasta) ){
-    pod2usage( {
-           -message => "$header\nAt least 3 parameters are mandatory:\nAnnotation gff file (-a), Protein gff file (--pgff), Protein fasta file (--pfasta)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
-
-#               +------------------------------------------------------+
-#               |+----------------------------------------------------+|
-#               ||                     Manage OPTIONS                 ||
-#               |+----------------------------------------------------+|
-#               +------------------------------------------------------+
-
-
-
 #Manage test option
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";exit;
-}
-if(defined ($sort_method_by_pe)){
-  if ($sort_method_by_pe){
-    if(! (5 >= $sort_method_by_pe and  $sort_method_by_pe >= 1) ){
-      print "The value of the Protein Existence value is Wrong: $sort_method_by_pe.\n We want a value between 1 and 5.";exit;
-    }
-  }
-  else{
-    $sort_method_by_pe=1;
-  }
-}
+# validation handled by describe_script_options callbacks
 
 ##########################
 ##### Manage Output ######
 
-## Manage screen output
-our $screen_out = undef;
+if ( defined $opt_output ) {
+    die "Cannot create a directory with the name $opt_output because a file with this name already exists.\n"
+      if -f $opt_output;
+    die "The output directory choosen already exists. Please geve me another Name.\n"
+      if -d $opt_output;
 
-our @outputTab;
+    mkdir $opt_output;
 
-if (defined($opt_output) ) {
-  if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
-  }
-  if (-d $opt_output){
-      print "The output directory choosen already exists. Please geve me another Name.\n";exit();
-  }
+    my $outfile_gff = $annotation_gff;
+    my ( $file1, $dir1, $ext1 ) = fileparse( $outfile_gff, qr/\.[^.]*$/ );
+    $outfile_gff = $file1 . "_updated.gff";
 
-  #To continue to display on screen
-  $screen_out = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
-
-  #create the folder
-  mkdir $opt_output;
-
-  my $outfile_gff = $annotation_gff;
-  my ($file1,$dir1,$ext1) = fileparse($outfile_gff, qr/\.[^.]*/);
-  $outfile_gff = $file1."_updated.gff";
-
-  #0 txt
-  my $ostreamReport = IO::File->new(">".$opt_output."/report.txt" ) or
-  croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/report.txt", $! ));
-  push (@outputTab, $ostreamReport);
-  #1 txt
-  my $ostreamFAadded = IO::File->new(">".$opt_output."/function_added.txt" ) or
-  croak( sprintf( "Can not open '%s' for writing %s", $opt_output."/function_added.txt", $! ));
-  push (@outputTab, $ostreamFAadded);
-  _print("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
-  #2 gff
-  my $ostreamCoding = Bio::Tools::GFF->new(-file => ">".$opt_output."/".$outfile_gff, -gff_version => $config->{gff_output_version} ) or
-  croak(sprintf( "Can not open '%s' for writing %s", $opt_output."/".$outfile_gff, $! ));
-  push (@outputTab, $ostreamCoding);
-
+    my $ostreamReport = IO::File->new( ">" . $opt_output . "/report.txt" )
+      or croak( sprintf( "Can not open '%s' for writing %s", $opt_output . "/report.txt", $! ) );
+    push( @outputTab, $ostreamReport );
+    my $ostreamFAadded = IO::File->new( ">" . $opt_output . "/function_added.txt" )
+      or croak( sprintf( "Can not open '%s' for writing %s", $opt_output . "/function_added.txt", $! ) );
+    push( @outputTab, $ostreamFAadded );
+    _print("Gene ID\tmRNA ID\tGene name\tProduct\n", 1);
+    my $ostreamCoding = Bio::Tools::GFF->new(
+        -file => ">" . $opt_output . "/" . $outfile_gff,
+        -gff_version => $config->{gff_output_version}
+      )
+      or croak(
+        sprintf( "Can not open '%s' for writing %s", $opt_output . "/" . $outfile_gff, $! ) );
+    push( @outputTab, $ostreamCoding );
 }
-else{
-  my $ostreamReport = \*STDOUT ;
-  push (@outputTab, $ostreamReport);
-  my $ostreamFAadded = \*STDOUT ;
-  push (@outputTab, $ostreamFAadded);
-   my $ostream  = IO::File->new();
-  $ostream->fdopen( fileno(STDOUT), 'w' ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  my $outputGFF = Bio::Tools::GFF->new( -fh => $ostream, -gff_version => $config->{gff_output_version} ) or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
-  push (@outputTab, $outputGFF);
+else {
+    my $ostreamReport = \*STDOUT;
+    push( @outputTab, $ostreamReport );
+    my $ostreamFAadded = \*STDOUT;
+    push( @outputTab, $ostreamFAadded );
+    my $ostream = IO::File->new();
+    $ostream->fdopen( fileno(STDOUT), 'w' )
+      or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
+    my $outputGFF = Bio::Tools::GFF->new(
+        -fh          => $ostream,
+        -gff_version => $config->{gff_output_version}
+      )
+      or croak( sprintf( "Can not open STDOUT for writing: %s", $! ) );
+    push( @outputTab, $outputGFF );
 }
-
-
 
 # Manage species names
 my $db = Bio::DB::Taxonomy->new(-source => 'entrez');
@@ -190,28 +135,30 @@ if(defined($sort_method_by_species) ){
   else{
     $sort_method_by_species = _taxid_ref_sorted();
   }
-  print "Priority in this order will be used for selecting the referential protein form matching proteins:\n";
-  foreach my $priority (sort {$a <=> $b} keys %{$sort_method_by_species}){
+  dual_print( $log, "Priority in this order will be used for selecting the referential protein form matching proteins:\n", $opt_verbose );
+  foreach my $priority (sort { $a <=> $b } keys %{$sort_method_by_species}){
     _print( $priority." - ".$sort_method_by_species->{$priority}."\n",0);
   }
 }
 
 #Manage priority
 if ($priority_opt ne "pe" and $priority_opt ne "sp"){
-  print "Priority option with value $priority_opt doesn't exist. Please select pe or sp. (i.e help)\n";exit;
+  die "Priority option with value $priority_opt doesn't exist. Please select pe or sp. (i.e help)\n";
 }
 
 #Manage method
 if ($method_opt eq "replace"){
-  print "We will add or replace the product and Name values when a protein maps properly.\n";
+  dual_print( $log, "We will add or replace the product and Name values when a protein maps properly.\n", $opt_verbose );
 }
 elsif($method_opt eq "add"){
-  print "We will add the lfp_product and lfp_name values when a protein maps properly.\n";
+  dual_print( $log, "We will add the lfp_product and lfp_name values when a protein maps properly.\n", $opt_verbose );
 }
 elsif($method_opt eq "complete"){
-  print "We will add the product and Name values when a protein maps properly and no product and/or Name value exists.\n";
+  dual_print( $log, "We will add the product and Name values when a protein maps properly and no product and/or Name value exists.\n", $opt_verbose );
 }
-else{print "Method option must be replace, add or complete. Please check the help for more information. (replace by default)\n";exit;}
+else{
+  die "Method option must be replace, add or complete. Please check the help for more information. (replace by default)\n";
+}
 
 
 
@@ -341,14 +288,14 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
         }
 
         #print @aligns_filtered results
-        if ($verbose){
+        if ($opt_verbose){
           _print( "\n\nprotein aligned to the gene $id1_l1 over the threshold $valueK:\n", 0);
           foreach my $result ( @aligns_filtered){
             if($result->[$col] > $valueK){
               _print( "@$result\n", 0 );
             }
           }
-          print "\n";
+          _print("\n",0);
         }
 
         if(@aligns_filtered){
@@ -356,7 +303,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
           #########################################
           # 1) filter by pe and specific species
           if($sort_method_by_pe and $sort_method_by_species){
-            _print( "get_result_sort_method_by_pe_and_species case 1 !\n",0) if ($verbose);
+            _print( "get_result_sort_method_by_pe_and_species case 1 !\n",0) if ($opt_verbose);
             $selected = get_result_sort_method_by_pe_and_species(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test, $sort_method_by_species);
             if($selected){$cases{1}++;}
           }
@@ -367,14 +314,14 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
 
             # filter by protein existence value
             if(! $selected and $sort_method_by_pe){
-              _print( "pe case 2.1.1!\n", 0) if ($verbose);
+              _print( "pe case 2.1.1!\n", 0) if ($opt_verbose);
               $selected = get_result_sort_method_by_pe(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test);
               if($selected){$cases{211}++;$cases{21}++;}
             }
 
             # filter by specific species
             if(! $selected and $sort_method_by_species){
-              _print( "sort_method_by_species case 2.1.2!\n", 0) if ($verbose);
+              _print( "sort_method_by_species case 2.1.2!\n", 0) if ($opt_verbose);
               $selected = get_result_sort_method_by_species($sort_method_by_species, \@aligns_filtered, $col);
               if($selected){$cases{212}++;$cases{22}++;}
             }
@@ -385,7 +332,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
             #########################################
             # filter by specific species
             if(! $selected and $sort_method_by_species){
-              _print( "sort_method_by_species case 2.2.1!\n", 0) if ($verbose);
+              _print( "sort_method_by_species case 2.2.1!\n", 0) if ($opt_verbose);
               $selected = get_result_sort_method_by_species($sort_method_by_species, \@aligns_filtered, $col);
                if($selected){$cases{221}++;$cases{22}++;}
             }
@@ -393,7 +340,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
             #########################################
             # filter by protein existence value
             if(! $selected and $sort_method_by_pe){
-              _print( "pe case 2.2.2!\n", 0) if ($verbose);
+              _print( "pe case 2.2.2!\n", 0) if ($opt_verbose);
               $selected = get_result_sort_method_by_pe(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test);
               if($selected){$cases{222}++;$cases{21}++;}
             }
@@ -402,13 +349,13 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
           #########################################
           # 3) Take the first = the best overlap value
           if(! $selected){
-            _print( "Normal case 3!\n", 0 ) if ($verbose);
+            _print( "Normal case 3!\n", 0 ) if ($opt_verbose);
             # read from best value to the lowest one
             $selected = $aligns_filtered[0];
             $cases{3}++;
           }
 
-          _print( "Protein selected =  $selected\n",0) if ($verbose);
+          _print( "Protein selected =  $selected\n",0) if ($opt_verbose);
 
 
 #               +------------------------------------------------------+
@@ -466,12 +413,12 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
         }
         else{
           $cases{0}++;
-          _print( "No protein overlap over the threshold $valueK for this gene model: $id1_l1\n", 0) if ($verbose);
+          _print( "No protein overlap over the threshold $valueK for this gene model: $id1_l1\n", 0) if ($opt_verbose);
         }
       }
       else{
         $cases{-1}++;
-        _print( "No protein aligned to this gene model: $id1_l1\n", 0) if ($verbose);
+        _print( "No protein aligned to this gene model: $id1_l1\n", 0) if ($opt_verbose);
       }
     }
   }
@@ -486,7 +433,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $outputTab[2]} );
 #### SUMMERIZING##########################
 if(keys %cases){_print( "\nThe liftover of function from proteins to the gene models has been done as following:\n",0);}
 foreach my $key (keys %cases){
-  if(!$verbose and ($key == 211 or $key == 212 or $key == 221 or $key == 222) ) {
+  if(!$opt_verbose and ($key == 211 or $key == 212 or $key == 221 or $key == 222) ) {
      _print( "we have $cases{$key} cases $key\n",0);
   }
   else{
@@ -686,7 +633,7 @@ sub _get_species{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ warn("No species name found in this fasta header: $self");return $species;}
+  if($egal == -1){ dual_print($log, "No species name found in this fasta header: $self\n", $opt_verbose);return $species;}
   $egal = index($clipped, '=');
   if($egal != -1){
     $species  =  substr $clipped, 0, $egal-2;
@@ -718,7 +665,7 @@ sub _get_gn{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ warn("No gene name found in this fasta header: $self");return $geneName;}
+  if($egal == -1){ dual_print($log, "No gene name found in this fasta header: $self\n", $opt_verbose);return $geneName;}
   $egal = index($clipped, '=');
   if($egal != -1){
     $geneName  =  substr $clipped, 0, $egal-2;
@@ -751,7 +698,7 @@ sub _get_pe{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ warn("No pe found in this fasta header: $self"); return $pe; }
+  if($egal == -1){ dual_print($log, "No pe found in this fasta header: $self\n", $opt_verbose); return $pe; }
   $egal = index($clipped, '=');
   if($egal != -1){
     $pe  =  substr $clipped, 0, $egal-2;
@@ -784,7 +731,7 @@ sub _get_sv{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ warn("No sv found in this fasta header: $self"); return $sv; }
+  if($egal == -1){ dual_print($log, "No sv found in this fasta header: $self\n", $opt_verbose); return $sv; }
   $egal = index($clipped, '=');
   if($egal != -1){
     $sv  =  substr $clipped, 0, $egal-2;
@@ -812,11 +759,11 @@ sub  _get_sequence{
     $descritpion = (split(/\s+/, $db->header($seq_id_original), 2))[1]; #take header and remove the first element wihch is the seq_id_original
 
     if($sequence eq ""){
-      warn "Problem ! no sequence extracted for - $seq_id_correct !\n";  exit;
+      dual_print( $log, "Problem ! no sequence extracted for - $seq_id_correct !\n", $opt_verbose );  exit;
     }
   }
   else{
-    warn "Problem ! protein ID $seq_id_correct not found into the protein fasta file!\n";
+    dual_print( $log, "Problem ! protein ID $seq_id_correct not found into the protein fasta file!\n", $opt_verbose );
   }
 
   return length($sequence), $seq_id_correct, $descritpion;
@@ -900,7 +847,7 @@ sub check_gene_overlap_gffAlign{
             # CALCUL ONTO THE WHOLE GENE MODEL #
             my @list_tag_l3=('exon');
             if(! exists_keys( $hash_omniscient, ('level3','exon'))){
-              warn "No exon found into the annoation file for feature $gene_id, we will use all the other l3 features\n";
+              dual_print( $log, "No exon found into the annoation file for feature $gene_id, we will use all the other l3 features\n", $opt_verbose );
               foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
                 push @list_tag_l3,$tag_l3;
               }
@@ -1013,7 +960,7 @@ sub check_gene_overlap_gffAlign{
               @list_res = ($gene_id2, $w_overlap12_abs, $w_overlap21_abs, $overlap12_abs, $overlap21_abs, $w_overlap_JD_abs, $overlap_JD_abs , $proteinName, $descritpion);
               }
             catch{
-              print "We cannot check the real protein length, let's continue without this one: $prot_tag\n";
+              dual_print( $log, "We cannot check the real protein length, let's continue without this one: $prot_tag\n", $opt_verbose );
               #2 -> 1 whole sequence
               #$w_overlap21 = sprintf "%.1f", ($w_overlap*100/$lenght2);
               #$w_overlap21_abs = sprintf "%.1f", ($w_abs_overlap*100/$lenght2);
@@ -1039,7 +986,7 @@ sub get_absolute_match{
 
   # We first need to check that the GAP feature is present among the protein attributes
   if(! $feature->has_tag('Gap')){
-    warn "I cannot calculate the absolute match because the tag Gap is absent !\n";
+    dual_print( $log, "I cannot calculate the absolute match because the tag Gap is absent !\n", $opt_verbose );
   }
   else{
 
@@ -1171,7 +1118,7 @@ sub  calcul_match_gap{
           $nuc_polish -= $gap;
         }
         else{
-          warn "Cannot interpret this CIGAR substring: $gap !\n";
+          dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n", $opt_verbose );
         }
   }
 
@@ -1201,7 +1148,7 @@ sub nuc_gap_val{
     $nuc = substr $gap, 1;
   }
   else{
-    warn "Cannot interpret this CIGAR substring: $gap !\n";
+    dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n", $opt_verbose );
   }
 
   return $nuc;
@@ -1209,15 +1156,9 @@ sub nuc_gap_val{
 
 sub _print{
   my ($mesage, $optionType) = @_;
-
-  if(! $optionType and $optionType != 0){
-    print $screen_out $mesage;
-  }
-  else{
-    if($screen_out){
-       print $screen_out $mesage;
-    }
-    $outputTab[$optionType]->print($mesage);
+  dual_print( $log, $mesage, $opt_verbose );
+  if ( defined $optionType ) {
+      $outputTab[$optionType]->print($mesage);
   }
 }
 
