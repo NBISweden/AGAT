@@ -19,7 +19,7 @@ my $config = 'agat_config.yaml';
 # --------check agat_sp_kraken_assess_liftover.pl-------------
 
 my $script = $script_prefix . catfile($bin_dir, "agat_sp_kraken_assess_liftover.pl");
-{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+{ my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); chdir $root; }
 
 my $result = "$output_folder/agat_sp_kraken_assess_liftover_1.gff";
 {

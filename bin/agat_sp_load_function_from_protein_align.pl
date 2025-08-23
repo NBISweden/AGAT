@@ -11,6 +11,8 @@ use Bio::DB::Fasta;
 use List::MoreUtils qw(uniq);
 use IO::File;
 use Bio::Tools::GFF;
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header = get_agat_header();
@@ -22,12 +24,14 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     [ 'pfasta|fasta=s', 'Input protein fasta file',      { required => 1 } ],
     [ 'value|threshold|t=i', 'Gene mapping percentage threshold', { default => 50 } ],
     [ 'test=s', 'Test to apply', { default => '=', callbacks => { valid => sub { $_[0] =~ /^(?:<|>|<=|>=|=)$/ } } } ],
-    [ 'pe:i', 'Protein existence value', { callbacks => { range => sub { !defined $_[0] || ($_[0] >=1 && $_[0] <=5) } } } ],
+    [ 'pe:i', 'Protein existence value', { default => 1, callbacks => { range => sub { $_[0] >= 1 && $_[0] <= 5 } } } ],
     [ 'sp:s', 'Species prioritization list' ],
     [ 'priority|p=s', 'Priority order', { default => 'pe', one_of => ['pe','sp'] } ],
     [ 'method|m=s', 'Loading method', { default => 'replace', one_of => ['replace','complete','add'] } ],
     [ 'w', 'Compute overlap score on whole sequence' ],
 );
+
+print $usage and exit if $opt->help;
 
 my $annotation_gff         = $opt->annotation;
 my $protein_gff            = $opt->pgff;
@@ -60,18 +64,7 @@ my %cases_explanation = (
 );
 
 #Manage test option
-if ( $opt_test !~ /^(?:<|>|<=|>=|=)$/ ) {
-    die "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.\n";
-}
-if ( defined $sort_method_by_pe ) {
-    if ($sort_method_by_pe) {
-        die "The value of the Protein Existence value is Wrong: $sort_method_by_pe.\n We want a value between 1 and 5."
-          unless ( $sort_method_by_pe >= 1 && $sort_method_by_pe <= 5 );
-    }
-    else {
-        $sort_method_by_pe = 1;
-    }
-}
+# validation handled by describe_script_options callbacks
 
 ##########################
 ##### Manage Output ######

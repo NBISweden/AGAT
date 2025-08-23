@@ -7,6 +7,8 @@ use File::Basename;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use Clone 'clone';
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header = get_agat_header();
@@ -25,11 +27,24 @@ my $opt_plot    = $opt->plot;
 my $opt_output  = $config->{output};
 my $opt_verbose = $config->{verbose};
 my $kraken_tag = 'kraken_mapped';
+my $kraken_tag_alt = 'Kraken_mapped';
 
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header, 0 );
+}
+
+sub _kraken_has_tag {
+    my ($feature) = @_;
+    return $feature->has_tag($kraken_tag) || $feature->has_tag($kraken_tag_alt);
+}
+
+sub _kraken_value {
+    my ($feature) = @_;
+    return $feature->_tag_value($kraken_tag) if $feature->has_tag($kraken_tag);
+    return $feature->_tag_value($kraken_tag_alt) if $feature->has_tag($kraken_tag_alt);
+    return;
 }
 
 #####
@@ -158,8 +173,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    #################
 	    $listOfProperHash{$gene_feature->seq_id()}{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1}=$gene_feature;
 	    # write down if kraken_mapped=true
-	    if($gene_feature->has_tag($kraken_tag)){
-	      if( lc($gene_feature->_tag_value($kraken_tag)) eq "true"){
+            if(_kraken_has_tag($gene_feature)){
+              if( lc(_kraken_value($gene_feature)) eq "true"){
 	        $listHashWithTrue{$gene_feature->seq_id()}++;
 	      }
 	    }
@@ -172,8 +187,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	          push(@{$listOfProperHash{$feature_level2->seq_id()}{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}},$feature_level2) ;
 	          my $level2_ID = lc($feature_level2->_tag_value('ID'));
 	          # write down if kraken_mapped=true
-	          if($feature_level2->has_tag($kraken_tag)){
-	            if( lc($feature_level2->_tag_value($kraken_tag)) eq "true"){
+                  if(_kraken_has_tag($feature_level2)){
+                    if( lc(_kraken_value($feature_level2)) eq "true"){
 	              $listHashWithTrue{$feature_level2->seq_id()}++;
 	            }
 	          }
@@ -185,8 +200,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	              foreach my $feature_level3 ( @{$hash_omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
 	                push(@{$listOfProperHash{$feature_level3->seq_id()}{'level3'}{$primary_tag_l3}{$level2_ID}}, $feature_level3);
 	                # write down if kraken_mapped=true
-	                if($feature_level3->has_tag($kraken_tag)){
-	                  if( lc($feature_level3->_tag_value($kraken_tag)) eq "true"){
+                        if(_kraken_has_tag($feature_level3)){
+                          if( lc(_kraken_value($feature_level3)) eq "true"){
 	                    $listHashWithTrue{$feature_level3->seq_id()}++;
 
 	                  }
@@ -309,10 +324,10 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                    my $end=$feature->end();
 	                    my $start=$feature->start();
 
-	                    my $mapping_state = undef;
-	                    if($feature->has_tag($kraken_tag)){
-	                      $mapping_state = lc($feature->_tag_value($kraken_tag));
-	                    }
+                            my $mapping_state = undef;
+                            if(_kraken_has_tag($feature)){
+                              $mapping_state = lc(_kraken_value($feature));
+                            }
                         else{
                           my $msg = "error !! No $kraken_tag attribute found for the feature" . $feature->gff_string() . "\n";
                           dual_print( $log, $msg, 0 );
@@ -616,8 +631,8 @@ sub takeOneListLevel3From1idLevel2 {
 
     #get if one exon mapped otherwise we have to use CDS instead
     foreach my $feature (@{$refListFetaureL3}){
-      if($feature->has_tag($kraken_tag)){
-        if (lc($feature->_tag_value($kraken_tag)) eq "true"){
+      if(_kraken_has_tag($feature)){
+        if (lc(_kraken_value($feature)) eq "true"){
           $get_one_true = 1;
         }
       }
@@ -629,8 +644,8 @@ sub takeOneListLevel3From1idLevel2 {
 
     #get if one cds mapped otherwise we have to use UTR instead
     foreach my $feature (@{$refListFetaureL3}){
-      if($feature->has_tag($kraken_tag)){
-        if (lc($feature->_tag_value($kraken_tag)) eq "true"){
+      if(_kraken_has_tag($feature)){
+        if (lc(_kraken_value($feature)) eq "true"){
           $get_one_true = 1;
         }
       }
@@ -647,8 +662,8 @@ sub takeOneListLevel3From1idLevel2 {
 
           #get if one cds mapped otherwise we have to use UTR instead
           foreach my $feature (@{$refListFetaureL3}){
-            if($feature->has_tag($kraken_tag)){
-              if (lc($feature->_tag_value($kraken_tag)) eq "true"){
+            if(_kraken_has_tag($feature)){
+              if (lc(_kraken_value($feature)) eq "true"){
                 $get_one_true = 1;
               }
             }
@@ -680,12 +695,11 @@ sub takeOneListLevel3From1idLevel2 {
 sub manage_gene_label{
 
   my ($gene_feature, $percentMatch, $kraken_tag)=@_;
-  if (! $gene_feature->has_tag($kraken_tag)){ # No kraken_mapped attribute
+  if ( !_kraken_has_tag($gene_feature) ){ # No kraken_mapped attribute
     label_by_value($gene_feature, $percentMatch, $kraken_tag);
   }
   else{ # kraken_mapped tag exists, check if we have to change it
-    my @values = $gene_feature->get_tag_values($kraken_tag);
-    my $alreadyMap = lc(shift @values) ;
+    my $alreadyMap = lc(_kraken_value($gene_feature));
     if ($alreadyMap eq "false" or $alreadyMap eq "true"){
       label_by_value($gene_feature, $percentMatch, $kraken_tag);
     }

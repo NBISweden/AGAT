@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use IO::File;
 use List::MoreUtils qw(uniq);
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header = get_agat_header();

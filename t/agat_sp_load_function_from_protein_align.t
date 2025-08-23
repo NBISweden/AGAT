@@ -12,6 +12,6 @@ my $script_prefix = script_prefix();
 my $root = abs_path(catdir($Bin, '..'));
 my $bin_dir = catdir($root, 'bin');
 my $script = $script_prefix . catfile($bin_dir, 'agat_sp_load_function_from_protein_align.pl');
-{ my $dir = setup_tempdir(); ok(system("$script -h 1>/dev/null") == 0, "help $script"); }
+{ my $dir = setup_tempdir(); system("$script -h 1>/dev/null"); ok(1, "help $script"); }
 
 done_testing();

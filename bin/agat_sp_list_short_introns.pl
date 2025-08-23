@@ -6,6 +6,8 @@ use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
 use Clone 'clone';
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header = get_agat_header();
