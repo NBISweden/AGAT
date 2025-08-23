@@ -6,11 +6,20 @@ use strict;
 use warnings;
 use Exporter;
 
-use AGAT::Config;
 use Getopt::Long;
 use Getopt::Long::Descriptive qw(describe_options);
 use Pod::Usage;
 use AGAT::AppEaser ();
+use Bio::Tools::GFF;
+
+use AGAT::OmniscientI;
+use AGAT::OmniscientO;
+use AGAT::OmniscientTool;
+use AGAT::Config;
+use AGAT::Levels;
+use AGAT::OmniscientStat;
+use AGAT::Utilities;
+use AGAT::PlotR;
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
