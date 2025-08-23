@@ -27,7 +27,7 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
 my $bed          = $opt->bed;
 my $source_tag   = $opt->source;
 my $primary_tag  = $opt->primary_tag;
-my $inflating_off = $opt->inflate_off;
+my $inflating_off = $opt->inflate_off // 0;
 my $inflate_type = $opt->inflate_type;
 my $opt_verbose  = $config->{verbose};
 
