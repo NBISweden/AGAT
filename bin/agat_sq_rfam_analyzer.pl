@@ -1,73 +1,46 @@
 #!/usr/bin/env perl
 
-use Carp;
 use strict;
 use warnings;
-use Pod::Usage;
-use Getopt::Long;
-use IO::File ;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
-my @inputFile;
-my $outputFile;
-my $genome;
-my $opt_help = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|i|file|input=s@', 'Input reference gff file', { required => 1 } ],
+    [ 'genome|g=s', 'Genome size or fasta file' ],
+);
 
-my $common = parse_common_options() || {};
-$config     = $common->{config};
-$outputFile = $common->{output};
-$opt_help   = $common->{help};
-
-if ( !GetOptions ('i|file|input|gff=s' => \@inputFile,
-      'g|genome=s' => \$genome,
-      )  )
-{ 
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header \n" } );
-}
-
-if (! @inputFile ){
-   pod2usage( { -message => "$header\nAt least 1 input file is mandatory",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my @inputFile  = @{ $opt->gff };
+my $opt_genome = $opt->genome;
+my $outputFile = $config->{output};
 
 my $log;
-my $log_name = get_log_path($common, $config);
-open($log, '>', $log_name) or die "Can not open $log_name for printing: $!";
-dual_print($log, $header, 0);
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
+}
+my $opt_verbose = $config->{verbose};
 
-# Manage Output
+my $start_run = time();
+
 my $ostream = prepare_fileout($outputFile);
 
 #check genome size
 my $genomeSize=undef;
-  if($genome){
-    if( $genome =~ /^[0-9]+$/){ #check if it's a number
-      $genomeSize=$genome;
+  if($opt_genome){
+    if( $opt_genome =~ /^[0-9]+$/){ #check if it's a number
+      $genomeSize=$opt_genome;
     }
-    elsif($genome){
-      my $seqio = Bio::SeqIO->new(-file => $genome, '-format' => 'Fasta');
+    elsif($opt_genome){
+      my $seqio = Bio::SeqIO->new(-file => $opt_genome, '-format' => 'Fasta');
       while(my $seq = $seqio->next_seq) {
           my $string = $seq->seq;
           $genomeSize += length($string);
         }
     }
-  printf("%-45s%d%s", "Total sequence length", $genomeSize,"\n");
+  dual_print($log, sprintf("%-45s%d%s", "Total sequence length", $genomeSize, "\n"), $opt_verbose);
   }
 
 #time to calcul progression
@@ -77,7 +50,7 @@ my %check; #track the repeat already annotated to not. Allow to skip already rea
 
 foreach my $file (@inputFile){
   # Manage input gff file
-  dual_print($log, "Reading $file\n");
+  dual_print($log, "Reading $file\n", $opt_verbose);
   my $format = $config->{force_gff_input_version};
   if(! $format ){ $format = select_gff_format($file); }
   my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
@@ -86,7 +59,7 @@ foreach my $file (@inputFile){
   my $nbLine=`wc -l < $file`;
   $nbLine =~ s/ //g;
   chomp $nbLine;
-  dual_print($log, "$nbLine line to process...\n");
+  dual_print($log, "$nbLine line to process...\n", $opt_verbose);
   my $line_cpt=0;
 
   local $| = 1; # Or use IO::Handle; STDOUT->autoflush; Use to print progression bar
@@ -117,11 +90,11 @@ foreach my $file (@inputFile){
     if ((30 - (time - $startP)) < 0) {
       my $done = ($line_cpt*100)/$nbLine;
       $done = sprintf ('%.0f', $done);
-          dual_print($log, "\rProgress : $done %");
+          dual_print($log, "\rProgress : $done %", $opt_verbose);
       $startP= time;
     }
   }
-  dual_print($log, "\rProgress : 100 %\n");
+  dual_print($log, "\rProgress : 100 %\n", $opt_verbose);
 }
 
 my $totalNumber=0;
@@ -171,7 +144,7 @@ else{
 
   my $end_run = time();
   my $run_time = $end_run - $start_run;
-  dual_print($log, "Job done in $run_time seconds\n");
+  dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
 
 close $log if $log;
 
