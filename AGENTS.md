@@ -8,15 +8,10 @@
 ## Agent quickstart (isolated shells; no sudo)
 
 ```bash
-# 1) Install everything into ./local and build shared resources
-bash .agents/bootstrap.sh
-
-# 2) Run commands with the local lib active for THIS invocation
-.agents/with-perl-local.sh prove -lr t           # fast tests
-.agents/with-perl-local.sh make test             # or full MakeMaker tests
-
-# Optional author checks (only if needed)
-AUTHOR_TESTING=1 .agents/with-perl-local.sh prove -lr xt/author
+- Bootstrap once: `bash .agents/bootstrap.sh`
+- Activate env per step: use `.agents/with-perl-local.sh`
+- (smoke tests are not ready now) Run **smoke** only while iterating: `prove -lr t/smoke`
+- Run **full test suite** only before a commit/PR: `make test`
 ```
 
 ## Environment
