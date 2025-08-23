@@ -20,6 +20,8 @@ jobs:
 
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -45,12 +47,26 @@ jobs:
           run: cat /home/runner/.cpanm/build.log
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
-      - name: test
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          perl Makefile.PL
-          HARNESS_OPTIONS=j$(nproc) make test
+      - name: generate Makefile
+        run: perl Makefile.PL
+      - name: test_config
+        run: HARNESS_OPTIONS=j$(nproc) make test_config
+      - name: test_agat_convert
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_convert
+      - name: test_agat_add
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_add
+      - name: test_agat_sp_extract
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_extract
+      - name: test_agat_sp_filter
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_filter
+      - name: test_agat_sp_fix
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_fix
+      - name: test_agat_sp_manage
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_sp_manage
+      - name: test_agat_other
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_other
+      - name: test_gff
+        run: HARNESS_OPTIONS=j$(nproc) make test_gff
 
   # Run tests with coverage on Perl 5.30
   test_coverage:
