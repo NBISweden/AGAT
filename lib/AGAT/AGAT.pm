@@ -239,7 +239,10 @@ sub resolve_common_options {
         }
 
         my $config_file = delete $cli{config};
-        my $config = get_agat_config({ config_file_in => $config_file });
+        my $config = get_agat_config({
+                config_file_in => $config_file,
+                verbose        => $cli{verbose},
+        });
 
         my $log_path = get_log_path( \%cli, $config );
         $cli{log_path} = delete $cli{log} if exists $cli{log};
@@ -261,6 +264,7 @@ sub get_agat_config{
 
         my ($config_file_provided);
         if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+        my $cli_verbose = $args->{verbose};
 
         # First retrieve the config file path without printing anything yet
         my $config_file_checked = get_config({type => "local",
@@ -270,14 +274,15 @@ sub get_agat_config{
         my $config = load_config({ config_file => $config_file_checked});
         check_config({ config => $config});
 
-        # Print header and config information only if verbosity allows it
-        if ($config->{verbose} > 0){
+        my $verbosity = defined $cli_verbose ? $cli_verbose : $config->{verbose};
+        if ($verbosity > 0){
                 print AGAT::AGAT::get_agat_header();
                 # Re-run get_config to display the message about which file is used
                 get_config({type => "local",
                             config_file_in => $config_file_provided,
-                            verbose => $config->{verbose}});
+                            verbose => $verbosity});
         }
+        $config->{verbose} = $verbosity;
 
         # Store the config in a Global variable accessible from everywhere.
         $CONFIG = $config;

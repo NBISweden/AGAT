@@ -41,6 +41,20 @@ sub check_quiet_run {
     my $stdout = File::Spec->catfile( $CWD, 'stdout.txt' );
     my $stderr = File::Spec->catfile( $CWD, 'stderr.txt' );
     my $exit = system("$cmd --quiet 1>$stdout 2>$stderr");
+    if ( -s $stdout ) {
+        open my $out_fh, '<', $stdout or die "Cannot open $stdout: $!";
+        local $/;
+        my $out = <$out_fh>;
+        close $out_fh;
+        diag("stdout:\n$out");
+    }
+    if ( -s $stderr ) {
+        open my $err_fh, '<', $stderr or die "Cannot open $stderr: $!";
+        local $/;
+        my $err = <$err_fh>;
+        close $err_fh;
+        diag("stderr:\n$err");
+    }
     ok( -z $stdout, 'stdout is empty' );
     ok( -z $stderr, 'stderr is empty' );
     return $exit;
