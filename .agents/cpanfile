@@ -19,7 +19,7 @@ requires 'File::Share';
 requires 'File::ShareDir';
 requires 'File::Spec';
 requires 'Getopt::Long';
-requires 'Getopt::Long';
+requires 'Getopt::Long::Descriptive';
 requires 'IO::File';
 requires 'IO::Uncompress::Gunzip';
 requires 'IPC::Open2';
