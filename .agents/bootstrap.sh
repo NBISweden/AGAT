@@ -1,124 +1,59 @@
 #!/usr/bin/env bash
+# Minimal, fast bootstrap for AGAT hacking (Debian/Ubuntu).
+# Installs system libs (if available), sets up local::lib, bootstraps cpm,
+# installs deps WITHOUT running CPAN tests, then builds the Makefile.
+# By default, it does NOT run the full test suite (see RUN_TESTS env).
+
 set -euo pipefail
 
-# --------------------------------------------
-# System deps (Linux headers & toolchain)
-# --------------------------------------------
-# Installs only when a package manager is available and we have permissions.
-# Skip by setting: AGENTS_SKIP_SYSTEM_DEPS=1
-install_system_deps() {
-  # Packages you asked for:
-  #   libdb-dev make gcc libexpat1-dev libxml2-dev
-  # Equivalent names for other distros are mapped below.
+# 0) Repo root
+cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)"
 
-  # If explicitly skipped, return.
-  if [[ "${AGENTS_SKIP_SYSTEM_DEPS:-0}" == "1" ]]; then
-    echo "[bootstrap] Skipping system deps per AGENTS_SKIP_SYSTEM_DEPS=1"
-    return 0
-  fi
-
-  echo "[bootstrap] Attempting to install system deps (if permitted)..."
-
-  # Detect root/sudo capability
-  _as_root() {
-    if [[ "$(id -u)" -eq 0 ]]; then
-      "$@"
-    elif command -v sudo >/dev/null 2>&1; then
-      sudo "$@"
-    else
-      return 126  # "permission denied" sentinel
-    fi
-  }
-
-  if command -v apt-get >/dev/null 2>&1; then
-    export DEBIAN_FRONTEND=noninteractive
-    if _as_root apt-get update -y; then
-      _as_root apt-get install -y --no-install-recommends \
-        libdb-dev make gcc libexpat1-dev libxml2-dev \
-        pkg-config ca-certificates curl cpanminus
-      echo "[bootstrap] System deps installed via apt-get."
-      return 0
-    fi
-  elif command -v apk >/dev/null 2>&1; then
-    # Alpine equivalents
-    #   libdb-dev     -> db-dev
-    #   libexpat1-dev -> expat-dev
-    #   libxml2-dev   -> libxml2-dev
-    #   make,gcc      -> build-base includes both
-    if _as_root apk add --no-cache db-dev expat-dev libxml2-dev build-base \
-        pkgconfig ca-certificates curl perl-app-cpanminus; then
-      echo "[bootstrap] System deps installed via apk."
-      return 0
-    fi
-  elif command -v dnf >/dev/null 2>&1; then
-    # Fedora/RHEL (dnf)
-    if _as_root dnf install -y libdb-devel expat-devel libxml2-devel gcc make \
-        pkgconf-pkg-config ca-certificates curl perl-App-cpanminus; then
-      echo "[bootstrap] System deps installed via dnf."
-      return 0
-    fi
-  elif command -v yum >/dev/null 2>&1; then
-    # Older RHEL/CentOS (yum)
-    if _as_root yum install -y libdb-devel expat-devel libxml2-devel gcc make \
-        pkgconfig ca-certificates curl perl-App-cpanminus; then
-      echo "[bootstrap] System deps installed via yum."
-      return 0
-    fi
-  elif command -v zypper >/dev/null 2>&1; then
-    # openSUSE
-    if _as_root zypper -n install libdb-devel libexpat-devel libxml2-devel gcc make \
-        pkg-config ca-certificates curl perl-App-cpanminus; then
-      echo "[bootstrap] System deps installed via zypper."
-      return 0
-    fi
-  fi
-
-  echo "[bootstrap] Could not install system deps (no perms or unknown OS)."
-  echo "[bootstrap] Continuing without system packages; builds that need headers may fail."
-  return 0
-}
-
-install_system_deps || true
-
-# --------------------------------------------
-# Perl deps (contained in ./local, no sudo)
-# --------------------------------------------
-mkdir -p local/bin
-
-# Ensure cpanm is available (downloaded locally if not provided by system)
-if ! command -v cpanm >/dev/null 2>&1; then
-  echo "[bootstrap] Downloading cpanm..."
-  if command -v curl >/dev/null 2>&1; then
-    curl -fsSL https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm -o local/bin/cpanm \
-      || curl -fsSL https://cpanmin.us -o local/bin/cpanm
-  else
-    wget -O local/bin/cpanm https://raw.githubusercontent.com/miyagawa/cpanminus/master/cpanm \
-      || wget -O local/bin/cpanm https://cpanmin.us
-  fi
-  chmod +x local/bin/cpanm
+# 1) System libs (skip if you lack privileges — most modules are pure-Perl)
+if command -v apt-get >/dev/null 2>&1; then
+  if command -v sudo >/dev/null 2>&1; then SUDO=sudo; else SUDO=""; fi
+  $SUDO apt-get update -y
+  $SUDO apt-get install -y --no-install-recommends \
+    build-essential curl ca-certificates libdb-dev libexpat1-dev libxml2-dev
 fi
 
-# Activate local::lib for THIS shell only (ephemeral; perfect for isolated agents)
-eval "$(perl -Mlocal::lib=--deactivate-all,local)"
+# 2) Local install root (no global pollution)
+mkdir -p local/bin .agents
+eval "$(perl -Mlocal::lib=local)"
+export PATH="$PWD/local/bin:$PATH"
 
-# Common cpanm options: use a known mirror and avoid cpanmetadb
-CPANM=(cpanm --mirror https://cpan.metacpan.org --mirror-only --notest --local-lib-contained=local)
-
-# Install build-time tools required to parse Makefile.PL
-"${CPANM[@]}" File::ShareDir::Install
-
-# 1) Install your dist deps from Makefile.PL/META (authoritative for CI/CPAN)
-"${CPANM[@]}" --installdeps --with-recommends .
-
-# 2) Install agent-only extras (tests/dev tools) from .agents/cpanfile
-if [[ -f ".agents/cpanfile" ]]; then
-  "${CPANM[@]}" --installdeps --cpanfile .agents/cpanfile .
+# 3) Fast installer: cpm (single-file bootstrap; no cpanmetadb needed)
+if ! command -v cpm >/dev/null 2>&1; then
+  curl -fsSL https://raw.githubusercontent.com/skaji/cpm/main/cpm -o .agents/cpm
+  chmod +x .agents/cpm
+  ln -sf "$PWD/.agents/cpm" local/bin/cpm
 fi
 
-# 3) Build the distribution to generate shared files and fixtures
+# 4) Configure-time prerequisite (avoids Makefile.PL abort)
+# If you also list it under `on 'configure'` in cpanfile, this is instant.
+cpm install -L local --no-test File::ShareDir::Install
+
+# 5) Project dependencies (runtime + tests as needed)
+# For maximal speed we skip CPAN's own test suites.
+# Set WITH_DEVELOP=1 to also pull dev tools (Perl::Critic, Devel::Cover, etc.).
+DEVEL_FLAG=()
+[[ "${WITH_DEVELOP:-0}" = "1" ]] && DEVEL_FLAG+=(--with-develop)
+cpm install -L local --no-test "${DEVEL_FLAG[@]}" \
+  --workers "$(nproc 2>/dev/null || echo 2)" \
+  --show-build-log-on-failure
+
+# 6) Build (Makefile + compile steps as needed)
 perl Makefile.PL
-make
-make install
+make -j"$(nproc 2>/dev/null || echo 2)"
 
-echo "[bootstrap] Done. Use '.agents/with-perl-local.sh <cmd>' to run with this env."
+# 7) Optional smoke tests (fast). Full suite is opt-in.
+# if [[ "${RUN_TESTS:-0}" = "1" ]]; then
+#   # Run a quick pass; keep it short by default
+#   if [[ -d t/smoke ]]; then
+#     prove -lr -j"$(nproc 2>/dev/null || echo 2)" t/smoke
+#   else
+#     prove -lr -j"$(nproc 2>/dev/null || echo 2)" t
+#   fi
+# fi
 
+echo "Bootstrap complete. Use .agents/with-perl-local.sh to run tools in this env."
