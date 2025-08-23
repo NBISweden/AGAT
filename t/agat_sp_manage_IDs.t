@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -24,7 +24,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_manage_IDs.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile( $dir, 'tmp.gff' );
-    ok( system(" $script --gff $input_folder/1.gff --ensembl -o $outtmp 2>&1 1>/dev/null") == 0,
+    ok( check_quiet_run(" $script --gff $input_folder/1.gff --ensembl -o $outtmp") == 0,
         "output $script" );
 }
 

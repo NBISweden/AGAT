@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -25,7 +25,7 @@ my $result = "$output_folder/agat_sp_sensitivity_specificity_1.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
-    system(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/1.gff --gff2 $input_folder/1.gff -o $outtmp");
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -35,7 +35,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_2.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
-    system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref0.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query0.gff3 -o $outtmp");
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -45,7 +45,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_3.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
-    system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref1.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query1.gff3 -o $outtmp");
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -55,7 +55,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_4.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
-    system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref2.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query2.gff3 -o $outtmp");
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 
@@ -65,7 +65,7 @@ $result = "$output_folder/agat_sp_sensitivity_specificity_5.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp   = catfile( $dir, 'tmp.gff' );
-    system(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_sensitivity_specificity/ref3.gff3 --gff2 $input_folder/agat_sp_sensitivity_specificity/query3.gff3 -o $outtmp");
     check_diff( $outtmp, $result, "output $script", "-I '^usage:'" );
 }
 

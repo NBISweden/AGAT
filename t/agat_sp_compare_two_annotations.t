@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -24,7 +24,7 @@ my $result = "$output_folder/agat_sp_compare_two_annotations_1.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
-    system(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/1.gff  --gff2 $input_folder/1.gff -o $outtmp");
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 
@@ -34,7 +34,7 @@ $result = "$output_folder/agat_sp_compare_two_annotations_2.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
-    system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file1.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file2.gff -o $outtmp");
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 
@@ -44,7 +44,7 @@ $result = "$output_folder/agat_sp_compare_two_annotations_3.txt";
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir, 'tmp.gff');
-    system(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp 2>&1 1>/dev/null");
+    check_quiet_run(" $script --gff1 $input_folder/agat_sp_compare_two_annotations/file2.gff  --gff2 $input_folder/agat_sp_compare_two_annotations/file1.gff -o $outtmp");
     check_diff( "$outtmp/report.txt", $result, "output $script", "-I '^usage:'" );
 }
 
