@@ -5,62 +5,45 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use File::Basename;
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use Bio::Tools::CodonTable;
 use AGAT::AGAT;
 
-
 my $start_run = time();
-my $startP=time;
-my $SIZE_OPT=21;
-my $PREFIX_CPT_EXON=1;
-my $PREFIX_CPT_MRNA=1;
+my $startP    = time;
+my $SIZE_OPT  = 21;
+my $PREFIX_CPT_EXON = 1;
+my $PREFIX_CPT_MRNA = 1;
 
 my $header = get_agat_header();
-my ($config, $outfile, $gff, $file_fasta, $opt_codonTableID, $stranded,
-    $threshold, $verbose, $opt_help);
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',        'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa=s',   'Input reference fasta file', { required => 1 } ],
+    [ 'stranded|s!',  'Annotation produced with stranded RNA' ],
+    [ 'table|codon|ct=i', 'Codon translation table',
+        { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ 'threshold|t=i', 'Minimum protein length',
+        { default => 100, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose};
-$opt_help = $common->{help};
-my @copyARGV = @{ $common->{argv} // [@ARGV] };
+my $gff             = $opt->gff;
+my $file_fasta      = $opt->fasta;
+my $stranded        = $opt->stranded;
+my $opt_codonTableID = $opt->table;
+my $threshold       = $opt->threshold;
+my $outfile         = $config->{output};
+my $verbose         = $config->{verbose};
 
-if ( !GetOptions(
-    "gff=s"            => \$gff,
-    "fasta|fa=s"       => \$file_fasta,
-    "stranded|s"       => \$stranded,
-    "table|codon|ct=i" => \$opt_codonTableID,
-    "threshold|t=i"    => \$threshold,
-    ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($file_fasta)) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff) and Input fasta file (--fasta)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -87,13 +70,13 @@ $opt_codonTableID = get_proper_codon_table($opt_codonTableID);
 if(!$threshold){
   $threshold=100;
 }
-print "Minimum protein length taken in account = $threshold AA\n";
+dual_print( $log, "Minimum protein length taken in account = $threshold AA\n", $verbose );
 
 if($stranded){
   $stranded=1;
-  print "You say that annotation has been done using stranded RNA. So, most probable fusion will be between close gene in same direction. We will focuse on that !\n";
+  dual_print( $log, "You say that annotation has been done using stranded RNA. So, most probable fusion will be between close gene in same direction. We will focuse on that !\n", $verbose );
 }
-else{ print "You didn't use the option stranded. We will look for fusion in all strand (+ and -)!\n";}
+else{ dual_print( $log, "You didn't use the option stranded. We will look for fusion in all strand (+ and -)!\n", $verbose ); }
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -102,12 +85,12 @@ else{ print "You didn't use the option stranded. We will look for fusion in all 
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n", $verbose );
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Fasta file parsed\n");
+dual_print( $log, "Fasta file parsed\n", $verbose );
 
 ####################
 
@@ -137,7 +120,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
     if ((10 - (time - $startP)) < 0) {
         my $done = ($featureChecked*100)/$TotalFeatureL1;
         $done = sprintf ('%.0f', $done);
-        if($verbose) { print "Progress : $done %"; }
+        if($verbose) { dual_print( $log, "Progress : $done %\n", $verbose ); }
         else{ print "\rProgress : $done %"; }
         $startP= time;
     }
@@ -193,7 +176,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
           ##########################
           #If UTR not well defined #
           if ( exists_keys ($hash_omniscient, ('level3', 'utr', $id_level2) ) ){
-            print "Sorry but we need to know which utr it is ... 5 or 3 ?\n";exit;
+            die "Sorry but we need to know which utr it is ... 5 or 3 ?\n";
           }
 
           #############
@@ -217,7 +200,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
   }
 }
 # end progreesion bar
-if($verbose) { print "Progress : 100 %\n"; }
+if($verbose) { dual_print( $log, "Progress : 100 %\n", $verbose ); }
 else{print "\rProgress : 100 %\n"; }
 
 ###
@@ -227,14 +210,14 @@ fil_cds_frame($hash_omniscient, $db, $opt_codonTableID);
 
 #####################################
 # Manage modified gene to be sure they not overlap already existing gene. If yes => we give the same gene ID and remove one.
-print "Managing spurious labelling at gene level\n";
+dual_print( $log, "Managing spurious labelling at gene level\n", $verbose );
 # 1) create a hash omniscient intact
 my $hash_omniscient_intact={}; initialize_omni_from($hash_omniscient_intact, $hash_omniscient);
 fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list, $hash_omniscient, $hash_omniscient_intact);
 delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
 # 2) print the intact one
-print "print intact...\n";
+dual_print( $log, "print intact...\n", $verbose );
 print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout} );
 
 # 3) Sort by seq_id - review all newly created gene
@@ -269,14 +252,14 @@ foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_ta
 }
 
 # 5) Print modified genes
-print "print modified...\n";
+dual_print( $log, "print modified...\n", $verbose );
 if (exists_undef_value(\%omniscient_modified_gene)){print"there is an undef value";exit;}
 
 print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2} );
 
 # 6) Print all together
 merge_omniscients_fuse_l1duplicates($hash_omniscient_intact, \%omniscient_modified_gene);
-print "print all together...\n";
+dual_print( $log, "print all together...\n", $verbose );
 print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout3} );
 
 if ($overlap and $verbose){print "We found $overlap case gene overlapping at CDS level wihout the same ID, we fixed them.\n";}
@@ -294,8 +277,8 @@ $string_to_print .= "Job done in $run_time seconds\n";
 if($outfile){
   print $logout $string_to_print
 }
-print $string_to_print;
-print "Bye Bye.\n";
+dual_print( $log, $string_to_print, $verbose );
+dual_print( $log, "Bye Bye.\n", $verbose );
 #######################################################################################################################
         ####################
          #     METHODS    #

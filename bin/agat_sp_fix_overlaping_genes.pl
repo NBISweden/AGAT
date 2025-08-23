@@ -3,52 +3,29 @@
 use strict;
 use warnings;
 use Carp;
-use Getopt::Long;
-use Pod::Usage;
 use Sort::Naturally;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
-my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $ref     = undef;
-my $opt_merge;
-my $verbose = 0;
-my $opt_help = 0;
+my $header   = get_agat_header();
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|file|gff3=s', 'Input reference gff file', { required => 1 } ],
+    [ 'merge|m!',          'Merge overlapping genes' ],
+);
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$verbose  = $common->{verbose} // 0;
-$opt_help = $common->{help};
+my $ref       = $opt->gff;
+my $opt_merge = $opt->merge;
+my $outfile   = $config->{output};
+my $verbose   = $config->{verbose};
 
-if ( !GetOptions(
-                "f|file|gff3|gff=s"      => \$ref,
-                "merge|m!"               => \$opt_merge))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($ref)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameters is mandatory:\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -58,11 +35,11 @@ my $gffout = prepare_gffout($config, $outfile);
 
 my $error_found=undef;
 ### Parse GFF input #
-print ("Parse file $ref\n");
+dual_print( $log, "Parse file $ref\n", $verbose );
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                                  config => $config
                                                               });
-print ("$ref file parsed\n");
+dual_print( $log, "$ref file parsed\n", $verbose );
 
 # sort by seq id
 my %hash_sortBySeq;
@@ -114,7 +91,7 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
 
 					#now check at each CDS feature independently
           if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
-            print "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n" if $verbose;
+            dual_print( $log, "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n", $verbose );
             $error_found="yes";
             $nb_feat_overlap++;
             $total_overlap++;
@@ -126,9 +103,9 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
       # Now manage name if some feature overlap
       if( $nb_feat_overlap > 0){
         push(@ListOverlapingGene, $gene_feature);
-        print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n" if $verbose;
+        dual_print( $log, "$nb_feat_overlap overlapping feature found ! We will treat them now:\n", $verbose );
         my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene, $opt_merge);
-        print "We decided to keep that one: ".$reference_feature->gff_string."\n" if $verbose;
+        dual_print( $log, "We decided to keep that one: ".$reference_feature->gff_string."\n", $verbose );
 
         my $gene_id_ref  = $reference_feature->_tag_value('ID');
 
@@ -169,19 +146,19 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
         ###
         # check end and start of the new feature
         check_level1_positions( { omniscient => $hash_omniscient, feature => $reference_feature } );
-        print "\n\n";
+        dual_print( $log, "\n\n", $verbose );
       }
     }
   }
 }
 
 if(! $error_found){
-  print "No gene overlaping with different name has been found !\n";
+  dual_print( $log, "No gene overlaping with different name has been found !\n", $verbose );
 }else{
-  print "$total_overlap genes overlap\n";
+  dual_print( $log, "$total_overlap genes overlap\n", $verbose );
 }
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
-print "END\n";
+dual_print( $log, "END\n", $verbose );
 
 #######################################################################################################################
         ####################
