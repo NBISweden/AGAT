@@ -4,92 +4,86 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
-my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_help= 0;
-my $primaryTag="all";
-my $value=undef;
-my $strategy="equal";
-my $attributes=undef;
+my $header    = get_agat_header();
 my $start_run = time();
-my $outfile=undef;
-my $add = undef;
-my $cp = undef;
-my $overwrite = undef;
-my $cpt_case=0;
 
-my $common = parse_common_options() || {};
-$config   = $common->{config};
-$outfile  = $common->{output};
-$opt_help = $common->{help};
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'tag|att=s', 'Attribute tag(s) to manage', { required => 1 } ],
+    [ 'type|p|l=s',
+        'Comma-separated list of feature types or level1/2/3',
+        { default => 'all' }
+    ],
+    [ 'add!',       'Add attribute if it does not exist' ],
+    [ 'cp!',        'Duplicate attribute using tag/newTag pairs' ],
+    [ 'overwrite!', 'Overwrite existing attribute when adding or copying' ],
+    [ 'value=s',    'Process only attributes matching this value' ],
+    [
+        'strategy=s',
+        'Strategy for --value (equal or match)',
+        {
+            default   => 'equal',
+            callbacks => {
+                valid => sub {
+                    $_[0] =~ /^(?:equal|match)$/
+                      or die 'Strategy must be equal or match';
+                    return 1;
+                }
+            }
+        }
+    ],
+);
 
-if ( !GetOptions(
-    "gff|f=s"     => \$gff,
-    "add"         => \$add,
-                "overwrite"   => \$overwrite,
-    "cp"          => \$cp,
-    "value=s"     => \$value,
-    "strategy=s"  => \$strategy,
-    "p|type|l=s"  => \$primaryTag,
-    "tag|att=s"   => \$attributes,
-    ))
+my $gff        = $opt->gff;
+my $attributes = $opt->tag;
+my $primaryTag = $opt->type;
+my $add        = $opt->add;
+my $cp         = $opt->cp;
+my $overwrite  = $opt->overwrite;
+my $value      = $opt->value;
+my $strategy   = $opt->strategy;
+my $outfile    = $config->{output};
+my $cpt_case   = 0;
 
-{ 
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+  open( $log, '>', $log_name )
+    or die "Can not open $log_name for printing: $!";
+  dual_print( $log, $header, 0 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $gff or ! $attributes){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (--gff)\n".
-           "Attribute tag (--att)\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # --- Manage output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 # deal with strategy input
 $strategy=lc($strategy);
 if( ($strategy ne "equal") and ($strategy ne "match") ){
-  print "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
+  dual_print($log, "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n", $config->{verbose});
   exit;
 }
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print($log, "We will work on attributes from all features\n", $config->{verbose});
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
+  dual_print($log, "We will work on attributes from all the $primaryTag features\n", $config->{verbose});
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
+        dual_print($log, "We will work on attributes from all the $tag features\n", $config->{verbose});
       }
       else{
-       print "We will work on attributes from $tag feature.\n";
+       dual_print($log, "We will work on attributes from $tag feature.\n", $config->{verbose});
       }
    }
 }
@@ -102,9 +96,10 @@ if ($attributes){
 
   if ($attributes eq "all_attributes"){
     if($add){
-      print "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
+      dual_print($log, "You cannot use the all_attributes value with the add option. Please change the parameters !\n", $config->{verbose});
+      exit;
     }
-    print "All attributes will be removed except ID and Parent attributes !\n";
+    dual_print($log, "All attributes will be removed except ID and Parent attributes !\n", $config->{verbose});
     $attListOk{"all_attributes"}++;
   }
   else{
@@ -115,36 +110,36 @@ if ($attributes){
       my @attList= split(/\//, $attributeTuple);
       if($#attList == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attList[0]) eq "id" and ! $add){print "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
+        if(lc($attList[0]) eq "id" and ! $add){dual_print($log, "It's forbidden to remove the ID attribute in a gff3 file !\n", $config->{verbose}); exit;}
         #check for Parent attribute
         if(lc($attList[0]) eq "parent" and ! $add){
           foreach my $tag (@ptagList){
             if($tag ne "gene" and $tag ne "level1"){
-              print "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
+              dual_print($log, "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n", $config->{verbose});
               exit;
             }
           }
         }
         $attListOk{$attList[0]}="null";
         if($add){
-          print "$attList[0] attribute will be added. The value will be empty.\n";
+          dual_print($log, "$attList[0] attribute will be added. The value will be empty.\n", $config->{verbose});
         }
         else{
           if($value){
-              print "$attList[0] attribute will be removed if it has the value:$value.\n";
+              dual_print($log, "$attList[0] attribute will be removed if it has the value:$value.\n", $config->{verbose});
           }
           else{
-            print "$attList[0] attribute will be removed.\n";
+            dual_print($log, "$attList[0] attribute will be removed.\n", $config->{verbose});
           }
         }
       }
       else{ # Attribute will be replaced/copied with a new tag name
         $attListOk{$attList[0]}=$attList[1];
-        print "$attList[0] attribute will be replaced by $attList[1].\n";
+        dual_print($log, "$attList[0] attribute will be replaced by $attList[1].\n", $config->{verbose});
       }
     }
   }
-  print "\n";
+  dual_print($log, "\n", $config->{verbose});
 }
 
 my $hash_info= get_levels_info();
@@ -166,7 +161,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n", $config->{verbose});
 
 my $line_cpt=0;
 my %hash_IDs;
@@ -183,7 +178,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print($log, "\rProgression : $done % processed.\n", $config->{verbose});
     $startP= time;
   }
 }
@@ -193,15 +188,15 @@ my $end_run = time();
 my $run_time = $end_run - $start_run;
 
 if($add){
-  print "$cpt_case attribute added\n";
+  dual_print($log, "$cpt_case attribute added\n", $config->{verbose});
 }
 elsif($cp){
-  print "$cpt_case attribute copied\n";
+  dual_print($log, "$cpt_case attribute copied\n", $config->{verbose});
 
 }else{
-  print "$cpt_case attribute removed\n";
+  dual_print($log, "$cpt_case attribute removed\n", $config->{verbose});
 }
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
 
 
 #######################################################################################################################
