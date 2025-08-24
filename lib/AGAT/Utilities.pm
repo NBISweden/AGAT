@@ -83,10 +83,12 @@ sub get_proper_codon_table {
     "It uses codon table $codon_table_id_bioperl instead.");
   }
 
-  dual_print($log,
-             "Codon table ".$codon_table_id_bioperl.
-             " in use. You can change it using the appropriate parameter.\n",
-             $verbose // 1);
+  dual_print(
+    $log,
+    "Codon table ".$codon_table_id_bioperl.
+      " in use. You can change it using the appropriate parameter.\n",
+    $verbose
+  );
   return $codon_table_id_bioperl;
 }
 
