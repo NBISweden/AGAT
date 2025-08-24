@@ -4,9 +4,8 @@ use strict;
 use warnings;
 use Carp;
 use File::Basename;
-use Getopt::Long;
 use IO::File;
-use Pod::Usage;
+use Getopt::Long::Descriptive;
 use List::MoreUtils qw(uniq);
 use Clone 'clone';
 use FindBin qw($Bin);
@@ -14,63 +13,38 @@ use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header  = get_agat_header();
-my $config;
 
-my $outfile = undef;
-my $gff = undef;
-my $valueK = undef;
-my $verbose = undef;
-my $quiet   = 0;
-my $kraken_tag = "Kraken_mapped";
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gtf=s', 'Input reference gtf file', { required => 1 } ],
+    [ 'threshold|t=i',
+      'Gene mapping percentage over which a gene must be reported',
+      {   default   => 0,
+          callbacks => {
+              range => sub {
+                  my $val = shift;
+                  $val >= 0 && $val <= 100
+                    or die 'Threshold must be between 0 and 100';
+              },
+          },
+      }
+    ],
+    [ 'plot|p!', 'Allows to create an histogram in pdf' ],
+);
+
+my $gff      = $opt->gtf;
+my $valueK   = $opt->threshold;
+my $opt_plot = $opt->plot;
+my $opt_output  = $config->{output};
+my $opt_verbose = $config->{verbose};
+my $kraken_tag     = "Kraken_mapped";
 my $kraken_tag_alt = 'kraken_mapped';
-my $opt_plot;
-my $help = 0;
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    'h|help'                   => \$help,
-    'gtf=s'                    => \$gff,
-    'threshold|t=i'            => \$valueK,
-    'p|plot!'                  => \$opt_plot,
-    'verbose|v!'               => \$verbose,
-    'quiet|q'                  => \$quiet,
-    'outfile|output|out|o=s'   => \$outfile ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# Print Help and exit
-if ($help) {
-    pod2usage( { -message => "$header\n",
-                 -verbose => 99,
-                 -exitval => 0 } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gtf file (--f)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-if ($quiet) {
-    $verbose = 0;
-    $config->{verbose}      = 0;
-    $config->{progress_bar} = 0;
-}
-
-my $opt_verbose = defined $verbose ? $verbose : $config->{verbose};
-my $opt_output  = $outfile;
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
 }
+dual_print( $log, $header, $opt_verbose );
 
 sub _kraken_has_tag {
     my ($feature) = @_;
@@ -118,13 +92,13 @@ if ($opt_plot) {
 
 # Message
 my $messageValue;
-if ( defined($valueK) ){
-  $messageValue = "You choose to keep in output only genes mapped over $valueK percent.\n"
-}else{
-  $messageValue = "We will keep all the mapped features.\n";
-  $valueK=0;
+if ($valueK) {
+  $messageValue = "You choose to keep in output only genes mapped over $valueK percent.\n";
 }
-$messageValue.="The kraken attribute tag that will be used is: ".$kraken_tag."\n";
+else {
+  $messageValue = "We will keep all the mapped features.\n";
+}
+$messageValue .= "The kraken attribute tag that will be used is: $kraken_tag\n";
 
 #print info
 print $outReport $messageValue if $opt_output;
