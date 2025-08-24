@@ -46,14 +46,14 @@ sub check_quiet_run {
         local $/;
         my $out = <$out_fh>;
         close $out_fh;
-        diag("stdout:\n$out");
+        diag("$stdout:\n$out");
     }
     if ( -s $stderr ) {
         open my $err_fh, '<', $stderr or die "Cannot open $stderr: $!";
         local $/;
         my $err = <$err_fh>;
         close $err_fh;
-        diag("stderr:\n$err");
+        diag("$stderr:\n$err");
     }
     ok( -z $stdout, 'stdout is empty' );
     ok( -z $stderr, 'stderr is empty' );
