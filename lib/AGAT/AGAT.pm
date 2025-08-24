@@ -399,7 +399,7 @@ sub handle_config {
 
                 # Deal with Expose feature OPTION
                 if($expose){
-                        my $config_file = get_config({type => "original"});
+                        my $config_file = get_config({type => "original", verbose => $verbose});
 			my $config = load_config({ config_file => $config_file});
                         print "Config loaded\n" if $verbose;
 
@@ -554,11 +554,11 @@ sub handle_config {
 
 			 
 			
-			if ($modified_on_the_fly) {
-				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
-			} else {
-				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name});
-			}
+                        if ($modified_on_the_fly) {
+                                expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
+                        } else {
+                                expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name, verbose => $verbose});
+                        }
 
 			# inform user
 			my $config_file_used;

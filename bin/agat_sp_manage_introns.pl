@@ -118,9 +118,12 @@ foreach my $file (@opt_files){
 
   #print statistics
         dual_print($log, "Compute statistics\n", $opt_verbose);
-	print_omniscient_statistics ({ input => $hash_omniscient,
-																 output => $ostreamReport
-															 });
+	print_omniscient_statistics({
+            input   => $hash_omniscient,
+            output  => $ostreamReport,
+            log     => $log,
+            verbose => $opt_output ? $opt_verbose : 0,
+        });
 
   ######################
   ### Parse GFF input #
@@ -235,7 +238,7 @@ foreach  my $tag (sort keys %introns){
   my $stringPrint =  "Introns in feature $tag: Removing $Xpercent percent of the highest values ($nbValueToRemove values) gives you $resu bp as the longest intron in $tag.\n";
 
   print $ostreamReport $stringPrint;
-  if($opt_output){print $stringPrint;}
+  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 0);
 
 
   # Part 4

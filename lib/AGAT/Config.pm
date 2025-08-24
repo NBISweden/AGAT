@@ -79,8 +79,14 @@ sub get_config{
 
 	# -------------- INPUT --------------
 	# -- Declare all variables and fill them --
-	my ( $verbose, $log, $debug, $type, $config_file_in ) ;
-	if( ! defined($args->{verbose}) ) { $verbose = 1;} else{ $verbose = $args->{verbose}; }
+        my ( $verbose, $log, $debug, $type, $config_file_in ) ;
+        if( ! defined($args->{verbose}) ) {
+                if( defined $AGAT::AGAT::CONFIG->{verbose} ) {
+                        $verbose = $AGAT::AGAT::CONFIG->{verbose};
+                } else {
+                        $verbose = 1;
+                }
+        } else{ $verbose = $args->{verbose}; }
 	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
 	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
 	if( ! defined($args->{type}) ) { $type = "local";} else{ $type = $args->{type};}
@@ -135,20 +141,21 @@ sub expose_config_hash{
 
 # @Purpose: Write the config hash in a yaml file in the current directory 
 sub expose_config_file{
-	my ($args)=@_;
+        my ($args)=@_;
 
-	my ($path_in, $config_file_out);
-	if( ! defined($args->{config_file_in}) ) { $path_in = undef;} else{ $path_in = $args->{config_file_in};}
-	if( ! defined($args->{config_file_out}) ) { $config_file_out = $config_file;} else{ $config_file_out = $args->{config_file_out};}
+        my ($path_in, $config_file_out, $verbose);
+        if( ! defined($args->{config_file_in}) ) { $path_in = undef;} else{ $path_in = $args->{config_file_in};}
+        if( ! defined($args->{config_file_out}) ) { $config_file_out = $config_file;} else{ $config_file_out = $args->{config_file_out};}
+        if( ! defined($args->{verbose}) ) { $verbose = 1;} else{ $verbose = $args->{verbose};}
 
-	#set run directory
-	if(! $path_in){
-		$path_in = dist_file('AGAT', $config_file);
-		print "Path where $config_file is standing according to dist_file: $path_in\n";
-	}
-	# copy the file locally
-	my $run_dir = cwd;
-	copy($path_in, $run_dir."/".$config_file_out) or die print "Copy failed: $!";
+        #set run directory
+        if(! $path_in){
+                $path_in = dist_file('AGAT', $config_file);
+                dual_print(undef, "Path where $config_file is standing according to dist_file: $path_in\n", $verbose);
+        }
+        # copy the file locally
+        my $run_dir = cwd;
+        copy($path_in, $run_dir."/".$config_file_out) or die print "Copy failed: $!";
 }
 
 # @Purpose: Check config value to be sure everything is set as expected

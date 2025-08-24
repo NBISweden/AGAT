@@ -247,6 +247,7 @@ sub rename_ID_existing_in_omniscient {
                 }
         }
 
+
 	my $hash_whole_IDs = get_all_IDs($hash_omniscient1);
 	my $hash2_whole_IDs = get_all_IDs($hash_omniscient2);
 
@@ -1444,7 +1445,8 @@ sub create_or_append_tag{
 # 2 means that there are two extra bases (the second and third bases of the codon) before the first codon.
 sub fil_cds_frame {
 
-	my ($hash_omniscient, $db, $verbose)=@_;
+        my ($hash_omniscient, $db, $log, $verbose, $codon_table_id)=@_;
+        $codon_table_id //= 0;
 
 	foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
@@ -1465,7 +1467,7 @@ sub fil_cds_frame {
 						@cds_list=sort {$b->start <=> $a->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
 					}
 
-					my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID} );
+                                        my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID}, $codon_table_id );
 
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
 					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
@@ -1480,10 +1482,10 @@ sub fil_cds_frame {
 						foreach my $cds_feature ( @cds_list) {
 							my $original_phase = $cds_feature->frame;
 
-							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-								print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
-								$cds_feature->frame($phase);
-							}
+                                                        if ( ($original_phase eq ".") or ($original_phase != $phase) ){
+                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n", $verbose);
+                                                                $cds_feature->frame($phase);
+                                                        }
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
 							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
 						}

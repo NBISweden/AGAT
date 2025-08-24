@@ -12,6 +12,7 @@ use AGAT::OmniscientI;
 use AGAT::Utilities;
 use AGAT::OmniscientToGTF;
 use Exporter;
+use Carp;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
@@ -52,17 +53,18 @@ sub prepare_gffout{
 	}
 	
 	my $gffout;
-	if ($outfile) {
-		# check existence
-	  if(-f $outfile){
-			print "File $outfile already exist.\n";
-			exit;
-		}
-		else {
-			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
-		}
-	}
+        if ($outfile) {
+                # check existence
+          if(-f $outfile){
+                        my $msg = "File $outfile already exist.\n";
+                        warn $msg if $AGAT::AGAT::CONFIG->{verbose};
+                        exit;
+                }
+                else {
+                        open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+                        $gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
+                }
+        }
 	else{
 		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
 	}
@@ -74,16 +76,17 @@ sub prepare_fileout{
 	my ($outfile) = @_;
 
 	my $fileout;
-	if ($outfile) {
-		if(-f $outfile){
-			print "File $outfile already exist.\n";
-			exit;
-		}
-		else {
-			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
-		}
-	}
+        if ($outfile) {
+                if(-f $outfile){
+                        my $msg = "File $outfile already exist.\n";
+                        warn $msg if $AGAT::AGAT::CONFIG->{verbose};
+                        exit;
+                }
+                else {
+                        open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+                        $fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
+                }
+        }
 	else{
 		$fileout = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
 	}
