@@ -4,6 +4,7 @@ package AGAT::OmniscientI;
 
 use strict;
 use warnings;
+use Carp;
 use Try::Tiny;
 use File::Basename;
 use File::ShareDir ':ALL';
@@ -113,7 +114,7 @@ sub slurp_gff3_file_JD {
 	my ($args) = @_	;
 
 	# +----------------- Check we receive a hash as ref ------------------+
-	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
+        if(ref($args) ne 'HASH'){ croak "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; }
 
 	# +-----------------  Declare all variables and fill them ------------------+
 	my ( $file, $gff_in_format, $locus_tag, $verbose, $merge_loci,
@@ -121,12 +122,11 @@ sub slurp_gff3_file_JD {
 
 	# +----------------- first check config ------------------+
 	if( defined($args->{config} ) ){
-		$config = $args->{config};
-		$omniscient{"config"}=$config;
-	} else {
-		print "Configuration missing!\n";
-		exit 1;
-	}
+                $config = $args->{config};
+                $omniscient{"config"}=$config;
+        } else {
+                croak "Configuration missing!\n";
+        }
 
 	# +----------------- input param  ------------------+
 	if( defined($args->{input})) {$file = $args->{input};}
