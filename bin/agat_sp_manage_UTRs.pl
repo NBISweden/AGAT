@@ -34,6 +34,13 @@ my $opt_plot    = $opt->{plot};
 my $opt_output  = $opt->out;
 $config         = $cfg;
 
+my $opt_verbose = $config->{verbose};
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+  open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+}
+dual_print( $log, $header, $opt_verbose );
+
 my $opt_utr3 = ($mode && $mode eq 'three') ? 1 : 0;
 my $opt_utr5 = ($mode && $mode eq 'five') ? 1 : 0;
 my $opt_bst  = ($mode && $mode eq 'both') ? 1 : 0;
@@ -51,7 +58,10 @@ if (defined($opt_output) ) {
   my ($name,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   $opt_output = $path.$name;
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
+    dual_print($log, $msg, 0);
+    warn $msg if $opt_verbose;
+    exit();
   }
   else{
     mkdir $opt_output;
@@ -74,7 +84,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 }
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+dual_print($log, $string1, $opt_output ? $opt_verbose : 0);
 
 # Check if dependencies for plot are available
 if($opt_plot){
@@ -145,7 +155,7 @@ my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
                                                                  config => $config
                                                               });
-print("Parsing Finished\n\n");
+dual_print($log, "Parsing Finished\n\n", $opt_verbose);
 ### END Parse GFF input #
 #########################
 
@@ -339,9 +349,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 
   #Print Info OUtput
   print $ostreamReport $stringPrint;
-  if($opt_output){
-    print $stringPrint;
-  }
+  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 0);
 }
 
 ############################

@@ -52,7 +52,7 @@ sub print_omniscient_statistics{
 	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
 
 	# Declare all variables and fill them
-	my ($omniscient, $genome_size, $output, $yaml, $raw,  $verbose, $distri, $isoform, $percentile);
+        my ($omniscient, $genome_size, $output, $yaml, $raw,  $verbose, $distri, $isoform, $percentile, $log);
 
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
@@ -80,7 +80,7 @@ sub print_omniscient_statistics{
 		  		$genome_size += length($string);
 		  	}
 			}
-			printf("$width%d%s", "Total sequence length (bp)", $genome_size,"\n");
+                        dual_print($log, sprintf("$width%d%s", "Total sequence length (bp)", $genome_size, "\n"), $verbose);
 		}
 	}
 
@@ -101,8 +101,9 @@ sub print_omniscient_statistics{
 	if( ! defined($args->{verbose}) ) {$verbose = 0;}
 		else{ $verbose = $args->{verbose}; }
 	# Path to the folder where to put distribution plot
-	if( ! defined($args->{distri}) ) {$distri = 0;}
-		else{ $distri = $args->{distri}; }
+        if( ! defined($args->{distri}) ) {$distri = 0;}
+                else{ $distri = $args->{distri}; }
+        if( defined($args->{log}) ) { $log = $args->{log}; }
 	# Should we deal with isoform (remove them and re-compute the statistics) 1=yes
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
