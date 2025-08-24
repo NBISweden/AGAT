@@ -238,7 +238,7 @@ sub rename_ID_existing_in_omniscient {
 
 	my ($hash_omniscient1, $hash_omniscient2, $verbose)=@_;
 
-	if(! $verbose){$verbose=1;}
+       if(! defined $verbose){$verbose=1;}
 
 	my $hash_whole_IDs = get_all_IDs($hash_omniscient1);
 	my $hash2_whole_IDs = get_all_IDs($hash_omniscient2);
@@ -1585,8 +1585,8 @@ sub info_omniscient {
                 if ( $level eq 'level2' or $level eq 'level3' ) {
                         foreach my $tag ( keys %{ $hash_omniscient->{$level} } ) {
                                 foreach my $id ( keys %{ $hash_omniscient->{$level}{$tag} } ) {
-                                        my $nb =
-                                          $# { $hash_omniscient->{$level}{$tag}{$id} } + 1;
+                                       my $nb =
+                                          $#{ $hash_omniscient->{$level}{$tag}{$id} } + 1;
                                         if ( exists_keys( \%resu, ($tag) ) ) {
                                                 $resu{$tag} += $nb;
                                         }
