@@ -51,7 +51,7 @@ if ( my $log_name = $config->{log_path} ) {
 }
 
 # --- Check codon table
-$codonTable = get_proper_codon_table($codonTable);
+$codonTable = get_proper_codon_table($codonTable, $log, $verbose);
 
 ######################
 # Manage output file #
@@ -216,7 +216,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 									if( pass_ambiguous_start($longest_ORF_prot_obj, $originalProt_size) ){
 
-                    $ListModel{1}++; print "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                    $ListModel{1}++;
+                    dual_print($log, "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n", $verbose);
                     dual_print( $log, "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n", $verbose );
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model1', $gffout);
                     $ORFmodified="yes";
@@ -234,7 +235,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                   my $model;
 
                   if( exists($ListModel{2}) ){
-                    $ListModel{2}++; print "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                    $ListModel{2}++;
+                    dual_print($log, "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n", $verbose);
                     $model=1;
                     if($split_opt){
                       split_gene_model(\@intact_gene_list, $hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model2', $gffout);
@@ -252,7 +254,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   #Model3         ###############
                   # original protein and predicted one are different; the predicted one is longest, they overlap each other.
                   if( exists($ListModel{3}) ){
-                    $ListModel{3}++; print "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                    $ListModel{3}++;
+                    dual_print($log, "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n", $verbose);
 
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model3', $gffout);
                     $ORFmodified="yes";
@@ -271,7 +274,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 #Model4     ###############
                 # /!\ Here we compare the CDS traduction (traduct in IUPAC) against longest CDS in mRNA IUPAC modified to take in account for stops codon only those that are trustable only (TGA, TAR...).
                 if( exists($ListModel{4}) ){
-                  $ListModel{4}++;  print "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                  $ListModel{4}++;
+                  dual_print($log, "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n", $verbose);
                   dual_print( $log, "Original: ".$original_prot_obj->seq."\n", $verbose );
                   dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", $verbose );
                   #remodelate a shorter gene
@@ -357,9 +361,9 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 ###########
 # Fix frame
-fil_cds_frame(\%omniscient_modified_gene, $db, $verbose);
+fil_cds_frame(\%omniscient_modified_gene, $db, $log, $verbose, $codonTable);
 #fil_cds_frame(\%omniscient_pseudogene);
-fil_cds_frame($hash_omniscient, $db, $verbose);
+fil_cds_frame($hash_omniscient, $db, $log, $verbose, $codonTable);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
 dual_print( $log, "removing duplicates\n", $verbose );
