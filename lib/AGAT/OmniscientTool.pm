@@ -236,9 +236,17 @@ sub complement_omniscients {
 # rename ID in hash_omniscient2 that already exist in hash_omniscient1
 sub rename_ID_existing_in_omniscient {
 
-	my ($hash_omniscient1, $hash_omniscient2, $verbose)=@_;
+        my ($hash_omniscient1, $hash_omniscient2, $verbose)=@_;
 
-       if(! defined $verbose){$verbose=1;}
+        if(! defined $verbose){
+                if(defined $AGAT::AGAT::CONFIG->{verbose}){
+                        $verbose = $AGAT::AGAT::CONFIG->{verbose};
+                }
+                else{
+                        $verbose = 1;
+                }
+        }
+
 
 	my $hash_whole_IDs = get_all_IDs($hash_omniscient1);
 	my $hash2_whole_IDs = get_all_IDs($hash_omniscient2);
