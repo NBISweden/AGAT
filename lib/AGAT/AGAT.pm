@@ -253,6 +253,7 @@ sub resolve_common_options {
 
         my $merged = AGAT::AppEaser::hash_merge( $config, \%cli );
         $merged->{log_path} = $log_path;
+        $CONFIG = $merged;
         return $merged;
 }
 
