@@ -33,6 +33,13 @@ my $mode        = $opt->mode;
 my $opt_plot    = $opt->{plot};
 my $opt_output  = $opt->out;
 $config         = $cfg;
+my $opt_verbose = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+  open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+}
+dual_print( $log, $header, $opt_verbose );
 
 my $opt_verbose = $config->{verbose};
 my $log;
