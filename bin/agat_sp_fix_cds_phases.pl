@@ -45,7 +45,7 @@ dual_print($log, "Fasta file parsed\n", $opt_verbose);
 
 ###
 # Fix frame
-fil_cds_frame($hash_omniscient, $db, $opt_verbose);
+fil_cds_frame($hash_omniscient, $db, $log, $opt_verbose);
 
 ###
 # Print result
