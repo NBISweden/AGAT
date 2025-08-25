@@ -300,23 +300,13 @@ sub print_time{
 # @input: 3 => fh, string, integer
 # @output 0 => None
 sub dual_print{
-        my ($fh, $string, $verbose) = @_;
-        if(! defined($verbose)){
-                if(defined $AGAT::AGAT::CONFIG->{verbose}){
-                        $verbose = $AGAT::AGAT::CONFIG->{verbose};
-                }
-                else{
-                        $verbose = 1; # default verbosity
-                }
-        }
-
-        if($verbose > 0 ){ #only 0 is quiet mode
-                print $string;
-        }
-        # print in log in any provided
-        if($fh){
-                print $fh $string;
-        }
+my ($fh, $string, $min) = @_;
+my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
+$min = 1 unless defined $min;
+if ($min > 0 && $verbose >= $min) {
+print $string;
+}
+print $fh $string if $fh;
 }
 
 # @Purpose: transform a String with separator into hash

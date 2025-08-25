@@ -205,8 +205,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             ########################
             # prediction is longer #
             dual_print( $log, $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n", $verbose );
-                                            dual_print( $log, "Original: ".$original_prot_obj->seq."\n", $verbose > 3 );
-                                            dual_print( $log, "Prediction: ".$longest_ORF_prot_obj->seq."\n", $verbose > 3 );
+                                            dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 3 );
+                                            dual_print( $log, "Prediction: ".$longest_ORF_prot_obj->seq."\n", 3 );
             if($longest_ORF_prot_obj->length() > $originalProt_size){
 
   #Model1     ###############################################
