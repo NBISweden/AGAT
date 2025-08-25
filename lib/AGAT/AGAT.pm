@@ -24,7 +24,7 @@ use AGAT::PlotR;
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels parse_common_options get_log_path resolve_common_options common_spec resolve_config describe_script_options );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels get_log_path resolve_common_options common_spec resolve_config describe_script_options );
 
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
@@ -159,28 +159,6 @@ sub get_log_path {
         return $config->{log_path} if $config->{log_path};
         my ($file) = $0 =~ /([^\\\/]+)$/;
         return $file . ".agat.log";
-}
-
-# Parse common command-line options shared by many scripts.
-# Options removed from @ARGV to allow further processing by callers.
-sub parse_common_options {
-        my ($argv) = @_;
-        $argv //= \@ARGV;
-        my @original = @{$argv};
-        my %options;
-        my $parser = Getopt::Long::Parser->new( config => ['pass_through'] );
-        $parser->getoptionsfromarray(
-                $argv, \%options,
-                'config|c=s',
-                'output|outfile|out|o=s',
-                'log=s',
-                'verbose|v=i',
-                'debug|d!',
-                'help|h'
-        )
-          or return;
-        $options{argv} = \@original;
-        return \%options;
 }
 
 # Return shared Getopt::Long::Descriptive option descriptors
