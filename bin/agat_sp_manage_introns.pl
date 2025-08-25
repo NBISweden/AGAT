@@ -30,7 +30,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 # #######################
 # # START Manage Option #
@@ -105,19 +105,19 @@ if($opt_plot){
 my %introns;
 foreach my $file (@opt_files){
 
-  dual_print($log, "Reading $file\n", $opt_verbose);
+  dual_print($log, "Reading $file\n");
 
   ######################
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file,
                                                                    config => $config
                                                               });
-  dual_print($log, "Parsing Finished\n\n", $opt_verbose);
+  dual_print($log, "Parsing Finished\n\n");
   ### END Parse GFF input #
   #########################
 
   #print statistics
-        dual_print($log, "Compute statistics\n", $opt_verbose);
+        dual_print($log, "Compute statistics\n");
 	print_omniscient_statistics({
             input   => $hash_omniscient,
             output  => $ostreamReport,

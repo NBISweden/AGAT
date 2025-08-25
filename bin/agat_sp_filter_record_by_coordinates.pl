@@ -35,12 +35,12 @@ if ( my $log_name = $config->{log_path} ) {
 # Manage Output
 
 if (! $opt_output) {
-  dual_print( $log, "Default output name: filter_record_by_coordinates\n", $opt_verbose );
+  dual_print( $log, "Default output name: filter_record_by_coordinates\n");
   $opt_output="filter_record_by_coordinates";
 }
 
 if (-d $opt_output){
-  dual_print( $log, "The output directory choosen already exists. Please give me another Name.\n", $opt_verbose );
+  dual_print( $log, "The output directory choosen already exists. Please give me another Name.\n");
   exit();
 }
 mkdir $opt_output;
@@ -77,7 +77,7 @@ while (my $line = <$in_range>) {
       $nb_ranges++;
     }
     else{
-      dual_print( $log, "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n", $opt_verbose );
+      dual_print( $log, "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n");
     }
 }
 
@@ -86,7 +86,7 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will get features that are within the $nb_ranges selected ranges.\n";
 
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -96,7 +96,7 @@ print $ostreamReport $stringPrint if $ostreamReport;
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -158,7 +158,7 @@ $stringPrint .= "$test_fail record(s) out of the range(s).\n";
 if ($ostreamReport){
   print $ostreamReport $stringPrint;
 }
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
 
 #######################################################################################################################
         ####################
@@ -182,14 +182,14 @@ sub test_overlap_with_ranges{
     foreach my $range ( @{$range_hash{lc($feature_l1->seq_id)}} ){
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
-          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n", $opt_verbose );
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n");
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
-          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n", $opt_verbose );
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n");
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }

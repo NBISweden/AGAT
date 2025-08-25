@@ -181,7 +181,7 @@ foreach my $type1 (keys %busco1){
             print $streamOut  $busco1{$type1}{$id1};
           }
           else{
-            dual_print( $log, "$id1 was $type1 and it is now $type2\n", $verbose );
+            dual_print( $log, "$id1 was $type1 and it is now $type2\n");
           }
         }
       }
@@ -205,7 +205,7 @@ if (-d $augustus_gff_folder){
   my %track_found;
   my @list_cases=("complete","fragmented","duplicated");
   foreach my $type (@list_cases){
-    dual_print( $log, "extract gff for $type cases\n", $verbose );
+    dual_print( $log, "extract gff for $type cases\n");
     foreach my $id (sort keys %{$busco1{$type}}){
       my @list = split(/\s/,$busco1{$type}{$id});
       my $seqId = $list[2];
@@ -218,7 +218,7 @@ if (-d $augustus_gff_folder){
           my $path = $augustus_gff_folder."/".$match;
           if (-f $path ){
             my  $found=undef;
-            dual_print( $log, "$path\n", $verbose );
+            dual_print( $log, "$path\n");
 
             my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
@@ -250,7 +250,7 @@ if (-d $augustus_gff_folder){
 
               if ($found){
                 if(@listIDl1ToRemove){
-                  dual_print( $log, "lets remove those supernumary annotation: @listIDl1ToRemove \n", $verbose );
+                  dual_print( $log, "lets remove those supernumary annotation: @listIDl1ToRemove \n");
                   remove_omniscient_elements_from_level1_id_list($hash_omniscient, \@listIDl1ToRemove);
                 }
 
@@ -267,20 +267,20 @@ if (-d $augustus_gff_folder){
                 }
               }
               else{
-                dual_print( $log, "No annotation as described in the tsv file found in the gff file $path\n", $verbose );
+                dual_print( $log, "No annotation as described in the tsv file found in the gff file $path\n");
               }
             }
             else{
-              dual_print( $log, "No annotation in the file $path, lets look the next one.\n", $verbose );
+              dual_print( $log, "No annotation in the file $path, lets look the next one.\n");
             }
           }
           else{
-            dual_print( $log, "A) file $id not found among augustus gff output\n", $verbose );
+            dual_print( $log, "A) file $id not found among augustus gff output\n");
           }
         }
       }
       else{
-        dual_print( $log, "file $id not found among augustus gff output\n", $verbose );
+        dual_print( $log, "file $id not found among augustus gff output\n");
       }
       if(! exists_keys(\%track_found,($type,$id))){
         warn "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n" if $verbose;
@@ -292,7 +292,7 @@ if (-d $augustus_gff_folder){
     $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};
     $loop = 0;
-    dual_print( $log, "We found $nb annotations from $type busco\n", $verbose );
+    dual_print( $log, "We found $nb annotations from $type busco\n");
   }
 
 }
@@ -304,7 +304,7 @@ else{ die "$augustus_gff_folder folder doesn't exits\n"; }
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $verbose );
+dual_print( $log, "Job done in $run_time seconds\n");
 #######################################################################################################################
         ####################
          #     methods    #

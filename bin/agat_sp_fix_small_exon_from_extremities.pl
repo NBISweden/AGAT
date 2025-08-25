@@ -42,7 +42,7 @@ my $gffout = prepare_gffout($config, $outfile);
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # --- Check codon table
-$codonTableId = get_proper_codon_table($codonTableId, $log, $verbose);
+$codonTableId = get_proper_codon_table($codonTableId, $log);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -51,13 +51,13 @@ $codonTableId = get_proper_codon_table($codonTableId, $log, $verbose);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-dual_print( $log, "Fasta file parsed\n", $verbose );
+dual_print( $log, "Fasta file parsed\n");
 
 ####################
 
@@ -72,7 +72,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    dual_print( $log, "gene_id = $gene_id\n", $verbose );
+    dual_print( $log, "gene_id = $gene_id\n");
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id) ) ){
@@ -103,7 +103,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $exonCounter++;
               $exonFix=1;
 
-              dual_print( $log, "left_exon start fixed\n", $verbose );
+              dual_print( $log, "left_exon start fixed\n");
 
               #take care of CDS if needed
               if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -161,7 +161,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 $exonCounter++;
                 $exonFix=1;
 
-                dual_print( $log, "right_exon end fixed\n", $verbose );
+                dual_print( $log, "right_exon end fixed\n");
 
                 #take care of CDS if needed
                 if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -181,7 +181,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                     my $this_codon = substr( $sequence, $original_cds_end-3, 3);
 
                     if($strand eq "+" or $strand == "1"){
-                      dual_print( $log, "last plus strand\n", $verbose );
+                      dual_print( $log, "last plus strand\n");
                        #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                       if(! $codonTable->is_ter_codon( $this_codon )){
@@ -191,7 +191,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                     }
                     if($strand eq "-" or $strand == "-1"){
-                      dual_print( $log, "last minus strand\n", $verbose );
+                      dual_print( $log, "last minus strand\n");
 
                       #reverse complement
                       my $seqobj = Bio::Seq->new(-seq => $this_codon);
@@ -228,11 +228,11 @@ $string_to_print .="Results:\n";
 $string_to_print .="nb gene affected: $geneCounter\n";
 $string_to_print .="nb rna affected: $mrnaCounter\n";
 $string_to_print .="nb exon affected: $exonCounter\n";
-dual_print( $log, $string_to_print, $verbose );
+dual_print( $log, $string_to_print);
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print( $log, "Bye Bye.\n", $verbose );
+dual_print( $log, "Bye Bye.\n");
 #######################################################################################################################
         ####################
          #     METHODS    #

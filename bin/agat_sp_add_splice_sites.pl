@@ -48,7 +48,7 @@ my $gffout = prepare_gffout($config, $opt_output);
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config });
-  dual_print($log, "Parsing Finished\n", $verbose);
+  dual_print($log, "Parsing Finished\n");
   ### END Parse GFF input #
   #########################
 
@@ -73,7 +73,7 @@ my $splice_added=0;
           last;
         }
       }
-      if(! $feature_l1){dual_print($log, "Problem ! We didnt retrieve the level1 feature with id $id_l1\n", $verbose);exit;}
+      if(! $feature_l1){dual_print($log, "Problem ! We didnt retrieve the level1 feature with id $id_l1\n");exit;}
 
       #####
       # get all level2
@@ -166,7 +166,7 @@ my $splice_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print($log, "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n", $verbose);
+dual_print($log, "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n");
       #########################
       ######### END ###########
       #########################

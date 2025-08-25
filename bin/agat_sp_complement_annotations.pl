@@ -47,7 +47,7 @@ my $gffout = prepare_gffout($config, $opt_output);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                                  config => $config
                                                               });
-dual_print( $log, "$ref GFF3 file parsed\n", $verbose );
+dual_print( $log, "$ref GFF3 file parsed\n");
 info_omniscient($hash_omniscient, $log, $verbose);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
@@ -55,13 +55,13 @@ foreach my $next_file (@opt_files){
   my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
 	                                                                   config => $config
                                                                 });
-  dual_print( $log, "$next_file GFF3 file parsed\n", $verbose );
+  dual_print( $log, "$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2, $log, $verbose);
 
   ################################
   # First rename ID to be sure to not add feature with ID already used
   rename_ID_existing_in_omniscient($hash_omniscient, $hash_omniscient2);
-  dual_print( $log, "\n$next_file IDs checked and fixed.\n", $verbose );
+  dual_print( $log, "\n$next_file IDs checked and fixed.\n");
 
 
   # Quick stat hash before complement
@@ -75,7 +75,7 @@ foreach my $next_file (@opt_files){
 
   ####### COMPLEMENT #######
   complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min);
-  dual_print( $log, "\nComplement done !\n", $verbose );
+  dual_print( $log, "\nComplement done !\n");
 
 
  #RESUME COMPLEMENT
@@ -93,7 +93,7 @@ foreach my $next_file (@opt_files){
   foreach my $level ( ('level1', 'level2') ){
     foreach my $tag (keys %{$quick_stat1{$level}}){
       if ($quick_stat1{$level}{$tag} != $quick_stat2{$level}{$tag} ){
-        dual_print( $log, "We added ".($quick_stat2{$level}{$tag}-$quick_stat1{$level}{$tag})." $tag(s)\n", $verbose );
+        dual_print( $log, "We added ".($quick_stat2{$level}{$tag}-$quick_stat1{$level}{$tag})." $tag(s)\n");
         $complemented=1;
       }
     }
@@ -102,17 +102,17 @@ foreach my $next_file (@opt_files){
   foreach my $level ( ('level1', 'level2') ){
     foreach my $tag (keys %{$quick_stat2{$level}}){
       if (! exists $quick_stat1{$level}{$tag} ){
-        dual_print( $log, "We added ".$quick_stat2{$level}{$tag}." $tag(s)\n", $verbose );
+        dual_print( $log, "We added ".$quick_stat2{$level}{$tag}." $tag(s)\n");
         $complemented=1;
       }
     }
   }
   #If nothing added
   if(! $complemented){
-    dual_print( $log, "\nNothing has been added\n", $verbose );
+    dual_print( $log, "\nNothing has been added\n");
   }
   else{
-    dual_print( $log, "\nNow the data contains:\n", $verbose );
+    dual_print( $log, "\nNow the data contains:\n");
     info_omniscient($hash_omniscient, $log, $verbose);
   }
 }
@@ -121,10 +121,10 @@ foreach my $next_file (@opt_files){
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 #END
-dual_print( $log, "usage: $0 @copyARGV\n", $verbose );
+dual_print( $log, "usage: $0 @copyARGV\n");
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $verbose );
+dual_print( $log, "Job done in $run_time seconds\n");
 __END__
 
 =head1 NAME

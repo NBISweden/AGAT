@@ -45,7 +45,7 @@ my $fh = prepare_fileout($opt_output);
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config
                                                               });
-  dual_print( $log, "Parsing Finished\n\n", $verbose );
+  dual_print( $log, "Parsing Finished\n\n");
   ### END Parse GFF input #
   #########################
 

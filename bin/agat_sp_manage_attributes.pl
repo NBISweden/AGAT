@@ -38,21 +38,21 @@ my $gffout = prepare_gffout( $config, $outfile );
 # Manage $primaryTag
 my @ptagList;
 if ( !$primaryTag or $primaryTag eq "all" ) {
-    dual_print( $log, "We will work on attributes from all features\n", $verbose );
+    dual_print( $log, "We will work on attributes from all features\n");
     push( @ptagList, "all" );
 }
 elsif ( $primaryTag =~ /^level[123]$/ ) {
-    dual_print( $log, "We will work on attributes from all the $primaryTag features\n", $verbose );
+    dual_print( $log, "We will work on attributes from all the $primaryTag features\n");
     push( @ptagList, $primaryTag );
 }
 else {
     @ptagList = split( /,/, $primaryTag );
     foreach my $tag (@ptagList) {
         if ( $tag =~ /^level[123]$/ ) {
-            dual_print( $log, "We will work on attributes from all the $tag features\n", $verbose );
+            dual_print( $log, "We will work on attributes from all the $tag features\n");
         }
         else {
-            dual_print( $log, "We will work on attributes from $tag feature.\n", $verbose );
+            dual_print( $log, "We will work on attributes from $tag feature.\n");
         }
     }
 }
@@ -65,10 +65,10 @@ if ($attributes){
 
   if ($attributes eq "all_attributes"){
     if($add){
-      dual_print( $log, "You cannot use the all_attributes value with the add option. Please change the parameters !\n", $verbose );
+      dual_print( $log, "You cannot use the all_attributes value with the add option. Please change the parameters !\n");
       exit;
     }
-    dual_print( $log, "All attributes will be removed except ID and Parent attributes !\n", $verbose );
+    dual_print( $log, "All attributes will be removed except ID and Parent attributes !\n");
     $attListOk{"all_attributes"}++;
   }
   else{
@@ -80,33 +80,33 @@ if ($attributes){
       if($#attList == 0){ # Attribute alone
         #check for ID attribute
         if(lc($attList[0]) eq "id" and ! $add){
-            dual_print( $log, "It's forbidden to remove the ID attribute in a gff3 file !\n", $verbose );
+            dual_print( $log, "It's forbidden to remove the ID attribute in a gff3 file !\n");
             exit;
         }
         #check for Parent attribute
         if(lc($attList[0]) eq "parent" and ! $add){
           foreach my $tag (@ptagList){
             if($tag ne "gene" and $tag ne "level1"){
-              dual_print( $log, "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n", $verbose );
+              dual_print( $log, "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n");
               exit;
             }
           }
         }
         $attListOk{$attList[0]}="null";
         if($add){
-          dual_print( $log, "$attList[0] attribute will be added. The value will be empty.\n", $verbose );
+          dual_print( $log, "$attList[0] attribute will be added. The value will be empty.\n");
         }
         else{
-          dual_print( $log, "$attList[0] attribute will be removed.\n", $verbose );
+          dual_print( $log, "$attList[0] attribute will be removed.\n");
         }
       }
       else{ # Attribute will be replaced/copied with a new tag name
         $attListOk{$attList[0]}=$attList[1];
-        dual_print( $log, "$attList[0] attribute will be replaced by $attList[1].\n", $verbose );
+        dual_print( $log, "$attList[0] attribute will be replaced by $attList[1].\n");
       }
     }
   }
-  dual_print( $log, "\n", $verbose );
+  dual_print( $log, "\n");
 }
 
 
@@ -120,7 +120,7 @@ if ($attributes){
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){

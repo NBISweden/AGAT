@@ -90,7 +90,7 @@ $stringPrint .= "The keep list contains $nb_to_keep uniq IDs\n";
 if ($opt_output){
   print $ostreamReport $stringPrint;
 }
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
 
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -101,7 +101,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print( $log, "Parsing Finished\n", $opt_verbose );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -176,7 +176,7 @@ $stringPrint = ($#keeplist+1)." records kept!\n";
 if ($opt_output){
   print $ostreamReport $stringPrint;
 }
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
 
 
 #######################################################################################################################

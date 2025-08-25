@@ -39,7 +39,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
   open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 my $opt_utr3 = ($mode && $mode eq 'three') ? 1 : 0;
 my $opt_utr5 = ($mode && $mode eq 'five') ? 1 : 0;
@@ -155,7 +155,7 @@ my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 

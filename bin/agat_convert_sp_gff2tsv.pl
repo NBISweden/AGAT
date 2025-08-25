@@ -46,7 +46,7 @@ else{
 ### Parse GFF input #
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config });
-dual_print( $log, "GFF3 file parsed\n", $config->{verbose} );
+dual_print( $log, "GFF3 file parsed\n");
 
 # ---- List attributes ----
 my $attribute_bucket = get_all_attributes($hash_omniscient);

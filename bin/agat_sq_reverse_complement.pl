@@ -53,7 +53,7 @@ while(my $seqObj = $seqio->next_seq) {
 #### read fasta again for DB
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-dual_print($log, "Fasta file parsed\n", $opt_verbose);
+dual_print($log, "Fasta file parsed\n");
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -115,14 +115,14 @@ my $nb_error = 0;
 $nb_error  =  keys %{$info{"error"}};
 
 
-dual_print($log, "Annotations on $nb_flip sequences have been reverse complemented.\n", $opt_verbose);
-dual_print($log, "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n", $opt_verbose);
+dual_print($log, "Annotations on $nb_flip sequences have been reverse complemented.\n");
+dual_print($log, "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n");
 warn "$nb_error sequences from the fasta file were absent from the gff.\n" if $opt_verbose && $nb_error;
-dual_print($log, "$nb_error sequences from the fasta file were absent from the gff.\n", $opt_verbose);
+dual_print($log, "$nb_error sequences from the fasta file were absent from the gff.\n");
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 
 close $log if $log;
 

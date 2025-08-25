@@ -76,7 +76,7 @@ while (my $feature = $gff_in->next_feature() ) {
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
+dual_print( $log, "Job done in $run_time seconds\n");
 
 __END__
 

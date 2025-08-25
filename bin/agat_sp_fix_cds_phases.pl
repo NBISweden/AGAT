@@ -36,12 +36,12 @@ my $gffout = prepare_gffout($config, $opt_output);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                             });
-dual_print($log, "GFF3 file parsed\n", $opt_verbose);
+dual_print($log, "GFF3 file parsed\n");
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($opt_fasta);
-dual_print($log, "Fasta file parsed\n", $opt_verbose);
+dual_print($log, "Fasta file parsed\n");
 
 ###
 # Fix frame
@@ -53,7 +53,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 my $end_run  = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $opt_verbose );
+dual_print( $log, "Job done in $run_time seconds\n");
 
 close $log if $log;
 __END__

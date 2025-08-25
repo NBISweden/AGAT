@@ -30,7 +30,7 @@ if ( my $log_name = $config->{log_path} ) {
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-dual_print( $log, "Looking to $attribute attribute.\n", $verbose );
+dual_print( $log, "Looking to $attribute attribute.\n");
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -42,7 +42,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print( $log, "$nbLine line to process...\n", $verbose );
+dual_print( $log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my %hash_values;
@@ -61,7 +61,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print( $log, "\rProgression : $done % processed.\n", $verbose );
+        dual_print( $log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -73,9 +73,9 @@ my $run_time = $end_run - $start_run;
 
 my $result = scalar keys %hash_values;
 
-dual_print( $log, "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n", $verbose );
-dual_print( $log, "There is $result unique value within $attribute attribute\n", $verbose );
-dual_print( $log, "Job done in $run_time seconds\n", $verbose );
+dual_print( $log, "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n");
+dual_print( $log, "There is $result unique value within $attribute attribute\n");
+dual_print( $log, "Job done in $run_time seconds\n");
 
 __END__
 

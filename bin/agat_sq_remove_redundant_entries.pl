@@ -38,7 +38,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print($log, "$nbLine line to process...\n", $opt_verbose);
+dual_print($log, "$nbLine line to process...\n");
 warn "Input file $inputFile is empty\n" if $opt_verbose && $nbLine == 0;
 my $line_cpt=0;
 
@@ -74,18 +74,18 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print($log, "Progression : $done % processed.\n", $opt_verbose);
+        dual_print($log, "Progression : $done % processed.\n");
     $startP= time;
   }
 }
 
 if($count > 0){
-  dual_print($log, "$count entries removed !\n", $opt_verbose);
+  dual_print($log, "$count entries removed !\n");
 }
-else{dual_print($log, "No entry removed !\n", $opt_verbose);}
+else{dual_print($log, "No entry removed !\n");}
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 
 __END__
 

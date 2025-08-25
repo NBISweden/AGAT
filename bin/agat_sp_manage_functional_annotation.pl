@@ -107,7 +107,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 my $streamBlast = IO::File->new();
 my $streamInter = IO::File->new();
@@ -183,7 +183,7 @@ if ($opt_nameU) {
 # Display
 $ostreamReport->print($stringPrint);
 if ($opt_output) {
-  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] $stringPrint\n", $opt_verbose);
+  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] $stringPrint\n");
 } # When ostreamReport is a file we have to also display on screen
 
                   #          +------------------------------------------------------+
@@ -197,12 +197,12 @@ if ($opt_output) {
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
                                                                  config => $config
                                                                 });
-dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Parsing Finished\n", $opt_verbose);
+dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
 #Print directly what has been read
-dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Compute statistics\n", $opt_verbose);
+dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Compute statistics\n");
 print_omniscient_statistics(
   {
     input => $hash_omniscient,
@@ -220,7 +220,7 @@ my %allIDs;
 
 if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
-  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Look at the fasta database\n", $opt_verbose);
+  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Look at the fasta database\n");
   $db = Bio::DB::Fasta->new($opt_dataBase);
 
   # JN: Begin parse fasta
@@ -243,10 +243,10 @@ if (defined $opt_BlastFile) {
     }
   } # JN: End parse fasta
 
-  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Parsing Finished\n", $opt_verbose);
+  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Parsing Finished\n");
 
   # parse blast output
-  dual_print( $log, "Reading features from $opt_BlastFile...\n", $opt_verbose );
+  dual_print( $log, "Reading features from $opt_BlastFile...\n");
   parse_blast($streamBlast, $opt_blastEvalue, $hash_mRNAGeneLink);
 }
 
@@ -273,7 +273,7 @@ if (defined $opt_InterproFile) {
 ###########################
 # change FUNCTIONAL information if asked for
 if ($opt_BlastFile || $opt_InterproFile ) {
-  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] load FUNCTIONAL information\n", $opt_verbose);
+  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] load FUNCTIONAL information\n");
 
   #################
   # == LEVEL 1 == #
@@ -416,7 +416,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 ###########################
 # change names if asked for
 if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
-  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] load new IDs\n", $opt_verbose);
+  dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] load new IDs\n");
 
   my %hash_sortBySeq;
   foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}) {
@@ -630,9 +630,9 @@ $ostreamReport->print("$stringPrint");
 ####################
 # PRINT IN FILES
 ####################
-dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Writing result...\n", $opt_verbose);
+dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] Writing result...\n");
 print_omniscient( {omniscient => $hash_omniscient, output => $ostreamGFF} );
-dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] End of script.\n", $opt_verbose);
+dual_print($log, "[" . strftime("%H:%M:%S", localtime) . "] End of script.\n");
 
       #########################
       ######### END ###########
@@ -903,15 +903,15 @@ sub parse_blast {
     #Save uniprot id of the best match
    
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    dual_print( $log, "save protein ID for $l2 : " . $candidates{$l2}[2] . "\n", $opt_verbose );
+    dual_print( $log, "save protein ID for $l2 : " . $candidates{$l2}[2] . "\n");
     
     #Save evalu
     $blast_evalue{$l2} = $candidates{$l2}[1];
-    dual_print( $log, "save blast evalue for $l2 : " . $candidates{$l2}[1] . "\n", $opt_verbose );
+    dual_print( $log, "save blast evalue for $l2 : " . $candidates{$l2}[1] . "\n");
 
     # Parse header
     my $header = $candidates{$l2}[0];
-    dual_print( $log, "header: " . $header . "\n", $opt_verbose );
+    dual_print( $log, "header: " . $header . "\n");
 
     if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/) {
       my $protID = $1;
@@ -920,7 +920,7 @@ sub parse_blast {
       $theRest =~ s/\n//g;
       $theRest =~ s/\r//g;
       my $nameGene = undef;
-      dual_print( $log, "description: " . $description . "\n", $opt_verbose );
+      dual_print( $log, "description: " . $description . "\n");
       push ( @{ $mRNAproduct{$l2} }, $description );
 
       #deal with the rest
@@ -929,7 +929,7 @@ sub parse_blast {
       while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
         my ($type, $value) = split /=/, $tuple;
-        dual_print( $log, "$protID: type:$type --- value:$value\n", $opt_verbose );
+        dual_print( $log, "$protID: type:$type --- value:$value\n");
         $hash_rest{lc($type)} = $value;
       }
 
@@ -1015,7 +1015,7 @@ sub stringCatcher {
 # method to parse Interpro file
 sub parse_interpro_tsv {
   my($file_in, $fileName) = @_;
-  dual_print($log, "Reading features from $fileName...\n", $opt_verbose);
+  dual_print($log, "Reading features from $fileName...\n");
 
   while( my $line = <$file_in>) {
 
@@ -1027,7 +1027,7 @@ sub parse_interpro_tsv {
     my $db_name = $values[3];
     my $db_value = $values[4];
     my $db_tuple = $db_name.":".$db_value;
-    dual_print($log, "Specific dB: " . $db_tuple . "\n", $opt_verbose);
+    dual_print($log, "Specific dB: " . $db_tuple . "\n");
 
     if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
@@ -1044,7 +1044,7 @@ sub parse_interpro_tsv {
       my $interpro_value = $values[11];
       $interpro_value =~ s/\n//g;
       my $interpro_tuple = "InterPro:".$interpro_value;
-      dual_print($log, "interpro dB: " . $interpro_tuple . "\n", $opt_verbose);
+      dual_print($log, "interpro dB: " . $interpro_tuple . "\n");
       next if $interpro_value eq "-"; #fix 147
 
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1064,7 +1064,7 @@ sub parse_interpro_tsv {
       $go_flat_list =~ s/\n//g;
       my @go_list = split(/\|/, $go_flat_list); #cut at character |
       foreach my $go_tuple (@go_list) {
-        dual_print($log, "GO term: " . $go_tuple . "\n", $opt_verbose);
+        dual_print($log, "GO term: " . $go_tuple . "\n");
         next if $go_tuple eq "-"; #fix kira
         
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1087,7 +1087,7 @@ sub parse_interpro_tsv {
       foreach my $pathway_tuple (@pathway_list) {
         my @tuple = split(/:/, $pathway_tuple); #cut at character :
         my $db_name = $tuple[0];
-        dual_print($log, "pathway info: " . $pathway_tuple . "\n", $opt_verbose);
+        dual_print($log, "pathway info: " . $pathway_tuple . "\n");
         next if ($pathway_tuple eq "-"); # avoid empty pathway tuple
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;

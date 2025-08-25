@@ -44,17 +44,17 @@ my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1 if $ostreamReport;
-dual_print( $log, $string1, $config->{verbose} );
+dual_print( $log, $string1);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
+dual_print( $log, "Reading $opt_file\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config
                                                               });
-dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
+dual_print( $log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 
@@ -89,7 +89,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
     }
     dual_print( $log, "Shortest intron for $id_l1:".$shortest_intron."\n", ($shortest_intron != 10000000000 && $config->{verbose}) );
     if ($shortest_intron < $Xsize){
-      dual_print( $log, "flag the gene $id_l1\n", $config->{verbose} );
+      dual_print( $log, "flag the gene $id_l1\n");
       $nb_cases++;
 
       my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
@@ -117,7 +117,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 
 my $toprint = "We found $nb_cases cases where introns were < $Xsize, we flagged them with the attribute $tag. The value of this tag is size of the shortest intron found in this gene.\n";
 print $ostreamReport $toprint if $ostreamReport;
-dual_print( $log, $toprint, $config->{verbose} );
+dual_print( $log, $toprint);
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

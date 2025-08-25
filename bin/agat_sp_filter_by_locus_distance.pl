@@ -42,7 +42,7 @@ my $gffout = prepare_gffout($config, $outfile);
 my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                             config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $config->{verbose} );
+dual_print( $log, "GFF3 file parsed\n");
 
 #counters
 my $geneCounter_skip=0;
@@ -93,7 +93,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
           my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
           my $id2_l1 = $location2->[0];
           my $dist = $location2->[1] - $location->[2] + 1;
-          dual_print( $log, "distance $id_l1 - id2_l1 = $dist\n", $config->{verbose} );
+          dual_print( $log, "distance $id_l1 - id2_l1 = $dist\n");
 
           ############################
           #deal with overlap
@@ -193,8 +193,8 @@ my $string_to_print="usage: $0 @copyARGV\n".
   "Total number investigated: $total\n".
   "Number of skipped loci: $geneCounter_skip\n".
   "Number of loci with distance to the surrounding loci over $opt_dist: $geneCounter_ok \n";
-dual_print( $log, $string_to_print, $config->{verbose} );
-dual_print( $log, "Bye Bye.\n", $config->{verbose} );
+dual_print( $log, $string_to_print);
+dual_print( $log, "Bye Bye.\n");
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -213,12 +213,12 @@ sub add_info{
 
   if($feature->has_tag('low_dist')){
     $feature->add_tag_value('low_dist', $value);
-    dual_print( $log, $feature->_tag_value('ID')." add $value\n", $config->{verbose} );
+    dual_print( $log, $feature->_tag_value('ID')." add $value\n");
   }
   else{
     create_or_replace_tag($feature, 'low_dist', $value);
     $geneCounter_skip++;
-    dual_print( $log, $feature->_tag_value('ID')." create $value\n", $config->{verbose} );
+    dual_print( $log, $feature->_tag_value('ID')." create $value\n");
   }
 
 }

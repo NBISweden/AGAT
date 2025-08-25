@@ -90,7 +90,7 @@ $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will discard $print_feature_string that share the value of the $opt_attribute attribute with the kill list.\n";
 $stringPrint .= "The kill list contains $nb_to_kill uniq IDs\n";
 
-dual_print($log, $stringPrint, $opt_verbose);
+dual_print($log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -101,7 +101,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -193,7 +193,7 @@ $stringPrint = $all_cases{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
 $stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
 $stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
-dual_print($log, $stringPrint, $opt_verbose);
+dual_print($log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 close $log if $log;

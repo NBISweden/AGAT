@@ -40,7 +40,7 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({
                                                                 input  => $opt_gfffile,
                                                                 config => $config
 });
-dual_print($log, "GFF3 file parsed\n", $config->{verbose});
+dual_print($log, "GFF3 file parsed\n");
 
 ###
 # Print result
@@ -50,8 +50,8 @@ print_omniscient( {omniscient => $hash_omniscient,
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "usage: $0 @copyARGV\n", $config->{verbose});
-dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
+dual_print($log, "usage: $0 @copyARGV\n");
+dual_print($log, "Job done in $run_time seconds\n");
 
 __END__
 =head1 NAME

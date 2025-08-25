@@ -44,7 +44,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 sub _kraken_has_tag {
     my ($feature) = @_;
@@ -102,7 +102,7 @@ $messageValue .= "The kraken attribute tag that will be used is: $kraken_tag\n";
 
 #print info
 print $outReport $messageValue if $opt_output;
-dual_print( $log, $messageValue, $opt_verbose );
+dual_print( $log, $messageValue);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -276,9 +276,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 																						 config => $config
 	                                                                                   });
                 if ($opt_verbose) {
-                  dual_print( $log, "\nA proper hash:\n", $opt_verbose );
+                  dual_print( $log, "\nA proper hash:\n");
                   print_omniscient( { omniscient => $hash_omniscient_clean, output => $gffout } );
-                  dual_print( $log, "\n", $opt_verbose );
+                  dual_print( $log, "\n");
                 }
 
 	        ###################################################################################
@@ -294,7 +294,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	            $gene_feature = $hash_omniscient_clean->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1};
 	            my @ListmrnaNoMatch;
-                dual_print( $log, "\n\nlevel1 feature:\n" . $gene_feature->gff_string . "\n\n", $opt_verbose );
+                dual_print( $log, "\n\nlevel1 feature:\n" . $gene_feature->gff_string . "\n\n");
 
 	            ################
 	            # == LEVEL 2
@@ -305,7 +305,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	              if ( exists_keys($hash_omniscient_clean, ('level2',$primary_tag_key_level2,$id_tag_key_level1) ) ){
 	                foreach my $feature_level2 ( @{$hash_omniscient_clean->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-                      dual_print( $log, "level2 feature:\n" . $feature_level2->gff_string . "\n", $opt_verbose );
+                      dual_print( $log, "level2 feature:\n" . $feature_level2->gff_string . "\n");
 
 	                  my $percentMatch=0;
 
@@ -363,7 +363,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	                  #compute the MATCH. A MATCH can be over 100% because we compute the size of the original feature l3 against the new feature l3. The new feature l3 (i.e exon) could have been strenghten to fit a new size/map of feature l2.
 	                  $percentMatch=($matchSize*100)/$totalSize;
-                      dual_print( $log, "$id_tag_key_level1 / $level2_ID  maps at $percentMatch percent.\n", $opt_verbose );
+                      dual_print( $log, "$id_tag_key_level1 / $level2_ID  maps at $percentMatch percent.\n");
 	                  #if($percentMatch > 100){
 	                  #  print $id_tag_key_level1."\n";exit;
 	                  #}
@@ -438,7 +438,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    if($nbMapTrueHere > 1 and $sucessMapL0 > 1){
 	      if( $sucessMapL1OusideScope > 1){
             $bothCase++;
-            dual_print( $log, "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n", $opt_verbose );
+            dual_print( $log, "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n");
 	        $nb_total_multiMap_seqdif_bothcase+=$sucessMapL0;
 	        $nb_total_multiMap_sameseq_bothcase+=$sucessMapL1OusideScope;
 	        $nb_multiMap_sameseq--;
@@ -452,14 +452,14 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	  }
 	}
 }
-dual_print( $log, "Calcul of mapped percentage length finished !\n", $opt_verbose );
+dual_print( $log, "Calcul of mapped percentage length finished !\n");
 
 
 ######################
 # Check if nothing mapped
 my $nbKey = keys %mappedPercentPerGene;
 if ($nbKey == 0){
- dual_print( $log, "No succefully mapped feature found!\n", $opt_verbose );
+ dual_print( $log, "No succefully mapped feature found!\n");
 }
 
 ########
@@ -493,7 +493,7 @@ $messageEnd.= "\n";
 
 #print info
 print $outReport $messageEnd if $opt_output;
-dual_print( $log, $messageEnd, $opt_verbose );
+dual_print( $log, $messageEnd);
 
 #############
 #PLOT
@@ -551,13 +551,13 @@ if ($opt_plot){
         if ($opt_output) {
           print $outReport $messagePlot;
         }
-        else{ dual_print( $log, $messagePlot, $opt_verbose ); }
+        else{ dual_print( $log, $messagePlot); }
 
   	# Delete temporary file
   	#unlink "$pathPlotFile";
 }
 #END
-dual_print( $log, "We finished !! Bye Bye.\n", $opt_verbose );
+dual_print( $log, "We finished !! Bye Bye.\n");
 close $log if $log;
 
 #######################################################################################################################
@@ -581,7 +581,7 @@ close $log if $log;
 sub compute_total_size{
   my ($hash_omniscient, $l1_original_id, $feature_l3)=@_;
 
-            dual_print( $log, $l1_original_id . " = l1_original_id\n", $opt_verbose );
+            dual_print( $log, $l1_original_id . " = l1_original_id\n");
 
 		  my $l2_transcipt_id = lc($feature_l3->_tag_value('transcript_id'));
 		  my $total_size=0;
