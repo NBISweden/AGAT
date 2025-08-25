@@ -1,0 +1,113 @@
+
+ ------------------------------------------------------------------------------
+|   Another GFF Analysis Toolkit (AGAT) - Version: v1.5.1                      |
+|   https://github.com/NBISweden/AGAT                                          |
+|   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
+ ------------------------------------------------------------------------------
+=> Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/agat_config.yaml config file
+Parse file /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/genes_overlap.gff
+                                        
+                                       
+                          ------ Start parsing ------                           
+-------------------------- parse options and metadata --------------------------
+=> Accessing the feature_levels YAML file
+Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/feature_levels.yaml file
+=> Attribute used to group features when no Parent/ID relationship exists (i.e common tag):
+	* locus_tag
+	* gene_id
+=> merge_loci option deactivated
+=> Machine information:
+	This script is being run by perl v5.34.0
+	Bioperl location being used: /usr/local/share/perl/5.34.0/Bio/
+	Operating system being used: linux 
+=> Accessing Ontology
+	No ontology accessible from the gff file header!
+	We use the SOFA ontology distributed with AGAT:
+		/usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo
+	Read ontology /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo:
+		4 root terms, and 2596 total terms, and 1516 leaf terms
+	Filtering ontology:
+		We found 1861 terms that are sequence_feature or is_a child of it.
+--------------------------------- parsing file ---------------------------------
+=> Number of line in file: 25
+=> Number of comment lines: 1
+=> Fasta included: No
+=> Number of features lines: 24
+=> Number of feature type (3rd column): 6
+	* Level1: 1 => gene
+	* level2: 1 => mRNA
+	* level3: 4 => CDS five_prime_UTR three_prime_UTR exon
+	* unknown: 0 => 
+=> Version of the Bioperl GFF parser selected by AGAT: 3
+                  ------ End parsing (done in 2 second) ------                  
+
+
+                           ------ Start checks ------                           
+---------------------------- Check1: feature types -----------------------------
+----------------------------------- ontology -----------------------------------
+All feature types in agreement with the Ontology.
+------------------------------------- agat -------------------------------------
+AGAT can deal with all the encountered feature types (3rd column)
+------------------------------ done in 0 seconds -------------------------------
+
+------------------------------ Check2: duplicates ------------------------------
+None found
+------------------------------ done in 0 seconds -------------------------------
+
+-------------------------- Check3: sequential bucket ---------------------------
+Nothing to check as sequential bucket!
+------------------------------ done in 0 seconds -------------------------------
+
+--------------------------- Check4: l2 linked to l3 ----------------------------
+No problem found
+------------------------------ done in 0 seconds -------------------------------
+
+--------------------------- Check5: l1 linked to l2 ----------------------------
+No problem found
+------------------------------ done in 0 seconds -------------------------------
+
+--------------------------- Check6: remove orphan l1 ---------------------------
+We remove only those not supposed to be orphan
+None found
+------------------------------ done in 0 seconds -------------------------------
+
+------------------------- Check7: all level3 locations -------------------------
+------------------------------ done in 0 seconds -------------------------------
+
+------------------------------ Check8: check cds -------------------------------
+No problem found
+------------------------------ done in 0 seconds -------------------------------
+
+----------------------------- Check9: check exons ------------------------------
+No exons created
+No exons locations modified
+No supernumerary exons removed
+No level2 locations modified
+------------------------------ done in 0 seconds -------------------------------
+
+----------------------------- Check10: check utrs ------------------------------
+No UTRs created
+No UTRs locations modified
+No supernumerary UTRs removed
+------------------------------ done in 0 seconds -------------------------------
+
+------------------------ Check11: all level2 locations -------------------------
+No problem found
+------------------------------ done in 0 seconds -------------------------------
+
+------------------------ Check12: all level1 locations -------------------------
+No problem found
+------------------------------ done in 0 seconds -------------------------------
+
+---------------------- Check13: remove identical isoforms ----------------------
+None found
+------------------------------ done in 0 seconds -------------------------------
+                  ------ End checks (done in 0 second) ------                   
+
+
+/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/genes_overlap.gff file parsed
+
+
+1 genes overlap
+Formating output to GFF3
+END

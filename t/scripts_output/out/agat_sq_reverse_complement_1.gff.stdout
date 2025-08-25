@@ -1,0 +1,12 @@
+
+ ------------------------------------------------------------------------------
+|   Another GFF Analysis Toolkit (AGAT) - Version: v1.5.1                      |
+|   https://github.com/NBISweden/AGAT                                          |
+|   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
+ ------------------------------------------------------------------------------
+=> Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/agat_config.yaml config file
+Fasta file parsed
+Annotations on 1 sequences have been reverse complemented.
+Annotations on 0 sequences have been kept intact (Sequences absent from the fasta file but present in the gff.
+0 sequences from the fasta file were absent from the gff.
+Job done in 1 seconds
