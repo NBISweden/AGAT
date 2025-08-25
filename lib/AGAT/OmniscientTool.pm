@@ -642,12 +642,12 @@ sub merge_overlap_loci{
 	}
 
 	if($resume_merge){
-		dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n", $verbose);
-    dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n", $verbose);
+                dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n");
+    dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n");
   }
-	else{
-		dual_print($log, "None found\n", $verbose);
-	}
+        else{
+                dual_print($log, "None found\n");
+        }
 }
 
 #				   +------------------------------------------------------+
@@ -1483,7 +1483,7 @@ sub fil_cds_frame {
 							my $original_phase = $cds_feature->frame;
 
                                                         if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n", $verbose);
+                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n");
                                                                 $cds_feature->frame($phase);
                                                         }
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
@@ -1607,7 +1607,7 @@ sub info_omniscient {
                 }
         }
         foreach my $tag ( keys %resu ) {
-                dual_print( $log, "There is $resu{$tag} $tag\n", $verbose );
+                dual_print( $log, "There is $resu{$tag} $tag\n" );
         }
 }
 
@@ -2307,12 +2307,12 @@ sub check_all_level1_locations {
 		}
 	}
 
-	if($resume_case){
-		dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose );
-	}
-	else{
-		dual_print($log, "No problem found\n", $verbose );
-	}
+        if($resume_case){
+                dual_print($log, "We fixed $resume_case wrong level1 location cases\n" );
+        }
+        else{
+                dual_print($log, "No problem found\n" );
+        }
 }
 
 # Purpose: review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
@@ -2354,12 +2354,12 @@ sub check_all_level2_locations{
 			}
 		}
 	}
-	if($resume_case){
-		dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose );
-	}
-	else{
-		dual_print($log, "No problem found\n", $verbose );
-	}
+        if($resume_case){
+                dual_print($log, "We fixed $resume_case wrong level2 location cases\n" );
+        }
+        else{
+                dual_print($log, "No problem found\n" );
+        }
 }
 
 # Check the start and end of mRNA based a list of feature like list of exon;
