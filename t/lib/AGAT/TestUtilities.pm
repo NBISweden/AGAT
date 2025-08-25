@@ -134,7 +134,8 @@ sub check_console_output {
         'AGAT/so.obo',
         'This script is being run',
         'Bioperl location being used:',
-        'Operating system being used:'
+        'Operating system being used:',
+        'done in '
     );
 
     my $filter = sub {
