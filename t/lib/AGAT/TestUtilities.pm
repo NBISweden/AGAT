@@ -183,7 +183,7 @@ sub check_console_output {
     close $fh_got;
     close $fh_expected;
 
-    my $diff_output = qx(diff $file_got $file_expected 2>&1);
+    my $diff_output = qx(diff -b $file_got $file_expected 2>&1);
     my $exit_code   = $? >> 8;
     diag("$stdout_fixture diff:\n$diff_output") if $exit_code != 0;
     ok( $exit_code == 0, "$stdout_fixture matches expected" );
