@@ -631,7 +631,7 @@ sub _from_gff3_string {
     # column 9
 
     my ($seqname, $source, $primary, $start, $end,
-        $score, $strand, $frame, $groups) = split(/\t/, $string);
+        $score, $strand, $frame, $attribs) = split(/\t/, $string);
 
     if ( ! defined $frame ) {
         $feat->throw("[$string] does not look like GFF3 to me");
@@ -651,20 +651,23 @@ sub _from_gff3_string {
     if ( $strand eq '-' ) { $feat->strand(-1); }
     if ( $strand eq '+' ) { $feat->strand(1); }
     if ( $strand eq '.' ) { $feat->strand(0); }
-    my @groups = split(/\s*;\s*/, $groups);
+    my @attribs = split(/\s*;\s*/, $attribs);
 
-    my $size_group = scalar(@groups);
-    for my $group (@groups) {
-        next if( ! $group); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
-        my ($tag,$value) = split /=/,$group;
+    my $size_attribs = scalar(@attribs);
+    for my $attrib (@attribs) {
+        next if( ! $attrib); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
+        my ($tag,$value) = split /=/,$attrib;
         $tag             = unescape($tag);
         my @values       = map {unescape($_)} split /,/,$value;
         # Case where attribute column contain only one value, no tag/attribute structure 
         # e.g. augustus/tsebra, use the value as ID
-        if(scalar(@values) == 0 and $size_group=1){
+        if(scalar(@values) == 0 and $size_attribs == 1){
             $feat->add_tag_value("ID",$tag);
-        } else{
-            for my $v ( @values ) {  $feat->add_tag_value($tag,$v); }
+        } elsif (scalar(@values) == 0 ) {
+            warn "No value for tag $tag in GFF3 attribute @";
+        }
+        else{
+            for my $v ( @values ) { $feat->add_tag_value($tag,$v); }
         }
     }
 }
