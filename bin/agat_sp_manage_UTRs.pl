@@ -39,7 +39,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
   open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header);
+dual_print( $log, $header, 3);
 
 my $opt_utr3 = ($mode && $mode eq 'three') ? 1 : 0;
 my $opt_utr5 = ($mode && $mode eq 'five') ? 1 : 0;
