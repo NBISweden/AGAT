@@ -87,7 +87,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
     
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
-      dual_print( $log, "Study gene $gene_id_l1\n");
+      dual_print( $log, "Study gene $gene_id_l1\n", 2);
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
