@@ -134,7 +134,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
 
                           #Check their subfeature are  identicals
                           if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
-                            dual_print( $log, "case1: $id_l2_2 and $id_l2_1 have same exon list\n");
+                              dual_print( $log, "case1: $id_l2_2 and $id_l2_1 have same exon list\n", 2 );
 
                             my $size_cds1 =  cds_size($omniscient, $id_l2_1);
                             my $size_cds2 =  cds_size($omniscient, $id_l2_2);
@@ -285,7 +285,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                               }
                               # CDS and Exon does not overlap
                               else{
-                                dual_print( $log, "CDS and Exon does not overlap\n");
+                                  dual_print( $log, "CDS and Exon does not overlap\n", 2 );
 
                               }
                             }

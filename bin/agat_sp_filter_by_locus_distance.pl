@@ -93,7 +93,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
           my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
           my $id2_l1 = $location2->[0];
           my $dist = $location2->[1] - $location->[2] + 1;
-          dual_print( $log, "distance $id_l1 - id2_l1 = $dist\n");
+          dual_print( $log, "distance $id_l1 - id2_l1 = $dist\n", 2 );
 
           ############################
           #deal with overlap
@@ -213,12 +213,12 @@ sub add_info{
 
   if($feature->has_tag('low_dist')){
     $feature->add_tag_value('low_dist', $value);
-    dual_print( $log, $feature->_tag_value('ID')." add $value\n");
+      dual_print( $log, $feature->_tag_value('ID')." add $value\n", 2 );
   }
   else{
     create_or_replace_tag($feature, 'low_dist', $value);
     $geneCounter_skip++;
-    dual_print( $log, $feature->_tag_value('ID')." create $value\n");
+      dual_print( $log, $feature->_tag_value('ID')." create $value\n", 2 );
   }
 
 }
