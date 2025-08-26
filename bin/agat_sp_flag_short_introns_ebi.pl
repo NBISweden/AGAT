@@ -62,10 +62,10 @@ my $nb_cases=0;
 my $tag = "pseudo";
 ######################
 ### Parse GFF input #
-foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
-  foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
+foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
+  foreach my $id_l1 (sort keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
     my $shortest_intron=10000000000;
-    foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
+    foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
       if (exists_keys($hash_omniscient,('level2',$tag_l2,$id_l1) ) ){
         foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
           my $level2_ID = lc($feature_l2->_tag_value('ID'));
@@ -87,7 +87,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
         }
       }
     }
-    dual_print($log, "Shortest intron for $id_l1:".$shortest_intron."\n", ($shortest_intron != 10000000000 && $config->{verbose}));
+    if ($shortest_intron != 10000000000) {
+      dual_print($log, "Shortest intron for $id_l1:".$shortest_intron."\n", 2);
+    }
     if ($shortest_intron < $Xsize){
       dual_print($log, "flag the gene $id_l1\n");
       $nb_cases++;
@@ -98,7 +100,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
         $feature_l1->add_tag_value('note', $feature_l1->get_tag_values('product'));
         $feature_l1->remove_tag('product');
       }
-      foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}){
+      foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         if (exists_keys ($hash_omniscient, ('level2', $tag_l2, $id_l1) ) ) {
           foreach my $feature_l2 (@{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}){
             my $level2_ID = lc($feature_l2->_tag_value('ID'));
@@ -108,7 +110,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
               $feature_l2->remove_tag('product');
             }
 
-            foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
+            foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){
               if ( exists_keys($hash_omniscient, ('level3', $tag_l3, $level2_ID) ) ){
                 foreach my $feature_l3 (@{$hash_omniscient->{'level3'}{$tag_l3}{$level2_ID}}){
                   $feature_l3->add_tag_value($tag, $shortest_intron);
