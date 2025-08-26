@@ -105,7 +105,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
 
         #################################################
         # START Take care of isoforms with duplicated location:
-        dual_print( $log, "START Take care of isoforms with duplicated locations\n");
+          dual_print( $log, "START Take care of isoforms with duplicated locations\n", 2);
         my @L2_list_to_remove = ();
         foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
@@ -140,19 +140,19 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                             my $size_cds2 =  cds_size($omniscient, $id_l2_2);
                             if($size_cds1 >= $size_cds2 ){
                               push(@L2_list_to_remove, $id_l2_2);
-                              dual_print( $log, "case1: push1\n");
+                                dual_print( $log, "case1: push1\n", 2);
                             }
                             elsif($size_cds1 < $size_cds2){
                               push(@L2_list_to_remove, $id_l2_1);
-                              dual_print( $log, "case1: push2\n");
+                                dual_print( $log, "case1: push2\n", 2);
                             }
                             elsif($size_cds1){
                               push(@L2_list_to_remove, $id_l2_2);
-                              dual_print( $log, "case1: push3\n");
+                                dual_print( $log, "case1: push3\n", 2);
                             }
                             else{
                               push(@L2_list_to_remove, $id_l2_1);
-                              dual_print( $log, "case1: push4\n");
+                                dual_print( $log, "case1: push4\n", 2);
                             }
                           }
                         }
@@ -181,7 +181,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
         #######################################################
         # START Take care of other gene with duplicated location
         #
-        dual_print( $log, "START Take care of gene with duplicated locations\n");
+          dual_print( $log, "START Take care of gene with duplicated locations\n", 2);
         #foreach my $gene_feature_id2 (@sorted_genefeature_ids){
         foreach my $location2 (sort {$a->[1].$a->[0] cmp $b->[1].$b->[0]}  @{$hash_sortBySeq->{$seqid}{$tag}}){
           my $gene_feature_id2 = lc($location2->[0]);
@@ -199,7 +199,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
             #The two genes overlap
             if( ($gene_feature2->start <= $gene_feature->end() ) and ($gene_feature2->end >= $gene_feature->start) ){
 
-              dual_print( $log, "$gene_feature_id and $gene_feature_id2 overlap\n");
+                dual_print( $log, "$gene_feature_id and $gene_feature_id2 overlap\n", 2);
 
               # Loop over the L2 from the first gene feature
               foreach my $l2_type ( sort keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -218,7 +218,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                         #check their position are identical
                         if($l2_2->start().$l2_2->end() eq $l2_1->start().$l2_1->end()){
 
-                          dual_print( $log, "$id_l2_2  and $id_l2_1 have same start and stop\n");
+                            dual_print( $log, "$id_l2_2  and $id_l2_1 have same start and stop\n", 2);
 
                           if(exists_keys($omniscient,('level3', 'exon', $id_l2_1))){
                             if(exists_keys($omniscient,('level3', 'exon', $id_l2_2))){
@@ -226,16 +226,16 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                               my $resu_overlap = check_feature_overlap_from_l3_to_l1($omniscient, $omniscient , $gene_feature_id, $gene_feature_id2);
                               if ($resu_overlap){
 
-                                dual_print( $log, "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n");
+                                  dual_print( $log, "$id_l2_2  and $id_l2_1 overlap at $resu_overlap\n", 2);
 
                                 #EXON identicals
                                 if(featuresList_identik(\@{$omniscient->{'level3'}{'exon'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'exon'}{$id_l2_2}}, $verbose )){
 
-                                  dual_print( $log, "$id_l2_2 and $id_l2_1 have same exon list\n");
+                                    dual_print( $log, "$id_l2_2 and $id_l2_1 have same exon list\n", 2);
                                   # NO CDS
                                   if ( ! exists_keys($omniscient, ('level3','cds',$id_l2_1)) and  ! exists_keys($omniscient, ('level3','cds',$id_l2_2) ) ) {
                                     if (exists($ListModel{2})){
-                                       dual_print( $log, "case2: $id_l2_2 and $id_l2_1 have no CDS\n");
+                                         dual_print( $log, "case2: $id_l2_2 and $id_l2_1 have no CDS\n", 2);
                                        $ListModel{2}++;
                                        push(@L2_list_to_remove, $id_l2_2);
                                     }
@@ -243,7 +243,7 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                   else{ # WITH CDS
                                     if(featuresList_identik(\@{$omniscient->{'level3'}{'cds'}{$id_l2_1}}, \@{$omniscient->{'level3'}{'cds'}{$id_l2_2}}, $verbose ) ){
                                       if ( exists($ListModel{3}) ){
-                                        dual_print( $log, "case3: $id_l2_2 and $id_l2_1 have same CDS list\n");
+                                          dual_print( $log, "case3: $id_l2_2 and $id_l2_1 have same CDS list\n", 2);
                                         $ListModel{3}++;
                                         #identik because no CDS, we could remove one randomly
 
@@ -251,19 +251,19 @@ foreach my $seqid (sort keys %{$hash_sortBySeq}){ # loop over all the feature le
                                         my $size_cds2 =  cds_size($omniscient, $id_l2_2);
                                         if($size_cds1 >= $size_cds2 ){
                                           push(@L2_list_to_remove, $id_l2_2);
-                                          dual_print( $log, "case3: push1 $size_cds1 $size_cds2\n");
+                                            dual_print( $log, "case3: push1 $size_cds1 $size_cds2\n", 2);
                                         }
                                         elsif($size_cds1 < $size_cds2){
                                           push(@L2_list_to_remove, $id_l2_1);
-                                          dual_print( $log, "case3: push2\n");
+                                            dual_print( $log, "case3: push2\n", 2);
                                         }
                                         elsif($size_cds1){
                                           push(@L2_list_to_remove, $id_l2_2);
-                                          dual_print( $log, "case3: push3\n");
+                                            dual_print( $log, "case3: push3\n", 2);
                                         }
                                         else{
                                           push(@L2_list_to_remove, $id_l2_1);
-                                          dual_print( $log, "case3: push4\n");
+                                            dual_print( $log, "case3: push4\n", 2);
                                         }
                                       }
                                     }
@@ -371,28 +371,28 @@ sub reshape_the_2_l2_models{
   my $right_UTR2 = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_2, "UTR", "right");
 
   if ($left_UTR1){
-    dual_print( $log, "modify $id_l2_1 left\n");
+      dual_print( $log, "modify $id_l2_1 left\n", 2);
     $left_UTR1->start($left_UTR1->start+1);
     my $left_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature, $id_l2_1, "exon", "left");
     $left_exon->start($left_exon->start+1);
     check_record_positions($omniscient, $parent_l2_1);
   }
   elsif ($right_UTR1){
-    dual_print( $log, "modify $id_l2_1 right\n");
+      dual_print( $log, "modify $id_l2_1 right\n", 2);
     $right_UTR1->end($right_UTR1->end-1);
     my $right_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature, $id_l2_1, "exon", "right");
     $right_exon->end($right_exon->end-1);
     check_record_positions($omniscient, $parent_l2_1);
   }
   elsif ($left_UTR2){
-    dual_print( $log, "modify $id_l2_2 left\n");
+      dual_print( $log, "modify $id_l2_2 left\n", 2);
     $left_UTR2->start($left_UTR2->start+1);
     my $left_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_1, "exon", "left");
     $left_exon->start($left_exon->start-1);
     check_record_positions($omniscient, $parent_l2_2);
   }
   elsif ($right_UTR2){
-    dual_print( $log, "modify $id_l2_2 right\n");
+      dual_print( $log, "modify $id_l2_2 right\n", 2);
     $right_UTR2->end($right_UTR2->end-1);
     my $right_exon = get_extremity_feature_l3_from_l2id($omniscient, $gene_feature2, $id_l2_1, "exon", "right");
     $right_exon->end($right_exon->end-1);
