@@ -133,7 +133,7 @@ sub print_omniscient_statistics{
 
 			#------- DEAL WITH ISOFORMS -----
 			if($isoform_type){
-				dual_print($log, "$by_type may have isoforms, re-computing without isoforms (shortest isoforms are removed)\n", $verbose);
+				dual_print($log, "$by_type may have isoforms, re-computing without isoforms (shortest isoforms are removed)\n", 2);
 
 				if(! $omniscientNew){ # re-compute wihtout isoforms only once!
 					# create a new omniscient with only one mRNA isoform per gene
@@ -142,7 +142,7 @@ sub print_omniscient_statistics{
 				}
 
 				#get stat without isoform
-				dual_print($log, "get_omniscient_statistics_from_l2 wihtout iso for $by_type\n", $verbose);
+				dual_print($log, "get_omniscient_statistics_from_l2 wihtout iso for $by_type\n", 2);
 
 				# get nb of each feature in omniscient;
 				my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($omniscient, $by_type, $verbose);
