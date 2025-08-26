@@ -24,7 +24,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_from_kee
 my $result = "$output_folder/agat_sp_filter_feature_from_keep_list_1.gff";
 check_quiet_and_normal_run(
     $script,
-    { gff => "$input_folder/1.gff" },
+    { gff => "$input_folder/1.gff", kl => "$input_folder/keep_list.txt" },
     "$result.stdout",
     $result
 );
