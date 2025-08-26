@@ -474,6 +474,7 @@ my ($filename2,$path2,$ext2) = fileparse($gff2,qr/\.[^.]*/);
 
 my $string_to_print = "usage: $0 @copyARGV\nResults of number of genes from file1 that overlap genes from file2:\n\n";
 
+
 my %file_handler;
 foreach my $type_l1 ( sort keys %overlap_info ){
 
@@ -506,31 +507,31 @@ foreach my $type_l1 ( sort keys %overlap_info ){
 			foreach my $value ( @{$array->[0]} ) { # array0 is id overlarpA
 				$cpt++;
 				if(! $value){
-					dual_print($log, $report_ids "-");
+					print $report_ids "-";
 				} else {
 					if ($last == $cpt){
-						dual_print($log, $report_ids $value);
+						print $report_ids $value;
 					} else {
-						dual_print($log, $report_ids $value.", ");
+						print $report_ids $value.", ";
 					}
 				}
 			}
-			dual_print($log, $report_ids " | ");
+			print $report_ids " | ";
 			my $cpt2=0;
 			my $last2 = scalar(@{$array->[1]});
 			foreach my $value ( @{$array->[1]} ) { # array1 is id overlarpB
 				$cpt2++;
 				if(! $value){
-					dual_print($log, $report_ids "-\n");
+					print $report_ids "-\n";
 				} else {
 					if ($last2 == $cpt2){
-						dual_print($log, $report_ids "$value");
+						print $report_ids "$value"
 					} else {
-						dual_print($log, $report_ids "$value, ");
+						print $report_ids "$value, "
 					}
 				}
 			}
-			dual_print($log, $report_ids "\n");
+			print $report_ids "\n";
 		}
 
 
