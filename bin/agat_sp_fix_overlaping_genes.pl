@@ -35,11 +35,11 @@ my $gffout = prepare_gffout($config, $outfile);
 
 my $error_found=undef;
 ### Parse GFF input #
-dual_print( $log, "Parse file $ref\n", $verbose );
+dual_print( $log, "Parse file $ref\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                                  config => $config
                                                               });
-dual_print( $log, "$ref file parsed\n", $verbose );
+dual_print( $log, "$ref file parsed\n");
 
 # sort by seq id
 my %hash_sortBySeq;
@@ -91,7 +91,7 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
 
 					#now check at each CDS feature independently
           if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
-            dual_print( $log, "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n", $verbose );
+            dual_print( $log, "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n");
             $error_found="yes";
             $nb_feat_overlap++;
             $total_overlap++;
@@ -103,9 +103,9 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
       # Now manage name if some feature overlap
       if( $nb_feat_overlap > 0){
         push(@ListOverlapingGene, $gene_feature);
-        dual_print( $log, "$nb_feat_overlap overlapping feature found ! We will treat them now:\n", $verbose );
+        dual_print( $log, "$nb_feat_overlap overlapping feature found ! We will treat them now:\n");
         my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene, $opt_merge);
-        dual_print( $log, "We decided to keep that one: ".$reference_feature->gff_string."\n", $verbose );
+        dual_print( $log, "We decided to keep that one: ".$reference_feature->gff_string."\n");
 
         my $gene_id_ref  = $reference_feature->_tag_value('ID');
 
@@ -146,19 +146,19 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
         ###
         # check end and start of the new feature
         check_level1_positions( { omniscient => $hash_omniscient, feature => $reference_feature } );
-        dual_print( $log, "\n\n", $verbose );
+        dual_print( $log, "\n\n");
       }
     }
   }
 }
 
 if(! $error_found){
-  dual_print( $log, "No gene overlaping with different name has been found !\n", $verbose );
+  dual_print( $log, "No gene overlaping with different name has been found !\n");
 }else{
-  dual_print( $log, "$total_overlap genes overlap\n", $verbose );
+  dual_print( $log, "$total_overlap genes overlap\n");
 }
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
-dual_print( $log, "END\n", $verbose );
+dual_print( $log, "END\n");
 
 #######################################################################################################################
         ####################

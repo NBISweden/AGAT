@@ -23,7 +23,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 my @expanded_files;
 foreach my $file_or_dir (@opt_files) {
@@ -55,7 +55,7 @@ my $file1 = shift @opt_files;
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1,
                                                                  config => $config
                                                               });
-dual_print($log, "$file1 GFF3 file parsed\n", $opt_verbose);
+dual_print($log, "$file1 GFF3 file parsed\n");
 info_omniscient($hash_omniscient, $log, $opt_verbose);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
@@ -63,22 +63,22 @@ foreach my $next_file (@opt_files){
   my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
 	                                                                   config => $config
                                                                   });
-  dual_print($log, "$next_file GFF3 file parsed\n", $opt_verbose);
+  dual_print($log, "$next_file GFF3 file parsed\n");
   info_omniscient($hash_omniscient2, $log, $opt_verbose);
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  dual_print($log, "\nTotal raw data of files together:\n", $opt_verbose);
+  dual_print($log, "\nTotal raw data of files together:\n");
   info_omniscient($hash_omniscient, $log, $opt_verbose);
 }
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
-dual_print($log, "\nNow merging overlaping loci, and removing identical isoforms:\n", $opt_verbose);
+dual_print($log, "\nNow merging overlaping loci, and removing identical isoforms:\n");
 merge_overlap_loci(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
 
 
-dual_print($log, "\nfinal result:\n", $opt_verbose);
+dual_print($log, "\nfinal result:\n");
 info_omniscient($hash_omniscient, $log, $opt_verbose);
 
 ########

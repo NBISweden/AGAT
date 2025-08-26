@@ -135,7 +135,7 @@ if(defined($sort_method_by_species) ){
   else{
     $sort_method_by_species = _taxid_ref_sorted();
   }
-  dual_print( $log, "Priority in this order will be used for selecting the referential protein form matching proteins:\n", $opt_verbose );
+  dual_print( $log, "Priority in this order will be used for selecting the referential protein form matching proteins:\n");
   foreach my $priority (sort { $a <=> $b } keys %{$sort_method_by_species}){
     _print( $priority." - ".$sort_method_by_species->{$priority}."\n",0);
   }
@@ -148,13 +148,13 @@ if ($priority_opt ne "pe" and $priority_opt ne "sp"){
 
 #Manage method
 if ($method_opt eq "replace"){
-  dual_print( $log, "We will add or replace the product and Name values when a protein maps properly.\n", $opt_verbose );
+  dual_print( $log, "We will add or replace the product and Name values when a protein maps properly.\n");
 }
 elsif($method_opt eq "add"){
-  dual_print( $log, "We will add the lfp_product and lfp_name values when a protein maps properly.\n", $opt_verbose );
+  dual_print( $log, "We will add the lfp_product and lfp_name values when a protein maps properly.\n");
 }
 elsif($method_opt eq "complete"){
-  dual_print( $log, "We will add the product and Name values when a protein maps properly and no product and/or Name value exists.\n", $opt_verbose );
+  dual_print( $log, "We will add the product and Name values when a protein maps properly and no product and/or Name value exists.\n");
 }
 else{
   die "Method option must be replace, add or complete. Please check the help for more information. (replace by default)\n";
@@ -633,7 +633,7 @@ sub _get_species{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ dual_print($log, "No species name found in this fasta header: $self\n", $opt_verbose);return $species;}
+  if($egal == -1){ dual_print($log, "No species name found in this fasta header: $self\n");return $species;}
   $egal = index($clipped, '=');
   if($egal != -1){
     $species  =  substr $clipped, 0, $egal-2;
@@ -665,7 +665,7 @@ sub _get_gn{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ dual_print($log, "No gene name found in this fasta header: $self\n", $opt_verbose);return $geneName;}
+  if($egal == -1){ dual_print($log, "No gene name found in this fasta header: $self\n");return $geneName;}
   $egal = index($clipped, '=');
   if($egal != -1){
     $geneName  =  substr $clipped, 0, $egal-2;
@@ -698,7 +698,7 @@ sub _get_pe{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ dual_print($log, "No pe found in this fasta header: $self\n", $opt_verbose); return $pe; }
+  if($egal == -1){ dual_print($log, "No pe found in this fasta header: $self\n"); return $pe; }
   $egal = index($clipped, '=');
   if($egal != -1){
     $pe  =  substr $clipped, 0, $egal-2;
@@ -731,7 +731,7 @@ sub _get_sv{
     $abb = substr $clipped, $egal-2, 2;
     $clipped = substr $clipped, $egal+1;
   }
-  if($egal == -1){ dual_print($log, "No sv found in this fasta header: $self\n", $opt_verbose); return $sv; }
+  if($egal == -1){ dual_print($log, "No sv found in this fasta header: $self\n"); return $sv; }
   $egal = index($clipped, '=');
   if($egal != -1){
     $sv  =  substr $clipped, 0, $egal-2;
@@ -759,11 +759,11 @@ sub  _get_sequence{
     $descritpion = (split(/\s+/, $db->header($seq_id_original), 2))[1]; #take header and remove the first element wihch is the seq_id_original
 
     if($sequence eq ""){
-      dual_print( $log, "Problem ! no sequence extracted for - $seq_id_correct !\n", $opt_verbose );  exit;
+      dual_print( $log, "Problem ! no sequence extracted for - $seq_id_correct !\n");  exit;
     }
   }
   else{
-    dual_print( $log, "Problem ! protein ID $seq_id_correct not found into the protein fasta file!\n", $opt_verbose );
+    dual_print( $log, "Problem ! protein ID $seq_id_correct not found into the protein fasta file!\n");
   }
 
   return length($sequence), $seq_id_correct, $descritpion;
@@ -847,7 +847,7 @@ sub check_gene_overlap_gffAlign{
             # CALCUL ONTO THE WHOLE GENE MODEL #
             my @list_tag_l3=('exon');
             if(! exists_keys( $hash_omniscient, ('level3','exon'))){
-              dual_print( $log, "No exon found into the annoation file for feature $gene_id, we will use all the other l3 features\n", $opt_verbose );
+              dual_print( $log, "No exon found into the annoation file for feature $gene_id, we will use all the other l3 features\n");
               foreach my $tag_l3 (keys %{$hash_omniscient->{'level3'}}){
                 push @list_tag_l3,$tag_l3;
               }
@@ -960,7 +960,7 @@ sub check_gene_overlap_gffAlign{
               @list_res = ($gene_id2, $w_overlap12_abs, $w_overlap21_abs, $overlap12_abs, $overlap21_abs, $w_overlap_JD_abs, $overlap_JD_abs , $proteinName, $descritpion);
               }
             catch{
-              dual_print( $log, "We cannot check the real protein length, let's continue without this one: $prot_tag\n", $opt_verbose );
+              dual_print( $log, "We cannot check the real protein length, let's continue without this one: $prot_tag\n");
               #2 -> 1 whole sequence
               #$w_overlap21 = sprintf "%.1f", ($w_overlap*100/$lenght2);
               #$w_overlap21_abs = sprintf "%.1f", ($w_abs_overlap*100/$lenght2);
@@ -986,7 +986,7 @@ sub get_absolute_match{
 
   # We first need to check that the GAP feature is present among the protein attributes
   if(! $feature->has_tag('Gap')){
-    dual_print( $log, "I cannot calculate the absolute match because the tag Gap is absent !\n", $opt_verbose );
+    dual_print( $log, "I cannot calculate the absolute match because the tag Gap is absent !\n");
   }
   else{
 
@@ -1118,7 +1118,7 @@ sub  calcul_match_gap{
           $nuc_polish -= $gap;
         }
         else{
-          dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n", $opt_verbose );
+          dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n");
         }
   }
 
@@ -1148,7 +1148,7 @@ sub nuc_gap_val{
     $nuc = substr $gap, 1;
   }
   else{
-    dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n", $opt_verbose );
+    dual_print( $log, "Cannot interpret this CIGAR substring: $gap !\n");
   }
 
   return $nuc;
@@ -1156,7 +1156,7 @@ sub nuc_gap_val{
 
 sub _print{
   my ($mesage, $optionType) = @_;
-  dual_print( $log, $mesage, $opt_verbose );
+  dual_print( $log, $mesage);
   if ( defined $optionType ) {
       $outputTab[$optionType]->print($mesage);
   }

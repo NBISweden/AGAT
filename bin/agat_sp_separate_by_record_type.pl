@@ -27,7 +27,7 @@ if ( my $log_name = $config->{log_path} ) {
 # Manage output file #
 
 if (! $opt_output) {
-  dual_print($log, "Default output name: split_result\n", $verbose);
+  dual_print($log, "Default output name: split_result\n");
   $opt_output="split_result";
 }
 
@@ -46,7 +46,7 @@ mkdir $opt_output;
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print($log, "GFF3 file parsed\n", $verbose);
+dual_print($log, "GFF3 file parsed\n");
 
 
 my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
@@ -157,7 +157,7 @@ foreach my $key (keys %handlers){
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 
 close $log if $log;
 __END__

@@ -50,17 +50,17 @@ if ( my $log_name = $config->{log_path} ) {
 my $ostream = prepare_fileout($opt_output);
 
 if ( defined $opt_HardMask ) {
-    dual_print( $log, "You choose to Hard Mask the genome.\n", $opt_verbose );
+    dual_print( $log, "You choose to Hard Mask the genome.\n");
     if ( $opt_HardMask eq '' ) {
         $hardMaskChar = 'n';
     }
     else {
         $hardMaskChar = $opt_HardMask;
     }
-    dual_print( $log, "Charcater uses for Mask: $hardMaskChar\n", $opt_verbose );
+    dual_print( $log, "Charcater uses for Mask: $hardMaskChar\n");
 }
 if ($opt_SoftMask) {
-    dual_print( $log, "You choose to Soft Mask the genome.\n", $opt_verbose );
+    dual_print( $log, "You choose to Soft Mask the genome.\n");
 }
 ##### MAIN ####
 
@@ -73,7 +73,7 @@ if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $gff_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 
-dual_print($log, "Reading features from $opt_gfffile...\n", $opt_verbose);
+dual_print($log, "Reading features from $opt_gfffile...\n");
   while (my $feature = $gff_in->next_feature()) {
     my $seqname=$feature->seq_id();
     my $start=$feature->start();
@@ -82,7 +82,7 @@ dual_print($log, "Reading features from $opt_gfffile...\n", $opt_verbose);
     $nbLineRead++;
    }
 $gff_in->close();
-dual_print($log, "$nbLineRead lines read\n", $opt_verbose);
+dual_print($log, "$nbLineRead lines read\n");
 warn "Input file $opt_gfffile is empty\n" if $opt_verbose && $nbLineRead == 0;
 
 #### read fasta
@@ -111,11 +111,11 @@ while ($_=$inFasta->next_seq()) {
     $nbFastaSeq++;
 }
 $inFasta->close();
-dual_print($log, "$nbFastaSeq fasta sequences read.\n", $opt_verbose);
-dual_print($log, "$nucl_masked nucleotides masked.\n", $opt_verbose);
+dual_print($log, "$nbFastaSeq fasta sequences read.\n");
+dual_print($log, "$nucl_masked nucleotides masked.\n");
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 __END__
 
 =head1 NAME

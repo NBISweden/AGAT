@@ -80,7 +80,7 @@ while( my $line = <$fh>)  {
   chomp $line;
 
         if ($line =~ /#/) {
-            dual_print( $log, "skip commented line: $line\n", $opt_verbose );
+            dual_print( $log, "skip commented line: $line\n");
             next;
         }    #skip commented lines
 
@@ -240,7 +240,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     $gffout->write_feature($feature);
 
 		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
-                    dual_print( $log, "inflating $inflating_off\n", $opt_verbose );
+                    dual_print( $log, "inflating $inflating_off\n");
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -416,11 +416,11 @@ sub skip_line{
 		$skip=1;
 	}
 	if($field0 =~ /^track/){
-            dual_print( $log, "Skip track line, we skip it because we cannot render it properly in a gff file.\n", $opt_verbose );
+            dual_print( $log, "Skip track line, we skip it because we cannot render it properly in a gff file.\n");
 		$skip=1;
 	}
 	if($field0 =~ /^browser/){
-            dual_print( $log, "Skip browser line, we skip it because we cannot render it properly in a gff file.\n", $opt_verbose );
+            dual_print( $log, "Skip browser line, we skip it because we cannot render it properly in a gff file.\n");
 		$skip=1;
 	}
 	return $skip;

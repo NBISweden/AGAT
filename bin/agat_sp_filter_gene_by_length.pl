@@ -75,7 +75,7 @@ $stringPrint .= "We will select l1 feature (e.g. gene) that have length $opt_tes
 if ($opt_output) {
   print $ostreamReport $stringPrint;
 }
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -85,7 +85,7 @@ dual_print( $log, $stringPrint, $opt_verbose );
 my ( $hash_omniscient, $hash_mRNAGeneLink ) = slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print( $log, "Parsing Finished\n", $opt_verbose );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -133,26 +133,26 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    }
       # case we had exon (we look at the longest mRNA)
       if($longer_concat_exon){
-        dual_print( $log, "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n", $opt_verbose );
+        dual_print( $log, "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n");
         if( test_size( $longer_concat_exon, $opt_test, $opt_size ) ){
-          dual_print( $log, "$id_l1 pass the test\n", $opt_verbose );
+          dual_print( $log, "$id_l1 pass the test\n");
           push @listok, $id_l1;
         }
         else{
-          dual_print( $log, "$id_l1 do not pass the test\n", $opt_verbose );
+          dual_print( $log, "$id_l1 do not pass the test\n");
           push @listNotOk, $id_l1;
         }
       }
       else{
-        dual_print( $log, "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n", $opt_verbose );
+        dual_print( $log, "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n");
         # No exon, L1 pass test
         if($successl1){
-          dual_print( $log, "$id_l1 pass the test\n", $opt_verbose );
+          dual_print( $log, "$id_l1 pass the test\n");
           push @listok, $id_l1;
         }
         # No exon, L1 do not pass test
         else{
-          dual_print( $log, "$id_l1 do not pass the test\n", $opt_verbose );
+          dual_print( $log, "$id_l1 do not pass the test\n");
           push @listNotOk, $id_l1;
         }
       }
@@ -179,7 +179,7 @@ $stringPrint .= "$test_fail remaining l1 feature (e.g. gene) do not pass the tes
 if ($opt_output) {
   print $ostreamReport $stringPrint;
 }
-dual_print( $log, $stringPrint, $opt_verbose );
+dual_print( $log, $stringPrint);
 
 #######################################################################################################################
         ####################

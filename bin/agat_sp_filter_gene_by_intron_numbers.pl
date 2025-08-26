@@ -69,7 +69,7 @@ my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will select genes that contain $opt_test $opt_nb introns.\n";
 
-dual_print($log, $stringPrint, $opt_verbose);
+dual_print($log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -80,7 +80,7 @@ print $ostreamReport $stringPrint if $ostreamReport;
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -151,7 +151,7 @@ my $test_fail = scalar @list2;
 
 $stringPrint = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
 $stringPrint .= "$test_fail remaining genes that not pass the test.\n";
-dual_print($log, $stringPrint, $opt_verbose);
+dual_print($log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 close $log if $log;

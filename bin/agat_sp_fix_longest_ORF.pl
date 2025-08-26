@@ -51,7 +51,7 @@ if ( my $log_name = $config->{log_path} ) {
 }
 
 # --- Check codon table
-$codonTable = get_proper_codon_table($codonTable, $log, $verbose);
+$codonTable = get_proper_codon_table($codonTable, $log);
 
 ######################
 # Manage output file #
@@ -101,7 +101,6 @@ my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                 config => $config
                                                               });
 dual_print( $log, "GFF3 file parsed\n" );
-
 
 ####################
 # index the genome #
@@ -204,9 +203,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
             ########################
             # prediction is longer #
-            dual_print( $log, $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n" );
-                                            dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 3 );
-                                            dual_print( $log, "Prediction: ".$longest_ORF_prot_obj->seq."\n", 3 );
+            dual_print( $log, $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n", 2);
+              dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 4 );
+              dual_print( $log, "Prediction: ".$longest_ORF_prot_obj->seq."\n", 4 );
+                                            
             if($longest_ORF_prot_obj->length() > $originalProt_size){
 
   #Model1     ###############################################
@@ -217,8 +217,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 									if( pass_ambiguous_start($longest_ORF_prot_obj, $originalProt_size) ){
 
                     $ListModel{1}++;
-                    dual_print($log, "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n");
-                    dual_print( $log, "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n" );
+                    dual_print($log, "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                    dual_print( $log, "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n", 2);
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model1', $gffout);
                     $ORFmodified="yes";
 
@@ -270,14 +270,16 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
               # contains stop codon but not at the last position
               if( (index($original_prot_obj->seq, '*') != -1 ) and (index($original_prot_obj->seq, '*') != length($original_prot_obj->seq)-1) ){
-                dual_print( $log, "Original sequence contains premature stop codon.\n" );
+                dual_print( $log, "Original sequence contains premature stop codon.\n", 2 );
+                
                 #Model4     ###############
                 # /!\ Here we compare the CDS traduction (traduct in IUPAC) against longest CDS in mRNA IUPAC modified to take in account for stops codon only those that are trustable only (TGA, TAR...).
                 if( exists($ListModel{4}) ){
                   $ListModel{4}++;
-                  dual_print($log, "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n");
-                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n" );
-                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n" );
+                  dual_print($log, "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                  
                   #remodelate a shorter gene
                   modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model4', $gffout);
                   $ORFmodified="yes";
@@ -294,9 +296,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               else{
                 if( exists($ListModel{5}) ){
                   $ListModel{5}++;
-                  dual_print( $log, "Model 5: gene=$gene_id_tag_key mRNA=$id_level2\n" );
-                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n" );
-                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n" );
+                  dual_print( $log, "Model 5: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                  
                   #remodelate a shorter gene
                   modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model4', $gffout);
                   $ORFmodified="yes";
@@ -308,9 +311,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             elsif( (index($original_prot_obj->seq, '*') != -1 ) and (index($original_prot_obj->seq, '*') != length($original_prot_obj->seq)-1) ){
               if( exists($ListModel{6}) ){
                 $ListModel{6}++;
-                dual_print( $log, "Model 6: gene=$gene_id_tag_key mRNA=$id_level2\n" );
-                dual_print( $log, "Original: ".$original_prot_obj->seq."\n" );
-                dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n" );
+                dual_print( $log, "Model 6: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                
                 modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model3', $gffout);
                 $ORFmodified="yes";
               }
@@ -366,7 +370,7 @@ fil_cds_frame(\%omniscient_modified_gene, $db, $log, $verbose, $codonTable);
 fil_cds_frame($hash_omniscient, $db, $log, $verbose, $codonTable);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
-dual_print( $log, "removing duplicates\n" );
+dual_print( $log, "removing duplicates\n", 2);
 merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
 
 ########
@@ -379,6 +383,7 @@ print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2}
 
 # create a hash containing everything
 dual_print( $log, "print all with name of overlapping features resolved...\n" );
+
 my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
 merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
@@ -434,7 +439,6 @@ if($outfile){
   print $report $string_to_print;
 }
 dual_print( $log, "Bye Bye.\n" );
-
 
 #######################################################################################################################
         ####################

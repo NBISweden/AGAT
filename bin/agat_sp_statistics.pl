@@ -91,18 +91,18 @@ if($opt_plot){
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading file $gff\n", $opt_verbose );
+dual_print( $log, "Reading file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({
                                                                input => $gff,
                                                                config => $config
                                                                });
-dual_print( $log, "Parsing Finished\n", $opt_verbose );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
 ##############
 # STATISTICS #
-dual_print( $log, "Compute statistics\n", $opt_verbose );
+dual_print( $log, "Compute statistics\n");
 print_omniscient_statistics ({ input   => $hash_omniscient,
 															 genome  => $opt_genomeSize,
                                percentile => $opt_percentile,
@@ -116,7 +116,7 @@ print_omniscient_statistics ({ input   => $hash_omniscient,
 # END STATISTICS #
 ##################
 
-dual_print( $log, "Bye Bye.\n", $opt_verbose );
+dual_print( $log, "Bye Bye.\n");
 
 __END__
 

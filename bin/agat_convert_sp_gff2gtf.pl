@@ -39,14 +39,12 @@ if ( my $log_name = $config->{log_path} ) {
 # resolve version
 if ( defined $gtf_version ) {
     dual_print( $log,
-        "GTF version $gtf_version selected by command line interface.\n",
-        $config->{verbose} );
+        "GTF version $gtf_version selected by command line interface.\n");
 }
 else {
     $gtf_version = $config->{gtf_output_version};
     dual_print( $log,
-        "GTF version $gtf_version selected from the agat config file.\n",
-        $config->{verbose} );
+        "GTF version $gtf_version selected from the agat config file.\n");
 }
 
 # Update config
@@ -57,13 +55,13 @@ $config->{"output_format"}="gtf";
 # Manage output file #
 my $gffout = prepare_gffout($config, $opt_output);
 
-dual_print( $log, "Reading input file\n", $config->{verbose} );
+dual_print( $log, "Reading input file\n");
 ######################
 ### Parse GFF input #
 ### Read gff input file.
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config });
-dual_print( $log, "converting to GTF$gtf_version\n", $config->{verbose} );
+dual_print( $log, "converting to GTF$gtf_version\n");
 # Now print  omniscient
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

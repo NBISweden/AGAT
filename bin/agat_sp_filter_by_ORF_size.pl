@@ -63,7 +63,7 @@ my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint = "Launched the ".$stringPrint."\nusage: $0 @copyARGV\n";
 $stringPrint .= "We are filtering the gene with protein size $opt_test $PROT_LENGTH\n";
-dual_print( $log, $stringPrint, $config->{verbose} );
+dual_print( $log, $stringPrint);
 
                 #####################
                 #     MAIN          #
@@ -74,7 +74,7 @@ dual_print( $log, $stringPrint, $config->{verbose} );
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                    config => $config
                                                                  });
-  dual_print( $log, "GFF3 file parsed\n", $config->{verbose} );
+  dual_print( $log, "GFF3 file parsed\n");
 
 # Create an empty omniscient hash to store the discarded features and copy the config in
 my %hash_omniscient_discarded;
@@ -87,7 +87,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
     
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
-      dual_print( $log, "Study gene $gene_id_l1\n", $config->{verbose} );
+      dual_print( $log, "Study gene $gene_id_l1\n");
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -133,7 +133,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         if( $there_is_cds ){
           # All transcript discarded
           if( @l2_to_keep == 0){
-            dual_print( $log, "Case all L2 discarded \n", $config->{verbose} );
+            dual_print( $log, "Case all L2 discarded \n");
             $number_gene_discarded++;
             $number_gene_affected++;
             # move L3
@@ -151,7 +151,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
           }
           # Only part of the isoforms have been discarded
           elsif ( @l2_to_discard > 0){
-            dual_print( $log, "Case some L2 discarded \n", $config->{verbose} );
+            dual_print( $log, "Case some L2 discarded \n");
             $number_gene_affected++;
             # handle L3
             
@@ -183,12 +183,12 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         }
         # ---------- CASE there is no CDS -----------
         else{
-          dual_print( $log, "No cds for $gene_id_l1\n", $config->{verbose} );
+          dual_print( $log, "No cds for $gene_id_l1\n");
         }
       }
       # ---------- CASE NO L2 -----------
       if($no_l2){ # case of l1 feature without child
-        dual_print( $log, "No child for $gene_id_l1\n", $config->{verbose} );
+        dual_print( $log, "No child for $gene_id_l1\n");
       }
     }
   }
@@ -198,14 +198,14 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_pass} );
 print_omniscient( {omniscient => \%hash_omniscient_discarded, output => $gffout_notpass} );
 
-dual_print( $log, "\n$number_gene_affected genes have at least one transcript removed.\n", $config->{verbose} );
-dual_print( $log, "$number_gene_discarded genes discarded\n", $config->{verbose} );
-dual_print( $log, "$number_mRNA_discarded transcripts discarded.\n", $config->{verbose} );
+dual_print( $log, "\n$number_gene_affected genes have at least one transcript removed.\n");
+dual_print( $log, "$number_gene_discarded genes discarded\n");
+dual_print( $log, "$number_mRNA_discarded transcripts discarded.\n");
 
 # END
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
+dual_print( $log, "Job done in $run_time seconds\n");
 #######################################################################################################################
         ####################
          #     METHODS    #

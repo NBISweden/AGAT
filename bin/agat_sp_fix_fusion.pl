@@ -65,18 +65,18 @@ my $gffout2 = prepare_gffout($config, $gffout2_file);
 my $gffout3 = prepare_gffout($config, $gffout3_file);
 my $logout = prepare_fileout($logout_file);
 
-$opt_codonTableID = get_proper_codon_table($opt_codonTableID, $log, $verbose);
+$opt_codonTableID = get_proper_codon_table($opt_codonTableID, $log);
 
 if(!$threshold){
   $threshold=100;
 }
-dual_print( $log, "Minimum protein length taken in account = $threshold AA\n", $verbose );
+dual_print( $log, "Minimum protein length taken in account = $threshold AA\n");
 
 if($stranded){
   $stranded=1;
-  dual_print( $log, "You say that annotation has been done using stranded RNA. So, most probable fusion will be between close gene in same direction. We will focuse on that !\n", $verbose );
+  dual_print( $log, "You say that annotation has been done using stranded RNA. So, most probable fusion will be between close gene in same direction. We will focuse on that !\n");
 }
-else{ dual_print( $log, "You didn't use the option stranded. We will look for fusion in all strand (+ and -)!\n", $verbose ); }
+else{ dual_print( $log, "You didn't use the option stranded. We will look for fusion in all strand (+ and -)!\n"); }
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -85,12 +85,12 @@ else{ dual_print( $log, "You didn't use the option stranded. We will look for fu
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-dual_print( $log, "Fasta file parsed\n", $verbose );
+dual_print( $log, "Fasta file parsed\n");
 
 ####################
 
@@ -121,7 +121,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
     if ($progress_bar && (10 - (time - $startP)) < 0) {
         my $done = ($featureChecked*100)/$TotalFeatureL1;
         $done = sprintf ('%.0f', $done);
-        dual_print( $log, "Progress : $done %\n", $verbose );
+        dual_print( $log, "Progress : $done %\n");
         $startP= time;
     }
 
@@ -154,7 +154,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
           if ( exists_keys($hash_omniscient, ('level3', 'three_prime_utr', $id_level2)) ){
 
             while($oneRoundAgain){
-              dual_print($log, "\nNew round three_prime_utr\n", $verbose);
+              dual_print($log, "\nNew round three_prime_utr\n");
               my ($breakRound, $nbNewUTRgene, $mRNAlistToTakeCare) = take_care_utr('three_prime_utr', $tmpOmniscient, $mRNAlistToTakeCare, $stranded, $gffout);
               $oneRoundAgain = $breakRound;
               $nbNewUTR3gene += $nbNewUTRgene;
@@ -167,7 +167,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
           if ( exists_keys($hash_omniscient, ('level3', 'five_prime_utr', $id_level2)) ){
 
             while($oneRoundAgain){
-                dual_print($log, "\nNew round five_prime_utr\n", $verbose);
+                dual_print($log, "\nNew round five_prime_utr\n");
                 my ($breakRound, $nbNewUTRgene, $mRNAlistToTakeCare) = take_care_utr('five_prime_utr', $tmpOmniscient, $mRNAlistToTakeCare, $stranded, $gffout);
                 $oneRoundAgain = $breakRound;
                 $nbNewUTR5gene += $nbNewUTRgene;
@@ -201,7 +201,7 @@ foreach my $primary_tag_key_level1 ( keys %{$hash_omniscient->{'level1'}}){ # pr
 }
 # end progreesion bar
 if ($progress_bar) {
-  dual_print( $log, "Progress : 100 %\n", $verbose );
+  dual_print( $log, "Progress : 100 %\n");
 }
 
 ###
@@ -211,14 +211,14 @@ fil_cds_frame($hash_omniscient, $db, $log, $verbose, $opt_codonTableID);
 
 #####################################
 # Manage modified gene to be sure they not overlap already existing gene. If yes => we give the same gene ID and remove one.
-dual_print( $log, "Managing spurious labelling at gene level\n", $verbose );
+dual_print( $log, "Managing spurious labelling at gene level\n");
 # 1) create a hash omniscient intact
 my $hash_omniscient_intact={}; initialize_omni_from($hash_omniscient_intact, $hash_omniscient);
 fill_omniscient_from_other_omniscient_level1_id(\@intact_gene_list, $hash_omniscient, $hash_omniscient_intact);
 delete $hash_omniscient->{$_} for (keys %{$hash_omniscient});
 
 # 2) print the intact one
-dual_print( $log, "print intact...\n", $verbose );
+dual_print( $log, "print intact...\n");
 print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout} );
 
 # 3) Sort by seq_id - review all newly created gene
@@ -253,9 +253,9 @@ foreach my $tag_l1 ( keys %{$omniscient_modified_gene{'level1'}} ){ # primary_ta
 }
 
 # 5) Print modified genes
-dual_print( $log, "print modified...\n", $verbose );
+dual_print( $log, "print modified...\n");
 if (exists_undef_value(\%omniscient_modified_gene)){
-  dual_print($log, "there is an undef value\n", $verbose);
+  dual_print($log, "there is an undef value\n");
   exit;
 }
 
@@ -263,11 +263,11 @@ print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2}
 
 # 6) Print all together
 merge_omniscients_fuse_l1duplicates($hash_omniscient_intact, \%omniscient_modified_gene);
-dual_print( $log, "print all together...\n", $verbose );
+dual_print( $log, "print all together...\n");
 print_omniscient( {omniscient => $hash_omniscient_intact, output => $gffout3} );
 
 if ($overlap){
-  dual_print($log, "We found $overlap case gene overlapping at CDS level wihout the same ID, we fixed them.\n", $verbose);
+  dual_print($log, "We found $overlap case gene overlapping at CDS level wihout the same ID, we fixed them.\n");
 }
 # End manage overlaping name
 #####################################
@@ -283,8 +283,8 @@ $string_to_print .= "Job done in $run_time seconds\n";
 if($outfile){
   print $logout $string_to_print
 }
-dual_print( $log, $string_to_print, $verbose );
-dual_print( $log, "Bye Bye.\n", $verbose );
+dual_print( $log, $string_to_print);
+dual_print( $log, "Bye Bye.\n");
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -499,7 +499,7 @@ sub take_care_utr{
             foreach my $mRNAtoTakeCare (@{$mRNAlistToTakeCare}){
 
               if($mRNAtoTakeCare eq $id_level2){ # ok is among the list of those to analyze
-                dual_print($log, "id_level2 -- $id_level2 ***** to take_care -- $mRNAtoTakeCare  \n", $verbose);
+                dual_print($log, "id_level2 -- $id_level2 ***** to take_care -- $mRNAtoTakeCare  \n");
                 if(exists_keys ($tmpOmniscient, ('level3', $utr_tag) ) and exists_keys ($tmpOmniscient, ('level3', $utr_tag,$id_level2) ) ){
 
                   ##################################################
@@ -568,7 +568,7 @@ sub take_care_utr{
                   # prediction is longer than threshold#
                   if($longest_ORF_prot_obj->length() > $threshold){
 
-                      dual_print($log, "Longer AA in utr = ".$longest_ORF_prot_obj->length()."\n".$longest_ORF_prot_obj->seq."\n", $verbose);
+                      dual_print($log, "Longer AA in utr = ".$longest_ORF_prot_obj->length()."\n".$longest_ORF_prot_obj->seq."\n");
 
                     my @exons_features = sort {$a->start <=> $b->start} @{$tmpOmniscient->{'level3'}{'exon'}{$id_level2}};# be sure that list is sorted
                     my ($exonExtremStart, $mrna_seq, $exonExtremEnd) = concatenate_feature_list(\@exons_features);
@@ -630,11 +630,11 @@ sub take_care_utr{
                     $nbNewUTRgene++;
                     } # We predict something in UTR
                     else{
-                      dual_print($log, "Nothing predicted over threshold :". $longest_ORF_prot_obj->length()." ! Next\n", $verbose);
+                      dual_print($log, "Nothing predicted over threshold :". $longest_ORF_prot_obj->length()." ! Next\n");
                     }
                   } # End there is UTR
                   else{
-                    dual_print($log, "There is no UTR ! Next\n", $verbose);
+                    dual_print($log, "There is no UTR ! Next\n");
                   }
               }
               #else{print "Not among the list mRNAtoTakeCare. Next \n";}
@@ -677,7 +677,7 @@ sub split_gene_model{
         ####################################
         # Remodelate ancient gene
         ####################################
-                    dual_print($log, "Remodelate ancient gene\n", $verbose);
+                    dual_print($log, "Remodelate ancient gene\n");
                   #############################################################
                   #  Remove all level3 feature execept cds
                   my @tag_list=('cds');
@@ -695,7 +695,7 @@ sub split_gene_model{
 
                   ########
                   # calcul utr
-                    dual_print($log, "Remodelate ancient gene ($gene_id)".$gene_feature->start." ".$gene_feature->end."\n", $verbose);
+                    dual_print($log, "Remodelate ancient gene ($gene_id)".$gene_feature->start." ".$gene_feature->end."\n");
 
                   my ($original_utr5_list, $variable_not_needed, $original_utr3_list) = modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop($newOrignal_exon_list, $cdsExtremStart, $cdsExtremEnd);
                   @{$tmpOmniscient->{'level3'}{'five_prime_utr'}{$id_level2}}=@$original_utr5_list;
@@ -715,7 +715,7 @@ sub split_gene_model{
 
                   }
                   else{
-                      dual_print($log, "*** remove IT *** because exon and CDS IDENTIK ! $id_level2 \n", $verbose);
+                      dual_print($log, "*** remove IT *** because exon and CDS IDENTIK ! $id_level2 \n");
                     my @l2_feature_list=($level2_feature);
                     remove_omniscient_elements_from_level2_feature_list($tmpOmniscient, \@l2_feature_list);
                   }
@@ -727,7 +727,7 @@ sub split_gene_model{
         ###################################
         # Remodelate New Prediction
         ###################################
-                    dual_print($log, "Remodelate New Prediction\n", $verbose);
+                    dual_print($log, "Remodelate New Prediction\n");
                   # If newPred_exon_list list is empty we skipt the new gene modeling part
                   #if(!@$newPred_exon_list){
                   #  next;
@@ -792,7 +792,7 @@ sub split_gene_model{
                     }
                   }
                   else{
-                      dual_print($log, "*** Not creating mRNA *** because exon and CDS IDENTIK ! \n", $verbose);
+                      dual_print($log, "*** Not creating mRNA *** because exon and CDS IDENTIK ! \n");
                   }
 
   return $mRNAlistToTakeCare;
@@ -979,7 +979,7 @@ sub must_be_a_new_gene_new_mrna{
                   if(featuresList_identik(\@cds_feature_list, $new_pred_cds_list)){
                     #print "cds identik !\n";
                     if(featuresList_identik(\@exon_feature_list, $newPred_exon_list)){
-                        dual_print($log, "RNA identik BETWEEN $featureL2_id and $featureL2_original_id \n", $verbose);
+                        dual_print($log, "RNA identik BETWEEN $featureL2_id and $featureL2_original_id \n");
                       $Need_new_mRNA=undef;
                       $overlaping_mrna_ft=$featureL2_id;
                       last;

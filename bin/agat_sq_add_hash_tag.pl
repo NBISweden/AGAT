@@ -42,7 +42,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print($log, "$nbLine line to process...\n", $config->{verbose});
+dual_print($log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my $count=0;
@@ -85,7 +85,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print($log, "\rProgression : $done % processed.\n", $config->{verbose});
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -95,12 +95,12 @@ while (my $feature = $ref_in->next_feature() ) {
 $count++;
 
 if($count > 0){
-  dual_print($log, "$count line added !\n", $config->{verbose});
+  dual_print($log, "$count line added !\n");
 }
-else{dual_print($log, "No line added !\n", $config->{verbose});}
+else{dual_print($log, "No line added !\n");}
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
+dual_print($log, "Job done in $run_time seconds\n");
 
 close $log if $log;
 

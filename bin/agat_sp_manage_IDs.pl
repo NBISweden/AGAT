@@ -46,7 +46,7 @@ my $gffout = prepare_gffout( $config, $outfile );
 # Manage $primaryTag
 my %ptagList;
 if ( !@opt_tag ) {
-    dual_print( $log, "We will work on attributes from all features\n", $verbose );
+    dual_print( $log, "We will work on attributes from all features\n");
     $ptagList{'level1'}++;
     $ptagList{'level2'}++;
     $ptagList{'level3'}++;
@@ -55,13 +55,13 @@ else {
     foreach my $tag (@opt_tag) {
         next if $tag eq "";
         if ( $tag eq "all" ) {
-            dual_print( $log, "We will work on attributes from all features\n", $verbose );
+            dual_print( $log, "We will work on attributes from all features\n");
             $ptagList{'level1'}++;
             $ptagList{'level2'}++;
             $ptagList{'level3'}++;
         }
         else {
-            dual_print( $log, "We will work on attributes from all the $tag features\n", $verbose );
+            dual_print( $log, "We will work on attributes from all the $tag features\n");
             $ptagList{ lc($tag) }++;
         }
     }
@@ -79,7 +79,7 @@ my @l3_out_priority = ("tss", "exon", "cds", "tts");
 my ( $hash_omniscient, $hash_mRNAGeneLink ) = slurp_gff3_file_JD({ input => $opt_gff,
                                                                    config => $config
                                                                });
-dual_print( $log, "GFF3 file parsed\n", $verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 # get spreadfeatire in case of collective option set
 my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
@@ -229,28 +229,28 @@ sub  manage_attributes{
   else{
     $prefix = $opt_prefix;
   }
-  dual_print( $log, "prefix $prefix \n", $verbose );
+  dual_print( $log, "prefix $prefix \n");
 
   #  ----- deal with value independent or not of the feature type--------
   my $tag = $opt_type_dependent ? $primary_tag : 'all';
-  dual_print( $log, "tag: $tag\n", $verbose );
-  dual_print( $log, "primary_tag: $primary_tag\n", $verbose );
+  dual_print( $log, "tag: $tag\n");
+  dual_print( $log, "primary_tag: $primary_tag\n");
 
   if ($opt_tair){
     if ($level eq 'level1') {
       my $ID_number = get_id_number($tag, $level);
       $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
       $result="$prefix$ID_number";
-      dual_print( $log, "tair l1: $result\n", $verbose );
+      dual_print( $log, "tair l1: $result\n");
     }
     if($level eq 'level2'){
       $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
-        dual_print( $log, "tair l2: $result\n", $verbose );
+        dual_print( $log, "tair l2: $result\n");
     }
     elsif ($level eq 'level3'){
       my $ID_number = get_id_number("$parent_id$tag", $level);
       $result = $parent_id."-"."$primary_tag$ID_number";
-      dual_print( $log, "tair l3: $result\n", $verbose );
+      dual_print( $log, "tair l3: $result\n");
     }
 
   }

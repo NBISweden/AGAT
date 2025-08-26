@@ -36,11 +36,11 @@ my $out = prepare_gffout($config, $outfile);
 my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
-dual_print($log, "Parse file $gff\n", $opt_verbose);
+dual_print($log, "Parse file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print($log, "$gff file parsed\n", $opt_verbose);
+dual_print($log, "$gff file parsed\n");
 
 # Remove all mRNA specified by the kill-list from their (gene-) parents.
 remove_omniscient_elements_from_level2_ID_list ($hash_omniscient, $killlist);
@@ -147,7 +147,7 @@ sub parse_blast
 
     #print "We will removed $cptCount more.\n";
     my $nbremove = @answer;
-    dual_print($log, "$nbremove gene will be removed !\n", $opt_verbose);
+    dual_print($log, "$nbremove gene will be removed !\n");
 
 close $log if $log;
 

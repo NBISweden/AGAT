@@ -37,19 +37,18 @@ if ( -d $opt_output ) {
 } else {
     my ( $path, $ext );
     ( $opt_output, $path, $ext ) = fileparse( $opt_output, qr/\.[^.]*$/ );
-    dual_print( $log, "Creating the $opt_output folder\n", $opt_verbose );
+    dual_print( $log, "Creating the $opt_output folder\n");
     mkdir $opt_output;
 }
 
 dual_print( $log,
-    "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currently defined by <$feature_type>.\n",
-    $opt_verbose );
+    "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currently defined by <$feature_type>.\n");
 
 my $startP = time;
 my $nbLine = `wc -l < $opt_gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print( $log, "$nbLine line to process...\n", $opt_verbose );
+dual_print( $log, "$nbLine line to process...\n");
 my $line_cpt = 0;
 
 my $count_feature = 0;
@@ -76,7 +75,7 @@ while ( my $feature = $ref_in->next_feature() ) {
     if ( ( 30 - ( time - $startP ) ) < 0 ) {
         my $done = ( $line_cpt * 100 ) / $nbLine;
         $done = sprintf( '%.0f', $done );
-        dual_print( $log, "\rProgression : $done % processed.\n", $opt_verbose );
+        dual_print( $log, "\rProgression : $done % processed.\n");
         $startP = time;
     }
 }
@@ -84,7 +83,7 @@ close $gffout;
 
 my $end_run  = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $opt_verbose );
+dual_print( $log, "Job done in $run_time seconds\n");
 
 __END__
 

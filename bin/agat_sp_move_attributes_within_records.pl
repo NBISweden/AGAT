@@ -36,7 +36,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 ###############
 # Manage Output
@@ -105,7 +105,7 @@ my @attListOk;
 if ($attributes){
 
   if ($attributes eq "all_attributes"){
-    dual_print($log, "All attributes will be used !\n", $opt_verbose);
+    dual_print($log, "All attributes will be used !\n");
     $attHashOk{"all_attributes"}++;
   }
   else{
@@ -117,14 +117,14 @@ if ($attributes){
       }
     }
   }
-  dual_print($log, "\n", $opt_verbose);
+  dual_print($log, "\n");
 }
 
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
-dual_print($log, $stringPrint, $opt_verbose);
+dual_print($log, $stringPrint);
 
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -135,7 +135,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id

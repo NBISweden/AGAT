@@ -72,7 +72,7 @@ if ( defined $config->{log_path} ) {
     open( $log, '>', $config->{log_path} )
       or die "Can not open $config->{log_path} for printing: $!";
 }
-dual_print( $log, $header, $opt_verbose );
+dual_print( $log, $header);
 
 # --- Check codon table
 # --- Check codon table
@@ -93,7 +93,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-dual_print($log, "We will extract the $opt_type sequences.\n", $opt_verbose);
+dual_print($log, "We will extract the $opt_type sequences.\n");
 $opt_type=lc($opt_type);
 
 # deal with OFS
@@ -111,11 +111,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-dual_print($log, "Reading file $opt_gfffile\n", $opt_verbose);
+dual_print($log, "Reading file $opt_gfffile\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-dual_print($log, "Parsing Finished\n", $opt_verbose);
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -131,7 +131,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-dual_print($log, "Fasta file parsed\n", $opt_verbose);
+dual_print($log, "Fasta file parsed\n");
 # ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
@@ -146,7 +146,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
       my $id_seq = clean_string($id_l1);
       my $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
 			if($opt_keep_attributes){
-                           dual_print($log, "Extract attributes level1\n", $opt_verbose);
+                           dual_print($log, "Extract attributes level1\n");
 				my $attributes = extract_attributes($feature_l1);
 				$description.=$OFS.$attributes;
 			}
@@ -171,7 +171,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
           if( $opt_type eq $ptag_l2 or $opt_type eq "l2" or $opt_type eq "level2" ){
 
 						if($opt_keep_attributes ){
-                                                   dual_print($log, "Extract attributes level2\n", $opt_verbose);
+                                                   dual_print($log, "Extract attributes level2\n");
 							my @List_l1=($feature_l1);
 							my $attributes = extract_attributes( $feature_l2, \@List_l1 );
 							$description.=$OFS.$attributes;
@@ -198,30 +198,27 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 }
 
 #END
-dual_print($log, "usage: $0 @copyARGV\n", $opt_verbose);
+dual_print($log, "usage: $0 @copyARGV\n");
 
 if($opt_upstreamRegion and $opt_downRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n",
-              $opt_verbose);
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n");
 }
 elsif($opt_upstreamRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n",
-              $opt_verbose);
+              "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n");
 }
 elsif($opt_downRegion){
   dual_print($log,
-              "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n",
-              $opt_verbose);
+              "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n");
 }
 else{
-  dual_print($log, "$nbFastaSeq $opt_type converted in fasta.\n", $opt_verbose);
+  dual_print($log, "$nbFastaSeq $opt_type converted in fasta.\n");
 }
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 close $log if $log;
 
 #######################################################################################################################
@@ -402,7 +399,7 @@ sub extract_sequences{
 
 		# catch attributes for Level3
 		if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-                   dual_print($log, "Extract attributes level3 full\n", $opt_verbose);
+                   dual_print($log, "Extract attributes level3 full\n");
 			my $attributes = extract_attributes(\@sortedList, $lpa);
 			$description.=$OFS.$attributes;
 		}
@@ -463,7 +460,7 @@ sub extract_sequences{
 
 				# catch attributes for Level3
 				if( $opt_keep_attributes ){ #update header's id information
-                                   dual_print($log, "Extract attributes level3 split\n", $opt_verbose);
+                                   dual_print($log, "Extract attributes level3 split\n");
 					my $attributes = extract_attributes($feature, $lpa);
 					$updated_description.=$OFS.$attributes;
 				}
@@ -548,7 +545,7 @@ sub extract_sequences{
 
 			# catch attributes for Level3
 			if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-                           dual_print($log, "Extract attributes level3 natural spread merged\n", $opt_verbose);
+                           dual_print($log, "Extract attributes level3 natural spread merged\n");
 				my $attributes = extract_attributes(\@sortedList, $lpa);
 				$description.=$OFS.$attributes;
 			}
@@ -592,7 +589,7 @@ sub extract_sequences{
 
 					# catch attributes for Level3
 					if( $opt_keep_attributes ){ #update header's id information
-                                           dual_print($log, "Extract attributes level3 natural not spread or spread not merged\n", $opt_verbose);
+                                           dual_print($log, "Extract attributes level3 natural not spread or spread not merged\n");
 						my $attributes = extract_attributes($feature, $lpa);
 						$updated_description.=$OFS.$attributes;
 					}
@@ -746,7 +743,7 @@ sub  get_sequence{
 
 # Print the sequence object
 sub print_seqObj{
-  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log, $verbose) = @_;
+  my($ostream, $seqObj, $opt_AA, $opt_codonTable, $phase, $log) = @_;
 
 
   if($opt_AA){ #translate if asked
@@ -764,8 +761,7 @@ sub print_seqObj{
           my $translated_seq = substr($transObj->seq(),1); # removing first AA
           $transObj->seq("M".$translated_seq);  # adding M as first AA
           dual_print($log,
-                     "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n",
-                     $verbose);
+                     "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n");
         }
       }
 
