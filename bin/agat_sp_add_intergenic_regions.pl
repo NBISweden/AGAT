@@ -49,7 +49,7 @@ if(! exists_keys($omniscient,('level1', "gene") ) ){
 my $sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, 'gene');
 
 # --------------------------- COLLECT GENE LOCATIONS -----------------------
-dual_print($log, "Now colleting the gene locations\n");
+dual_print($log, "Now colleting the gene locations\n", 2);
 my $flattened_locations = {};
 foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
   # check if gene  exits for this sequence
@@ -70,7 +70,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 # --------------------------- FIX OVERLAPPING LOCATIONS -----------------------
 # Will merge locations that overlap
 
-dual_print($log, "Now flattening the locations\n");
+dual_print($log, "Now flattening the locations\n", 2);
 foreach my $locusID (  keys %{$flattened_locations} ){
 
   my @newlocations;
@@ -108,7 +108,7 @@ foreach my $locusID (  keys %{$flattened_locations} ){
 }
 
 # --------------------------- NOW creating intergenic location -----------------------
-dual_print($log, "Now creating intergenic regions\n");
+dual_print($log, "Now creating intergenic regions\n", 2);
 my $intergenic_added=0;
 # Go through location from left to right ### !! if not empty
 foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or repeat etc...
