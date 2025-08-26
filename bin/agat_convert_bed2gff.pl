@@ -80,7 +80,7 @@ while( my $line = <$fh>)  {
   chomp $line;
 
         if ($line =~ /#/) {
-            dual_print( $log, "skip commented line: $line\n");
+            dual_print( $log, "skip commented line: $line\n", 2);
             next;
         }    #skip commented lines
 
@@ -94,7 +94,7 @@ while( my $line = <$fh>)  {
 
     my $fieldNumber=$#fields+1;
     if($fieldNumber < 3 or $fieldNumber >12){
-      warn "Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !\n\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n" if $opt_verbose;
+      dual_warn($log, Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !\n\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n", 2);
       exit;
     }
 
@@ -240,7 +240,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     $gffout->write_feature($feature);
 
 		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
-                    dual_print( $log, "inflating $inflating_off\n");
+            dual_print( $log, "inflating $inflating_off\n", 2);
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -249,7 +249,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 			$l3_size_line =~ s/^\s+//; # remove spaces
 			my @l3_size_list = split /,/, $l3_size_line;
 
-                    if ($#l3_size_list != $#l3_start_list){warn "Error: Number of elements in blockSizes (11th column) blockStarts (12th column) is different!\n" if $opt_verbose;}
+                    if ($#l3_size_list != $#l3_start_list){dual_warn( $log, "Error: Number of elements in blockSizes (11th column) blockStarts (12th column) is different!\n", 2)}
 
 			my $l3_indice=-1;
 			my $phase = "." ;
@@ -416,11 +416,11 @@ sub skip_line{
 		$skip=1;
 	}
 	if($field0 =~ /^track/){
-            dual_print( $log, "Skip track line, we skip it because we cannot render it properly in a gff file.\n");
+        dual_print( $log, "Skip track line, we skip it because we cannot render it properly in a gff file.\n", 2);
 		$skip=1;
 	}
 	if($field0 =~ /^browser/){
-            dual_print( $log, "Skip browser line, we skip it because we cannot render it properly in a gff file.\n");
+        dual_print( $log, "Skip browser line, we skip it because we cannot render it properly in a gff file.\n", 2);
 		$skip=1;
 	}
 	return $skip;
