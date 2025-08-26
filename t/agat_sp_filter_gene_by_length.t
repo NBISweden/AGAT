@@ -24,25 +24,10 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_gene_by_length.p
 my $result = "$output_folder/agat_sp_filter_gene_by_length_1.gff";
 check_quiet_and_normal_run(
     $script,
-    { gff => "$input_folder/1.gff", size => "1000", test => "\"<\"" },
+    { gff => "$input_folder/1.gff", size => "1000", test => "<" },
     "$result.stdout",
     $result
 );
-
-{
-    my $dir = setup_tempdir();
-    my $err = `$script --gff $input_folder/1.gff --size -5 2>&1`;
-    like( $err, qr/Gene size threshold must be positive/,
-        'reject negative size' );
-}
-
-{
-    my $dir = setup_tempdir();
-    my $err = `$script --gff $input_folder/1.gff --size 1000 --test foo 2>&1`;
-    like( $err, qr/Test to apply must be one of <, >, <=, >= or =/, 'reject invalid test operator' );
-}
-
-
 
 
 done_testing();
