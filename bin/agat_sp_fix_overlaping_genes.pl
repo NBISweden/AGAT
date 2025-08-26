@@ -91,7 +91,7 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
 
 					#now check at each CDS feature independently
           if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
-            dual_print( $log, "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n");
+            dual_print( $log, "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n", 2 );
             $error_found="yes";
             $nb_feat_overlap++;
             $total_overlap++;
@@ -103,9 +103,9 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
       # Now manage name if some feature overlap
       if( $nb_feat_overlap > 0){
         push(@ListOverlapingGene, $gene_feature);
-        dual_print( $log, "$nb_feat_overlap overlapping feature found ! We will treat them now:\n");
+        dual_print( $log, "$nb_feat_overlap overlapping feature found ! We will treat them now:\n", 2 );
         my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene, $opt_merge);
-        dual_print( $log, "We decided to keep that one: ".$reference_feature->gff_string."\n");
+        dual_print( $log, "We decided to keep that one: ".$reference_feature->gff_string."\n", 2 );
 
         my $gene_id_ref  = $reference_feature->_tag_value('ID');
 

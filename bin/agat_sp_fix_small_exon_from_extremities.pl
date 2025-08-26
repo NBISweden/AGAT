@@ -72,7 +72,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    dual_print( $log, "gene_id = $gene_id\n");
+    dual_print( $log, "gene_id = $gene_id\n", 2 );
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id) ) ){
@@ -103,7 +103,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $exonCounter++;
               $exonFix=1;
 
-              dual_print( $log, "left_exon start fixed\n");
+              dual_print( $log, "left_exon start fixed\n", 2 );
 
               #take care of CDS if needed
               if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -161,7 +161,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 $exonCounter++;
                 $exonFix=1;
 
-                dual_print( $log, "right_exon end fixed\n");
+                dual_print( $log, "right_exon end fixed\n", 2 );
 
                 #take care of CDS if needed
                 if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -181,7 +181,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                     my $this_codon = substr( $sequence, $original_cds_end-3, 3);
 
                     if($strand eq "+" or $strand == "1"){
-                      dual_print( $log, "last plus strand\n");
+                      dual_print( $log, "last plus strand\n", 2 );
                        #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                       if(! $codonTable->is_ter_codon( $this_codon )){
@@ -191,7 +191,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                     }
                     if($strand eq "-" or $strand == "-1"){
-                      dual_print( $log, "last minus strand\n");
+                      dual_print( $log, "last minus strand\n", 2 );
 
                       #reverse complement
                       my $seqobj = Bio::Seq->new(-seq => $this_codon);

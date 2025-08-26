@@ -229,28 +229,28 @@ sub  manage_attributes{
   else{
     $prefix = $opt_prefix;
   }
-  dual_print( $log, "prefix $prefix \n");
+  dual_print( $log, "prefix $prefix \n", 2 );
 
   #  ----- deal with value independent or not of the feature type--------
   my $tag = $opt_type_dependent ? $primary_tag : 'all';
-  dual_print( $log, "tag: $tag\n");
-  dual_print( $log, "primary_tag: $primary_tag\n");
+  dual_print( $log, "tag: $tag\n", 2 );
+  dual_print( $log, "primary_tag: $primary_tag\n", 2 );
 
   if ($opt_tair){
     if ($level eq 'level1') {
       my $ID_number = get_id_number($tag, $level);
       $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
       $result="$prefix$ID_number";
-      dual_print( $log, "tair l1: $result\n");
+      dual_print( $log, "tair l1: $result\n", 2 );
     }
     if($level eq 'level2'){
       $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
-        dual_print( $log, "tair l2: $result\n");
+        dual_print( $log, "tair l2: $result\n", 2 );
     }
     elsif ($level eq 'level3'){
       my $ID_number = get_id_number("$parent_id$tag", $level);
       $result = $parent_id."-"."$primary_tag$ID_number";
-      dual_print( $log, "tair l3: $result\n");
+      dual_print( $log, "tair l3: $result\n", 2 );
     }
 
   }

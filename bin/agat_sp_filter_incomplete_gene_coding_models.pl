@@ -93,7 +93,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    dual_print( $log, "gene_id = $gene_id\n");
+    dual_print( $log, "gene_id = $gene_id\n", 2 );
 
     my @level1_list=();
     my @level2_list=();
@@ -123,7 +123,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               if (! $skip_start_check){
                 my $start_codon = $seqobj->subseq(1,3);
                 if(! $codonTable->is_start_codon( $start_codon )){
-                  dual_print( $log, "start= $start_codon  is not a valid start codon\n");
+                  dual_print( $log, "start= $start_codon  is not a valid start codon\n", 2 );
                   $start_missing="true";
                   if($add_flag){
                     create_or_replace_tag($level2_feature, 'incomplete', '1');
@@ -136,7 +136,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
                 if(! $codonTable->is_ter_codon( $stop_codon )){
-                  dual_print( $log, "stop= $stop_codon is not a valid stop codon\n");
+                  dual_print( $log, "stop= $stop_codon is not a valid stop codon\n", 2 );
                   $stop_missing="true";
                   if($add_flag){
                     if($start_missing){
@@ -150,11 +150,11 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               }
             }
             else{ #short CDS
-              dual_print( $log, "CDS too short ($length_CDS nt) we skip it\n");
+              dual_print( $log, "CDS too short ($length_CDS nt) we skip it\n", 2 );
             }
           }
           else{ #No CDS
-            dual_print( $log, "Not a coding rna (no CDS) we skip it\n");
+            dual_print( $log, "Not a coding rna (no CDS) we skip it\n", 2 );
           }
 
           if($start_missing or $stop_missing){
@@ -193,7 +193,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      dual_print( $log, "This is a non coding gene (no cds to any of its RNAs)");
+      dual_print( $log, "This is a non coding gene (no cds to any of its RNAs)", 2 );
     }
   }
 }
