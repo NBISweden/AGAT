@@ -146,7 +146,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
       my $id_seq = clean_string($id_l1);
       my $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
 			if($opt_keep_attributes){
-                           dual_print($log, "Extract attributes level1\n");
+                           dual_print($log, "Extract attributes level1\n", 2);
 				my $attributes = extract_attributes($feature_l1);
 				$description.=$OFS.$attributes;
 			}
@@ -171,7 +171,7 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
           if( $opt_type eq $ptag_l2 or $opt_type eq "l2" or $opt_type eq "level2" ){
 
 						if($opt_keep_attributes ){
-                                                   dual_print($log, "Extract attributes level2\n");
+                                                   dual_print($log, "Extract attributes level2\n", 2);
 							my @List_l1=($feature_l1);
 							my $attributes = extract_attributes( $feature_l2, \@List_l1 );
 							$description.=$OFS.$attributes;
@@ -399,7 +399,7 @@ sub extract_sequences{
 
 		# catch attributes for Level3
 		if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-                   dual_print($log, "Extract attributes level3 full\n");
+                   dual_print($log, "Extract attributes level3 full\n", 2);
 			my $attributes = extract_attributes(\@sortedList, $lpa);
 			$description.=$OFS.$attributes;
 		}
@@ -460,7 +460,7 @@ sub extract_sequences{
 
 				# catch attributes for Level3
 				if( $opt_keep_attributes ){ #update header's id information
-                                   dual_print($log, "Extract attributes level3 split\n");
+                                   dual_print($log, "Extract attributes level3 split\n", 2);
 					my $attributes = extract_attributes($feature, $lpa);
 					$updated_description.=$OFS.$attributes;
 				}
@@ -545,7 +545,7 @@ sub extract_sequences{
 
 			# catch attributes for Level3
 			if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-                           dual_print($log, "Extract attributes level3 natural spread merged\n");
+                           dual_print($log, "Extract attributes level3 natural spread merged\n", 2);
 				my $attributes = extract_attributes(\@sortedList, $lpa);
 				$description.=$OFS.$attributes;
 			}
@@ -589,7 +589,7 @@ sub extract_sequences{
 
 					# catch attributes for Level3
 					if( $opt_keep_attributes ){ #update header's id information
-                                           dual_print($log, "Extract attributes level3 natural not spread or spread not merged\n");
+                                           dual_print($log, "Extract attributes level3 natural not spread or spread not merged\n", 2);
 						my $attributes = extract_attributes($feature, $lpa);
 						$updated_description.=$OFS.$attributes;
 					}
