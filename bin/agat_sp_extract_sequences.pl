@@ -72,7 +72,7 @@ if ( defined $config->{log_path} ) {
     open( $log, '>', $config->{log_path} )
       or die "Can not open $config->{log_path} for printing: $!";
 }
-dual_print( $log, $header);
+dual_print( $log, $header, 3);
 
 # --- Check codon table
 # --- Check codon table
