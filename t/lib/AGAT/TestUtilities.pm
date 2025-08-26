@@ -143,9 +143,13 @@ sub check_console_output {
     my @ignore_starts   = ( '=> Using standard', 'Using standard', 'usage:', 'Reading' , 'Parse file ');
     my @ignore_contains = (
         'AGAT/so.obo',
+        '(AGAT) - Version: ',
         'This script is being run',
         'Bioperl location being used:',
         'Operating system being used:',
+        'GFF3 file parsed',
+        'IDs checked and fixed.',
+        'Result available in ',
         'done in ',
         '/2025 at ', '/2026 at ', '/2027 at '      # replace with robust date filtering  
     );
