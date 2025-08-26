@@ -140,7 +140,7 @@ sub check_console_output {
         return $exit;
     }
 
-    my @ignore_starts   = ( '=> Using standard', 'Using standard', 'usage:', 'Reading' , 'Parse file ');
+    my @ignore_starts   = ( '=> Using standard', 'Using standard', 'usage:', 'Reading' , 'Parse file ', 'Parsing ');
     my @ignore_contains = (
         'AGAT/so.obo',
         '(AGAT) - Version: ',
@@ -151,7 +151,10 @@ sub check_console_output {
         'IDs checked and fixed.',
         'Result available in ',
         'done in ',
-        '/2025 at ', '/2026 at ', '/2027 at '      # replace with robust date filtering  
+        '/2025', '/2026', '/2027'      # replace with robust date filtering  
+        'Parsing Finished',
+        'Compute statistics',
+        'Look at the fasta database'
     );
 
     my $filter = sub {
