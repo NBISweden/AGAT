@@ -294,7 +294,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	            $gene_feature = $hash_omniscient_clean->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1};
 	            my @ListmrnaNoMatch;
-                dual_print( $log, "\n\nlevel1 feature:\n" . $gene_feature->gff_string . "\n\n");
+                dual_print( $log, "\n\nlevel1 feature:\n" . $gene_feature->gff_string . "\n\n", 2 );
 
 	            ################
 	            # == LEVEL 2
@@ -305,7 +305,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	              if ( exists_keys($hash_omniscient_clean, ('level2',$primary_tag_key_level2,$id_tag_key_level1) ) ){
 	                foreach my $feature_level2 ( @{$hash_omniscient_clean->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-                      dual_print( $log, "level2 feature:\n" . $feature_level2->gff_string . "\n");
+                      dual_print( $log, "level2 feature:\n" . $feature_level2->gff_string . "\n", 2 );
 
 	                  my $percentMatch=0;
 
@@ -361,7 +361,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 	                  #compute the MATCH. A MATCH can be over 100% because we compute the size of the original feature l3 against the new feature l3. The new feature l3 (i.e exon) could have been strenghten to fit a new size/map of feature l2.
 	                  $percentMatch=($matchSize*100)/$totalSize;
-                      dual_print( $log, "$id_tag_key_level1 / $level2_ID  maps at $percentMatch percent.\n");
+                      dual_print( $log, "$id_tag_key_level1 / $level2_ID  maps at $percentMatch percent.\n", 2 );
 	                  #if($percentMatch > 100){
 	                  #  print $id_tag_key_level1."\n";exit;
 	                  #}
@@ -436,7 +436,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    if($nbMapTrueHere > 1 and $sucessMapL0 > 1){
 	      if( $sucessMapL1OusideScope > 1){
             $bothCase++;
-            dual_print( $log, "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n");
+            dual_print( $log, "Both case:\nNb multi map seq diff=$sucessMapL0\nNb multi map same seq =$sucessMapL1OusideScope\n", 2 );
 	        $nb_total_multiMap_seqdif_bothcase+=$sucessMapL0;
 	        $nb_total_multiMap_sameseq_bothcase+=$sucessMapL1OusideScope;
 	        $nb_multiMap_sameseq--;
@@ -578,7 +578,7 @@ close $log if $log;
 sub compute_total_size{
   my ($hash_omniscient, $l1_original_id, $feature_l3)=@_;
 
-            dual_print( $log, $l1_original_id . " = l1_original_id\n");
+            dual_print( $log, $l1_original_id . " = l1_original_id\n", 2 );
 
 		  my $l2_transcipt_id = lc($feature_l3->_tag_value('transcript_id'));
 		  my $total_size=0;

@@ -65,7 +65,7 @@ while (<INPUT>) {
 
 	if ($line == 1){
 		$nb_header = scalar @splitline;
-             dual_print($log, "$nb_header headers\n");
+             dual_print($log, "$nb_header headers\n", 2 );
 		my $cpt = 0;
 		foreach my $header_title (@splitline){
 			$header{$cpt++} = $header_title;
@@ -91,17 +91,17 @@ while (my $feature = $gff_in->next_feature() ) {
 				if($feature->has_tag($att)){
 					my @originalvalues = $feature->get_tag_values($att);
 					if (grep( /$tsv{$id}{$att}/, @originalvalues)){
-                                           dual_print($log, "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n", 2);
+             dual_print($log, "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n", 2);
 					}
 					#add attribute
 					else{
-                                           dual_print($log, "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n", 2);
+            dual_print($log, "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n", 2);
 						$feature->add_tag_value($att, $tsv{$id}{$att});
 					}
 				}
 				# new attribute
 				else{
-                                   dual_print($log, "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n", 2);
+          dual_print($log, "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n", 2);
 					$feature->add_tag_value($att, $tsv{$id}{$att});
 				}
 			}

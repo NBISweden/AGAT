@@ -219,7 +219,6 @@ if (-d $augustus_gff_folder){
           if (-f $path ){
             my  $found=undef;
             dual_print( $log, "$path\n", 2);
-
             my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
@@ -281,9 +280,9 @@ if (-d $augustus_gff_folder){
       }
       else{
         dual_print( $log, "file $id not found among augustus gff output\n", 2);
-      }
+     }
       if(! exists_keys(\%track_found,($type,$id))){
-        warn "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n" if $verbose;
+        dual_warn( $log, "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n", 2);
       }
     }
     my $out = $gff_out{$type};

@@ -133,7 +133,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         if( $there_is_cds ){
           # All transcript discarded
           if( @l2_to_keep == 0){
-            dual_print( $log, "Case all L2 discarded \n");
+              dual_print( $log, "Case all L2 discarded \n", 2 );
             $number_gene_discarded++;
             $number_gene_affected++;
             # move L3
@@ -151,7 +151,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
           }
           # Only part of the isoforms have been discarded
           elsif ( @l2_to_discard > 0){
-            dual_print( $log, "Case some L2 discarded \n");
+              dual_print( $log, "Case some L2 discarded \n", 2 );
             $number_gene_affected++;
             # handle L3
             
@@ -183,12 +183,12 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         }
         # ---------- CASE there is no CDS -----------
         else{
-          dual_print( $log, "No cds for $gene_id_l1\n");
+          dual_print( $log, "No cds for $gene_id_l1\n", 2 );
         }
       }
       # ---------- CASE NO L2 -----------
       if($no_l2){ # case of l1 feature without child
-        dual_print( $log, "No child for $gene_id_l1\n");
+        dual_print( $log, "No child for $gene_id_l1\n", 2 );
       }
     }
   }

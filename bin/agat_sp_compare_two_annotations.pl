@@ -73,7 +73,7 @@ my %overlap_info; # <= Will contain the overlap information
 # ------------------------------------------------------------------------------
 # ---------------------------- COLLECT ALL LOCATIONS ---------------------------
 # ------------------------------------------------------------------------------
-dual_print( $log, "COLLECT LOCATIONS\n");
+dual_print( $log, "COLLECT LOCATIONS\n", 2 );
 my $bucket_locations1 = {};
 my $bucket_locations2 = {};
 my $cpt = 0;
@@ -148,7 +148,7 @@ foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
 # ------------------------- FLATTEN OVERLAPPING LOCATIONS ----------------------
 # ------------------------------------------------------------------------------
 # Will merge same location types that overlap
-dual_print( $log, "FLATTEN LOCATIONS\n");
+dual_print( $log, "FLATTEN LOCATIONS\n", 2 );
 my $flattened_locations_clean;
 my $flattened_locations1_clean = {};
 my $flattened_locations2_clean = {};
@@ -277,7 +277,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations2_clean} ){
 # ------------------------------------------------------------------------------
 
 # When already checked the location is removed from flattened_locationsX_clean_sorted hash
-dual_print( $log, "COMPARE LOCATIONS\n");
+dual_print( $log, "COMPARE LOCATIONS\n", 2 );
 my %seen1;
 my %seen2;
 foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
@@ -431,7 +431,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
 # ---- NOw deal with what is remaining in annotationA
 # Gather False positive => seq only annotated in annotationB, or type of feature annotated only in annotationB that was missing in annotatoin A
-dual_print( $log, "\nLook now what is specific to annotationA \n");
+dual_print( $log, "\nLook now what is specific to annotationA \n", 2 );
 foreach my $locusID (  keys %{$flattened_locations1_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations1_clean_sorted->{$locusID}}){
     foreach my $locations1 ( @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}} ){
@@ -443,7 +443,7 @@ foreach my $locusID (  keys %{$flattened_locations1_clean_sorted} ){
 
 # ---- NOw deal with what is remaining in annotationB-
 # Gather False positive => seq only annotated in annotationB, or type of feature annotated only in annotationB that was missing in annotatoin A
-dual_print( $log, "\nLook now what is specific to annotationB \n");
+dual_print( $log, "\nLook now what is specific to annotationB \n", 2 );
 foreach my $locusID (  keys %{$flattened_locations2_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations2_clean_sorted->{$locusID}}){
     foreach my $locations2 ( @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}} ){
@@ -570,7 +570,7 @@ dual_print( $log, "Bye Bye.\n");
  # return t1 is location overlap
 sub remove_loc_by_id{
 	my($list_location, $locusID, $chimere_type, $id)=@_;
-    dual_print( $log, "Remove $id from locations \n");
+    dual_print( $log, "Remove $id from locations \n", 2 );
 	my @new_list;
 	foreach my $locations ( @{$list_location->{$locusID}{$chimere_type}} ){
 		if ( lc($locations->[0][3]) ne lc($id) ) {
