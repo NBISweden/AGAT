@@ -12,6 +12,7 @@ use AGAT::OmniscientTool;
 use AGAT::Utilities;
 use AGAT::Levels;
 use Exporter;
+use AGAT::AGAT ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_omniscient_as_gtf);
@@ -31,13 +32,21 @@ our @EXPORT = qw(print_omniscient_as_gtf);
 sub print_omniscient_as_gtf{
 
 	my ($args) = @_;
+
+	my $log;
+	if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+	    my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	    open( $log, '>', $log_name )
+	      or die "Can not open $log_name for printing: $!";
+	}
+  
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient_as_gtf. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for print_omniscient_as_gtf. Please check the call.\n");exit;	}
 	
 	# Fill the parameters
 	my ($hash_omniscient, $gtf_out);
-	if( defined($args->{omniscient})) { $hash_omniscient = $args->{omniscient}; } else{ print "Omniscient parameter mandatory to use print_omniscient_as_gtf!"; exit; }
-	if( defined($args->{output})) { $gtf_out = $args->{output}; } else{ print "Output parameter mandatory to use print_omniscient_as_gtf!"; exit; }
+	if( defined($args->{omniscient})) { $hash_omniscient = $args->{omniscient}; } else{ dual_warn($log, "Omniscient parameter mandatory to use print_omniscient_as_gtf!"); exit; }
+	if( defined($args->{output})) { $gtf_out = $args->{output}; } else{ dual_warn($log, "Output parameter mandatory to use print_omniscient_as_gtf!"); exit; }
 
 	my $gtf_version = $hash_omniscient->{"config"}{"gtf_output_version"};
 	my $verbose = $hash_omniscient->{"config"}{"verbose"};
@@ -60,10 +69,10 @@ sub print_omniscient_as_gtf{
 	#################
 	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-		print "seqid $seqid\n" if $debug;
+		dual_print($log, "seqid $seqid\n") if $debug;
 		foreach my $primary_tag_key_level1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
 			foreach my $feature_level1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_key_level1}} ){
-				print "\n\n\nlevel1: ".$feature_level1->gff_string."\n" if $debug;
+				dual_print($log, "\n\n\nlevel1: ".$feature_level1->gff_string."\n") if $debug;
 				my $id_tag_key_level1 = lc($feature_level1->_tag_value('ID'));
 
 				# Gene ID level1
@@ -82,7 +91,7 @@ sub print_omniscient_as_gtf{
 
 					if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_tag_key_level1) ) ){
 						foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-							print "\nlevel2: ".$feature_level2->gff_string."\n" if $debug;
+							dual_print($log, "\nlevel2: ".$feature_level2->gff_string."\n") if $debug;
 
 							# Gene ID level2
 							my $gene_id_mrna_att=undef;
@@ -107,7 +116,7 @@ sub print_omniscient_as_gtf{
 							foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 								if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
 									foreach my $feature_level3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
-										print "level3: ".$feature_level3->gff_string."\n" if $debug;
+										dual_print($log, print "level3: ".$feature_level3->gff_string."\n") if $debug;
 										#Get level3 gene_id
 										if(! $level3_gene_id){
 											if($feature_level3->has_tag('gene_id')){
@@ -260,12 +269,12 @@ sub _convert_feature_type{
 
 	# all l1 are gene now
 	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
-		if(exists_keys($topfeatures,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
-		if(exists_keys($standalones,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
+		if(exists_keys($topfeatures,($tag_l1))){ dual_print($log, "throw $tag_l1\n", 2); next; }
+		if(exists_keys($standalones,($tag_l1))){ dual_print($log, "throw $tag_l1\n", 2); next; }
 
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			if (lc($tag_l1) ne "gene"){
-				print "convert $tag_l1 to gene feature\n" if $verbose;
+				dual_print($log, "convert $tag_l1 to gene feature\n", 2);
 				my $feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 				create_or_replace_tag( $feature, "original_biotype", $tag_l1 );
 				$feature->primary_tag("gene");
@@ -326,7 +335,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-                                                                                               print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n" if $verbose;
+                                                   dual_warn($log, "Warning: stop codon longer than 3 nucleotides for $level2_ID\n", 2);
 											}
 										}
 									}
@@ -354,7 +363,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-                                                                                               print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n" if $verbose;
+                                                    dual_warn($log, "Warning: stop codon longer than 3 nucleotides for $level2_ID\n", 2);
 											}
 										}
 									}
