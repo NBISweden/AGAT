@@ -151,7 +151,7 @@ sub check_console_output {
         'IDs checked and fixed.',
         'Result available in ',
         'done in ',
-        '/2025', '/2026', '/2027'      # replace with robust date filtering  
+        '/2025', '/2026', '/2027',      # replace with robust date filtering  
         'Parsing Finished',
         'Compute statistics',
         'Look at the fasta database'
