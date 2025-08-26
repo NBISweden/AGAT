@@ -275,11 +275,13 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	        my ($hash_omniscient_clean, $hash_mRNAGeneLink_clean) = slurp_gff3_file_JD({ input => $hash,
 																						 config => $config
 	                                                                                   });
-                if ($opt_verbose) {
-                  dual_print( $log, "\nA proper hash:\n");
-                  print_omniscient( { omniscient => $hash_omniscient_clean, output => $gffout } );
-                  dual_print( $log, "\n");
-                }
+                
+                  dual_print( $log, "\nA proper hash:\n", 2);
+				  if ($opt_verbose) {
+                      print_omniscient( { omniscient => $hash_omniscient_clean, output => $gffout } );
+				  }
+                  dual_print( $log, "\n", 2);
+
 
 	        ###################################################################################
 	        # NOW we call deal properly with each proper hash containing only mapped features
@@ -340,8 +342,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                               $mapping_state = lc(_kraken_value($feature));
                             }
                         else{
-                          my $msg = "error !! No $kraken_tag attribute found for the feature" . $feature->gff_string() . "\n";
-                          dual_warn( $log, $msg,  3 );
+                          dual_warn( $log, "error !! No $kraken_tag attribute found for the feature" . $feature->gff_string() . "\n" );
                         }
 
 	                    if( $mapping_state eq "true"){
@@ -349,8 +350,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                        $matchFeatureExample=$feature;
 	                    }
 	                    elsif(! $mapping_state eq "false"){
-                          my $msg = "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() . "\n Indeed, we expect false or true.\n";
-                          dual_warn( $log, $msg,  3 );
+                          dual_warn( $log, "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() . "\n Indeed, we expect false or true.\n"; );
 	                    }
 	                  }
 
