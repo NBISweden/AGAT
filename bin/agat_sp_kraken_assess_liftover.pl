@@ -350,7 +350,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                        $matchFeatureExample=$feature;
 	                    }
 	                    elsif(! $mapping_state eq "false"){
-                          dual_warn( $log, "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() . "\n Indeed, we expect false or true.\n"; );
+                          dual_warn( $log, "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() 
+						                    . "\n Indeed, we expect false or true.\n" );
 	                    }
 	                  }
 
