@@ -22,7 +22,7 @@ my $opt_nc  = $opt->nc;
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 ## Manage output file

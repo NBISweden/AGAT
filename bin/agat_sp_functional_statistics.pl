@@ -27,21 +27,17 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name )
       or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 if ( -f $opt_output ) {
-  dual_print( $log, "Cannot create a directory with the name $opt_output because a file with this name already exists.\n", 0 );
-  warn "Cannot create a directory with the name $opt_output because a file with this name already exists.\n"
-    if $opt_verbose;
+  dual_warn( $log, "Cannot create a directory with the name $opt_output because a file with this name already exists.\n", 3 );
   exit();
 }
 if ( -d $opt_output ) {
-  dual_print( $log, "The output directory choosen already exists. Please give me another Name.\n", 0 );
-  warn "The output directory choosen already exists. Please give me another Name.\n"
-    if $opt_verbose;
+  dual_warn( $log, "The output directory choosen already exists. Please give me another Name.\n", 3 );
   exit();
 }
 mkdir $opt_output;

@@ -59,8 +59,7 @@ if (defined($opt_output) ) {
   $opt_output = $path.$name;
   if (-d $opt_output){
     my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
-    dual_print($log, $msg, 0);
-    warn $msg if $opt_verbose;
+    dual_warn($log, $msg, 3);
     exit();
   }
   else{
@@ -84,7 +83,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 }
 
 print $ostreamReport $string1;
-dual_print($log, $string1, $opt_output ? $opt_verbose : 0);
+dual_print($log, $string1, $opt_output ? $opt_verbose : 3);
 
 # Check if dependencies for plot are available
 if($opt_plot){
@@ -349,7 +348,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 
   #Print Info OUtput
   print $ostreamReport $stringPrint;
-  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 0);
+  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 3);
 }
 
 ############################

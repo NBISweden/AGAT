@@ -29,7 +29,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name )
       or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 ###############
@@ -234,8 +234,7 @@ sub check_feature{
         else{
                 my $msg = "No attribute $opt_attribute found for the following feature:\n" .
                           $feature->gff_string . "\n";
-                dual_print( $log, $msg, 0 );
-                warn $msg if $opt_verbose;
+                dual_warn( $log, $msg,  3 );
         }
   return $removeit;
 }
