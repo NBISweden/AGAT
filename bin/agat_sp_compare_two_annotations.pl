@@ -50,7 +50,7 @@ my $report = prepare_fileout("$opt_output/report.txt");
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # Activate verbose when debug active
-$verbose=1 if ($debug);
+$verbose=4 if ($debug);
 
 ######################
 ### Parse GFF input #
@@ -455,7 +455,7 @@ foreach my $locusID (  keys %{$flattened_locations2_clean_sorted} ){
 
 ##############
 # STATISTICS #
-if($verbose){
+if($verbose >= 2){
   dual_print( $log, "Compute statistics for $gff1:\n");
 	print_omniscient_statistics ({ input => $omniscient1 });
 
@@ -506,31 +506,31 @@ foreach my $type_l1 ( sort keys %overlap_info ){
 			foreach my $value ( @{$array->[0]} ) { # array0 is id overlarpA
 				$cpt++;
 				if(! $value){
-					print $report_ids "-";
+					dual_print($log, $report_ids "-");
 				} else {
 					if ($last == $cpt){
-						print $report_ids $value;
+						dual_print($log, $report_ids $value);
 					} else {
-						print $report_ids $value.", ";
+						dual_print($log, $report_ids $value.", ");
 					}
 				}
 			}
-			print $report_ids " | ";
+			dual_print($log, $report_ids " | ");
 			my $cpt2=0;
 			my $last2 = scalar(@{$array->[1]});
 			foreach my $value ( @{$array->[1]} ) { # array1 is id overlarpB
 				$cpt2++;
 				if(! $value){
-					print $report_ids "-\n";
+					dual_print($log, $report_ids "-\n");
 				} else {
 					if ($last2 == $cpt2){
-						print $report_ids "$value"
+						dual_print($log, $report_ids "$value");
 					} else {
-						print $report_ids "$value, "
+						dual_print($log, $report_ids "$value, ");
 					}
 				}
 			}
-			print $report_ids "\n";
+			dual_print($log, $report_ids "\n");
 		}
 
 
