@@ -40,6 +40,13 @@ This is the code to perform statisctis of data store in Omniscient.
 
 =cut
 
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+	my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	open( $log, '>', $log_name )
+	  or die "Can not open $log_name for printing: $!";
+}
+
 # define first column width
 my $width = '%-60s';
 
@@ -49,14 +56,14 @@ sub print_omniscient_statistics{
 	my ($args) = @_	;
 	my %hash_yaml;
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for print_omniscient_statistics. Please check the call.\n");exit;	}
 
 	# Declare all variables and fill them
         my ($omniscient, $genome_size, $output, $yaml, $raw,  $verbose, $distri, $isoform, $percentile, $log);
 
 	# omniscient
 	if( defined($args->{input})) {$omniscient = $args->{input};}
-		else{ print "Input omniscient mandatory to use print_omniscient_statistics!"; exit;}
+		else{ dual_warn($log, "Input omniscient mandatory to use print_omniscient_statistics!"); exit;}
 	
 	# percentile
 	if( defined($args->{percentile})) {$percentile = $args->{percentile};}
@@ -80,7 +87,7 @@ sub print_omniscient_statistics{
 		  		$genome_size += length($string);
 		  	}
 			}
-                        dual_print($log, sprintf("$width%d%s", "Total sequence length (bp)", $genome_size, "\n"), $verbose);
+                        dual_print($log, sprintf("$width%d%s", "Total sequence length (bp)", $genome_size, "\n"));
 		}
 	}
 
@@ -107,12 +114,12 @@ sub print_omniscient_statistics{
 	# Should we deal with isoform (remove them and re-compute the statistics) 1=yes
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
-	print "get_omniscient_statistics\n" if $verbose;
+	dual_print($log, "get_omniscient_statistics\n", $verbose);
 	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size, $percentile, $verbose);
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
 
-	print $output ("-"x80)."\n\n";
+	dual_print($log, $output ("-"x80)."\n\n");
 
 	# --- print statistics ---
 	# by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
@@ -126,7 +133,7 @@ sub print_omniscient_statistics{
 
 			#------- DEAL WITH ISOFORMS -----
 			if($isoform_type){
-				print "$by_type may have isoforms, re-computing without isoforms (shortest isoforms are removed)\n" if $verbose;
+				dual_print($log, "$by_type may have isoforms, re-computing without isoforms (shortest isoforms are removed)\n", $verbose);
 
 				if(! $omniscientNew){ # re-compute wihtout isoforms only once!
 					# create a new omniscient with only one mRNA isoform per gene
@@ -135,7 +142,7 @@ sub print_omniscient_statistics{
 				}
 
 				#get stat without isoform
-				print "get_omniscient_statistics_from_l2 wihtout iso for $by_type\n" if $verbose;
+				dual_print($log, "get_omniscient_statistics_from_l2 wihtout iso for $by_type\n", $verbose);
 
 				# get nb of each feature in omniscient;
 				my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($omniscient, $by_type, $verbose);
@@ -383,7 +390,7 @@ sub get_omniscient_statistics {
 	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-			print "get_omniscient_statistics_for_topfeature for $tag_l1\n" if $verbose;
+			dual_print($log, "get_omniscient_statistics_for_topfeature for $tag_l1\n", $verbose);
 			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
 			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
@@ -395,7 +402,7 @@ sub get_omniscient_statistics {
 	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-				print "get_omniscient_statistics_for_standalone\n" if $verbose;
+				dual_print($log, "get_omniscient_statistics_for_standalone\n", $verbose);
 				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
 				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
@@ -407,7 +414,7 @@ sub get_omniscient_statistics {
 	print "get_omniscient_statistics_from_l2\n" if $verbose;
 	# get nb of each feature in omniscient;
 	foreach my $tag_l2 ( sort keys %{$hash_omniscient->{'level2'} }){
-		print "tag_l2 $tag_l2\n" if $verbose;
+		dual_print($log, "tag_l2 $tag_l2\n", $verbose);
 		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
 
 		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2, $genomeSize, $percentile);
@@ -496,7 +503,7 @@ sub get_omniscient_statistics_from_l2{
 				last;
 			}
 		}
-		if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+		if(! $feature_l1){dual_warn($log, "Problem ! We didnt retrieve the level1 feature with id $id_l1\n");exit;}
 
 		#count number of feature
 		$all_info{$tag_l2}{'level1'}{$tag_l1}{'nb_feat'}++;
