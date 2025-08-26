@@ -101,8 +101,11 @@ else {
 $messageValue .= "The kraken attribute tag that will be used is: $kraken_tag\n";
 
 #print info
-print $outReport $messageValue if $opt_output;
+if($opt_output) {
+	print $outReport $messageValue;
+ } else {
 dual_print( $log, $messageValue);
+}
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -491,8 +494,11 @@ if( $nb_noCaseL3 ){
 $messageEnd.= "\n";
 
 #print info
-print $outReport $messageEnd if $opt_output;
-dual_print( $log, $messageEnd);
+if ($outfile) {
+	print $outReport $messageEnd;
+} else {
+	dual_print( $log, $messageEnd);
+}
 
 #############
 #PLOT
