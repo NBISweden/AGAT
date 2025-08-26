@@ -881,7 +881,7 @@ sub retrieve_expected_protein_length{
 	}
 
 	#get original protein length
-	foreach my $id_obj_sub_gene ( keys %{$obj_case->{hash_sub_gene_obj}}){
+	foreach my $id_obj_sub_gene (sort keys %{$obj_case->{hash_sub_gene_obj}}){
 		my $obj_sub_gene = $obj_case->{hash_sub_gene_obj}{$id_obj_sub_gene};
 		my $prot_name = $obj_sub_gene->{inference_value};
 
