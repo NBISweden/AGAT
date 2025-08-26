@@ -3444,13 +3444,13 @@ sub get_general_info{
 	}
 	dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
 	my @listL1 = sort @{$info_levels{"level1"}};
-	dual_print( $log, "     * Level1: " . @listL1 . " => @listL1\n", $verbose);
+	dual_print( $log, "	* Level1: " . @listL1 . " => @listL1\n", $verbose);
 	my @listL2 = sort @{$info_levels{"level2"}};
-	dual_print( $log, "     * level2: " . @listL2 . " => @listL2\n", $verbose);
+	dual_print( $log, "	* level2: " . @listL2 . " => @listL2\n", $verbose);
 	my @listL3 = sort @{$info_levels{"level3"}};
-	dual_print( $log, "     * level3: " . @listL3 . " => @listL3\n", $verbose);
+	dual_print( $log, "	* level3: " . @listL3 . " => @listL3\n", $verbose);
 	my @listUn = sort @{$info_levels{"unknown"}};
-	dual_print( $log, "     * unknown: " . @listUn . " => @listUn\n", $verbose);
+	dual_print( $log, "	* unknown: " . @listUn . " => @listUn\n", $verbose);
 
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){
