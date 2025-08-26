@@ -494,7 +494,7 @@ if( $nb_noCaseL3 ){
 $messageEnd.= "\n";
 
 #print info
-if ($outfile) {
+if ($opt_output) {
 	print $outReport $messageEnd;
 } else {
 	dual_print( $log, $messageEnd);
