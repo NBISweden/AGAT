@@ -236,7 +236,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                   if( exists($ListModel{2}) ){
                     $ListModel{2}++;
-                    dual_print($log, "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n");
+                    dual_print($log, "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
                     $model=1;
                     if($split_opt){
                       split_gene_model(\@intact_gene_list, $hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model2', $gffout);
@@ -255,7 +255,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                   # original protein and predicted one are different; the predicted one is longest, they overlap each other.
                   if( exists($ListModel{3}) ){
                     $ListModel{3}++;
-                    dual_print($log, "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n");
+                    dual_print($log, "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
 
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model3', $gffout);
                     $ORFmodified="yes";
