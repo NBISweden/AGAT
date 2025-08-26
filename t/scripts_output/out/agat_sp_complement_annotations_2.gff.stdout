@@ -104,13 +104,13 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff GFF3 file parsed
+t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff GFF3 file parsed
+There is 1 cds
+There is 1 exon
+There is 1 five_prime_utr
 There is 1 gene
 There is 1 mrna
 There is 1 three_prime_utr
-There is 1 five_prime_utr
-There is 1 cds
-There is 1 exon
                                         
                                        
                           ------ Start parsing ------                           
@@ -210,19 +210,19 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff GFF3 file parsed
-There is 1 exon
+t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff GFF3 file parsed
 There is 1 cds
+There is 1 exon
 There is 1 five_prime_utr
 There is 1 gene
-There is 1 three_prime_utr
 There is 1 mrna
+There is 1 three_prime_utr
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff IDs checked and fixed.
+t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff IDs checked and fixed.
 
 Complement done !
 
 Nothing has been added
 Formating output to GFF3
-usage: /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/bin/agat_sp_complement_annotations.pl --ref /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff --add /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/tmp/t_agat_sp_complement_annotations_t/default_4/tmp.gff
-Job done in 3 seconds
+usage: bin/agat_sp_complement_annotations.pl --ref t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_ref.gff --add t/scripts_output/in/agat_sp_complement_annotations/agat_sp_complement_annotations_add.gff -o t/scripts_output/out/agat_sp_complement_annotations_2.gff --no-progressbar --config share/agat_config.yaml
+Job done in 1 seconds

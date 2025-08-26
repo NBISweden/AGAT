@@ -106,13 +106,13 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/file1.gff GFF3 file parsed
+t/scripts_output/in/agat_sp_merge_annotations/file1.gff GFF3 file parsed
 There is 3 cds
 There is 4 exon
 There is 2 five_prime_utr
 There is 1 gene
-There is 1 three_prime_utr
 There is 1 mrna
+There is 1 three_prime_utr
                                         
                                        
                           ------ Start parsing ------                           
@@ -212,31 +212,31 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/file2.gff GFF3 file parsed
-There is 1 three_prime_utr
-There is 1 mrna
+t/scripts_output/in/agat_sp_merge_annotations/file2.gff GFF3 file parsed
 There is 3 cds
-There is 1 gene
-There is 2 five_prime_utr
 There is 4 exon
+There is 2 five_prime_utr
+There is 1 gene
+There is 1 mrna
+There is 1 three_prime_utr
 
 Total raw data of files together:
-There is 2 three_prime_utr
-There is 2 mrna
 There is 6 cds
-There is 4 five_prime_utr
 There is 8 exon
+There is 4 five_prime_utr
 There is 2 gene
+There is 2 mrna
+There is 2 three_prime_utr
 
 Now merging overlaping loci, and removing identical isoforms:
 1 overlapping cases found. For each case 2 loci have been merged within a single locus
 Among overlapping cases, 1 identical features have been removed.
 
 final result:
-There is 2 three_prime_utr
-There is 2 mrna
 There is 6 cds
-There is 4 five_prime_utr
 There is 8 exon
+There is 4 five_prime_utr
 There is 1 gene
+There is 2 mrna
+There is 2 three_prime_utr
 Formating output to GFF3

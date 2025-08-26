@@ -1620,7 +1620,7 @@ sub info_omniscient {
                         }
                 }
         }
-        foreach my $tag ( keys %resu ) {
+        foreach my $tag ( sort keys %resu ) {
                 dual_print( $log, "There is $resu{$tag} $tag\n");
         }
 }

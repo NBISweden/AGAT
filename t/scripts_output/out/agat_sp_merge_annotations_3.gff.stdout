@@ -112,10 +112,10 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/test457_A.gff GFF3 file parsed
+t/scripts_output/in/agat_sp_merge_annotations/test457_A.gff GFF3 file parsed
 There is 2 exon
-There is 2 transcript
 There is 2 gene
+There is 2 transcript
                                         
                                        
                           ------ Start parsing ------                           
@@ -223,14 +223,14 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/test457_B.gff GFF3 file parsed
-There is 1 gene
+t/scripts_output/in/agat_sp_merge_annotations/test457_B.gff GFF3 file parsed
 There is 1 exon
+There is 1 gene
 There is 1 transcript
 
 Total raw data of files together:
-There is 3 gene
 There is 3 exon
+There is 3 gene
 There is 3 transcript
 
 Now merging overlaping loci, and removing identical isoforms:
@@ -238,7 +238,7 @@ Now merging overlaping loci, and removing identical isoforms:
 Among overlapping cases, 2 identical features have been removed.
 
 final result:
-There is 3 transcript
 There is 3 exon
 There is 1 gene
+There is 3 transcript
 Formating output to GFF3

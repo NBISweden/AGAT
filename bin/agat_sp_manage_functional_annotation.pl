@@ -107,7 +107,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-dual_print( $log, $header);
+dual_print( $log, $header, 3);
 
 my $streamBlast = IO::File->new();
 my $streamInter = IO::File->new();
@@ -900,15 +900,15 @@ sub parse_blast {
     #Save uniprot id of the best match
    
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    dual_print( $log, "save protein ID for $l2 : " . $candidates{$l2}[2] . "\n");
+    dual_print( $log, "save protein ID for $l2 : " . $candidates{$l2}[2] . "\n", 2);
     
     #Save evalu
     $blast_evalue{$l2} = $candidates{$l2}[1];
-    dual_print( $log, "save blast evalue for $l2 : " . $candidates{$l2}[1] . "\n");
+    dual_print( $log, "save blast evalue for $l2 : " . $candidates{$l2}[1] . "\n", 2);
 
     # Parse header
     my $header = $candidates{$l2}[0];
-    dual_print( $log, "header: " . $header . "\n");
+    dual_print( $log, "header: " . $header . "\n", 2);
 
     if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/) {
       my $protID = $1;
@@ -917,7 +917,7 @@ sub parse_blast {
       $theRest =~ s/\n//g;
       $theRest =~ s/\r//g;
       my $nameGene = undef;
-      dual_print( $log, "description: " . $description . "\n");
+      dual_print( $log, "description: " . $description . "\n", 2);
       push ( @{ $mRNAproduct{$l2} }, $description );
 
       #deal with the rest
@@ -926,7 +926,7 @@ sub parse_blast {
       while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
         my ($type, $value) = split /=/, $tuple;
-        dual_print( $log, "$protID: type:$type --- value:$value\n");
+        dual_print( $log, "$protID: type:$type --- value:$value\n", 2);
         $hash_rest{lc($type)} = $value;
       }
 
@@ -1024,7 +1024,7 @@ sub parse_interpro_tsv {
     my $db_name = $values[3];
     my $db_value = $values[4];
     my $db_tuple = $db_name.":".$db_value;
-    dual_print($log, "Specific dB: " . $db_tuple . "\n");
+    dual_print($log, "Specific dB: " . $db_tuple . "\n", 2);
 
     if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
@@ -1041,7 +1041,7 @@ sub parse_interpro_tsv {
       my $interpro_value = $values[11];
       $interpro_value =~ s/\n//g;
       my $interpro_tuple = "InterPro:".$interpro_value;
-      dual_print($log, "interpro dB: " . $interpro_tuple . "\n");
+      dual_print($log, "interpro dB: " . $interpro_tuple . "\n", 2);
       next if $interpro_value eq "-"; #fix 147
 
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1061,7 +1061,7 @@ sub parse_interpro_tsv {
       $go_flat_list =~ s/\n//g;
       my @go_list = split(/\|/, $go_flat_list); #cut at character |
       foreach my $go_tuple (@go_list) {
-        dual_print($log, "GO term: " . $go_tuple . "\n");
+        dual_print($log, "GO term: " . $go_tuple . "\n", 2);
         next if $go_tuple eq "-"; #fix kira
         
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1084,7 +1084,7 @@ sub parse_interpro_tsv {
       foreach my $pathway_tuple (@pathway_list) {
         my @tuple = split(/:/, $pathway_tuple); #cut at character :
         my $db_name = $tuple[0];
-        dual_print($log, "pathway info: " . $pathway_tuple . "\n");
+        dual_print($log, "pathway info: " . $pathway_tuple . "\n", 2);
         next if ($pathway_tuple eq "-"); # avoid empty pathway tuple
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;

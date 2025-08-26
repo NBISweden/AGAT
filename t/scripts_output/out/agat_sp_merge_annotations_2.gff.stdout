@@ -104,7 +104,7 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/fileA.gff GFF3 file parsed
+t/scripts_output/in/agat_sp_merge_annotations/fileA.gff GFF3 file parsed
 There is 1 gene
 There is 1 mrna
                                         
@@ -206,19 +206,19 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/scripts_output/in/agat_sp_merge_annotations/fileB.gff GFF3 file parsed
+t/scripts_output/in/agat_sp_merge_annotations/fileB.gff GFF3 file parsed
 There is 1 gene
 There is 1 mrna
 
 Total raw data of files together:
-There is 2 mrna
 There is 2 gene
+There is 2 mrna
 
 Now merging overlaping loci, and removing identical isoforms:
 1 overlapping cases found. For each case 2 loci have been merged within a single locus
 Among overlapping cases, 1 identical features have been removed.
 
 final result:
-There is 2 mrna
 There is 1 gene
+There is 2 mrna
 Formating output to GFF3
