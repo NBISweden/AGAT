@@ -309,6 +309,19 @@ sub dual_print{
     print $fh $string if $fh;
 }
 
+# @Purpose: Print warning messages both to screen and log file
+# @input: 3 => fh, string, integer
+# @output 0 => None
+sub dual_warn{
+    my ($fh, $string, $min) = @_;
+    my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
+    $min = 1 unless defined $min;
+    if ($min > 0 && $verbose >= $min) {
+            warn $string;
+    }
+    print $fh "[WARN]$string" if $fh;
+}
+
 # @Purpose: transform a String with separator into hash
 # @input: 2 =>  string, char (the char is the separator)
 # @output 1 => hash

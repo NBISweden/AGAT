@@ -11,6 +11,7 @@ use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
 use AGAT::Levels;
+use AGAT::AGAT ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
@@ -32,6 +33,14 @@ gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_loca
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
 check_mrna_positions check_features_overlap initialize_omni_from clean_clone
 create_omniscient get_cds_from_l2 merge_overlap_loci get_uniq_id );
+
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+    my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, AGAT::AGAT::get_agat_header(), 0 );
+}
 
 =head1 SYNOPSIS
 
@@ -151,24 +160,24 @@ sub complement_omniscients {
 						if($location2->[2] < $location->[1]) {next;}
 
 						# Let's check at Gene LEVEL
-						print  "location overlap at gene level check now level3.\n" if ($verbose >= 3);
+                                                dual_print($log, "location overlap at gene level check now level3.\n", 3);
 						if( location_overlap($location, $location2) ){ #location overlap at gene level check now level3
 							#let's check at CDS level (/!\ id1_l1 is corresponding to id from $omniscient2)
 							if(check_feature_overlap_from_l3_to_l1($omniscient2, $omniscient1, $id1_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level, otherwise any type of feature level3 overlaping is sufficient to decide that they overlap
-								print "$id2_l1 overlaps $id1_l1, we skip it.\n" if ($verbose >= 3);
+                                                                dual_print($log, "$id2_l1 overlaps $id1_l1, we skip it.\n", 3);
 								$take_it=undef; last;
 							}
-							print "$id2_l1 overlaps $id1_l1 overlap but not at CDS level.\n" if ($verbose >= 3);
+                                                        dual_print($log, "$id2_l1 overlaps $id1_l1 overlap but not at CDS level.\n", 3);
 						}
 						else{
-							print "$id2_l1 DO NOT OVERLAP $id1_l1.\n" if ($verbose >= 3);
+                                                        dual_print($log, "$id2_l1 DO NOT OVERLAP $id1_l1.\n", 3);
 						}
 					}
 				}
 
 				# We keep it because is not overlaping
 				if($take_it){
-					print "We take it : $id1_l1\n" if ($verbose >= 3);
+                                        dual_print($log, "We take it : $id1_l1\n", 3);
 
 					#look at size
 					my $still_take_it=undef;
@@ -332,7 +341,9 @@ sub rename_ID_existing_in_omniscient {
 			}
 		}
 	}
-	print "we renamed $resume_case cases\n" if($verbose and $resume_case);
+       if($resume_case){
+               dual_print($log, "we renamed $resume_case cases\n", 2);
+       }
 
 	return $hash_omniscient2;
 }
@@ -1315,13 +1326,14 @@ sub clean_clone{
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for clean_clone. Please check the call.\n"; exit; }
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for clean_clone. Please check the call.\n"); exit; }
 	# -- Declare all variables and fill them --
 	my ($omniscient, $feature, $new_parent, $new_id, $new_primary_tag);
 	# omniscient to access feature level information, config information
 	if( defined($args->{omniscient}) ) { $omniscient = $args->{omniscient};}
 	# the feature to clone
-	if( defined($args->{feature})) {$feature = $args->{feature};} else { warn "Providing a feature is mandatory!"; exit; }
+	if( defined($args->{feature})) {$feature = $args->{feature};} else { dual_warn($log, "Providing a feature is mandatory!
+"); exit; }
 	# String, new parent attribute
 	if( defined($args->{new_parent}) ) { $new_parent = $args->{new_parent}; }
 	# String, new id attribute
@@ -1472,7 +1484,7 @@ sub fil_cds_frame {
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
 					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
 						$phase = 0;
-						warn "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
+						dual_warn($log, "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n").
 						"We will assume then to be in phase 0" if $verbose;
 					}
 
@@ -1573,7 +1585,7 @@ sub _get_cds_start_phase {
       }
 
       # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and throw a warning !
-      warn "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ".
+      dual_warn($log, "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ").
       "All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n";
       return undef;
   }
@@ -2059,7 +2071,9 @@ sub l2_identical{
     }
   }
 
-	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose and $verbose >= 2 and $identik);
+        if($identik){
+                dual_print($log, "The isoforms $id1_l2 and $id2_l2 are identical\n", 2);
+        }
     return $identik;
 }
 
@@ -2289,12 +2303,11 @@ sub check_all_level1_locations {
 	my $resume_case=0;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
+        if(ref($args) ne "HASH"){ dual_warn($log, "Hash Arguments expected for check_all_level1_locations. Please check the call.\n");exit;}
 	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+        my ($hash_omniscient, $verbose);
+        if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_print($log, "Input omniscient mandatory to use check_all_level1_locations!\n"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
@@ -2321,12 +2334,11 @@ sub check_all_level2_locations{
 	my $resume_case=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
+        if(ref($args) ne "HASH"){ dual_warn($log, "Hash Arguments expected for check_all_level1_locations. Please check the call.\n");exit;}
 	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+        my ($hash_omniscient, $verbose);
+        if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_print($log, "Input omniscient mandatory to use check_all_level1_locations!\n"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
@@ -2368,13 +2380,14 @@ sub check_mrna_positions{
 	my $result=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_mrna_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for check_mrna_positions. Please check the call.\n");exit;      }
 	# -- Declare all variables and fill them --
 	my ($mRNA_feature, $exon_list, $verbose, $log);
-	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ print "Input l2_feature mandatory to use check_mrna_positions!"; exit; }
-	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ print "Input exon_list mandatory to use check_mrna_positions!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ dual_print($log, "Input l2_feature mandatory to use check_mrna_positions!
+"); exit; }
+	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ dual_print($log, "Input exon_list mandatory to use check_mrna_positions!
+"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	my @exon_list_sorted = sort {$a->start <=> $b->start} @{$exon_list};
 	my $exonStart=$exon_list_sorted[0]->start;
@@ -2406,13 +2419,14 @@ sub check_level1_positions {
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_level1_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for check_level1_positions. Please check the call.\n");exit;    }
 
 	my ($hash_omniscient, $feature_l1, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_level1_positions!"; exit; }
-	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ print "Input feature mandatory to use check_level1_positions!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_print($log, "Input omniscient mandatory to use check_level1_positions!
+"); exit; }
+	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ dual_print($log, "Input feature mandatory to use check_level1_positions!
+"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 
 	my $extrem_start=undef;
@@ -2622,7 +2636,7 @@ sub collect_l1_info_sorted_by_seqid_and_location{
 			$hash_filterid = $filterid;
 		}
 		else{
-			warn "optional filterid parameter need to be a list or hash ref\n";
+			dual_warn($log, "optional filterid parameter need to be a list or hash ref\n");
 		}
 	}
 
@@ -3082,7 +3096,7 @@ sub is_single_exon_gene {
   							else{return 0;}
 						}
 						else{
-							warn "WARNING No exon available to check if it is a single exon gene\n";
+							dual_warn($log, "WARNING No exon available to check if it is a single exon gene\n");
 						}
 					}
 				}
