@@ -149,7 +149,7 @@ sub check_console_output {
         'This script is being run',
         'Bioperl location being used:',
         'Operating system being used:',
-        'GFF3 file parsed',
+        ' file parsed',
         'IDs checked and fixed.',
         'Result available in ',
         'done in ',
