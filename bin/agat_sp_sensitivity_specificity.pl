@@ -214,32 +214,29 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
         dual_print( $log, "\n========================================================\nGENERAL loop over $locusID $chimere_type $level <<$type>>\n", 2 );
         if ( exists_keys ($flattened_locations1, ($locusID,$chimere_type,$level,$type) ) ){ # We have to remove the locations2 to check at the end the FP that are remaining (only prenent in annotationB)
 
-          if ($verbose) {
             dual_print( $log, "list of location1 $level $type: ", 2 );
             foreach my $array ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){
               dual_print( $log, "@{$array} - ", 2 );
             }
             dual_print( $log, "\n", 2 );
-          }
+
           while ( my $location1 = shift  @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
             dual_print( $log, "location1 investigated:  @$location1\n", 2 );
 
             # keep track last locationA
             my $last_locationA = undef;
             $last_locationA = 1 if (scalar @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} == 0);
-            dual_print( $log, "Lets go for last LocationA !!\n") if $last_locationA;
+            dual_print( $log, "Lets go for last LocationA !!\n", 2) if $last_locationA;
 
             if ( exists_keys ($flattened_locations2, ($locusID,$chimere_type,$level,$type) ) and
                 scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){ # and
 
               while ( scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){
-                if ($verbose) {
                   dual_print( $log, " list of location2 $level $type: ", 2 );
                   foreach my $array ( @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} ){
                     dual_print( $log, "@{$array} - ", 2 );
                   }
                   dual_print( $log, "\n", 2 );
-                }
 
                 my $location2 = $flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}->[0];
                 dual_print( $log, " location2 investigated:  @$location2\n", 2 );
@@ -250,7 +247,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 # keep track last locationB
                 my $last_locationB = undef;
                 $last_locationB = 1 if (scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} == 1);
-                dual_print( $log, " Lets go for last LocationB !!\n") if $last_locationB;
+                dual_print( $log, " Lets go for last LocationB !!\n", 2) if $last_locationB;
 
                 # ===================== CASE 1 =====================
                 #  location A                         ----------------
@@ -459,7 +456,10 @@ foreach my $chimere_type ( keys %all ){
 # ------------------------------------------------------------------------------
 # ------------------------- Now print the Results -------------------------
 # ------------------------------------------------------------------------------
-#if ($verbose) {use Data::Dumper; print "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity);}
+
+use Data::Dumper; 
+dual_print( $log, "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity), 2);
+
 my $string_to_print = "usage: $0 @copyARGV\nResults:\n\n";
 $string_to_print .=  join('', '-') x 64;
 $string_to_print .= "\n|".sizedPrint("Feature type",20)."|".sizedPrint("Sensitivity",20)."|".sizedPrint("Specificity",20)."|\n";
