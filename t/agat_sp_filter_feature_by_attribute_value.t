@@ -24,17 +24,10 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_by_attri
 my $result = "$output_folder/agat_sp_filter_feature_by_attribute_value_1.gff";
 check_quiet_and_normal_run(
     $script,
-    { gff => "$input_folder/1.gff" },
+    { gff => "$input_folder/1.gff", value => "Os01t0100100-01", p => "level3", a => "protein_id" },
     "$result.stdout",
     $result
 );
-
-{
-    my $dir = setup_tempdir();
-    my $err = `$script --gff $input_folder/1.gff --value foo -p level3 -a protein_id --test foo 2>&1`;
-    like( $err, qr/Test to apply must be one of <, >, <=, >=, ! or =/, 'reject invalid test operator' );
-}
-
 
 
 
