@@ -152,12 +152,8 @@ sub slurp_gff3_file_JD {
 		}
 	}
 
-	# +----------------- Print header ------------------+
-	# Printed to screen by get_agat_config at the very beginning so here we just to want to report the header in the log
-	dual_print ($log, AGAT::AGAT::get_agat_header(), 0);
-
-	# +----------------- debug param  ------------------+
-	$debug = $config->{debug};
+        # +----------------- debug param  ------------------+
+        $debug = $config->{debug};
 
 	# +----------------- gff/gtf version param  ------------------+
 	$gff_in_format = $config->{force_gff_input_version};
