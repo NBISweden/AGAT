@@ -133,26 +133,26 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    }
       # case we had exon (we look at the longest mRNA)
       if($longer_concat_exon){
-        dual_print( $log, "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n");
+        dual_print( $log, "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n", 2);
         if( test_size( $longer_concat_exon, $opt_test, $opt_size ) ){
-          dual_print( $log, "$id_l1 pass the test\n");
+          dual_print( $log, "$id_l1 pass the test\n", 2);
           push @listok, $id_l1;
         }
         else{
-          dual_print( $log, "$id_l1 do not pass the test\n");
+          dual_print( $log, "$id_l1 do not pass the test\n", 2);
           push @listNotOk, $id_l1;
         }
       }
       else{
-        dual_print( $log, "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n");
+        dual_print( $log, "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n", 2);
         # No exon, L1 pass test
         if($successl1){
-          dual_print( $log, "$id_l1 pass the test\n");
+          dual_print( $log, "$id_l1 pass the test\n", 2);
           push @listok, $id_l1;
         }
         # No exon, L1 do not pass test
         else{
-          dual_print( $log, "$id_l1 do not pass the test\n");
+          dual_print( $log, "$id_l1 do not pass the test\n", 2);
           push @listNotOk, $id_l1;
         }
       }
