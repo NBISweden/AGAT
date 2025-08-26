@@ -403,10 +403,10 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
-	foreach my $thematic (keys %WARNS){
-		my $nbW = $WARNS{$thematic};
-		dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
-	}
+        foreach my $thematic ( sort keys %WARNS ){
+                my $nbW = $WARNS{$thematic};
+                dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+        }
 
 	# Parsing time
 	dual_print ($log,sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n"), $verbose);
@@ -541,12 +541,12 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during checking ---------------
-	foreach my $thematic (keys %WARNS){
-		my $nbW = $WARNS{$thematic};
-		if($nbW > $nbWarnLimit){
-			dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
-		}
-	}
+        foreach my $thematic ( sort keys %WARNS ){
+                my $nbW = $WARNS{$thematic};
+                if($nbW > $nbWarnLimit){
+                        dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+                }
+        }
 
 	dual_print ($log,sizedPrint("------ End checks (done in ".(time() - $check_time)." second) ------",80, "\n\n\n"), $verbose);
 
@@ -1926,9 +1926,9 @@ sub _check_all_level3_locations{
 			$resume_cases{$type_l3}+=$nb_merged;
 		}
 	}
-	foreach my $type (keys %resume_cases){
-		dual_print($log, "$resume_cases{$type} adjacent $type merged\n");
-	}
+        foreach my $type ( sort keys %resume_cases ){
+                dual_print($log, "$resume_cases{$type} adjacent $type merged\n");
+        }
 }
 
 # @Purpose: Check L3 features. If CDS do not contains stop_codon we have to extend the CDS to include it

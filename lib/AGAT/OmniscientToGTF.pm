@@ -269,7 +269,7 @@ sub _convert_feature_type{
 	my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 
 	# all l1 are gene now
-	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
+        foreach my $tag_l1 ( sort keys %{$hash_omniscient->{'level1'}}){
 		if(exists_keys($topfeatures,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
 		if(exists_keys($standalones,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
 
