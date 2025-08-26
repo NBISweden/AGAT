@@ -87,6 +87,17 @@ my @COMONTAG;
 # $locus_tag => tag to consider for gathering features (in top of the default one)
 # $gff_in_format => Int (if is used, force the parser to use this gff parser instead of guessing)
 # $verbose => define the deepth of verbosity
+
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log} ) {
+	my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	open( $log, '>', $log_name )
+	  or die "Can not open $log_name for printing: $!";
+   print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
+																  char => " ",
+																  extra => "\n"});
+}
+
 sub slurp_gff3_file_JD {
 
 	my $start_run = time();
@@ -139,18 +150,7 @@ sub slurp_gff3_file_JD {
         $progress_bar = $config->{progress_bar};
         $progress_bar = 0 if $verbose == 0;    # quiet mode disables progress bar
 
-	# +----------------- create a log file  ------------------+
-	if($config->{log}){
-		if( -f $file){
-			my ($filename,$path,$ext) = fileparse($file,qr/\.[^.]*/);
-			my $log_name = $filename.".agat.log";
-			open($log, '>', $log_name  ) or
-						dual_print($log, "Can not open $log_name for printing: $!", 1) && die;
-			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
-																  char => " ",
-																  extra => "\n"});
-		}
-	}
+
 
         # +----------------- debug param  ------------------+
         $debug = $config->{debug};
