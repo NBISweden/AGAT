@@ -3420,7 +3420,7 @@ sub get_general_info{
 	dual_print( $log, "=> Number of features lines: $nb_feature_line\n", $verbose);
 
 	# ----- inform problem of line wihtout the 9 fields expected ----
-	foreach my $size (keys %nb_field){
+	foreach my $size (sort keys %nb_field){
 		if($size != 9){
 			my $nb_field_error = $nb_field{$size};
 			dual_print( $log, "=> Number of feature lines with $size fields (while 9 expected): $nb_field_error\n", $verbose);
