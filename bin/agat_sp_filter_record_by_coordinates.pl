@@ -182,14 +182,14 @@ sub test_overlap_with_ranges{
     foreach my $range ( @{$range_hash{lc($feature_l1->seq_id)}} ){
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
-          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n");
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n", 2);
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
-          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n");
+          dual_print( $log, "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n", 2);
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }
