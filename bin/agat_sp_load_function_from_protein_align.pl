@@ -303,7 +303,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
           #########################################
           # 1) filter by pe and specific species
           if($sort_method_by_pe and $sort_method_by_species){
-            _print( "get_result_sort_method_by_pe_and_species case 1 !\n",0) if ($opt_verbose);
+            dual_print($log, "get_result_sort_method_by_pe_and_species case 1 !\n", 2);
             $selected = get_result_sort_method_by_pe_and_species(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test, $sort_method_by_species);
             if($selected){$cases{1}++;}
           }
@@ -314,14 +314,14 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
 
             # filter by protein existence value
             if(! $selected and $sort_method_by_pe){
-              _print( "pe case 2.1.1!\n", 0) if ($opt_verbose);
+              dual_print($log, "pe case 2.1.1!\n", 2);
               $selected = get_result_sort_method_by_pe(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test);
               if($selected){$cases{211}++;$cases{21}++;}
             }
 
             # filter by specific species
             if(! $selected and $sort_method_by_species){
-              _print( "sort_method_by_species case 2.1.2!\n", 0) if ($opt_verbose);
+              dual_print($log, "sort_method_by_species case 2.1.2!\n", 2);
               $selected = get_result_sort_method_by_species($sort_method_by_species, \@aligns_filtered, $col);
               if($selected){$cases{212}++;$cases{22}++;}
             }
@@ -332,7 +332,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
             #########################################
             # filter by specific species
             if(! $selected and $sort_method_by_species){
-              _print( "sort_method_by_species case 2.2.1!\n", 0) if ($opt_verbose);
+              dual_print($log, "sort_method_by_species case 2.2.1!\n", 2);
               $selected = get_result_sort_method_by_species($sort_method_by_species, \@aligns_filtered, $col);
                if($selected){$cases{221}++;$cases{22}++;}
             }
@@ -340,7 +340,7 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
             #########################################
             # filter by protein existence value
             if(! $selected and $sort_method_by_pe){
-              _print( "pe case 2.2.2!\n", 0) if ($opt_verbose);
+              dual_print($log, "pe case 2.2.2!\n", 2);
               $selected = get_result_sort_method_by_pe(\@aligns_filtered, $col, $sort_method_by_pe, $opt_test);
               if($selected){$cases{222}++;$cases{21}++;}
             }
@@ -349,13 +349,13 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
           #########################################
           # 3) Take the first = the best overlap value
           if(! $selected){
-            _print( "Normal case 3!\n", 0 ) if ($opt_verbose);
+            dual_print($log, "Normal case 3!\n", 2);
             # read from best value to the lowest one
             $selected = $aligns_filtered[0];
             $cases{3}++;
           }
 
-          _print( "Protein selected =  $selected\n",0) if ($opt_verbose);
+          dual_print($log, "Protein selected =  $selected\n", 2);
 
 
 #               +------------------------------------------------------+
@@ -413,12 +413,12 @@ foreach my $locusID ( keys %{$omniscient1_sorted}){ # tag_l1 = protein_match mat
         }
         else{
           $cases{0}++;
-          _print( "No protein overlap over the threshold $valueK for this gene model: $id1_l1\n", 0) if ($opt_verbose);
+          dual_print($log, "No protein overlap over the threshold $valueK for this gene model: $id1_l1\n", 2);
         }
       }
       else{
         $cases{-1}++;
-        _print( "No protein aligned to this gene model: $id1_l1\n", 0) if ($opt_verbose);
+        dual_print($log, "No protein aligned to this gene model: $id1_l1\n", 2);
       }
     }
   }
