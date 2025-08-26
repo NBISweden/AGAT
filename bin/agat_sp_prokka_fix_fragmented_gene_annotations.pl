@@ -497,10 +497,10 @@ sub merge_case{
 		$gff_shift{$gene_feature1->seq_id}{$value_insert_position}=$value_insert_size; #keep track of shifts
 		my $sequence = $seqObj->seq();
 
-                dual_print($log, "add N x $value_insert_size at position $value_insert_position\n");
-                dual_print($log, "piece of sequence before: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n");
+                dual_print($log, "add N x $value_insert_size at position $value_insert_position\n", 2);
+                dual_print($log, "piece of sequence before: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n", 2);
                 substr($sequence, $value_insert_before + $value_insert_position-1, 1) = "N" x ($value_insert_size+1);
-                dual_print($log, "piece of sequence after: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n");
+                dual_print($log, "piece of sequence after: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n", 2);
 		$seqObj->seq($sequence);
 
 		# Should I add Pseudo attribure?
@@ -559,8 +559,8 @@ sub check_long_orf_if_can_be_merged{
 		my $gene_feature1 = shift @listGene;
 		my $gene_feature2 = $listGene[0];
 		my $intergenic = 1;
-                dual_print($log, $gene_feature1->gff_string()."\n");
-                dual_print($log, $gene_feature2->gff_string()."\n");
+                dual_print($log, $gene_feature1->gff_string()."\n", 2);
+                dual_print($log, $gene_feature2->gff_string()."\n", 2);
                 if($gene_feature1->end > $gene_feature2->start){
                         dual_print($log, "No intergenic region!\n");
                         $intergenic=undef;
@@ -603,9 +603,9 @@ sub check_long_orf_if_can_be_merged{
 				# --- this overlaping part will be used as intergenec region to shift frame
 
 				my $overlap_part = $gene_feature1->end - $gene_feature2->start + 1;
-                                dual_print($log, "overlap_part $overlap_part\n");
+                                dual_print($log, "overlap_part $overlap_part\n", 2);
                                 my $to_shrink = 3 + ( 3 - ($overlap_part % 3) );
-                                dual_print($log, "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n");
+                                dual_print($log, "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n", 2);
 				my $subseq1 = $db_fasta->seq($ID_correct, $gene_feature1->start, ($gene_feature2->start - $to_shrink - 1 ));
 				$subseq1_cds_obj = Bio::Seq->new(-seq => $subseq1, -alphabet => 'dna' );
 				$subseq1_cds_obj = $subseq1_cds_obj->revcom();
@@ -656,9 +656,9 @@ sub check_long_orf_if_can_be_merged{
 			}
 			else{
 				my $overlap_part = $gene_feature1->end - $gene_feature2->start + 1;
-                                dual_print($log, "overlap_part $overlap_part\n");
+                                dual_print($log, "overlap_part $overlap_part\n", 2);
                                 my $to_shrink = 3 + (  3 - ( $overlap_part % 3 ) ) ;
-                                dual_print($log, "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n");
+                                dual_print($log, "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n", 2);
 				my $subseq2 = $db_fasta->seq($ID_correct, $gene_feature1->end + $to_shrink + 1, $gene_feature2->end );
 				$subseq2_cds_obj = Bio::Seq->new(-seq => $subseq2, -alphabet => 'dna' );
 			}
@@ -671,11 +671,11 @@ sub check_long_orf_if_can_be_merged{
 		if ($gene_feature1->strand == -1 or $gene_feature1->strand eq "-"){
 			my $found = 0;
 			my $prot_second=$subseq1_prot_obj;
-                        dual_print($log, "Minus strand swithching seq1 and seq2\n");
-                        dual_print($log, "full seq1: ".$subseq2_prot_obj_full->seq."\n");
-                        dual_print($log, "subseq1: ".$subseq2_prot_obj->seq."\n");
-                        dual_print($log, "full seq2: ".$subseq1_prot_obj_full->seq."\n");
-                        dual_print($log, "subseq2: ".$subseq1_prot_obj->seq."\n");
+                        dual_print($log, "Minus strand swithching seq1 and seq2\n", 2);
+                        dual_print($log, "full seq1: ".$subseq2_prot_obj_full->seq."\n", 2);
+                        dual_print($log, "subseq1: ".$subseq2_prot_obj->seq."\n", 2);
+                        dual_print($log, "full seq2: ".$subseq1_prot_obj_full->seq."\n", 2);
+                        dual_print($log, "subseq2: ".$subseq1_prot_obj->seq."\n", 2);
 
 			#getting part1 for merging
 			if( exists $all_db_fasta_IDs{lc($gene_feature1->seq_id)}){
@@ -686,7 +686,7 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj1 = Bio::Seq->new(-seq => $seq1, -alphabet => 'dna' );
 				$cds_obj1 = $cds_obj1->revcom();
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "Test frame 1 : ".$prot_obj1->seq."\n");
+                                dual_print($log, "Test frame 1 : ".$prot_obj1->seq."\n", 2);
                                 if (index($prot_obj1->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n");
 					$found++;
@@ -700,7 +700,7 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj2 = Bio::Seq->new(-seq => $seq2, -alphabet => 'dna' );
 				$cds_obj2 = $cds_obj2->revcom();
 				my $prot_obj2 = $cds_obj2->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "Test frame 2 : ".$prot_obj2->seq."\n");
+                                dual_print($log, "Test frame 2 : ".$prot_obj2->seq."\n", 2);
                                 if (index($prot_obj2->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 2 contains protein2\n");
 					push @{$obj_case->{insert_size}}, 1;
@@ -718,7 +718,7 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj3 = Bio::Seq->new(-seq => $seq3, -alphabet => 'dna' );
 				$cds_obj3 = $cds_obj3->revcom();
 				my $prot_obj3 = $cds_obj3->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "Test frame 3 : ".$prot_obj3->seq."\n");
+                                dual_print($log, "Test frame 3 : ".$prot_obj3->seq."\n", 2);
                                 if (index($prot_obj3->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 3 contains protein2\n");
 					push @{$obj_case->{insert_size}}, 2;
@@ -746,10 +746,10 @@ sub check_long_orf_if_can_be_merged{
 		else{
 			my $found = 0;
 			my $prot_second=$subseq2_prot_obj;
-                        dual_print($log, "full seq1: ".$subseq1_prot_obj_full->seq."\n");
-                        dual_print($log, "subseq1: ".$subseq1_prot_obj->seq."\n");
-                        dual_print($log, "full seq2: ".$subseq2_prot_obj_full->seq."\n");
-                        dual_print($log, "subseq2: ".$subseq2_prot_obj->seq."\n");
+                        dual_print($log, "full seq1: ".$subseq1_prot_obj_full->seq."\n", 2);
+                        dual_print($log, "subseq1: ".$subseq1_prot_obj->seq."\n", 2);
+                        dual_print($log, "full seq2: ".$subseq2_prot_obj_full->seq."\n", 2);
+                        dual_print($log, "subseq2: ".$subseq2_prot_obj->seq."\n", 2);
 
 			#getting part1 for merging
 			if( exists $all_db_fasta_IDs{lc($gene_feature1->seq_id)}){
@@ -759,7 +759,7 @@ sub check_long_orf_if_can_be_merged{
 				my $seq1 = $seq."N".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj1 = Bio::Seq->new(-seq => $seq1, -alphabet => 'dna' );
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "Test frame 1 : ".$prot_obj1->seq."\n");
+                                dual_print($log, "Test frame 1 : ".$prot_obj1->seq."\n", 2);
                                 if (index($prot_obj1->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n");
 					$found++;
@@ -772,7 +772,7 @@ sub check_long_orf_if_can_be_merged{
 				my $seq2 = $seq."NN".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj2 = Bio::Seq->new(-seq => $seq2, -alphabet => 'dna' );
 				my $prot_obj2 = $cds_obj2->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "frame 2 : ".$prot_obj2->seq."\n");
+                                dual_print($log, "frame 2 : ".$prot_obj2->seq."\n", 2);
                                 if (index($prot_obj2->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 2 contains protein2\n");
 					push @{$obj_case->{insert_size}}, 1;
@@ -789,7 +789,7 @@ sub check_long_orf_if_can_be_merged{
 				my $seq3 = $seq."NNN".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj3 = Bio::Seq->new(-seq => $seq3, -alphabet => 'dna' );
 				my $prot_obj3 = $cds_obj3->translate(-codontable_id => $codonTable) ;
-                                dual_print($log, "frame 3 : ".$prot_obj3->seq."\n");
+                                dual_print($log, "frame 3 : ".$prot_obj3->seq."\n", 2);
                                 if (index($prot_obj3->seq, $prot_second->seq) != -1) {
                                         dual_print($log, "frame 3 contains protein2\n");
 					push @{$obj_case->{insert_size}}, 2;
@@ -831,11 +831,11 @@ sub get_overlap {
 
 		if($gene_feature1->end > $gene_feature2->start){
 			my $overlap_region = $gene_feature1->end - $gene_feature2->start + 1;
-                        dual_print($log, "overlap_region nt = $overlap_region\n");
+                        dual_print($log, "overlap_region nt = $overlap_region\n", 2);
 			$overlap += ($overlap_region * 2); # overlap touch both gene
 		}
 		else{
-                        dual_print($log, "No overlap_region region!\n");
+                        dual_print($log, "No overlap_region region!\n", 2);
 			$overlap+=0;
 		}
 	}
