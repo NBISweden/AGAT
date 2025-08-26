@@ -4,26 +4,24 @@
 |   https://github.com/NBISweden/AGAT                                          |
 |   National Bioinformatics Infrastructure Sweden (NBIS) - www.nbis.se         |
  ------------------------------------------------------------------------------
-=> Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/agat_config.yaml config file
                                         
                                        
                           ------ Start parsing ------                           
 -------------------------- parse options and metadata --------------------------
 => Accessing the feature_levels YAML file
-Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/feature_levels.yaml file
 => Attribute used to group features when no Parent/ID relationship exists (i.e common tag):
 	* locus_tag
 	* gene_id
 => merge_loci option deactivated
 => Machine information:
-	This script is being run by perl v5.34.0
-	Bioperl location being used: /usr/local/share/perl/5.34.0/Bio/
+	This script is being run by perl v5.38.2
+	Bioperl location being used: /workspace/AGAT/local/lib/perl5/Bio/
 	Operating system being used: linux 
 => Accessing Ontology
 	No ontology accessible from the gff file header!
 	We use the SOFA ontology distributed with AGAT:
-		/usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo
-	Read ontology /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo:
+		/workspace/AGAT/blib/lib/auto/share/dist/AGAT/so.obo
+	Read ontology /workspace/AGAT/blib/lib/auto/share/dist/AGAT/so.obo:
 		4 root terms, and 2596 total terms, and 1516 leaf terms
 	Filtering ontology:
 		We found 1861 terms that are sequence_feature or is_a child of it.
@@ -88,14 +86,14 @@ scaffold1	StringTie	transcript	44427	47958	1000.00	-	.	ID "MSTRG.11.3"  ; geneID
 --------------------- WARNING ---------------------
 MSG: Removing score value(s)
 ---------------------------------------------------
-6 warning messages: WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag. No worries, we will handle it by considering it as strictly sequential. If you disagree, please provide an ID or a comon tag by locus. 
-6 warning messages: WARNING level2: No Parent attribute found 
 6 warning messages: 
 --------------------- WARNING ---------------------
 MSG: Removing score value(s)
 ---------------------------------------------------
 
-                  ------ End parsing (done in 2 second) ------                  
+6 warning messages: WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag. No worries, we will handle it by considering it as strictly sequential. If you disagree, please provide an ID or a comon tag by locus. 
+6 warning messages: WARNING level2: No Parent attribute found 
+                  ------ End parsing (done in 1 second) ------                  
 
 
                            ------ Start checks ------                           
@@ -185,7 +183,7 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-t/gff/gff_syntax/in/25_test.gff GFF3 file parsed
+
 There is 23 exon
 There is 6 gene
 There is 6 transcript
@@ -194,20 +192,20 @@ There is 6 transcript
                           ------ Start parsing ------                           
 -------------------------- parse options and metadata --------------------------
 => Accessing the feature_levels YAML file
-Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/feature_levels.yaml file
+Using local /tmp/tmp.1WxD7bSkfs/feature_levels.yaml file
 => Attribute used to group features when no Parent/ID relationship exists (i.e common tag):
 	* locus_tag
 	* gene_id
 => merge_loci option deactivated
 => Machine information:
-	This script is being run by perl v5.34.0
-	Bioperl location being used: /usr/local/share/perl/5.34.0/Bio/
+	This script is being run by perl v5.38.2
+	Bioperl location being used: /workspace/AGAT/local/lib/perl5/Bio/
 	Operating system being used: linux 
 => Accessing Ontology
 	No ontology accessible from the gff file header!
 	We use the SOFA ontology distributed with AGAT:
-		/usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo
-	Read ontology /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/so.obo:
+		/workspace/AGAT/blib/lib/auto/share/dist/AGAT/so.obo
+	Read ontology /workspace/AGAT/blib/lib/auto/share/dist/AGAT/so.obo:
 		4 root terms, and 2596 total terms, and 1516 leaf terms
 	Filtering ontology:
 		We found 1861 terms that are sequence_feature or is_a child of it.
@@ -232,7 +230,7 @@ Using standard /usr/local/share/perl/5.34.0/auto/share/dist/AGAT/feature_levels.
 => Version of the Bioperl GFF parser selected by AGAT: 3
 gff3 reader error level1: No ID attribute found @ for the feature: NC_003070.9	RefSeq	source	1	30427671	.	+	.	chromosome 1 ; db_xref "taxon:3702"  ; ecotype Columbia ; mol_type "genomic DNA"  ; organism "Arabidopsis thaliana" 
 1 warning messages: gff3 reader error level1: No ID attribute found 
-                  ------ End parsing (done in 2 second) ------                  
+                  ------ End parsing (done in 1 second) ------                  
 
 
                            ------ Start checks ------                           
@@ -307,6 +305,7 @@ No problem found
 None found
 ------------------------------ done in 0 seconds -------------------------------
                   ------ End checks (done in 0 second) ------                   
+
 
 
 t/gff/gff_syntax/in/9_test.gff GFF3 file parsed
