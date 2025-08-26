@@ -147,7 +147,7 @@ sub check_console_output {
         'Bioperl location being used:',
         'Operating system being used:',
         'done in ',
-        '/2025 at ', '/2026 at ', /2027 at '      # replace with robust date filtering  
+        '/2025 at ', '/2026 at ', '/2027 at '      # replace with robust date filtering  
     );
 
     my $filter = sub {
