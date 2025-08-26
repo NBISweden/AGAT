@@ -185,9 +185,9 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/gff/gff_syntax/in/25_test.gff GFF3 file parsed
-There is 6 gene
+t/gff/gff_syntax/in/25_test.gff GFF3 file parsed
 There is 23 exon
+There is 6 gene
 There is 6 transcript
                                         
                                        
@@ -309,34 +309,33 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/gff/gff_syntax/in/9_test.gff GFF3 file parsed
-There is 1 start_codon
-There is 1 mrna
+t/gff/gff_syntax/in/9_test.gff GFF3 file parsed
+There is 6 cds
 There is 6 exon
 There is 1 five_prime_utr
-There is 1 stop_codon
 There is 1 gene
+There is 1 mrna
 There is 1 source
+There is 1 start_codon
+There is 1 stop_codon
 There is 1 three_prime_utr
-There is 6 cds
-we renamed 1 cases
 
-/home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/gff/gff_syntax/in/9_test.gff IDs checked and fixed.
+t/gff/gff_syntax/in/9_test.gff IDs checked and fixed.
 
 Complement done !
 We added 1 gene(s)
 We added 1 mrna(s)
 
 Now the data contains:
+There is 6 cds
 There is 29 exon
 There is 1 five_prime_utr
 There is 7 gene
-There is 1 stop_codon
-There is 1 start_codon
 There is 1 mrna
-There is 6 cds
+There is 1 start_codon
+There is 1 stop_codon
 There is 1 three_prime_utr
 There is 6 transcript
 Formating output to GFF3
-usage: /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/bin/agat_sp_complement_annotations.pl --ref /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/gff/gff_syntax/in/25_test.gff --add /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/t/gff/gff_syntax/in/9_test.gff -o /home/kim/dev/agat_reg_tests/_agat-fixtures-work/AGAT-upstream/tmp/t_agat_sp_complement_annotations_t/default_3/tmp.gff
-Job done in 4 seconds
+usage: bin/agat_sp_complement_annotations.pl --ref t/gff/gff_syntax/in/25_test.gff --add t/gff/gff_syntax/in/9_test.gff -o t/scripts_output/out/agat_sp_complement_annotations_1.gff --no-progressbar --config share/agat_config.yaml
+Job done in 1 seconds
