@@ -1927,7 +1927,7 @@ sub _check_all_level3_locations{
 		}
 	}
 	foreach my $type (keys %resume_cases){
-		dual_print($log, "$resume_cases{$type} adjacent $type merged\n", $verbose);
+		dual_print($log, "$resume_cases{$type} adjacent $type merged\n");
 	}
 }
 
