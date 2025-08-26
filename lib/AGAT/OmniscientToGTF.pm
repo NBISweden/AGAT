@@ -270,12 +270,12 @@ sub _convert_feature_type{
 
 	# all l1 are gene now
 	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
-		if(exists_keys($topfeatures,($tag_l1))){ dual_print($log, "throw $tag_l1\n", 2); next; }
-		if(exists_keys($standalones,($tag_l1))){ dual_print($log, "throw $tag_l1\n", 2); next; }
+		if(exists_keys($topfeatures,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
+		if(exists_keys($standalones,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
 
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			if (lc($tag_l1) ne "gene"){
-				dual_print($log, "convert $tag_l1 to gene feature\n", 2);
+				dual_print($log, "convert $tag_l1 to gene feature\n");
 				my $feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 				create_or_replace_tag( $feature, "original_biotype", $tag_l1 );
 				$feature->primary_tag("gene");
