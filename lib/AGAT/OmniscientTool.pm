@@ -577,7 +577,7 @@ sub merge_overlap_loci{
 							#they overlap should give them the same name
 							$resume_merge++;
 
-							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 0); # print only in log
+							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 3); # print only in log
 							# update atttribute except ID and Parent for L1:
 							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
@@ -1485,12 +1485,7 @@ sub fil_cds_frame {
                                                 $phase = 0;
                                                 dual_warn(
                                                   $log,
-                                                  "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n"
-                                                );
-                                                dual_print(
-                                                  $log,
-                                                  "We will assume then to be in phase 0\n",
-                                                  2
+                                                  "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs). We will assume then to be in phase 0\n"
                                                 );
                                         }
 
@@ -2405,13 +2400,13 @@ sub check_mrna_positions{
 
 	#check start
 	if ($mRNA_feature->start != $exonStart){
-		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 0); # print log only
+		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 3); # print log only
 		$mRNA_feature->start($exonStart);
 		$result=1;
 	}
 	#check stop
 	if($mRNA_feature->end != $exonEnd){
-		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 0); # print log only
+		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 3); # print log only
 		$mRNA_feature->end($exonEnd);
 		$result=1;
 	}
@@ -2487,14 +2482,14 @@ sub check_level1_positions {
 	    if($feature_l1->start != $extrem_start){
 	    	$feature_l1->start($extrem_start);
 	    	$result=1;
-	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 0); # print in log only
+	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 3); # print in log only
 	    }
 
 	    # modify END if needed
 	    if($feature_l1->end != $extrem_end){
 	    	$feature_l1->end($extrem_end);
 	    	$result=1;
-	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 0); # print in log only
+	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 3); # print in log only
 	    }
 	}
 	return $result;

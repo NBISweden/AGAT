@@ -26,7 +26,7 @@ my $opt_output    = $config->{output};
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 my $opt_verbose = $config->{verbose};
 
@@ -215,7 +215,7 @@ sub check_feature{
         else{
                 my $msg = "No attribute $opt_attribute found for the following feature:\n" .
                           $feature->gff_string . "\n";
-                dual_print( $log, $msg, 0 );
+                dual_print( $log, $msg,  3 );
                 warn $msg if $opt_verbose;
         }
   return $keepit;

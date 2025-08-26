@@ -116,7 +116,7 @@ my $streamInter = IO::File->new();
 if (defined $opt_BlastFile) {
   if (! $opt_dataBase) {
     my $msg = "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
-    dual_print($log, $msg, 0);
+    dual_print($log, $msg, 3);
     warn $msg if $opt_verbose;
     exit;
   }
@@ -139,13 +139,13 @@ my $ostreamReport_file;
 if (defined($opt_output)) {
   if (-f $opt_output) {
     my $msg = "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
-    dual_print($log, $msg, 0);
+    dual_print($log, $msg, 3);
     warn $msg if $opt_verbose;
     exit();
   }
   if (-d $opt_output) {
     my $msg = "The output directory choosen already exists. Please give me another Name.\n";
-    dual_print($log, $msg, 0);
+    dual_print($log, $msg, 3);
     warn $msg if $opt_verbose;
     exit();
   }

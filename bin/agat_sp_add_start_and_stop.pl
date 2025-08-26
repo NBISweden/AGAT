@@ -40,7 +40,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name )
       or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 # #######################
@@ -232,7 +232,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
           } 
           if ( !$terminal_codon ){
               dual_print( $log, " Try find a stop codon next codon out of the CDS (GTF case) \n");
-            $terminal_codon = next_codon_is_ter(\@cds_feature_list, 0);
+            $terminal_codon = next_codon_is_ter(\@cds_feature_list, 3);
 
             if($strand eq "+"){
               $cds_feature_list[-1]->end( $cds_feature_list[-1]->end() + 3);

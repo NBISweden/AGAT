@@ -1616,7 +1616,7 @@ sub _check_l1_linked_to_l2{
 
 				# now save it in omniscient
 				$hash_omniscient->{"level1"}{$primary_tag_l1}{lc($new_ID_l1)}=$gene_feature;
-				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 0); # print only in log
+				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 3); # print only in log
 			}
 		}
 	}
@@ -1663,7 +1663,7 @@ sub _remove_orphan_l1{
  				}
  				if($neverfound){
  					$resume_case++;
-					dual_print($log, "removing ".$omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n", 0); #print only in log
+					dual_print($log, "removing ".$omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n", 3); #print only in log
 					delete $omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
 				}
  	 	}
@@ -1963,7 +1963,7 @@ sub _check_cds{
 							}
 							else{
 								$codon_split = 1;
-								dual_print($log, "Stop codon split over exons\n", 0); #print log only
+								dual_print($log, "Stop codon split over exons\n", 3); #print log only
 							}
 					}
 
@@ -1980,7 +1980,7 @@ sub _check_cds{
 							if($codon_split){ # Not adjacent because stop splited
 
 								if ($cds->end + 1 == ($list_stop[0]->start) ){
-									dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+									dual_print($log, "Extend CDS to the first part of the stop codon\n", 3); #print log only
 									$cds->end($list_stop[0]->end);
 
 									# create the cds chunk missing
@@ -2039,7 +2039,7 @@ sub _check_cds{
 						if($cds->start - 1 != $stop->end){
 							if($codon_split){
 									if ($cds->start - 1 == ($list_stop[$#list_stop]->end) ){
-										dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+										dual_print($log, "Extend CDS to the first part of the stop codon\n", 3); #print log only
 										$cds->start($list_stop[$#list_stop]->start);
 
 										# create the cds chunk missing
@@ -2162,7 +2162,7 @@ sub _check_exons{
 				 					#Rare case when a features are badly defined
 				 					# This approch works for exon because they have uniq ID
 				 					if(@{$list_location_Exon} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-				 						dual_print($log, "Peculiar rare case, we have to remove existing exon which are supernumerary. Parent is $id_l2\n", 0); #print only in log
+				 						dual_print($log, "Peculiar rare case, we have to remove existing exon which are supernumerary. Parent is $id_l2\n", 3); #print only in log
 				 						#remove the non needed features (they where wrong, and are unecessary)
 									my @id_list2=();
 									foreach my $locations (@{$list_location_Exon}){
@@ -2182,7 +2182,7 @@ sub _check_exons{
 				 					my @tag_list = ('all');
 				 					my @id_list=($id_l2);
 				 					$resume_case3 += @id_list2;
-				 					dual_print($log, "We remove the supernumerary @id_list2 exon(s)\n", 0); # print only in log
+				 					dual_print($log, "We remove the supernumerary @id_list2 exon(s)\n", 3); # print only in log
 									remove_element_from_omniscient(\@id_list, \@id_list2, $hash_omniscient, 'level3', 'false', \@tag_list);
 				 				}
 				 			}
@@ -2247,12 +2247,12 @@ sub _check_exons{
 													if($l3_feature->_tag_value('ID') eq $exon_location->[0][0]){
 
 														if($redefine_left){
-															dual_print($log, "Modify the left location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->start()." to ".$new_location->[1]."\n", 0); #print only in log
+															dual_print($log, "Modify the left location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->start()." to ".$new_location->[1]."\n", 3); #print only in log
 															$l3_feature->start($new_location->[1]); $resume_case2++;
 														}
 
 														if($redefine_right){
-															dual_print($log, "Modify the right location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->end()." to ".$new_location->[2]."\n", 0); #print only in log
+															dual_print($log, "Modify the right location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->end()." to ".$new_location->[2]."\n", 3); #print only in log
 															$l3_feature->end($new_location->[2]); $resume_case2++;
 														}
 														last;
@@ -2289,7 +2289,7 @@ sub _check_exons{
 								$feature_exon->start($location->[1]);
 					 			$feature_exon->end($location->[2]);
 								#save new feature L2
-								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 0); #print only in log
+								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 3); #print only in log
 								push (@{$hash_omniscient->{"level3"}{$tag}{$id_l2}}, $feature_exon);
 					 			}
 					 	}
@@ -2309,23 +2309,23 @@ sub _check_exons{
 					 					 	my @list_exon = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}};
 
 					 					 	if( int($list_exon[0]->start) >	int($myLeftExtremity) ){
-												dual_print($log, "Modify the exon ".$list_exon[0]->_tag_value('ID')." LEFT extremity for $id_l2! From ".$list_exon[0]->start." to ".$myLeftExtremity."\n", 0); #print only in log
+												dual_print($log, "Modify the exon ".$list_exon[0]->_tag_value('ID')." LEFT extremity for $id_l2! From ".$list_exon[0]->start." to ".$myLeftExtremity."\n", 3); #print only in log
 					 					 		$list_exon[0]->start($myLeftExtremity);
 												$resume_case2++;
 					 					 	}
 					 					 	if($list_exon[0]->start <	$myLeftExtremity){	#modify L2
-												dual_print($log, "Modify the L2 $id_l2 LEFT extremity! From ".$l2_feature->start."to".$list_exon[0]->start."\n", 0); #print only in log
+												dual_print($log, "Modify the L2 $id_l2 LEFT extremity! From ".$l2_feature->start."to".$list_exon[0]->start."\n", 3); #print only in log
 					 					 		$l2_feature->start($list_exon[0]->start);
 												$resume_case4++;
 					 					 	}
 
 					 					 	if($list_exon[$#list_exon]->end <	$myRightExtremity){
-					 					 		dual_print($log, "Modify the exon ".$list_exon[$#list_exon]->_tag_value('ID')." RIGHT extremity for $id_l2! From ".$list_exon[$#list_exon]->end." to ".$myRightExtremity."\n", 0); #print only in log
+					 					 		dual_print($log, "Modify the exon ".$list_exon[$#list_exon]->_tag_value('ID')." RIGHT extremity for $id_l2! From ".$list_exon[$#list_exon]->end." to ".$myRightExtremity."\n", 3); #print only in log
 					 					 		$list_exon[$#list_exon]->end($myRightExtremity);
 												$resume_case2++;
 					 						}
 					 						elsif($list_exon[$#list_exon]->end >	$myRightExtremity){ #modify L2
-												dual_print($log, "Modify the L2 $id_l2 RIGHT extremity! From ".$l2_feature->end."to".$list_exon[$#list_exon]->end."\n", 0); #print only in log
+												dual_print($log, "Modify the L2 $id_l2 RIGHT extremity! From ".$l2_feature->end."to".$list_exon[$#list_exon]->end."\n", 3); #print only in log
 					 							$l2_feature->end($list_exon[$#list_exon]->end);
 												$resume_case4++;
 					 						}
@@ -2490,7 +2490,7 @@ sub _check_utrs{
 																	$l3_feature->start($UTRexp_location->[1]);
 							 										$l3_feature->end($UTRexp_location->[2]);
 																	$resume_case2++;
-																	dual_print($log, "Modify the UTR: ".$UTR_location->[0][0]." location for $id_l2! From ".$UTR_location->[1]." ".$UTR_location->[2]." to ".$UTRexp_location->[1]." ".$UTRexp_location->[2]."\n", 0); # print log only
+																	dual_print($log, "Modify the UTR: ".$UTR_location->[0][0]." location for $id_l2! From ".$UTR_location->[1]." ".$UTR_location->[2]." to ".$UTRexp_location->[1]." ".$UTRexp_location->[2]."\n", 3); # print log only
 							 										last;
 							 									}
 							 								}
@@ -2529,7 +2529,7 @@ sub _check_utrs{
 									$list_utr_to_create=$list_location_UTR_expected;# no UTR exists, we have to create all of them
 								}
 								$resume_case3 += $nb_supernumary_utrs;
-								dual_print($log, "Remove $nb_supernumary_utrs supernumerary UTRs for $id_l2\n", 0)# print in log only
+								dual_print($log, "Remove $nb_supernumary_utrs supernumerary UTRs for $id_l2\n", 3)# print in log only
 							}
 		 				}
 	 					else{
@@ -2581,7 +2581,7 @@ sub _check_utrs{
 									$feature_utr->primary_tag($primary_tag);
 									create_or_replace_tag($feature_utr, 'ID', $uID); # remove parent ID because, none.
 									#save new feature L2
-									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 0); #print only in log
+									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 3); #print only in log
 									push (@{$hash_omniscient->{"level3"}{lc($primary_tag)}{$id_l2}}, $feature_utr);
 								}
 						}
@@ -2635,7 +2635,7 @@ sub merge_features{
 			if ($method eq "adjacent"){
 				if ( $l3_feature->end()+1 == $l3_feature_next->start() ){ #locations are consecutives consecutive
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
-						dual_print($log, $message, 0); #print log only
+						dual_print($log, $message, 3); #print log only
 						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
@@ -2648,7 +2648,7 @@ sub merge_features{
 			else{
 				if ( ($l3_feature_next->start() <= $l3_feature->end()+1) and ($l3_feature_next->end()+1 >= $l3_feature->start() ) ){ #it overlaps or are consecutive/adjacent
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
-						dual_print($log, $message, 0); #print log only
+						dual_print($log, $message, 3); #print log only
 						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
@@ -2792,7 +2792,7 @@ sub _deinterleave_sequential{
 
 	 		if($locusNameHIS ne $locusNameUniq ){
 
-				dual_print($log, "Locus $locusNameHIS interleaved\n", 0); # print only in log
+				dual_print($log, "Locus $locusNameHIS interleaved\n", 3); # print only in log
 				$resume_case++;
 
 	 			# The locusNameUniq already exists, we have to fill it with the part of

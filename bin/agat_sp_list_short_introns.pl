@@ -26,7 +26,7 @@ my $verbose       = $config->{verbose};
 my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -76,7 +76,7 @@ my %result;
       }
       if(! $feature_l1){
         my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
-        dual_print( $log, $msg, 0 );
+        dual_print( $log, $msg,  3 );
         warn $msg if $verbose;
         exit;
       }

@@ -341,7 +341,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                             }
                         else{
                           my $msg = "error !! No $kraken_tag attribute found for the feature" . $feature->gff_string() . "\n";
-                          dual_print( $log, $msg, 0 );
+                          dual_print( $log, $msg,  3 );
                           warn $msg if $opt_verbose;
                         }
 
@@ -351,7 +351,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                    }
 	                    elsif(! $mapping_state eq "false"){
                           my $msg = "error !! We don't understand the $kraken_tag attribute value found for the feature" . $feature->gff_string() . "\n Indeed, we expect false or true.\n";
-                          dual_print( $log, $msg, 0 );
+                          dual_print( $log, $msg,  3 );
                           warn $msg if $opt_verbose;
 	                    }
 	                  }
@@ -521,7 +521,7 @@ if ($opt_plot){
                 if ($mappedPercentPerGene{$key} > 100){
                                 print $ostreamPlotFile "100\n";
                                 my $msg = "Warning: $key mapped value over 100%: " . $mappedPercentPerGene{$key} . "%\n";
-                                dual_print( $log, $msg, 0 );
+                                dual_print( $log, $msg,  3 );
                                 warn $msg if $opt_verbose;
                 }
                 else{
@@ -612,14 +612,14 @@ sub compute_total_size{
           }
           if(! $found){
             my $msg = "l2_transcipt_id $l2_transcipt_id not found in hash_omniscient\n";
-            dual_print( $log, $msg, 0 );
+            dual_print( $log, $msg,  3 );
             warn $msg if $opt_verbose;
           }
         }
 
   }
   if($total_size == 0){
-    dual_print( $log, "Something went wrong, total_size is 0 while we expect a positive value.\n", 0 );
+    dual_print( $log, "Something went wrong, total_size is 0 while we expect a positive value.\n", 3 );
     warn "Something went wrong, total_size is 0 while we expect a positive value.\n" if $opt_verbose;
   }
   return $total_size;
@@ -696,7 +696,7 @@ sub takeOneListLevel3From1idLevel2 {
     }
     else{
       my $msg = "No feature level3 expected found for $level2_ID level2 ! (Probalby an error from kraken that have added a fake l1 and consequently a fake l2. So we will remove the case.)\n";
-      dual_print( $log, $msg, 0 );
+      dual_print( $log, $msg,  3 );
       warn $msg if $opt_verbose;
     }
   }

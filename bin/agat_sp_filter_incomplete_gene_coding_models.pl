@@ -38,7 +38,7 @@ my $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name )
       or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 # --- Check codon table ---
@@ -280,7 +280,7 @@ sub  get_sequence{
 
     if($sequence eq ""){
       my $msg = "Problem ! no sequence extracted for - $seq_id !\n";
-      dual_print( $log, $msg, 0 );
+      dual_print( $log, $msg,  3 );
       warn $msg if $opt_verbose;
       exit;
     }
@@ -293,13 +293,13 @@ sub  get_sequence{
                 " Or the index file comes from another fasta file which had the same name and haven't been removed.\n" .
                 "As last possibility your gff contains location errors (Already encountered for a Maker annotation)\n" .
                 "Supplement information: seq_id=$seq_id ; seq_id_correct=$seq_id_correct ; start=$start ; end=$end ; sequence length: $wholeSeq )\n";
-      dual_print( $log, $msg, 0 );
+      dual_print( $log, $msg,  3 );
       warn $msg if $opt_verbose;
     }
   }
   else{
     my $msg = "Problem ! ID $seq_id not found !\n";
-    dual_print( $log, $msg, 0 );
+    dual_print( $log, $msg,  3 );
     warn $msg if $opt_verbose;
   }
 

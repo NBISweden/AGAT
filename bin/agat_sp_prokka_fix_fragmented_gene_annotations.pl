@@ -103,7 +103,7 @@ my ($file_gff_in,$path_gff,$ext_gff) = fileparse($gff,qr/\.[^.]*/);
 if ($outfolder) {
         if (-d $outfolder){
                   my $msg = "Provided output folder exists. Exit!\n";
-                  dual_print($log, $msg, 0);
+                  dual_print($log, $msg, 3);
                   warn $msg if $verbose;
                   exit;
         }
@@ -128,7 +128,7 @@ if ($outfolder) {
 }
 else{
   my $msg = "No output folder provided. Exit!\n";
-  dual_print($log, $msg, 0);
+  dual_print($log, $msg, 3);
   warn $msg if $verbose;
   exit;
 }
@@ -738,7 +738,7 @@ sub check_long_orf_if_can_be_merged{
 			}
 			if (! $found){
                                 my $msg = "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
-                                dual_print($log, $msg, 0);
+                                dual_print($log, $msg, 3);
                                 warn $msg if $verbose;
 			}
 			elsif($found>1){
@@ -806,7 +806,7 @@ sub check_long_orf_if_can_be_merged{
 				}
 				if (! $found){
                                 my $msg = "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
-                                dual_print($log, $msg, 0);
+                                dual_print($log, $msg, 3);
                                 warn $msg if $verbose;
 				}
 				elsif($found>1){
@@ -879,7 +879,7 @@ sub retrieve_expected_protein_length{
 		}
 		else{
                         my $msg = "No inference attribute found\n";
-                        dual_print($log, $msg, 0);
+                        dual_print($log, $msg, 3);
                         warn $msg if $verbose;
 		}
 		$obj_case->{hash_sub_gene_obj}{$obj_sub_gene->{id}} = $obj_sub_gene;

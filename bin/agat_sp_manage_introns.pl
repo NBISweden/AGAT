@@ -39,7 +39,7 @@ my $ostreamReport_file;
 if (defined($opt_output) ) {
   if (-d $opt_output){
     my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
-    dual_print($log, $msg, 0);
+    dual_print($log, $msg, 3);
     warn $msg if $opt_verbose;
     exit();
   }
@@ -54,7 +54,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 .= "usage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
-dual_print($log, $string1, $opt_output ? $opt_verbose : 0);
+dual_print($log, $string1, $opt_output ? $opt_verbose : 3);
 
 
 #############################
@@ -73,7 +73,7 @@ my $outputPDF_prefix;
 if (defined($opt_output) ) {
   if (-f $opt_output){
       my $msg = "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
-      dual_print($log, $msg, 0);
+      dual_print($log, $msg, 3);
       warn $msg if $opt_verbose;
       exit();
   }
@@ -145,7 +145,7 @@ foreach my $file (@opt_files){
       }
       if(! $feature_l1){
         my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
-        dual_print($log, $msg, 0);
+        dual_print($log, $msg, 3);
         warn $msg if $opt_verbose;
         exit;
       }
@@ -238,7 +238,7 @@ foreach  my $tag (sort keys %introns){
   my $stringPrint =  "Introns in feature $tag: Removing $Xpercent percent of the highest values ($nbValueToRemove values) gives you $resu bp as the longest intron in $tag.\n";
 
   print $ostreamReport $stringPrint;
-  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 0);
+  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 3);
 
 
   # Part 4

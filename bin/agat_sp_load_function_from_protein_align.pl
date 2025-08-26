@@ -50,7 +50,7 @@ our @outputTab;
 our $log;
 if ( my $log_name = $config->{log_path} ) {
     open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
-    dual_print( $log, $header, 0 );
+    dual_print( $log, $header,  3 );
 }
 
 #The cases are exclusive, one result could not be part of several cases.
@@ -137,7 +137,7 @@ if(defined($sort_method_by_species) ){
   }
   dual_print( $log, "Priority in this order will be used for selecting the referential protein form matching proteins:\n");
   foreach my $priority (sort { $a <=> $b } keys %{$sort_method_by_species}){
-    _print( $priority." - ".$sort_method_by_species->{$priority}."\n",0);
+    _print( $priority." - ".$sort_method_by_species->{$priority}."\n", 3);
   }
 }
 
