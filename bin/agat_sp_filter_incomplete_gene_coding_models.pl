@@ -93,7 +93,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    dual_print( $log, "gene_id = $gene_id\n", 2 );
+    dual_print( $log, "gene_id = $gene_id\n", 2);
 
     my @level1_list=();
     my @level2_list=();
