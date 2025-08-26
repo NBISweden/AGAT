@@ -94,7 +94,7 @@ while( my $line = <$fh>)  {
 
     my $fieldNumber=$#fields+1;
     if($fieldNumber < 3 or $fieldNumber >12){
-      dual_warn($log, Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !\n\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n", 2);
+      dual_warn($log, "Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !\n\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n", 2);
       exit;
     }
 
