@@ -76,8 +76,7 @@ my %result;
       }
       if(! $feature_l1){
         my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
-        dual_print( $log, $msg,  3 );
-        warn $msg if $verbose;
+        dual_warn( $log, $msg,  3 );
         exit;
       }
 

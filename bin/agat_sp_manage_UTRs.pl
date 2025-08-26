@@ -59,8 +59,7 @@ if (defined($opt_output) ) {
   $opt_output = $path.$name;
   if (-d $opt_output){
     my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
-    dual_print($log, $msg, 3);
-    warn $msg if $opt_verbose;
+    dual_warn($log, $msg, 3);
     exit();
   }
   else{

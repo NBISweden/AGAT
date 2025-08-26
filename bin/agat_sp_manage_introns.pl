@@ -39,8 +39,7 @@ my $ostreamReport_file;
 if (defined($opt_output) ) {
   if (-d $opt_output){
     my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
-    dual_print($log, $msg, 3);
-    warn $msg if $opt_verbose;
+    dual_warn($log, $msg, 3);
     exit();
   }
   else{
@@ -73,8 +72,7 @@ my $outputPDF_prefix;
 if (defined($opt_output) ) {
   if (-f $opt_output){
       my $msg = "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
-      dual_print($log, $msg, 3);
-      warn $msg if $opt_verbose;
+      dual_warn($log, $msg, 3);
       exit();
   }
   $outputPDF_prefix=$opt_output."/intronPlot_";
@@ -145,8 +143,7 @@ foreach my $file (@opt_files){
       }
       if(! $feature_l1){
         my $msg = "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";
-        dual_print($log, $msg, 3);
-        warn $msg if $opt_verbose;
+        dual_warn($log, $msg, 3);
         exit;
       }
 

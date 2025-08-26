@@ -215,8 +215,7 @@ sub check_feature{
         else{
                 my $msg = "No attribute $opt_attribute found for the following feature:\n" .
                           $feature->gff_string . "\n";
-                dual_print( $log, $msg,  3 );
-                warn $msg if $opt_verbose;
+                dual_warn( $log, $msg,  3 );
         }
   return $keepit;
 }
