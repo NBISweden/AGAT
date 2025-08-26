@@ -309,18 +309,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          dual_print( $log, "String case\n");
+          dual_print( $log, "String case\n", 2);
           if ($opt_test eq "="){ 
-            if ($file_value eq $given_value) { dual_print( $log, "equal\n"); return 1; }
-            else { dual_print( $log, "not equal\n"); }
+            if ($file_value eq $given_value) { dual_print( $log, "equal\n", 2); return 1; }
+            else { dual_print( $log, "not equal\n", 2); }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ dual_print( $log, "different\n"); return 1; }
-            else { dual_print( $log, "not different\n"); }
+            if ($file_value ne $given_value){ dual_print( $log, "different\n", 2); return 1; }
+            else { dual_print( $log, "not different\n", 2); }
           }
         }
         else{
-          dual_print( $log, "Number case\n");
+          dual_print( $log, "Number case\n", 2);
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -344,7 +344,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    dual_print( $log, "Attribute not found  case\n");
+    dual_print( $log, "Attribute not found  case\n", 2);
     return 2;
   }
 }
