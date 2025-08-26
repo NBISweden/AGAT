@@ -300,13 +300,13 @@ sub print_time{
 # @input: 3 => fh, string, integer
 # @output 0 => None
 sub dual_print{
-        my ($fh, $string, $min) = @_;
-        my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
-        $min = 1 unless defined $min;
-        if ($min > 0 && $verbose >= $min) {
-                print $string;
-        }
-        print $fh $string if $fh;
+    my ($fh, $string, $min) = @_;
+    my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
+    $min = 1 unless defined $min;
+    if ($min > 0 && $verbose >= $min) {
+            print $string;
+    }
+    print $fh $string if $fh;
 }
 
 # @Purpose: transform a String with separator into hash

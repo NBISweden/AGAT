@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run);
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -22,13 +22,12 @@ my $script = $script_prefix . catfile( $bin_dir, "agat_sp_fix_longest_ORF.pl" );
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
 
 my $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
-{
-    my $dir = setup_tempdir();
-    my $outtmp    = catfile( $dir, 'tmp.gff' );
-    my $outprefix = catfile( $dir, 'tmp' );
-    check_quiet_run(" $script --gff $input_folder/1.gff --fasta $input_folder/1.fa -o $outtmp");
-    check_diff( "$outprefix-report.txt", $result, "output $script", "-b -I '^Job done in' -I '^usage:'" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$input_folder/1.gff", fasta => "$input_folder/1.fa" },
+    $result,
+    '-report.txt'
+);
 
 
 done_testing();
