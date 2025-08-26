@@ -114,7 +114,7 @@ sub print_omniscient_statistics{
 	# Should we deal with isoform (remove them and re-compute the statistics) 1=yes
 	if( ! defined($args->{isoform}) ) {$isoform = 0;}
 		else{ $isoform = $args->{isoform}; }
-	dual_print($log, "get_omniscient_statistics\n", $verbose);
+	dual_print($log, "get_omniscient_statistics\n", 2);
 	my $result_by_type = get_omniscient_statistics($omniscient, $genome_size, $percentile, $verbose);
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
@@ -390,7 +390,7 @@ sub get_omniscient_statistics {
 	my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
 	foreach my $tag_l1 ( sort keys %{ $topfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-			dual_print($log, "get_omniscient_statistics_for_topfeature for $tag_l1\n", $verbose);
+			dual_print($log, "get_omniscient_statistics_for_topfeature for $tag_l1\n", 2);
 			my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1);
 			my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 			my $info_l1_distri = get_distributions($info_l1, $extra_l1);
@@ -402,7 +402,7 @@ sub get_omniscient_statistics {
 	my $stdfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 	foreach my $tag_l1 ( sort keys %{ $stdfeatures }){
 		if ( exists_keys ($hash_omniscient, ('level1', $tag_l1) ) ){
-				dual_print($log, "get_omniscient_statistics_for_standalone\n", $verbose);
+				dual_print($log, "get_omniscient_statistics_for_standalone\n", 2);
 				my ($info_l1, $extra_l1) = get_omniscient_statistics_for_topfeature($hash_omniscient, $tag_l1); #normal title is topfeature
 				my $info_l1_sentence = get_info_sentences($info_l1, $extra_l1, $genomeSize, $percentile);
 				my $info_l1_distri = get_distributions($info_l1, $extra_l1);
@@ -411,10 +411,10 @@ sub get_omniscient_statistics {
 	}
 
 	# ------------------------- get statistic from l2 -------------------------
-	print "get_omniscient_statistics_from_l2\n" if $verbose;
+	dual_print($log, "get_omniscient_statistics_from_l2\n", 2);
 	# get nb of each feature in omniscient;
 	foreach my $tag_l2 ( sort keys %{$hash_omniscient->{'level2'} }){
-		dual_print($log, "tag_l2 $tag_l2\n", $verbose);
+		dual_print($log, "tag_l2 $tag_l2\n", 2);
 		my ($info_l2, $extra_l2) = get_omniscient_statistics_from_l2($hash_omniscient, $tag_l2, $verbose);
 
 		my $info_l2_sentence = get_info_sentences($info_l2, $extra_l2, $genomeSize, $percentile);
