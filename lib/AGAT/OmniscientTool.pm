@@ -136,7 +136,7 @@ sub complement_omniscients {
 			# Go through location from left to right ### !!
 			foreach my $location ( @{$omniscient2_sorted->{$locusID}{$tag_l1}} ) {
 				my $id1_l1 = lc($location->[0]);
-				print "\nlets look at $id1_l1.\n" if ($verbose >= 3);
+				dual_print($log, "\nlets look at $id1_l1.\n", 3);
 				my $take_it=1;
 
 				if( exists_keys($omniscient1_sorted, ($locusID,$tag_l1) ) ) {
@@ -1483,7 +1483,7 @@ sub fil_cds_frame {
 							my $original_phase = $cds_feature->frame;
 
                                                         if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n");
+                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n", 2);
                                                                 $cds_feature->frame($phase);
                                                         }
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
