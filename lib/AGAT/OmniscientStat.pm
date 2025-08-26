@@ -119,7 +119,7 @@ sub print_omniscient_statistics{
 	my $omniscientNew = undef ; #if isoform has to be removed
 	my $result_by_type2 = undef; #if isoform will be a computed without isoforms
 
-	dual_print($log, $output ("-"x80)."\n\n");
+	print $output ("-"x80)."\n\n";
 
 	# --- print statistics ---
 	# by_main_type = 1(topfeatures), 2(standalone features), or 3 (L1 features with children)
