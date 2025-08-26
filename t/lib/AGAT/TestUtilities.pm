@@ -79,8 +79,8 @@ sub _build_cmd {
     delete @args{qw/o output/};    # enforce our -o
     for my $k ( sort keys %args ) {
         my $v    = $args{$k};
-        my $flag = ( length($k) == 1 ) ? "-$k" : "--$k";
-        if ( !defined $v || $v eq '' || $v eq 1 ) {
+        my $flag = ( length($k) == 1 ) ? "-$k" : "--$k";    # allow single-letter flags
+        if ( !defined $v || $v eq '' || $v eq 1 ) {          # valueless option
             push @parts, $flag;
         }
         else {
@@ -92,38 +92,49 @@ sub _build_cmd {
 }
 
 sub check_quiet_and_normal_run {
-    my ( $script, $args_hr, $result, $out_suffix ) = @_;
-    die "need script" unless defined $script;
-    die "need result" unless defined $result;
+    my ( $script, $args_hr, $stdout_expected, $results, $out_suffixes ) = @_;
+    die "need script"           unless defined $script;
+    die "need expected stdout"   unless defined $stdout_expected;
 
-    for my $mode (qw/quiet console/) {
-        my $dir       = setup_tempdir();
-        my $outtmp    = File::Spec->catfile( $dir, 'tmp.gff' );
-        my $outprefix = File::Spec->catfile( $dir, 'tmp' );
-        my $cmd       = _build_cmd( $script, $args_hr, $outtmp );
+    my @results;
+    if ( defined $results ) {
+        @results = ref $results eq 'ARRAY' ? @{$results} : ($results);
+    }
 
-        if ( $mode eq 'quiet' ) {
-            check_quiet_run( $cmd, $result );
-        }
-        else {
-            check_console_output( $cmd, $result );
-        }
+    my @suffixes;
+    if ( defined $out_suffixes ) {
+        @suffixes =
+          ref $out_suffixes eq 'ARRAY' ? @{$out_suffixes} : ($out_suffixes);
+    }
+    push @suffixes, (undef) x ( @results - @suffixes );
 
-        if ($out_suffix) {
-            check_diff( $outprefix . $out_suffix, $result,
-                "$mode output $script" );
-        }
-        else {
-            check_diff( $outtmp, $result, "$mode output $script" );
-        }
+    # run in quiet mode first
+    my $dir    = setup_tempdir();
+    my $outtmp = File::Spec->catfile( $dir, 'tmp.gff' );
+    my $cmd    = _build_cmd( $script, $args_hr, $outtmp );
+    ok( check_quiet_run($cmd) == 0, "quiet run $script" );
+
+    # normal mode
+    $dir       = setup_tempdir();
+    $outtmp    = File::Spec->catfile( $dir, 'tmp.gff' );
+    my $outprefix = File::Spec->catfile( $dir, 'tmp' );
+    $cmd       = _build_cmd( $script, $args_hr, $outtmp );
+    check_console_output( $cmd, $stdout_expected );
+
+    for my $i ( 0 .. $#results ) {
+        my $suffix   = $suffixes[$i];
+        my $outfile =
+          defined $suffix && $suffix ne ''
+          ? $outprefix . $suffix
+          : $outtmp;
+        check_diff( $outfile, $results[$i], "output $script" );
     }
 }
 
 sub check_console_output {
-    my ( $cmd, $result ) = @_;
-    my $stdout_fixture = $result . '.stdout';
-    my $stdout_tmp     = File::Spec->catfile( $CWD, 'stdout.txt' );
-    my $exit           = system("$cmd --no-progressbar 1>$stdout_tmp 2>&1");
+    my ( $cmd, $stdout_fixture ) = @_;
+    my $stdout_tmp = File::Spec->catfile( $CWD, 'stdout.txt' );
+    my $exit       = system("$cmd --no-progressbar 1>$stdout_tmp 2>&1");
     unless ( -e $stdout_fixture ) {
         diag("$stdout_fixture fixture does not exist");
         return $exit;

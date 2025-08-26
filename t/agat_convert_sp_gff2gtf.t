@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run); 
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -23,43 +23,39 @@ my $script = $script_prefix . catfile($bin_dir, "agat_convert_sp_gff2gtf.pl");
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
 
 my $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_1.gtf";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $input_folder/1.gff --gtf_version 3 -o $outtmp");
-    check_diff( $outtmp, $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$input_folder/1.gff", gtf_version => "3" },
+    "$result.stdout",
+    $result
+);
 
 
 $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_2.gtf";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $convert_sp_gff2gtf_folder/stop_start_an_exon.gff --gtf_version 3 -o $outtmp");
-    check_diff( $outtmp, $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$convert_sp_gff2gtf_folder/stop_start_an_exon.gff", gtf_version => "3" },
+    "$result.stdout",
+    $result
+);
 
 
 $result = "$convert_sp_gff2gtf_folder/agat_convert_sp_gff2gtf_3.gtf";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff --gtf_version 3 -o $outtmp");
-    check_diff( $outtmp, $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$convert_sp_gff2gtf_folder/stop_split_over_two_exons.gff", gtf_version => "3" },
+    "$result.stdout",
+    $result
+);
 
 
 $result = "$convert_sp_gff2gtf_folder/result_issue_245.gtf";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $convert_sp_gff2gtf_folder/issue_245.gff --gtf_version 3 -o $outtmp");
-    check_diff( $outtmp, $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$convert_sp_gff2gtf_folder/issue_245.gff", gtf_version => "3" },
+    "$result.stdout",
+    $result
+);
 
 
 
