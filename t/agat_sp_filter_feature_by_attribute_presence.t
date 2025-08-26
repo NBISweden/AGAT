@@ -23,7 +23,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_feature_by_attri
 my $result = "$output_folder/agat_sp_filter_feature_by_attribute_presence_1.gff";
 check_quiet_and_normal_run(
     $script,
-    { gff => "$input_folder/1.gff" },
+    { gff => "$input_folder/1.gff", a => "protein_id" },
     "$result.stdout",
     $result
 );
