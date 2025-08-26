@@ -1494,10 +1494,10 @@ sub fil_cds_frame {
 						foreach my $cds_feature ( @cds_list) {
 							my $original_phase = $cds_feature->frame;
 
-                                                        if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-                                                                dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n", 2);
-                                                                $cds_feature->frame($phase);
-                                                        }
+							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
+									dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n", $verbose);
+									$cds_feature->frame($phase);
+							}
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
 							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
 						}
