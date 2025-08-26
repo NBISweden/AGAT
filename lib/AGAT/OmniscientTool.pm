@@ -39,7 +39,6 @@ if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
     my $log_name = $AGAT::AGAT::CONFIG->{log_path};
     open( $log, '>', $log_name )
       or die "Can not open $log_name for printing: $!";
-    dual_print( $log, AGAT::AGAT::get_agat_header(), 0 );
 }
 
 =head1 SYNOPSIS
@@ -1482,11 +1481,18 @@ sub fil_cds_frame {
                                         my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID}, $codon_table_id );
 
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
-					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
-						$phase = 0;
-						dual_warn($log, "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n").
-						"We will assume then to be in phase 0" if $verbose;
-					}
+                                        if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
+                                                $phase = 0;
+                                                dual_warn(
+                                                  $log,
+                                                  "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n"
+                                                );
+                                                dual_print(
+                                                  $log,
+                                                  "We will assume then to be in phase 0\n",
+                                                  2
+                                                );
+                                        }
 
 					# If no phase found and a phase exists in the CDS feature we keep the original
 					# otherwise we loop over CDS features to set the correct phase
@@ -1585,8 +1591,10 @@ sub _get_cds_start_phase {
       }
 
       # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and throw a warning !
-      dual_warn($log, "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ").
-      "All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n";
+      dual_warn(
+        $log,
+        "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n"
+      );
       return undef;
   }
 }

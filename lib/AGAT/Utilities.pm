@@ -9,9 +9,11 @@ use Time::Seconds;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
-sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash);
+our @EXPORT = qw(
+  exists_keys exists_undef_value get_proper_codon_table surround_text sizedPrint
+  activate_warning_limit print_time dual_print dual_warn file_text_line print_wrap_text
+  string_sep_to_hash
+);
 
 =head1 SYNOPSIS
 
