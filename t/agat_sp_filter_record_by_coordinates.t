@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run); 
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -22,13 +22,13 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_filter_record_by_coordi
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
 
 my $result = "$output_folder/agat_sp_filter_record_by_coordinates_1.gff";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $input_folder/1.gff --tsv $input_folder/coordinates.tsv -o $outtmp");
-    check_diff( "$outtmp/remaining.gff3", $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$input_folder/1.gff", tsv => "$input_folder/coordinates.tsv" },
+    "$result.stdout",
+    $result,
+    '.gff/remaining.gff3'
+);
 
 
 

@@ -5,7 +5,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catdir catfile);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir script_prefix);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix); 
 use Test::More;
 
 my $script_prefix = script_prefix();

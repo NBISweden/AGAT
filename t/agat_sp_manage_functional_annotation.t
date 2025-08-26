@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run); 
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -22,13 +22,13 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_manage_functional_annot
 { my $dir = setup_tempdir(); ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
 
 my $result = "$output_folder/agat_sp_manage_functional_annotation_1.gff";
-{
-    my $dir = setup_tempdir();
-    my $outtmp = catfile($dir, 'tmp.gff');
-    my $outprefix = catfile($dir, 'tmp');
-    check_quiet_run(" $script --gff $input_folder/agat_sp_manage_functional_annotation/02413F.gff --db $input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta -b $input_folder/agat_sp_manage_functional_annotation/02413F_blast.out -i $input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv --clean_name -o $outtmp");
-    check_diff( "$outtmp/02413F.gff", $result, "output $script" );
-}
+check_quiet_and_normal_run(
+    $script,
+    { gff => "$input_folder/agat_sp_manage_functional_annotation/02413F.gff", db => "$input_folder/agat_sp_manage_functional_annotation/uniprot_sprot_test.fasta", b => "$input_folder/agat_sp_manage_functional_annotation/02413F_blast.out", i => "$input_folder/agat_sp_manage_functional_annotation/02413F_interpro.tsv", clean_name => 1 },
+    "$result.stdout",
+    $result,
+    '.gff/02413F.gff'
+);
 
 
 

@@ -6,7 +6,7 @@ use FindBin qw($Bin);
 use lib "$Bin/lib";
 use File::Spec::Functions qw(catfile catdir);
 use Cwd qw(abs_path);
-use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run);
+use AGAT::TestUtilities qw(setup_tempdir script_prefix check_quiet_and_normal_run); 
 use Test::More;
 
 my $script_prefix = script_prefix();
@@ -25,6 +25,7 @@ my $result = "$output_folder/agat_sp_fix_longest_ORF_1.txt";
 check_quiet_and_normal_run(
     $script,
     { gff => "$input_folder/1.gff", fasta => "$input_folder/1.fa" },
+    "$result.stdout",
     $result,
     '-report.txt'
 );
