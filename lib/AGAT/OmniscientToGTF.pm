@@ -29,16 +29,17 @@ our @EXPORT = qw(print_omniscient_as_gtf);
 
 # --------------------------- SHARED FUNCTIONS ---------------------------
 
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+	my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	open( $log, '>', $log_name )
+	  or die "Can not open $log_name for printing: $!";
+}
+
+
 sub print_omniscient_as_gtf{
 
 	my ($args) = @_;
-
-	my $log;
-	if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
-	    my $log_name = $AGAT::AGAT::CONFIG->{log_path};
-	    open( $log, '>', $log_name )
-	      or die "Can not open $log_name for printing: $!";
-	}
   
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for print_omniscient_as_gtf. Please check the call.\n");exit;	}
@@ -175,7 +176,7 @@ sub print_omniscient_as_gtf{
 											$feature_level3->add_tag_value('gene_id', $gene_id);
 										}
 										elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+											dual_warn( $log, "Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 																create_or_replace_tag($feature_level3, $previous_tag_l1, $feature_level3->_tag_value('gene_id'));
 																create_or_replace_tag($feature_level3, 'gene_id', $gene_id);
 										}
@@ -184,7 +185,7 @@ sub print_omniscient_as_gtf{
 											$feature_level3->add_tag_value('transcript_id', $transcript_id);
 										}
 										elsif($feature_level3->_tag_value('transcript_id') ne $transcript_id){ #transcript_id different, we replace it.
-											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+											dual_warn( $log, "Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
 											create_or_replace_tag($feature_level3, $previous_tag_l2, $feature_level3->_tag_value('transcript_id'));
 											create_or_replace_tag($feature_level3, 'transcript_id', $transcript_id);
 										}
@@ -197,7 +198,7 @@ sub print_omniscient_as_gtf{
 								$feature_level2->add_tag_value('gene_id', $gene_id);
 							}
 							elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+								dual_warn( $log, "Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l1, $feature_level2->_tag_value('gene_id'));
 								create_or_replace_tag($feature_level2, 'gene_id', $gene_id);
 							}
@@ -206,7 +207,7 @@ sub print_omniscient_as_gtf{
 								$feature_level2->add_tag_value('transcript_id', $transcript_id);
 							}
 							elsif($feature_level2->_tag_value('transcript_id') ne $transcript_id){ #gene_id transcript_id, we replace it.
-								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+								dual_warn( $log, "Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l2, $feature_level2->_tag_value('transcript_id'));
 								create_or_replace_tag($feature_level2, 'transcript_id', $transcript_id);
 							}
@@ -220,7 +221,7 @@ sub print_omniscient_as_gtf{
 					$feature_level1->add_tag_value('gene_id', $gene_id);
 				}
 				elsif($feature_level1->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-					warn("Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+					dual_warn( $log, "Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 					create_or_replace_tag($feature_level1, $previous_tag_l1, $feature_level1->_tag_value('gene_id'));
 					create_or_replace_tag($feature_level1,'gene_id', $gene_id);
 				}
@@ -251,7 +252,7 @@ sub _does_id_exist{
 	my $result=0;
 
 	if( exists_keys($hash_to_check,(lc($id))) ){
-		warn "$id_type $id has already been used earlier, I will use another uniq id value.\n";
+		dual_warn( $log, "$id_type $id has already been used earlier, I will use another uniq id value.\n");
 		$result = 1;
 	}
 
@@ -533,7 +534,7 @@ sub _deal_with_double_attributes{
 	if ($feature->has_tag('gene_id')){
 		my @gene_id_att = $feature->get_tag_values('gene_id');
 		if (scalar(@gene_id_att) > 1){
-			warn("Gene_id have several values, we will keep only the first one.\n");
+			dual_warn( $log, "Gene_id have several values, we will keep only the first one.\n");
 			my $gene_id = shift @gene_id_att; # get first value
 			$feature->remove_tag('gene_id');
 			$feature->add_tag_value('gene_id', $gene_id);
@@ -544,7 +545,7 @@ sub _deal_with_double_attributes{
 		my @transcript_id_att = $feature->get_tag_values('transcript_id');
 		if (scalar(@transcript_id_att) > 1){
 			my $transcript_id = shift @transcript_id_att; # get first value
-			warn("Transcript_id have several values, we will keep only the first one.\n");
+			dual_warn( $log, "Transcript_id have several values, we will keep only the first one.\n");
 			$feature->remove_tag('transcript_id'); 
 			$feature->add_tag_value('transcript_id', $transcript_id);
 			$feature->add_tag_value('agat_other_transcript_id', @transcript_id_att);
