@@ -1458,11 +1458,11 @@ sub fil_cds_frame {
         my ($hash_omniscient, $db, $log, $verbose, $codon_table_id)=@_;
         $codon_table_id //= 0;
 
-	foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+        foreach my $primary_tag_key_level2 ( sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-		foreach my $id_tag_key_level1 (keys %{$hash_omniscient->{'level2'}{$primary_tag_key_level2}}) {
+                foreach my $id_tag_key_level1 ( sort keys %{$hash_omniscient->{'level2'}{$primary_tag_key_level2}}) {
 
-			foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+                        foreach my $feature_level2 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
 				my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
