@@ -36,12 +36,12 @@ my $gffout = prepare_gffout($config, $opt_output);
   ### Parse GFF input #
   my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                               config => $config });
-  dual_print($log, "Parsing Finished\n", $config->{verbose});
+  dual_print($log, "Parsing Finished\n");
   ### END Parse GFF input #
   #########################
 
 if(! exists_keys($omniscient,('level1', "gene") ) ){
-  dual_print($log, "No gene feature found in $opt_file, intergenic regions cannot be determinded!\n", $config->{verbose});
+  dual_print($log, "No gene feature found in $opt_file, intergenic regions cannot be determinded!\n");
   exit 0;
 }
 
@@ -49,7 +49,7 @@ if(! exists_keys($omniscient,('level1', "gene") ) ){
 my $sortBySeq = gather_and_sort_l1_by_seq_id_for_l1type($omniscient, 'gene');
 
 # --------------------------- COLLECT GENE LOCATIONS -----------------------
-dual_print($log, "Now colleting the gene locations\n", $config->{verbose});
+dual_print($log, "Now colleting the gene locations\n");
 my $flattened_locations = {};
 foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
   # check if gene  exits for this sequence
@@ -70,7 +70,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
 # --------------------------- FIX OVERLAPPING LOCATIONS -----------------------
 # Will merge locations that overlap
 
-dual_print($log, "Now flattening the locations\n", $config->{verbose});
+dual_print($log, "Now flattening the locations\n");
 foreach my $locusID (  keys %{$flattened_locations} ){
 
   my @newlocations;
@@ -108,7 +108,7 @@ foreach my $locusID (  keys %{$flattened_locations} ){
 }
 
 # --------------------------- NOW creating intergenic location -----------------------
-dual_print($log, "Now creating intergenic regions\n", $config->{verbose});
+dual_print($log, "Now creating intergenic regions\n");
 my $intergenic_added=0;
 # Go through location from left to right ### !! if not empty
 foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or repeat etc...
@@ -147,7 +147,7 @@ foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or rep
 # print result
 print_omniscient( {omniscient => $omniscient, output => $gffout} );
 
-dual_print($log, "$intergenic_added intergenic_region added!\nBye Bye\n", $config->{verbose});
+dual_print($log, "$intergenic_added intergenic_region added!\nBye Bye\n");
       #########################
       ######### END ###########
       #########################

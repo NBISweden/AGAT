@@ -43,7 +43,7 @@ my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1;
-dual_print( $log, $string1, $config->{verbose} ) if $opt_output;
+dual_print( $log, $string1) if $opt_output;
 
                                                       #######################
                                                       #        MAIN         #
@@ -51,10 +51,10 @@ dual_print( $log, $string1, $config->{verbose} ) if $opt_output;
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
+dual_print( $log, "Reading $opt_file\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                  config => $config });
-dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
+dual_print( $log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 
@@ -105,7 +105,7 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 
 my $toprint = "$nb_cases_l1 $tag flags/attributes added to level1 features and $nb_cases_l2 $tag flags/attributes added to level2 features. The value of the attribute is size of the shortest exon found.\n";
 print $ostreamReport $toprint;
-dual_print( $log, $toprint, $config->{verbose} ) if $opt_output;
+dual_print( $log, $toprint) if $opt_output;
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
       #########################
       ######### END ###########

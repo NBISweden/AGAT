@@ -34,11 +34,11 @@ my $gffout = prepare_gffout($config, $opt_output);
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading file $gff\n", $opt_verbose );
+dual_print( $log, "Reading file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "Parsing Finished\n", $opt_verbose );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -48,12 +48,12 @@ my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash
 # print omniscientNew containing only the longest isoform per gene
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-dual_print( $log, $nb_iso_removed_cds . " L2 isoforms with CDS removed (shortest CDS)\n", $opt_verbose );
-dual_print( $log, $nb_iso_removed_exon . " L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n", $opt_verbose );
+dual_print( $log, $nb_iso_removed_cds . " L2 isoforms with CDS removed (shortest CDS)\n");
+dual_print( $log, $nb_iso_removed_exon . " L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n");
 
 # END STATISTICS #
 ##################
-dual_print( $log, "Done\n", $opt_verbose );
+dual_print( $log, "Done\n");
 
 close $log if $log;
 

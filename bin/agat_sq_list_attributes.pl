@@ -33,13 +33,13 @@ if ( my $log_name = $config->{log_path} ) {
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  dual_print($log, "We will work on attributes from all features\n", $opt_verbose);
+  dual_print($log, "We will work on attributes from all features\n");
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-     dual_print($log, "We will work on attributes from $tag feature.\n", $opt_verbose);
+     dual_print($log, "We will work on attributes from $tag feature.\n");
    }
 }
 
@@ -63,7 +63,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print($log, "$nbLine line to process...\n", $opt_verbose);
+dual_print($log, "$nbLine line to process...\n");
 warn "Input file $gff is empty\n" if $opt_verbose && $nbLine == 0;
 
 my $geneName=undef;
@@ -78,7 +78,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print($log, "\rProgression : $done % processed.\n", $opt_verbose);
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -109,7 +109,7 @@ foreach my $attribute ( sort keys %all_attributes){
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "\nJob done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "\nJob done in $run_time seconds\n");
 
 close $log if $log;
 

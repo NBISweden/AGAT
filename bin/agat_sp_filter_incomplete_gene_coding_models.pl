@@ -42,7 +42,7 @@ if ( my $log_name = $config->{log_path} ) {
 }
 
 # --- Check codon table ---
-$codonTableId = get_proper_codon_table($codonTableId, $log, $opt_verbose);
+$codonTableId = get_proper_codon_table($codonTableId, $log);
 
 my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 
@@ -69,7 +69,7 @@ my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $opt_verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 
 ####################
@@ -79,7 +79,7 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 my @ids      = $db->get_all_primary_ids;
 my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-dual_print( $log, "Fasta file parsed\n", $opt_verbose );
+dual_print( $log, "Fasta file parsed\n");
 ####################
 
 #counters
@@ -93,7 +93,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    dual_print( $log, "gene_id = $gene_id\n", $opt_verbose );
+    dual_print( $log, "gene_id = $gene_id\n");
 
     my @level1_list=();
     my @level2_list=();
@@ -123,7 +123,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               if (! $skip_start_check){
                 my $start_codon = $seqobj->subseq(1,3);
                 if(! $codonTable->is_start_codon( $start_codon )){
-                  dual_print( $log, "start= $start_codon  is not a valid start codon\n", $opt_verbose );
+                  dual_print( $log, "start= $start_codon  is not a valid start codon\n");
                   $start_missing="true";
                   if($add_flag){
                     create_or_replace_tag($level2_feature, 'incomplete', '1');
@@ -136,7 +136,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
                 if(! $codonTable->is_ter_codon( $stop_codon )){
-                  dual_print( $log, "stop= $stop_codon is not a valid stop codon\n", $opt_verbose );
+                  dual_print( $log, "stop= $stop_codon is not a valid stop codon\n");
                   $stop_missing="true";
                   if($add_flag){
                     if($start_missing){
@@ -150,11 +150,11 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               }
             }
             else{ #short CDS
-              dual_print( $log, "CDS too short ($length_CDS nt) we skip it\n", $opt_verbose );
+              dual_print( $log, "CDS too short ($length_CDS nt) we skip it\n");
             }
           }
           else{ #No CDS
-            dual_print( $log, "Not a coding rna (no CDS) we skip it\n", $opt_verbose );
+            dual_print( $log, "Not a coding rna (no CDS) we skip it\n");
           }
 
           if($start_missing or $stop_missing){
@@ -193,7 +193,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      dual_print( $log, "This is a non coding gene (no cds to any of its RNAs)", $opt_verbose );
+      dual_print( $log, "This is a non coding gene (no cds to any of its RNAs)");
     }
   }
 }
@@ -213,7 +213,7 @@ if ($geneCounter) {
 else{
   $string_to_print .="No gene with incomplete mRNA!\n";
 }
-dual_print( $log, $string_to_print, $opt_verbose );
+dual_print( $log, $string_to_print);
 
 if(! $add_flag){
   #clean for printing
@@ -227,15 +227,15 @@ if(! $add_flag){
   }
 }
 
-dual_print( $log, "Now printing complete models\n", $opt_verbose );
+dual_print( $log, "Now printing complete models\n");
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 if(@incomplete_mRNA){
-  dual_print( $log, "Now printing incomplete models\n", $opt_verbose );
+  dual_print( $log, "Now printing incomplete models\n");
   print_omniscient( {omniscient => \%omniscient_incomplete, output => $gffout_incomplete} );
 }
 
-dual_print( $log, "Bye Bye.\n", $opt_verbose );
+dual_print( $log, "Bye Bye.\n");
 #######################################################################################################################
         ####################
          #     METHODS    #

@@ -53,11 +53,11 @@ my $stat_out = prepare_fileout($stat_file);
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading file $gff\n", $opt_verbose );
+dual_print( $log, "Reading file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "Parsing Finished\n", $opt_verbose );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -65,7 +65,7 @@ dual_print( $log, "Parsing Finished\n", $opt_verbose );
 ### Print Statistics structural first
 ###############################################################
 
-dual_print( $log, "Compute statistics\n", $opt_verbose );
+dual_print( $log, "Compute statistics\n");
 print_omniscient_statistics ({ input  => $hash_omniscient,
 															 genome => $opt_genomeSize,
 															 output => $stat_out
@@ -141,7 +141,7 @@ foreach my $chimerel1l2 (sort keys %link_tags){
 
 # END STATISTICS #
 ##################
-dual_print( $log, "Result available in <$opt_output>. Bye Bye.\n", $opt_verbose );
+dual_print( $log, "Result available in <$opt_output>. Bye Bye.\n");
 close $log if $log;
 #######################################################################################################################
         ####################

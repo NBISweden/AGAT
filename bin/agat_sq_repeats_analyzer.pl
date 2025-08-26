@@ -55,7 +55,7 @@ my $genomeSize=undef;
           $genomeSize += length($string);
         }
     }
-    dual_print($log, sprintf("%-45s%d%s", 'Total sequence length', $genomeSize, "\n"), $opt_verbose);
+    dual_print($log, sprintf("%-45s%d%s", 'Total sequence length', $genomeSize, "\n"));
   }
 
 #time to calcul progression
@@ -64,7 +64,7 @@ my $type_bp;
 my %check; #track the repeat already annotated to not. Allow to skip already read repeats
 
 foreach my $file (@inputFile){
-  dual_print($log, "Reading $file\n", $opt_verbose);
+  dual_print($log, "Reading $file\n");
   my $format = $config->{force_gff_input_version};
   if(! $format ){ $format = select_gff_format($file); }
   my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
@@ -73,7 +73,7 @@ foreach my $file (@inputFile){
   my $nbLine=`wc -l < $file`;
   $nbLine =~ s/ //g;
   chomp $nbLine;
-  dual_print($log, "$nbLine line to process...\n", $opt_verbose);
+  dual_print($log, "$nbLine line to process...\n");
   warn "Input file $file is empty\n" if $opt_verbose && $nbLine == 0;
   my $line_cpt=0;
 
@@ -98,11 +98,11 @@ foreach my $file (@inputFile){
     if ((30 - (time - $startP)) < 0) {
       my $done = ($line_cpt*100)/$nbLine;
       $done = sprintf ('%.0f', $done);
-      dual_print($log, "\rProgress : $done %", $opt_verbose);
+      dual_print($log, "\rProgress : $done %");
       $startP= time;
     }
   }
-  dual_print($log, "\rProgress : 100 %\n", $opt_verbose);
+  dual_print($log, "\rProgress : 100 %\n");
 }
 
 my $totalNumber=0;
@@ -152,7 +152,7 @@ else{
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 
 __END__
 

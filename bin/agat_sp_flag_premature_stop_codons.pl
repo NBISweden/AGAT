@@ -29,7 +29,7 @@ if ( my $log_name = $config->{log_path} ) {
       or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header, 0 );
 }
-$codonTable = get_proper_codon_table( $codonTable, $log, $config->{verbose} );
+$codonTable = get_proper_codon_table( $codonTable, $log);
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 my $ostreamReport_file;
@@ -48,7 +48,7 @@ my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
 print $ostreamReport $string1 if $ostreamReport;
-dual_print( $log, $string1, $config->{verbose} );
+dual_print( $log, $string1);
 
 # activate warnings limit
 my %warnings;
@@ -58,11 +58,11 @@ activate_warning_limit(\%warnings, 10);
 
 ######################
 ### Parse GFF input #
-dual_print( $log, "Reading $opt_file\n", $config->{verbose} );
+dual_print( $log, "Reading $opt_file\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
 	                                                             config => $config
                                                               });
-dual_print( $log, "Parsing Finished\n\n", $config->{verbose} );
+dual_print( $log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 
@@ -73,7 +73,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %allIDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$allIDs{lc($id)}=$id;}
-dual_print( $log, "Fasta file parsed\n", $config->{verbose} );
+dual_print( $log, "Fasta file parsed\n");
 
 
 my $nb_cases=0;
@@ -165,7 +165,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							my $arrSize = @positions;
                                                     my $toprint = "We flag the $tag_l2 $level2_ID that contained $arrSize premature stop codons\n";
                                                     print $ostreamReport $toprint if $ostreamReport;
-                                                    dual_print( $log, $toprint, $config->{verbose} );
+                                                    dual_print( $log, $toprint);
 						  $nb_cases++;
 							$nb_this_l2_pseudo++;
 						}
@@ -176,7 +176,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 					$nb_cases_l1++;
 				}
 				elsif($nb_this_l2_pseudo){
-                                dual_print( $log, "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n", $config->{verbose} );
+                                dual_print( $log, "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n");
 				}
 			}
 	  }
@@ -186,7 +186,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 my $toprint = "We found $nb_cases cases where mRNAs contain premature stop codons. They have been flagged as pseudogene.\n".
                                                         "$nb_cases_l1 genes have been flagged as pseudogene.\n";
 print $ostreamReport $toprint if $ostreamReport;
-dual_print( $log, $toprint, $config->{verbose} );
+dual_print( $log, $toprint);
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

@@ -39,7 +39,7 @@ my $gffout = prepare_gffout($config, $outfile);
 #### read fasta
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-dual_print($log, "Fasta file parsed\n", $opt_verbose);
+dual_print($log, "Fasta file parsed\n");
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -67,16 +67,14 @@ while (my $feature = $ref_in->next_feature() ) {
   }
 }
 
-dual_print($log, "We removed $cpt_removed annotations.\n", $opt_verbose);
+dual_print($log, "We removed $cpt_removed annotations.\n");
 my $nbSeqWithAnnotation = scalar keys %seqNameSeen;
 dual_print(
     $log,
-    "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n",
-    $opt_verbose
-);
+    "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n");
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $opt_verbose);
+dual_print($log, "Job done in $run_time seconds\n");
 
 __END__
 

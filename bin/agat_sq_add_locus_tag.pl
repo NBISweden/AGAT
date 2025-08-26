@@ -50,21 +50,21 @@ my $hash_levels= get_levels_info();
 my $hash_level1 = $hash_levels->{'other'}{'level'}{'level1'};
 
 if(! $primaryTag){
-  dual_print($log, "We will work on attributes from all Level1 features.\n", $config->{verbose});
+  dual_print($log, "We will work on attributes from all Level1 features.\n");
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if ( exists_keys ( $hash_level1, ( lc($tag) ) ) ){
-        dual_print($log, "We will work on attributes from <$tag> feature.\n", $config->{verbose});
+        dual_print($log, "We will work on attributes from <$tag> feature.\n");
       }
       else{
-        dual_print($log, "<$tag> feature is not a level1 feature. Current accepted value are:\n", $config->{verbose});
+        dual_print($log, "<$tag> feature is not a level1 feature. Current accepted value are:\n");
         foreach my $key ( keys %{$hash_level1}){
-          dual_print($log, $key." ", $config->{verbose});
+          dual_print($log, $key." ");
         }
-        dual_print($log, "\n", $config->{verbose});
+        dual_print($log, "\n");
         exit;
       }
    }
@@ -75,7 +75,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print($log, "$nbLine line to process...\n", $config->{verbose});
+dual_print($log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my $locus=undef;
@@ -95,9 +95,9 @@ while (my $feature = $ref_in->next_feature() ) {
           $locus = $feature->_tag_value($tag_in);
         }
         else{
-          dual_print($log, "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n", $config->{verbose});
+          dual_print($log, "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n");
           $locus = $locus_tag.$locus_cpt;$locus_cpt++;
-          dual_print($log, "We will use the created locus_tag value: $locus instead to name the locus!\n", $config->{verbose});
+          dual_print($log, "We will use the created locus_tag value: $locus instead to name the locus!\n");
         }
       }
       else{
@@ -125,7 +125,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print($log, "\rProgression : $done % processed.\n", $config->{verbose});
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -134,7 +134,7 @@ while (my $feature = $ref_in->next_feature() ) {
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print($log, "Job done in $run_time seconds\n", $config->{verbose});
+dual_print($log, "Job done in $run_time seconds\n");
 
 
 #######################################################################################################################

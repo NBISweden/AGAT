@@ -121,7 +121,7 @@ if ($opt_value_insensitive){
    $stringPrint .= " case sensitive.\n";
 }
 
-dual_print( $log, $stringPrint, $config->{verbose} );
+dual_print( $log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -134,7 +134,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-dual_print( $log, "Parsing Finished\n", $config->{verbose} );
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -251,7 +251,7 @@ if($opt_na_aside){
   $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
 }
 
-dual_print( $log, $stringPrint, $config->{verbose} );
+dual_print( $log, $stringPrint);
 print $ostreamReport $stringPrint if $ostreamReport;
 
 close $log if $log;
@@ -309,18 +309,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          dual_print( $log, "String case\n", $config->{verbose} );
+          dual_print( $log, "String case\n");
           if ($opt_test eq "="){ 
-            if ($file_value eq $given_value) { dual_print( $log, "equal\n", $config->{verbose} ); return 1; }
-            else { dual_print( $log, "not equal\n", $config->{verbose} ); }
+            if ($file_value eq $given_value) { dual_print( $log, "equal\n"); return 1; }
+            else { dual_print( $log, "not equal\n"); }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ dual_print( $log, "different\n", $config->{verbose} ); return 1; }
-            else { dual_print( $log, "not different\n", $config->{verbose} ); }
+            if ($file_value ne $given_value){ dual_print( $log, "different\n"); return 1; }
+            else { dual_print( $log, "not different\n"); }
           }
         }
         else{
-          dual_print( $log, "Number case\n", $config->{verbose} );
+          dual_print( $log, "Number case\n");
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -344,7 +344,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    dual_print( $log, "Attribute not found  case\n", $config->{verbose} );
+    dual_print( $log, "Attribute not found  case\n");
     return 2;
   }
 }

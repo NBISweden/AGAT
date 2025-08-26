@@ -43,7 +43,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-dual_print( $log, "$nbLine line to process...\n", $config->{verbose} );
+dual_print( $log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my %hash_IDs;
@@ -69,7 +69,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        dual_print( $log, "\rProgression : $done % processed.\n", $config->{verbose} );
+        dual_print( $log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -77,7 +77,7 @@ while (my $feature = $ref_in->next_feature() ) {
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-dual_print( $log, "Job done in $run_time seconds\n", $config->{verbose} );
+dual_print( $log, "Job done in $run_time seconds\n");
 
 
 

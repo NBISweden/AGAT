@@ -50,19 +50,19 @@ if ($one_tsv) {
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  dual_print( $log, "We will work on attributes from all features\n", $verbose );
+  dual_print( $log, "We will work on attributes from all features\n");
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  dual_print( $log, "We will work on attributes from all the $primaryTag features\n", $verbose );
+  dual_print( $log, "We will work on attributes from all the $primaryTag features\n");
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        dual_print( $log, "We will work on attributes from all the $tag features\n", $verbose );
+        dual_print( $log, "We will work on attributes from all the $tag features\n");
       }
       else{
-       dual_print( $log, "We will work on attributes from $tag feature.\n", $verbose );
+       dual_print( $log, "We will work on attributes from $tag feature.\n");
       }
    }
 }
@@ -75,10 +75,10 @@ if ($attributes){
 
   foreach my $attribute (@attList){
       push @attListOk, $attribute;
-      dual_print( $log, "$attribute attribute will be processed.\n", $verbose );
+      dual_print( $log, "$attribute attribute will be processed.\n");
 
   }
-  dual_print( $log, "\n", $verbose );
+  dual_print( $log, "\n");
 }
 
 
@@ -92,7 +92,7 @@ if ($attributes){
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-dual_print( $log, "GFF3 file parsed\n", $verbose );
+dual_print( $log, "GFF3 file parsed\n");
 
 
 foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
