@@ -615,7 +615,7 @@ sub manage_one_feature{
 		if( keys %{$ontology} ){
 			# The tag is not part of the ontology let's save this info
 			if(! exists_keys($ontology, ($primary_tag) ) ) {
-				warn "GLOBAL@"."ontology1@".$primary_tag."@";
+				dual_warn($log, "GLOBAL@"."ontology1@".$primary_tag."@");
 			}
 		}
 
@@ -704,7 +704,7 @@ sub manage_one_feature{
 						_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
 				}
 				else{
-						warn "WARNING level2: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n";
+						dual_warn($log, "WARNING level2: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n");
 
 						#################
 		 				# COMON TAG PART1
@@ -840,7 +840,7 @@ sub manage_one_feature{
 				# No parent case	# But the feature itself stay intact without parentID.
 				else{
 						my $play_this_game=1;
-						warn "WARNING level3: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n";
+						dual_warn( $log, "WARNING level3: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n");
 
 						#################
 						# COMON TAG PART1
@@ -1057,12 +1057,12 @@ sub manage_one_feature{
 # |MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
 # +----------------------------------------------------------------------------+
 		else{
-				warn "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
-				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n";
-				warn "GLOBAL@"."parser1@".$primary_tag."@";
+				dual_warn($log, "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
+				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n");
+				dual_warn($log, "GLOBAL@"."parser1@".$primary_tag."@");
 				return $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $feature, $lastL1_new;
 		}
-		print "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n";exit;
+		dual_warn($log, "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n");exit;
 }
 
 ##==============================================================================
@@ -1095,10 +1095,10 @@ sub _check_locus_uniqueness{
 		if ( exists_keys ( $omniscient, ('level1', $tag_l1, lc($parent) ) ) ){
 
 			if( $feature->seq_id() ne $omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id()  )	{
-				warn "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
+				dual_warn( $log, "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
 				" level2 feature is on ".$feature->seq_id." sequence while ".
 				$omniscient->{'level1'}{$tag_l1}{lc($parent)}->_tag_value("ID").
-				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n";
+				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n");
 			}
 		}
 	}
@@ -1170,10 +1170,10 @@ sub _get_comon_tag_value{
 
 	# In case where no parent, no comon tag, and no sequential, we cannot deal at all with it !!!!
 	if(! $locusName_lc and $level ne 'level1'){
-		warn "WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag.".
+		dual_warn( $log, "WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag.".
 		" No worries, we will handle it by considering it as strictly sequential.".
 		" If you disagree, please provide an ID or a comon tag by locus.".
-		" @ the feature is:\n".$feature->gff_string()."\n";
+		" @ the feature is:\n".$feature->gff_string()."\n");
 	}
 
 	return $locusName;
@@ -1294,12 +1294,12 @@ sub _it_is_duplication{
 	}
 
 	if(! $is_dupli and $level eq "level1" and $omniscient->{"level1"}{$primary_tag}{$id}){
-		warn "WARNING level1: This feature level1 is not a duplicate but has an ID already used.\n".
+		dual_warn( $log, "WARNING level1: This feature level1 is not a duplicate but has an ID already used.\n".
 		"/!\\ AGAT might mix up the child features and create chimeric records.\n".
 		"Indeed we changed the ID for this L1 feature to be unique but we do not \n".
 		"change the Parent attribute of the child features to reflect this change.\n".
 		"Why? because we do not know to which L1 the child feature was part-of because several Parent have similar ID.\n".
-		" @ the feature is:\n".$feature->gff_string()."\noriginal id: $id\n";
+		" @ the feature is:\n".$feature->gff_string()."\noriginal id: $id\n");
 
 	}
 	return $is_dupli;
@@ -1407,8 +1407,8 @@ sub _check_uniq_id_feature{
 	}
 	else{ #tag absent
 		if($level ne 'level3'){
-			warn "gff3 reader error ".$level .": No ID attribute found".
-			" @ for the feature: ".$feature->gff_string()."\n";
+			dual_warn( $log, "gff3 reader error ".$level .": No ID attribute found".
+			" @ for the feature: ".$feature->gff_string()."\n");
 		}
 		$uID = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}); #method will push the uID
 		create_or_replace_tag($feature, 'ID', $uID);
@@ -1927,7 +1927,7 @@ sub _check_all_level3_locations{
 		}
 	}
 	foreach my $type (keys %resume_cases){
-		dual_print($log, "$resume_cases{$type} adjacent $type merged\n", $verbose);
+		dual_print($log, "$resume_cases{$type} adjacent $type merged\n", 2);
 	}
 }
 
@@ -3970,7 +3970,7 @@ sub _handle_globalWARNS{
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for _handle_globalWARNS. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for _handle_globalWARNS. Please check the call.\n");exit;	}
 	# -- Declare all variables and fill them --
 	my ($globalWARNS, $ontology, $log, $type, $verbose);
 
