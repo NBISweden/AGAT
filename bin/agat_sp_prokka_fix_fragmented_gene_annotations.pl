@@ -281,7 +281,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 if($frags){
 	# add non modified sequences
-	foreach my $id_seq (keys %all_db_fasta_IDs){
+        foreach my $id_seq (sort keys %all_db_fasta_IDs){
 		my $seq_id_correct = $all_db_fasta_IDs{lc($id_seq)};
 
 		if (! exists_keys( $hash_sortBySeq, ($seq_id_correct) )){
@@ -311,10 +311,7 @@ if($frags){
 		my @shift_locations;
 
 		# make a list of location
-		foreach my $val (keys %{$gff_shift{$seqid}}) {
-			push @shift_locations, $val;
-		}
-		@shift_locations = sort { $a <=> $b} @shift_locations; # sort
+                @shift_locations = sort { $a <=> $b } keys %{$gff_shift{$seqid}};
 		$shift_location = shift @shift_locations; # get first value
 		if (exists_keys (\%gff_shift, ($seqid) ) ){
 			# loop over feature in order
@@ -881,11 +878,19 @@ sub retrieve_expected_protein_length{
 	}
 
 	#get original protein length
-	foreach my $id_obj_sub_gene (sort keys %{$obj_case->{hash_sub_gene_obj}}){
-		my $obj_sub_gene = $obj_case->{hash_sub_gene_obj}{$id_obj_sub_gene};
-		my $prot_name = $obj_sub_gene->{inference_value};
+       foreach my $id_obj_sub_gene (
+               sort {
+                       ncmp(
+                               $obj_case->{hash_sub_gene_obj}{$a}{inference_value} // '',
+                               $obj_case->{hash_sub_gene_obj}{$b}{inference_value} // ''
+                       )
+               }
+               keys %{$obj_case->{hash_sub_gene_obj}}
+       ){
+               my $obj_sub_gene = $obj_case->{hash_sub_gene_obj}{$id_obj_sub_gene};
+               my $prot_name    = $obj_sub_gene->{inference_value};
 
-		if (lc($obj_sub_gene->{inference_db}) eq "uniprotkb"){
+               if (lc($obj_sub_gene->{inference_db}) eq "uniprotkb"){
                         dual_print($log, "Inference made with Uniprot, looking for protein size: $prot_name\n");
 			if( exists $all_db_db_IDs{lc($prot_name)}){
 				my $protID_correct = $all_db_db_IDs{lc($prot_name)};
