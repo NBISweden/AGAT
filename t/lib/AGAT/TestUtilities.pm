@@ -157,7 +157,8 @@ sub check_console_output {
         '/2025', '/2026', '/2027',      # replace with robust date filtering  
         'Parsing Finished',
         'Compute statistics',
-        'Look at the fasta database'
+        'Look at the fasta database',
+        'End of script', 'Writing result...', 'load FUNCTIONAL information'
     );
 
     my $filter = sub {
