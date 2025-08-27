@@ -280,7 +280,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	                                                                                   });
                 
                   dual_print( $log, "\nA proper hash:\n", 2);
-				  if ($opt_verbose) {
+				  if ($opt_verbose > 2) {
                       print_omniscient( { omniscient => $hash_omniscient_clean, output => $gffout } );
 				  }
                   dual_print( $log, "\n", 2);
