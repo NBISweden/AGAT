@@ -141,8 +141,8 @@ sub check_console_output {
         return $exit;
     }
 
-    my @ignore_starts   = ( '=> Using standard', 'Using standard', 'usage:', 'Reading' , 'Parse file ', 'Parsing ',
-                            'Feature discarded by applying the test (see', 'ARG  ' 
+    my @ignore_starts   = ( '=> Using standard', 'Using standard', 'Using local', 'usage:', 'Reading' , 
+                            'Parse file ', 'Parsing ', 'Feature discarded by applying the test (see', 'ARG  ' 
                           );
     my @ignore_contains = (
         'AGAT/so.obo',
