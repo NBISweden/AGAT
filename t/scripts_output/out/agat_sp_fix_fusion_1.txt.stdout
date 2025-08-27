@@ -109,34 +109,32 @@ None found
 
 GFF3 file parsed
 Fasta file parsed
+Original phase . replaced by 0 for new1_Os01t0100200-01.exon1-cds-1
 Original phase . replaced by 0 for new1_Os01t0100466-00.exon2-cds-1
 Original phase . replaced by 0 for new1_Os01t0100500-01.exon7-cds-1
+Original phase . replaced by 1 for new1_Os01t0100500-01.exon8-cds-2
 Original phase . replaced by 0 for new1_Os01t0100600-01.exon1-cds-1
+Original phase . replaced by 0 for new1_Os01t0100600-01.exon6-cds-1
 Original phase . replaced by 0 for new1_Os01t0101200-02.exon4-cds-1
+Original phase . replaced by 0 for new2_Os01t0101200-02.exon4-cds-1
+Original phase . replaced by 0 for new3_Os01t0101200-02.exon4-cds-1
 Original phase . replaced by 0 for new1_Os01t0101300-01.exon1-cds-1
 Original phase . replaced by 0 for new1_Os01t0101850-00.exon3-cds-1
-Original phase . replaced by 0 for new1_Os01t0103600-01.exon1-cds-1
+Original phase . replaced by 0 for new1_Os01t0103075-00.exon1-cds-1
+Original phase . replaced by 0 for new2_Os01t0103075-00.exon1-cds-1
 Original phase . replaced by 0 for new1_Os01t0103600-01.exon3-cds-1
+Original phase . replaced by 0 for new1_Os01t0103600-01.exon1-cds-1
 Original phase . replaced by 0 for new1_Os01t0103700-01.exon6-cds-1
+Original phase . replaced by 0 for new2_Os01t0103700-01.exon6-cds-1
 Original phase . replaced by 0 for new1_Os01t0103900-01.exon12-cds-1
 Original phase . replaced by 0 for new1_Os01t0104100-01.exon8-cds-1
 Original phase . replaced by 0 for new1_Os01t0104400-02.exon4-cds-1
 Original phase . replaced by 0 for new1_Os01t0104600-01.exon1-cds-1
-Original phase . replaced by 0 for new1_Os01t0105400-01.exon3-cds-3
-Original phase . replaced by 0 for new1_Os01t0105400-01.exon4-cds-4
-Original phase . replaced by 0 for new2_Os01t0101200-02.exon4-cds-1
-Original phase . replaced by 0 for new2_Os01t0103700-01.exon6-cds-1
-Original phase . replaced by 1 for new1_Os01t0100500-01.exon8-cds-2
-Original phase . replaced by 0 for new1_Os01t0100500-01.exon7-cds-1
-Original phase . replaced by 1 for new1_Os01t0100500-01.exon8-cds-2
-Original phase . replaced by 0 for new3_Os01t0101200-02.exon4-cds-1
-Original phase . replaced by 0 for new1_Os01t0101850-00.exon3-cds-1
-Original phase . replaced by 0 for new1_Os01t0101300-01.exon1-cds-1
-Original phase . replaced by 0 for new1_Os01t0100466-00.exon2-cds-1
-Original phase . replaced by 0 for new1_Os01t0105400-01.exon4-cds-4
-Original phase . replaced by 0 for new1_Os01t0105400-01.exon3-cds-3
-Original phase . replaced by 1 for new1_Os01t0105400-01.exon2-cds-2
+Original phase . replaced by 0 for new1_Os01t0105300-01.exon5-cds-1
 Original phase . replaced by 2 for new1_Os01t0105400-01.exon1-cds-1
+Original phase . replaced by 1 for new1_Os01t0105400-01.exon2-cds-2
+Original phase . replaced by 0 for new1_Os01t0105400-01.exon3-cds-3
+Original phase . replaced by 0 for new1_Os01t0105400-01.exon4-cds-4
 Managing spurious labelling at gene level
 print intact...
 Formating output to GFF3

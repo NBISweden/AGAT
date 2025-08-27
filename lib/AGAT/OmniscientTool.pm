@@ -1458,28 +1458,30 @@ sub fil_cds_frame {
         my ($hash_omniscient, $db, $log, $local_verbose, $codon_table_id)=@_;
         $codon_table_id //= 0;
 
+        my @phase_events;  # buffer for reproducible logging
+
         foreach my $primary_tag_key_level2 ( sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
                 foreach my $id_tag_key_level1 ( sort keys %{$hash_omniscient->{'level2'}{$primary_tag_key_level2}}) {
 
                         foreach my $feature_level2 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
-				my $level2_ID = lc($feature_level2->_tag_value('ID'));
+                                my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
-				# == LEVEL 3 == #
-				if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID) ) ){
+                                # == LEVEL 3 == #
+                                if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID) ) ){
 
-					my $strand=$feature_level2->strand;
-					my @cds_list;
-					if(($feature_level2->strand eq "+") or ($feature_level2->strand eq "1")){
-						@cds_list=sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-					}else{
-						@cds_list=sort {$b->start <=> $a->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-					}
+                                        my $strand=$feature_level2->strand;
+                                        my @cds_list;
+                                        if(($feature_level2->strand eq "+") or ($feature_level2->strand eq "1")){
+                                                @cds_list=sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+                                        }else{
+                                                @cds_list=sort {$b->start <=> $a->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+                                        }
 
                                         my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID}, $codon_table_id );
 
-					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
+                                        # Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
                                         if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
                                                 $phase = 0;
                                                 dual_warn(
@@ -1488,25 +1490,47 @@ sub fil_cds_frame {
                                                 ) if $local_verbose;
                                         }
 
-					# If no phase found and a phase exists in the CDS feature we keep the original
-					# otherwise we loop over CDS features to set the correct phase
-					if ( defined( $phase ) ) {
-						foreach my $cds_feature ( @cds_list) {
-							my $original_phase = $cds_feature->frame;
+                                        # If no phase found and a phase exists in the CDS feature we keep the original
+                                        # otherwise we loop over CDS features to set the correct phase
+                                        if ( defined( $phase ) ) {
+                                                foreach my $cds_feature ( @cds_list) {
+                                                        my $original_phase = $cds_feature->frame;
 
-							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-									dual_print($log, "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n") if $local_verbose;
-									$cds_feature->frame($phase);
-							}
-							my $cds_length=$cds_feature->end-$cds_feature->start +1;
-							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
-						}
-					}
-				}
-			}
-		}
-	}
+                                                        # capture current assigned phase for this CDS before updating rolling phase
+                                                        my $assigned_phase = $phase;
+
+                                                        if ( ($original_phase eq ".") or ($original_phase != $assigned_phase) ){
+                                                                # buffer the event instead of printing now; we'll sort & print later
+                                                                push @phase_events, {
+                                                                        id        => $cds_feature->_tag_value("ID"),
+                                                                        phase_old => $original_phase,
+                                                                        phase_new => $assigned_phase + 0,
+                                                                        start     => $cds_feature->start + 0,
+                                                                        end       => $cds_feature->end + 0,
+                                                                };
+                                                                $cds_feature->frame($assigned_phase);
+                                                        }
+                                                        my $cds_length=$cds_feature->end-$cds_feature->start +1;
+                                                        $phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+
+        # --- Reproducible, genomic-order logging ---
+        for my $e ( sort {
+                $a->{start} <=> $b->{start}
+                || $a->{end}   <=> $b->{end}
+                || $a->{id}    cmp $b->{id}
+        } @phase_events ) {
+                dual_print($log, sprintf("Original phase %s replaced by %d for %s\n",
+                        $e->{phase_old}, $e->{phase_new}, $e->{id}
+                )) if $local_verbose;
+        }
 }
+
 
 # @Purpose: get the proper phase of the start of a CDS by looking at the ORF of the different frames
 # @input: 1 =>  $db of the fasta genome, list of CDS features, codon table
