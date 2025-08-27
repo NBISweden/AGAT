@@ -183,7 +183,6 @@ None found
                   ------ End checks (done in 0 second) ------                   
 
 
-
 There is 23 exon
 There is 6 gene
 There is 6 transcript
@@ -305,7 +304,6 @@ No problem found
 None found
 ------------------------------ done in 0 seconds -------------------------------
                   ------ End checks (done in 0 second) ------                   
-
 
 
 t/gff/gff_syntax/in/9_test.gff GFF3 file parsed

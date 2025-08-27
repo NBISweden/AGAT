@@ -365,13 +365,13 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 ###########
 # Fix frame
-fil_cds_frame(\%omniscient_modified_gene, $db, $log, $verbose, $codonTable);
+fil_cds_frame(\%omniscient_modified_gene, $db, $log, 0, $codonTable);
 #fil_cds_frame(\%omniscient_pseudogene);
-fil_cds_frame($hash_omniscient, $db, $log, $verbose, $codonTable);
+fil_cds_frame($hash_omniscient, $db, $log, 0, $codonTable);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
 dual_print( $log, "removing duplicates\n", 2);
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+merge_overlap_loci(undef, \%omniscient_modified_gene, undef, 0);
 
 ########
 # Print results
@@ -386,7 +386,7 @@ dual_print( $log, "print all with name of overlapping features resolved...\n" );
 
 my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+merge_overlap_loci(undef, \%omniscient_modified_gene, undef, 0);
 print_omniscient( {omniscient => $hash_all, output => $gffout3} );
 
 #print_omniscient(\%omniscient_pseudogene, $gffout4); #print putative pseudogene in file

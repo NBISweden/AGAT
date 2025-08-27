@@ -533,7 +533,7 @@ sub append_omniscient {
 # @input: 2 => hash, integer for verbosity
 # @output: 0
 sub merge_overlap_loci{
-	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
+	my ($log, $omniscient, $mRNAGeneLink, $local_verbose) = @_;
 	my $resume_merge=undef;
   	my $resume_identic=0;
 
@@ -612,7 +612,7 @@ sub merge_overlap_loci{
 
 									# >>>>>>>>>> REMOVE THE IDENTICAL ISOFORMS <<<<<<<<<<<<<
 									# first list uniqs
-									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $verbose); # remove if identical l2 exists
+									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $local_verbose); # remove if identical l2 exists
 
 									#Now manage the rest
 									foreach my $feature_l2 (@{$list_of_uniqs}){
@@ -652,11 +652,11 @@ sub merge_overlap_loci{
 	}
 
 	if($resume_merge){
-            dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n", $verbose);
-		    dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n", $verbose);
+		dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n") if $local_verbose;
+		dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n") if $local_verbose;
   }
 	else{
-			dual_print($log, "None found\n", $verbose);
+		dual_print($log, "None found\n") if $local_verbose;
 	}
 }
 
