@@ -1192,10 +1192,10 @@ db file parsed
 Based on their names and the fact they are conitguous, those 2 genes might be merged: mntB_1 mntB_2 
 mntB_1 has a AA size of: 294
 mntB_2 has a AA size of: 240
-Inference made with Uniprot, looking for protein size: Q55282
-AA length found 306 
 Inference made with Uniprot, looking for protein size: O34338
-AA length found 250 
+AA length found 250
+Inference made with Uniprot, looking for protein size: Q55282
+AA length found 306
 Average of the expected length = 278 
 Average of the expected length + 20 % = 305 
 current length adding all genes together (and removing overlaping part): 532
@@ -1228,10 +1228,10 @@ current length adding all genes together (and removing overlaping part): 599
 Based on their names and the fact they are conitguous, those 2 genes might be merged: gyrB_1 gyrB_2 
 gyrB_1 has a AA size of: 238
 gyrB_2 has a AA size of: 570
-Inference made with Uniprot, looking for protein size: P0A2I3
-AA length found 804 
 Inference made with Uniprot, looking for protein size: O67137
-AA length found 792 
+AA length found 792
+Inference made with Uniprot, looking for protein size: P0A2I3
+AA length found 804
 Average of the expected length = 798 
 Average of the expected length + 20 % = 877 
 current length adding all genes together (and removing overlaping part): 806
@@ -1243,12 +1243,12 @@ frame 2 contains protein2
 Based on their names and the fact they are conitguous, those 2 genes might be merged: uvrA_1 uvrA_2 
 uvrA_1 has a AA size of: 902
 uvrA_2 has a AA size of: 926
-Inference made with Uniprot, looking for protein size: Q9WYV0
-AA length found 916 
 Inference made with Uniprot, looking for protein size: P0A698
-AA length found 940 
-Average of the expected length = 928 
-Average of the expected length + 20 % = 1020 
+AA length found 940
+Inference made with Uniprot, looking for protein size: Q9WYV0
+AA length found 916
+Average of the expected length = 928
+Average of the expected length + 20 % = 1020
 current length adding all genes together (and removing overlaping part): 1787
 
 Based on their names and the fact they are conitguous, those 2 genes might be merged: dapA_1 dapA_2 
@@ -1304,10 +1304,10 @@ frame 3 contains protein2
 Based on their names and the fact they are conitguous, those 2 genes might be merged: gyrB_3 gyrB_4 
 gyrB_3 has a AA size of: 219
 gyrB_4 has a AA size of: 373
-Inference made with Uniprot, looking for protein size: Q5SHZ4
-AA length found 634 
 Inference made with Uniprot, looking for protein size: O67137
-AA length found 792 
+AA length found 792
+Inference made with Uniprot, looking for protein size: Q5SHZ4
+AA length found 634
 Average of the expected length = 713 
 Average of the expected length + 20 % = 784 
 current length adding all genes together (and removing overlaping part): 592
@@ -1320,11 +1320,11 @@ Based on their names and the fact they are conitguous, those 2 genes might be me
 lpxA_1 has a AA size of: 175
 lpxA_2 has a AA size of: 116
 Inference made with Uniprot, looking for protein size: P0A722
-AA length found 262 
+AA length found 262
 Inference made with Uniprot, looking for protein size: Q9PIM1
-AA length found 263 
-Average of the expected length = 262 
-Average of the expected length + 20 % = 288 
+AA length found 263
+Average of the expected length = 262
+Average of the expected length + 20 % = 288
 current length adding all genes together (and removing overlaping part): 270
 270 < 288 => Let's merge them. (The length of the appended proteins is shorter than the size of the protein use for the inference)
 
