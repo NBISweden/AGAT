@@ -192,7 +192,7 @@ foreach my $bucket_locations ( $bucket_locations1, $bucket_locations2 ){
 								my $previous_location = undef;
 
 								foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$bucket_locations->{$locusID}{$chimere_type}{$l1_id}{$level}{$type}} ){
-                                                                    dual_print( $log, "investigate location of $l1_id from $chimere_type from $locusID at $level \n", $debug );
+                                                                    dual_print( $log, "investigate location of $l1_id from $chimere_type from $locusID at $level \n" ) if $debug;
 				  					# first round
 				  					if (! $previous_location){
 				    					push @newlocations, $location;
@@ -224,7 +224,7 @@ foreach my $bucket_locations ( $bucket_locations1, $bucket_locations2 ){
 						else {
 							my $previous_location = undef;
 							foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$bucket_locations->{$locusID}{$chimere_type}{$l1_id}{$level}} ){
-                                                            dual_print( $log, "investigate location of $l1_id from $chimere_type from $locusID at $level \n", $debug );
+                                                            dual_print( $log, "investigate location of $l1_id from $chimere_type from $locusID at $level \n" ) if $debug;
 								# first round
 								if (! $previous_location){
 									push @newlocations, $location;
@@ -286,7 +286,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
 			#/!\ MUST SORT LOCATIONS
 			my @copy1 = @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}};
-                    dual_print( $log, scalar(@copy1)." locations 1\n", $debug );
+                    dual_print( $log, scalar(@copy1)." locations 1\n" ) if $debug;
 
 			# With foreach the last location is properly handled automatically
 			foreach my $locations1 (@copy1){
@@ -294,7 +294,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
 					if ( exists_keys ($flattened_locations2_clean_sorted, ($locusID,$chimere_type) ) ) {
 						my @copy2 = @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}};
-                                            dual_print( $log, scalar(@copy2)." locations 2\n", $debug );
+                                            dual_print( $log, scalar(@copy2)." locations 2\n" ) if $debug;
 
 						# With foreach the last location is properly handled automatically
 						foreach my $locations2 (@copy2){
@@ -302,7 +302,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
                	# --------------------- OVERLAP --------------------------------
 								if ( locations_overlap($locations1, $locations2) ){
-                                                                    dual_print( $log, "overlap ".$locations1->[0][3]." ".$locations2->[0][3]."\n", $debug );
+                                                                    dual_print( $log, "overlap ".$locations1->[0][3]." ".$locations2->[0][3]."\n" ) if $debug;
 
 									remove_loc_by_id($flattened_locations1_clean_sorted, $locusID, $chimere_type, $locations1->[0][3]);
 									$seen1{$locations1->[0][3]}++;
@@ -324,7 +324,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 									my $current_flat_oppo=();
 
 									while ($flip){
-                                                                            dual_print( $log, "  loop $loop\n", $debug );
+                                                                            dual_print( $log, "  loop $loop\n" ) if $debug;
 										if ($loop eq "top"){
 											$current_locs = $flattened_locations1_clean_sorted->{$locusID}{$chimere_type};
 											$current_hash = $flattened_locations1_clean_sorted;
@@ -341,22 +341,22 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 
 										my @overlap_loc;
 										foreach my $locations (@{$current_locs}){
-                                                                                    dual_print( $log, "  ".scalar(@{$current_locs})." locations $loop\n", $debug );
+                                                                                    dual_print( $log, "  ".scalar(@{$current_locs})." locations $loop\n" ) if $debug;
 
 											#  location   -------------------------
 											#  flat                                        -------------------------
 											if ( $locations->[scalar(@{$locations})-1][1] < $current_flat_oppo->[0][0] ){
-                                                                                            dual_print( $log, "  caseX\n", $debug );
+                                                                                            dual_print( $log, "  caseX\n" ) if $debug;
 												next;
 											}
 											#  location A                         ----------------
 											#  location B  ---------------
 											elsif ($current_flat_oppo->[scalar(@{$current_flat_oppo})-1][1] < $locations->[0][0] ){
-                                                                                            dual_print( $log, "  caseY\n", $debug );
+                                                                                            dual_print( $log, "  caseY\n" ) if $debug;
 												last;
 											}
 											elsif ( locations_overlap($current_flat_oppo, $locations) ){
-                                                                                            dual_print( $log, "  overlap in overlap ".$current_flat_oppo->[0][3]." ".$locations->[0][3]."\n", $debug );
+                                                                                            dual_print( $log, "  overlap in overlap ".$current_flat_oppo->[0][3]." ".$locations->[0][3]."\n" ) if $debug;
 												# keep track of ID that overlap to remove locations later out of the loop
 												push @overlap_loc, $locations->[0][3];
 												$current_flat = flatten_locations_and_merge($current_flat, $locations);
@@ -371,7 +371,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 												}
 											}
 											else{
-                                                                                            dual_print( $log, "  caseZ overlap in intron\n", $debug );
+                                                                                            dual_print( $log, "  caseZ overlap in intron\n" ) if $debug;
 											}
 										}
 
@@ -399,7 +399,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 								elsif ($locations2->[scalar(@{$locations2})-1][1] < $locations1->[0][0] ){
 
 									push @{$overlap_info{$locations1->[0][2]}{0}{1}}, [[undef], [$locations2->[0][3]]];
-                                                                    dual_print( $log, "Case1 notoverlap !\n\n", $debug );
+                                                                    dual_print( $log, "Case1 notoverlap !\n\n" ) if $debug;
 									# throw loc2
 									remove_loc_by_id($flattened_locations2_clean_sorted, $locusID, $chimere_type, $locations2->[0][3]);
 									$seen2{$locations2->[0][3]}++;
@@ -411,7 +411,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1_clean_sorted} ){
 								#  location B                                     -------------------------
 								elsif ($locations1->[scalar(@{$locations1})-1][1] < $locations2->[0][0] ){
 									my $id1 = $locations1->[0][3];
-                                                                    dual_print( $log, "Case2 notoverlap !\n", $debug );
+                                                                    dual_print( $log, "Case2 notoverlap !\n" ) if $debug;
 									if(! exists_keys(\%seen1, ( $id1 ) ) ){ # else it has been dealed by overlap case
 										push @{$overlap_info{$locations1->[0][2]}{1}{0}}, [ [$locations1->[0][3]], [undef] ];
 										# throw loc1
@@ -436,7 +436,7 @@ foreach my $locusID (  keys %{$flattened_locations1_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations1_clean_sorted->{$locusID}}){
     foreach my $locations1 ( @{$flattened_locations1_clean_sorted->{$locusID}{$chimere_type}} ){
 			push @{$overlap_info{$locations1->[0][2]}{1}{0}}, [ [$locations1->[0][3]], [undef]];
-                    dual_print( $log, " Case3 !\n", $debug );
+                    dual_print( $log, " Case3 !\n" ) if $debug;
     }
   }
 }
@@ -448,7 +448,7 @@ foreach my $locusID (  keys %{$flattened_locations2_clean_sorted} ){
   foreach my $chimere_type ( keys %{$flattened_locations2_clean_sorted->{$locusID}}){
     foreach my $locations2 ( @{$flattened_locations2_clean_sorted->{$locusID}{$chimere_type}} ){
 			push @{$overlap_info{$locations2->[0][2]}{0}{1}},  [ [undef], [$locations2->[0][3]] ];
-                    dual_print( $log, " Case4 !\n", $debug );
+                    dual_print( $log, " Case4 !\n" ) if $debug;
     }
   }
 }
