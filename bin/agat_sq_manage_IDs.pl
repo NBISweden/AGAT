@@ -15,7 +15,6 @@ my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
 );
 
 my $inputFile = $opt->file;
-my $outformat = $opt->of;
 my $outfile   = $config->{output};
 
 my $log;
