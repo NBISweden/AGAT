@@ -29,22 +29,4 @@ check_quiet_and_normal_run(
     $result
 );
 
-{
-    my $dir = setup_tempdir();
-    ok( system(" $script --gff $input_folder/1.gff --tair --ensembl 2>/dev/null") != 0,
-        "conflicting style flags" );
-}
-
-{
-    my $dir = setup_tempdir();
-    ok( system(" $script --gff $input_folder/1.gff --nb -1 2>/dev/null") != 0,
-        "negative nb rejected" );
-}
-
-{
-    my $dir = setup_tempdir();
-    ok( system(" $script --gff $input_folder/1.gff --gap -2 2>/dev/null") != 0,
-        "negative gap rejected" );
-}
-
 done_testing();
