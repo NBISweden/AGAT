@@ -24,7 +24,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sq_manage_IDs.pl");
 my $result = "$output_folder/agat_sq_manage_IDs_1.gff";
 check_quiet_and_normal_run(
     $script,
-    { gff => "$input_folder/1.gff", prefix => "NBIS", ensembl => 1, tair => 1, type_dependent => 1 },
+    { gff => "$input_folder/1.gff" },
     "$result.stdout",
     $result
 );

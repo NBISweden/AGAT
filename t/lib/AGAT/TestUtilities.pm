@@ -72,40 +72,28 @@ sub _sh_escape {
 }
 
 sub _build_cmd {
-    my ( $script, $args_in, $outtmp ) = @_;
+    my ( $script, $args_hr, $outtmp ) = @_;
     my @parts = ($script);
+    my %args  = %{ $args_hr // {} };
 
-    # allow a hashref or an arrayref of hashrefs so that the same option
-    # (e.g. --gff) can be supplied multiple times
-    my @args_sets;
-    if ( ref $args_in eq 'ARRAY' ) {
-        @args_sets = @$args_in;
-    }
-    else {
-        @args_sets = ($args_in // {});
-    }
-
-    for my $args_hr (@args_sets) {
-        my %args = %{ $args_hr // {} };
-        delete @args{qw/o output/};    # enforce our -o
-        for my $k ( sort keys %args ) {
-            my $v    = $args{$k};
-            my $flag = ( length($k) == 1 ) ? "-$k" : "--$k";    # allow single-letter flags
-            if ( !defined $v || $v eq '' || $v eq 1 ) {          # valueless option
-                push @parts, $flag;
-            }
-            else {
-                push @parts, $flag, _sh_escape($v);
-            }
+    delete @args{qw/o output/};    # enforce our -o
+    for my $k ( sort keys %args ) {
+        my $v    = $args{$k};
+        my $flag = ( length($k) == 1 ) ? "-$k" : "--$k";    # allow single-letter flags
+        if ( !defined $v || $v eq '' || $v eq 1 ) {          # valueless option
+            push @parts, $flag;
+        }
+        else {
+            push @parts, $flag, _sh_escape($v);
         }
     }
-
     push @parts, "-o", _sh_escape($outtmp);
+    diag(join( ' ', @parts ));
     return join( ' ', @parts );
 }
 
 sub check_quiet_and_normal_run {
-    my ( $script, $args, $stdout_expected, $results, $out_suffixes ) = @_;
+    my ( $script, $args_hr, $stdout_expected, $results, $out_suffixes ) = @_;
     die "need script"           unless defined $script;
     die "need expected stdout"   unless defined $stdout_expected;
 
@@ -124,14 +112,14 @@ sub check_quiet_and_normal_run {
     # run in quiet mode first
     my $dir    = setup_tempdir();
     my $outtmp = File::Spec->catfile( $dir, 'tmp.gff' );
-    my $cmd    = _build_cmd( $script, $args, $outtmp );
+    my $cmd    = _build_cmd( $script, $args_hr, $outtmp );
     ok( check_quiet_run($cmd) == 0, "quiet run $script" );
 
     # normal mode
     $dir       = setup_tempdir();
     $outtmp    = File::Spec->catfile( $dir, 'tmp.gff' );
     my $outprefix = File::Spec->catfile( $dir, 'tmp' );
-    $cmd       = _build_cmd( $script, $args, $outtmp );
+    $cmd       = _build_cmd( $script, $args_hr, $outtmp );
     check_console_output( $cmd, $stdout_expected );
 
     for my $i ( 0 .. $#results ) {
@@ -153,7 +141,7 @@ sub check_console_output {
         return $exit;
     }
 
-    my @ignore_starts   = ( '=> Using standard', 'Using ', 'usage:', 'Reading' , 'Parse file ', 'Parsing ',
+    my @ignore_starts   = ( '=> Using standard', 'Using standard', 'usage:', 'Reading' , 'Parse file ', 'Parsing ',
                             'Feature discarded by applying the test (see', 'ARG  ' 
                           );
     my @ignore_contains = (
@@ -169,10 +157,7 @@ sub check_console_output {
         '/2025', '/2026', '/2027',      # replace with robust date filtering  
         'Parsing Finished',
         'Compute statistics',
-        'Look at the fasta database',
-        'load FUNCTIONAL information',
-        'Writing result...',
-        'End of script.'
+        'Look at the fasta database'
     );
 
     my $filter = sub {
