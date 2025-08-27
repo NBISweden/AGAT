@@ -94,9 +94,9 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
       if ($feature_l2->strand == -1 or $feature_l2->strand eq "-"){
         $strand="-";
       }
-      dual_print( $log, "feature strand = $strand\n", 2);
+      dual_print( $log, "feature strand = $strand\n", 2); 
       my $seq_id = $feature_l2->seq_id();
-      dual_print( $log, "sequence length ".$db->length($seq_id)."\n", 2);
+      dual_print( $log,  "sequence length ".$db->length($seq_id)."\n", 2);
       
       ##############################
       #If it's a mRNA = have CDS. #
@@ -111,7 +111,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         #-------------------------
         #       START CASE
         #-------------------------
-        dual_print( $log, "---START CODON TEST---\n", 2);
+        dual_print( $log, "---START CODON TEST---"."\n", 2);
         if ( exists ($hash_omniscient->{'level3'}{'start_codon'}{$id_level2} ) ){
           dual_print( $log, "start_codon already exists for $id_level2\n", 2);
         }
@@ -122,7 +122,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
           if ( !$start_codon ){
             dual_print( $log, " Try find a start codon in the CDS (GFF and GTF case) \n", 2);
             $start_codon = next_codon_is_start(\@cds_feature_list, -3);
-          }
+          } 
           if ( $opt_extend and !$start_codon ){
             dual_print( $log, " Try to extend the sequence to find a start codon further...\n", 2);
             $extension += 3;  
@@ -217,11 +217,11 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
         #-------------------------
         #       STOP CASE
         #-------------------------
-        dual_print( $log, "---STOP CODON TEST---\n", 2);
+        dual_print( $log, "---STOP CODON TEST---"."\n", 2);
         if ( exists ($hash_omniscient->{'level3'}{'stop_codon'}{$id_level2} ) ){
           dual_print( $log, "stop_codon already exists for $id_level2\n", 2);
         }
-        else{
+        else{ 
           # ----- Find a stop codon -----
           # Need to try last codon for GFF and codon after CDS in case of GTF
           my $extension = 0;
@@ -229,10 +229,10 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
           if ( !$terminal_codon ){
             dual_print( $log, " Try find a stop codon in the CDS (GFF case) \n", 2);
             $terminal_codon = next_codon_is_ter(\@cds_feature_list, -3);
-          }
+          } 
           if ( !$terminal_codon ){
-              dual_print( $log, " Try find a stop codon next codon out of the CDS (GTF case) \n", 2);
-            $terminal_codon = next_codon_is_ter(\@cds_feature_list, 3);
+            dual_print( $log, " Try find a stop codon next codon out of the CDS (GTF case) \n", 2);
+            $terminal_codon = next_codon_is_ter(\@cds_feature_list, 0);
 
             if($strand eq "+"){
               $cds_feature_list[-1]->end( $cds_feature_list[-1]->end() + 3);
@@ -299,7 +299,7 @@ foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){
                 $stop_feature->end($cds_feature_list[$cpt]->end());
                 $size += $size + $cds_feature_list[$cpt]->end()-$cds_feature_list[$cpt]->start()+1;
               }
-              #dual_print( $log, $cds_feature_list[$cpt]->end()."\n";
+              #print $cds_feature_list[$cpt]->end()."\n";
               $stop_feature->start($cds_feature_list[$cpt]->end()-$step+1);
             }
             else{
@@ -346,9 +346,9 @@ if ($opt_extend){
   print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 }
 
-dual_print( $log, "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n");
-dual_print( $log, "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n");
-dual_print( $log, "bye bye\n");
+dual_print( $log, "$counter_start_added start codon added and $counter_start_missing CDS do not start by a start codon\n" );
+dual_print( $log, "$counter_end_added stop codon added and $counter_end_missing CDS do not end by a stop codon \n" );
+dual_print( $log, "bye bye\n" );
 
       #########################
       ######### END ###########
@@ -425,7 +425,7 @@ sub next_codon_is_start{
   dual_print( $log, "  codon tested is = $codon \n", 2);
 
   if ( !is_ambiguous_codon($codon) and $codon_table->is_start_codon( $codon )){
-    dual_print( $log, "  It is considered as a start codon!\n", 2);;
+    dual_print( $log, "  It is considered as a start codon!\n", 2);
     return 1;
   } else{
     return 0;
