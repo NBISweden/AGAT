@@ -114,10 +114,10 @@ Parsing Finished
 
 Formating output to GFF3
 Formating output to GFF3
-There are 60 five_prime_utr
-Among them 2 have over or equal 5 exons.
 There are 61 three_prime_utr
 Among them 0 have over or equal 5 exons.
+There are 60 five_prime_utr
+Among them 2 have over or equal 5 exons.
 There are 66 features that have UTRs (some at both sides some only at one extremity)
 Among them 3 have over or equal UTR (5' and/or 3') exons.
 

@@ -242,7 +242,11 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}) {
 if($opt_utr3 or $opt_utr5 or $opt_bst){
   # print preliminary results
   my $stringPrint="";
-  foreach my $key (keys %UTRoverview) {
+  my %order = (
+    three_prime_utr => 1,
+    five_prime_utr  => 2,
+  );
+  foreach my $key (sort { ($order{$a} // 99) <=> ($order{$b} // 99) || $a cmp $b } keys %UTRoverview) {
     $stringPrint.="There are ".scalar $UTRoverview{$key}." $key\n";
     my $total=0;
     foreach my $value  ( sort {$b <=> $a} keys %{$UTRdistribution{$key}}){
@@ -324,7 +328,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     my $nbGene = keys %geneName;
     $stringPrint.= "According to the parameters $sizeList RNA discarded from $nbGene genes\n";
     my @listIDl2discardedUniq = uniq(@listIDl2discarded);
-    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discarded);
+    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discardedUniq);
     print_omniscient( {omniscient => $omniscient_discarded, output => $ostreamUTRdiscarded} );
 
   }
