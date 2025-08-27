@@ -8,16 +8,16 @@ use AGAT::AGAT;
 my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f=s',         'Input reference gff file', { required => 1 } ],
-	[ 'prefix=s'         'Prefix for generated IDs' ],
-	[ 'ensembl!'         'Use Ensembl-style 11-digits numbering (e.g. G00000000022)' ],
-	[ 'tair!'            'Use TAIR composite ID style (e.g. AT1G01020.1-exon1)' ],
+    [ 'prefix=s',        'Prefix for generated IDs' ],
+    [ 'ensembl!',        'Use Ensembl-style 11-digits numbering (e.g. G00000000022)' ],
+    [ 'tair!',           'Use TAIR composite ID style (e.g. AT1G01020.1-exon1)' ],
     [ 'type_dependent!', 'Type dependent feature numbering' ],
-	[ 'nb=i',            'Starting number for IDs',
+    [ 'nb=i',            'Starting number for IDs',
                               { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
     [ 'gap=i',           'Extra numerical gap between IDs',
                               { default => 0, callbacks => { positive => sub { shift >= 0 or die 'must be >= 0'    } } } ],
     [ 'p|t|l=s@',        'Feature level/tag to process' ],
-    [ 'collective!',     'Use collective ID for discontinuous features like CDS, UTR' ]
+    [ 'collective!',     'Use collective ID for discontinuous features like CDS, UTR' ],
 );
 
 my $opt_gff           = $opt->gff;
