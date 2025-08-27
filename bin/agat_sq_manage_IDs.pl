@@ -11,9 +11,7 @@ my $header = get_agat_header();
 my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
     $header,
     [ 'file|input|gff|i=s', 'Input GTF/GFF file', { required => 1 } ],
-    [ 'of=i',
-      'Output format',
-      { callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    # [ 'of=i', 'Output format' ], # currently ineffective (as of https://github.com/NBISweden/AGAT/commit/a14978012da04e62f83ea0d5bb7d6861de361ea5)
 );
 
 my $inputFile = $opt->file;
@@ -26,8 +24,6 @@ if ( my $log_name = $config->{log_path} ) {
       or die "Can not open $log_name for printing: $!";
     dual_print( $log, $header,  3 );
 }
-
-$config->{gff_output_version} = $outformat if defined $outformat;
 
 my $start_run = time();
 
@@ -133,9 +129,10 @@ of impacted features.
 
 STRING: Input GTF/GFF file.
 
-=item B<--of>
-
-Output format, if no ouput format is given, the same as the input one detected will be used. Otherwise you can force to have a gff version 1 or 2 or 3 by giving the corresponding number.
+# currently ineffective (as of https://github.com/NBISweden/AGAT/commit/a14978012da04e62f83ea0d5bb7d6861de361ea5)
+# =item B<--of>
+# 
+# Output format, if no ouput format is given, the same as the input one detected will be used. Otherwise you can force to have a gff version 1 or 2 or 3 by giving the corresponding number.
 
 
 =back
