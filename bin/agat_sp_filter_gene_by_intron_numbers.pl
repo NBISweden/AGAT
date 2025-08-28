@@ -2,52 +2,46 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
-use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_test="=";
-my $opt_output= undef;
-my $opt_nb = 0;
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my @copyARGV  = @ARGV;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  't|test=s'            => \$opt_test,
-                  "nb|number|n=i"       => \$opt_nb,
-                  'o|output=s'          => \$opt_output,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
+    [ 'test|t=s', 'Test to apply', {
+        default   => '=',
+        callbacks => {
+            allowed => sub {
+                shift =~ /^(?:<|>|<=|>=|=)$/
+                  or die 'Test to apply must be one of <, >, <=, >= or =';
+            },
+        },
+    } ],
+    [ 'number|nb|n=i', 'Number of introns', {
+        default   => 0,
+        callbacks => {
+            positive => sub { shift() >= 0 or die 'Number of introns must be non-negative' },
+        },
+    } ],
+);
+
+my $opt_gff     = $opt->gff;
+my $opt_test    = $opt->test;
+my $opt_nb      = $opt->number;
+my $opt_output  = $config->{output};
+my $opt_verbose = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\n1) Input reference gff file: --gff\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ###############
 # Manage Output
@@ -70,21 +64,13 @@ my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
 my $gffout_notok = prepare_gffout($config, $gffout_notok_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
-#Manage test option
-if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";exit;
-}
-
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "We will select genes that contain $opt_test $opt_nb introns.\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -94,7 +80,7 @@ else{ print $stringPrint; }
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -165,10 +151,10 @@ my $test_fail = scalar @list2;
 
 $stringPrint = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
 $stringPrint .= "$test_fail remaining genes that not pass the test.\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+dual_print($log, $stringPrint);
+print $ostreamReport $stringPrint if $ostreamReport;
+
+close $log if $log;
 
 #######################################################################################################################
         ####################

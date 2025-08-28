@@ -3,60 +3,48 @@
 use strict;
 use warnings;
 use Pod::Usage;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $opt_output;
-my $gff;
-my $relax;
-my $gtf_version;
-my $verbose;
-my $help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|gtf|i=s', 'Input GFF/GTF file', { required => 1 } ],
+    [
+        'gtf_version=s',
+        'GTF version to output',
+        {
+            callbacks => {
+                'valid version' => sub {
+                    my %allowed = map { $_ => 1 } qw(1 2 2.1 2.2 2.5 3 relax);
+                    return 1 if $allowed{ $_[0] };
+                    die
+                      "$_[0] is not a valid GTF version. Please choose one among this list: 1 2 2.1 2.2 2.5 3 relax\n";
+                }
+            }
+        }
+    ],
+);
 
+my $opt_output  = $opt->out;
+my $gff         = $opt->gff;
+my $gtf_version = $opt->gtf_version;
 
-if( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"                   => \$help,
-    "gff|gtf|i=s"              => \$gff,
-	"gtf_version=s"            => \$gtf_version,
-	"verbose|v!"               => \$verbose,
-    "outfile|output|o|out=s"   => \$opt_output))
-{
-    pod2usage( { -message => "Failed to parse command line.",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
 
-# Print Help and exit
-if ($help) {
-    pod2usage( { -message => "$header\n",
-                 -verbose => 99,
-                 -exitval => 0 } );
+# resolve version
+if ( defined $gtf_version ) {
+    dual_print( $log,
+        "GTF version $gtf_version selected by command line interface.\n");
 }
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameters is mandatory:\nInput gff/gtf file (--gff or --gtf).\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-# check GTF versions
-if ($gtf_version){
-    my @gtf_version_list = (1, 2, 2.1, 2.2, 2.5, 3, "relax");
-    my %gtf_version_hash = map { $_ => 1 } @gtf_version_list;
-    if(! exists_keys (\%gtf_version_hash, ("$gtf_version") ) ) {
-        print "$gtf_version is not a valid GTF version. Please choose one among this list: @gtf_version_list\n"; exit;
-    }
-    print "GTF version $gtf_version selected by command line interface.\n";
-} else {
+else {
     $gtf_version = $config->{gtf_output_version};
-    print "GTF version $gtf_version selected from the agat config file.\n";
+    dual_print( $log,
+        "GTF version $gtf_version selected from the agat config file.\n");
 }
 
 # Update config
@@ -67,13 +55,13 @@ $config->{"output_format"}="gtf";
 # Manage output file #
 my $gffout = prepare_gffout($config, $opt_output);
 
-print "Reading input file\n";
+dual_print( $log, "Reading input file\n");
 ######################
 ### Parse GFF input #
 ### Read gff input file.
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config });
-print "converting to GTF$gtf_version\n";
+dual_print( $log, "converting to GTF$gtf_version\n");
 # Now print  omniscient
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

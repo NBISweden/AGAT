@@ -5,45 +5,26 @@ use warnings;
 use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
-use Getopt::Long;
-use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $spliceID = 1;
-my $opt_file;
-my $opt_output=undef;
-my $opt_help = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+);
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'c|config=s'          => \$config,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $opt_file   = $opt->gff;
+my $opt_output = $config->{output};
+my $spliceID  = 1;
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
+my $verbose = $config->{verbose};
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! defined( $opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data GFF/GTF file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # #######################
 # # START Manage Option #
@@ -67,7 +48,7 @@ my $gffout = prepare_gffout($config, $opt_output);
   ### Parse GFF input #
   my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
                                                                    config => $config });
-  print("Parsing Finished\n\n");
+  dual_print($log, "Parsing Finished\n");
   ### END Parse GFF input #
   #########################
 
@@ -92,7 +73,7 @@ my $splice_added=0;
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){dual_print($log, "Problem ! We didnt retrieve the level1 feature with id $id_l1\n");exit;}
 
       #####
       # get all level2
@@ -185,7 +166,7 @@ my $splice_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n";
+dual_print($log, "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n");
       #########################
       ######### END ###########
       #########################

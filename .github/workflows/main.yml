@@ -13,20 +13,22 @@ concurrency:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:  
 
-  # This workflow contains a second job called "build2"
-  build_perl536:
+  # Run tests on Perl 5.36
+  test:
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libdb-dev r-base
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       #- name: Checkout AGAT
@@ -37,21 +39,39 @@ jobs:
             perl-version: '5.36'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install
+            install-modules: File::ShareDir::Install Getopt::Long::Descriptive
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      - name: generate Makefile
+        run: perl Makefile.PL
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
-      - name: test
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make test
+      - name: test_config
+        run: HARNESS_OPTIONS=j$(nproc) make test_config
+      - name: test_agat_convert
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_convert
+      - name: test_agat_add
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_add
+      - name: test_agat_sp_extract
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_extract
+      - name: test_agat_sp_filter
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_filter
+      - name: test_agat_sp_fix
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_fix
+      - name: test_agat_sp_manage
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_manage
+      - name: test_agat_other
+        run: HARNESS_OPTIONS=j$(nproc) make test_agat_other
+      - name: test_gff
+        run: HARNESS_OPTIONS=j$(nproc) make test_gff
 
-  # This workflow contains a first job called "build"
-  build_perl530:
+
+  # Run tests with coverage on Perl 5.30
+  test_coverage:
+    needs: test
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
@@ -63,10 +83,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libdb-dev r-base
+          version: 1.0
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
@@ -77,16 +97,20 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls
+            install-modules: File::ShareDir::Install Getopt::Long::Descriptive Devel::Cover@1.44 Devel::Cover::Report::Coveralls
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      - name: generate Makefile
+        run: perl Makefile.PL
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
-        run: cover -test -report Coveralls
+        run: |
+          export HARNESS_OPTIONS=j$(nproc)
+          cover -test -report Coveralls

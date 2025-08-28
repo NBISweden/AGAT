@@ -8,44 +8,45 @@ use Try::Tiny;
 use File::Basename;
 use IO::File;
 use Pod::Usage;
-use Getopt::Long qw(:config no_auto_abbrev);
+use Getopt::Long::Descriptive;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $opt_reffile;
-my $opt_plot;
-my $opt_nbUTR;
-my $opt_bst=undef;
-my $opt_utr3=undef;
-my $opt_utr5=undef;
-my $opt_output=undef;
-my $opt_help = 0;
-my $DefaultUTRnb=5;
 
-my @copyARGV=@ARGV;
-print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
-                  'n|t|nb|number=i'         => \$opt_nbUTR,
-                  '3|three|three_prime_utr!'=> \$opt_utr3,
-                  '5|five|five_prime_utr!'  => \$opt_utr5,
-                  'b|both|bs!'              => \$opt_bst,
-                  'o|out|output=s'          => \$opt_output,
-                  'p|plot!'                 => \$opt_plot,
-                  'c|config=s'              => \$config,
-                  'h|help!'                 => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $cfg ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
+    [ 'number|n|t|nb=i',     'Threshold of exon\'s number of the UTR', 
+	                          { default => 5, 
+						        callbacks => { positive => sub { 
+			                      shift > 0 or die 'Exon number threshold must be > 0' 
+						      }}}],
+    [ 'mode' => hidden => { one_of => [
+            [ 'three|3|three_prime_utr' => 'Apply threshold on the 3\'UTR' ],
+            [ 'five|5|five_prime_utr'   => 'Apply threshold on the 5\'UTR' ],
+            [ 'both|b|bs'               => 'Apply threshold on both UTRs' ],
+        ] } ],
+    [ 'p|plot!', 'Allows to create an histogram in pdf of UTR sizes distribution' ],
+);
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+my $opt_reffile = $opt->gff;
+my $opt_nbUTR   = $opt->number;
+my $mode        = $opt->mode;
+my $opt_plot    = $opt->{plot};
+my $opt_output  = $opt->out;
+$config         = $cfg;
+my $opt_verbose = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+  open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
+dual_print( $log, $header, 3);
+
+my $opt_utr3 = ( $mode && $mode eq 'three' ) ? 1 : 0;
+my $opt_utr5 = ( $mode && $mode eq 'five' ) ? 1 : 0;
+my $opt_bst  = ( $mode && $mode eq 'both' ) ? 1 : 0;
 
 if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_plot) ) {
     pod2usage( {
@@ -54,21 +55,20 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
 if (defined($opt_output) ) {
-  my ($path,$ext);
-  ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+  my ($name,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
+  $opt_output = $path.$name;
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    my $msg = "The output directory choosen already exists. Please geve me another Name.\n";
+    dual_warn($log, $msg, 3);
+    exit();
   }
   else{
     mkdir $opt_output;
   }
-	$ostreamReport_file = $opt_output."/report.txt";
+  $ostreamReport_file = $opt_output."/report.txt";
 }
 
 my $ostreamReport = prepare_fileout($ostreamReport_file);
@@ -78,15 +78,13 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
-if (! $opt_nbUTR){
-  $opt_nbUTR=$DefaultUTRnb;
-}elsif(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
+if(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
 if($opt_utr3 or $opt_utr5 or $opt_bst){
   $string1 .= "Genes with more than $opt_nbUTR UTRs will be reported.\n";
 }
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+dual_print($log, $string1, $opt_output ? $opt_verbose : 3);
 
 # Check if dependencies for plot are available
 if($opt_plot){
@@ -157,7 +155,7 @@ my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
                                                                  config => $config
                                                               });
-print("Parsing Finished\n\n");
+dual_print($log, "Parsing Finished\n\n");
 ### END Parse GFF input #
 #########################
 
@@ -245,7 +243,11 @@ foreach my $tag_l2 (keys %{$hash_omniscient->{'level2'}}) {
 if($opt_utr3 or $opt_utr5 or $opt_bst){
   # print preliminary results
   my $stringPrint="";
-  foreach my $key (keys %UTRoverview) {
+  my %order = (
+    three_prime_utr => 1,
+    five_prime_utr  => 2,
+  );
+  foreach my $key (sort { ($order{$a} // 99) <=> ($order{$b} // 99) || $a cmp $b } keys %UTRoverview) {
     $stringPrint.="There are ".scalar $UTRoverview{$key}." $key\n";
     my $total=0;
     foreach my $value  ( sort {$b <=> $a} keys %{$UTRdistribution{$key}}){
@@ -327,7 +329,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     my $nbGene = keys %geneName;
     $stringPrint.= "According to the parameters $sizeList RNA discarded from $nbGene genes\n";
     my @listIDl2discardedUniq = uniq(@listIDl2discarded);
-    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discarded);
+    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discardedUniq);
     print_omniscient( {omniscient => $omniscient_discarded, output => $ostreamUTRdiscarded} );
 
   }
@@ -351,9 +353,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 
   #Print Info OUtput
   print $ostreamReport $stringPrint;
-  if($opt_output){
-    print $stringPrint;
-  }
+  dual_print($log, $stringPrint, $opt_output ? $opt_verbose : 3);
 }
 
 ############################

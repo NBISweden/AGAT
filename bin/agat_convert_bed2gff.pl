@@ -3,56 +3,43 @@
 use strict;
 use warnings;
 use Clone;
-use Pod::Usage;
-use Getopt::Long;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $bed = undef;
-my $source_tag = "data";
-my $primary_tag = "gene";
-my $inflating_off = undef;
-my $inflate_type = "exon";
-my $verbose = undef;
-my $help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'bed=s', 'Input BED file', { required => 1 } ],
+    [ 'source=s', 'Data source', { default => 'data', callbacks => {
+            'no whitespace' => sub { $_[0] !~ /\s/ or die 'Whitespace not allowed in source' }
+        } } ],
+    [ 'primary_tag=s', 'Primary tag', { default => 'gene', callbacks => {
+            'no whitespace' => sub { $_[0] !~ /\s/ or die 'Whitespace not allowed in primary_tag' }
+        } } ],
+    [ 'inflate_off!', 'Do not inflate features' ],
+    [ 'inflate_type=s', 'Feature type to inflate', {
+            default   => 'exon',
+            callbacks => {
+                allowed => sub { shift =~ /^(?:exon|cds)$/i or die 'inflate_type must be exon or cds' },
+            },
+        } ],
+);
 
+my $bed          = $opt->bed;
+my $source_tag   = $opt->source;
+my $primary_tag  = $opt->primary_tag;
+my $inflating_off = $opt->inflate_off // 0;
+my $inflate_type = $opt->inflate_type;
+my $opt_verbose  = $config->{verbose};
 
-if( !GetOptions(  	'c|config=s'     => \$config,
-					"h|help"         => \$help,
-					"bed=s"          => \$bed,
-					"source=s"       => \$source_tag,
-					"verbose|v!"     => \$verbose,
-					"primary_tag=s"  => \$primary_tag,
-					"inflate_off!"   => \$inflating_off,
-					"inflate_type=s" => \$inflate_type,
-					"outfile|output|o|out|gff=s" => \$outfile ) )
-{
-    pod2usage( { -message => "Failed to parse command line.\n",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($help) {
-	pod2usage( {-message => "$header\n",
-	            -verbose => 99,
-	            -exitval => 0 } );
-}
-
-if ( ! (defined($bed)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput bed file (--bed).\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $config->{output} );
 
 # Ask for specific GFF information
 if (!$source_tag or !$primary_tag){
@@ -92,7 +79,10 @@ my $inflate_right_cpt=0;
 while( my $line = <$fh>)  {
   chomp $line;
 
-	if ($line =~ /#/){ print "skip commented line: $line" if ($verbose); next; } #skip commented lines
+        if ($line =~ /#/) {
+            dual_print( $log, "skip commented line: $line\n", 2);
+            next;
+        }    #skip commented lines
 
   my @fields = split /\t/, $line;
 	if (! skip_line($fields[0])){
@@ -104,8 +94,8 @@ while( my $line = <$fh>)  {
 
     my $fieldNumber=$#fields+1;
     if($fieldNumber < 3 or $fieldNumber >12){
-      print "Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !",
-      "\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n";exit;
+      dual_warn($log, "Problem with that line:\n$line\nA bed file has at least three required fields ! 9 others fields are optional. So, a maximum of 12 fields is allowed !\n\n Your line contains $fieldNumber fields. Check the sanity of your file. Bye Bye.\n", 2);
+      exit;
     }
 
     my $cptField=0;
@@ -250,7 +240,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     $gffout->write_feature($feature);
 
 		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
-			print "inflating $inflating_off\n" if ($verbose);
+            dual_print( $log, "inflating $inflating_off\n", 2);
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -259,7 +249,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 			$l3_size_line =~ s/^\s+//; # remove spaces
 			my @l3_size_list = split /,/, $l3_size_line;
 
-			if ($#l3_size_list != $#l3_start_list){warn "Error: Number of elements in blockSizes (11th column) blockStarts (12th column) is different!\n";}
+                    if ($#l3_size_list != $#l3_start_list){dual_warn( $log, "Error: Number of elements in blockSizes (11th column) blockStarts (12th column) is different!\n", 2)}
 
 			my $l3_indice=-1;
 			my $phase = "." ;
@@ -426,11 +416,11 @@ sub skip_line{
 		$skip=1;
 	}
 	if($field0 =~ /^track/){
-		print "Skip track line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+        dual_print( $log, "Skip track line, we skip it because we cannot render it properly in a gff file.\n", 2);
 		$skip=1;
 	}
 	if($field0 =~ /^browser/){
-		print "Skip browser line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+        dual_print( $log, "Skip browser line, we skip it because we cannot render it properly in a gff file.\n", 2);
 		$skip=1;
 	}
 	return $skip;

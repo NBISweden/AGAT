@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
 use POSIX qw(strftime);
 use Pod::Usage;
@@ -10,46 +9,34 @@ use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $primaryTagCopy="level2";
-my $primaryTagPaste="level3";
-my $opt_output= undef;
-my $attributes="all_attributes";
-my $opt_gff = undef;
-my $opt_verbose = undef;
-my $opt_help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s',  'Input reference gff file', { required => 1 } ],
+    [ 'feature_copy|fc=s',    'Feature types to copy from', { default => 'level2' } ],
+    [ 'feature_paste|fp=s',   'Feature types to paste to', { default => 'level3' } ],
+    [ 'attribute|tag|att|a=s', 'Comma-separated attributes to move', { default => 'all_attributes',
+        callbacks => { valid => sub {
+            my @att = split(/,/, shift);
+            die 'ID attribute cannot be modified !'     if grep { lc($_) eq 'id' } @att;
+            die 'Parent attribute cannot be modified !' if grep { lc($_) eq 'parent' } @att;
+            return 1;
+        } } } ],
+);
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
-                  "feature_copy|fc=s"    => \$primaryTagCopy,
-                  "feature_paste|fp=s"   => \$primaryTagPaste,
-                  'o|output=s'           => \$opt_output,
-                  "a|tag|att|attribute=s"  => \$attributes,
-                  'v|verbose!'           => \$opt_verbose,
-                  'c|config=s'           => \$config,
-                  'h|help!'              => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $opt_gff         = $opt->gff;
+my $primaryTagCopy  = $opt->feature_copy;
+my $primaryTagPaste = $opt->feature_paste;
+my $attributes      = $opt->attribute;
+my $opt_output      = $opt->out;
+my $opt_verbose     = $config->{verbose};
+
+my @copyARGV = @ARGV;
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
 }
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $opt_gff  ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory: Input reference gff file: --gff\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+dual_print( $log, $header, 3);
 
 ###############
 # Manage Output
@@ -118,32 +105,26 @@ my @attListOk;
 if ($attributes){
 
   if ($attributes eq "all_attributes"){
-    print "All attributes will be used !\n";
+    dual_print($log, "All attributes will be used !\n");
     $attHashOk{"all_attributes"}++;
   }
   else{
     my @attList= split(/,/, $attributes);
-
     foreach my $attribute (@attList){
-
-      if($attribute == 0){ # Attribute alone
-        #check for ID attribute
-        if(lc($attribute) eq "id" ){print "ID attribute cannot be modified !\n";exit;}
-        #check for Parent attribute
-        if(lc($attribute) eq "parent"){print "Parent attribute cannot be modified !\n";exit;}
+      if($attribute == 0){
         $attHashOk{$attribute}++;
         push(@attListOk, $attribute);
       }
     }
   }
-  print "\n";
+  dual_print($log, "\n");
 }
 
 # start with some interesting information
 my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $stringPrint .= "\nusage: $0 @copyARGV\n";
 $stringPrint .= "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
-print $stringPrint;
+dual_print($log, $stringPrint);
 
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -154,7 +135,7 @@ my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
                                                                   config => $config
                                                                 });
-print("Parsing Finished\n");
+dual_print($log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 # sort by seq id

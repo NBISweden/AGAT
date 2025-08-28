@@ -4,52 +4,28 @@ use strict;
 use warnings;
 use Carp;
 use Pod::Usage;
-use Getopt::Long;
-use IO::File ;
+use Getopt::Long::Descriptive;
+use IO::File;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $inputFile=undef;
-my $outfile=undef;
-my $opt_help = 0;
-my $interval=1;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'file|input|gff=s', 'Input GFF file', { required => 1 } ],
+    [ 'i|interval=i', 'Interval (1 or 2)',
+      { default => 1,
+        callbacks => { valid => sub { $_[0] == 1 || $_[0] == 2 or die 'interval must be 1 or 2. Have a look to the help to know more' } } } ],
+);
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (
-      'file|input|gff=s' => \$inputFile,
-      'i|interval=i'     => \$interval,
-      'o|output=s'       => \$outfile,
-      'c|config=s'       => \$config,
-      'h|help!'          => \$opt_help )  )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $inputFile = $opt->file;
+my $interval  = $opt->i;
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ((!defined($inputFile)) ){
-   pod2usage( { -message => "$header\nAt least 1 parameter is mandatory: -i",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-if (( $interval > 2 or $interval < 1) ){
-   pod2usage( { -message => 'interval must be 1 or 2. Have a look to the help to know more',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage input gff file
 my $format = $config->{force_gff_input_version};
@@ -57,6 +33,7 @@ if(! $format ){ $format = select_gff_format($inputFile); }
 my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
 
 # Manage Output
+my $outfile = $config->{output};
 my $gffout = prepare_gffout($config, $outfile);
 my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
 
@@ -65,7 +42,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print($log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my $count=0;
@@ -108,7 +85,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print($log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -118,12 +95,14 @@ while (my $feature = $ref_in->next_feature() ) {
 $count++;
 
 if($count > 0){
-  print "$count line added !\n";
+  dual_print($log, "$count line added !\n");
 }
-else{print "No line added !\n";}
+else{dual_print($log, "No line added !\n");}
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 
 
 sub _write_bucket{

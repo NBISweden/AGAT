@@ -4,53 +4,33 @@ use strict;
 use warnings;
 use Clone 'clone';
 use Pod::Usage;
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Bio::Tools::Genscan;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $genscan = undef;
-my $seq_id = "unknown";
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'genscan|g=s', 'Input genscan file', { required => 1 } ],
+    [ 'seqid=s',     'Sequence ID',       { default  => 'unknown' } ],
+);
+
+my $outfile = $opt->out;
+my $genscan = $opt->genscan;
+my $seq_id  = $opt->seqid;
 my @list_exon_types = ("Init", "Intr", "Term", "Sngl");
 my %hash_raw;
 my %hash_uniqID;
-my $verbose = undef;
-my $help;
 
-
-if( !GetOptions(    'c|config=s'                => \$config,
-					"h|help"                    => \$help,
-					"g|genscan=s"               => \$genscan,
-					"seqid=s"                   => \$seq_id,
-					"verbose|v!"                => \$verbose,
-					"outfile|output|o|out|gff=s" => \$outfile ) )
-{
-    pod2usage( { -message => "Failed to parse command line.\n",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($help) {
-	pod2usage( {-message => "$header\n",
-	            -verbose => 99,
-	            -exitval => 0 } );
-}
-
-if ( ! (defined($genscan)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput genscan file (--genscan).\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 ## MAIN ##############################################################
 

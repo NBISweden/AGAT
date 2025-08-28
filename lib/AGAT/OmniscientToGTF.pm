@@ -12,6 +12,7 @@ use AGAT::OmniscientTool;
 use AGAT::Utilities;
 use AGAT::Levels;
 use Exporter;
+use AGAT::AGAT ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_omniscient_as_gtf);
@@ -28,16 +29,25 @@ our @EXPORT = qw(print_omniscient_as_gtf);
 
 # --------------------------- SHARED FUNCTIONS ---------------------------
 
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+	my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	open( $log, '>', $log_name )
+	  or die "Can not open $log_name for printing: $!";
+}
+
+
 sub print_omniscient_as_gtf{
 
 	my ($args) = @_;
+  
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_omniscient_as_gtf. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for print_omniscient_as_gtf. Please check the call.\n");exit;	}
 	
 	# Fill the parameters
 	my ($hash_omniscient, $gtf_out);
-	if( defined($args->{omniscient})) { $hash_omniscient = $args->{omniscient}; } else{ print "Omniscient parameter mandatory to use print_omniscient_as_gtf!"; exit; }
-	if( defined($args->{output})) { $gtf_out = $args->{output}; } else{ print "Output parameter mandatory to use print_omniscient_as_gtf!"; exit; }
+	if( defined($args->{omniscient})) { $hash_omniscient = $args->{omniscient}; } else{ dual_warn($log, "Omniscient parameter mandatory to use print_omniscient_as_gtf!"); exit; }
+	if( defined($args->{output})) { $gtf_out = $args->{output}; } else{ dual_warn($log, "Output parameter mandatory to use print_omniscient_as_gtf!"); exit; }
 
 	my $gtf_version = $hash_omniscient->{"config"}{"gtf_output_version"};
 	my $verbose = $hash_omniscient->{"config"}{"verbose"};
@@ -60,10 +70,10 @@ sub print_omniscient_as_gtf{
 	#################
 	foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_sortBySeq}){ # loop over all the feature level1
 
-		print "seqid $seqid\n" if $debug;
+		dual_print($log, "seqid $seqid\n") if $debug;
 		foreach my $primary_tag_key_level1 (sort {$a cmp $b} keys %{$hash_omniscient->{'level1'}}){
 			foreach my $feature_level1 ( @{$hash_sortBySeq->{$seqid}{$primary_tag_key_level1}} ){
-				print "\n\n\nlevel1: ".$feature_level1->gff_string."\n" if $debug;
+				dual_print($log, "\n\n\nlevel1: ".$feature_level1->gff_string."\n") if $debug;
 				my $id_tag_key_level1 = lc($feature_level1->_tag_value('ID'));
 
 				# Gene ID level1
@@ -82,7 +92,7 @@ sub print_omniscient_as_gtf{
 
 					if ( exists_keys ($hash_omniscient, ('level2', $primary_tag_key_level2, $id_tag_key_level1) ) ){
 						foreach my $feature_level2 ( sort {$a->start <=> $b->start} @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-							print "\nlevel2: ".$feature_level2->gff_string."\n" if $debug;
+							dual_print($log, "\nlevel2: ".$feature_level2->gff_string."\n") if $debug;
 
 							# Gene ID level2
 							my $gene_id_mrna_att=undef;
@@ -107,7 +117,7 @@ sub print_omniscient_as_gtf{
 							foreach my $primary_tag_key_level3 ( sort {$a cmp $b} keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
 								if ( exists_keys ($hash_omniscient, ('level3', $primary_tag_key_level3, $level2_ID) ) ){
 									foreach my $feature_level3 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
-										print "level3: ".$feature_level3->gff_string."\n" if $debug;
+										dual_print($log, print "level3: ".$feature_level3->gff_string."\n") if $debug;
 										#Get level3 gene_id
 										if(! $level3_gene_id){
 											if($feature_level3->has_tag('gene_id')){
@@ -166,7 +176,7 @@ sub print_omniscient_as_gtf{
 											$feature_level3->add_tag_value('gene_id', $gene_id);
 										}
 										elsif($feature_level3->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+											dual_warn( $log, "Level3 ".$feature_level3->_tag_value('ID').": We replace the gene_id ".$feature_level3->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 																create_or_replace_tag($feature_level3, $previous_tag_l1, $feature_level3->_tag_value('gene_id'));
 																create_or_replace_tag($feature_level3, 'gene_id', $gene_id);
 										}
@@ -175,7 +185,7 @@ sub print_omniscient_as_gtf{
 											$feature_level3->add_tag_value('transcript_id', $transcript_id);
 										}
 										elsif($feature_level3->_tag_value('transcript_id') ne $transcript_id){ #transcript_id different, we replace it.
-											warn("Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+											dual_warn( $log, "Level3 ".$feature_level3->_tag_value('ID').": We replace the transcript_id ".$feature_level3->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
 											create_or_replace_tag($feature_level3, $previous_tag_l2, $feature_level3->_tag_value('transcript_id'));
 											create_or_replace_tag($feature_level3, 'transcript_id', $transcript_id);
 										}
@@ -188,7 +198,7 @@ sub print_omniscient_as_gtf{
 								$feature_level2->add_tag_value('gene_id', $gene_id);
 							}
 							elsif($feature_level2->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+								dual_warn( $log, "Level2 ".$feature_level2->_tag_value('ID').": We replace the gene_id ".$feature_level2->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l1, $feature_level2->_tag_value('gene_id'));
 								create_or_replace_tag($feature_level2, 'gene_id', $gene_id);
 							}
@@ -197,7 +207,7 @@ sub print_omniscient_as_gtf{
 								$feature_level2->add_tag_value('transcript_id', $transcript_id);
 							}
 							elsif($feature_level2->_tag_value('transcript_id') ne $transcript_id){ #gene_id transcript_id, we replace it.
-								warn("Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
+								dual_warn( $log, "Level2 ".$feature_level2->_tag_value('ID').": We replace the transcript_id ".$feature_level2->_tag_value('transcript_id')." by ".$transcript_id.". We save original transcript_id into $previous_tag_l2 attribute.\n");
 								create_or_replace_tag($feature_level2, $previous_tag_l2, $feature_level2->_tag_value('transcript_id'));
 								create_or_replace_tag($feature_level2, 'transcript_id', $transcript_id);
 							}
@@ -211,7 +221,7 @@ sub print_omniscient_as_gtf{
 					$feature_level1->add_tag_value('gene_id', $gene_id);
 				}
 				elsif($feature_level1->_tag_value('gene_id') ne $gene_id) { #gene_id different, we replace it.
-					warn("Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
+					dual_warn( $log, "Level1 ".$feature_level1->_tag_value('ID').": We replace the gene_id ".$feature_level1->_tag_value('gene_id')." by ".$gene_id.". We save original gene_id into $previous_tag_l1 attribute.\n");
 					create_or_replace_tag($feature_level1, $previous_tag_l1, $feature_level1->_tag_value('gene_id'));
 					create_or_replace_tag($feature_level1,'gene_id', $gene_id);
 				}
@@ -242,7 +252,7 @@ sub _does_id_exist{
 	my $result=0;
 
 	if( exists_keys($hash_to_check,(lc($id))) ){
-		warn "$id_type $id has already been used earlier, I will use another uniq id value.\n";
+		dual_warn( $log, "$id_type $id has already been used earlier, I will use another uniq id value.\n");
 		$result = 1;
 	}
 
@@ -259,13 +269,13 @@ sub _convert_feature_type{
 	my $standalones = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'standalone');
 
 	# all l1 are gene now
-	foreach my $tag_l1 ( keys %{$hash_omniscient->{'level1'}}){
-		if(exists_keys($topfeatures,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
-		if(exists_keys($standalones,($tag_l1))){ print "throw $tag_l1\n" if $verbose; next; }
+        foreach my $tag_l1 ( sort keys %{$hash_omniscient->{'level1'}}){
+		if(exists_keys($topfeatures,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
+		if(exists_keys($standalones,($tag_l1))){ dual_print($log, "throw $tag_l1\n"); next; }
 
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 			if (lc($tag_l1) ne "gene"){
-				print "convert $tag_l1 to gene feature\n" if $verbose;
+				dual_print($log, "convert $tag_l1 to gene feature\n");
 				my $feature = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 				create_or_replace_tag( $feature, "original_biotype", $tag_l1 );
 				$feature->primary_tag("gene");
@@ -326,7 +336,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+                                                   dual_warn($log, "Warning: stop codon longer than 3 nucleotides for $level2_ID\n", 2);
 											}
 										}
 									}
@@ -354,7 +364,7 @@ sub _convert_feature_type{
 												}
 											}
 											else{
-												print "Warning: stop codon longer than 3 nucleotides for $level2_ID\n";
+                                                    dual_warn($log, "Warning: stop codon longer than 3 nucleotides for $level2_ID\n", 2);
 											}
 										}
 									}
@@ -524,7 +534,7 @@ sub _deal_with_double_attributes{
 	if ($feature->has_tag('gene_id')){
 		my @gene_id_att = $feature->get_tag_values('gene_id');
 		if (scalar(@gene_id_att) > 1){
-			warn("Gene_id have several values, we will keep only the first one.\n");
+			dual_warn( $log, "Gene_id have several values, we will keep only the first one.\n");
 			my $gene_id = shift @gene_id_att; # get first value
 			$feature->remove_tag('gene_id');
 			$feature->add_tag_value('gene_id', $gene_id);
@@ -535,7 +545,7 @@ sub _deal_with_double_attributes{
 		my @transcript_id_att = $feature->get_tag_values('transcript_id');
 		if (scalar(@transcript_id_att) > 1){
 			my $transcript_id = shift @transcript_id_att; # get first value
-			warn("Transcript_id have several values, we will keep only the first one.\n");
+			dual_warn( $log, "Transcript_id have several values, we will keep only the first one.\n");
 			$feature->remove_tag('transcript_id'); 
 			$feature->add_tag_value('transcript_id', $transcript_id);
 			$feature->add_tag_value('agat_other_transcript_id', @transcript_id_att);

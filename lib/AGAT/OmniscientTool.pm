@@ -11,6 +11,7 @@ use Sort::Naturally;
 use Exporter;
 use AGAT::Utilities;
 use AGAT::Levels;
+use AGAT::AGAT ();
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_undef_value is_single_exon_gene get_most_right_left_cds_positions l2_has_cds
@@ -32,6 +33,13 @@ gather_and_sort_l1_by_seq_id_for_l1type collect_l1_info_sorted_by_seqid_and_loca
 remove_l1_and_relatives remove_l2_and_relatives remove_l3_and_relatives get_longest_cds_start_end
 check_mrna_positions check_features_overlap initialize_omni_from clean_clone
 create_omniscient get_cds_from_l2 merge_overlap_loci get_uniq_id );
+
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log_path} ) {
+    my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+}
 
 =head1 SYNOPSIS
 
@@ -136,7 +144,7 @@ sub complement_omniscients {
 			# Go through location from left to right ### !!
 			foreach my $location ( @{$omniscient2_sorted->{$locusID}{$tag_l1}} ) {
 				my $id1_l1 = lc($location->[0]);
-				print "\nlets look at $id1_l1.\n" if ($verbose >= 3);
+				dual_print($log, "\nlets look at $id1_l1.\n", 3);
 				my $take_it=1;
 
 				if( exists_keys($omniscient1_sorted, ($locusID,$tag_l1) ) ) {
@@ -151,24 +159,24 @@ sub complement_omniscients {
 						if($location2->[2] < $location->[1]) {next;}
 
 						# Let's check at Gene LEVEL
-						print  "location overlap at gene level check now level3.\n" if ($verbose >= 3);
+                                                dual_print($log, "location overlap at gene level check now level3.\n", 3);
 						if( location_overlap($location, $location2) ){ #location overlap at gene level check now level3
 							#let's check at CDS level (/!\ id1_l1 is corresponding to id from $omniscient2)
 							if(check_feature_overlap_from_l3_to_l1($omniscient2, $omniscient1, $id1_l1, $id2_l1)){ #If contains CDS it has to overlap at CDS level, otherwise any type of feature level3 overlaping is sufficient to decide that they overlap
-								print "$id2_l1 overlaps $id1_l1, we skip it.\n" if ($verbose >= 3);
+                                                                dual_print($log, "$id2_l1 overlaps $id1_l1, we skip it.\n", 3);
 								$take_it=undef; last;
 							}
-							print "$id2_l1 overlaps $id1_l1 overlap but not at CDS level.\n" if ($verbose >= 3);
+                                                        dual_print($log, "$id2_l1 overlaps $id1_l1 overlap but not at CDS level.\n", 3);
 						}
 						else{
-							print "$id2_l1 DO NOT OVERLAP $id1_l1.\n" if ($verbose >= 3);
+                                                        dual_print($log, "$id2_l1 DO NOT OVERLAP $id1_l1.\n", 3);
 						}
 					}
 				}
 
 				# We keep it because is not overlaping
 				if($take_it){
-					print "We take it : $id1_l1\n" if ($verbose >= 3);
+                                        dual_print($log, "We take it : $id1_l1\n", 3);
 
 					#look at size
 					my $still_take_it=undef;
@@ -236,9 +244,17 @@ sub complement_omniscients {
 # rename ID in hash_omniscient2 that already exist in hash_omniscient1
 sub rename_ID_existing_in_omniscient {
 
-	my ($hash_omniscient1, $hash_omniscient2, $verbose)=@_;
+        my ($hash_omniscient1, $hash_omniscient2, $verbose)=@_;
 
-	if(! $verbose){$verbose=1;}
+        if(! defined $verbose){
+                if(defined $AGAT::AGAT::CONFIG->{verbose}){
+                        $verbose = $AGAT::AGAT::CONFIG->{verbose};
+                }
+                else{
+                        $verbose = 1;
+                }
+        }
+
 
 	my $hash_whole_IDs = get_all_IDs($hash_omniscient1);
 	my $hash2_whole_IDs = get_all_IDs($hash_omniscient2);
@@ -324,7 +340,9 @@ sub rename_ID_existing_in_omniscient {
 			}
 		}
 	}
-	print "we renamed $resume_case cases\n" if($verbose and $resume_case);
+       if($resume_case){
+               dual_print($log, "we renamed $resume_case cases\n", 2);
+       }
 
 	return $hash_omniscient2;
 }
@@ -515,7 +533,7 @@ sub append_omniscient {
 # @input: 2 => hash, integer for verbosity
 # @output: 0
 sub merge_overlap_loci{
-	my ($log, $omniscient, $mRNAGeneLink, $verbose) = @_;
+	my ($log, $omniscient, $mRNAGeneLink, $local_verbose) = @_;
 	my $resume_merge=undef;
   	my $resume_identic=0;
 
@@ -559,7 +577,7 @@ sub merge_overlap_loci{
 							#they overlap should give them the same name
 							$resume_merge++;
 
-							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 0); # print only in log
+							dual_print($log, "$id_l1 and $id2_l1 same locus. We merge them together: Below the two features:\n".$feature_l1->gff_string."\n".$l1_feature2->gff_string."\n", 3); # print only in log
 							# update atttribute except ID and Parent for L1:
 							my @list_tag_l2 = $omniscient->{'level1'}{$tag_l1}{$id2_l1}->get_all_tags();
 							foreach my $tag (@list_tag_l2){
@@ -594,7 +612,7 @@ sub merge_overlap_loci{
 
 									# >>>>>>>>>> REMOVE THE IDENTICAL ISOFORMS <<<<<<<<<<<<<
 									# first list uniqs
-									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $verbose); # remove if identical l2 exists
+									my ($list_of_uniqs, $list_commons)	= keep_only_uniq_from_list2($omniscient, $omniscient->{'level2'}{$l2_type}{$id_l1}, $omniscient->{'level2'}{$l2_type}{$id2_l1}, $local_verbose); # remove if identical l2 exists
 
 									#Now manage the rest
 									foreach my $feature_l2 (@{$list_of_uniqs}){
@@ -634,11 +652,11 @@ sub merge_overlap_loci{
 	}
 
 	if($resume_merge){
-		dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n", $verbose);
-    dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n", $verbose);
+		dual_print($log, "$resume_merge overlapping cases found. For each case 2 loci have been merged within a single locus\n") if $local_verbose;
+		dual_print($log, "Among overlapping cases, $resume_identic identical features have been removed.\n") if $local_verbose;
   }
 	else{
-		dual_print($log, "None found\n", $verbose);
+		dual_print($log, "None found\n") if $local_verbose;
 	}
 }
 
@@ -1307,13 +1325,13 @@ sub clean_clone{
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for clean_clone. Please check the call.\n"; exit; }
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for clean_clone. Please check the call.\n"); exit; }
 	# -- Declare all variables and fill them --
 	my ($omniscient, $feature, $new_parent, $new_id, $new_primary_tag);
 	# omniscient to access feature level information, config information
 	if( defined($args->{omniscient}) ) { $omniscient = $args->{omniscient};}
 	# the feature to clone
-	if( defined($args->{feature})) {$feature = $args->{feature};} else { warn "Providing a feature is mandatory!"; exit; }
+	if( defined($args->{feature})) {$feature = $args->{feature};} else { dual_warn($log, "Providing a feature is mandatory!\n"); exit; }
 	# String, new parent attribute
 	if( defined($args->{new_parent}) ) { $new_parent = $args->{new_parent}; }
 	# String, new id attribute
@@ -1437,55 +1455,82 @@ sub create_or_append_tag{
 # 2 means that there are two extra bases (the second and third bases of the codon) before the first codon.
 sub fil_cds_frame {
 
-	my ($hash_omniscient, $db, $verbose)=@_;
+        my ($hash_omniscient, $db, $log, $local_verbose, $codon_table_id)=@_;
+        $codon_table_id //= 0;
 
-	foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+        my @phase_events;  # buffer for reproducible logging
 
-		foreach my $id_tag_key_level1 (keys %{$hash_omniscient->{'level2'}{$primary_tag_key_level2}}) {
+        foreach my $primary_tag_key_level2 ( sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
-			foreach my $feature_level2 ( @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+                foreach my $id_tag_key_level1 ( sort keys %{$hash_omniscient->{'level2'}{$primary_tag_key_level2}}) {
 
-				my $level2_ID = lc($feature_level2->_tag_value('ID'));
+                        foreach my $feature_level2 ( sort { $a->start <=> $b->start } @{$hash_omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
-				# == LEVEL 3 == #
-				if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID) ) ){
+                                my $level2_ID = lc($feature_level2->_tag_value('ID'));
 
-					my $strand=$feature_level2->strand;
-					my @cds_list;
-					if(($feature_level2->strand eq "+") or ($feature_level2->strand eq "1")){
-						@cds_list=sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-					}else{
-						@cds_list=sort {$b->start <=> $a->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
-					}
+                                # == LEVEL 3 == #
+                                if ( exists_keys($hash_omniscient,('level3','cds',$level2_ID) ) ){
 
-					my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID} );
+                                        my $strand=$feature_level2->strand;
+                                        my @cds_list;
+                                        if(($feature_level2->strand eq "+") or ($feature_level2->strand eq "1")){
+                                                @cds_list=sort {$a->start <=> $b->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+                                        }else{
+                                                @cds_list=sort {$b->start <=> $a->start}  @{$hash_omniscient->{'level3'}{'cds'}{$level2_ID}};
+                                        }
 
-					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
-					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
-						$phase = 0;
-						warn "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
-						"We will assume then to be in phase 0" if $verbose;
-					}
+                                        my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID}, $codon_table_id );
 
-					# If no phase found and a phase exists in the CDS feature we keep the original
-					# otherwise we loop over CDS features to set the correct phase
-					if ( defined( $phase ) ) {
-						foreach my $cds_feature ( @cds_list) {
-							my $original_phase = $cds_feature->frame;
+                                        # Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
+                                        if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
+                                                $phase = 0;
+                                                dual_warn(
+                                                  $log,
+                                                  "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs). We will assume then to be in phase 0\n"
+                                                ) if $local_verbose;
+                                        }
 
-							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-								print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
-								$cds_feature->frame($phase);
-							}
-							my $cds_length=$cds_feature->end-$cds_feature->start +1;
-							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
-						}
-					}
-				}
-			}
-		}
-	}
+                                        # If no phase found and a phase exists in the CDS feature we keep the original
+                                        # otherwise we loop over CDS features to set the correct phase
+                                        if ( defined( $phase ) ) {
+                                                foreach my $cds_feature ( @cds_list) {
+                                                        my $original_phase = $cds_feature->frame;
+
+                                                        # capture current assigned phase for this CDS before updating rolling phase
+                                                        my $assigned_phase = $phase;
+
+                                                        if ( ($original_phase eq ".") or ($original_phase != $assigned_phase) ){
+                                                                # buffer the event instead of printing now; we'll sort & print later
+                                                                push @phase_events, {
+                                                                        id        => $cds_feature->_tag_value("ID"),
+                                                                        phase_old => $original_phase,
+                                                                        phase_new => $assigned_phase + 0,
+                                                                        start     => $cds_feature->start + 0,
+                                                                        end       => $cds_feature->end + 0,
+                                                                };
+                                                                $cds_feature->frame($assigned_phase);
+                                                        }
+                                                        my $cds_length=$cds_feature->end-$cds_feature->start +1;
+                                                        $phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
+                                                }
+                                        }
+                                }
+                        }
+                }
+        }
+
+        # --- Reproducible, genomic-order logging ---
+        for my $e ( sort {
+                $a->{start} <=> $b->{start}
+                || $a->{end}   <=> $b->{end}
+                || $a->{id}    cmp $b->{id}
+        } @phase_events ) {
+                dual_print($log, sprintf("Original phase %s replaced by %d for %s\n",
+                        $e->{phase_old}, $e->{phase_new}, $e->{id}
+                )) if $local_verbose;
+        }
 }
+
 
 # @Purpose: get the proper phase of the start of a CDS by looking at the ORF of the different frames
 # @input: 1 =>  $db of the fasta genome, list of CDS features, codon table
@@ -1564,41 +1609,44 @@ sub _get_cds_start_phase {
       }
 
       # always stop codon in the middle of the sequence... cannot determine correct phase, keep original phase and throw a warning !
-      warn "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. ".
-      "All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n";
+      dual_warn(
+        $log,
+        "WARNING OmniscientTools _get_cds_start_phase: No phase found for the CDS by looking at the ORFs. All frames contain an internal stop codon, thus we cannot determine the correct phase. We will keep original stored phase information.\n"
+      );
       return undef;
   }
 }
 
 sub info_omniscient {
 
-	my ($hash_omniscient)=@_;
+        my ( $hash_omniscient, $log, $verbose ) = @_;
 
-	my %resu;
+        my %resu;
 
-	foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
-    	my $nb=keys %{$hash_omniscient->{'level1'}{$tag}};
-    	$resu{$tag}=$nb;
-	}
+        foreach my $tag ( keys %{ $hash_omniscient->{'level1'} } ) {
+                my $nb = keys %{ $hash_omniscient->{'level1'}{$tag} };
+                $resu{$tag} = $nb;
+        }
 
-	foreach my $level (keys %{$hash_omniscient}){
-  		if ($level eq 'level2' or $level eq 'level3'){
-    			foreach my $tag (keys %{$hash_omniscient->{$level}}){
-      				foreach my $id (keys %{$hash_omniscient->{$level}{$tag}}){
-        				my $nb=$#{$hash_omniscient->{$level}{$tag}{$id}}+1;
-						if(exists_keys(\%resu,($tag))){
-						        $resu{$tag} += $nb;
-						}
-						else{
-							$resu{$tag}=$nb;
-						}
-     				}
-    			}
-  		}
-	}
-	foreach my $tag (keys %resu){
-		print "There is $resu{$tag} $tag\n";
-	}
+        foreach my $level ( keys %{$hash_omniscient} ) {
+                if ( $level eq 'level2' or $level eq 'level3' ) {
+                        foreach my $tag ( keys %{ $hash_omniscient->{$level} } ) {
+                                foreach my $id ( keys %{ $hash_omniscient->{$level}{$tag} } ) {
+                                       my $nb =
+                                          $#{ $hash_omniscient->{$level}{$tag}{$id} } + 1;
+                                        if ( exists_keys( \%resu, ($tag) ) ) {
+                                                $resu{$tag} += $nb;
+                                        }
+                                        else {
+                                                $resu{$tag} = $nb;
+                                        }
+                                }
+                        }
+                }
+        }
+        foreach my $tag ( sort keys %resu ) {
+                dual_print( $log, "There is $resu{$tag} $tag\n");
+        }
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -2049,7 +2097,9 @@ sub l2_identical{
     }
   }
 
-	print "The isoforms $id1_l2 and $id2_l2 are identical\n" if ($verbose and $verbose >= 2 and $identik);
+        if($identik){
+                dual_print($log, "The isoforms $id1_l2 and $id2_l2 are identical\n", 2);
+        }
     return $identik;
 }
 
@@ -2279,12 +2329,11 @@ sub check_all_level1_locations {
 	my $resume_case=0;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
+        if(ref($args) ne "HASH"){ dual_warn($log, "Hash Arguments expected for check_all_level1_locations. Please check the call.\n");exit;}
 	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+        my ($hash_omniscient, $verbose);
+        if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_warn($log, "Input omniscient mandatory to use check_all_level1_locations!\n"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
@@ -2297,12 +2346,12 @@ sub check_all_level1_locations {
 		}
 	}
 
-	if($resume_case){
-		dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose );
-	}
-	else{
-		dual_print($log, "No problem found\n", $verbose );
-	}
+        if($resume_case){
+                dual_print($log, "We fixed $resume_case wrong level1 location cases\n", $verbose);
+        }
+        else{
+                dual_print($log, "No problem found\n", $verbose);
+        }
 }
 
 # Purpose: review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
@@ -2311,12 +2360,11 @@ sub check_all_level2_locations{
 	my $resume_case=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_all_level1_locations. Please check the call.\n";exit;	}
+        if(ref($args) ne "HASH"){ dual_warn($log, "Hash Arguments expected for check_all_level1_locations. Please check the call.\n");exit;}
 	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_all_level1_locations!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+        my ($hash_omniscient, $verbose);
+        if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_warn($log, "Input omniscient mandatory to use check_all_level1_locations!\n"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 		foreach my $id_l1 ( keys %{$hash_omniscient->{'level1'}{$tag_l1}} ) { #sort by position
@@ -2344,12 +2392,12 @@ sub check_all_level2_locations{
 			}
 		}
 	}
-	if($resume_case){
-		dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose );
-	}
-	else{
-		dual_print($log, "No problem found\n", $verbose );
-	}
+        if($resume_case){
+                dual_print($log, "We fixed $resume_case wrong level2 location cases\n", $verbose);
+        }
+        else{
+                dual_print($log, "No problem found\n", $verbose);
+        }
 }
 
 # Check the start and end of mRNA based a list of feature like list of exon;
@@ -2358,13 +2406,12 @@ sub check_mrna_positions{
 	my $result=undef;
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_mrna_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for check_mrna_positions. Please check the call.\n");exit;      }
 	# -- Declare all variables and fill them --
 	my ($mRNA_feature, $exon_list, $verbose, $log);
-	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ print "Input l2_feature mandatory to use check_mrna_positions!"; exit; }
-	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ print "Input exon_list mandatory to use check_mrna_positions!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+	if( defined($args->{l2_feature})) {$mRNA_feature = $args->{l2_feature};} else{ dual_warn($log, "Input l2_feature mandatory to use check_mrna_positions!\n"); exit; }
+	if( defined($args->{exon_list})) {$exon_list = $args->{exon_list};} else{ dual_warn($log, "Input exon_list mandatory to use check_mrna_positions!\n"); exit; }
+        if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
 
 	my @exon_list_sorted = sort {$a->start <=> $b->start} @{$exon_list};
 	my $exonStart=$exon_list_sorted[0]->start;
@@ -2374,13 +2421,13 @@ sub check_mrna_positions{
 
 	#check start
 	if ($mRNA_feature->start != $exonStart){
-		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 0); # print log only
+		dual_print($log, "We modified the L2 LEFT extremity for the sanity the biological data!\n", 3); # print log only
 		$mRNA_feature->start($exonStart);
 		$result=1;
 	}
 	#check stop
 	if($mRNA_feature->end != $exonEnd){
-		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 0); # print log only
+		dual_print($log, "We modified the L2 RIGHT extremity for the sanity the biological data!\n", 3); # print log only
 		$mRNA_feature->end($exonEnd);
 		$result=1;
 	}
@@ -2396,13 +2443,13 @@ sub check_level1_positions {
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for check_level1_positions. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for check_level1_positions. Please check the call.\n");exit;    }
 
 	my ($hash_omniscient, $feature_l1, $verbose, $log);
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ print "Input omniscient mandatory to use check_level1_positions!"; exit; }
-	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ print "Input feature mandatory to use check_level1_positions!"; exit; }
-	if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
-	if( defined($args->{log}) ) { $log = $args->{log}; }
+   if( defined($args->{verbose}) ) { $verbose = $args->{verbose}; } else { $verbose = 0;}
+	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ dual_warn($log, "Input omniscient mandatory to use check_level1_positions!\n"); exit; }
+	if( defined($args->{feature})) {$feature_l1 = $args->{feature};} else{ dual_warn($log, "Input feature mandatory to use check_level1_positions!\n"); exit; }
+        
 
 
 	my $extrem_start=undef;
@@ -2455,14 +2502,14 @@ sub check_level1_positions {
 	    if($feature_l1->start != $extrem_start){
 	    	$feature_l1->start($extrem_start);
 	    	$result=1;
-	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 0); # print in log only
+	    	dual_print($log, "check_level1_positions: We modified the L1 LEFT extremity for the sanity the biological data!\n", 3); # print in log only
 	    }
 
 	    # modify END if needed
 	    if($feature_l1->end != $extrem_end){
 	    	$feature_l1->end($extrem_end);
 	    	$result=1;
-	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 0); # print in log only
+	    	dual_print($log, "check_level1_positions: We modified the L1 RIGHT extremity for the sanity the biological data!\n", 3); # print in log only
 	    }
 	}
 	return $result;
@@ -2612,7 +2659,7 @@ sub collect_l1_info_sorted_by_seqid_and_location{
 			$hash_filterid = $filterid;
 		}
 		else{
-			warn "optional filterid parameter need to be a list or hash ref\n";
+			dual_warn($log, "optional filterid parameter need to be a list or hash ref\n");
 		}
 	}
 
@@ -3072,7 +3119,7 @@ sub is_single_exon_gene {
   							else{return 0;}
 						}
 						else{
-							warn "WARNING No exon available to check if it is a single exon gene\n";
+							dual_warn($log, "WARNING No exon available to check if it is a single exon gene\n");
 						}
 					}
 				}

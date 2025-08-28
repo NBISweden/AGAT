@@ -12,6 +12,7 @@ use AGAT::OmniscientI;
 use AGAT::Utilities;
 use AGAT::OmniscientToGTF;
 use Exporter;
+use Carp;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
@@ -52,17 +53,18 @@ sub prepare_gffout{
 	}
 	
 	my $gffout;
-	if ($outfile) {
-		# check existence
-	  if(-f $outfile){
-			print "File $outfile already exist.\n";
-			exit;
-		}
-		else {
-			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
-		}
-	}
+        if ($outfile) {
+                # check existence
+          if(-f $outfile){
+                        my $msg = "File $outfile already exist.\n";
+                        warn $msg if $AGAT::AGAT::CONFIG->{verbose};
+                        exit;
+                }
+                else {
+                        open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+                        $gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
+                }
+        }
 	else{
 		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
 	}
@@ -74,16 +76,17 @@ sub prepare_fileout{
 	my ($outfile) = @_;
 
 	my $fileout;
-	if ($outfile) {
-		if(-f $outfile){
-			print "File $outfile already exist.\n";
-			exit;
-		}
-		else {
-			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
-		}
-	}
+        if ($outfile) {
+                if(-f $outfile){
+                        my $msg = "File $outfile already exist.\n";
+                        warn $msg if $AGAT::AGAT::CONFIG->{verbose};
+                        exit;
+                }
+                else {
+                        open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
+                        $fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
+                }
+        }
 	else{
 		$fileout = \*STDOUT or die ( sprintf( "Can not open '%s' for writing %s", "STDOUT", $! ));
 	}
@@ -756,14 +759,16 @@ sub webapollo_rendering_l3 {
 
 #Transform omniscient data to be embl compliant
 sub embl_compliant {
-		my ($omniscient) = @_  ;
+                my ($omniscient) = @_  ;
+
+        my $verbose = $omniscient->{"config"}{"verbose"};
 
 	#################
 	# == LEVEL 1 == #
 	#################
 	foreach my $primary_tag_key_level1 (keys %{$omniscient->{'level1'}}){ # primary_tag_key_level1 = gene or repeat etc...
 		foreach my $id_tag_key_level1 (keys %{$omniscient->{'level1'}{$primary_tag_key_level1}}){
-			_embl_rendering($omniscient->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1});
+                        _embl_rendering($omniscient->{'level1'}{$primary_tag_key_level1}{$id_tag_key_level1}, $verbose);
 
 			#################
 			# == LEVEL 2 == #
@@ -772,7 +777,7 @@ sub embl_compliant {
 
 				if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
 					foreach my $feature_level2 ( @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
-						_embl_rendering($feature_level2);
+                                        _embl_rendering($feature_level2, $verbose);
 
 						#################
 						# == LEVEL 3 == #
@@ -783,7 +788,7 @@ sub embl_compliant {
 
 							if ( exists ($omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID} ) ){
 								foreach my $feature_level3 ( @{$omniscient->{'level3'}{$primary_tag_key_level3}{$level2_ID}}) {
-									_embl_rendering($feature_level3);
+                                                                        _embl_rendering($feature_level3, $verbose);
 								}
 							}
 						}
@@ -796,7 +801,7 @@ sub embl_compliant {
 
 sub _embl_rendering {
 
-	my ($feature)=@_;
+        my ($feature, $verbose)=@_;
 
 	## check primary tag
 	my $primary_tag = lc($feature->primary_tag);
@@ -820,7 +825,7 @@ sub _embl_rendering {
 			elsif($primary_tag =~ /utr/ and ($primary_tag =~ /5/ or $primary_tag =~ /five/) ){
 				$feature->$primary_tag = "5'UTR";
 			}
-			print "WARNING: this primary tag ".$primary_tag." is not recognized among those expected to be EMBL compliant. Please check it or create an exception rule.\n";
+                        print "WARNING: this primary tag ".$primary_tag." is not recognized among those expected to be EMBL compliant. Please check it or create an exception rule.\n" if $verbose;
 		}
 	}
 }

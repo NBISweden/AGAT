@@ -13,8 +13,6 @@ use warnings;
 use Carp;
 use Clone 'clone';
 use File::Basename;
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use Bio::DB::Fasta;
 use Bio::SeqIO;
@@ -22,56 +20,38 @@ use AGAT::AGAT;
 
 # avoid case of ambiguous start codon (translated into X) -> we accept if the ORF is SIZE_OPT AA longer.
 # Indeed statistically it has more chance to be a real start codon.
-my $SIZE_OPT=21;
+my $SIZE_OPT = 21;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff = undef;
-my $model_to_test = undef;
-my $file_fasta=undef;
-my $split_opt=undef;
-my $codonTable=1;
-my $verbose = 0;
-my $opt_help= 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',        'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa|f=s', 'Input reference fasta file', { required => 1 } ],
+    [ 'split|s!',     'Split sequences' ],
+    [ 'table|codon|ct=i', 'Codon translation table',
+        { default => 1, callbacks => { positive => sub { shift > 0 or die 'must be positive' } } } ],
+    [ 'model|m=s', 'Model(s) to test',
+        { callbacks => { allowed => sub { my $val = shift; $val =~ /^([1-6](,[1-6])*)?$/ or die 'model must be comma-separated list of integers 1-6'; 1; } } } ],
+);
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "split|s" => \$split_opt,
-    "table|codon|ct=i" => \$codonTable,
-    "m|model=s" => \$model_to_test,
-    "v=i" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+my $gff          = $opt->gff;
+my $file_fasta   = $opt->fasta;
+my $split_opt    = $opt->split;
+my $codonTable   = $opt->table;
+my $model_to_test = $opt->model;
+my $outfile      = $config->{output};
+my $verbose      = $config->{verbose};
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($file_fasta)) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff) and Input fasta file (--fasta)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # --- Check codon table
-$codonTable = get_proper_codon_table($codonTable);
+$codonTable = get_proper_codon_table($codonTable, $log);
 
 ######################
 # Manage output file #
@@ -109,11 +89,7 @@ if(!($model_to_test)){
 }else{
   my @fields= split(',', $model_to_test);
   foreach my $field (@fields){
-    if($field =~ m/^[123456]$/){
       $ListModel{$field}=0;
-    }else{
-      print "This model $field is not known. Must be an Integer !\n";exit;
-    }
   }
 }
 
@@ -121,16 +97,15 @@ if(!($model_to_test)){
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =slurp_gff3_file_JD({ input => $gff,
+my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                 config => $config
                                                               });
-print ("GFF3 file parsed\n");
-
+dual_print( $log, "GFF3 file parsed\n" );
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Fasta file parsed\n");
+dual_print( $log, "Fasta file parsed\n" );
 
 ####################
 my $pseudo_threshold=70;
@@ -228,9 +203,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
             ########################
             # prediction is longer #
-            print $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n" if $verbose;
-						print "Original: ".$original_prot_obj->seq."\n" if $verbose > 3;
-						print "Prediction: ".$longest_ORF_prot_obj->seq."\n" if $verbose > 3;
+            dual_print( $log, $id_level2." - size before: ".$originalProt_size." size after: ".$longest_ORF_prot_obj->length()."\n", 2);
+              dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 4 );
+              dual_print( $log, "Prediction: ".$longest_ORF_prot_obj->seq."\n", 4 );
+                                            
             if($longest_ORF_prot_obj->length() > $originalProt_size){
 
   #Model1     ###############################################
@@ -240,8 +216,9 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 									if( pass_ambiguous_start($longest_ORF_prot_obj, $originalProt_size) ){
 
-                    $ListModel{1}++; print "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
-                    print "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n" if $verbose;
+                    $ListModel{1}++;
+                    dual_print($log, "Model 1: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                    dual_print( $log, "original:$cds_prot\nnew:". $longest_ORF_prot_obj->seq."\n", 2);
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model1', $gffout);
                     $ORFmodified="yes";
 
@@ -258,7 +235,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                   my $model;
 
                   if( exists($ListModel{2}) ){
-                    $ListModel{2}++; print "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                    $ListModel{2}++;
+                    dual_print($log, "Model 2: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
                     $model=1;
                     if($split_opt){
                       split_gene_model(\@intact_gene_list, $hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model2', $gffout);
@@ -276,7 +254,8 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   #Model3         ###############
                   # original protein and predicted one are different; the predicted one is longest, they overlap each other.
                   if( exists($ListModel{3}) ){
-                    $ListModel{3}++; print "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
+                    $ListModel{3}++;
+                    dual_print($log, "Model 3: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
 
                     modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model3', $gffout);
                     $ORFmodified="yes";
@@ -291,13 +270,16 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
               # contains stop codon but not at the last position
               if( (index($original_prot_obj->seq, '*') != -1 ) and (index($original_prot_obj->seq, '*') != length($original_prot_obj->seq)-1) ){
-                print "Original sequence contains premature stop codon.\n" if $verbose;
+                dual_print( $log, "Original sequence contains premature stop codon.\n", 2 );
+                
                 #Model4     ###############
                 # /!\ Here we compare the CDS traduction (traduct in IUPAC) against longest CDS in mRNA IUPAC modified to take in account for stops codon only those that are trustable only (TGA, TAR...).
                 if( exists($ListModel{4}) ){
-                  $ListModel{4}++;  print "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
-                  print "Original: ".$original_prot_obj->seq."\n" if $verbose;
-                  print "longestl: ".$longest_ORF_prot_obj->seq."\n" if $verbose;
+                  $ListModel{4}++;
+                  dual_print($log, "Model 4: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                  
                   #remodelate a shorter gene
                   modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model4', $gffout);
                   $ORFmodified="yes";
@@ -314,9 +296,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               else{
                 if( exists($ListModel{5}) ){
                   $ListModel{5}++;
-                  print "Model 5: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
-                  print "Original: ".$original_prot_obj->seq."\n" if $verbose;
-                  print "longestl: ".$longest_ORF_prot_obj->seq."\n" if $verbose;
+                  dual_print( $log, "Model 5: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                  dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                  dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                  
                   #remodelate a shorter gene
                   modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model4', $gffout);
                   $ORFmodified="yes";
@@ -328,9 +311,10 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
             elsif( (index($original_prot_obj->seq, '*') != -1 ) and (index($original_prot_obj->seq, '*') != length($original_prot_obj->seq)-1) ){
               if( exists($ListModel{6}) ){
                 $ListModel{6}++;
-                print "Model 6: gene=$gene_id_tag_key mRNA=$id_level2\n" if ($verbose);
-                print "Original: ".$original_prot_obj->seq."\n" if $verbose;
-                print "longestl: ".$longest_ORF_prot_obj->seq."\n" if $verbose;
+                dual_print( $log, "Model 6: gene=$gene_id_tag_key mRNA=$id_level2\n", 2);
+                dual_print( $log, "Original: ".$original_prot_obj->seq."\n", 2);
+                dual_print( $log, "longestl: ".$longest_ORF_prot_obj->seq."\n", 2);
+                
                 modify_gene_model($hash_omniscient, \%omniscient_modified_gene, $gene_feature, $gene_id_tag_key, $level2_feature, $id_level2, \@exons_features, \@cds_feature_list, $cdsExtremStart, $cdsExtremEnd, $realORFstart, $realORFend, 'model3', $gffout);
                 $ORFmodified="yes";
               }
@@ -381,27 +365,28 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
 ###########
 # Fix frame
-fil_cds_frame(\%omniscient_modified_gene, $db, $verbose);
+fil_cds_frame(\%omniscient_modified_gene, $db, $log, 0, $codonTable);
 #fil_cds_frame(\%omniscient_pseudogene);
-fil_cds_frame($hash_omniscient, $db, $verbose);
+fil_cds_frame($hash_omniscient, $db, $log, 0, $codonTable);
 
 #Clean omniscient_modified_gene of duplicated/identical genes and isoforms
-print "removing duplicates\n" if $verbose;
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+dual_print( $log, "removing duplicates\n", 2);
+merge_overlap_loci(undef, \%omniscient_modified_gene, undef, 0);
 
 ########
 # Print results
-print "print intact...\n";
+dual_print( $log, "print intact...\n" );
 print_omniscient_from_level1_id_list( {omniscient => $hash_omniscient, level_id_list =>\@intact_gene_list, output => $gffout} );
 
-print "print modified...\n";
+dual_print( $log, "print modified...\n" );
 print_omniscient( {omniscient => \%omniscient_modified_gene, output => $gffout2} );
 
 # create a hash containing everything
-print "print all with name of overlapping features resolved...\n";
+dual_print( $log, "print all with name of overlapping features resolved...\n" );
+
 my $hash_all = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@intact_gene_list);
 merge_omniscients( $hash_all, \%omniscient_modified_gene);
-merge_overlap_loci(undef, \%omniscient_modified_gene, undef, $verbose);
+merge_overlap_loci(undef, \%omniscient_modified_gene, undef, 0);
 print_omniscient( {omniscient => $hash_all, output => $gffout3} );
 
 #print_omniscient(\%omniscient_pseudogene, $gffout4); #print putative pseudogene in file
@@ -449,12 +434,11 @@ if ($codonTable == 1){
 	"Particular case: If we have a triplet as WTG, AYG, RTG, RTR or ATK it will be seen as a possible start codon (but translated into X)\n";
 	#"An arbitrary choisce has been done: The longer translate can begin by a L only if it's longer by 21 AA than the longer translate beginning by M. It's happened $counter_case21 times here.\n";
 }
-print $string_to_print;
+dual_print( $log, $string_to_print );
 if($outfile){
-  print $report $string_to_print
+  print $report $string_to_print;
 }
-print "Bye Bye.\n";
-
+dual_print( $log, "Bye Bye.\n" );
 
 #######################################################################################################################
         ####################

@@ -4,78 +4,57 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'gff|f=s',      'Input reference gff file', { required => 1 } ],
+    [ 'add!',         'Add attribute(s)' ],
+    [ 'overwrite!',   'Overwrite attribute(s)' ],
+    [ 'cp!',          'Copy attribute value(s)' ],
+    [ 'p|type|l=s',   'Primary tag/level to operate on' ],
+    [ 'tag|att=s',    'Attribute tag list' ],
+);
 
-my $gff = undef;
-my $opt_help= 0;
-my $primaryTag=undef;
-my $attributes=undef;
-my $outfile=undef;
-my $add = undef;
-my $cp = undef;
-my $overwrite = undef;
+my $gff        = $opt->gff;
+my $add        = $opt->add;
+my $overwrite  = $opt->overwrite;
+my $cp         = $opt->cp;
+my $primaryTag = $opt->p;
+my $attributes = $opt->tag;
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
-    "gff|f=s"     => \$gff,
-    "add"         => \$add,
-		"overwrite"   => \$overwrite,
-    "cp"          => \$cp,
-    "p|type|l=s"  => \$primaryTag,
-    "tag|att=s"   => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $outfile = $config->{output};
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
+my $verbose = $config->{verbose};
 
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! $gff or ! $attributes){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (--gff)\n".
-           "Attribute tag (--att)\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 # Manage $primaryTag
 my @ptagList;
-if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
-  push(@ptagList, "all");
-}elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
-  push(@ptagList, $primaryTag);
-}else{
-   @ptagList= split(/,/, $primaryTag);
-   foreach my $tag (@ptagList){
-      if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
-      }
-      else{
-       print "We will work on attributes from $tag feature.\n";
-      }
-   }
+if ( !$primaryTag or $primaryTag eq "all" ) {
+    dual_print( $log, "We will work on attributes from all features\n");
+    push( @ptagList, "all" );
+}
+elsif ( $primaryTag =~ /^level[123]$/ ) {
+    dual_print( $log, "We will work on attributes from all the $primaryTag features\n");
+    push( @ptagList, $primaryTag );
+}
+else {
+    @ptagList = split( /,/, $primaryTag );
+    foreach my $tag (@ptagList) {
+        if ( $tag =~ /^level[123]$/ ) {
+            dual_print( $log, "We will work on attributes from all the $tag features\n");
+        }
+        else {
+            dual_print( $log, "We will work on attributes from $tag feature.\n");
+        }
+    }
 }
 
 # Manage attributes if given
@@ -86,9 +65,10 @@ if ($attributes){
 
   if ($attributes eq "all_attributes"){
     if($add){
-      print "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
+      dual_print( $log, "You cannot use the all_attributes value with the add option. Please change the parameters !\n");
+      exit;
     }
-    print "All attributes will be removed except ID and Parent attributes !\n";
+    dual_print( $log, "All attributes will be removed except ID and Parent attributes !\n");
     $attListOk{"all_attributes"}++;
   }
   else{
@@ -99,31 +79,34 @@ if ($attributes){
       my @attList= split(/\//, $attributeTuple);
       if($#attList == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attList[0]) eq "id" and ! $add){print "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
+        if(lc($attList[0]) eq "id" and ! $add){
+            dual_print( $log, "It's forbidden to remove the ID attribute in a gff3 file !\n");
+            exit;
+        }
         #check for Parent attribute
         if(lc($attList[0]) eq "parent" and ! $add){
           foreach my $tag (@ptagList){
             if($tag ne "gene" and $tag ne "level1"){
-              print "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
+              dual_print( $log, "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n");
               exit;
             }
           }
         }
         $attListOk{$attList[0]}="null";
         if($add){
-          print "$attList[0] attribute will be added. The value will be empty.\n";
+          dual_print( $log, "$attList[0] attribute will be added. The value will be empty.\n");
         }
         else{
-          print "$attList[0] attribute will be removed.\n";
+          dual_print( $log, "$attList[0] attribute will be removed.\n");
         }
       }
       else{ # Attribute will be replaced/copied with a new tag name
         $attListOk{$attList[0]}=$attList[1];
-        print "$attList[0] attribute will be replaced by $attList[1].\n";
+        dual_print( $log, "$attList[0] attribute will be replaced by $attList[1].\n");
       }
     }
   }
-  print "\n";
+  dual_print( $log, "\n");
 }
 
 
@@ -137,7 +120,7 @@ if ($attributes){
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print( $log, "GFF3 file parsed\n");
 
 
 foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){

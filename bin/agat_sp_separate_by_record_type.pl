@@ -3,57 +3,37 @@
 use strict;
 use warnings;
 use Pod::Usage;
-use Getopt::Long;
 use AGAT::AGAT;
 use Sort::Naturally;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_gfffile;
-my $opt_output;
-my $opt_help = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s', 'Input reference gff file', { required => 1, callbacks => { file => sub { -e $_[0] or die "gff file $_[0] not found" } } } ],
+);
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s' => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
+my $opt_gfffile = $opt->gff;
+my $opt_output  = $config->{output};
+my $verbose     = $config->{verbose};
 
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! defined($opt_gfffile) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (-g).\n\n".
-           "Ouptut is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
 
 if (! $opt_output) {
-  print "Default output name: split_result\n";
+  dual_print($log, "Default output name: split_result\n");
   $opt_output="split_result";
 }
 
 if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+  warn "The output directory choosen already exists. Please give me another Name.\n" if $verbose;
+  exit();
 }
 mkdir $opt_output;
 
@@ -66,7 +46,7 @@ mkdir $opt_output;
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 
 my $topfeatures = get_feature_type_by_agat_value($hash_omniscient, 'level1', 'topfeature');
@@ -177,7 +157,9 @@ foreach my $key (keys %handlers){
 
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print($log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 __END__
 
 =head1 NAME

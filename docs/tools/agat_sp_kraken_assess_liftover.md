@@ -36,6 +36,10 @@ agat_sp_kraken_assess_lift_coverage --help
 
     Verbose information.
 
+- **--quiet** or **-q**
+
+    Run quietly. Sets verbosity to 0 and disables the progress bar.
+
 - **-o** , **--output** , **--out** or **--outfile**
 
     Output GFF file.  If no output file is specified, the output will be

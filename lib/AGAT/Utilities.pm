@@ -9,9 +9,11 @@ use Time::Seconds;
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
-sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash);
+our @EXPORT = qw(
+  exists_keys exists_undef_value get_proper_codon_table surround_text sizedPrint
+  activate_warning_limit print_time dual_print dual_warn file_text_line print_wrap_text
+  string_sep_to_hash
+);
 
 =head1 SYNOPSIS
 
@@ -65,16 +67,16 @@ sub exists_undef_value {
 }
 
 # @Purpose: check if the table codon is available in bioperl
-# @input: 1 =>  integer
+# @input: 1 =>  integer, 2 => verbose
 # @output 1 => integer
 sub get_proper_codon_table {
-  my ($codon_table_id_original) = @_;
+  my ($codon_table_id_original, $log, $verbose) = @_;
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
-  
+
   # To deal with empty result in version of bioperl < april 2024 when asking with table 0 (it was reutrning an empty string)
   if (! defined($codon_table_id_bioperl)){
-	$codon_table_id_bioperl = 1 ; # default codon table
+        $codon_table_id_bioperl = 1 ; # default codon table
   }
 
   if ($codon_table_id_original == 0 and  $codon_table_id_original != $codon_table_id_bioperl){
@@ -82,8 +84,13 @@ sub get_proper_codon_table {
     "see https://github.com/bioperl/bioperl-live/pull/315\n".
     "It uses codon table $codon_table_id_bioperl instead.");
   }
-  
-  print "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n";
+
+  dual_print(
+    $log,
+    "Codon table ".$codon_table_id_bioperl.
+      " in use. You can change it using the appropriate parameter.\n",
+    $verbose
+  );
   return $codon_table_id_bioperl;
 }
 
@@ -295,16 +302,26 @@ sub print_time{
 # @input: 3 => fh, string, integer
 # @output 0 => None
 sub dual_print{
-	my ($fh, $string, $verbose) = @_;
-	if(! defined($verbose)){$verbose = 1;}#if verbose no set we set it to activate
+    my ($fh, $string, $min) = @_;
+    my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
+    $min = 1 unless defined $min;
+    if ($min > 0 && $verbose >= $min) {
+            print $string;
+    }
+    print $fh $string if $fh;
+}
 
-	if($verbose > 0 ){ #only 0 is quite mode
-		print $string;
-	}
-	# print in log in any provided
-	if($fh){
-		print $fh $string;
-	}
+# @Purpose: Print warning messages both to screen and log file
+# @input: 3 => fh, string, integer
+# @output 0 => None
+sub dual_warn{
+    my ($fh, $string, $min) = @_;
+    my $verbose = defined $AGAT::AGAT::CONFIG->{verbose} ? $AGAT::AGAT::CONFIG->{verbose} : 1;
+    $min = 1 unless defined $min;
+    if ($min > 0 && $verbose >= $min) {
+            warn $string;
+    }
+    print $fh "[WARN]$string" if $fh;
 }
 
 # @Purpose: transform a String with separator into hash

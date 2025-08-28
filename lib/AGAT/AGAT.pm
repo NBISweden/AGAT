@@ -6,6 +6,12 @@ use strict;
 use warnings;
 use Exporter;
 
+use Getopt::Long;
+use Getopt::Long::Descriptive qw(describe_options);
+use Pod::Usage;
+use AGAT::AppEaser ();
+use Bio::Tools::GFF;
+
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
@@ -14,22 +20,22 @@ use AGAT::Levels;
 use AGAT::OmniscientStat;
 use AGAT::Utilities;
 use AGAT::PlotR;
-use Bio::Tools::GFF;
 
 our $VERSION     = "v1.5.1";
 our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
 our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels );
+our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels get_log_path resolve_common_options common_spec resolve_config describe_script_options );
+
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
-    AGAT::OmniscientI->export_to_level(1, @_);
-    AGAT::OmniscientO->export_to_level(1, @_);
-    AGAT::OmniscientTool->export_to_level(1, @_);
-    AGAT::Config->export_to_level(1, @_);
-    AGAT::Levels->export_to_level(1, @_);
-    AGAT::OmniscientStat->export_to_level(1, @_);
-    AGAT::Utilities->export_to_level(1, @_);
-    AGAT::PlotR->export_to_level(1, @_);
+    AGAT::OmniscientI->export_to_level(1);
+    AGAT::OmniscientO->export_to_level(1);
+    AGAT::OmniscientTool->export_to_level(1);
+    AGAT::Config->export_to_level(1);
+    AGAT::Levels->export_to_level(1);
+    AGAT::OmniscientStat->export_to_level(1);
+    AGAT::Utilities->export_to_level(1);
+    AGAT::PlotR->export_to_level(1);
 }
 
 =head1 SYNOPSIS
@@ -144,27 +150,123 @@ configuration parameters are used).
 MESSAGE
 }
 
+sub get_log_path {
+        my ($common, $config) = @_;
+        $common ||= {};
+        $config ||= {};
+        return $common->{log} if defined $common->{log};
+        return undef if defined $config->{log} && !$config->{log};
+        return $config->{log_path} if $config->{log_path};
+        my ($file) = $0 =~ /([^\\\/]+)$/;
+        return $file . ".agat.log";
+}
+
+# Return shared Getopt::Long::Descriptive option descriptors
+sub common_spec {
+        return (
+                [ 'config|c=s',                'Configuration file' ],
+                [ 'out|o|outfile|output=s',    'Output file or folder' ],
+                [ 'log=s',                     'Log file path' ],
+                [ 'verbose|v=i',               'Verbosity level' ],
+                [ 'debug',                     'Enable debug output' ],
+                [ 'progress_bar|progressbar!', 'Show progress bar', { default => undef, hidden => 1 } ],
+                [ 'quiet|q',                   'Disable progress bar and verbose output',
+                        { implies => { debug => 0, verbose => 0, progress_bar => 0 } } ],
+                [ 'help|h',                    'Show this help', { shortcircuit => 1 } ],
+                { getopt_conf => ['pass_through'] },
+        );
+}
+
+# Merge CLI values with configuration defaults and compute log path
+sub resolve_config {
+        my ($opt) = @_;
+        my %cli = %{ $opt || {} };
+        $cli{output} = delete $cli{out} if exists $cli{out};
+        return resolve_common_options( \%cli );
+}
+
+# Helper to parse script-specific options together with common ones
+sub describe_script_options {
+        my ($header, @spec) = @_;
+        my ($opt, $usage);
+        eval {
+                ( $opt, $usage ) = describe_options( "$header\n\n%c %o", @spec, common_spec() );
+                1;
+        } or do {
+                ( my $err = $@ ) =~ s/\s+in call to .*//;
+                $err =~ s/\s+at .*//s;
+                pod2usage( { -message => $err, -exitstatus => 1, -verbose => 1 } );
+        };
+
+        pod2usage( { -verbose => 99, -exitstatus => 0, -message => "$header\n" } )
+          if $opt->help;
+
+        my $config = resolve_config($opt);
+        return ( $opt, $usage, $config );
+}
+
+# Merge command-line options with configuration defaults using AppEaser,
+# returning a unified hash where CLI values take precedence.
+sub resolve_common_options {
+        my ($cli) = @_;
+        my %cli = %{ $cli || {} };
+
+        if (!%cli) {
+                my ($opt) = describe_options('%c %o', common_spec());
+                %cli = %{$opt};
+        }
+
+        my $config_file = delete $cli{config};
+        my $config = get_agat_config({
+                config_file_in => $config_file,
+                verbose        => $cli{verbose},
+        });
+
+        my $log_path = get_log_path( \%cli, $config );
+        $cli{log_path} = delete $cli{log} if exists $cli{log};
+
+        for my $k (qw(verbose log_path debug progress_bar)) {
+                $config->{"//=${k}"} = delete $config->{$k} if exists $config->{$k};
+        }
+
+        my $merged = AGAT::AppEaser::hash_merge( $config, \%cli );
+        $merged->{log_path} = $log_path;
+        $CONFIG = $merged;
+        return $merged;
+}
+
+
 # load configuration file from local file if any either the one shipped with AGAT
 # return a hash containing the configuration.
 sub get_agat_config{
-	my ($args)=@_;
+        my ($args)=@_;
 
-	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
-	print AGAT::AGAT::get_agat_header();
+        my ($config_file_provided);
+        if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+        my $cli_verbose = $args->{verbose};
 
-	my ($config_file_provided);
-	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+        # First retrieve the config file path without printing anything yet
+        my $config_file_checked = get_config({type => "local",
+                                              config_file_in => $config_file_provided,
+                                              verbose => 0});
+        # Load and check the configuration
+        my $config = load_config({ config_file => $config_file_checked});
+        check_config({ config => $config});
 
-	# Get the config file
-	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
-	# Load the config
-	my $config = load_config({ config_file => $config_file_checked});
-	check_config({ config => $config});
+        my $verbosity = defined $cli_verbose ? $cli_verbose : $config->{verbose};
+        if ($verbosity > 0){
+                print AGAT::AGAT::get_agat_header();
+                # Re-run get_config to display the message about which file is used
+                get_config({type => "local",
+                            config_file_in => $config_file_provided,
+                            verbose => $verbosity});
+        }
+        $config->{verbose} = $verbosity;
 
-	# Store the config in a Global variable accessible from everywhere.
-	$CONFIG = $config;
-	
-	return $config;
+        # Store the config in a Global variable accessible from everywhere.
+        $CONFIG = $config;
+
+        return $config;
 }
 
 # ==============================================================================
@@ -213,14 +315,15 @@ sub handle_main {
 sub handle_levels {
 		my ($general, $config, $args) = @_;
 
-		my $expose = $general->{configs}[-1]{expose};
-		my $help = $general->{configs}[-1]{help};
+                my $expose = $general->{configs}[-1]{expose};
+                my $help = $general->{configs}[-1]{help};
+                my $verbose = $general->{configs}[-1]{verbose};
 
 		# Deal with Expose feature OPTION
-		if($expose){
-			expose_levels();
-			print "Feature_levels YAML file copied in your working directory\n";
-		}
+                if($expose){
+                        expose_levels({ verbose => $verbose });
+                        print "Feature_levels YAML file copied in your working directory\n" if $verbose;
+                }
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help
 		my $nb_args = keys %{$general->{configs}[-1]};
@@ -240,10 +343,11 @@ sub handle_config {
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
 		my $config_new_name = $general->{configs}[-1]{output};
 		my $log = $general->{configs}[-1]{log};
-		my $debug = $general->{configs}[-1]{debug};
-		my $tabix = $general->{configs}[-1]{tabix};
-		my $merge_loci = $general->{configs}[-1]{merge_loci};
-		my $throw_fasta = $general->{configs}[-1]{throw_fasta};
+                my $debug = $general->{configs}[-1]{debug};
+                my $quiet = $general->{configs}[-1]{quiet};
+                my $tabix = $general->{configs}[-1]{tabix};
+                my $merge_loci = $general->{configs}[-1]{merge_loci};
+                my $throw_fasta = $general->{configs}[-1]{throw_fasta};
 		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
 		my $output_format = $general->{configs}[-1]{output_format};
 		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
@@ -262,14 +366,20 @@ sub handle_config {
 		my $check_utrs = $general->{configs}[-1]{check_utrs};
 		my $check_all_level2_locations = $general->{configs}[-1]{check_all_level2_locations};
 		my $check_all_level1_locations = $general->{configs}[-1]{check_all_level1_locations};
-		my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
-		my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
+                my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
+                my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
 
-		# Deal with Expose feature OPTION
-		if($expose){
-			my $config_file = get_config({type => "original"});
+                if ($quiet) {
+                        $verbose = 0;
+                        $progress_bar = 0;
+                        $debug = 0;
+                }
+
+                # Deal with Expose feature OPTION
+                if($expose){
+                        my $config_file = get_config({type => "original", verbose => $verbose});
 			my $config = load_config({ config_file => $config_file});
-			print "Config loaded\n";
+                        print "Config loaded\n" if $verbose;
 
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
@@ -413,27 +523,27 @@ sub handle_config {
 			}
 
 			if ($modified_on_the_fly) {
-					print "Config modified\n";
+                                        print "Config modified\n" if $verbose;
 			}
 
 			# check config
 			check_config({ config => $config});
-			print "Config checked\n";
+                        print "Config checked\n" if $verbose;
 
 			 
 			
-			if ($modified_on_the_fly) {
-				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
-			} else {
-				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name});
-			}
+                        if ($modified_on_the_fly) {
+                                expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
+                        } else {
+                                expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name, verbose => $verbose});
+                        }
 
 			# inform user
 			my $config_file_used;
 			if($config_new_name){
 				$config_file_used = $config_new_name;
 			} else { $config_file_used = "agat_config.yaml"; }
-			print "Config file written in your working directory ($config_file_used)\n";
+                        print "Config file written in your working directory ($config_file_used)\n" if $verbose;
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help

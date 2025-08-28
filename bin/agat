@@ -161,14 +161,19 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							getopt      => 'log!',
 							help        => 'To create a log file while parsing the input file to keep track of modification made by AGAT. [Default activated]',
 					 },
-					 {
-							getopt      => 'debug!',
-							help        => 'Extra verbosity for debugging. [Default deactivated]',
-					 },
-					 {
-							getopt      => 'tabix!',
-							help        => 'To sort the output in tabix format. [Default deactivated]',
-					 },
+                                         {
+                                                        getopt      => 'debug!',
+                                                        help        => 'Extra verbosity for debugging. [Default deactivated]',
+                                         },
+                                        {
+                                                        getopt      => 'quiet|q!',
+                                                        help        => 'Disable verbose output, progress bar, and debug.',
+                                                        shortbool   => 1,
+                                        },
+                                        {
+                                                        getopt      => 'tabix!',
+                                                        help        => 'To sort the output in tabix format. [Default deactivated]',
+                                        },
 					 {
 							getopt      => 'merge_loci!',
 							help        => 'To merge loci that overlap at CDS level in a single locus. [Default deactivated]',

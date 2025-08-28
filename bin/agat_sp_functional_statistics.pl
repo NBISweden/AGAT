@@ -2,57 +2,43 @@
 
 use strict;
 use warnings;
-use Getopt::Long;
 use File::Basename;
-use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_output = "output_functional_statistics";
-my $opt_genomeSize = undef;
-my $opt_help= 0;
+my @copyARGV = @ARGV;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f|ref|reffile=s', 'Input reference gff file', { required => 1 } ],
+    [ 'g|gs=i', 'Genome size', { callbacks => { positive => sub { shift() > 0 or die 'Genome size must be positive' } } } ],
+);
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"     => \$opt_help,
-    'g|gs=s'     => \$opt_genomeSize,
-    'o|output=s' => \$opt_output,
-    "gff|f=s"    => \$gff))
+my $gff           = $opt->gff;
+my $opt_genomeSize = $opt->g;
+my $opt_output    = $config->{output} // 'output_functional_statistics';
+$config->{output} = $opt_output;
+my $opt_verbose   = $config->{verbose};
 
-{
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-if (-f $opt_output){
-  print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+if ( -f $opt_output ) {
+  dual_warn( $log, "Cannot create a directory with the name $opt_output because a file with this name already exists.\n", 3 );
+  exit();
 }
-if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+if ( -d $opt_output ) {
+  dual_warn( $log, "The output directory choosen already exists. Please give me another Name.\n", 3 );
+  exit();
 }
 mkdir $opt_output;
 
@@ -63,11 +49,11 @@ my $stat_out = prepare_fileout($stat_file);
 
 ######################
 ### Parse GFF input #
-print "Reading file $gff\n";
+dual_print( $log, "Reading file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print "Parsing Finished\n";
+dual_print( $log, "Parsing Finished\n");
 ### END Parse GFF input #
 #########################
 
@@ -75,7 +61,7 @@ print "Parsing Finished\n";
 ### Print Statistics structural first
 ###############################################################
 
-print "Compute statistics\n";
+dual_print( $log, "Compute statistics\n");
 print_omniscient_statistics ({ input  => $hash_omniscient,
 															 genome => $opt_genomeSize,
 															 output => $stat_out
@@ -151,7 +137,8 @@ foreach my $chimerel1l2 (sort keys %link_tags){
 
 # END STATISTICS #
 ##################
-print "Result available in <$opt_output>. Bye Bye.\n";
+dual_print( $log, "Result available in <$opt_output>. Bye Bye.\n");
+close $log if $log;
 #######################################################################################################################
         ####################
          #     METHODS    #

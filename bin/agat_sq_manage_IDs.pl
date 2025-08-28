@@ -4,58 +4,41 @@ use strict;
 use warnings;
 use Carp;
 use Pod::Usage;
-use Getopt::Long;
 use IO::File ;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'file|input|gff|i=s', 'Input GTF/GFF file', { required => 1 } ],
+    # [ 'of=i', 'Output format' ], # currently ineffective (as of https://github.com/NBISweden/AGAT/commit/a14978012da04e62f83ea0d5bb7d6861de361ea5)
+);
+
+my $inputFile = $opt->file;
+my $outfile   = $config->{output};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
+}
+
 my $start_run = time();
-my $inputFile=undef;
-my $outfile=undef;
-my $outformat=undef;
-my $opt_help = 0;
-
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff|i=s' => \$inputFile,
-      'of=i' => \$outformat,
-      'o|output=s' => \$outfile,
-      'c|config=s'               => \$config,
-      'h|help!'         => \$opt_help )  )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
-}
-
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ((!defined($inputFile)) ){
-   pod2usage( { -message => "$header\nAt least 1 parameter is mandatory: -i",
-                 -verbose => 0,
-                 -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Manage input fasta file
 my $format = $config->{force_gff_input_version};
-if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
+if ( !$format ) { $format = select_gff_format($inputFile); }
+my $ref_in = AGAT::BioperlGFF->new( -file => $inputFile, -gff_version => $format );
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $config, $outfile );
 
 #time to calcul progression
 my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print( $log, "$nbLine line to process...\n");
 
 my $line_cpt=0;
 my %hash_IDs;
@@ -69,7 +52,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if($feature->has_tag('Parent')){
     my $parent = lc($feature->_tag_value('Parent'));
     if(! exists($mapID{$parent})){
-      print "How is it possible ? This parent hasn't been seen before\n";
+      warn "How is it possible ? This parent hasn't been seen before\n" if $config->{verbose};
     }
      create_or_replace_tag($feature,'Parent', $mapID{$parent});
   }
@@ -81,7 +64,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print( $log, "\rProgression : $done % processed.\n");
     $startP= time;
   }
 }
@@ -89,7 +72,7 @@ while (my $feature = $ref_in->next_feature() ) {
 ##Last round
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n");
 
 
 
@@ -145,23 +128,11 @@ of impacted features.
 
 STRING: Input GTF/GFF file.
 
-=item B<--of>
+# currently ineffective (as of https://github.com/NBISweden/AGAT/commit/a14978012da04e62f83ea0d5bb7d6861de361ea5)
+# =item B<--of>
+# 
+# Output format, if no ouput format is given, the same as the input one detected will be used. Otherwise you can force to have a gff version 1 or 2 or 3 by giving the corresponding number.
 
-Output format, if no ouput format is given, the same as the input one detected will be used. Otherwise you can force to have a gff version 1 or 2 or 3 by giving the corresponding number.
-
-=item B<-o> or B<--output>
-
-STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
-=item B<--help> or B<-h>
-
-Display this helpful text.
 
 =back
 

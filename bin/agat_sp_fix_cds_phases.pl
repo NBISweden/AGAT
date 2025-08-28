@@ -2,51 +2,28 @@
 
 use strict;
 use warnings;
-use Pod::Usage;
-use Getopt::Long;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
-
-my $header = get_agat_header();
-my $config;
+my $header    = get_agat_header();
 my $start_run = time();
-my $opt_fasta = undef;
-my $opt_gfffile;
-my $opt_verbose;
-my $opt_output;
-my $opt_help = 0;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|g=s',   'Input reference gff file',   { required => 1 } ],
+    [ 'fasta|fa=s', 'Input fasta file', { required => 1 } ],
+);
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
-                  "f|fa|fasta=s"      => \$opt_fasta,
-                  "v|verbose!"       => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $opt_gfffile = $opt->gff;
+my $opt_fasta   = $opt->fasta;
+my $opt_output  = $config->{output};
+my $opt_verbose = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! defined($opt_gfffile) or ! defined($opt_fasta)){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (-g) and Input fasta file (--fasta).\n\n".
-           "Ouptut is optional. Look at the help documentation to know more.\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -59,24 +36,26 @@ my $gffout = prepare_gffout($config, $opt_output);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
                                                                  config => $config
                                                             });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($opt_fasta);
-print ("Fasta file parsed\n");
+dual_print($log, "Fasta file parsed\n");
 
 ###
 # Fix frame
-fil_cds_frame($hash_omniscient, $db, $opt_verbose);
+fil_cds_frame($hash_omniscient, $db, $log, $opt_verbose);
 
 ###
 # Print result
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-my $end_run = time();
+my $end_run  = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n");
+
+close $log if $log;
 __END__
 
 =head1 NAME

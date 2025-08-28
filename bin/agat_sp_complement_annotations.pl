@@ -3,52 +3,33 @@
 use strict;
 use warnings;
 use Carp;
-use Getopt::Long;
-use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
 my $start_run = time();
-my $opt_output = undef;
-my @opt_files;
-my $ref = undef;
-my $size_min = 0;
-my $opt_help= undef;
+my @copyARGV  = @ARGV;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "ref|r|i=s" => \$ref,
-    "add|a=s" => \@opt_files,
-    "size_min|s=i" => \$size_min,
-    "output|outfile|out|o=s" => \$opt_output))
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options( $header,
+    [ 'ref|r|i=s', 'Reference GFF file', { required => 1 } ],
+    [ 'add|a=s@',  'GFF files to complement with', { required => 1 } ],
+    [ 'size_min|s=i', 'Minimum size of features',
+      { default => 0,
+        callbacks => { positive => sub { shift >= 0 or die 'size_min must be >= 0' } } } ],
+);
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $ref        = $opt->ref;
+my @opt_files  = $opt->add ? @{ $opt->add } : ();
+my $size_min   = $opt->size_min;
+my $opt_output = $config->{output};
+my $verbose    = $config->{verbose};
+
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name )
+      or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if (! $ref or ! @opt_files ){
-    pod2usage( {
-           -message => "$header\nAt least 2 files are mandatory:\n --ref file1 --add file2\n\n",
-           -verbose => 0,
-           -exitval => 2 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 ######################
 # Manage output file #
@@ -66,21 +47,21 @@ my $gffout = prepare_gffout($config, $opt_output);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $ref,
                                                                  config => $config
                                                               });
-print ("$ref GFF3 file parsed\n");
-info_omniscient($hash_omniscient);
+dual_print( $log, "$ref GFF3 file parsed\n");
+info_omniscient($hash_omniscient, $log, $verbose);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
   my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
 	                                                                   config => $config
                                                                 });
-  print ("$next_file GFF3 file parsed\n");
-  info_omniscient($hash_omniscient2);
+  dual_print( $log, "$next_file GFF3 file parsed\n");
+  info_omniscient($hash_omniscient2, $log, $verbose);
 
   ################################
   # First rename ID to be sure to not add feature with ID already used
   rename_ID_existing_in_omniscient($hash_omniscient, $hash_omniscient2);
-  print ("\n$next_file IDs checked and fixed.\n");
+  dual_print( $log, "\n$next_file IDs checked and fixed.\n");
 
 
   # Quick stat hash before complement
@@ -94,7 +75,7 @@ foreach my $next_file (@opt_files){
 
   ####### COMPLEMENT #######
   complement_omniscients($hash_omniscient, $hash_omniscient2, $size_min);
-  print ("\nComplement done !\n");
+  dual_print( $log, "\nComplement done !\n");
 
 
  #RESUME COMPLEMENT
@@ -112,7 +93,7 @@ foreach my $next_file (@opt_files){
   foreach my $level ( ('level1', 'level2') ){
     foreach my $tag (keys %{$quick_stat1{$level}}){
       if ($quick_stat1{$level}{$tag} != $quick_stat2{$level}{$tag} ){
-        print "We added ".($quick_stat2{$level}{$tag}-$quick_stat1{$level}{$tag})." $tag(s)\n";
+        dual_print( $log, "We added ".($quick_stat2{$level}{$tag}-$quick_stat1{$level}{$tag})." $tag(s)\n");
         $complemented=1;
       }
     }
@@ -121,18 +102,18 @@ foreach my $next_file (@opt_files){
   foreach my $level ( ('level1', 'level2') ){
     foreach my $tag (keys %{$quick_stat2{$level}}){
       if (! exists $quick_stat1{$level}{$tag} ){
-        print "We added ".$quick_stat2{$level}{$tag}." $tag(s)\n";
+        dual_print( $log, "We added ".$quick_stat2{$level}{$tag}." $tag(s)\n");
         $complemented=1;
       }
     }
   }
   #If nothing added
   if(! $complemented){
-    print "\nNothing has been added\n";
+    dual_print( $log, "\nNothing has been added\n");
   }
   else{
-    print "\nNow the data contains:\n";
-    info_omniscient($hash_omniscient);
+    dual_print( $log, "\nNow the data contains:\n");
+    info_omniscient($hash_omniscient, $log, $verbose);
   }
 }
 
@@ -140,10 +121,10 @@ foreach my $next_file (@opt_files){
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 #END
-print "usage: $0 @copyARGV\n";
+dual_print( $log, "usage: $0 @copyARGV\n");
 my $end_run = time();
 my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print( $log, "Job done in $run_time seconds\n");
 __END__
 
 =head1 NAME

@@ -4,47 +4,27 @@ use strict;
 use warnings;
 use Carp;
 use Clone 'clone';
-use Getopt::Long;
+use Getopt::Long::Descriptive;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $gff = undef;
-my $opt_help= 0;
-my $force=undef;
-my $outfile=undef;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff|f=s', 'Input GFF file', { required => 1 } ],
+    [ 'force',   'Replace existing Name attributes' ],
+);
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \$gff,
-    "force" => \$force,
-    "output|outfile|out|o=s" => \$outfile))
+my $gff     = $opt->gff;
+my $force   = $opt->force;
+my $outfile = $opt->out;
 
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
 
 # Prepare output
 my $gffout = prepare_gffout($config, $outfile);
@@ -56,7 +36,7 @@ my $gffout = prepare_gffout($config, $outfile);
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("GFF3 file parsed\n");
+dual_print($log, "GFF3 file parsed\n");
 
 my $nbNameAdded=0;
 
@@ -82,9 +62,9 @@ foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
         $nbNameAdded++;
       }
       elsif($feature->has_tag('Name') and ( ! $force)){
-        print "Feature contains already an attribute Name. You can force it replacement by using the option --force\n";
+        dual_print($log, "Feature contains already an attribute Name. You can force it replacement by using the option --force\n");
       }
-      print "Name found in gene attribute = $name\n";
+      dual_print($log, "Name found in gene attribute = $name\n");
     }# Name not found in gene attribute. So we try to get the name included in the inference attribute.
     elsif($feature->has_tag('inference')){
       my @inferenceAtt=$feature->get_tag_values('inference');
@@ -111,14 +91,16 @@ foreach my $tag (keys %{$hash_omniscient->{'level1'}}){
           $nbNameAdded++;
         }
         elsif($feature->has_tag('Name') and ( ! $force)){
-          print "Feature contains already an attribute Name. You can force it replacement by using the option --force\n";
+          dual_print($log, "Feature contains already an attribute Name. You can force it replacement by using the option --force\n");
         }
-        print "My Name get in inference attribute = $name\n";
+        dual_print($log, "My Name get in inference attribute = $name\n");
       }
     }
   }
 }
-print "We added $nbNameAdded Name attributes\n";
+dual_print($log, "We added $nbNameAdded Name attributes\n");
+
+close $log if $log;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 

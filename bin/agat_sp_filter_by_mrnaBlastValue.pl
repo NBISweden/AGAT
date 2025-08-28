@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 use Carp;
-use Pod::Usage;
-use Getopt::Long;
 use Scalar::Util qw(openhandle);
 use Time::Piece;
 use Time::Seconds;
@@ -12,41 +10,22 @@ use URI::Escape;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $outfile = undef;
-my $gff     = undef;
-my $blast   = undef;
-my $opt_help;
+my ( $opt, $usage, $config ) = AGAT::AGAT::describe_script_options(
+    $header,
+    [ 'gff=s',   'Input reference gff file', { required => 1 } ],
+    [ 'blast=s', 'Input blast file',         { required => 1 } ],
+);
 
+my $gff   = $opt->gff;
+my $blast = $opt->blast;
+my $outfile = $config->{output};
 
-if ( !GetOptions(   'c|config=s'=> \$config,
-                    "h|help"    => \$opt_help,
-                    "gff=s"     => \$gff,
-                    "blast=s"   => \$blast,
-                    "outfile=s" => \$outfile ))
-
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my $log;
+if ( my $log_name = $config->{log_path} ) {
+    open( $log, '>', $log_name ) or die "Can not open $log_name for printing: $!";
+    dual_print( $log, $header,  3 );
 }
-
-# Print Help and exit
-if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
-}
-
-if ( ! (defined($gff)) or !(defined($blast)) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameter is mandatory:\nInput reference gff file (--gff) and Input blast file (--blast)\n\n",
-           -verbose => 0,
-           -exitval => 1 } );
-}
-
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $opt_verbose = $config->{verbose};
 
 # Open Output files #
 my $out = prepare_gffout($config, $outfile);
@@ -57,11 +36,11 @@ my $out = prepare_gffout($config, $outfile);
 my $killlist = parse_blast($blast);
 
 ### Parse GFF input #
-print ("Parse file $gff\n");
+dual_print($log, "Parse file $gff\n");
 my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
                                                                  config => $config
                                                               });
-print ("$gff file parsed\n");
+dual_print($log, "$gff file parsed\n");
 
 # Remove all mRNA specified by the kill-list from their (gene-) parents.
 remove_omniscient_elements_from_level2_ID_list ($hash_omniscient, $killlist);
@@ -168,7 +147,9 @@ sub parse_blast
 
     #print "We will removed $cptCount more.\n";
     my $nbremove = @answer;
-    print "$nbremove gene will be removed !\n";
+    dual_print($log, "$nbremove gene will be removed !\n");
+
+close $log if $log;
 
     return \@answer;
 } ## end sub parse_blast

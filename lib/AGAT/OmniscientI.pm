@@ -4,6 +4,7 @@ package AGAT::OmniscientI;
 
 use strict;
 use warnings;
+use Carp;
 use Try::Tiny;
 use File::Basename;
 use File::ShareDir ':ALL';
@@ -86,6 +87,17 @@ my @COMONTAG;
 # $locus_tag => tag to consider for gathering features (in top of the default one)
 # $gff_in_format => Int (if is used, force the parser to use this gff parser instead of guessing)
 # $verbose => define the deepth of verbosity
+
+my $log;
+if ( $AGAT::AGAT::CONFIG && $AGAT::AGAT::CONFIG->{log} ) {
+	my $log_name = $AGAT::AGAT::CONFIG->{log_path};
+	open( $log, '>', $log_name )
+	  or die "Can not open $log_name for printing: $!";
+   print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
+																  char => " ",
+																  extra => "\n"});
+}
+
 sub slurp_gff3_file_JD {
 
 	my $start_run = time();
@@ -113,7 +125,7 @@ sub slurp_gff3_file_JD {
 	my ($args) = @_	;
 
 	# +----------------- Check we receive a hash as ref ------------------+
-	if(ref($args) ne 'HASH'){ print "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; exit;	}
+        if(ref($args) ne 'HASH'){ croak "Hash Arguments expected for slurp_gff3_file_JD. Please check the call.\n"; }
 
 	# +-----------------  Declare all variables and fill them ------------------+
 	my ( $file, $gff_in_format, $locus_tag, $verbose, $merge_loci,
@@ -121,42 +133,27 @@ sub slurp_gff3_file_JD {
 
 	# +----------------- first check config ------------------+
 	if( defined($args->{config} ) ){
-		$config = $args->{config};
-		$omniscient{"config"}=$config;
-	} else {
-		print "Configuration missing!\n";
-		exit 1;
-	}
+                $config = $args->{config};
+                $omniscient{"config"}=$config;
+        } else {
+                croak "Configuration missing!\n";
+        }
 
 	# +----------------- input param  ------------------+
 	if( defined($args->{input})) {$file = $args->{input};}
 	else{ dual_print($log, "Input data (input) is mandatory when using slurp_gff3_file_JD!"); exit;}
 
 	# +----------------- first define verbosity ------------------+
-	$verbose = $config->{verbose};
+        $verbose = $config->{verbose};
 
-	# +----------------- hide progressbar ------------------+
-	$progress_bar = $config->{progress_bar};
+        # +----------------- hide progressbar ------------------+
+        $progress_bar = $config->{progress_bar};
+        $progress_bar = 0 if $verbose == 0;    # quiet mode disables progress bar
 
-	# +----------------- create a log file  ------------------+
-	if($config->{log}){
-		if( -f $file){
-			my ($filename,$path,$ext) = fileparse($file,qr/\.[^.]*/);
-			my $log_name = $filename.".agat.log";
-			open($log, '>', $log_name  ) or
-						dual_print($log, "Can not open $log_name for printing: $!", 1) && die;
-			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
-																  char => " ",
-																  extra => "\n"});
-		}
-	}
 
-	# +----------------- Print header ------------------+
-	# Printed to screen by get_agat_config at the very beginning so here we just to want to report the header in the log
-	dual_print ($log, AGAT::AGAT::get_agat_header(), 0);
 
-	# +----------------- debug param  ------------------+
-	$debug = $config->{debug};
+        # +----------------- debug param  ------------------+
+        $debug = $config->{debug};
 
 	# +----------------- gff/gtf version param  ------------------+
 	$gff_in_format = $config->{force_gff_input_version};
@@ -224,33 +221,33 @@ sub slurp_gff3_file_JD {
 	my %WARNS;
 	my %globalWARNS;
 	my $nbWarnLimit = $debug ? undef : 10; # limit number of warning if not debug mode
-		local $SIG{__WARN__} = sub {
-		my $message = shift;
-		my @thematic=split /@/,$message ;
+                local $SIG{__WARN__} = sub {
+                my $message   = shift;
+                my @thematic = split /@/, $message;
 
-		if($thematic[0] eq "GLOBAL"){ #extract global warning (about feature type in ontology and if AGAT deal with it)
-			push @{$globalWARNS{$thematic[1]}}, $thematic[2];
-		}
-		else{
-			# Print  a limited amount of warning
-			$WARNS{$thematic[0]}++;
-			if($nbWarnLimit){
-				if ($WARNS{$thematic[0]} <= $nbWarnLimit){
-					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-					dual_print($log, $message, $verbose);
-				}
-				if($WARNS{$thematic[0]} == $nbWarnLimit){
-					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-					dual_print($log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose);
-				}
-			}
-			# Print all warning
-			else{
-				print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-				dual_print($log, $message, $verbose);
-			}
-		}
-	};
+                if ( $thematic[0] eq 'GLOBAL' ) {    # extract global warning (about feature type in ontology and if AGAT deal with it)
+                        push @{ $globalWARNS{ $thematic[1] } }, $thematic[2];
+                }
+                else {
+                        # Print  a limited amount of warning
+                        $WARNS{ $thematic[0] }++;
+                        if ($nbWarnLimit) {
+                                if ( $WARNS{ $thematic[0] } <= $nbWarnLimit ) {
+                                        print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                        dual_print( $log, $message, $verbose );
+                                }
+                                if ( $WARNS{ $thematic[0] } == $nbWarnLimit ) {
+                                        print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                        dual_print( $log, "$thematic[0] ************** Too much WARNING message we skip the next **************\n", $verbose );
+                                }
+                        }
+                        # Print all warning
+                        else {
+                                print "\r", ' ' x 80, "\r" if $progress_bar;    # To clean the line already used by the progressbar
+                                dual_print( $log, $message, $verbose );
+                        }
+                }
+        };
 
 #	+-------------------------------------------------------------------------+
 #	|				HANDLE FEATUTRES PARSING ACCORDING TO TYPE OF INPUTS			|
@@ -406,10 +403,10 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during parsing ---------------
-	foreach my $thematic (keys %WARNS){
-		my $nbW = $WARNS{$thematic};
-		dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
-	}
+        foreach my $thematic ( sort keys %WARNS ){
+                my $nbW = $WARNS{$thematic};
+                dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+        }
 
 	# Parsing time
 	dual_print ($log,sizedPrint("------ End parsing (done in ".(time() - $start_run)." second) ------",80, "\n\n\n"), $verbose);
@@ -544,12 +541,12 @@ sub slurp_gff3_file_JD {
 	}
 
 	#------- Inform user about warnings encountered during checking ---------------
-	foreach my $thematic (keys %WARNS){
-		my $nbW = $WARNS{$thematic};
-		if($nbW > $nbWarnLimit){
-			dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
-		}
-	}
+        foreach my $thematic ( sort keys %WARNS ){
+                my $nbW = $WARNS{$thematic};
+                if($nbW > $nbWarnLimit){
+                        dual_print($log, "$nbW warning messages: $thematic\n", $verbose);
+                }
+        }
 
 	dual_print ($log,sizedPrint("------ End checks (done in ".(time() - $check_time)." second) ------",80, "\n\n\n"), $verbose);
 
@@ -618,7 +615,7 @@ sub manage_one_feature{
 		if( keys %{$ontology} ){
 			# The tag is not part of the ontology let's save this info
 			if(! exists_keys($ontology, ($primary_tag) ) ) {
-				warn "GLOBAL@"."ontology1@".$primary_tag."@";
+				dual_warn($log, "GLOBAL@"."ontology1@".$primary_tag."@");
 			}
 		}
 
@@ -707,7 +704,7 @@ sub manage_one_feature{
 						_save_common_tag_value_top_feature($feature, $locusTAG_uniq, 'level2');
 				}
 				else{
-						warn "WARNING level2: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n";
+						dual_warn($log, "WARNING level2: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n");
 
 						#################
 		 				# COMON TAG PART1
@@ -843,7 +840,7 @@ sub manage_one_feature{
 				# No parent case	# But the feature itself stay intact without parentID.
 				else{
 						my $play_this_game=1;
-						warn "WARNING level3: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n";
+						dual_warn( $log, "WARNING level3: No Parent attribute found @ for the feature: ".$feature->gff_string()."\n");
 
 						#################
 						# COMON TAG PART1
@@ -1060,12 +1057,12 @@ sub manage_one_feature{
 # |MANAGE THE REST => feature UNKNOWN | # FEATURE NOT DEFINE IN ANY OF THE 3 LEVELS YET
 # +----------------------------------------------------------------------------+
 		else{
-				warn "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
-				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n";
-				warn "GLOBAL@"."parser1@".$primary_tag."@";
+				dual_warn($log, "gff3 reader warning: primary_tag error @ ".$primary_tag." still not taken into account!".
+				" Please modify the feature_levels YAML file to define the feature in one of the levels.\n");
+				dual_warn($log, "GLOBAL@"."parser1@".$primary_tag."@");
 				return $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $feature, $lastL1_new;
 		}
-		print "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n";exit;
+		dual_warn($log, "Congratulation ! Read this line is not normal !! Please contact the developer !!!\n");exit;
 }
 
 ##==============================================================================
@@ -1098,10 +1095,10 @@ sub _check_locus_uniqueness{
 		if ( exists_keys ( $omniscient, ('level1', $tag_l1, lc($parent) ) ) ){
 
 			if( $feature->seq_id() ne $omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id()  )	{
-				warn "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
+				dual_warn( $log, "WARNING l2 and l1 features not on same seq_id @ ".$feature->_tag_value("ID").
 				" level2 feature is on ".$feature->seq_id." sequence while ".
 				$omniscient->{'level1'}{$tag_l1}{lc($parent)}->_tag_value("ID").
-				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n";
+				" level1 feature is on ".$omniscient->{'level1'}{$tag_l1}{lc($parent)}->seq_id."\n");
 			}
 		}
 	}
@@ -1173,10 +1170,10 @@ sub _get_comon_tag_value{
 
 	# In case where no parent, no comon tag, and no sequential, we cannot deal at all with it !!!!
 	if(! $locusName_lc and $level ne 'level1'){
-		warn "WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag.".
+		dual_warn( $log, "WARNING gff3 reader: Hmmm, be aware that your feature doesn't contain any Parent and locus tag.".
 		" No worries, we will handle it by considering it as strictly sequential.".
 		" If you disagree, please provide an ID or a comon tag by locus.".
-		" @ the feature is:\n".$feature->gff_string()."\n";
+		" @ the feature is:\n".$feature->gff_string()."\n");
 	}
 
 	return $locusName;
@@ -1297,12 +1294,12 @@ sub _it_is_duplication{
 	}
 
 	if(! $is_dupli and $level eq "level1" and $omniscient->{"level1"}{$primary_tag}{$id}){
-		warn "WARNING level1: This feature level1 is not a duplicate but has an ID already used.\n".
+		dual_warn( $log, "WARNING level1: This feature level1 is not a duplicate but has an ID already used.\n".
 		"/!\\ AGAT might mix up the child features and create chimeric records.\n".
 		"Indeed we changed the ID for this L1 feature to be unique but we do not \n".
 		"change the Parent attribute of the child features to reflect this change.\n".
 		"Why? because we do not know to which L1 the child feature was part-of because several Parent have similar ID.\n".
-		" @ the feature is:\n".$feature->gff_string()."\noriginal id: $id\n";
+		" @ the feature is:\n".$feature->gff_string()."\noriginal id: $id\n");
 
 	}
 	return $is_dupli;
@@ -1410,8 +1407,8 @@ sub _check_uniq_id_feature{
 	}
 	else{ #tag absent
 		if($level ne 'level3'){
-			warn "gff3 reader error ".$level .": No ID attribute found".
-			" @ for the feature: ".$feature->gff_string()."\n";
+			dual_warn( $log, "gff3 reader error ".$level .": No ID attribute found".
+			" @ for the feature: ".$feature->gff_string()."\n");
 		}
 		$uID = _create_ID($hashID, $primary_tag, $id, $config->{"prefix_new_id"}); #method will push the uID
 		create_or_replace_tag($feature, 'ID', $uID);
@@ -1615,7 +1612,7 @@ sub _check_l1_linked_to_l2{
 
 				# now save it in omniscient
 				$hash_omniscient->{"level1"}{$primary_tag_l1}{lc($new_ID_l1)}=$gene_feature;
-				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 0); # print only in log
+				dual_print($log, "No Parent feature found for ".$l2_id.". We create one: ".$gene_feature->gff_string()."\n", 3); # print only in log
 			}
 		}
 	}
@@ -1662,7 +1659,7 @@ sub _remove_orphan_l1{
  				}
  				if($neverfound){
  					$resume_case++;
-					dual_print($log, "removing ".$omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n", 0); #print only in log
+					dual_print($log, "removing ".$omniscient->{'level1'}{$tag_l1}{$id_l1}->gff_string."\n", 3); #print only in log
 					delete $omniscient->{'level1'}{$tag_l1}{$id_l1}; # delete level1 // In case of refseq the feature has been cloned and modified, it is why we nevertheless remove it
 				}
  	 	}
@@ -1929,9 +1926,9 @@ sub _check_all_level3_locations{
 			$resume_cases{$type_l3}+=$nb_merged;
 		}
 	}
-	foreach my $type (keys %resume_cases){
-		dual_print($log, "$resume_cases{$type} adjacent $type merged\n", $verbose);
-	}
+        foreach my $type ( sort keys %resume_cases ){
+                dual_print($log, "$resume_cases{$type} adjacent $type merged\n");
+        }
 }
 
 # @Purpose: Check L3 features. If CDS do not contains stop_codon we have to extend the CDS to include it
@@ -1962,7 +1959,7 @@ sub _check_cds{
 							}
 							else{
 								$codon_split = 1;
-								dual_print($log, "Stop codon split over exons\n", 0); #print log only
+								dual_print($log, "Stop codon split over exons\n", 3); #print log only
 							}
 					}
 
@@ -1979,7 +1976,7 @@ sub _check_cds{
 							if($codon_split){ # Not adjacent because stop splited
 
 								if ($cds->end + 1 == ($list_stop[0]->start) ){
-									dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+									dual_print($log, "Extend CDS to the first part of the stop codon\n", 3); #print log only
 									$cds->end($list_stop[0]->end);
 
 									# create the cds chunk missing
@@ -2038,7 +2035,7 @@ sub _check_cds{
 						if($cds->start - 1 != $stop->end){
 							if($codon_split){
 									if ($cds->start - 1 == ($list_stop[$#list_stop]->end) ){
-										dual_print($log, "Extend CDS to the first part of the stop codon\n", 0); #print log only
+										dual_print($log, "Extend CDS to the first part of the stop codon\n", 3); #print log only
 										$cds->start($list_stop[$#list_stop]->start);
 
 										# create the cds chunk missing
@@ -2161,7 +2158,7 @@ sub _check_exons{
 				 					#Rare case when a features are badly defined
 				 					# This approch works for exon because they have uniq ID
 				 					if(@{$list_location_Exon} < @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}}){
-				 						dual_print($log, "Peculiar rare case, we have to remove existing exon which are supernumerary. Parent is $id_l2\n", 0); #print only in log
+				 						dual_print($log, "Peculiar rare case, we have to remove existing exon which are supernumerary. Parent is $id_l2\n", 3); #print only in log
 				 						#remove the non needed features (they where wrong, and are unecessary)
 									my @id_list2=();
 									foreach my $locations (@{$list_location_Exon}){
@@ -2181,7 +2178,7 @@ sub _check_exons{
 				 					my @tag_list = ('all');
 				 					my @id_list=($id_l2);
 				 					$resume_case3 += @id_list2;
-				 					dual_print($log, "We remove the supernumerary @id_list2 exon(s)\n", 0); # print only in log
+				 					dual_print($log, "We remove the supernumerary @id_list2 exon(s)\n", 3); # print only in log
 									remove_element_from_omniscient(\@id_list, \@id_list2, $hash_omniscient, 'level3', 'false', \@tag_list);
 				 				}
 				 			}
@@ -2246,12 +2243,12 @@ sub _check_exons{
 													if($l3_feature->_tag_value('ID') eq $exon_location->[0][0]){
 
 														if($redefine_left){
-															dual_print($log, "Modify the left location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->start()." to ".$new_location->[1]."\n", 0); #print only in log
+															dual_print($log, "Modify the left location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->start()." to ".$new_location->[1]."\n", 3); #print only in log
 															$l3_feature->start($new_location->[1]); $resume_case2++;
 														}
 
 														if($redefine_right){
-															dual_print($log, "Modify the right location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->end()." to ".$new_location->[2]."\n", 0); #print only in log
+															dual_print($log, "Modify the right location for ".$l3_feature->_tag_value('ID')." from ".$l3_feature->end()." to ".$new_location->[2]."\n", 3); #print only in log
 															$l3_feature->end($new_location->[2]); $resume_case2++;
 														}
 														last;
@@ -2288,7 +2285,7 @@ sub _check_exons{
 								$feature_exon->start($location->[1]);
 					 			$feature_exon->end($location->[2]);
 								#save new feature L2
-								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 0); #print only in log
+								dual_print($log, "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 3); #print only in log
 								push (@{$hash_omniscient->{"level3"}{$tag}{$id_l2}}, $feature_exon);
 					 			}
 					 	}
@@ -2308,23 +2305,23 @@ sub _check_exons{
 					 					 	my @list_exon = sort {$a->start <=> $b->start} @{$hash_omniscient->{'level3'}{'exon'}{$id_l2}};
 
 					 					 	if( int($list_exon[0]->start) >	int($myLeftExtremity) ){
-												dual_print($log, "Modify the exon ".$list_exon[0]->_tag_value('ID')." LEFT extremity for $id_l2! From ".$list_exon[0]->start." to ".$myLeftExtremity."\n", 0); #print only in log
+												dual_print($log, "Modify the exon ".$list_exon[0]->_tag_value('ID')." LEFT extremity for $id_l2! From ".$list_exon[0]->start." to ".$myLeftExtremity."\n", 3); #print only in log
 					 					 		$list_exon[0]->start($myLeftExtremity);
 												$resume_case2++;
 					 					 	}
 					 					 	if($list_exon[0]->start <	$myLeftExtremity){	#modify L2
-												dual_print($log, "Modify the L2 $id_l2 LEFT extremity! From ".$l2_feature->start."to".$list_exon[0]->start."\n", 0); #print only in log
+												dual_print($log, "Modify the L2 $id_l2 LEFT extremity! From ".$l2_feature->start."to".$list_exon[0]->start."\n", 3); #print only in log
 					 					 		$l2_feature->start($list_exon[0]->start);
 												$resume_case4++;
 					 					 	}
 
 					 					 	if($list_exon[$#list_exon]->end <	$myRightExtremity){
-					 					 		dual_print($log, "Modify the exon ".$list_exon[$#list_exon]->_tag_value('ID')." RIGHT extremity for $id_l2! From ".$list_exon[$#list_exon]->end." to ".$myRightExtremity."\n", 0); #print only in log
+					 					 		dual_print($log, "Modify the exon ".$list_exon[$#list_exon]->_tag_value('ID')." RIGHT extremity for $id_l2! From ".$list_exon[$#list_exon]->end." to ".$myRightExtremity."\n", 3); #print only in log
 					 					 		$list_exon[$#list_exon]->end($myRightExtremity);
 												$resume_case2++;
 					 						}
 					 						elsif($list_exon[$#list_exon]->end >	$myRightExtremity){ #modify L2
-												dual_print($log, "Modify the L2 $id_l2 RIGHT extremity! From ".$l2_feature->end."to".$list_exon[$#list_exon]->end."\n", 0); #print only in log
+												dual_print($log, "Modify the L2 $id_l2 RIGHT extremity! From ".$l2_feature->end."to".$list_exon[$#list_exon]->end."\n", 3); #print only in log
 					 							$l2_feature->end($list_exon[$#list_exon]->end);
 												$resume_case4++;
 					 						}
@@ -2489,7 +2486,7 @@ sub _check_utrs{
 																	$l3_feature->start($UTRexp_location->[1]);
 							 										$l3_feature->end($UTRexp_location->[2]);
 																	$resume_case2++;
-																	dual_print($log, "Modify the UTR: ".$UTR_location->[0][0]." location for $id_l2! From ".$UTR_location->[1]." ".$UTR_location->[2]." to ".$UTRexp_location->[1]." ".$UTRexp_location->[2]."\n", 0); # print log only
+																	dual_print($log, "Modify the UTR: ".$UTR_location->[0][0]." location for $id_l2! From ".$UTR_location->[1]." ".$UTR_location->[2]." to ".$UTRexp_location->[1]." ".$UTRexp_location->[2]."\n", 3); # print log only
 							 										last;
 							 									}
 							 								}
@@ -2528,7 +2525,7 @@ sub _check_utrs{
 									$list_utr_to_create=$list_location_UTR_expected;# no UTR exists, we have to create all of them
 								}
 								$resume_case3 += $nb_supernumary_utrs;
-								dual_print($log, "Remove $nb_supernumary_utrs supernumerary UTRs for $id_l2\n", 0)# print in log only
+								dual_print($log, "Remove $nb_supernumary_utrs supernumerary UTRs for $id_l2\n", 3)# print in log only
 							}
 		 				}
 	 					else{
@@ -2580,7 +2577,7 @@ sub _check_utrs{
 									$feature_utr->primary_tag($primary_tag);
 									create_or_replace_tag($feature_utr, 'ID', $uID); # remove parent ID because, none.
 									#save new feature L2
-									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 0); #print only in log
+									dual_print($log, "Create one UTR for $id_l2\n:".$feature_utr->gff_string."\n", 3); #print only in log
 									push (@{$hash_omniscient->{"level3"}{lc($primary_tag)}{$id_l2}}, $feature_utr);
 								}
 						}
@@ -2634,7 +2631,7 @@ sub merge_features{
 			if ($method eq "adjacent"){
 				if ( $l3_feature->end()+1 == $l3_feature_next->start() ){ #locations are consecutives consecutive
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
-						dual_print($log, $message, 0); #print log only
+						dual_print($log, $message, 3); #print log only
 						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
@@ -2647,7 +2644,7 @@ sub merge_features{
 			else{
 				if ( ($l3_feature_next->start() <= $l3_feature->end()+1) and ($l3_feature_next->end()+1 >= $l3_feature->start() ) ){ #it overlaps or are consecutive/adjacent
 						my $message = "Features adjacents we merge them:\n".$l3_feature->gff_string()."\n".$l3_feature_next->gff_string()."\n";
-						dual_print($log, $message, 0); #print log only
+						dual_print($log, $message, 3); #print log only
 						$l3_feature->end($l3_feature_next->end()) if ($l3_feature_next->end() > $l3_feature->end());
 						$skip_because_consumed{lc($IDunique_next)}++; # Save consumed feature ID
 						$modification_occured++;
@@ -2791,7 +2788,7 @@ sub _deinterleave_sequential{
 
 	 		if($locusNameHIS ne $locusNameUniq ){
 
-				dual_print($log, "Locus $locusNameHIS interleaved\n", 0); # print only in log
+				dual_print($log, "Locus $locusNameHIS interleaved\n", 3); # print only in log
 				$resume_case++;
 
 	 			# The locusNameUniq already exists, we have to fill it with the part of
@@ -3423,7 +3420,7 @@ sub get_general_info{
 	dual_print( $log, "=> Number of features lines: $nb_feature_line\n", $verbose);
 
 	# ----- inform problem of line wihtout the 9 fields expected ----
-	foreach my $size (keys %nb_field){
+	foreach my $size (sort keys %nb_field){
 		if($size != 9){
 			my $nb_field_error = $nb_field{$size};
 			dual_print( $log, "=> Number of feature lines with $size fields (while 9 expected): $nb_field_error\n", $verbose);
@@ -3446,14 +3443,14 @@ sub get_general_info{
 		}
 	}
 	dual_print( $log, "=> Number of feature type (3rd column): $nb_ft\n", $verbose);
-	my @listL1 = @{$info_levels{"level1"}};
-	dual_print( $log, "	* Level1: ".@{$info_levels{"level1"}}." => @listL1\n", $verbose);
-	my @listL2 = @{$info_levels{"level2"}};
-	dual_print( $log, "	* level2: ".@{$info_levels{"level2"}}." => @listL2\n", $verbose);
-	my @listL3 = @{$info_levels{"level3"}};
-	dual_print( $log, "	* level3: ".@{$info_levels{"level3"}}." => @listL3\n", $verbose);
-	my @listUn = @{$info_levels{"unknown"}};
-	dual_print( $log, "	* unknown: ".@{$info_levels{"unknown"}}." => @listUn\n", $verbose);
+	my @listL1 = sort @{$info_levels{"level1"}};
+	dual_print( $log, "	* Level1: " . @listL1 . " => @listL1\n", $verbose);
+	my @listL2 = sort @{$info_levels{"level2"}};
+	dual_print( $log, "	* level2: " . @listL2 . " => @listL2\n", $verbose);
+	my @listL3 = sort @{$info_levels{"level3"}};
+	dual_print( $log, "	* level3: " . @listL3 . " => @listL3\n", $verbose);
+	my @listUn = sort @{$info_levels{"unknown"}};
+	dual_print( $log, "	* unknown: " . @listUn . " => @listUn\n", $verbose);
 
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){
@@ -3628,10 +3625,10 @@ sub select_gff_format{
 
 	close($fh);
 
-	if($problem3){
-		dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"));
-		$gff_in_format{1}++;
-	}
+        if($problem3){
+                dual_print ($log, surround_text("There is a problem with your GFF format.\nThis format is wrong: tag=value tag=value.\nYou should have: tag=value;tag=value or tag value ; tag value\nThe best parser (gff1) we can use will keep only the first attribute.",100,"!"), $verbose);
+                $gff_in_format{1}++;
+        }
 
 	if (%gff_in_format){
 			my $number_of_format = scalar keys %gff_in_format;
@@ -3642,26 +3639,26 @@ sub select_gff_format{
 				dual_print ($log, $stringprint, $verbose);
 		}
 	}
-	else{
-		my $nb_col = scalar @col_tab;
-		if ($nb_col == 8){
-			dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") );
-			$gff_in_format{1}++;
-		}
-		elsif ($nb_col < 8){
-			dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!") );
-			exit;
-		}
-		else{
-			dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") );
-		}
-		$gff_in_format{3}++;
-	}
+        else{
+                my $nb_col = scalar @col_tab;
+                if ($nb_col == 8){
+                        dual_print ($log, surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!"), $verbose );
+                        $gff_in_format{1}++;
+                }
+                elsif ($nb_col < 8){
+                        dual_print ($log, surround_text("Your file has less than 8 columns ($nb_col). It cannot be a GTF/GFF file. Please verify your file",80,"!"), $verbose );
+                        exit;
+                }
+                else{
+                        dual_print ($log, surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!"), $verbose );
+                }
+                $gff_in_format{3}++;
+        }
 	my $nb_col_in_attribute = scalar @attribute_tab;
-	if ($nb_col_in_attribute > 1){
-		dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!") );
-		$gff_in_format{1}++;
-	}
+        if ($nb_col_in_attribute > 1){
+                dual_print ($log, surround_text("Interesting this GTF/GFF file has tabulation(s) within the attributes, this is not supposed to happen. FYI tabs must be replaced with the %09 URL escape in GFF3 or C (UNIX) style backslash-escaped representation \\t in GFF2.",80,"!"), $verbose );
+                $gff_in_format{1}++;
+        }
 
 	if($gff_in_format{3}){return 3;}
 	if($gff_in_format{2}){return 2;}
@@ -3973,7 +3970,7 @@ sub _handle_globalWARNS{
 
 	# -------------- INPUT --------------
 	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for _handle_globalWARNS. Please check the call.\n";exit;	}
+	if(ref($args) ne 'HASH'){ dual_warn($log, "Hash Arguments expected for _handle_globalWARNS. Please check the call.\n");exit;	}
 	# -- Declare all variables and fill them --
 	my ($globalWARNS, $ontology, $log, $type, $verbose);
 
