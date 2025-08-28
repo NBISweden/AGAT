@@ -44,9 +44,9 @@ if ( my $log_name = $config->{log_path} ) {
 }
 dual_print( $log, $header, 3);
 
-my $opt_utr3 = ($mode && ($mode eq 'three' || $mode eq 'both')) ? 1 : 0;
-my $opt_utr5 = ($mode && ($mode eq 'five'  || $mode eq 'both')) ? 1 : 0;
-my $opt_bst  = ($mode && $mode eq 'both') ? 1 : 0;
+my $opt_utr3 = ( $mode && $mode eq 'three' ) ? 1 : 0;
+my $opt_utr5 = ( $mode && $mode eq 'five' ) ? 1 : 0;
+my $opt_bst  = ( $mode && $mode eq 'both' ) ? 1 : 0;
 
 if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_plot) ) {
     pod2usage( {
