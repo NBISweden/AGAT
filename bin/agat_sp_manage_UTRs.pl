@@ -13,12 +13,15 @@ use AGAT::AGAT;
 
 my $header = get_agat_header();
 my $config;
-my $DefaultUTRnb=5;
 
 my @copyARGV = @ARGV;
 my ( $opt, $usage, $cfg ) = AGAT::AGAT::describe_script_options( $header,
     [ 'gff|f|ref|reffile=s', 'Input GTF/GFF file', { required => 1 } ],
-    [ 'number|n|t|nb=i',     'Threshold of exon\'s number of the UTR' ],
+    [ 'number|n|t|nb=i',     'Threshold of exon\'s number of the UTR', 
+	                          { default => 5, 
+						        callbacks => { positive => sub { 
+			                      shift > 0 or die 'Exon number threshold must be > 0' 
+						      }}}],
     [ 'mode' => hidden => { one_of => [
             [ 'three|3|three_prime_utr' => 'Apply threshold on the 3\'UTR' ],
             [ 'five|5|five_prime_utr'   => 'Apply threshold on the 5\'UTR' ],
@@ -41,8 +44,8 @@ if ( my $log_name = $config->{log_path} ) {
 }
 dual_print( $log, $header, 3);
 
-my $opt_utr3 = ($mode && $mode eq 'three') ? 1 : 0;
-my $opt_utr5 = ($mode && $mode eq 'five') ? 1 : 0;
+my $opt_utr3 = ($mode && ($mode eq 'three' || $mode eq 'both')) ? 1 : 0;
+my $opt_utr5 = ($mode && ($mode eq 'five'  || $mode eq 'both')) ? 1 : 0;
 my $opt_bst  = ($mode && $mode eq 'both') ? 1 : 0;
 
 if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_plot) ) {
@@ -75,9 +78,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
 $string1 .= "\n\nusage: $0 @copyARGV\n\n";
 
-if (! $opt_nbUTR){
-  $opt_nbUTR=$DefaultUTRnb;
-}elsif(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
+if(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
 if($opt_utr3 or $opt_utr5 or $opt_bst){
   $string1 .= "Genes with more than $opt_nbUTR UTRs will be reported.\n";
 }
