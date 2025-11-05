@@ -58,6 +58,7 @@ system("$script config -e \\
 								--no-check_exons  \\
 								--merge_loci \\
 								--prefix_new_id nbisTEST \\
+								--no-url_escaped \\
 								--clean_attributes_from_template  ");
 
 #run test

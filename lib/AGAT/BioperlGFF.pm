@@ -679,6 +679,13 @@ sub unescape {
   return $v;
 }
 
+sub escape {
+  my $v = shift;
+  $v =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
+  return $v;
+}
+
+
 
 =head2 write_feature
 
@@ -1121,20 +1128,25 @@ sub _gff3_string {
         my @v;
         for my $value ( $feat->get_tag_values($tag) ) {
             if(  defined $value && length($value) ) {
-                                #$value =~ tr/ /+/;  #spaces are allowed now
+                
+                # Multiple tag=value pairs are separated by semicolons. 
+                # URL escaping rules are used for tags or values containing the following characters: ",=;". 
+                # Spaces are allowed in this field, but tabs must be replaced with the %09 URL escape. 
+                # Attribute values do not need to be and should not be quoted. 
+                #The quotes should be included as part of the value by parsers and not stripped.
                 if ( ref $value eq 'Bio::Annotation::Comment') {
                     $value = $value->text;
                 }
 
-                if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
-                    $value =~ s/\t/\\t/g; # substitute tab and newline
-                    # characters
-                    $value =~ s/\n/\\n/g; # to their UNIX equivalents
+                #if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
+                #    $value =~ s/\t/\\t/g; # substitute tab and newline
+                #    # characters
+                #    $value =~ s/\n/\\n/g; # to their UNIX equivalents
 
                     # Unescaped quotes are not allowed in GFF3
                     #                    $value = '"' . $value . '"';
-                }
-                $value =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
+                #}
+                escape($value);
             } else {
                 # if it is completely empty, then just make empty double quotes
                 $value = '""';

@@ -238,6 +238,7 @@ sub handle_config {
 		# config file option
 		my $verbose = $general->{configs}[-1]{verbose};
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
+		my $url_escaped = $general->{configs}[-1]{url_escaped};
 		my $config_new_name = $general->{configs}[-1]{output};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
@@ -282,6 +283,11 @@ sub handle_config {
 			# bolean
 			if( defined($progress_bar) ){
 				$config->{ progress_bar } = _make_bolean($progress_bar);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($url_escaped) ){
+				$config->{ url_escaped } = _make_bolean($url_escaped);
 				$modified_on_the_fly = 1;
 			}
 			# bolean

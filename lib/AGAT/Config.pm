@@ -174,6 +174,10 @@ sub check_config{
 		print "progress_bar parameter missing in the configuration file.\n";
 		$error = 1;
 	}
+	if( !  exists_keys($config,("url_escaped") ) ){
+		print "url_escaped parameter missing in the configuration file.\n";
+		$error = 1;
+	}
 	if( !  exists_keys($config,("log") ) ){
 		print "log parameter missing in the configuration file.\n";
 		$error = 1;

@@ -27,4 +27,5 @@ progress_bar: false
 remove_orphan_l1: false
 tabix: false
 throw_fasta: true
+url_escaped: false
 verbose: 3

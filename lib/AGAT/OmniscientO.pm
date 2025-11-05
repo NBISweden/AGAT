@@ -66,6 +66,7 @@ sub prepare_gffout{
 	else{
 		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
 	}
+	$gffout->{URL_ESCAPED} = $config->{url_escaped};
 	return $gffout;
 }
 
