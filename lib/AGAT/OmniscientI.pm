@@ -17,7 +17,7 @@ use Exporter;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
-use IPC::Shareable; # to share memory between processes
+use IPC::ShareLite qw( :lock );# to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
@@ -326,7 +326,7 @@ sub slurp_gff3_file_JD {
 		# --------------Select bioperl GFF parser version -------------
 		if(! $gff_in_format){ $gff_in_format = select_gff_format($file);}
 		$COMON_TAG->{'common_tag'}++ if($gff_in_format == 1); # When GFF1 and 9th column is only value wihtout tag, a common_tag tag will added
-		dual_print ({ 'string' => "=> Version of the Bioperl GFF parser selected by AGAT: $gff_in_format\n" });
+		dual_print ({ 'string' => "=> Version of the GFF parser selected by AGAT: $gff_in_format\n" });
 		# set threads/cpu/core
 		
 		# -------------- Set up a copy (contains levels, hash) ------------------
@@ -353,8 +353,26 @@ sub slurp_gff3_file_JD {
 			my $plural2 = $nb_files > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (file by chunck $max_procs CPU$plural - $nb_files chunck$plural2)", char => "-", prefix => "\n" }) });
 
-			# === Set progress bar (parsing) ===
+			my $mem;
 			if ( $progress_bar and $nb_line_feature ){
+
+				# === Deal with shareable memory  ===
+
+				# Initialize/clean the segment
+				$mem = IPC::ShareLite->new(
+					-key       => 'COUN', # Key must be a number or four character string
+					-create    => 'yes',
+					-exclusive => 'no',
+					-mode      => 0666,
+					-destroy => 'yes',
+					# -size can be omitted for small scalars; include if you expect larger blobs
+					-size      => 32,
+				) or die "IPC::ShareLite->new failed: $!";
+
+				# Initialisation du counter
+				update_counter($mem, 0);
+				
+				# === Set progress bar (parsing) ===	
 				$progress_bar = Term::ProgressBar->new({
 						name  => 'Parsing',
 						count => $nb_line_feature,
@@ -364,6 +382,7 @@ sub slurp_gff3_file_JD {
 
 				# Define the handler
 				$SIG{ALRM} = sub {
+					$nb_line_read = get_counter($mem);
 					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
 					# Re-arm the alarm
 					alarm(1);
@@ -372,38 +391,20 @@ sub slurp_gff3_file_JD {
 				alarm(1);
 			}
 
-			# === Deal with shareable memory  ===
-			# ---- Set counter for progress bar ----
-			my $counter_key = 'COUNTER';
-			# Clean previous shared memory segment (if any) 
-			eval {
-				my $old = tie $nb_line_read, 'IPC::Shareable', $counter_key, {};
-				$old->remove;
-			};
-			# tie a new shared variable - https://metacpan.org/pod/IPC::ShareLite
-			my $share_counter_obj = tie $nb_line_read, 'IPC::Shareable', $counter_key, {
-				create => 1, # 1 allows creating if it doesn’t exist.
-				exclusive => 0, # 0 allows multiple processes to access the same variable.
-				mode => 0666, # 0666 allows read/write access to all users.
-				destroy => 1, # If set to a true value, the shared memory segment underlying the data binding will be removed when the process that initialized the shared memory segment exits (gracefully)[1]. Only those memory segments that were created by the current process will be removed.
-			};
-
-			# === Create ForkManager ===
+			# ====== Create ForkManager ======
 			my $pm = Parallel::ForkManager->new($max_procs);
 
-			# Ensure cleanup on abrupt exit - on clean exit is made automatically with destroy 1 using END block
-			# has to be defined before the data removed
 			$SIG{INT} = $SIG{TERM} = sub {
 				warn "Caught SIG, cleaning up temp files...\n";
 							
 				# Kill all children still running
 				$pm->wait_all_children if $pm;
+				
 				if (-d $AGAT_TMP) {
 					remove_tree($AGAT_TMP, { error => \my $err });
 					warn "Tempdir $AGAT_TMP removed\n";
 				}
 
-				$share_counter_obj->remove;
 				exit(1);
 			};
 
@@ -493,9 +494,7 @@ sub slurp_gff3_file_JD {
 				
 					# --- Update shared value ----
 					# counter for progress bar
-					tied($nb_line_read)->lock();
-					$nb_line_read += $nb_line_read_local;
-					tied($nb_line_read)->unlock();
+					update_counter($mem, $nb_line_read_local);
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -527,9 +526,6 @@ sub slurp_gff3_file_JD {
 
 			# === Wait for all child processes to finish ===
 			$pm->wait_all_children;  
-
-			# clean share counter when done
-			$share_counter_obj->remove;
 
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
 			if ($progress_bar){
@@ -4506,4 +4502,26 @@ sub _create_log_file{
 	return $log;
 }
 
+# ------------------ local function for the use of IPC:ShareLite ------------------
+
+# function to increment a counter
+sub update_counter {
+	my ($mem, $value) = @_;
+    $mem->lock(LOCK_EX);
+    my $v = $mem->fetch;
+	$value = 0 unless defined $value;
+    $v = 0 unless defined $v && $v =~ /^\d+$/;
+    $v=$v+$value;
+    $mem->store("$v");   # store as a simple string
+    $mem->unlock;
+    return $v;
+}
+
+# function to fetch the counter
+sub get_counter {
+	my ($mem) = @_;
+    # If strict consistency is required, lock before fetch.
+    my $v = $mem->fetch;
+    return (defined $v && $v =~ /^\d+$/) ? $v : 0;
+}
 1;
