@@ -607,5 +607,5 @@ See Troubleshooting section form the doc [here](https://agat.readthedocs.io/en/l
 ## Acknowledgements
 
 I would like to thank all contributors who have helped in any way for their valuable support.  
-Special thanks to @kim-fehl, who does not appear among the contributors despite its involvement (see closed PR #558).
+Special thanks to @kim-fehl, who does not appear among the contributors despite its involvement (see PR #558).
 
