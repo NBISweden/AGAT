@@ -19,7 +19,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -116,7 +116,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     #container:
     #  image: perl:5.30
@@ -164,9 +164,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
           HARNESS_OPTIONS: j2
-          LC_ALL: C
-          LANG: C
-          TZ: UTC
-          PERL_HASH_SEED: "0"
-          PERL_PERTURB_KEYS: "0"
         run: cover -test -report Coveralls
