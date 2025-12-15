@@ -14,12 +14,60 @@ concurrency:
 jobs:  
 
   # This workflow contains a second job called "build2"
-  build_perl536:
+  build_perl538:
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Install required system packages
+        run: sudo apt-get -y install libdb-dev r-base build-essential
+        
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout AGAT code
+        uses: actions/checkout@v4
+
+      - name: Setup Perl
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+            perl-version: '5.38.2'
+            install-modules-with: cpanm
+            install-modules-args: --notest --force
+            install-modules: ExtUtils::MakeMaker File::ShareDir::Install
+            enable-modules-cache: true
+
+      - name: Cache perl modules
+        uses: actions/cache@v4
+        with:
+          path: local
+          key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl5-
+
+      - name: install AGAT dependencies
+        run: |
+          cpanm --installdeps --notest --force .
+
+      - name: Show cpanm build log on failure
+        if: failure()
+        run: cat ~/.cpanm/build.log || echo "No build log found"
+
+      - name: Run test
+        run: make test  
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HARNESS_OPTIONS: j2
+
+  # This workflow contains a second job called "build2"
+  build_perl536:
+    # avoid to run twice push and PR
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    # The type of runner that the job will run on
+    runs-on: ubuntu-24.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -59,6 +107,7 @@ jobs:
         run: make test  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HARNESS_OPTIONS: j2
         
 
   # This workflow contains a first job called "build"
@@ -75,7 +124,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install required system packages
-        run: sudo apt-get -y install libdb-dev r-base
+        run: sudo apt-get -y install libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
@@ -114,4 +163,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
+          HARNESS_OPTIONS: j2
+          LC_ALL: C
+          LANG: C
+          TZ: UTC
+          PERL_HASH_SEED: "0"
+          PERL_PERTURB_KEYS: "0"
         run: cover -test -report Coveralls
