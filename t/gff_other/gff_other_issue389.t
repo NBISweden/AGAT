@@ -8,6 +8,11 @@ use Cwd qw(abs_path);
 use lib catdir($Bin, '..', 'lib');
 use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_run);
 
+# Force a deterministic locale for sorting/compare
+BEGIN {
+    $ENV{LC_ALL} = 'C';
+}
+
 my $script_prefix = script_prefix();
 my $root = abs_path(catdir($Bin, '..', '..'));
 my $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
