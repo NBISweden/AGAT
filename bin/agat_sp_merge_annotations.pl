@@ -10,22 +10,27 @@ use AGAT::AGAT;
 use File::Spec;
 use File::Glob ':glob';
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
+
 my $outfile = undef;
 my @opt_files;
 my $file2 = undef;
 my $opt_help= 0;
 
-if ( !GetOptions(
-    'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                 => \$opt_help,
-    "gff|f=s"                => \@opt_files,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-{
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'h|help!'                 => \$opt_help,
+    'gff|f=s'                 => \@opt_files,
+    'output|outfile|out|o=s'  => \$outfile,
+)) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
@@ -56,8 +61,8 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_files[0] });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_files[0], shared_opts => $shared_opts });
 
 ######################
 # Manage output file #
@@ -80,22 +85,24 @@ foreach my $next_file (@opt_files){
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  print ("\nTotal raw data of files together:\n");
+  dual_print1 "\nTotal raw data of files together:\n";
   info_omniscient($hash_omniscient);
 }
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
-print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
+dual_print1 "\nNow merging overlaping loci, and removing identical isoforms:\n";
 merge_overlap_loci($hash_omniscient);
 
-
-print ("\nfinal result:\n");
+dual_print1 "\nfinal result:\n";
 info_omniscient($hash_omniscient);
 
 ########
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
+# --- final messages ---
+end_script();
 
 __END__
 

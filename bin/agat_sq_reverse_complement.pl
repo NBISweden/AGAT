@@ -10,27 +10,30 @@ use IO::File ;
 use File::Basename;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_gfffile=undef;
-my $verbose=undef;
 my $opt_fastafile=undef;
 my $outfile=undef;
 my $opt_help = 0;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff=s' => \$opt_gfffile,
-                        'f|fasta=s'  => \$opt_fastafile,
-                        'o|output=s' => \$outfile,
-                        'v|verbose!' => \$verbose,
-                        'c|config=s' => \$config,
-                        'h|help!'    => \$opt_help )  )
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'file|input|gff=s' => \$opt_gfffile,
+    'f|fasta=s'        => \$opt_fastafile,
+    'o|output=s'       => \$outfile,
+    'h|help!'          => \$opt_help )  )
 {
-    pod2usage( { -message => "$header\nFailed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => "$header\nFailed to parse command line",
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -45,8 +48,11 @@ if ((!defined($opt_gfffile) or !defined($opt_fastafile) ) ){
                  -exitval => 2 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gfffile, shared_opts => $shared_opts });
 
 # Manage input gff file
 my $format = $CONFIG->{force_gff_input_version};
@@ -72,7 +78,7 @@ while(my $seqObj = $seqio->next_seq) {
 #### read fasta again for DB
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -133,14 +139,13 @@ $nb_flip   =  keys %{$info{"flip"}};
 my $nb_error = 0;
 $nb_error  =  keys %{$info{"error"}};
 
+# --- final messages ---
+dual_print1 "Annotations on $nb_flip sequences have been reverse complemented.\n";
+dual_print1 "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n";
+dual_print1 "$nb_error sequences from the fasta file were absent from the gff.\n";
+end_script();
 
-print "Annotations on $nb_flip sequences have been reverse complemented.\n";
-print "Annotations on $nb_intact sequences have been kept intact (Sequences absent from the fasta file but present in the gff.\n";
-print "$nb_error sequences from the fasta file were absent from the gff.\n";
-
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# ---------------------------- FUNCTIONS ----------------------------
 
 __END__
 

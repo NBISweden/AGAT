@@ -6,20 +6,26 @@ use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
-my $start_run = time();
+
+# ------------------------------- LOAD OPTIONS --------------------------------
 my $opt_gfffile;
 my $opt_output;
 my $opt_help = 0;
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
-                  'c|config=s'      => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'         => \$opt_help ) )
+# OPTION MANAGEMENT: split shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+        $script_argv,
+        'g|gff=s'    => \$opt_gfffile,
+        'o|output=s' => \$opt_output,
+        'h|help!'    => \$opt_help,
+    ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -42,8 +48,8 @@ if (! defined($opt_gfffile) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gfffile });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gfffile, shared_opts => $shared_opts });
 
 ######################
 # Manage output file #
@@ -64,9 +70,8 @@ webapollo_compliant($hash_omniscient);
 # Print result
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 __END__
 
 =head1 NAME

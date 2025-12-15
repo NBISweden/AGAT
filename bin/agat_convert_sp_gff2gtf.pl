@@ -6,27 +6,28 @@ use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_output;
-my $gff;
-my $relax;
+my $opt_gff;
 my $gtf_version;
-my $verbose;
 my $help;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if( !GetOptions(
-    'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                   => \$help,
-    "gff|gtf|i=s"              => \$gff,
-	"gtf_version=s"            => \$gtf_version,
-	"verbose|v!"               => \$verbose,
-    "outfile|output|o|out=s"   => \$opt_output))
-{
-    pod2usage( { -message => "Failed to parse command line.",
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+        $script_argv,
+    'h|help!'                => \$help,
+    'gff|gtf|i=s'            => \$opt_gff,
+    'gtf_version=s'          => \$gtf_version,
+    'outfile|output|o|out=s' => \$opt_output,
+    ) ) {
+    pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
 }
@@ -38,28 +39,32 @@ if ($help) {
                  -exitval => 0 } );
 }
 
-if ( ! (defined($gff)) ){
+if ( ! (defined($opt_gff)) ){
     pod2usage( {
            -message => "$header\nAt least 1 parameters is mandatory:\nInput gff/gtf file (--gff or --gtf).\n\n",
            -verbose => 0,
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
+
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # check GTF versions
 if ($gtf_version){
     my @gtf_version_list = (1, 2, 2.1, 2.2, 2.5, 3, "relax");
     my %gtf_version_hash = map { $_ => 1 } @gtf_version_list;
     if(! exists_keys (\%gtf_version_hash, ("$gtf_version") ) ) {
-        print "$gtf_version is not a valid GTF version. Please choose one among this list: @gtf_version_list\n"; exit;
+        die "$gtf_version is not a valid GTF version. Please choose one among this list: @gtf_version_list\n";
     }
-    print "GTF version $gtf_version selected by command line interface.\n";
+    dual_print1 "GTF version $gtf_version selected by command line interface.\n";
 } else {
     $gtf_version = $CONFIG->{gtf_output_version};
-    print "GTF version $gtf_version selected from the agat config file.\n";
+    dual_print1 "GTF version $gtf_version selected from the agat config file.\n";
 }
 
 # Update config
@@ -71,11 +76,16 @@ my $gffout = prepare_gffout( $opt_output );
 
 ######################
 ### Read gff input file.
-my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
-print "converting to GTF$gtf_version\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
+dual_print1 "converting to GTF$gtf_version\n";
+
 # Now print  omniscient
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
+# --- final messages ---
+end_script();
+
+#################################### methods ####################################
 
 __END__
 

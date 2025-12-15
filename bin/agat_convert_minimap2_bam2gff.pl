@@ -7,49 +7,58 @@ use Getopt::Long;
 use Pod::Usage;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
-my $opt_output=undef;
+my $opt_output = undef;
 my $opt_help = 0;
 
-if ( !GetOptions( 'i|input=s'      => \$opt_in,
-                  'b|bam!'         => \$opt_bam,
-                  's|sam!'         => \$opt_sam,
-                  'o|out|output=s' => \$opt_output,
-                  'c|config=s'     => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'        => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling', 'no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+		$script_argv,
+		'i|input=s'      => \$opt_in,
+		'b|bam!'         => \$opt_bam,
+		's|sam!'         => \$opt_sam,
+		'o|out|output=s' => \$opt_output,
+		'h|help!'        => \$opt_help,
+	) ) {
+	pod2usage({
+		-message => 'Failed to parse command line',
+		-verbose => 1,
+		-exitval => 1
+	});
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+	pod2usage( { -verbose => 99,
+				 -exitval => 0,
+				 -message => "$header\n" } );
 }
 
 if ( ! defined( $opt_in) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters: Input sam or bam file (-i)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+	pod2usage( {
+		   -message => "$header\nMust specify at least 1 parameters: Input sam or bam file (-i)\n",
+		   -verbose => 0,
+		   -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_in });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options
+my ($shared_opts) = AGAT::AGAT::parse_shared_options($shared_argv);
 
-# ---- set output -----
+# --- Manage config ---
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_in, shared_opts => $shared_opts });
 my $out_stream = prepare_gffout( $opt_output );
+
+# ------------------------------------------------------------------------------
 
 # ----- Parse input ------
 my $is_sam=undef;
@@ -83,7 +92,7 @@ if ($is_sam){
 else{
 	my @tools = ("samtools");
 	foreach my $exe (@tools) {
-	    check_bin($exe) == 1 or die "Missing executable $exe in PATH";
+		check_bin($exe) == 1 or die "Missing executable $exe in PATH";
 	}
 	open FILE,"samtools view $opt_in |";
 }
@@ -229,8 +238,10 @@ while(<FILE>){
 	}
 }
 
-#print "\n";
 close(FILE);
+
+# --- final messages ---
+end_script();
 
 ################################################################################
         ####################

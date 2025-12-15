@@ -6,21 +6,23 @@ use strict;
 use warnings;
 use Time::Piece;
 use Time::Seconds;
+use POSIX qw(strftime);
 use Scalar::Util qw(reftype);
 use Exporter;
 
 our @ISA = qw(Exporter);
 our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
-sizedPrint activate_warning_limit print_time dual_print file_text_line print_wrap_text
-string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline
+sizedPrint activate_warning_limit print_time dual_print dual_print1 dual_print2 file_text_line print_wrap_text
+string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline start_script end_script
 $LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
 
 #	-----------------------------------CONSTANT-----------------------------------
 our $LOGGING  = {};  # global hash
+our $SCRIPT   = {};  # global hash
 our $CONFIG   = {};  # global hash
 our $LEVELS   = {};  # global hash
 our $AGAT_TMP ="agat_tmp"; # temporary directory
-our $AGAT_LOG = "agat_log"; # # log directory
+our $AGAT_LOG = "agat_log"; # log directory
 # Comon_tag is used in old gff format and in gtf (with gene_id) to group features together.
 # Priority to comonTag compare to sequential read. The tag can be specified by the user via the agat yaml config file
 our $COMON_TAG = {}; # global hash
@@ -76,6 +78,39 @@ sub exists_undef_value {
     return '';
 }
 
+# save @ARGV and starting time
+sub start_script{
+	$SCRIPT->{start_time} = time();
+	$SCRIPT->{ARGV} = \@ARGV;
+}
+
+sub end_script{
+	my ($fh) = @_;
+
+	my $nice_time = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
+	my $start_run = $SCRIPT->{start_time};
+	my $end_run   = time();
+	my $run_time  = $end_run - $start_run;
+	my $command_line = join(" ", @{$SCRIPT->{ARGV}});
+
+	my $message1 = file_text_line({ string => "Job done in $run_time seconds\n", char => "-", prefix => "\n" });
+	dual_print1 ($message1);
+	print $fh $message1 if (defined $fh && defined fileno($fh) && fileno($fh) != 1);
+	
+	#dual_print({ string => "\n", local_verbose => 1});
+	#dual_print ({ 'string' => sizedPrint("------ Job done in $run_time seconds ------",80, "\n"), local_verbose => 1});
+	
+	my $message2 = "command : $0 $command_line\n";
+	dual_print1 ($message2);
+	print $fh $message2 if (defined $fh && defined fileno($fh) && fileno($fh) != 1);
+	
+	my $message3 = "date : ".strftime("%m/%d/%Y at %Hh%Mm%Ss", localtime($start_run))."\n";
+	dual_print1 ($message3);
+	print $fh $message3 if (defined $fh && defined fileno($fh) && fileno($fh) != 1);
+
+	dual_print1 ("Job done! Bye Bye!\n\n");
+}
+
 # @Purpose: check if the table codon is available in bioperl
 # @input: 1 =>  integer
 # @output 1 => integer
@@ -84,7 +119,7 @@ sub get_proper_codon_table {
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codon_table_id_original);
   my $codon_table_id_bioperl = $codonTable->id;
   
-  # To deal with empty result in version of bioperl < april 2024 when asking with table 0 (it was reutrning an empty string)
+  # To deal with empty result in version of bioperl < april 2024 when asking with table 0 (it was returning an empty string)
   if (! defined($codon_table_id_bioperl)){
 	$codon_table_id_bioperl = 1 ; # default codon table
   }
@@ -95,7 +130,7 @@ sub get_proper_codon_table {
     "It uses codon table $codon_table_id_bioperl instead.");
   }
   
-  print "Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n";
+  dual_print1 ("Codon table ".$codon_table_id_bioperl." in use. You can change it using the appropriate parameter.\n");
   return $codon_table_id_bioperl;
 }
 
@@ -252,7 +287,7 @@ sub print_wrap_text{
 		 		else{
 					$result .= "$line\n";
 					$line  = undef;
-		  	}
+				}
 			}
 	}
 	# add extra
@@ -303,6 +338,19 @@ sub print_time{
   print $line;
 }
 
+# @purpose: call dual print directly (this use verbose 1 by default) - equivalent to debug. verbose 0 is quiet, verbose 1 is normal, verbose 2 is equivalent to debug
+# convenient to to dual_print1 "blabla" instead of dual_print({ string => "blabla" });
+sub dual_print1{
+	my ($message) = @_;
+	dual_print({ string => $message });
+}
+
+# @purpose: call dual print directly with local_verbose 2 - equivalent to debug. verbose 0 is quiet, verbose 1 is normal, verbose 2 is equivalent to debug
+sub dual_print2{
+	my ($message) = @_;
+	dual_print({ string => $message, local_verbose => 2 });
+}
+
 # @purpose: Save to a hash and print once parallel excecution merge
 # @input: 3 => hash, fh, string, integer
 # @output 0 => None
@@ -322,7 +370,7 @@ sub dual_print{
 		print "No string provided to dual_print! Called from subroutine: $subroutine at $filename line $line\n";
 	} ;
 	
-	my ($local_verbose,$debug_only, $log_only, $perl_warning);
+	my ($local_verbose, $debug_only, $log_only, $perl_warning);
 	if( defined($args->{local_verbose})) { $local_verbose = $args->{local_verbose}; } # /!\ autdeactivate 
 	if( defined($args->{debug_only})) {$debug_only = $args->{debug_only};} ; # Print if it is for debug and debug_mode activated /!\ autdeactivate 
 	if( defined($args->{log_only})) {$log_only = $args->{log_only};} ; # Print if ii is for debug and debug_mode activated /!\ autdeactivate 
@@ -331,7 +379,7 @@ sub dual_print{
 
 	# contained in the CONSTANT GLOBAL LOGGNING hash
 	my ($hash, $log, $verbose, $debug_mode);
-	
+
 	if ( !$LOGGING ) {warn "Global LOGGING variable need to be defined!\n"; exit 1;}
 	if( defined($LOGGING->{log})) {$log = $LOGGING->{log};} ; #log_file handler
 	if( defined($LOGGING->{verbose})) {$verbose = $LOGGING->{verbose};} else { $verbose = 1; }; #if verbose no set (undef) we activate it with level1
@@ -342,7 +390,7 @@ sub dual_print{
 	# If debug_mode off we print only if it is not debug_only (specific a debug)
 	if (!$debug_only or ($debug_mode)){
 
-		if( $verbose) {  # only 0 is quite mode
+		if( $verbose ) {  # only 0 is quite mode
 			if ( !$local_verbose or ($verbose >= $local_verbose) ){ # filter by verbosity level if set for the message
 			 	# ----- Case Screen -----
 				# skip if it is only for log

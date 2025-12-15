@@ -4,30 +4,32 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my $opt_test=">";
 my $opt_output= undef;
 my $opt_size = 100;
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+                  'f|ref|reffile|gff=s' => \$opt_gff,
                   't|test=s'            => \$opt_test,
                   "s|size=i"            => \$opt_size,
                   'o|output=s'          => \$opt_output,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -49,8 +51,11 @@ if ( ! $opt_gff ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Manage Output
@@ -75,19 +80,15 @@ my $ostreamReport = prepare_fileout( $ostreamReport_file );
 
 #Manage test option
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "="){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";exit;
+  die "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>= or =.";
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will select l1 feature (e.g. gene) that have length $opt_test $opt_size bp.\n";
+my $stringPrint = "We will select l1 feature (e.g. gene) that have length $opt_test $opt_size bp.\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+print $ostreamReport $stringPrint if ($opt_output);
+dual_print1 $stringPrint;
+
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -142,26 +143,26 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	    }
       # case we had exon (we look at the longest mRNA)
       if($longer_concat_exon){
-        print "$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n" if $opt_verbose;
+        dual_print2("$id_l1 does have exon(s). Longest concatenated exons: $longer_concat_exon\n");
         if( test_size( $longer_concat_exon, $opt_test, $opt_size ) ){
-          print "$id_l1 pass the test\n" if $opt_verbose;
+          dual_print2("$id_l1 pass the test\n");
           push @listok, $id_l1;
         }
         else{
-          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          dual_print2("$id_l1 do not pass the test\n");
           push @listNotOk, $id_l1;
         }
       }
       else{
-        print "$id_l1 does not have any exon. $tag_l1 size: $gene_length\n" if $opt_verbose;
+        dual_print2("$id_l1 does not have any exon. $tag_l1 size: $gene_length\n");
         # No exon, L1 pass test
         if($successl1){
-          print "$id_l1 pass the test\n" if $opt_verbose;
+          dual_print2("$id_l1 pass the test\n");
           push @listok, $id_l1;
         }
         # No exon, L1 do not pass test
         else{
-          print "$id_l1 do not pass the test\n" if $opt_verbose;
+          dual_print2("$id_l1 do not pass the test\n");
           push @listNotOk, $id_l1;
         }
       }
@@ -183,12 +184,13 @@ if($opt_output){
 my $test_success = scalar @listok;
 my $test_fail = scalar @listNotOk;
 
-$stringPrint = "$test_success l1 feature (e.g. gene) selected with a length $opt_test $opt_size bp.\n";
-$stringPrint .= "$test_fail remaining l1 feature (e.g. gene) do not pass the test.\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+my $stringPrint2 = "$test_success l1 feature (e.g. gene) selected with a length $opt_test $opt_size bp.\n";
+$stringPrint2 .= "$test_fail remaining l1 feature (e.g. gene) do not pass the test.\n";
+print $ostreamReport $stringPrint2 if ($opt_output);
+dual_print1 $stringPrint2;
+
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################

@@ -4,33 +4,35 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_kill_list = undef;
 my $opt_attribute = 'ID';
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'kl|kill_list=s'      => \$opt_kill_list,
-                  "p|type|l=s"          => \$primaryTag,
-                  'o|output=s'          => \$opt_output,
-                  'a|attribute=s'       => \$opt_attribute,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  'kl|kill_list=s'      => \$opt_kill_list,
+  'p|type|l=s'          => \$primaryTag,
+  'o|output=s'          => \$opt_output,
+  'a|attribute=s'       => \$opt_attribute,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -51,10 +53,10 @@ if ( ! $opt_gff or ! $opt_kill_list ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
-
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 ###############
 # Manage Output
 
@@ -108,16 +110,12 @@ while (my $line = <$in_kill_list>) {
 my $nb_to_kill = keys %kill_hash;
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will discard $print_feature_string that share the value of the $opt_attribute attribute with the kill list.\n";
+my $stringPrint .= "\nWe will discard $print_feature_string that share the value of the $opt_attribute attribute with the kill list.\n";
 $stringPrint .= "The kill list contains $nb_to_kill uniq IDs\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+print $ostreamReport $stringPrint if ($opt_output);
+dual_print1 $stringPrint;
+
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -211,16 +209,19 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
   }
 }
 
+# print output
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
+# final report
+my $stringPrint2 = $all_cases{'all'}." features removed:\n";
+$stringPrint2 .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
+$stringPrint2 .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
+$stringPrint2 .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
+print $ostreamReport $stringPrint2 if ($opt_output);
+dual_print1 $stringPrint2;
 
-$stringPrint = $all_cases{'all'}." features removed:\n";
-$stringPrint .= $all_cases{'l1'}." features level1 (e.g. gene) removed\n";
-$stringPrint .= $all_cases{'l2'}." features level2 (e.g. mRNA) removed\n";
-$stringPrint .= $all_cases{'l3'}." features level3 (e.g. exon) removed\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+# --- final messages ---
+end_script();
+
 
 #######################################################################################################################
         ####################

@@ -8,24 +8,25 @@ use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $gff = undef;
 my $opt_output = undef;
-my $opt_genomeSize = undef;
-my $opt_plot = undef;
 my $opt_help= 0;
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"          => \$opt_help,
-    'o|output=s'      => \$opt_output,
-    "gff|f=s"         => \$gff))
+# ---------------------------- OPTIONS ----------------------------
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'h|help!'      => \$opt_help,
+    'o|output=s'   => \$opt_output,
+    'gff|f=s'      => \$gff ))
 {
-    pod2usage( { -message => "Failed to parse command line",
+    pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
 }
@@ -45,8 +46,10 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -66,14 +69,13 @@ my ($nb_iso_removed_cds,  $nb_iso_removed_exon) = remove_shortest_isoforms($hash
 # print omniscientNew containing only the longest isoform per gene
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n";
-print $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n";
+dual_print1 $nb_iso_removed_cds." L2 isoforms with CDS removed (shortest CDS)\n";
+dual_print1 $nb_iso_removed_exon." L2 isoforms wihtout CDS removed (Either no isoform has CDS, we removed those with shortest concatenated exons, or at least one isoform has CDS, we removed those wihtout)\n";
 
-# END STATISTICS #
-##################
-print "Done\n";
+# --- final messages ---
+end_script();
 
-
+# ----------------------------------------------------------------------------
 
 
 __END__

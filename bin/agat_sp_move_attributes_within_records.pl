@@ -9,28 +9,31 @@ use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $primaryTagCopy="level2";
 my $primaryTagPaste="level3";
 my $opt_output= undef;
 my $attributes="all_attributes";
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
-                  "feature_copy|fc=s"    => \$primaryTagCopy,
-                  "feature_paste|fp=s"   => \$primaryTagPaste,
-                  'o|output=s'           => \$opt_output,
-                  "a|tag|att|attribute=s"  => \$attributes,
-                  'v|verbose!'           => \$opt_verbose,
-                  'c|config=s'           => \$config,
-                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'              => \$opt_help ) )
+# OPTION MANAGEMENT: split shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|ref|reffile|gff=s'  => \$opt_gff,
+    'feature_copy|fc=s'    => \$primaryTagCopy,
+    'feature_paste|fp=s'   => \$primaryTagPaste,
+    'o|output=s'           => \$opt_output,
+    'a|tag|att|attribute=s'=> \$attributes,
+    'h|help!'              => \$opt_help,
+  ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -51,8 +54,8 @@ if ( ! $opt_gff  ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
 
 ###############
 # Manage Output
@@ -121,7 +124,7 @@ my @attListOk;
 if ($attributes){
 
   if ($attributes eq "all_attributes"){
-    print "All attributes will be used !\n";
+    dual_print1 "All attributes will be used !\n";
     $attHashOk{"all_attributes"}++;
   }
   else{
@@ -131,22 +134,19 @@ if ($attributes){
 
       if($attribute == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attribute) eq "id" ){print "ID attribute cannot be modified !\n";exit;}
+        if(lc($attribute) eq "id" ){ die "ID attribute cannot be modified !\n"; }
         #check for Parent attribute
-        if(lc($attribute) eq "parent"){print "Parent attribute cannot be modified !\n";exit;}
+        if(lc($attribute) eq "parent"){ die "Parent attribute cannot be modified !\n"; }
         $attHashOk{$attribute}++;
         push(@attListOk, $attribute);
       }
     }
   }
-  print "\n";
+  dual_print1 "\n";
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
-print $stringPrint;
+dual_print1 "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
 
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -281,6 +281,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 # create omniscient with only selected recoreds
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );#print gene modified in file
+
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################

@@ -54,14 +54,13 @@ BEGIN {
 
 use case_info;
 
-# maximum percent size over original protein size to merge chunks
-my $SIZE_OPT=21;
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
-my $outfolder = undef;
-my $gff = undef;
+# ------------------------------- LOAD OPTIONS --------------------------------
+
+my $SIZE_OPT=21; # maximum percent size over original protein size to merge chunks
+my $gff=undef;
+my $outfolder=undef;
 my $file_fasta=undef;
 my $file_db=undef;
 my $codonTable=1;
@@ -69,25 +68,25 @@ my $hamap_size="high";
 my $pseudo;
 my $frags;
 my $skip_hamap;
-my $verbose = 0;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'         => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"             => \$opt_help,
-    "gff=s"              => \$gff,
-    "fasta|fa|f=s"       => \$file_fasta,
-	"db=s"               => \$file_db,
-	"frags!"             => \$frags,
-	"pseudo!"            => \$pseudo,
-	"hamap_size=s"       => \$hamap_size,
-    "table|codon|ct=i"   => \$codonTable,
-	"skip_hamap!"        => \$skip_hamap,
-    "v=i"                => \$verbose,
-    "output|out|o=s"     => \$outfolder))
-
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+	$script_argv,
+	'h|help'             => \$opt_help,
+	'gff=s'              => \$gff,
+	'fasta|fa|f=s'       => \$file_fasta,
+	'db=s'               => \$file_db,
+	'frags!'             => \$frags,
+	'pseudo!'            => \$pseudo,
+	'hamap_size=s'       => \$hamap_size,
+	'table|codon|ct=i'   => \$codonTable,
+	'skip_hamap!'        => \$skip_hamap,
+	'output|out|o=s'     => \$outfolder))
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -112,8 +111,8 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) or !(defined($file_db)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
 
 # Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -127,7 +126,7 @@ my ($file_gff_in,$path_gff,$ext_gff) = fileparse($gff,qr/\.[^.]*/);
 
 if ($outfolder) {
 	if (-d $outfolder){
-		  print "Provided output folder exists. Exit!\n";exit;
+		  die "Provided output folder exists. Exit!\n";
 	}
 	mkdir $outfolder;
 
@@ -149,12 +148,12 @@ if ($outfolder) {
 	open($report, '>', $report_out_path) or die "Could not open file '$report_out_path' $!";
 }
 else{
-  print "No output folder provided. Exit!\n";exit;
+  die "No output folder provided. Exit!\n";
 }
 # check $hamap_size parameter
 $hamap_size = lc($hamap_size);
 if($hamap_size ne "high" and $hamap_size ne "low" and $hamap_size ne "middle"){
-	print "Wrong value provided for the option --hamap_size: $hamap_size\n;Accepted value: high, low or middle";exit;
+	die "Wrong value provided for the option --hamap_size: $hamap_size\n;Accepted value: high, low or middle";
 }
 
                 #####################
@@ -173,7 +172,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %all_db_fasta_IDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$all_db_fasta_IDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 
 my $db_db = Bio::DB::Fasta->new($file_db);
@@ -181,7 +180,7 @@ my $db_db = Bio::DB::Fasta->new($file_db);
 my %all_db_db_IDs;
 my @ids_db_db     = $db_db->get_all_primary_ids;
 foreach my $id (@ids_db_db ){$all_db_db_IDs{lc($id)}=$id;}
-print ("db file parsed\n");
+dual_print1 "db file parsed\n";
 
 ####################
 
@@ -432,8 +431,10 @@ $stringprint .= "\nWhen a FRAGS is detected you shoud think about few things...\
 								"In a case of pseudogene, if the pseudogene is not recent, other mutations should be accumulated in the sequence after the first premature stop codon...\n";
 $stringprint .=  "\nBye Bye.\n";
 
-print $stringprint;
+dual_print1 $stringprint;
 print $report $stringprint;
+
+end_script();
 
 
 #######################################################################################################################
@@ -459,17 +460,17 @@ sub check_protein_size_congruency{
 	$total_putative_gene_fixed_before += @$listGeneToMerge;
 	$total_putative_gene_fixed_after ++;
 
-	print "\nBased on their names and the fact they are conitguous, those ".@$listGeneToMerge." genes might be merged: @$listGeneNameToMerge \n";
+	dual_print1 "\nBased on their names and the fact they are conitguous, those ".@$listGeneToMerge." genes might be merged: @$listGeneNameToMerge \n";
   retrieve_expected_protein_length($obj_case);
 
 	my $expected_protein_length = $obj_case->{expected_length};
 	if ($expected_protein_length){
-	 	print "Average of the expected length = $expected_protein_length \n" ;
+    	dual_print1 "Average of the expected length = $expected_protein_length \n" ;
 
 	 	#add 10 percent to expected protein $seq_lengt
 	 	my $expected_protein_length_plus10 = int (($expected_protein_length * 110) / 100);
 		$obj_case->{expected_length_10} = $expected_protein_length_plus10;
-	 	print "Average of the expected length + 20 % = $expected_protein_length_plus10 \n";
+    	dual_print1 "Average of the expected length + 20 % = $expected_protein_length_plus10 \n";
 
 		# need to get the oervlap to remove from the calculated length
 		my $aa_overlap = get_overlap($obj_case);
@@ -481,10 +482,10 @@ sub check_protein_size_congruency{
 	 	}
 		$total_current_size -= $aa_overlap; # remove all overlap parts
 		$obj_case->{current_aa_length_together} = $total_current_size;
-	 	print "current length adding all genes together (and removing overlaping part): $total_current_size\n";
+    	dual_print1 "current length adding all genes together (and removing overlaping part): $total_current_size\n";
 
 	 	if ($total_current_size < $expected_protein_length_plus10){
-	 		print "$total_current_size < $expected_protein_length_plus10 => Let's merge them. (The length of the appended proteins is shorter than the size of the protein use for the inference)\n\n";
+    		dual_print1 "$total_current_size < $expected_protein_length_plus10 => Let's merge them. (The length of the appended proteins is shorter than the size of the protein use for the inference)\n\n";
 			$congruent_size++;
 			$size_congruency = 1;
 		}
@@ -493,7 +494,7 @@ sub check_protein_size_congruency{
 		}
 	}
 	else{
-		print "No expected size found - skip the case\n";
+		dual_print1 "No expected size found - skip the case\n";
 	}
  return $size_congruency;
 }
@@ -518,10 +519,10 @@ sub merge_case{
 		$gff_shift{$gene_feature1->seq_id}{$value_insert_position}=$value_insert_size; #keep track of shifts
 		my $sequence = $seqObj->seq();
 
-		print "add N x $value_insert_size at position $value_insert_position\n" if ($verbose);
-		print "piece of sequence before: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n" if ($verbose);
+		dual_print2 "add N x $value_insert_size at position $value_insert_position\n";
+		dual_print2 "piece of sequence before: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n";
 		substr($sequence, $value_insert_before + $value_insert_position-1, 1) = "N" x ($value_insert_size+1);
-		print "piece of sequence after: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n" if ($verbose);
+		dual_print2 "piece of sequence after: ".substr($sequence, $value_insert_before + $value_insert_position - 10, 20)."\n";
 		$seqObj->seq($sequence);
 
 		# Should I add Pseudo attribure?
@@ -580,16 +581,16 @@ sub check_long_orf_if_can_be_merged{
 		my $gene_feature1 = shift @listGene;
 		my $gene_feature2 = $listGene[0];
 		my $intergenic = 1;
-		print $gene_feature1->gff_string()."\n" if ($verbose);
-		print $gene_feature2->gff_string()."\n" if ($verbose);
+		dual_print2 $gene_feature1->gff_string()."\n";
+		dual_print2 $gene_feature2->gff_string()."\n";
 		if($gene_feature1->end > $gene_feature2->start){
-			print "No intergenic region!\n";
+			dual_print1 "No intergenic region!\n";
 			$intergenic=undef;
 
 		}
 		else{
 			my $intergenic_region = [$gene_feature1->end,$gene_feature2->start];
-			print "intergenic_region = @$intergenic_region\n";
+			dual_print1 "intergenic_region = @$intergenic_region\n";
 		}
 
 		my $ID_correct = $all_db_fasta_IDs{lc($gene_feature1->seq_id)};
@@ -624,9 +625,9 @@ sub check_long_orf_if_can_be_merged{
 				# --- this overlaping part will be used as intergenec region to shift frame
 
 				my $overlap_part = $gene_feature1->end - $gene_feature2->start + 1;
-				print "overlap_part $overlap_part\n" if ($verbose);
+				dual_print2 "overlap_part $overlap_part\n";
 				my $to_shrink = 3 + ( 3 - ($overlap_part % 3) );
-				print "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n" if ($verbose);
+				dual_print2 "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n";
 				my $subseq1 = $db_fasta->seq($ID_correct, $gene_feature1->start, ($gene_feature2->start - $to_shrink - 1 ));
 				$subseq1_cds_obj = Bio::Seq->new(-seq => $subseq1, -alphabet => 'dna' );
 				$subseq1_cds_obj = $subseq1_cds_obj->revcom();
@@ -677,9 +678,9 @@ sub check_long_orf_if_can_be_merged{
 			}
 			else{
 				my $overlap_part = $gene_feature1->end - $gene_feature2->start + 1;
-				print "overlap_part $overlap_part\n" if ($verbose);
+				dual_print2 "overlap_part $overlap_part\n";
 				my $to_shrink = 3 + (  3 - ( $overlap_part % 3 ) ) ;
-				print "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n" if ($verbose);
+				dual_print2 "to_shrink (last codon plus offset needed to be in frame:) $to_shrink\n";
 				my $subseq2 = $db_fasta->seq($ID_correct, $gene_feature1->end + $to_shrink + 1, $gene_feature2->end );
 				$subseq2_cds_obj = Bio::Seq->new(-seq => $subseq2, -alphabet => 'dna' );
 			}
@@ -692,11 +693,11 @@ sub check_long_orf_if_can_be_merged{
 		if ($gene_feature1->strand == -1 or $gene_feature1->strand eq "-"){
 			my $found = 0;
 			my $prot_second=$subseq1_prot_obj;
-			print "Minus strand swithching seq1 and seq2\n" if ($verbose);
-			print "full seq1: ".$subseq2_prot_obj_full->seq."\n" if ($verbose);
-			print "subseq1: ".$subseq2_prot_obj->seq."\n" if ($verbose);
-			print "full seq2: ".$subseq1_prot_obj_full->seq."\n" if ($verbose);
-			print "subseq2: ".$subseq1_prot_obj->seq."\n" if ($verbose);
+			dual_print2 "Minus strand swithching seq1 and seq2\n";
+			dual_print2 "full seq1: ".$subseq2_prot_obj_full->seq."\n";
+			dual_print2 "subseq1: ".$subseq2_prot_obj->seq."\n";
+			dual_print2 "full seq2: ".$subseq1_prot_obj_full->seq."\n";
+			dual_print2 "subseq2: ".$subseq1_prot_obj->seq."\n";
 
 			#getting part1 for merging
 			if( exists $all_db_fasta_IDs{lc($gene_feature1->seq_id)}){
@@ -707,9 +708,9 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj1 = Bio::Seq->new(-seq => $seq1, -alphabet => 'dna' );
 				$cds_obj1 = $cds_obj1->revcom();
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
-				print "Test frame 1 : ".$prot_obj1->seq."\n" if ($verbose);;
+				dual_print2 "Test frame 1 : ".$prot_obj1->seq."\n";
 				if (index($prot_obj1->seq, $prot_second->seq) != -1) {
-					print "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
+					dual_print1 "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
 					$found++;
 					$case_frame1++;
 					$merged++ if ($pseudo);
@@ -721,9 +722,9 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj2 = Bio::Seq->new(-seq => $seq2, -alphabet => 'dna' );
 				$cds_obj2 = $cds_obj2->revcom();
 				my $prot_obj2 = $cds_obj2->translate(-codontable_id => $codonTable) ;
-				print "Test frame 2 : ".$prot_obj2->seq."\n" if ($verbose);
+				dual_print2 "Test frame 2 : ".$prot_obj2->seq."\n";
 				if (index($prot_obj2->seq, $prot_second->seq) != -1) {
-					print "frame 2 contains protein2\n";
+					dual_print1 "frame 2 contains protein2\n";
 					push @{$obj_case->{insert_size}}, 1;
 					push @{$obj_case->{total_insert_before}}, $total_insert_before ;
 					$total_insert_before += 1;
@@ -739,9 +740,9 @@ sub check_long_orf_if_can_be_merged{
 				my $cds_obj3 = Bio::Seq->new(-seq => $seq3, -alphabet => 'dna' );
 				$cds_obj3 = $cds_obj3->revcom();
 				my $prot_obj3 = $cds_obj3->translate(-codontable_id => $codonTable) ;
-				print "Test frame 3 : ".$prot_obj3->seq."\n" if ($verbose);
+				dual_print2 "Test frame 3 : ".$prot_obj3->seq."\n";
 				if (index($prot_obj3->seq, $prot_second->seq) != -1) {
-					print "frame 3 contains protein2\n";
+					dual_print1 "frame 3 contains protein2\n";
 					push @{$obj_case->{insert_size}}, 2;
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 2;
@@ -753,23 +754,23 @@ sub check_long_orf_if_can_be_merged{
 				}
 			}
 			else{
-				print "ERROR ".$gene_feature1->seq_id." not found among the db!";
+				dual_print1 "ERROR ".$gene_feature1->seq_id." not found among the db!";
 			}
 			if (! $found){
-				warn "subseq2 not found in any frame. There is a problem when preparing subseq2\n"
+				dual_print1 "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
 			}
 			elsif($found>1){
-				print "interesting, subseq2 found in $found frames\n";
+				dual_print1 "interesting, subseq2 found in $found frames\n";
 			}
 		}
 		# ---- strand + ----
 		else{
 			my $found = 0;
 			my $prot_second=$subseq2_prot_obj;
-			print "full seq1: ".$subseq1_prot_obj_full->seq."\n" if ($verbose);;
-			print "subseq1: ".$subseq1_prot_obj->seq."\n" if ($verbose);
-			print "full seq2: ".$subseq2_prot_obj_full->seq."\n" if ($verbose);
-			print "subseq2: ".$subseq2_prot_obj->seq."\n" if ($verbose);
+			dual_print2 "full seq1: ".$subseq1_prot_obj_full->seq."\n";
+			dual_print2 "subseq1: ".$subseq1_prot_obj->seq."\n";
+			dual_print2 "full seq2: ".$subseq2_prot_obj_full->seq."\n";
+			dual_print2 "subseq2: ".$subseq2_prot_obj->seq."\n";
 
 			#getting part1 for merging
 			if( exists $all_db_fasta_IDs{lc($gene_feature1->seq_id)}){
@@ -779,9 +780,9 @@ sub check_long_orf_if_can_be_merged{
 				my $seq1 = $seq."N".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj1 = Bio::Seq->new(-seq => $seq1, -alphabet => 'dna' );
 				my $prot_obj1 = $cds_obj1->translate(-codontable_id => $codonTable) ;
-				print "Test frame 1 : ".$prot_obj1->seq."\n" if ($verbose);
+				dual_print2 "Test frame 1 : ".$prot_obj1->seq."\n";
 				if (index($prot_obj1->seq, $prot_second->seq) != -1) {
-					print "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
+					dual_print1 "frame 1 contains protein2\nIs the codon stop from the first gene real? Does the codon code for a stop codon? Is there a substition? Is it a pseudogene?\n";
 					$found++;
 					$case_frame1++;
 					$merged++ if ($pseudo);
@@ -792,9 +793,9 @@ sub check_long_orf_if_can_be_merged{
 				my $seq2 = $seq."NN".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj2 = Bio::Seq->new(-seq => $seq2, -alphabet => 'dna' );
 				my $prot_obj2 = $cds_obj2->translate(-codontable_id => $codonTable) ;
-				print "frame 2 : ".$prot_obj2->seq."\n" if ($verbose);
+				dual_print2 "frame 2 : ".$prot_obj2->seq."\n";
 				if (index($prot_obj2->seq, $prot_second->seq) != -1) {
-					print "frame 2 contains protein2\n";
+					dual_print1 "frame 2 contains protein2\n";
 					push @{$obj_case->{insert_size}}, 1;
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 1;
@@ -809,9 +810,9 @@ sub check_long_orf_if_can_be_merged{
 				my $seq3 = $seq."NNN".$db_fasta->seq($ID_correct, $gene_feature1->end + 1, $gene_feature2->end);
 				my $cds_obj3 = Bio::Seq->new(-seq => $seq3, -alphabet => 'dna' );
 				my $prot_obj3 = $cds_obj3->translate(-codontable_id => $codonTable) ;
-				print "frame 3 : ".$prot_obj3->seq."\n" if ($verbose);
+				dual_print2 "frame 3 : ".$prot_obj3->seq."\n";
 				if (index($prot_obj3->seq, $prot_second->seq) != -1) {
-					print "frame 3 contains protein2\n";
+					dual_print1 "frame 3 contains protein2\n";
 					push @{$obj_case->{insert_size}}, 2;
 					push @{$obj_case->{total_insert_before}}, $total_insert_before;
 					$total_insert_before += 2;
@@ -822,14 +823,14 @@ sub check_long_orf_if_can_be_merged{
 					$merged++;
 				}
 				if (! $found){
-					warn "subseq2 not found in any frame. There is a problem when preparing subseq2\n"
+					dual_print1 "subseq2 not found in any frame. There is a problem when preparing subseq2\n";
 				}
 				elsif($found>1){
-					print "interesting, subseq2 found in $found frames\n";
+					dual_print1 "interesting, subseq2 found in $found frames\n";
 				}
 			}
 			else{
-				print "ERROR ".$gene_feature1->seq_id." not found among the db!";
+				dual_print1 "ERROR ".$gene_feature1->seq_id." not found among the db!";
 			}
 		}
 	}
@@ -850,11 +851,11 @@ sub get_overlap {
 
 		if($gene_feature1->end > $gene_feature2->start){
 			my $overlap_region = $gene_feature1->end - $gene_feature2->start + 1;
-			print "overlap_region nt = $overlap_region\n" if ($verbose);
+			dual_print2 "overlap_region nt = $overlap_region\n";
 			$overlap += ($overlap_region * 2); # overlap touch both gene
 		}
 		else{
-			print "No overlap_region region!\n" if ($verbose);
+			dual_print2 "No overlap_region region!\n";
 			$overlap+=0;
 		}
 	}
@@ -877,7 +878,7 @@ sub retrieve_expected_protein_length{
 		$obj_sub_gene->{current_dna_length} = $gene_feature->end - $gene_feature->start + 1;
 		$obj_sub_gene->{current_aa_length} = $gene_size;
 
-		print $gene_feature->_tag_value('Name')." has a AA size of: $gene_size\n";
+		dual_print1 $gene_feature->_tag_value('Name')." has a AA size of: $gene_size\n";
 
 		if ($gene_feature->has_tag("inference")){
 			my @inference_atts = $gene_feature->get_tag_values("inference");
@@ -904,22 +905,22 @@ sub retrieve_expected_protein_length{
 		my $prot_name = $obj_sub_gene->{inference_value};
 
 		if (lc($obj_sub_gene->{inference_db}) eq "uniprotkb"){
-			print "Inference made with Uniprot, looking for protein size: $prot_name\n";
+			dual_print1 "Inference made with Uniprot, looking for protein size: $prot_name\n";
 			if( exists $all_db_db_IDs{lc($prot_name)}){
 				my $protID_correct = $all_db_db_IDs{lc($prot_name)};
 				$obj_sub_gene->{inference_aa_length} = $db_db->length( $protID_correct );
 				$obj_sub_gene->{inference_aa_seq} = $db_db->seq($protID_correct);
 			}
 			else{
-				print "ERROR $prot_name not found among the db!";
+				dual_print1 "ERROR $prot_name not found among the db!";
 			}
 		}
 		elsif (lc($obj_sub_gene->{inference_db}) eq "hamap"){
-			print "Inference made with HAMAP, looking for protein size using internet: $prot_name\n";
+			dual_print1 "Inference made with HAMAP, looking for protein size using internet: $prot_name\n";
 			fetcher_HAMAP($obj_sub_gene) if (! $skip_hamap);
 		}
 		else{
-			print "Inference made with ".$obj_sub_gene->{inference_db}.", not yet implemented\n";
+			dual_print1 "Inference made with ".$obj_sub_gene->{inference_db}.", not yet implemented\n";
 		}
 
 		#I have a length, let's check if we can merge the case
@@ -927,7 +928,7 @@ sub retrieve_expected_protein_length{
 			push @{$obj_case->{list_aa_size}}, $obj_sub_gene->{inference_aa_length};
 			$total_size += $obj_sub_gene->{inference_aa_length};
 			$nb_prot++;
-			print "AA length found ".$obj_sub_gene->{inference_aa_length}." \n";
+			dual_print1 "AA length found ".$obj_sub_gene->{inference_aa_length}." \n";
 		}
 	}
 	$obj_case->{expected_length} = int($total_size/$nb_prot) if $nb_prot;
@@ -949,7 +950,7 @@ sub fetcher_HAMAP {
 				my $string = $response->decoded_content;
 				#print $string."\n";
 				if ( $string =~ /.*<td>(.*)amino acids<\/td>.*/){
-					print "size range: $1\n";
+					dual_print1 "size range: $1\n";
 					my @data = split /-/, $1 ;
 
 					if($hamap_size eq "low"){
@@ -968,12 +969,12 @@ sub fetcher_HAMAP {
 
 				}
 				else{
-					print "No size found for $id\n";
+					dual_print1 "No size found for $id\n";
 				}
 			$obj_sub_gene->{inference_aa_length} = $size;
 		}
 		else {
-			print $response->status_line && die;
+			dual_print1 $response->status_line; die;
 		}
 }
 

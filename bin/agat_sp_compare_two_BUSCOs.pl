@@ -10,25 +10,25 @@ use IO::File ;
 use List::Util 'first';
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $config;
-my $cpu;
-my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
 my $outfolder=undef;
-my $verbose=undef;
 my $opt_help = 0;
 
-
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('f1=s'        => \$folderIn1,
-                  "f2=s"        => \$folderIn2,
-                  'o|output=s'  => \$outfolder,
-                  'v|verbose=i' => \$verbose,
-                  'c|config=s'  => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'     => \$opt_help ) )
+my @copyARGV=@ARGV;
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+    $script_argv,
+    'f1=s'        => \$folderIn1,
+    'f2=s'        => \$folderIn2,
+    'o|output=s'  => \$outfolder,
+    'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -47,9 +47,9 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
                  -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $folderIn1 });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $folderIn1, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # Manage input folder1
 my $fh1;
@@ -193,7 +193,7 @@ if (-d $augustus_gff_folder){
   my %track_found;
   my @list_cases=("complete","fragmented","duplicated");
   foreach my $type (@list_cases){
-    print "extract gff for $type cases\n" if $verbose;
+    dual_print2 "extract gff for $type cases\n";
     foreach my $id (sort keys %{$busco1{$type}}){
       my @list = split(/\s/,$busco1{$type}{$id});
       my $seqId = $list[2];
@@ -206,13 +206,13 @@ if (-d $augustus_gff_folder){
           my $path = $augustus_gff_folder."/".$match;
           if (-f $path ){
             my  $found=undef;
-            print $path."\n" if $verbose;
+            dual_print2 $path."\n";
 
             my ($hash_omniscient) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){
-              print "No gene found for $path\n";exit;
+              dual_print1 "No gene found for $path\n";exit;
             }
 
             my @listIDl1ToRemove;
@@ -238,7 +238,7 @@ if (-d $augustus_gff_folder){
 
               if ($found){
                 if(@listIDl1ToRemove){
-                  print "lets remove those supernumary annotation: @listIDl1ToRemove \n" if $verbose;
+                  dual_print2 "lets remove those supernumary annotation: @listIDl1ToRemove \n";
                   remove_omniscient_elements_from_level1_id_list($hash_omniscient, \@listIDl1ToRemove);
                 }
 
@@ -255,23 +255,23 @@ if (-d $augustus_gff_folder){
                 }
               }
               else{
-                print "No annotation as described in the tsv file found in the gff file $path\n" if $verbose;
+                dual_print2 "No annotation as described in the tsv file found in the gff file $path\n";
               }
             }
             else{
-              print "No annotation in the file $path, lets look the next one.\n" if $verbose;
+              dual_print2 "No annotation in the file $path, lets look the next one.\n";
             }
           }
           else{
-            print "A) file $id not found among augustus gff output\n" if $verbose;
+            dual_print2 "A) file $id not found among augustus gff output\n";
           }
         }
       }
       else{
-        print "file $id not found among augustus gff output\n" if $verbose;
+        dual_print2 "file $id not found among augustus gff output\n";
       }
       if(! exists_keys(\%track_found,($type,$id))){
-        print "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n";
+        warn "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n";
       }
     }
     my $out = $gff_out{$type};
@@ -279,19 +279,17 @@ if (-d $augustus_gff_folder){
     %$full_omniscient = (); # empty hash
     my $nb = keys %{$track_found{$type}};
     $loop = 0;
-    print "We found $nb annotations from $type busco\n";
+    dual_print1 "We found $nb annotations from $type busco\n";
   }
 
 }
-else{ print "$augustus_gff_folder folder doesn't exits\n"; exit;}
+else{ dual_print1 "$augustus_gff_folder folder doesn't exits\n"; exit;}
 
 
+# --- final messages ---
+end_script();
 
-
-##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# -----------------------------------------------------------------------------------------------
 #######################################################################################################################
         ####################
          #     methods    #

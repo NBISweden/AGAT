@@ -9,10 +9,9 @@ use Bio::DB::Fasta;
 use File::Basename;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
-my $start_run = time();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_gfffile;
 my $opt_fastafile;
 my $opt_output_fasta;
@@ -20,16 +19,21 @@ my $opt_output_gff;
 my $opt_help;
 my $width = 60; # line length printed
 
-# OPTION MANAGMENT
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'f|fa|fasta=s'    => \$opt_fastafile,
-                  'of=s'            => \$opt_output_fasta,
-                  'og=s'            => \$opt_output_gff,
-                  'c|config=s'      => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'         => \$opt_help ) )
-{
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+        $script_argv,
+        'g|gff=s'        => \$opt_gfffile,
+        'f|fa|fasta=s'   => \$opt_fastafile,
+        'of=s'           => \$opt_output_fasta,
+        'og=s'           => \$opt_output_gff,
+        'h|help!'        => \$opt_help,
+    ) ) {
     pod2usage( { -message => "Failed to parse command line",
                  -verbose => 1,
                  -exitval => 1 } );
@@ -50,9 +54,12 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -exitval => 2 } );
 }
 
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gfffile });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_gfffile, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 ######################
 # Manage output file #
@@ -162,13 +169,12 @@ foreach my $seq_id (@ids ){
 # print annotation whith shifter location
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "We found $cpt_Nleft sequence(s) starting with N\n";
-print "We found $cpt_Nright sequence(s) ending with N\n";
-print "We found $cpt_Nboth sequence(s) having N both extremities\n";
+dual_print1 "We found $cpt_Nleft sequence(s) starting with N\n";
+dual_print1 "We found $cpt_Nright sequence(s) ending with N\n";
+dual_print1 "We found $cpt_Nboth sequence(s) having N both extremities\n";
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 
 
 ########################################################################################

@@ -2,16 +2,14 @@
 
 use strict;
 use warnings;
-use Getopt::Long qw(:config no_auto_abbrev);
 use Pod::Usage;
-use IO::File;
-use Try::Tiny;
-use List::MoreUtils qw(uniq);
+use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+
+# ------------------------------- LOAD OPTIONS --------------------------------
 my $gff = undef;
 my $opt_output = undef;
 my $opt_yaml = undef;
@@ -19,45 +17,48 @@ my $opt_percentile = 90;
 my $opt_genomeSize = undef;
 my $opt_plot = undef;
 my $opt_raw = undef;
-my $opt_verbose = 0;
-my $opt_help= 0;
+my $opt_help = 0;
 
-if ( !GetOptions(
-    'c|config=s'   => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"       => \$opt_help,
-    'o|output=s'   => \$opt_output,
-    'percentile=i' => \$opt_percentile,
-    'yaml!'        => \$opt_yaml,
-    'r|raw!'       => \$opt_raw,
-    'd|p!'         => \$opt_plot,
-    'v|verbose'   => \$opt_verbose,
-    'g|f|gs=s'    => \$opt_genomeSize,
-    "gff|i=s"     => \$gff))
+# OPTION MANAGEMENT: split shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'h|help!'       => \$opt_help,
+    'o|output=s'    => \$opt_output,
+    'percentile=i'  => \$opt_percentile,
+    'yaml!'         => \$opt_yaml,
+    'r|raw!'        => \$opt_raw,
+    'd|p!'          => \$opt_plot,
+    'g|f|gs=s'      => \$opt_genomeSize,
+    'gff|i=s'       => \$gff,
+  ) )
 {
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage( { -verbose => 99,
+         -exitval => 0,
+         -message => "$header\n" } );
 }
 
 if ( ! (defined($gff)) ){
-    pod2usage( {
-           -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage( {
+       -message => "$header\nAt least 1 parameter is mandatory:\nInput reference gff file (--gff) \n\n",
+       -verbose => 0,
+       -exitval => 1 } );
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
 
 #### IN / OUT
 my $out = prepare_fileout($opt_output);
@@ -76,10 +77,10 @@ if($opt_raw){
     $opt_raw = "raw_data";
 
     if (-f $opt_raw){
-      print "Cannot create a directory with the name $opt_raw because a file with this name already exists.\n";exit();
+      die "Cannot create a directory with the name $opt_raw because a file with this name already exists.\n";
     }
     if (-d $opt_raw){
-      print "Cannot create a directory with the name $opt_raw because a folder with this name already exists.\n";exit();
+      die "Cannot create a directory with the name $opt_raw because a folder with this name already exists.\n";
     }
   }
 }
@@ -99,10 +100,10 @@ if($opt_plot){
       $opt_plot = "distribution_plots";
 
       if (-f $opt_plot){
-        print "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n";exit();
+        die "Cannot create a directory with the name $opt_plot because a file with this name already exists.\n";
       }
       if (-d $opt_plot){
-        print "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n";exit();
+        die "The default output directory $opt_plot use to save the distribution plots already exists. Please give me another folder name.\n";
       }
     }
   }
@@ -118,21 +119,22 @@ my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $gff });
 
 ##############
 # STATISTICS #
-print "Compute statistics\n";
+dual_print1 "Compute statistics\n";
 print_omniscient_statistics ({ input   => $hash_omniscient,
-															 genome  => $opt_genomeSize,
-                               percentile => $opt_percentile,
-															 output  => $out,
-                               yaml    => $opt_yaml,
-                               raw     => $opt_raw,
-															 distri  => $opt_plot,
-															 isoform => 1,
-															 verbose => $opt_verbose
-														 });
+                                 genome    => $opt_genomeSize,
+                                 percentile=> $opt_percentile,
+                                 output    => $out,
+                                 yaml      => $opt_yaml,
+                                 raw       => $opt_raw,
+                                 distri    => $opt_plot,
+                                 isoform   => 1,
+                                 verbose   => $CONFIG->{verbose}
+                               });
 # END STATISTICS #
 ##################
 
-print "Bye Bye.\n";
+# --- final messages ---
+end_script();
 
 __END__
 

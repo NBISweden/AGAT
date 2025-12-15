@@ -1438,7 +1438,7 @@ sub create_or_append_tag{
 # 2 means that there are two extra bases (the second and third bases of the codon) before the first codon.
 sub fil_cds_frame {
 
-	my ($hash_omniscient, $db, $verbose)=@_;
+	my ($hash_omniscient, $db)=@_;
 
 	foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
@@ -1464,8 +1464,8 @@ sub fil_cds_frame {
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
 					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
 						$phase = 0;
-						warn "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
-						"We will assume then to be in phase 0" if $verbose;
+						dual_print1 "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
+						"We will assume then to be in phase 0" ;
 					}
 
 					# If no phase found and a phase exists in the CDS feature we keep the original
@@ -1475,7 +1475,7 @@ sub fil_cds_frame {
 							my $original_phase = $cds_feature->frame;
 
 							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
-								print "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" if $verbose;
+								dual_print1 "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" ;
 								$cds_feature->frame($phase);
 							}
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
@@ -1598,7 +1598,7 @@ sub info_omniscient {
   		}
 	}
 	foreach my $tag (keys %resu){
-		print "There is $resu{$tag} $tag\n";
+		dual_print1 "There is $resu{$tag} $tag\n";
 	}
 }
 

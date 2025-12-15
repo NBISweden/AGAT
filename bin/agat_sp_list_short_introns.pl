@@ -11,43 +11,51 @@ use Clone 'clone';
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $cpu;
+start_script();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_file;
 my $INTRON_LENGTH = 10;
 my $opt_output=undef;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  "size|s=i"            => \$INTRON_LENGTH,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+#############################
+# >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
+#############################
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+my $parser = Getopt::Long::Parser->new();
+if ( !$parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s' => \$opt_file,
+    'o|out|output=s'      => \$opt_output,
+    'size|s=i'            => \$INTRON_LENGTH,
+    'h|help!'             => \$opt_help,
+  ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage( { -verbose => 99,
+         -exitval => 0,
+         -message => "$header\n" } );
 }
 
 if ( ! defined( $opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage( {
+       -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
+       -verbose => 0,
+       -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+#############################
+# >>>>>>> Manage config <<<<<<<
+#############################
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_file, shared_opts => $shared_opts });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -91,7 +99,7 @@ my %result;
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){ die "Problem ! We didnt retrieve the level1 feature with id $id_l1\n"; }
 
       #####
       # get all level2
@@ -147,11 +155,11 @@ foreach my $seqid (keys %result){
 }
 
 my $gene_number = keys %total_gene;
-print $fh "\n$total_intron introns found for $gene_number uniq genes\n";
-      #########################
-      ######### END ###########
-      #########################
+print $fh "\n$total_intron introns found for $gene_number uniq genes\n" if ($opt_output);
+dual_print1 "\n$total_intron introns found for $gene_number uniq genes\n";
 
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################

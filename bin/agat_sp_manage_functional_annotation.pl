@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use File::Basename;
 use Carp;
-use POSIX qw(strftime);
 use Getopt::Long;
 use IO::File;
 use Pod::Usage;
@@ -16,8 +15,7 @@ use AGAT::AGAT;
 my $DEBUG = 0;    # JN: for dedug printing
 
 my $header = get_agat_header();
-my $config;
-my $cpu;
+start_script();
 
 # PARAMETERS - OPTION
 my $opt_reffile;
@@ -31,7 +29,7 @@ my $opt_InterproFile;
 my $opt_name = undef;
 my $opt_nameU;
 my $opt_populate_cds = undef;
-my $opt_verbose = undef;
+## verbose removed: use dual_print2 for debug traces
 my $opt_help = 0;
 my $opt_blastEvalue = 1e-6;
 my $opt_dataBase = undef;
@@ -82,34 +80,35 @@ my $nbTotalGOterm = 0;
 # END FOR FUNCTION INTERPRO#
 
 # OPTION MANAGMENT
-my @copyARGV = @ARGV;
-GetOptions(
- 'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
- 'b|blast=s'                => \$opt_BlastFile,
- 'clean_name!'              => \$opt_CleanNameAttribute,
- 'clean_product!'           => \$opt_CleanProductAttribute,
- 'clean_dbxref!'            => \$opt_CleanDbxrefAttribute,
- 'clean_ontology!'          => \$opt_CleanOntology_termAttribute,
- 'd|db=s'                   => \$opt_dataBase,
- 'be|blast_evalue=f'        => \$opt_blastEvalue,
- 'pe=i'                     => \$opt_pe,
- 'pcds!'                    => \$opt_populate_cds,
- 'i|interpro=s'             => \$opt_InterproFile,
- 'id=s'                     => \$opt_name,
- 'idau=s'                   => \$opt_nameU,
- 'nb=i'                     => \$nbIDstart,
- 'o|output=s'               => \$opt_output,
- 'a|addgntag'               => \$opt_addGnPresentTag,
- 'v'                        => \$opt_verbose,
- 'c|config=s'               => \$config,
- 'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
- 'h|help!'                  => \$opt_help
-)
-or pod2usage( {
-  -message => 'Failed to parse command line',
-  -verbose => 1,
-  -exitval => 1
-});
+#############################
+# >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
+#############################
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+my $parser = Getopt::Long::Parser->new();
+if ( ! $parser->getoptionsfromarray(
+      $script_argv,
+      'f|ref|reffile|gff|gff3=s' => \$opt_reffile,
+      'b|blast=s'                => \$opt_BlastFile,
+      'clean_name!'              => \$opt_CleanNameAttribute,
+      'clean_product!'           => \$opt_CleanProductAttribute,
+      'clean_dbxref!'            => \$opt_CleanDbxrefAttribute,
+      'clean_ontology!'          => \$opt_CleanOntology_termAttribute,
+      'd|db=s'                   => \$opt_dataBase,
+      'be|blast_evalue=f'        => \$opt_blastEvalue,
+      'pe=i'                     => \$opt_pe,
+      'pcds!'                    => \$opt_populate_cds,
+      'i|interpro=s'             => \$opt_InterproFile,
+      'id=s'                     => \$opt_name,
+      'idau=s'                   => \$opt_nameU,
+      'nb=i'                     => \$nbIDstart,
+      'o|output=s'               => \$opt_output,
+      'a|addgntag'               => \$opt_addGnPresentTag,
+      'h|help!'                  => \$opt_help,
+    ) )
+{
+  pod2usage( { -message => 'Failed to parse command line', -verbose => 1, -exitval => 1 } );
+}
 
 # Print Help and exit
 if ($opt_help) {
@@ -133,17 +132,18 @@ if ( !( defined($opt_reffile) ) ) {
   );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_reffile });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+#############################
+# >>>>>>> Manage config <<<<<<<
+#############################
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_reffile, shared_opts => $shared_opts });
 
 #################################################
 ####### START Manage files (input output) #######
 #################################################
 
 if ( ($opt_pe > 5) or ($opt_pe < 1) ) {
-  print "Error the Protein Existence (PE) value must be between 1 and 5\n";
-  exit;
+  die "Error the Protein Existence (PE) value must be between 1 and 5\n";
 }
 
 my $streamBlast = IO::File->new();
@@ -152,8 +152,7 @@ my $streamInter = IO::File->new();
 # Manage Blast File
 if (defined $opt_BlastFile) {
   if (! $opt_dataBase) {
-    print "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
-    exit;
+    die "To use the blast output we also need the fasta of the database used for the blast (--db)\n";
   }
   $streamBlast->open( $opt_BlastFile, 'r' ) or
     croak( sprintf( "Can not open '%s' for reading: %s", $opt_BlastFile, $! ) );
@@ -171,14 +170,12 @@ if (defined $opt_InterproFile) {
 my $ostreamGFF_file;
 my $ostreamLog_file;
 my $ostreamReport_file;
-if (defined($opt_output)) {
+if (defined $opt_output) {
   if (-f $opt_output) {
-    print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
-    exit();
+    die "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
   }
   if (-d $opt_output) {
-    print "The output directory choosen already exists. Please give me another Name.\n";
-    exit();
+    die "The output directory choosen already exists. Please give me another Name.\n";
   }
   mkdir $opt_output;
 
@@ -199,8 +196,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 ####### END Manage files (input output) #######
 ###############################################
 #my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-my $stringPrint = strftime "%m/%d/%Y", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
+my $stringPrint;
 if ($opt_name) {
   $prefixName = $opt_name;
   $stringPrint .= "->IDs are changed using <$opt_name> as prefix.\nIn the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines.".
@@ -212,10 +208,12 @@ if ($opt_nameU) {
 }
 
 # Display
-$ostreamReport->print($stringPrint);
-if ($opt_output) {
-  print_time("$stringPrint");
-} # When ostreamReport is a file we have to also display on screen
+if ($stringPrint){
+  $ostreamReport->print($stringPrint);
+  if ($opt_output) {
+    dual_print1 "$stringPrint";
+  } # When ostreamReport is a file we have to also display on screen
+}
 
                   #          +------------------------------------------------------+
                   #          |+----------------------------------------------------+|
@@ -231,7 +229,7 @@ my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_reffile });
 #########################
 
 #Print directly what has been read
-print_time("Compute statistics");
+dual_print1 "Compute statistics";
 print_omniscient_statistics(
   {
     input => $hash_omniscient,
@@ -249,7 +247,7 @@ my %allIDs;
 
 if (defined $opt_BlastFile) {
   # read fasta file and save info in memory
-  print_time("Look at the fasta database");
+  dual_print1 "Look at the fasta database";
   $db = Bio::DB::Fasta->new($opt_dataBase);
 
   # JN: Begin parse fasta
@@ -272,10 +270,10 @@ if (defined $opt_BlastFile) {
     }
   } # JN: End parse fasta
 
-  print_time("Parsing Finished");
+  dual_print1 "Parsing Finished";
 
   # parse blast output
-  print( "Reading features from $opt_BlastFile...\n");
+  dual_print1 "Reading features from $opt_BlastFile...\n";
   parse_blast($streamBlast, $opt_blastEvalue, $hash_omniscient);
 }
 
@@ -302,7 +300,7 @@ if (defined $opt_InterproFile) {
 ###########################
 # change FUNCTIONAL information if asked for
 if ($opt_BlastFile || $opt_InterproFile ) {
-  print_time( "load FUNCTIONAL information" );
+  dual_print1 "load FUNCTIONAL information";
 
   #################
   # == LEVEL 1 == #
@@ -445,7 +443,7 @@ if ($opt_BlastFile || $opt_InterproFile ) {
 ###########################
 # change names if asked for
 if ($opt_nameU || $opt_name ) { #|| $opt_BlastFile || $opt_InterproFile) {
-  print_time("load new IDs");
+  dual_print1 "load new IDs";
 
   my %hash_sortBySeq;
   foreach my $tag_level1 ( keys %{$hash_omniscient->{'level1'}}) {
@@ -655,13 +653,18 @@ if ($opt_name or $opt_nameU) {
 
 # Display
 $ostreamReport->print("$stringPrint");
+if ($opt_output) {
+  dual_print1 "$stringPrint";
+} # When ostreamReport is a file we have to also display on screen
 
 ####################
 # PRINT IN FILES
 ####################
-print_time("Writing result...");
+dual_print1 "Writing result...";
 print_omniscient( {omniscient => $hash_omniscient, output => $ostreamGFF} );
-print_time("End of script.");
+
+# -- END OF MAIN -- #
+end_script();
 
       #########################
       ######### END ###########
@@ -856,7 +859,7 @@ sub parse_blast {
           my $header = $db->header( $protID_correct );
 
           if (! $header =~ m/GN=/) {
-            $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
+            $ostreamLog->print( "No gene name (GN=) in this header $header\n") if ($opt_output);
             $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
           }
 
@@ -866,11 +869,11 @@ sub parse_blast {
             }
           }
           else {
-            $ostreamLog->print("No Protein Existence (PE) information in this header: $header\n") if ($opt_verbose or $opt_output);
+            $ostreamLog->print("No Protein Existence (PE) information in this header: $header\n") if ($opt_output);
           }
         }
         else {
-          $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if ($opt_verbose or $opt_output);
+          $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n" ) if ($opt_output);
           $candidates{$l2_name} = ["error", $evalue, $prot_name."-".$l2_name];
         }
       }
@@ -898,7 +901,7 @@ sub parse_blast {
         my $header = $db->header( $protID_correct );
 
         if (! $header =~ m/GN=/) {
-          $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_verbose or $opt_output);
+          $ostreamLog->print("No gene name (GN=) in this header $header\n") if ($opt_output);
         }
 
         if ($header =~ /PE=([1-5])/) {
@@ -907,17 +910,17 @@ sub parse_blast {
           }
         }
         else {
-          $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if ($opt_verbose or $opt_output);
+          $ostreamLog->print( "No Protein Existence (PE) information in this header: $header\n") if ($opt_output);
         }
       }
       else {
-        $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if ($opt_verbose or $opt_output);
+        $ostreamLog->print( "ERROR $prot_name not found among the db! You probably didn't give to me the same fasta file than the one used for the blast. (l2=$l2_name)\n") if ($opt_output);
       }
     }
   }
 
   my $nb_desc = keys %candidates;
-  $ostreamLog->print( "We have $nb_desc description candidates.\n") if ($opt_verbose or $opt_output);
+  $ostreamLog->print( "We have $nb_desc description candidates.\n") if ($opt_output);
 
   ##################################################
   ####### Step 2 : go through all candidates ####### report gene name for each mRNA
@@ -925,22 +928,22 @@ sub parse_blast {
   foreach my $l2 (sort keys %candidates) {
     # JN: Here we need to not(?) return error above to be able to differentiate the cases without GN?
     if ( $candidates{$l2}[0] eq "error" ) {
-      $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_verbose or $opt_output);
+      $ostreamLog->print("error nothing found for $candidates{$l2}[2]\n") if ($opt_output);
       next;
     }
 
     #Save uniprot id of the best match
    
     $mRNAUniprotIDFromBlast{$l2} = $candidates{$l2}[2];
-    print "save protein ID for $l2 : ".$candidates{$l2}[2]."\n" if ($opt_verbose);
+    dual_print2 "save protein ID for $l2 : ".$candidates{$l2}[2]."\n";
     
     #Save evalu
     $blast_evalue{$l2} = $candidates{$l2}[1];
-    print "save blast evalue for $l2 : ".$candidates{$l2}[1]."\n" if ($opt_verbose);
+    dual_print2 "save blast evalue for $l2 : ".$candidates{$l2}[1]."\n";
 
     # Parse header
     my $header = $candidates{$l2}[0];
-    print "header: ".$header."\n" if ($opt_verbose);
+    dual_print2 "header: ".$header."\n";
 
     if ($header =~ m/(^[^\s]+)\s(.+?(?= \w{2}=))(.+)/) {
       my $protID = $1;
@@ -949,7 +952,7 @@ sub parse_blast {
       $theRest =~ s/\n//g;
       $theRest =~ s/\r//g;
       my $nameGene = undef;
-      print "description: ".$description."\n" if ($opt_verbose);
+      dual_print2 "description: ".$description."\n";
       push ( @{ $mRNAproduct{$l2} }, $description );
 
       #deal with the rest
@@ -958,7 +961,7 @@ sub parse_blast {
       while ($theRest) {
         ($theRest, $tuple) = stringCatcher($theRest);
         my ($type, $value) = split /=/, $tuple;
-        print "$protID: type:$type --- value:$value\n" if ($opt_verbose);
+        dual_print2 "$protID: type:$type --- value:$value\n";
         $hash_rest{lc($type)} = $value;
       }
 
@@ -979,11 +982,11 @@ sub parse_blast {
 
         }
         else {
-          $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_omniscient{l2tol1} (created by the gff file).\n") if ($opt_verbose or $opt_output);
+          $ostreamLog->print( "No parent found for $l2 (defined in the blast file) in hash_omniscient{l2tol1} (created by the gff file).\n") if ($opt_output);
         }
       }
       else {
-        $ostreamLog->print( "No gene name (GN) tag found in the header: $header\n") if ($opt_verbose or $opt_output);
+        $ostreamLog->print( "No gene name (GN) tag found in the header: $header\n") if ($opt_output);
       }
 
       # catch organism
@@ -1002,7 +1005,7 @@ sub parse_blast {
       }
     }
     else {
-      $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_verbose or $opt_output);
+      $ostreamLog->print( "Header from the db fasta file doesn't match the regular expression: $header\n") if ($opt_output);
     }
   }
 
@@ -1015,7 +1018,7 @@ sub parse_blast {
       # JN: TODO: need to check and handle(?) cases where we have several different hits
       if ($size > 1) {
         my (@vals) = keys (%{$values});
-        #$ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($opt_verbose or $opt_output);
+        #$ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($opt_output);
         $ostreamLog->print( "DEBUG JN: level 2 label \'$l2_key\' have several GN values: @vals\n") if ($DEBUG); # JN: Debug printing
       }
     }
@@ -1044,7 +1047,7 @@ sub stringCatcher {
 # method to parse Interpro file
 sub parse_interpro_tsv {
   my($file_in, $fileName) = @_;
-  print("Reading features from $fileName...\n");
+  dual_print1 "Reading features from $fileName...\n";
 
   while( my $line = <$file_in>) {
 
@@ -1056,7 +1059,7 @@ sub parse_interpro_tsv {
     my $db_name = $values[3];
     my $db_value = $values[4];
     my $db_tuple = $db_name.":".$db_value;
-    print "Specific dB: ".$db_tuple."\n" if ($opt_verbose);
+    dual_print2 "Specific dB: ".$db_tuple."\n";
 
     if (! grep( /^\Q$db_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
       $TotalTerm{$db_name}++;
@@ -1073,7 +1076,7 @@ sub parse_interpro_tsv {
       my $interpro_value = $values[11];
       $interpro_value =~ s/\n//g;
       my $interpro_tuple = "InterPro:".$interpro_value;
-      print "interpro dB: ".$interpro_tuple."\n" if ($opt_verbose);
+      dual_print2 "interpro dB: ".$interpro_tuple."\n";
       next if $interpro_value eq "-"; #fix 147
 
       if (! grep( /^\Q$interpro_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1093,7 +1096,7 @@ sub parse_interpro_tsv {
       $go_flat_list =~ s/\n//g;
       my @go_list = split(/\|/, $go_flat_list); #cut at character |
       foreach my $go_tuple (@go_list) {
-        print "GO term: ".$go_tuple."\n" if ($opt_verbose);
+        dual_print2 "GO term: ".$go_tuple."\n";
         next if $go_tuple eq "-"; #fix kira
         
         if (! grep( /^\Q$go_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} )) { #to avoid duplicate
@@ -1116,7 +1119,7 @@ sub parse_interpro_tsv {
       foreach my $pathway_tuple (@pathway_list) {
         my @tuple = split(/:/, $pathway_tuple); #cut at character :
         my $db_name = $tuple[0];
-        print "pathway info: ".$pathway_tuple."\n" if ($opt_verbose);
+        dual_print2 "pathway info: ".$pathway_tuple."\n";
         next if ($pathway_tuple eq "-"); # avoid empty pathway tuple
         if (! grep( /^\Q$pathway_tuple\E$/, @{$functionData{$db_name}{$mRNAID}} ) ) { # to avoid duplicate
           $TotalTerm{$db_name}++;

@@ -8,26 +8,29 @@ use Getopt::Long;
 use Bio::Tools::Genscan;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile = undef;
 my $genscan = undef;
 my $seq_id = "unknown";
 my @list_exon_types = ("Init", "Intr", "Term", "Sngl");
 my %hash_raw;
 my %hash_uniqID;
-my $verbose = undef;
 my $help;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if( !GetOptions(    'c|config=s'                => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-					"h|help"                    => \$help,
-					"g|genscan=s"               => \$genscan,
-					"seqid=s"                   => \$seq_id,
-					"verbose|v!"                => \$verbose,
-					"outfile|output|o|out|gff=s" => \$outfile ) )
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+				$script_argv,
+				"h|help"                     => \$help,
+				"g|genscan=s"                => \$genscan,
+				"seqid=s"                    => \$seq_id,
+				"outfile|output|o|out|gff=s" => \$outfile ) )
 {
     pod2usage( { -message => "Failed to parse command line.\n",
                  -verbose => 1,
@@ -48,8 +51,13 @@ if ( ! (defined($genscan)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config , input => $genscan });
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
+
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $genscan, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 ## Manage output file
 my $gffout = prepare_gffout( $outfile );
@@ -57,8 +65,11 @@ my $gffout = prepare_gffout( $outfile );
 ## MAIN ##############################################################
 
 read_genscan($genscan);
-#use Data::Dumper; print Dumper (\%hash_raw);
+
 convert_genscan();
+
+# --- final messages ---
+end_script();
 
 ## SUBROUTINES #######################################################
 

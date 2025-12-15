@@ -9,25 +9,30 @@ use IO::File ;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my @inputFile;
 my $outputFile;
 my $genome;
 my $opt_help = 0;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (
-      'i|file|input|gff=s' => \@inputFile,
-      'o|output=s'         => \$outputFile,
-      'g|genome=s'         => \$genome,
-      'c|config=s'         => \$config,
-      'h|help!'            => \$opt_help )  )
+# OPTION MANAGEMENT: split shared vs script-specific argv
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'i|file|input|gff=s' => \@inputFile,
+  'o|output=s'         => \$outputFile,
+  'g|genome=s'         => \$genome,
+  'h|help!'            => \$opt_help )  )
 {
     pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -42,8 +47,13 @@ if (! @inputFile ){
                  -exitval => 1 } );
 }
 
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $inputFile[0] });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $inputFile[0], shared_opts => $shared_opts });
+
+# ----------------------------
 
 # Manage Output
 my $ostream = prepare_fileout($outputFile);
@@ -61,7 +71,7 @@ my $genomeSize=undef;
           $genomeSize += length($string);
         }
     }
-  printf("%-45s%d%s", "Total sequence length", $genomeSize,"\n");
+  dual_print1 sprintf("%-45s%d%s", "Total sequence length", $genomeSize,"\n");
   }
 
 #time to calcul progression
@@ -71,7 +81,7 @@ my %check; #track the repeat already annotated to not. Allow to skip already rea
 
 foreach my $file (@inputFile){
   # Manage input gff file
-  print "Reading $file\n";
+  dual_print1 "Reading $file\n";
   my $format = $CONFIG->{force_gff_input_version};
   if(! $format ){ $format = select_gff_format($file); }
   my $ref_in = AGAT::BioperlGFF->new(-file => $file, -gff_version => $format);
@@ -80,7 +90,7 @@ foreach my $file (@inputFile){
   my $nbLine=`wc -l < $file`;
   $nbLine =~ s/ //g;
   chomp $nbLine;
-  print "$nbLine line to process...\n";
+  dual_print1 "$nbLine line to process...\n";
   my $line_cpt=0;
 
   local $| = 1; # Or use IO::Handle; STDOUT->autoflush; Use to print progression bar
@@ -111,11 +121,11 @@ foreach my $file (@inputFile){
     if ((30 - (time - $startP)) < 0) {
       my $done = ($line_cpt*100)/$nbLine;
       $done = sprintf ('%.0f', $done);
-          print "\rProgress : $done %";
+          dual_print1 "\rProgress : $done %";
       $startP= time;
     }
   }
-  print "\rProgress : 100 %\n";
+  dual_print1 "\rProgress : 100 %\n";
 }
 
 my $totalNumber=0;
@@ -163,9 +173,8 @@ else{
   print $ostream "None found\n";
 }
 
-  my $end_run = time();
-  my $run_time = $end_run - $start_run;
-  print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 
 __END__
 

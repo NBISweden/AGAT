@@ -10,28 +10,32 @@ use IO::File ;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $input_gff;
 my $input_tsv;
 my $outputFile;
-my $verbose;
 my $csv;
 my $opt_help = 0;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (  'gff=s' => \$input_gff,
-                    'o|output=s' => \$outputFile,
-			        'tsv=s' => \$input_tsv,
-                    'csv!' => \$csv,
-			        'v|verbose!' => \$verbose,
-                    'c|config=s'               => \$config,
-                    'h|help!'         => \$opt_help )  )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+		$script_argv,
+		'gff=s'        => \$input_gff,
+		'o|output=s'   => \$outputFile,
+		'tsv=s'        => \$input_tsv,
+		'csv!'         => \$csv,
+		'h|help!'      => \$opt_help,
+	) ) {
+	pod2usage( { -message => 'Failed to parse command line',
+				 -verbose => 1,
+				 -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -41,14 +45,19 @@ if ($opt_help) {
 }
 
 if (! $input_gff or ! $input_tsv){
-   pod2usage( {  -message => "$header\nAt least 2 input file are mandatory:\n".
-                 "--gff input.gff\n--tsv input.tsv",
-                 -verbose => 0,
-                 -exitval => 1 } );
+	pod2usage( {  -message => "$header\nAt least 2 input file are mandatory:\n".
+					  "--gff input.gff\n--tsv input.tsv",
+					  -verbose => 0,
+					  -exitval => 1 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $input_gff });
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $input_gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # Manage Output
 my $gffout = prepare_gffout( $outputFile );
@@ -56,7 +65,7 @@ my $gffout = prepare_gffout( $outputFile );
 # Manage GFF Input
 my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($input_gff); }
-print "Reading $input_gff using format GFF$format\n";
+dual_print1 "Reading $input_gff using format GFF$format\n";
 my $gff_in = AGAT::BioperlGFF->new(-file => $input_gff, -gff_version => $format);
 
 # Manage tsv input
@@ -82,10 +91,9 @@ while (<INPUT>) {
   else{
 	  @splitline = split /\t/, $_; # split at tabulation
   }
-
 	if ($line == 1){
 		$nb_header = scalar @splitline;
-		print "$nb_header headers\n" if $verbose;
+		dual_print2 "$nb_header headers\n";
 		my $cpt = 0;
 		foreach my $header_title (@splitline){
 			$header{$cpt++} = $header_title;
@@ -93,7 +101,7 @@ while (<INPUT>) {
 	}
 	else{
 		my $nb_column = scalar @splitline;
-		if($nb_column != $nb_header) { print "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"; }
+		if($nb_column != $nb_header) { dual_print1 "Number of header ($nb_header) different to number of columm ($nb_column) line $line\n"; }
 		for(my $i = 1; $i <= $#splitline; $i++){
 			$tsv{lc($splitline[0])}{$header{$i}} = $splitline[$i];
 		}
@@ -111,17 +119,17 @@ while (my $feature = $gff_in->next_feature() ) {
 				if($feature->has_tag($att)){
 					my @originalvalues = $feature->get_tag_values($att);
 					if (grep( /$tsv{$id}{$att}/, @originalvalues)){
-						print "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n" if ($verbose);
+						dual_print2 "Value $tsv{$id}{$att} already exists for attribute $att in feature with ID $id\n";
 					}
 					#add attribute
 					else{
-						print "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n" if ($verbose);
+						dual_print2 "Attribute $att exists for feature with ID $id, we add the new value $tsv{$id}{$att} to it.\n";
 						$feature->add_tag_value($att, $tsv{$id}{$att});
 					}
 				}
 				# new attribute
 				else{
-					print "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n" if ($verbose);
+					dual_print2 "New attribute $att with value $tsv{$id}{$att} added for feature with ID $id.\n";
 					$feature->add_tag_value($att, $tsv{$id}{$att});
 				}
 			}
@@ -130,9 +138,8 @@ while (my $feature = $gff_in->next_feature() ) {
 	$gffout->write_feature($feature);
 }
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 
 __END__
 

@@ -5,30 +5,31 @@ use warnings;
 use Sort::Naturally;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my $opt_output ;
 my $opt_coordinates ;
 my $opt_exclude_ov ;
 my $opt_gff ;
-my $opt_verbose ;
 my $opt_help ;
 
 # OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'i|input|gtf|gff=s'            => \$opt_gff,
-                  "coordinates|tsv|r|ranges=s"   => \$opt_coordinates,
-                  "e|exclude!"                   => \$opt_exclude_ov,
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+                  $script_argv,
+                  'i|input|gtf|gff=s'            => \$opt_gff,
+                  'coordinates|tsv|r|ranges=s'   => \$opt_coordinates,
+                  'e|exclude!'                   => \$opt_exclude_ov,
                   'o|output=s'                   => \$opt_output,
-                  'v|verbose!'                   => \$opt_verbose,
-                  'c|config=s'                   => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
                   'h|help!'                      => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -51,19 +52,20 @@ if ( ! $opt_gff ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Manage Output
 
 if (! $opt_output) {
-  print "Default output name: filter_record_by_coordinates\n";
+  dual_print1 "Default output name: filter_record_by_coordinates\n";
   $opt_output="filter_record_by_coordinates";
 }
 
 if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+  die "The output directory choosen already exists. Please give me another Name.\n";
 }
 mkdir $opt_output;
 
@@ -99,20 +101,15 @@ while (my $line = <$in_range>) {
       $nb_ranges++;
     }
     else{
-      print "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n";
+      dual_print1 "skip line $cpt_line (At least 3 values expected, only $size_array available): $line\n";
     }
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will get features that are within the $nb_ranges selected ranges.\n";
+my $stringPrint = "We will get features that are within the $nb_ranges selected ranges.\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+print $ostreamReport $stringPrint if ($opt_output);
+dual_print1 $stringPrint;
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -175,12 +172,14 @@ if($opt_output){
 }
 my $test_fail = scalar @listNotOk;
 
-$stringPrint = "$test_success record(s) selected within the range(s).\n";
-$stringPrint .= "$test_fail record(s) out of the range(s).\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+my $stringPrint2 = "$test_success record(s) selected within the range(s).\n";
+$stringPrint2 .= "$test_fail record(s) out of the range(s).\n";
+
+print $ostreamReport $stringPrint2 if ($opt_output);
+dual_print1 $stringPrint2;
+
+# ----------------------------- END --------------------------------
+end_script();
 
 #######################################################################################################################
         ####################
@@ -204,14 +203,14 @@ sub test_overlap_with_ranges{
     foreach my $range ( @{$range_hash{lc($feature_l1->seq_id)}} ){
       if(! $opt_exclude_ov){
         if(_overlap($range, [$start,$end])){
-          print "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n" if $opt_verbose;
+          dual_print2 "feature [".$feature_l1->primary_tag." $start,$end] is included or overlap the range [@$range]\n";
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }
       }
       else{
         if(_include($range, [$start,$end])){
-          print "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n" if $opt_verbose;
+          dual_print2 "feature [".$feature_l1->primary_tag." $start,$end] is included in the range [@$range]\n";
           my $range_string = $feature_l1->seq_id."_".$range->[0]."_".$range->[1];
           push @list_ranges, $range_string;
         }

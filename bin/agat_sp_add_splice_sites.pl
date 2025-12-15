@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use List::MoreUtils  qw(natatime);;
 use Carp;
 use Getopt::Long;
@@ -10,43 +9,55 @@ use Pod::Usage;
 use Clone 'clone';
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $spliceID = 1;
 my $opt_file;
-my $opt_output=undef;
+my $opt_output = undef;
 my $opt_help = 0;
+my @copyARGV = @ARGV;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling', 'no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s' => \$opt_file,
+    'o|out|output=s'      => \$opt_output,
+    'h|help!'             => \$opt_help,
+  ) ) {
+  pod2usage({
+    -message => 'Failed to parse command line',
+    -verbose => 1,
+    -exitval => 1
+  });
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage({ -verbose => 99,
+        -exitval => 0,
+        -message => "$header\n" });
 }
 
 if ( ! defined( $opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data GFF/GTF file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage({
+    -message => "$header\nMust specify at least 1 parameters:\nReference data GFF/GTF file (--gff)\n",
+    -verbose => 0,
+    -exitval => 1
+  });
 }
 
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_file, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # #######################
 # # START Manage Option #
@@ -186,10 +197,13 @@ my $splice_added=0;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n";
+dual_print1 "$splice_added five_prime_cis_splice_site and $splice_added three_prime_cis_splice_site added!\nBye Bye\n";
       #########################
       ######### END ###########
       #########################
+
+    # --- final messages ---
+    end_script();
 
 
 #######################################################################################################################

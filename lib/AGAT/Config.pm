@@ -79,13 +79,12 @@ sub get_config{
 
 	if( ! defined($args->{type}) ) { $type = "local";} else{ $type = $args->{type};}
 	if( !$type eq "local" and !$type eq "original" ){
-		warn "type must be local or original. $type unknown!";exit;
+		die "type must be local or original. $type unknown!";
 	}
 	if( ! defined($args->{config_file_in}) ) { $config_file_in = undef;} else{ $config_file_in = $args->{config_file_in}; }
 	
 	my $path=undef;
-	my $log_info = "";
-	my $tmp_message = "";
+	my $log_message = "";
 	# original approach trying to get the local and/or original config file
 	if (! $config_file_in){
 		#set run directory
@@ -95,9 +94,7 @@ sub get_config{
 		if ($type eq "local") {
 			$path = $run_dir."/".$config_file;
 			if (-e $path){
-				$tmp_message = "=> Using $config_file config file found in your working directory.\n";
-				print $tmp_message;
-				$log_info .= $tmp_message;
+				$log_message = "=> Using $config_file config file found in your working directory.\n";
 			} else {
 				$path = undef;
 			}
@@ -105,23 +102,19 @@ sub get_config{
 		#otherwise use the standard location ones
 		if (! $path) { 
 			$path = dist_file('AGAT', $config_file);
-			$tmp_message = "=> Using standard $path config file\n";
-							print $tmp_message;
-				$log_info .= $tmp_message;
+			$log_message = "=> Using standard $path config file\n";
 		}
 	}
 	# Config file provided we must load this one !
 	else{
 		if (-e $config_file_in){
 			$path = $config_file_in;
-			$tmp_message = "=> Using provided config file $path.\n";
-			print $tmp_message;
-			$log_info .= $tmp_message;
+			$log_message = "=> Using provided config file $path.\n";
 		} else{
-			warn "=> Config file $config_file_in does not exist! Please check the path!"; exit;
+			die "=> Config file provided $config_file_in does not exist! Please check the path!";
 		}
 	}
-	return $path, $log_info;
+	return $path, $log_message;
 }
 
 sub expose_config_hash{
@@ -315,7 +308,7 @@ sub check_config{
 		$error = 1;
 	}
 
-	# Now exit if one confiuguration parameter is missing
+	# Now exit if one configuration parameter is missing
 	if ($error){exit 1;}
 }
 

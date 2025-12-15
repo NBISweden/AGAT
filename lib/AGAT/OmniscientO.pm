@@ -259,7 +259,7 @@ sub print_omniscient_as_gff{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 							$gffout->write_feature($feature_level2);
 
 							#################
@@ -331,7 +331,7 @@ sub print_omniscient_as_match{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) }  @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 							if($primary_tag_l2 =~ "match"){
 								$gffout->write_feature($feature_level2);
@@ -423,7 +423,7 @@ sub print_omniscient_from_level1_id_list {
 			foreach my $primary_tag_key_level2 ( sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
 				if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
-					foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+					foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
 						#_uri_encode_one_feature($feature_level2);
 
@@ -527,7 +527,7 @@ sub print_level3_old_school{
 # @output none => none
 sub write_fasta {
 	my ($gffout, $omniscient) = @_;
-
+	
 	if ( exists_keys ($omniscient, ('other','fasta') ) ){
 		# print the GFF fasta line
 		$gffout->_print("##FASTA\n");
@@ -576,11 +576,11 @@ sub write_fasta {
 			my( $i );
 			for ($i = 0; $i < $whole; $i += $nuc) {
 				my $blocks = substr($str, $i, $nuc);
-				$gffout->_print("$blocks\n") || return;
+				$gffout->_print("$blocks\n");
 			}
 			# Print the last line
 			if (my $last = substr($str, $i)) {
-				$gffout->_print("$last\n") || return;
+				$gffout->_print("$last\n");
 			}
 		}
 		# Close the gff input FH opened by OmniscientI
@@ -649,7 +649,7 @@ sub write_top_features{
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
-#				   || 					     webapollo compliant 					       ||
+#				   ||				webapollo compliant 				 ||
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 

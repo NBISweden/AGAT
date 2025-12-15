@@ -1,0 +1,43 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use File::Path;
+use FindBin qw($Bin);
+use lib "$Bin/../lib";
+use File::Spec::Functions qw(catfile catdir);
+use Cwd qw(abs_path);
+use AGAT::TestUtilities; 
+use Test::More;
+
+my $script_prefix = script_prefix();
+my $root = abs_path(catdir($Bin, '..', '..'));
+my $bin_dir = catdir($root, 'bin');
+my $input_folder = catdir($Bin, 'in');
+my $output_folder = catdir($Bin, 'out');
+
+# -------------------------- check agat_convert_mfannot2gff -------------------------
+
+my $script = $script_prefix . catfile($bin_dir, "agat_convert_mfannot2gff.pl");
+
+{  ok(system("$script -h 1>\/dev\/null") == 0, "help $script"); }
+
+{
+    my $dir = setup_tempdir();
+    my $outtmp = catfile($dir, 'tmp1.gff');
+    my $result = "$output_folder/agat_convert_mfannot2gff_1.gff";
+    check_quiet_run("$script --mfannot " . catfile($input_folder, 'test.mfannot') . " -o $outtmp");
+    check_diff($outtmp, $result, 'output agat_convert_mfannot2gff.pl case 1');
+}
+
+{
+    my $dir = setup_tempdir();
+    my $outtmp = catfile($dir, 'tmp2.gff');
+    my $result = "$output_folder/agat_convert_mfannot2gff_2.gff";
+    check_quiet_run("$script --mfannot " . catfile($input_folder, 'test.mfannot2') . " -o $outtmp");
+    check_diff($outtmp, $result, 'output agat_convert_mfannot2gff.pl case 2');
+}
+
+
+
+
+done_testing();

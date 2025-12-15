@@ -8,29 +8,30 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use IO::File ;
 use AGAT::AGAT;
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_gfffile=undef;
-my $verbose=undef;
 my $opt_fastafile=undef;
 my $outfile=undef;
 my $opt_help = 0;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (
-      'file|input|gff=s' => \$opt_gfffile,
-      'f|fasta=s'        => \$opt_fastafile,
-      'o|output=s'       => \$outfile,
-      'v|verbose!'       => \$verbose,
-      'c|config=s'       => \$config,
-      'h|help!'          => \$opt_help )  )
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'file|input|gff=s' => \$opt_gfffile,
+  'f|fasta=s'        => \$opt_fastafile,
+  'o|output=s'       => \$outfile,
+  'h|help!'          => \$opt_help )  )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -45,8 +46,13 @@ if ((!defined($opt_gfffile)) ){
                  -exitval => 2 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $opt_gfffile, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # Manage input fasta file
 my $format = $CONFIG->{force_gff_input_version};
@@ -59,7 +65,7 @@ my $gffout = prepare_gffout( $outfile );
 #### read fasta
 my $nbFastaSeq=0;
 my $db = Bio::DB::Fasta->new($opt_fastafile);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 # get all seq id from fasta and convert to hash
 my @ids      = $db->get_all_primary_ids;
@@ -82,17 +88,19 @@ while (my $feature = $ref_in->next_feature() ) {
     $cpt_kept++;
   }
   else{
-    print "SequenceID ".$feature->seq_id." is absent from the fasta file\n" if($verbose);
+    dual_print2 "SequenceID ".$feature->seq_id." is absent from the fasta file\n";
     $cpt_removed++;
   }
 }
 
-print "We removed $cpt_removed annotations.\n";
+dual_print1 "We removed $cpt_removed annotations.\n";
 my $nbSeqWithAnnotation = scalar keys %seqNameSeen;
-print "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n";
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print1 "We kept $cpt_kept annotations that are linked to $nbSeqWithAnnotation sequences.\n";
+
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 __END__
 

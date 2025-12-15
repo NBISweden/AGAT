@@ -4,33 +4,35 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_keep_list = undef;
 my $opt_attribute = 'ID';
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'kl|keep_list=s'      => \$opt_keep_list,
-                  "p|type|l=s"          => \$primaryTag,
-                  'o|output=s'          => \$opt_output,
-                  'a|attribute=s'       => \$opt_attribute,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  'kl|keep_list=s'      => \$opt_keep_list,
+  'p|type|l=s'          => \$primaryTag,
+  'o|output=s'          => \$opt_output,
+  'a|attribute=s'       => \$opt_attribute,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -51,9 +53,11 @@ if ( ! $opt_gff or ! $opt_keep_list ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Manage Output
@@ -106,16 +110,11 @@ while (my $line = <$in_keep_list>) {
 my $nb_to_keep = keys %keep_hash;
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
+my $stringPrint = "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
 $stringPrint .= "The keep list contains $nb_to_keep uniq IDs\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+print $ostreamReport $stringPrint if(defined $ostreamReport);
+dual_print1 $stringPrint;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -193,12 +192,14 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 # create omniscient with only selected recoreds
 my $hash_kept = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@keeplist);
+# print output
 print_omniscient( {omniscient => $hash_kept, output => $gffout_ok} );#print gene modified in file
-$stringPrint = ($#keeplist+1)." records kept!\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+# final report
+my $stringPrint2 = ($#keeplist+1)." records kept!\n";
+dual_print1 $stringPrint2;
+
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################

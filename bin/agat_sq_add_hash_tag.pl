@@ -8,25 +8,30 @@ use Getopt::Long;
 use IO::File ;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $inputFile=undef;
 my $outfile=undef;
 my $opt_help = 0;
 my $interval=1;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (
-      'file|input|gff=s' => \$inputFile,
-      'i|interval=i'     => \$interval,
-      'o|output=s'       => \$outfile,
-      'c|config=s'       => \$config,
-      'h|help!'          => \$opt_help )  )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'file|input|gff=s' => \$inputFile,
+  'i|interval=i'     => \$interval,
+  'o|output=s'       => \$outfile,
+  'h|help!'          => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -48,8 +53,13 @@ if (( $interval > 2 or $interval < 1) ){
                  -exitval => 1 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $inputFile });
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $inputFile, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # Manage input gff file
 my $format = $CONFIG->{force_gff_input_version};
@@ -65,7 +75,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print1 "$nbLine line to process...\n";
 
 my $line_cpt=0;
 my $count=0;
@@ -108,7 +118,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print1 "\rProgression : $done % processed.\n";
     $startP= time;
   }
 }
@@ -118,13 +128,14 @@ while (my $feature = $ref_in->next_feature() ) {
 $count++;
 
 if($count > 0){
-  print "$count line added !\n";
+  dual_print1 "$count line added !\n";
 }
-else{print "No line added !\n";}
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+else{ dual_print1 "No line added !\n"; }
 
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 sub _write_bucket{
   my($bucket, $gffout)=@_;

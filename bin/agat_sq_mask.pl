@@ -8,9 +8,9 @@ use Bio::SeqIO ;
 use IO::File ;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_HardMask;
 my $opt_SoftMask;
 my $opt_gfffile;
@@ -23,13 +23,16 @@ my $hardMaskChar;
 my $width = 60; # line length printed
 
 # OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'f|fa|fasta=s'    => \$opt_fastafile,
-                  'hm:s'            => \$opt_HardMask,
-                  'sm'              => \$opt_SoftMask,
-                  'o|output=s'      => \$opt_output,
-                  'c|config=s'      => \$config,
-                  'h|help!'         => \$opt_help ) )
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray( $script_argv,
+          'g|gff=s'         => \$opt_gfffile,
+          'f|fa|fasta=s'    => \$opt_fastafile,
+          'hm:s'            => \$opt_HardMask,
+          'sm'              => \$opt_SoftMask,
+          'o|output=s'      => \$opt_output,
+          'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -50,28 +53,30 @@ if ( (! (defined($opt_gfffile)) ) || (! (defined($opt_fastafile)) ) || ( (! defi
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gfffile });
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $opt_gfffile, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 if (defined ($opt_HardMask) && defined ($opt_SoftMask)){
-  print "It is not possible to HardMask and SoftMask at the same time. Choose only one the options and try again !\n"; exit();
+  dual_print1 "It is not possible to HardMask and SoftMask at the same time. Choose only one option and try again !\n"; exit();
 }
 
 my $ostream = prepare_fileout($opt_output);
 
 if (defined( $opt_HardMask)){
-  print "You choose to Hard Mask the genome.\n";
+  dual_print1 "You choose to Hard Mask the genome.\n";
 	if (! $opt_HardMask){
 	  $hardMaskChar = "n";
 	}
 	elsif(length($opt_HardMask) == 1){
 	  $hardMaskChar = $opt_HardMask;
 	}
-	else{print "$opt_HardMask cannot be used to Mask. A character is mandatory.\n";exit;}
-	print "Charcater uses for Mask: $hardMaskChar\n";
+  else{dual_print1 "$opt_HardMask cannot be used to Mask. A character is mandatory.\n";exit;}
+  dual_print1 "Character used for Mask: $hardMaskChar\n";
 }
-if (defined( $opt_HardMask)){
-  print "You choose to Soft Mask the genome.\n";
+if (defined( $opt_SoftMask)){
+  dual_print1 "You choose to Soft Mask the genome.\n";
 }
 ##### MAIN ####
 
@@ -84,7 +89,7 @@ if(! $format ){ $format = select_gff_format($opt_gfffile); }
 my $gff_in = AGAT::BioperlGFF->new(-file => $opt_gfffile, -gff_version => $format);
 
 
-print( "Reading features from $opt_gfffile...\n");
+dual_print1 "Reading features from $opt_gfffile...\n";
   while (my $feature = $gff_in->next_feature()) {
     my $seqname=$feature->seq_id();
     my $start=$feature->start();
@@ -93,7 +98,7 @@ print( "Reading features from $opt_gfffile...\n");
     $nbLineRead++;
    }
 $gff_in->close();
-print "$nbLineRead lines read\n";
+dual_print1 "$nbLineRead lines read\n";
 
 #### read fasta
 my $nbFastaSeq=0;
@@ -121,11 +126,13 @@ while ($_=$inFasta->next_seq()) {
     $nbFastaSeq++;
 }
 $inFasta->close();
-print "$nbFastaSeq fasta sequences read.\n";
-print "$nucl_masked nucleotides masked.\n";
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+dual_print1 "$nbFastaSeq fasta sequences read.\n";
+dual_print1 "$nucl_masked nucleotides masked.\n";
+
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 __END__
 
 =head1 NAME

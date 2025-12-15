@@ -11,32 +11,34 @@ use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my $outfile = undef;
+my $opt_help;
 my $gff = undef;
-my $file_fasta=undef;
-my $codonTableId=1;
-my $skip_start_check=undef;
-my $skip_stop_check=undef;
-my $add_flag=undef;
-my $verbose = undef;
-my $opt_help= 0;
+my $file_fasta = undef;
+my $codonTableId = 1;
+my $skip_start_check = undef;
+my $skip_stop_check = undef;
+my $add_flag = undef;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'                => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                    => \$opt_help,
-    "gff=s"                     => \$gff,
-    "fasta|fa|f=s"              => \$file_fasta,
-    "table|codon|ct=i"          => \$codonTableId,
-    "add_flag|af!"              => \$add_flag,
-    "skip_start_check|sstartc!" => \$skip_start_check,
-    "skip_stop_check|sstopc!"   => \$skip_stop_check,
-    "v!"                        => \$verbose,
-    "output|outfile|out|o=s"    => \$outfile))
+# OPTION MANAGMENT
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+                  $script_argv,
+  "h|help"                    => \$opt_help,
+  "gff=s"                     => \$gff,
+  "fasta|fa|f=s"              => \$file_fasta,
+  "table|codon|ct=i"          => \$codonTableId,
+  "add_flag|af!"              => \$add_flag,
+  "skip_start_check|sstartc!" => \$skip_start_check,
+  "skip_stop_check|sstopc!"   => \$skip_stop_check,
+  "output|outfile|out|o=s"    => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -59,8 +61,9 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
@@ -96,7 +99,7 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 my @ids      = $db->get_all_primary_ids;
 my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 ####################
 
 #counters
@@ -110,7 +113,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print2 "gene_id = $gene_id\n";
 
     my @level1_list=();
     my @level2_list=();
@@ -140,7 +143,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               if (! $skip_start_check){
                 my $start_codon = $seqobj->subseq(1,3);
                 if(! $codonTable->is_start_codon( $start_codon )){
-                  print "start= $start_codon  is not a valid start codon\n" if ($verbose);
+                  dual_print2 "start= $start_codon  is not a valid start codon\n";
                   $start_missing="true";
                   if($add_flag){
                     create_or_replace_tag($level2_feature, 'incomplete', '1');
@@ -153,7 +156,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
                 if(! $codonTable->is_ter_codon( $stop_codon )){
-                  print "stop= $stop_codon is not a valid stop codon\n" if ($verbose);
+                  dual_print2 "stop= $stop_codon is not a valid stop codon\n";
                   $stop_missing="true";
                   if($add_flag){
                     if($start_missing){
@@ -167,11 +170,11 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               }
             }
             else{ #short CDS
-              print "CDS too short ($length_CDS nt) we skip it\n" if ($verbose);
+            dual_print2 "Not a coding rna (no CDS) we skip it\n";
             }
           }
           else{ #No CDS
-            print "Not a coding rna (no CDS) we skip it\n" if ($verbose);
+            dual_print2 "Not a coding rna (no CDS) we skip it\n";
           }
 
           if($start_missing or $stop_missing){
@@ -210,15 +213,14 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      print "This is a non coding gene (no cds to any of its RNAs)" if ($verbose);
+      dual_print2 "This is a non coding gene (no cds to any of its RNAs)";
     }
   }
 }
 
 
 #END
-my $string_to_print="usage: $0 @copyARGV\n";
-$string_to_print .="Results:\n";
+my $string_to_print = "Results:\n";
 
 if ($geneCounter) {
   $string_to_print .="We checked ".$mrnaCounter{0}." mRNAs.\n";
@@ -230,7 +232,7 @@ if ($geneCounter) {
 else{
   $string_to_print .="No gene with incomplete mRNA!\n";
 }
-print $string_to_print;
+dual_print1 $string_to_print;
 
 if(! $add_flag){
   #clean for printing
@@ -244,15 +246,16 @@ if(! $add_flag){
   }
 }
 
-print "Now printing complete models\n";
+dual_print1 "Now printing complete models\n";
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 if(@incomplete_mRNA){
-  print "Now printing incomplete models\n";
+  dual_print1 "Now printing incomplete models\n";
   print_omniscient( {omniscient => \%omniscient_incomplete, output => $gffout_incomplete} );
 }
 
-print "Bye Bye.\n";
+# --- final messages ---
+end_script();
 #######################################################################################################################
         ####################
          #     METHODS    #

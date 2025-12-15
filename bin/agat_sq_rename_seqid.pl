@@ -10,28 +10,32 @@ use IO::File ;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my $input_gff;
 my $input_tsv;
 my $outputFile;
-my $verbose;
 my $csv;
 my $opt_help = 0;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (  'gff=s'           => \$input_gff,
-                    'o|output=s'      => \$outputFile,
-	                'tsv=s'           => \$input_tsv,
-                    'csv!'            => \$csv,
-			        'v|verbose!'      => \$verbose,
-                    'c|config=s'      => \$config,
-                    'h|help!'         => \$opt_help )  )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+		$script_argv,
+		'gff=s'           => \$input_gff,
+		'o|output=s'      => \$outputFile,
+		'tsv=s'           => \$input_tsv,
+		'csv!'            => \$csv,
+		'h|help!'         => \$opt_help )  )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+	pod2usage( { -message => 'Failed to parse command line',
+				 -verbose => 1,
+				 -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -47,8 +51,11 @@ if (! $input_gff or ! $input_tsv){
                  -exitval => 1 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $input_gff });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $input_gff, shared_opts => $shared_opts });
 
 # Manage Output
 my $gffout = prepare_gffout( $outputFile);
@@ -89,9 +96,10 @@ while (my $feature = $gff_in->next_feature() ) {
 	$gffout->write_feature($feature);
 }
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 __END__
 

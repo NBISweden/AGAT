@@ -3,8 +3,12 @@ use strict;
 use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 use File::ShareDir::Install;
+use Cwd qw(abs_path);
 
 install_share dist => 'share';
+
+# ensure temporary test directories are isolated
+$ENV{HARNESS_PERL_SWITCHES} = join ' ', '-I' . abs_path('t/lib') . ' -MAGAT::TestUtilities', ($ENV{HARNESS_PERL_SWITCHES} // '');
 
 # ------------------- CREATE LIST OF EXE FILE ----------------------------------
 
@@ -63,6 +67,7 @@ my %prereq_hash = ( "Bio::DB::Fasta" => 0,
                     "Sort::Naturally" => 0,
                     "Storable" => 0,
                     "Term::ProgressBar" => 0,
+                    "Test::TempDir::Tiny" => 0,
                     "Time::Piece" => 0,
                     "Time::Seconds" => 0,
                     "Try::Tiny" => 0,
@@ -76,17 +81,24 @@ my %prereq_hash = ( "Bio::DB::Fasta" => 0,
 
 my %WriteMakefileArgs = (
   NAME            => 'AGAT',
-  AUTHOR          => 'Jacques Dainat <jacques.dainat@nbis.se>',
+  AUTHOR          => 'Jacques Dainat <jacques.dainat@gamil.com>',
   VERSION_FROM    => 'lib/AGAT/AGAT.pm',
   ABSTRACT        => 'Module to deal comprehensively with GFF and GTF format',
   LICENSE         => 'gpl_3',
   PREREQ_PM       => \%prereq_hash, # give a ref to the hash
   MIN_PERL_VERSION => '5.006',
-  BUILD_REQUIRES  => {"ExtUtils::MakeMaker" => 6.31,
-                      "File::ShareDir::Install" => 0
-                    },
-  TEST_REQUIRES   => {"Test::More" => 0
-                     },
+  CONFIGURE_REQUIRES => {
+						     'ExtUtils::MakeMaker'     => '6.64',
+						     'File::ShareDir::Install' => '0.14',
+					    },
+  BUILD_REQUIRES  =>    {
+					         "ExtUtils::MakeMaker" => 6.31,
+                        },
+  TEST_REQUIRES   =>    {
+		                     "Test::More"        => 0,
+		                     "Test::TempDir::Tiny" => 0,
+		                     "File::chdir"       => 0,
+                         },
   EXE_FILES       => $ref_list_exe,
   META_MERGE      => {
       'meta-spec' => { version => 2 },
@@ -102,6 +114,7 @@ my %WriteMakefileArgs = (
   },
   dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
   clean => { FILES => 'AGAT-*' },
+  test  => { TESTS => 't/*.t t/*/*.t' },
 );
 
 my %FallbackPrereqs = %prereq_hash;
@@ -124,4 +137,33 @@ WriteMakefile(%WriteMakefileArgs);
 
 #Mandatory otherwise the data files from the share folder will not be copied.
 package MY;
-use File::ShareDir::Install 'postamble';
+use File::ShareDir::Install;
+
+sub postamble {
+  File::ShareDir::Install::postamble(@_) . <<'POSTAMBLE';
+test_gff_syntax :
+	$(MAKE) test TEST_FILES="$(wildcard t/gff_syntax/*.t)"
+
+test_gff_other :
+	$(MAKE) test TEST_FILES="$(wildcard t/gff_other/*.t)"
+
+test_gff_version :
+	$(MAKE) test TEST_FILES="$(wildcard t/gff_version/*.t)"
+
+test_level_missing :
+	$(MAKE) test TEST_FILES="$(wildcard t/level_missing/*.t)"
+
+test_config :
+	$(MAKE) test TEST_FILES="$(wildcard t/config/*.t)"
+
+test_unitest :
+	$(MAKE) test TEST_FILES="$(wildcard t/*unitest*.t)"
+
+test_script_sq :
+	$(MAKE) test TEST_FILES="$(wildcard t/script_sq/*.t)"
+
+test_script_sp :
+	$(MAKE) test TEST_FILES="$(wildcard t/script_sp/*.t)"
+
+POSTAMBLE
+}

@@ -9,9 +9,8 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $cpu;
-
+start_script();
+# ---------------------------- OPTIONS ----------------------------
 my @opt_files;
 my $opt_output=undef;
 my $opt_plot;
@@ -19,19 +18,25 @@ my $opt_breaks;
 my $Xpercent=1;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \@opt_files,
-                  'o|out|output=s'      => \$opt_output,
-                  'w|window|b|break|breaks=i'  => \$opt_breaks,
-                  'x|p=f'               => \$Xpercent,
-                  'plot!'               => \$opt_plot,
-                  'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+#############################
+# >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
+#############################
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+my $parser = Getopt::Long::Parser->new();
+if ( ! $parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s' => \@opt_files,
+    'o|out|output=s'      => \$opt_output,
+    'w|window|b|break|breaks=i'  => \$opt_breaks,
+    'x|p=f'               => \$Xpercent,
+    'plot!'               => \$opt_plot,
+    'h|help!'             => \$opt_help,
+  ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -48,9 +53,11 @@ if ( ! ( $#opt_files  >= 0) ) {
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_files[0] });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+#############################
+# >>>>>>> Manage config <<<<<<<
+#############################
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_files[0], shared_opts => $shared_opts });
 
 # #######################
 # # START Manage Option #
@@ -58,7 +65,7 @@ $CONFIG->{cpu} = $cpu if defined($cpu);
 my $ostreamReport_file;
 if (defined($opt_output) ) {
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    die "The output directory choosen already exists. Please geve me another Name.\n";
   }
   else{
     mkdir $opt_output;
@@ -67,12 +74,6 @@ if (defined($opt_output) ) {
 }
 
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-
-my $string1 .= "usage: $0 @copyARGV\n\n";
-
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
-
 
 #############################
 ####### Manage R option #####
@@ -89,7 +90,7 @@ if(! $opt_breaks){
 my $outputPDF_prefix;
 if (defined($opt_output) ) {
   if (-f $opt_output){
-      print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+      die "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
   }
  $outputPDF_prefix=$opt_output."/intronPlot_";
 }
@@ -119,7 +120,7 @@ if($opt_plot){
 my %introns;
 foreach my $file (@opt_files){
 
-  print "Reading ".$file,"\n";
+  dual_print1 "Reading ".$file."\n";
   my $log = create_log_file({input => $file});
 	$LOGGING->{'log'} = $log ;
   ######################
@@ -129,7 +130,7 @@ foreach my $file (@opt_files){
   #########################
 
   #print statistics
-	print "Compute statistics\n";
+  dual_print1 "Compute statistics\n";
 	print_omniscient_statistics ({ input => $hash_omniscient,
 																 output => $ostreamReport
 															 });
@@ -152,7 +153,7 @@ foreach my $file (@opt_files){
           last;
         }
       }
-      if(! $feature_l1){print "Problem ! We didnt retrieve the level1 feature with id $id_l1\n";exit;}
+      if(! $feature_l1){ die "Problem ! We didnt retrieve the level1 feature with id $id_l1\n"; }
 
       #####
       # get all level2
@@ -242,7 +243,7 @@ foreach  my $tag (sort keys %introns){
   my $stringPrint =  "Introns in feature $tag: Removing $Xpercent percent of the highest values ($nbValueToRemove values) gives you $resu bp as the longest intron in $tag.\n";
 
   print $ostreamReport $stringPrint;
-  if($opt_output){print $stringPrint;}
+  if($opt_output){ dual_print1 "$stringPrint"; }
 
 
   # Part 4
@@ -299,10 +300,8 @@ foreach  my $tag (sort keys %introns){
   unlink $pathIntron;
 }
 
-      #########################
-      ######### END ###########
-      #########################
-
+# --- final messages ---
+end_script( $ostreamReport );
 
 #######################################################################################################################
         ####################

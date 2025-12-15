@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use File::Basename;
 use Carp;
 use Getopt::Long;
@@ -10,44 +9,55 @@ use IO::File;
 use Pod::Usage;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_file;
-my $opt_output=undef;
-my $verbose=undef;
+my $opt_output = undef;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s' => \$opt_output,
-                  'v|verbose!'      => \$verbose,
-                  'c|config=s'               => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+my @copyARGV = @ARGV;
+
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling', 'no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s' => \$opt_file,
+    'o|out|output=s'      => \$opt_output,
+    'h|help!'             => \$opt_help,
+  ) ) {
+  pod2usage({
+    -message => 'Failed to parse command line',
+    -verbose => 1,
+    -exitval => 1
+  });
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage({ -verbose => 99,
+        -exitval => 0,
+        -message => "$header\n" });
 }
 
 if ( ! defined($opt_file) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage({
+    -message => "$header\nMust specify at least 1 parameters:\nReference data gff3 file (--gff)\n",
+    -verbose => 0,
+    -exitval => 1
+  });
 }
 
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_file, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # #######################
 # # START Manage Option #
@@ -59,12 +69,6 @@ if (defined($opt_output) ) {
 }
 my $gffout = prepare_gffout( $opt_output);
 my $ostreamReport = prepare_fileout($ostreamReport_filename);
-
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
 
                                                       #######################
                                                       #        MAIN         #
@@ -132,11 +136,14 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 
 my $toprint = "$nb_cases_l1 $tag flags/attributes added to level1 features and $nb_cases_l2 $tag flags/attributes added to level2 features. The value of the attribute is size of the shortest exon found.\n";
 print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+dual_print1 $toprint;
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
       #########################
       ######### END ###########
       #########################
+
+# --- final messages ---
+end_script($ostreamReport);
 
 
 #######################################################################################################################

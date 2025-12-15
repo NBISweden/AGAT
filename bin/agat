@@ -70,11 +70,11 @@ The file will appear in the working folder. By default, AGAT uses the config fil
          sources            => '+SourcesWithFiles',
          # 'config-files' => ["/etc/$APPNAME.json"],
          options     => [
-            {
-               getopt      => 'h|help!',
-			         shortbool   => 1, #shortbool added by JDainat to avoid --no-help
-               help        => 'Display the help',
-            },
+						{
+							getopt      => 'h|help!',
+							shortbool   => 1, #shortbool added by JDainat to avoid --no-help
+							help        => 'Display the help',
+						},
 						{
 							 getopt      => 'version|v!',
 							 shortbool   => 1,

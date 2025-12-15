@@ -4,15 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Scalar::Util qw(looks_like_number);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
@@ -22,24 +21,27 @@ my $opt_value_insensitive = undef;
 my $opt_attribute = undef;
 my $opt_test = "=";
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'value=s'             => \$opt_value,
-                  'value_insensitive!'  => \$opt_value_insensitive,
-                  'keep_parental!'      => \$opt_keep_parental,
-                  'na_aside!'           => \$opt_na_aside, 
-                  "p|type|l=s"          => \$primaryTag,
-                  'a|attribute=s'       => \$opt_attribute,
-                  't|test=s'            => \$opt_test,
-                  'o|output=s'          => \$opt_output,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  'value=s'             => \$opt_value,
+  'value_insensitive!'  => \$opt_value_insensitive,
+  'keep_parental!'      => \$opt_keep_parental,
+  'na_aside!'           => \$opt_na_aside,
+  'p|type|l=s'          => \$primaryTag,
+  'a|attribute=s'       => \$opt_attribute,
+  't|test=s'            => \$opt_test,
+  'o|output=s'          => \$opt_output,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -60,14 +62,16 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Test options
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
+  die "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";
 }
 
 ###############
@@ -125,27 +129,19 @@ my $value_hash = string_sep_to_hash({ string => $opt_value,
 foreach my $value (keys %{$value_hash}){
   if( ! looks_like_number($value) ){
     if($opt_test ne "=" and $opt_test ne "!"){
-      print "This test $opt_test is not possible with string value.\n";
-      exit; 
+      die "This test $opt_test is not possible with string value.\n";
     }
   }
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
+my $stringPrint .= "\nWe will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
 if ($opt_value_insensitive){
   $stringPrint .= " case insensitive.\n";
 }else{
    $stringPrint .= " case sensitive.\n";
 }
-
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print1 $stringPrint;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -257,6 +253,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
 
+# --- final report ---
 $stringPrint = "Feature discarded by applying the test (see $fhout_discarded_file file):\n";
 $stringPrint .= $all_cases{'discarded'}{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'discarded'}{'l1'}." features level1 (e.g. gene) removed\n";
@@ -270,11 +267,10 @@ if($opt_na_aside){
   $stringPrint .= $all_cases{'na'}{'l2'}." features level2 (e.g. mRNA) removed\n";
   $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
 }
+dual_print1 $stringPrint;
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################
@@ -329,18 +325,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          print "String case\n" if $opt_verbose;
+          dual_print2 "String case\n";
           if ($opt_test eq "="){
-            if ($file_value eq $given_value) { print "equal\n" if $opt_verbose; return 1; }
-            else { print "not equal\n" if $opt_verbose; }
+            if ($file_value eq $given_value) { dual_print2 "equal\n"; return 1; }
+            else { dual_print2 "not equal\n"; }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ print "different\n" if $opt_verbose; return 1; }
-            else { print "not different\n" if $opt_verbose; }
+            if ($file_value ne $given_value){ dual_print2 "different\n"; return 1; }
+            else { dual_print2 "not different\n"; }
           }
         } 
         else{
-          print "Number case\n" if $opt_verbose;
+          dual_print2 "Number case\n";
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -364,7 +360,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    print "Attribute not found  case\n" if $opt_verbose;
+    dual_print2 "Attribute not found  case\n";
     return 2;
   }
 }

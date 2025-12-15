@@ -11,33 +11,36 @@ use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
 my $codonTableId=1;
 my $SIZE_OPT=15;
-my $verbose = undef;
 my $opt_help= 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                 => \$opt_help,
-    "gff=s"                  => \$gff,
-    "fasta|fa|f=s"           => \$file_fasta,
-    "table|codon|ct=i"       => \$codonTableId,
-    "size|s=i"               => \$SIZE_OPT,
-    "v!"                     => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                 => \$opt_help,
+  'gff=s'                   => \$gff,
+  'fasta|fa|f=s'            => \$file_fasta,
+  'table|codon|ct=i'        => \$codonTableId,
+  'size|s=i'                => \$SIZE_OPT,
+  'output|outfile|out|o=s'  => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -55,8 +58,10 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -76,7 +81,7 @@ my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 ####################
 
@@ -91,7 +96,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print2 "gene_id = $gene_id\n";
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id) ) ){
@@ -122,7 +127,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $exonCounter++;
               $exonFix=1;
 
-              print "left_exon start fixed\n" if $verbose;
+              dual_print2 "left_exon start fixed\n";
 
               #take care of CDS if needed
               if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -145,7 +150,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                      #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                     if(! $codonTable->is_start_codon( $this_codon )){
-                      print "first exon plus strand : this is not a start codon\n";exit;
+                      die "first exon plus strand : this is not a start codon\n";
                     }
 
                   }
@@ -156,7 +161,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                     #Check if it is not terminal codon, otherwise we have to extend the CDS.
                     if(! $codonTable->is_ter_codon( $this_codon )){
-                      print "first exon minus strand : this is not a terminal codon\n";exit;
+                      die "first exon minus strand : this is not a terminal codon\n";
                     }
                   }
                 }
@@ -180,7 +185,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 $exonCounter++;
                 $exonFix=1;
 
-                print "right_exon end fixed\n" if $verbose;
+                dual_print2 "right_exon end fixed\n";
 
                 #take care of CDS if needed
                 if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -200,17 +205,17 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                     my $this_codon = substr( $sequence, $original_cds_end-3, 3);
 
                     if($strand eq "+" or $strand == "1"){
-                      print "last plus strand\n" if $verbose;
+                      dual_print2 "last plus strand\n";
                        #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                       if(! $codonTable->is_ter_codon( $this_codon )){
 
-                        print "last exon plus strand : $this_codon is not a stop codon\n";exit;
+                        die "last exon plus strand : $this_codon is not a stop codon\n";
                       }
 
                     }
                     if($strand eq "-" or $strand == "-1"){
-                      print "last minus strand\n" if $verbose;
+                      dual_print2 "last minus strand\n";
 
                       #reverse complement
                       my $seqobj = Bio::Seq->new(-seq => $this_codon);
@@ -218,7 +223,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                       #Check if it is not terminal codon, otherwise we have to extend the CDS.
                       if(! $codonTable->is_start_codon( $this_codon )){
-                        print "last exon minus strand : $this_codon is not a start codon\n";exit;
+                        die "last exon minus strand : $this_codon is not a start codon\n";
                       }
                     }
                   }
@@ -242,16 +247,18 @@ check_all_level2_locations( { omniscient => $hash_omniscient } ); # review all t
 check_all_level1_locations( { omniscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
 
 #END
-my $string_to_print="usage: $0 @copyARGV\n";
-$string_to_print .="Results:\n";
+my $string_to_print .="Results:\n";
 $string_to_print .="nb gene affected: $geneCounter\n";
 $string_to_print .="nb rna affected: $mrnaCounter\n";
 $string_to_print .="nb exon affected: $exonCounter\n";
-print $string_to_print;
+dual_print1 "$string_to_print";
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "Bye Bye.\n";
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 #######################################################################################################################
         ####################
          #     METHODS    #

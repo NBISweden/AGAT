@@ -7,29 +7,31 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
-my $start_run = time();
+
+# ---------------------------- OPTIONS ----------------------------
 my $opt_fasta = undef;
-my $opt_gfffile;
-my $opt_verbose;
+my $opt_gff;
 my $opt_output;
 my $opt_help = 0;
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
-                  "fasta|fa=s"      => \$opt_fasta,
-                  "v|vebose!"       => \$opt_verbose,
-                  'c|config=s'      => \$config,
-                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'         => \$opt_help ) )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'g|gff=s'          => \$opt_gff,
+    'o|output=s'       => \$opt_output,
+    'fasta|fa=s'       => \$opt_fasta,
+    'h|help!'          => \$opt_help )  )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+        pod2usage( { -message => 'Failed to parse command line',
+                                 -verbose => 1,
+                                 -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -39,7 +41,7 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if (! defined($opt_gfffile) or ! defined($opt_fasta)){
+if (! defined($opt_gff) or ! defined($opt_fasta)){
     pod2usage( {
            -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (-g) and Input fasta file (--fasta).\n\n".
            "Ouptut is optional. Look at the help documentation to know more.\n",
@@ -48,8 +50,10 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config , input => $opt_gfffile });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 ######################
 # Manage output file #
@@ -59,24 +63,23 @@ my $gffout = prepare_gffout( $opt_output );
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($opt_fasta);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 ###
 # Fix frame
-fil_cds_frame($hash_omniscient, $db, $opt_verbose);
+fil_cds_frame($hash_omniscient, $db);
 
 ###
 # Print result
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 __END__
 
 =head1 NAME

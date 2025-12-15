@@ -2,18 +2,18 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use Carp;
 use Try::Tiny;
 use File::Basename;
 use IO::File;
 use Pod::Usage;
-use Getopt::Long qw(:config no_auto_abbrev);
+use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
+
 my $opt_reffile;
 my $opt_plot;
 my $opt_nbUTR;
@@ -24,22 +24,26 @@ my $opt_output=undef;
 my $opt_help = 0;
 my $DefaultUTRnb=5;
 
-my @copyARGV=@ARGV;
-print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
-                  'n|t|nb|number=i'         => \$opt_nbUTR,
-                  '3|three|three_prime_utr!'=> \$opt_utr3,
-                  '5|five|five_prime_utr!'  => \$opt_utr5,
-                  'b|both|bs!'              => \$opt_bst,
-                  'o|out|output=s'          => \$opt_output,
-                  'p|plot!'                 => \$opt_plot,
-                  'c|config=s'              => \$config,
-                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'                 => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s'     => \$opt_reffile,
+    'n|t|nb|number=i'         => \$opt_nbUTR,
+    '3|three|three_prime_utr!'=> \$opt_utr3,
+    '5|five|five_prime_utr!'  => \$opt_utr5,
+    'b|both|bs!'              => \$opt_bst,
+    'o|out|output=s'          => \$opt_output,
+    'p|plot!'                 => \$opt_plot,
+    'h|help!'                 => \$opt_help,
+  ) ) {
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -57,8 +61,8 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_reffile });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_reffile, shared_opts => $shared_opts });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
@@ -66,7 +70,7 @@ if (defined($opt_output) ) {
   my ($path,$ext);
   ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    die "The output directory choosen already exists. Please geve me another Name.\n";
   }
   else{
     mkdir $opt_output;
@@ -78,9 +82,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
+my $string1;
 if (! $opt_nbUTR){
   $opt_nbUTR=$DefaultUTRnb;
 }elsif(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
@@ -89,7 +91,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 }
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+if($opt_output){ dual_print1 "$string1"; }
 
 # Check if dependencies for plot are available
 if($opt_plot){
@@ -352,7 +354,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
   #Print Info OUtput
   print $ostreamReport $stringPrint;
   if($opt_output){
-    print $stringPrint;
+    dual_print1 "$stringPrint";
   }
 }
 
@@ -454,8 +456,10 @@ if ($opt_plot){
     unlink "$txtFileOver";
   }
   }
-
 }
+
+ # --- final messages ---
+ end_script($ostreamReport);
 
 #######################################################################################################################
         ####################

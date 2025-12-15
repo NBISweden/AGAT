@@ -8,27 +8,29 @@ use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my $outfile = undef;
 my $gff = undef;
 my $add_flag=undef;
 my $opt_dist=500;
-my $verbose = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'             => \$config,
-    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                 => \$opt_help,
-    "gff=s"                  => \$gff,
-    "add_flag|af!"           => \$add_flag,
-    "d|dist=i"               => \$opt_dist,
-    "v!"                     => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                 => \$opt_help,
+  'gff=s'                   => \$gff,
+  'add_flag|af!'            => \$add_flag,
+  'd|dist=i'                => \$opt_dist,
+  'output|outfile|out|o=s'  => \$outfile ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -49,9 +51,11 @@ if ( ! defined($gff) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# -------------------------------------------------------------------------------
 
 ######################
 # Manage output file #
@@ -113,7 +117,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
           my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
           my $id2_l1 = $location2->[0];
           my $dist = $location2->[1] - $location->[2] + 1;
-          print "distance $id_l1 - id2_l1 = $dist\n" if ($verbose);
+          dual_print2 "distance $id_l1 - id2_l1 = $dist\n";
 
           ############################
           #deal with overlap
@@ -124,7 +128,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
                   foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
                     if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
                       my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-                      add_info($level1_feature, 'O', $verbose);
+                      add_info($level1_feature, 'O');
                     }
                   }
                 }
@@ -134,7 +138,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
                 foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
                   if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
                     my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-                    add_info($level1_feature, 'O', $verbose);
+                    add_info($level1_feature, 'O');
                   }
                 }
 
@@ -163,14 +167,14 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
             foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
               if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
                 my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-                add_info($level1_feature, 'R'.$dist, $verbose);
+                add_info($level1_feature, 'R'.$dist);
               }
             }
 
             foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
               if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
                 my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-                add_info($level1_feature, 'L'.$dist, $verbose);
+                add_info($level1_feature, 'L'.$dist);
               }
             }
           }
@@ -207,14 +211,14 @@ else{
   print_omniscient_from_level1_id_list( {omniscient => $omniscient, level_id_list =>\@gene_id_ok, output => $gffout} );
 }
 
-#END
-my $string_to_print="usage: $0 @copyARGV\n".
-  "Results:\n".
+#END messages
+my $string_to_print = "Results:\n".
   "Total number investigated: $total\n".
   "Number of skipped loci: $geneCounter_skip\n".
   "Number of loci with distance to the surrounding loci over $opt_dist: $geneCounter_ok \n";
-print $string_to_print;
-print "Bye Bye.\n";
+dual_print1 $string_to_print;
+
+end_script();
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -229,16 +233,16 @@ print "Bye Bye.\n";
 
 
 sub add_info{
-  my ($feature, $value, $verbose)=@_;
+  my ($feature, $value)=@_;
 
   if($feature->has_tag('low_dist')){
     $feature->add_tag_value('low_dist', $value);
-    print $feature->_tag_value('ID')." add $value\n" if ($verbose);
+    dual_print2 $feature->_tag_value('ID')." add $value\n";
   }
   else{
     create_or_replace_tag($feature, 'low_dist', $value);
     $geneCounter_skip++;
-    print $feature->_tag_value('ID')." create $value\n" if ($verbose);
+    dual_print2 $feature->_tag_value('ID')." create $value\n";
   }
 
 }

@@ -9,22 +9,25 @@ use Getopt::Long;
 use File::Basename;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
-my $start_run = time();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_gfffile;
 my $opt_output;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'g|gxf|gtf|gff=s'          => \$opt_gfffile,
-                  'c|config=s'               => \$config,
-                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'o|output=s'               => \$opt_output,
-                  'h|help!'                  => \$opt_help ) )
-{
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+        $script_argv,
+        'g|gxf|gtf|gff=s'          => \$opt_gfffile,
+        'o|output=s'               => \$opt_output,
+        'h|help!'                  => \$opt_help,
+    ) ) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
@@ -44,10 +47,13 @@ if (! defined($opt_gfffile) ){
            -verbose => 0,
            -exitval => 1 } );
 }
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
 
-# --- Manage config ---
-initialize_agat({config_file_in => $config, input => $opt_gfffile});
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $opt_gfffile, shared_opts => $shared_opts });
+
+                  
 
 ######################
 # Manage output file #
@@ -67,10 +73,9 @@ print_omniscient( {omniscient => $hash_omniscient,
                    output => $gffout
                 } );
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "usage: $0 @copyARGV\n";
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
+
 
 __END__
 =head1 NAME
@@ -105,10 +110,6 @@ String - Input GTF/GFF file. Compressed file with .gz extension is accepted.
 
 String - Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
-
-=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
 
 =item B<-c> or B<--config>
 

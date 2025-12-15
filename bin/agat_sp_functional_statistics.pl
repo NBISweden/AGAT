@@ -9,26 +9,32 @@ use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $gff = undef;
 my $opt_output = "output_functional_statistics";
 my $opt_genomeSize = undef;
 my $opt_help= 0;
 
-if ( !GetOptions(
-    'c|config=s'  => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"      => \$opt_help,
-    'g|gs=s'      => \$opt_genomeSize,
-    'o|output=s'  => \$opt_output,
-    "gff|f=s"     => \$gff))
+# ---------------------------- OPTIONS ----------------------------
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'     => \$opt_help,
+  'g|gs=s'      => \$opt_genomeSize,
+  'o|output=s'  => \$opt_output,
+  'gff|f=s'     => \$gff ))
 
 {
-    pod2usage( { -message => "Failed to parse command line",
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -46,16 +52,18 @@ if ( ! (defined($gff)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 if (-f $opt_output){
-  print "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";exit();
+  die "Cannot create a directory with the name $opt_output because a file with this name already exists.\n";
 }
 if (-d $opt_output){
-  print "The output directory choosen already exists. Please give me another Name.\n";exit();
+  die "The output directory choosen already exists. Please give me another Name.\n";
 }
 mkdir $opt_output;
 
@@ -74,7 +82,7 @@ my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 ### Print Statistics structural first
 ###############################################################
 
-print "Compute statistics\n";
+dual_print1 "Compute statistics\n";
 print_omniscient_statistics ({ input  => $hash_omniscient,
 															 genome => $opt_genomeSize,
 															 output => $stat_out
@@ -150,7 +158,12 @@ foreach my $chimerel1l2 (sort keys %link_tags){
 
 # END STATISTICS #
 ##################
-print "Result available in <$opt_output>. Bye Bye.\n";
+dual_print1 "Result available in <$opt_output>. \n";
+
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 #######################################################################################################################
         ####################
          #     METHODS    #

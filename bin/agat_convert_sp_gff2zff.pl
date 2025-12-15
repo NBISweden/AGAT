@@ -9,44 +9,54 @@ use File::Basename;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile = undef;
-my $gff = undef;
+my $opt_gff = undef;
 my $model_id = -1;
 my $fasta = undef;
 my $help;
 
-if( !GetOptions(
-    'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                 => \$help,
-    "gff=s"                  => \$gff,
-    "fasta=s"                => \$fasta,
-    "outfile|output|out|o=s" => \$outfile))
-{
-    pod2usage( { -message => "Failed to parse command line.",
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+		$script_argv,
+		'h|help'                  => \$help,
+		'gff=s'                   => \$opt_gff,
+		'fasta=s'                 => \$fasta,
+		'outfile|output|out|o=s'  => \$outfile,
+	) ) {
+	pod2usage({
+		-message => 'Failed to parse command line.',
+		-verbose => 1,
+		-exitval => 1
+	});
 }
 # Print Help and exit
 if ($help) {
-    pod2usage( { -message => "$header",
-                 -verbose => 99,
-                 -exitval => 0 } );
+	pod2usage({ -message => "$header",
+				-verbose => 99,
+				-exitval => 0 });
 }
 
-if ( ! defined($gff) or ! defined($fasta) ){
-    pod2usage( {
-           -message => "$header\nAt least 2 parameters are mandatory:\n  Input gff file (--gff)\nInput fasta file (--fasta)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+if ( ! defined($opt_gff) or ! defined($fasta) ){
+	pod2usage({
+		   -message => "$header\nAt least 2 parameters are mandatory:\n  Input gff file (--gff)\nInput fasta file (--fasta)\n",
+		   -verbose => 0,
+		   -exitval => 1 });
 }
+
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 ## Manage output file
 my $zffout;
@@ -73,7 +83,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 ### Parse GTF input file
-my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
@@ -168,6 +178,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 	  }
 	}
 }
+
+# --- final messages ---
+end_script();
 
 __END__
 

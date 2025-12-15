@@ -8,27 +8,33 @@ use Getopt::Long;
 use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
+start_script();
 
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $gff = undef;
 my $opt_help= 0;
 my $attribute='transcript_id';
-my $start_run = time();
 my $outfile=undef;
 my $cpt_case=0;
 
-if ( !GetOptions(
-    'c|config=s'  => \$config,
-    "h|help"      => \$opt_help,
-    "gff|f=s"     => \$gff,
-    "tag|att=s"   => \$attribute,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"      => \$opt_help,
+  "gff|f=s"     => \$gff,
+  "tag|att=s"   => \$attribute,
+  "output|outfile|out|o=s" => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -45,12 +51,16 @@ if ( ! $gff ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
 
+# --- Manage config ---
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-print "Looking to $attribute attribute.\n";
+dual_print1 "Looking to $attribute attribute.\n";
 
 # Manage input gff file
 my $format = $CONFIG->{force_gff_input_version};
@@ -62,7 +72,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print1 "$nbLine line to process...\n";
 
 my $line_cpt=0;
 my %hash_values;
@@ -81,21 +91,20 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print1 "\rProgression : $done % processed.\n";
     $startP= time;
   }
 }
 
 ##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-
-
 my $result = scalar keys %hash_values;
-
-print "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n".
+dual_print1 "$line_cpt features read. Among them, $nb_attributes has the $attribute attribute.\n".
 "There is $result unique value within $attribute attribute\n";
-print "Job done in $run_time seconds\n";
+
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 __END__
 

@@ -9,9 +9,9 @@ use Getopt::Long;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile;
 my $embl;
 my $emblmygff3;
@@ -20,39 +20,46 @@ my $discard;
 my $keep;
 my $help;
 
-if( !GetOptions(
-    'c|config=s'                 => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                     => \$help,
-    "embl=s"                     => \$embl,
-    "primary_tag|pt|t=s"         => \$primaryTags,
-    "d!"                         => \$discard,
-    "k!"                         => \$keep,
-    "emblmygff3!"                => \$emblmygff3,
-    "outfile|output|o|out|gff=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"                     => \$help,
+  "embl=s"                     => \$embl,
+  "primary_tag|pt|t=s"         => \$primaryTags,
+  "d!"                         => \$discard,
+  "k!"                         => \$keep,
+  "emblmygff3!"                => \$emblmygff3,
+  "outfile|output|o|out|gff=s" => \$outfile))
 {
-    pod2usage( { -message => "Failed to parse command line\n$header",
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => "Failed to parse command line\n$header",
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
 if ($help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage( { -verbose => 99,
+         -exitval => 0,
+         -message => "$header\n" } );
 }
 
 if ( ! (defined($embl)) ){
-    pod2usage( {
-           -message => "$header\nMissing the --embl argument",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage( {
+       -message => "$header\nMissing the --embl argument",
+       -verbose => 0,
+       -exitval => 1 } );
 }
 
+## Parse shared options (e.g., config, cpu) from shared_argv
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config , input => $embl });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+initialize_agat({ config_file_in => ($shared_opts->{config}) , input => $embl, shared_opts => $shared_opts });
 my $throw_fasta=$CONFIG->{"throw_fasta"};
 
 ##################
@@ -155,17 +162,10 @@ if (! $throw_fasta){
   $embl_in->close();
 }
 
-#######################################################################################################################
-        ####################
-         #     methods    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
+# --- final messages ---
+end_script();
+
+#################################### methods ####################################
 
 # Catch sequences from embl file and write all of them at the end of the gff file
 sub write_fasta {
@@ -208,11 +208,11 @@ sub write_fasta {
     my( $i );
     for ($i = 0; $i < $whole; $i += $nuc) {
         my $blocks = substr($str, $i, $nuc);
-        $gffout->_print("$blocks\n") || return;
+        $gffout->_print("$blocks\n") ;
     }
     # Print the last line
     if (my $last = substr($str, $i)) {
-        $gffout->_print("$last\n") || return;
+        $gffout->_print("$last\n") ;
     }
   }
 }

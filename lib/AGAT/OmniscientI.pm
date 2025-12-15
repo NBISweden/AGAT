@@ -123,8 +123,8 @@ sub slurp_gff3_file_JD {
 	if( defined($args->{input})) {$file = $args->{input};}
 	else{ warn "Input data (input) is mandatory when using slurp_gff3_file_JD!";}
 
-	# +----------------- hide progressbar ------------------+
-	$progress_bar = $CONFIG->{progress_bar};
+	# +----------------- progressbar ------------------+
+	$progress_bar = $CONFIG->{progress_bar} if ( $CONFIG->{verbose} ); # deactivated by quiet mode
 
 	# +----------------- gff/gtf version param  ------------------+
 	$gff_in_format = $CONFIG->{force_gff_input_version};
@@ -199,18 +199,18 @@ sub slurp_gff3_file_JD {
 				$WARNS{$thematic[0]}++;
 				if($nbWarnLimit){
 					if ($WARNS{$thematic[0]} <= $nbWarnLimit){
-						print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-						dual_print ({ 'string' => $message });
+						dual_print({ string => "\r                                                                                \r"}); # To clean the line is already used by the progressbar
+						dual_print ({ string => $message });
 					}
 					if($WARNS{$thematic[0]} == $nbWarnLimit){
-						print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-						dual_print ({ 'string' => "$thematic[0] ************** Too much WARNING message we skip the next **************\n" });
+						dual_print({ string => "\r                                                                                \r"}); # To clean the line is already used by the progressbar
+						dual_print ({ string => "$thematic[0] ************** Too much WARNING message we skip the next **************\n" });
 					}
 				}
 				# Print all warning
 				else{
-					print "\r                                                                                \r"; # To clean the line is already used by the progressbar
-					dual_print ({ 'string' => $message });
+					dual_print({ string => "\r                                                                                \r"}); # To clean the line is already used by the progressbar
+					dual_print ({ string => $message });
 				}
 			}
 		} 
@@ -239,6 +239,7 @@ sub slurp_gff3_file_JD {
 	# ============================> ARRAY CASE <============================
 
 	if(ref($file) eq 'ARRAY'){
+		dual_print1 "Parse ARRAY $file\n";
 		foreach my $feature (@{$file}) {
 			($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 					manage_one_feature($ontology, $feature, \%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
@@ -249,9 +250,9 @@ sub slurp_gff3_file_JD {
 
 	# ============================> HASH CASE <============================
 	elsif(ref($file) eq 'HASH'){
-
+		dual_print1 "Parse HASH $file\n";
 		foreach my $level ( sort { ncmp ($a, $b) } keys %{$file}){
-			print $level."\n";
+
 			# Deal with level1,2,3
 			if ($level =~ /level/) {
 				
@@ -297,7 +298,7 @@ sub slurp_gff3_file_JD {
 
 	# ============================> FILE CASE <============================
 	else{
-
+		dual_print1 "Parse file $file\n";
 		# -------------- check we read a file -----------------------------
 		if(! -f $file){
 			dual_print ({ 'string' => surround_text("$file does not exist. Please verify the input file name/path",80,"!","\n") });
@@ -358,9 +359,12 @@ sub slurp_gff3_file_JD {
 
 				# === Deal with shareable memory  ===
 
-				# Initialize/clean the segment
+				# Initialize/clean the segment with a per-process unique key
+				# Use parent PID so that children of this process share the same segment,
+				# while concurrent external processes (parallel tests) stay isolated.
+				my $ipc_key = $$; # numeric key accepted by IPC::ShareLite
 				$mem = IPC::ShareLite->new(
-					-key       => 'COUN', # Key must be a number or four character string
+					-key       => $ipc_key, # unique per invoking process
 					-create    => 'yes',
 					-exclusive => 'no',
 					-mode      => 0666,
@@ -390,7 +394,7 @@ sub slurp_gff3_file_JD {
 				# Set the initial alarm
 				alarm(1);
 			}
-
+			
 			# ====== Create ForkManager ======
 			my $pm = Parallel::ForkManager->new($max_procs);
 
@@ -399,6 +403,12 @@ sub slurp_gff3_file_JD {
 							
 				# Kill all children still running
 				$pm->wait_all_children if $pm;
+
+				# Destroy shared memory segment if any
+				if (defined $mem) {
+					eval { $mem->destroy(); };
+					$mem = undef;
+				}
 				
 				if (-d $AGAT_TMP) {
 					remove_tree($AGAT_TMP, { error => \my $err });
@@ -494,7 +504,7 @@ sub slurp_gff3_file_JD {
 				
 					# --- Update shared value ----
 					# counter for progress bar
-					update_counter($mem, $nb_line_read_local);
+					update_counter($mem, $nb_line_read_local) if ( defined $mem ) ;
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -577,7 +587,12 @@ sub slurp_gff3_file_JD {
 			$plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
 
-			#remove tmp directory
+			# Clean up shared memory segment and tmp directory
+			if (defined $mem) {
+				alarm(0);
+				eval { $mem->destroy(); };
+				$mem = undef;
+			}
 			remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 		}
 		
@@ -641,7 +656,8 @@ sub slurp_gff3_file_JD {
 
 	# print memory usage
 	my $string = "Total time: ".(time() - $start_run)." seconds\nTotal memory: ".get_memory_usage();
-	dual_print({ 'string' => surround_text($string,80,".","\n") });
+	dual_print({ 'string' => surround_text($string,80,".") });
+	dual_print ({ 'string' => sizedPrint("------ END parsing ------",80, "\n") });
 
 	#return
 	return \%omniscient_original;
@@ -661,7 +677,7 @@ sub post_process {
 	my $previous_time = time();
 	my $check_time = $previous_time;
 	dual_print ({ 'string' => sizedPrint("------ Start checks ------",80, "\n") });
-
+	
 	# -------------------- Mandatory checks --------------------
 	
 	# check feature types (Ontology and AGAT handling)
@@ -3729,7 +3745,7 @@ sub _check_duplicates{
 						$nb_feat_pt++;
 						foreach my $feature (@{$duplicate->{$level}{$primary_tag}{$id}}){
 							$nb_by_pt++;
-							dual_print({ 'string' => $feature->gff_string."\n", 'log_only' }); # print feature only in log
+							dual_print({ 'string' => $feature->gff_string."\n", 'log_only' => 1 }); # print feature only in log
 						}
 					}
 					dual_print({ 'string' => "Check$check_cpt - Removed $nb_feat_pt duplicated $primary_tag features for a total of $nb_by_pt duplicates.\n"});
@@ -3787,7 +3803,7 @@ sub get_general_info{
 		# Every 1 seconds, print an update
 		my $now = time;
 		if ($now - $last_print_time >= 1) {
-			print "\rLines parsed: $nb_line";
+			dual_print1 "\rLines parsed: $nb_line";
 			$last_print_time = $now;
 		}
 
@@ -3862,7 +3878,7 @@ sub get_general_info{
 	close $out_fh if defined $out_fh;
 
 	# Final count
-	print "\r";
+	dual_print({ 'string' => "\r"});
 	dual_print({ 'string' => "=> Number of line in file: $nb_line\n"});
 	dual_print({ 'string' => "=> Number of comment lines: $nb_comment_line\n"});
 	dual_print({ 'string' => "=> Number of empty lines: $nb_empty_line\n"});
@@ -3882,7 +3898,7 @@ sub get_general_info{
 	# ----- inform about feature types ---
 	my %info_levels = ("level1" => [], "level2" => [], "level3" => [], "unknown" => []);
 	my $nb_ft;
-	foreach my $ft (keys %feature_type){
+	foreach my $ft (sort keys %feature_type){
 		$nb_ft++;
 		if ( exists_keys($LEVELS, ('level1', lc($ft) ) ) ){
 			push (@{$info_levels{"level1"}}, $ft);
@@ -3894,15 +3910,18 @@ sub get_general_info{
 			push (@{$info_levels{"unknown"}}, $ft);
 		}
 	}
-	dual_print({ 'string' => "=> Number of feature type (3rd column): $nb_ft\n"});
-	my @listL1 = @{$info_levels{"level1"}};
-	dual_print({ 'string' => "	* Level1: ".@{$info_levels{"level1"}}." => @listL1\n"});
-	my @listL2 = @{$info_levels{"level2"}};
-	dual_print({ 'string' => "	* level2: ".@{$info_levels{"level2"}}." => @listL2\n"});
-	my @listL3 = @{$info_levels{"level3"}};
-	dual_print({ 'string' => "	* level3: ".@{$info_levels{"level3"}}." => @listL3\n"});
-	my @listUn = @{$info_levels{"unknown"}};
-	dual_print({ 'string' => "	* unknown: ".@{$info_levels{"unknown"}}." => @listUn\n"});
+	my @listL1; my @listL2; my @listL3; my @listUn;
+	if ($nb_ft){
+		dual_print({ 'string' => "=> Number of feature type (3rd column): $nb_ft\n"});
+		@listL1 = @{$info_levels{"level1"}};
+		dual_print({ 'string' => "	* Level1: ".@{$info_levels{"level1"}}." => @listL1\n"});
+		@listL2 = @{$info_levels{"level2"}};
+		dual_print({ 'string' => "	* level2: ".@{$info_levels{"level2"}}." => @listL2\n"});
+		@listL3 = @{$info_levels{"level3"}};
+		dual_print({ 'string' => "	* level3: ".@{$info_levels{"level3"}}." => @listL3\n"});
+		@listUn = @{$info_levels{"unknown"}};
+		dual_print({ 'string' => "	* unknown: ".@{$info_levels{"unknown"}}." => @listUn\n"});
+	}
 
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){

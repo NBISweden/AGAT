@@ -8,8 +8,8 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
-my $cpu;
+start_script();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;
@@ -21,11 +21,14 @@ my $opt_prefix=undef;
 my $opt_collective=undef;
 my $opt_nbIDstart=1;
 my $opt_type_dependent = undef;
-my $verbose;
+#############################
+# >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
+#############################
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if ( !GetOptions(
-    'c|config=s'     => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+my $parser = Getopt::Long::Parser->new();
+if ( ! $parser->getoptionsfromarray(
+    $script_argv,
     "h|help!"        => \$opt_help,
     "gff|f=s"        => \$opt_gff,
     "nb=i"           => \$opt_nbIDstart,
@@ -33,16 +36,15 @@ if ( !GetOptions(
     "tair!"          => \$opt_tair,
     "ensembl!"       => \$opt_ensembl,
     "prefix=s"       => \$opt_prefix,
-    "p|t|l=s"        => \@opt_tag,
+    "p|t|l=s@"       => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
-		"collective!"    => \$opt_collective,
-    "verbose|v!"     => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
-
+    "collective!"    => \$opt_collective,
+    "output|outfile|out|o=s" => \$outfile,
+  ))
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -59,16 +61,18 @@ if ( ! (defined($opt_gff)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+#############################
+# >>>>>>> Manage config <<<<<<<
+#############################
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
 
 my $gffout = prepare_gffout( $outfile );
 
 # Manage $primaryTag
 my %ptagList;
 if(! @opt_tag){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   $ptagList{'level1'}++;
   $ptagList{'level2'}++;
   $ptagList{'level3'}++;
@@ -77,13 +81,13 @@ else{
   foreach my $tag (@opt_tag){
     if($tag eq ""){next;}
     if($tag eq "all"){
-      print "We will work on attributes from all features\n";
+      dual_print1 "We will work on attributes from all features\n";
       $ptagList{'level1'}++;
       $ptagList{'level2'}++;
       $ptagList{'level3'}++;
     }
     else{
-      print "We will work on attributes from all the $tag features\n";
+      dual_print1 "We will work on attributes from all the $tag features\n";
       $ptagList{lc($tag)}++;
     }
   }
@@ -181,6 +185,9 @@ foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
+# --- final messages ---
+end_script();
+
 #######################################################################################################################
         ####################
          #     methods    #
@@ -192,6 +199,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
                ######
                 ####
                  ##
+
 sub deal_with_level3{
   my  ($ptagList, $level2_ID, $tag_l3, $l2_ID_modified)=@_;
 
@@ -248,28 +256,28 @@ sub  manage_attributes{
   else{
     $prefix = $opt_prefix;
   }
-  print "prefix $prefix \n" if $verbose;
+  dual_print2 "prefix $prefix \n";
 
   #  ----- deal with value independent or not of the feature type--------
   my $tag = $opt_type_dependent ? $primary_tag : 'all';
-  print "tag: $tag\n" if $verbose;
-  print "primary_tag: $primary_tag\n" if $verbose;
+  dual_print2 "tag: $tag\n";
+  dual_print2 "primary_tag: $primary_tag\n";
 
   if ($opt_tair){
     if ($level eq 'level1') {
       my $ID_number = get_id_number($tag, $level);
       $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
       $result="$prefix$ID_number";
-      print "tair l1: $result\n" if $verbose;
+      dual_print2 "tair l1: $result\n";
     }
     if($level eq 'level2'){
       $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
-        print "tair l2: $result\n" if $verbose;
+        dual_print2 "tair l2: $result\n";
     }
     elsif ($level eq 'level3'){
       my $ID_number = get_id_number("$parent_id$tag", $level);
       $result = $parent_id."-"."$primary_tag$ID_number";
-      print "tair l3: $result\n" if $verbose;
+      dual_print2 "tair l3: $result\n";
     }
 
   }

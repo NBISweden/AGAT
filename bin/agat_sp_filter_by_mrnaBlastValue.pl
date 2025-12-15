@@ -11,26 +11,30 @@ use Time::Seconds;
 use URI::Escape;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $outfile = undef;
 my $gff     = undef;
 my $blast   = undef;
 my $opt_help;
 
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if ( !GetOptions(   'c|config=s'=> \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                    "h|help"    => \$opt_help,
-                    "gff=s"     => \$gff,
-                    "blast=s"   => \$blast,
-                    "outfile=s" => \$outfile ))
-
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'h|help!'    => \$opt_help,
+    'gff=s'      => \$gff,
+    'blast=s'    => \$blast,
+    'outfile=s'  => \$outfile ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+        pod2usage( { -message => 'Failed to parse command line',
+                                 -verbose => 1,
+                                 -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -47,9 +51,9 @@ if ( ! (defined($gff)) or !(defined($blast)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
 
 # Open Output files #
 my $out = prepare_gffout( $outfile );
@@ -72,6 +76,9 @@ print_omniscient( {omniscient => $hash_omniscient, output => $out} );
       #########################
       ######### END ###########
       #########################
+
+end_script();
+
 #######################################################################################################################
         ####################
          #     methods    #
@@ -83,6 +90,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $out} );
                ######
                 ####
                  ##
+
 
 sub parse_blast
 {
@@ -168,7 +176,7 @@ sub parse_blast
 
     #print "We will removed $cptCount more.\n";
     my $nbremove = @answer;
-    print "$nbremove gene will be removed !\n";
+    dual_print1 "$nbremove gene will be removed !\n";
 
     return \@answer;
 } ## end sub parse_blast

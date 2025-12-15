@@ -9,27 +9,32 @@ use Pod::Usage;
 use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my %handlers;
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag=undef;
 my $outfile=undef;
 
-if ( !GetOptions(
-    'c|config=s'             => \$config,
-    "h|help"                 => \$opt_help,
-    "gff|f=s"                => \$gff,
-    "p|t|l=s"                => \$primaryTag,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"                 => \$opt_help,
+  "gff|f=s"                => \$gff,
+  "p|t|l=s"                => \$primaryTag,
+  "output|outfile|out|o=s" => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -46,19 +51,24 @@ if ( ! (defined($gff)) ){
            -exitval => 2 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
-      print "We will work on attributes from $tag feature.\n";
+    dual_print1 "We will work on attributes from $tag feature.\n";
    }
 }
 
@@ -82,7 +92,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print1 "$nbLine line to process...\n";
 
 my $geneName=undef;
 my $line_cpt=0;
@@ -96,7 +106,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print1 "\rProgression : $done % processed.\n";
     $startP= time;
   }
 }
@@ -123,11 +133,10 @@ foreach my $attribute ( sort keys %all_attributes){
   print $out $attribute."\n";
 }
 
+# --- final messages ---
+end_script();
 
-##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "\nJob done in $run_time seconds\n";
+# ---------------------------- FUNCTIONS ----------------------------
 
 #######################################################################################################################
         ####################

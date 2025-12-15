@@ -11,29 +11,31 @@ use IO::File;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my %handlers;
 my $gff = undef;
 my $one_tsv = undef;
+my $doNotReportEmptyCase = undef;
+my $outInOne = undef;
 my $opt_help= undef;
 my $primaryTag=undef;
 my $attributes=undef;
 my $outfile=undef;
-my $outInOne=undef;
-my $doNotReportEmptyCase=undef;
-
-if ( !GetOptions(
-    'c|config=s'             => \$config,
-    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-    "h|help"                 => \$opt_help,
-    "gff|f=s"                => \$gff,
-    "d!"                     => \$doNotReportEmptyCase,
-    "m|merge!"               => \$one_tsv,
-    "p|t|l=s"                => \$primaryTag,
-    "attribute|a|att=s"      => \$attributes,
-    "output|outfile|out|o=s" => \$outfile ))
+# -----------------------------------------------------------------------------------------------
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"                 => \$opt_help,
+  "gff|f=s"                => \$gff,
+  "d!"                     => \$doNotReportEmptyCase,
+  "m|merge!"               => \$one_tsv,
+  "p|t|l=s"                => \$primaryTag,
+  "attribute|a|att=s"      => \$attributes,
+  "output|outfile|out|o=s" => \$outfile ))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -57,8 +59,10 @@ if ( ! $gff or ! $attributes ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # If one output file we can create it here
 my $outfile_pref; my $path ; my $ext;
@@ -73,19 +77,19 @@ if($one_tsv){
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
+  dual_print1 "We will work on attributes from all the $primaryTag features\n";
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
+        dual_print1 "We will work on attributes from all the $tag features\n";
       }
       else{
-       print "We will work on attributes from $tag feature.\n";
+       dual_print1 "We will work on attributes from $tag feature.\n";
       }
    }
 }
@@ -98,10 +102,10 @@ if ($attributes){
 
   foreach my $attribute (@attList){
       push @attListOk, $attribute;
-      print "$attribute attribute will be processed.\n";
+      dual_print1 "$attribute attribute will be processed.\n";
 
   }
-  print "\n";
+    dual_print1 "\n";
 }
 
                 #####################
@@ -127,7 +131,7 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
       if ( exists ($hash_omniscient->{'level2'}{$tag_l2}{$id_l1} ) ){
         foreach my $feature_l2 ( @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}}) {
 
-          manage_attributes($feature_l2,'level2',, \@ptagList,\@attListOk);
+          manage_attributes($feature_l2,'level2', \@ptagList,\@attListOk);
           #################
           # == LEVEL 3 == #
           #################
@@ -148,17 +152,21 @@ foreach my $tag_l1 (sort keys %{$hash_omniscient->{'level1'}}){
 #print "We added $nbNameAdded Name attributes\n";
 
 
-#######################################################################################################################
-        ####################
-         #     methods    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
+
+# --- final messages ---
+end_script();
+
+################################################################################
+  ####################
+   #     methods    #
+    ################
+     ##############
+      ############
+       ##########
+        ########
+         ######
+          ####
+           ##
 
 sub  manage_attributes{
   my  ($feature, $level, $ptagList, $attListOk)=@_;

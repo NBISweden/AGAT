@@ -12,28 +12,31 @@ use Pod::Usage;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $opt_file;
 my $opt_output;
 my $file_fasta;
 my $codonTable = 1;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
-                	'o|out|output=s'    => \$opt_output,
-					"fasta|fa|f=s"      => \$file_fasta,
-					"table|codon|ct=i"  => \$codonTable,
-                 	'c|config=s'        => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                 	'h|help!'           => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+	$script_argv,
+	'gff|ref|reffile=s' => \$opt_file,
+	'o|out|output=s'    => \$opt_output,
+	'fasta|fa|f=s'      => \$file_fasta,
+	'table|codon|ct=i'  => \$codonTable,
+	'h|help!'           => \$opt_help ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+	pod2usage( { -message => 'Failed to parse command line',
+				 -verbose => 1,
+				 -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -53,8 +56,10 @@ if ( !$opt_file or !$file_fasta) {
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_file, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -73,13 +78,6 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-# Print info
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
-
 # activate warnings limit
 my %warnings;
 activate_warning_limit(\%warnings, 10);
@@ -88,7 +86,7 @@ activate_warning_limit(\%warnings, 10);
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
+dual_print1 "Reading ".$opt_file."\n";
 my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
@@ -100,7 +98,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %allIDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 
 my $nb_cases=0;
@@ -191,7 +189,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$feature_l2->add_tag_value('pseudo', @positions);
 							my $arrSize = @positions;
 							my $toprint = "We flag the $tag_l2 $level2_ID that contained $arrSize premature stop codons\n";
-							print $ostreamReport $toprint; print $toprint;
+							print $ostreamReport $toprint if ($opt_output);
+							dual_print1 $toprint;
 						  $nb_cases++;
 							$nb_this_l2_pseudo++;
 						}
@@ -202,7 +201,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 					$nb_cases_l1++;
 				}
 				elsif($nb_this_l2_pseudo){
-					print "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n";
+					dual_print1 "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n";
 				}
 			}
 	  }
@@ -211,14 +210,15 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 my $toprint = "We found $nb_cases cases where mRNAs contain premature stop codons. They have been flagged as pseudogene.\n".
 							"$nb_cases_l1 genes have been flagged as pseudogene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+print $ostreamReport $toprint if($opt_output);
+dual_print1 $toprint;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-      #########################
-      ######### END ###########
-      #########################
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 
 
 #######################################################################################################################

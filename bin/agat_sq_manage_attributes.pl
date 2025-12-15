@@ -9,38 +9,44 @@ use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag="all";
 my $value=undef;
 my $strategy="equal";
 my $attributes=undef;
-my $start_run = time();
 my $outfile=undef;
 my $add = undef;
 my $cp = undef;
 my $overwrite = undef;
 my $cpt_case=0;
 
-if ( !GetOptions(
-    'c|config=s'  => \$config,
-    "h|help"      => \$opt_help,
-    "gff|f=s"     => \$gff,
-    "add"         => \$add,
-		"overwrite"   => \$overwrite,
-    "cp"          => \$cp,
-    "value=s"     => \$value,
-    "strategy=s"  => \$strategy,
-    "p|type|l=s"  => \$primaryTag,
-    "tag|att=s"   => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"      => \$opt_help,
+  "gff|f=s"     => \$gff,
+  "add"         => \$add,
+  "overwrite"   => \$overwrite,
+  "cp"          => \$cp,
+  "value=s"     => \$value,
+  "strategy=s"  => \$strategy,
+  "p|type|l=s"  => \$primaryTag,
+  "tag|att=s"   => \$attributes,
+  "output|outfile|out|o=s" => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -58,8 +64,13 @@ if ( ! $gff or ! $attributes){
            -exitval => 2 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $gff });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # --- Manage output
 my $gffout = prepare_gffout( $outfile );
@@ -67,26 +78,26 @@ my $gffout = prepare_gffout( $outfile );
 # deal with strategy input
 $strategy=lc($strategy);
 if( ($strategy ne "equal") and ($strategy ne "match") ){
-  print "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
+  dual_print1 "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
   exit;
 }
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
+  dual_print1 "We will work on attributes from all the $primaryTag features\n";
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
+        dual_print1 "We will work on attributes from all the $tag features\n";
       }
       else{
-       print "We will work on attributes from $tag feature.\n";
+       dual_print1 "We will work on attributes from $tag feature.\n";
       }
    }
 }
@@ -99,9 +110,9 @@ if ($attributes){
 
   if ($attributes eq "all_attributes"){
     if($add){
-      print "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
+      dual_print1 "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
     }
-    print "All attributes will be removed except ID and Parent attributes !\n";
+    dual_print1 "All attributes will be removed except ID and Parent attributes !\n";
     $attListOk{"all_attributes"}++;
   }
   else{
@@ -112,36 +123,36 @@ if ($attributes){
       my @attList= split(/\//, $attributeTuple);
       if($#attList == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attList[0]) eq "id" and ! $add){print "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
+        if(lc($attList[0]) eq "id" and ! $add){dual_print1 "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
         #check for Parent attribute
         if(lc($attList[0]) eq "parent" and ! $add){
           foreach my $tag (@ptagList){
             if($tag ne "gene" and $tag ne "level1"){
-              print "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
+              dual_print1 "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
               exit;
             }
           }
         }
         $attListOk{$attList[0]}="null";
         if($add){
-          print "$attList[0] attribute will be added. The value will be empty.\n";
+          dual_print1 "$attList[0] attribute will be added. The value will be empty.\n";
         }
         else{
           if($value){
-              print "$attList[0] attribute will be removed if it has the value:$value.\n";
+              dual_print1 "$attList[0] attribute will be removed if it has the value:$value.\n";
           }
           else{
-            print "$attList[0] attribute will be removed.\n";
+            dual_print1 "$attList[0] attribute will be removed.\n";
           }
         }
       }
       else{ # Attribute will be replaced/copied with a new tag name
         $attListOk{$attList[0]}=$attList[1];
-        print "$attList[0] attribute will be replaced by $attList[1].\n";
+        dual_print1 "$attList[0] attribute will be replaced by $attList[1].\n";
       }
     }
   }
-  print "\n";
+  dual_print1 "\n";
 }
 
                 #####################
@@ -159,7 +170,7 @@ my $startP=time;
 my $nbLine=`wc -l < $gff`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print1 "$nbLine line to process...\n";
 
 my $line_cpt=0;
 my %hash_IDs;
@@ -176,25 +187,26 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print1 "\rProgression : $done % processed.\n";
     $startP= time;
   }
 }
 
 ##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-
 if($add){
-  print "$cpt_case attribute added\n";
+  dual_print1 "$cpt_case attribute added\n";
 }
 elsif($cp){
-  print "$cpt_case attribute copied\n";
+  dual_print1 "$cpt_case attribute copied\n";
 
 }else{
-  print "$cpt_case attribute removed\n";
+  dual_print1 "$cpt_case attribute removed\n";
 }
-print "Job done in $run_time seconds\n";
+
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 
 #######################################################################################################################

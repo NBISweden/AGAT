@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use File::Basename;
 use Carp;
 use Getopt::Long;
@@ -10,27 +9,32 @@ use IO::File;
 use Pod::Usage;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $opt_file;
-my $cpu;
 my $opt_output=undef;
-my $verbose=undef;
 my $Xsize=10;
 my $opt_help = 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|gff|ref|reffile=s' => \$opt_file,
-                  'o|out|output=s'      => \$opt_output,
-                  'v|verbose!'          => \$verbose,
-                  'i|intron_size=i'     => \$Xsize,
-                  'c|config=s'          => \$config,
-                  'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|gff|ref|reffile=s' => \$opt_file,
+  'o|out|output=s'      => \$opt_output,
+  'i|intron_size=i'     => \$Xsize,
+  'h|help!'             => \$opt_help ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -48,8 +52,10 @@ if ( ! defined($opt_file) ) {
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_file });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_file, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -62,24 +68,12 @@ if (defined($opt_output) ) {
 my $gffout = prepare_gffout( $opt_output );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-# Print info
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
-
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
-my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file,
-                                             config => $config
-                                          });
-print("Parsing Finished\n\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
+
 ### END Parse GFF input #
 #########################
 
@@ -112,9 +106,9 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
         }
       }
     }
-    print "Shortest intron for $id_l1:".$shortest_intron."\n" if($shortest_intron != 10000000000 and $verbose);
+    dual_print2 "Shortest intron for $id_l1:".$shortest_intron."\n" if ($shortest_intron != 10000000000);
     if ($shortest_intron < $Xsize){
-      print "flag the gene $id_l1\n";
+      dual_print1 "flag the gene $id_l1\n";
       $nb_cases++;
 
       my $feature_l1 = $hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
@@ -152,14 +146,15 @@ foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){
 }
 
 my $toprint = "We found $nb_cases cases where introns were < $Xsize, we flagged them with the attribute $tag. The value of this tag is size of the shortest intron found in this gene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+print $ostreamReport $toprint if($opt_output);
+dual_print1 "$toprint";
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-      #########################
-      ######### END ###########
-      #########################
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 
 
 #######################################################################################################################

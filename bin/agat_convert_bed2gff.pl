@@ -7,25 +7,28 @@ use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
 my $primary_tag = "gene";
 my $inflating_off = undef;
 my $inflate_type = "exon";
-my $verbose = undef;
 my $help;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if( !GetOptions(  	'c|config=s'     => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+        $script_argv,
 					"h|help"         => \$help,
 					"bed=s"          => \$bed,
 					"source=s"       => \$source_tag,
-					"verbose|v!"     => \$verbose,
 					"primary_tag=s"  => \$primary_tag,
 					"inflate_off!"   => \$inflating_off,
 					"inflate_type=s" => \$inflate_type,
@@ -50,9 +53,13 @@ if ( ! (defined($bed)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $bed });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
+
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $bed, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 ## Manage output file
 my $gffout = prepare_gffout( $outfile );
@@ -95,7 +102,7 @@ my $inflate_right_cpt=0;
 while( my $line = <$fh>)  {
   chomp $line;
 
-	if ($line =~ /#/){ print "skip commented line: $line" if ($verbose); next; } #skip commented lines
+	if ($line =~ /#/){ dual_print2 "skip commented line: $line"; next; } #skip commented lines
 
   my @fields = split /\t/, $line;
 	if (! skip_line($fields[0])){
@@ -253,7 +260,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     $gffout->write_feature($feature);
 
 		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
-			print "inflating $inflating_off\n" if ($verbose);
+			dual_print2 "inflating $inflate_type\n";
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -419,6 +426,11 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 
 close $fh;
 
+# --- final messages ---
+end_script();
+
+#################################### methods ####################################
+
 # check if the line has to be skipped or not
 sub skip_line{
 	my ($field0)=@_;
@@ -429,11 +441,11 @@ sub skip_line{
 		$skip=1;
 	}
 	if($field0 =~ /^track/){
-		print "Skip track line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+		dual_print2 "Skip track line, we skip it because we cannot render it properly in a gff file.\n";
 		$skip=1;
 	}
 	if($field0 =~ /^browser/){
-		print "Skip browser line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+		dual_print2 "Skip browser line, we skip it because we cannot render it properly in a gff file.\n";
 		$skip=1;
 	}
 	return $skip;

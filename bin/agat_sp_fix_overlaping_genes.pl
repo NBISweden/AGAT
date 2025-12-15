@@ -9,28 +9,30 @@ use Sort::Naturally;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# ---------------------------- OPTIONS ----------------------------
 my $outfile = undef;
 my $ref = undef;
 my $opt_merge;
-my $verbose;
 my $opt_help = 0;
 
-if ( !GetOptions(
-		'c|config=s'             => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-		"h|help"                 => \$opt_help,
-		"f|file|gff3|gff=s"      => \$ref,
-		"merge|m!"               => \$opt_merge,
-		"output|outfile|out|o=s" => \$outfile,
-		"verbose|v!"             => \$verbose))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                 => \$opt_help,
+  'f|file|gff3|gff=s'       => \$ref,
+  'merge|m!'                => \$opt_merge,
+  'output|outfile|out|o=s'  => \$outfile ))
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -48,8 +50,10 @@ if ( ! (defined($ref)) ){
 }
 
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $ref });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $ref, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 ######################
 # Manage output file #
@@ -59,7 +63,6 @@ my $gffout = prepare_gffout( $outfile );
 
 my $error_found=undef;
 ### Parse GFF input #
-print ("Parse file $ref\n");
 my ($hash_omniscient) = slurp_gff3_file_JD({ input => $ref });
 
 # sort by seq id
@@ -112,7 +115,7 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
 
 					#now check at each CDS feature independently
           if (two_features_overlap($hash_omniscient,$gene_id, $gene_id2)){
-            print "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n" if $verbose;
+            dual_print2 "These two features overlap without same id ! :\n".$gene_feature->gff_string."\n".$gene_feature2->gff_string."\n";
             $error_found="yes";
             $nb_feat_overlap++;
             $total_overlap++;
@@ -124,9 +127,9 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
       # Now manage name if some feature overlap
       if( $nb_feat_overlap > 0){
         push(@ListOverlapingGene, $gene_feature);
-        print "$nb_feat_overlap overlapping feature found ! We will treat them now:\n" if $verbose;
+        dual_print2 "$nb_feat_overlap overlapping feature found ! We will treat them now:\n";
         my ($reference_feature, $ListToRemove)=take_one_as_reference(\@ListOverlapingGene, $opt_merge);
-        print "We decided to keep that one: ".$reference_feature->gff_string."\n" if $verbose;
+        dual_print2 "We decided to keep that one: ".$reference_feature->gff_string."\n";
 
         my $gene_id_ref  = $reference_feature->_tag_value('ID');
 
@@ -167,19 +170,23 @@ foreach my $tag ( sort {$a cmp $b} keys %hash_sortBySeq){ # loop over all the fe
         ###
         # check end and start of the new feature
         check_level1_positions( { omniscient => $hash_omniscient, feature => $reference_feature } );
-        print "\n\n";
+        dual_print2 "\n\n";
       }
     }
   }
 }
 
 if(! $error_found){
-  print "No gene overlaping with different name has been found !\n";
+  dual_print1 "No gene overlaping with different name has been found !\n";
 }else{
-  print "$total_overlap genes overlap\n";
+  dual_print1 "$total_overlap genes overlap\n";
 }
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
-print "END\n";
+
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 
 #######################################################################################################################
         ####################

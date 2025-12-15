@@ -4,31 +4,33 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $cpu;
+# -----------------------------------------------------------------------------------------------
 my $opt_test="=";
 my $opt_output= undef;
 my $opt_nb = 0;
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  't|test=s'            => \$opt_test,
-                  "nb|number|n=i"       => \$opt_nb,
-                  'o|output=s'          => \$opt_output,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'          => \$config,
-                    'thread|threads|cpu|cpus|core|cores|job|jobs=i' => \$cpu,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  't|test=s'            => \$opt_test,
+  'nb|number|n=i'       => \$opt_nb,
+  'o|output=s'          => \$opt_output,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -48,9 +50,11 @@ if ( ! $opt_gff ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $opt_gff });
-$CONFIG->{cpu} = $cpu if defined($cpu);
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -------------------- END OPTIONS --------------------
 
 ###############
 # Manage Output
@@ -79,15 +83,10 @@ if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne 
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will select genes that contain $opt_test $opt_nb introns.\n";
+my $stringPrint = "We will select genes that contain $opt_test $opt_nb introns.\n";
+print $ostreamReport $stringPrint if ($opt_output);
+dual_print1 $stringPrint;
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -163,12 +162,14 @@ if($opt_output){
 my $test_success = scalar @listok;
 my $test_fail = scalar @list2;
 
-$stringPrint = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
-$stringPrint .= "$test_fail remaining genes that not pass the test.\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+my $stringPrint2 = "$test_success genes selected with at least one RNA with $opt_test $opt_nb intron(s).\n";
+$stringPrint2 .= "$test_fail remaining genes that not pass the test.\n";
+print $ostreamReport $stringPrint2 if ($opt_output);
+dual_print1 $stringPrint2;
+
+# --- final messages ---
+end_script();
+
 
 #######################################################################################################################
         ####################

@@ -8,25 +8,30 @@ use Getopt::Long;
 use IO::File ;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+# ---------------------------- OPTIONS ----------------------------
 my $inputFile=undef;
 my $outfile=undef;
 my $outformat=undef;
 my $opt_help = 0;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions (
-      'file|input|gff|i=s' => \$inputFile,
-      'of=i'               => \$outformat,
-      'o|output=s'         => \$outfile,
-      'c|config=s'         => \$config,
-      'h|help!'            => \$opt_help )  )
+# OPTION MANAGEMENT: split shared vs script-specific argv
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'file|input|gff|i=s' => \$inputFile,
+  'of=i'               => \$outformat,
+  'o|output=s'         => \$outfile,
+  'h|help!'            => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -41,8 +46,13 @@ if ((!defined($inputFile)) ){
                  -exitval => 1 } );
 }
 
+# Parse shared options
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-initialize_agat({ config_file_in => $config, input => $inputFile });
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $inputFile, shared_opts => $shared_opts });
+
+# ----------------------------
 
 # Manage input fasta file
 my $format = $CONFIG->{force_gff_input_version};
@@ -56,7 +66,7 @@ my $startP=time;
 my $nbLine=`wc -l < $inputFile`;
 $nbLine =~ s/ //g;
 chomp $nbLine;
-print "$nbLine line to process...\n";
+dual_print1 "$nbLine line to process...\n";
 
 my $line_cpt=0;
 my %hash_IDs;
@@ -70,7 +80,7 @@ while (my $feature = $ref_in->next_feature() ) {
   if($feature->has_tag('Parent')){
     my $parent = lc($feature->_tag_value('Parent'));
     if(! exists($mapID{$parent})){
-      print "How is it possible ? This parent hasn't been seen before\n";
+      dual_print1 "How is it possible ? This parent hasn't been seen before\n";
     }
      create_or_replace_tag($feature,'Parent', $mapID{$parent});
   }
@@ -82,17 +92,15 @@ while (my $feature = $ref_in->next_feature() ) {
   if ((30 - (time - $startP)) < 0) {
     my $done = ($line_cpt*100)/$nbLine;
     $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
+        dual_print1 "\rProgression : $done % processed.\n";
     $startP= time;
   }
 }
 
-##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 
-
+      # ---------------------------- FUNCTIONS ----------------------------
 
 sub _uniq_ID{
   my ($feature, $hash_IDs, $miscCount, $mapID) = @_;
