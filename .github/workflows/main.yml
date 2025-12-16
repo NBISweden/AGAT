@@ -112,11 +112,11 @@ jobs:
 
       - name: Run tests with coverage
         env:
+          PERL5LIB: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,/local/,+ignore,/perl5/,+ignore,^blib/"
           HARNESS_PERL_SWITCHES: -MDevel::Cover
         run: |
-          unset PERL5LIB
           rm -rf cover_db
           prove -l -j $(nproc)
 
