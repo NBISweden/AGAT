@@ -8,25 +8,29 @@ use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -----------------------------------------------------------------------------------------------
 my $outfile = undef;
 my $gff = undef;
 my $add_flag=undef;
 my $opt_dist=500;
-my $verbose = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "add_flag|af!" => \$add_flag,
-    "d|dist=i" => \$opt_dist,
-    "v!" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                 => \$opt_help,
+  'gff=s'                   => \$gff,
+  'add_flag|af!'            => \$add_flag,
+  'd|dist=i'                => \$opt_dist,
+  'output|outfile|out|o=s'  => \$outfile ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -47,12 +51,15 @@ if ( ! defined($gff) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+
+# -------------------------------------------------------------------------------
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
                 #####################
                 #     MAIN          #
@@ -60,17 +67,13 @@ my $gffout = prepare_gffout($config, $outfile);
 
 ######################
 ### Parse GFF input #
-my ($omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                            config => $config
-                                                              });
-print ("GFF3 file parsed\n");
+my ($omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 #counters
 my $geneCounter_skip=0;
 my $geneCounter_ok=0;
 my $total=0;
 my @gene_id_ok;
-
 
 my $sortBySeq = gather_and_sort_l1_location_by_seq_id($omniscient);
 
@@ -114,7 +117,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
           my $location2 = @{$sortBySeq->{$locusID}{$tag_l1}}[0];
           my $id2_l1 = $location2->[0];
           my $dist = $location2->[1] - $location->[2] + 1;
-          print "distance $id_l1 - id2_l1 = $dist\n" if ($verbose);
+          dual_print2 "distance $id_l1 - id2_l1 = $dist\n";
 
           ############################
           #deal with overlap
@@ -125,7 +128,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
                   foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
                     if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
                       my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-                      add_info($level1_feature, 'O', $verbose);
+                      add_info($level1_feature, 'O');
                     }
                   }
                 }
@@ -135,7 +138,7 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
                 foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
                   if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
                     my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-                    add_info($level1_feature, 'O', $verbose);
+                    add_info($level1_feature, 'O');
                   }
                 }
 
@@ -164,14 +167,14 @@ foreach my $locusID ( sort keys %{$sortBySeq}){ # tag_l1 = gene or repeat etc...
             foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
               if (exists_keys($omniscient, ('level1', $tag_level1, lc($id_l1) ) ) ){
                 my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id_l1)};
-                add_info($level1_feature, 'R'.$dist, $verbose);
+                add_info($level1_feature, 'R'.$dist);
               }
             }
 
             foreach my $tag_level1 (keys %{$omniscient->{'level1'}}){
               if (exists_keys($omniscient, ('level1', $tag_level1, lc($id2_l1) ) ) ){
                 my $level1_feature = $omniscient->{'level1'}{$tag_level1}{lc($id2_l1)};
-                add_info($level1_feature, 'L'.$dist, $verbose);
+                add_info($level1_feature, 'L'.$dist);
               }
             }
           }
@@ -208,14 +211,14 @@ else{
   print_omniscient_from_level1_id_list( {omniscient => $omniscient, level_id_list =>\@gene_id_ok, output => $gffout} );
 }
 
-#END
-my $string_to_print="usage: $0 @copyARGV\n".
-  "Results:\n".
+#END messages
+my $string_to_print = "Results:\n".
   "Total number investigated: $total\n".
   "Number of skipped loci: $geneCounter_skip\n".
   "Number of loci with distance to the surrounding loci over $opt_dist: $geneCounter_ok \n";
-print $string_to_print;
-print "Bye Bye.\n";
+dual_print1 $string_to_print;
+
+end_script();
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -230,16 +233,16 @@ print "Bye Bye.\n";
 
 
 sub add_info{
-  my ($feature, $value, $verbose)=@_;
+  my ($feature, $value)=@_;
 
   if($feature->has_tag('low_dist')){
     $feature->add_tag_value('low_dist', $value);
-    print $feature->_tag_value('ID')." add $value\n" if ($verbose);
+    dual_print2 $feature->_tag_value('ID')." add $value\n";
   }
   else{
     create_or_replace_tag($feature, 'low_dist', $value);
     $geneCounter_skip++;
-    print $feature->_tag_value('ID')." create $value\n" if ($verbose);
+    dual_print2 $feature->_tag_value('ID')." create $value\n";
   }
 
 }
@@ -284,45 +287,44 @@ Instead of filter the result into two output files, write only one and add the f
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option, make it easier to follow what is going on for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

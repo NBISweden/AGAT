@@ -9,8 +9,9 @@ use Getopt::Long;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile;
 my $embl;
 my $emblmygff3;
@@ -19,38 +20,47 @@ my $discard;
 my $keep;
 my $help;
 
-if( !GetOptions(
-    'c|config=s'                 => \$config,
-    "h|help"                     => \$help,
-    "embl=s"                     => \$embl,
-    "primary_tag|pt|t=s"         => \$primaryTags,
-    "d!"                         => \$discard,
-    "k!"                         => \$keep,
-    "emblmygff3!"                => \$emblmygff3,
-    "outfile|output|o|out|gff=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"                     => \$help,
+  "embl=s"                     => \$embl,
+  "primary_tag|pt|t=s"         => \$primaryTags,
+  "d!"                         => \$discard,
+  "k!"                         => \$keep,
+  "emblmygff3!"                => \$emblmygff3,
+  "outfile|output|o|out|gff=s" => \$outfile))
 {
-    pod2usage( { -message => "Failed to parse command line\n$header",
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => "Failed to parse command line\n$header",
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
 if ($help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+  pod2usage( { -verbose => 99,
+         -exitval => 0,
+         -message => "$header\n" } );
 }
 
 if ( ! (defined($embl)) ){
-    pod2usage( {
-           -message => "$header\nMissing the --embl argument",
-           -verbose => 0,
-           -exitval => 1 } );
+  pod2usage( {
+       -message => "$header\nMissing the --embl argument",
+       -verbose => 0,
+       -exitval => 1 } );
 }
 
+## Parse shared options (e.g., config, cpu) from shared_argv
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
-my $throw_fasta=$config->{"throw_fasta"};
+initialize_agat({ config_file_in => ($shared_opts->{config}) , input => $embl, shared_opts => $shared_opts });
+my $throw_fasta=$CONFIG->{"throw_fasta"};
 
 ##################
 # MANAGE OPTION  #
@@ -82,7 +92,7 @@ if ($primaryTags){
 
 ##################
 # MANAGE OUTPUT  #
-my $gff_out = prepare_gffout($config, $outfile);
+my $gff_out = prepare_gffout( $outfile);
 
 ### Read embl input file.
 my $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
@@ -146,26 +156,19 @@ if (! $throw_fasta){
   $embl_in = Bio::SeqIO->new(-file => $embl, -format => 'embl');
 
   # Print sequences
-  write_fasta($gff_out, $embl_in, $emblmygff3);
+  _write_fasta($gff_out, $embl_in, $emblmygff3);
 
   # Close the gff input FH opened by OmniscientI
   $embl_in->close();
 }
 
-#######################################################################################################################
-        ####################
-         #     methods    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
+# --- final messages ---
+end_script();
+
+#################################### methods ####################################
 
 # Catch sequences from embl file and write all of them at the end of the gff file
-sub write_fasta {
+sub _write_fasta {
   my ($gffout, $embl_in, $emblmygff3) = @_;
 
   $gffout->_print("##FASTA\n");
@@ -205,11 +208,11 @@ sub write_fasta {
     my( $i );
     for ($i = 0; $i < $whole; $i += $nuc) {
         my $blocks = substr($str, $i, $nuc);
-        $gffout->_print("$blocks\n") || return;
+        $gffout->_print("$blocks\n") ;
     }
     # Print the last line
     if (my $last = substr($str, $i)) {
-        $gffout->_print("$last\n") || return;
+        $gffout->_print("$last\n") ;
     }
   }
 }
@@ -260,41 +263,44 @@ Bolean - Means that only primary tags provided by the option "primary_tag" will 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

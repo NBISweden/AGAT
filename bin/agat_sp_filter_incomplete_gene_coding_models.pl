@@ -11,30 +11,34 @@ use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -----------------------------------------------------------------------------------------------
 my $outfile = undef;
+my $opt_help;
 my $gff = undef;
-my $file_fasta=undef;
-my $codonTableId=1;
-my $skip_start_check=undef;
-my $skip_stop_check=undef;
-my $add_flag=undef;
-my $verbose = undef;
-my $opt_help= 0;
+my $file_fasta = undef;
+my $codonTableId = 1;
+my $skip_start_check = undef;
+my $skip_stop_check = undef;
+my $add_flag = undef;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'                => \$config,
-    "h|help"                    => \$opt_help,
-    "gff=s"                     => \$gff,
-    "fasta|fa|f=s"              => \$file_fasta,
-    "table|codon|ct=i"          => \$codonTableId,
-    "add_flag|af!"              => \$add_flag,
-    "skip_start_check|sstartc!" => \$skip_start_check,
-    "skip_stop_check|sstopc!"   => \$skip_stop_check,
-    "v!"                        => \$verbose,
-    "output|outfile|out|o=s"    => \$outfile))
+# OPTION MANAGMENT
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+                  $script_argv,
+  "h|help"                    => \$opt_help,
+  "gff=s"                     => \$gff,
+  "fasta|fa|f=s"              => \$file_fasta,
+  "table|codon|ct=i"          => \$codonTableId,
+  "add_flag|af!"              => \$add_flag,
+  "skip_start_check|sstartc!" => \$skip_start_check,
+  "skip_stop_check|sstopc!"   => \$skip_stop_check,
+  "output|outfile|out|o=s"    => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -57,7 +61,9 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # --- Check codon table ---
 $codonTableId = get_proper_codon_table($codonTableId);
@@ -75,8 +81,8 @@ if ($outfile) {
   $gffout_incomplete_file = $path.$filename."_incomplete".$ext;
 }
 
-my $gffout = prepare_gffout($config, $gffout_file);
-my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
+my $gffout = prepare_gffout( $gffout_file );
+my $gffout_incomplete = prepare_gffout( $gffout_incomplete_file );
 
                 #####################
                 #     MAIN          #
@@ -84,11 +90,7 @@ my $gffout_incomplete = prepare_gffout($config, $gffout_incomplete_file);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
@@ -97,7 +99,7 @@ my $db = Bio::DB::Fasta->new($file_fasta);
 my @ids      = $db->get_all_primary_ids;
 my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 ####################
 
 #counters
@@ -111,7 +113,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   foreach my $gene_id (keys %{$hash_omniscient->{'level1'}{$primary_tag_key_level1}}){
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print2 "gene_id = $gene_id\n";
 
     my @level1_list=();
     my @level2_list=();
@@ -141,7 +143,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               if (! $skip_start_check){
                 my $start_codon = $seqobj->subseq(1,3);
                 if(! $codonTable->is_start_codon( $start_codon )){
-                  print "start= $start_codon  is not a valid start codon\n" if ($verbose);
+                  dual_print2 "start= $start_codon  is not a valid start codon\n";
                   $start_missing="true";
                   if($add_flag){
                     create_or_replace_tag($level2_feature, 'incomplete', '1');
@@ -154,7 +156,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 my $stop_codon = $seqobj->subseq($seqlength - 2, $seqlength) ;
 
                 if(! $codonTable->is_ter_codon( $stop_codon )){
-                  print "stop= $stop_codon is not a valid stop codon\n" if ($verbose);
+                  dual_print2 "stop= $stop_codon is not a valid stop codon\n";
                   $stop_missing="true";
                   if($add_flag){
                     if($start_missing){
@@ -168,11 +170,11 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               }
             }
             else{ #short CDS
-              print "CDS too short ($length_CDS nt) we skip it\n" if ($verbose);
+            dual_print2 "Not a coding rna (no CDS) we skip it\n";
             }
           }
           else{ #No CDS
-            print "Not a coding rna (no CDS) we skip it\n" if ($verbose);
+            dual_print2 "Not a coding rna (no CDS) we skip it\n";
           }
 
           if($start_missing or $stop_missing){
@@ -211,15 +213,14 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
     }
     #after checking all mRNA of a gene
     if($ncGene){
-      print "This is a non coding gene (no cds to any of its RNAs)" if ($verbose);
+      dual_print2 "This is a non coding gene (no cds to any of its RNAs)";
     }
   }
 }
 
 
 #END
-my $string_to_print="usage: $0 @copyARGV\n";
-$string_to_print .="Results:\n";
+my $string_to_print = "Results:\n";
 
 if ($geneCounter) {
   $string_to_print .="We checked ".$mrnaCounter{0}." mRNAs.\n";
@@ -231,7 +232,7 @@ if ($geneCounter) {
 else{
   $string_to_print .="No gene with incomplete mRNA!\n";
 }
-print $string_to_print;
+dual_print1 $string_to_print;
 
 if(! $add_flag){
   #clean for printing
@@ -245,15 +246,16 @@ if(! $add_flag){
   }
 }
 
-print "Now printing complete models\n";
+dual_print1 "Now printing complete models\n";
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
 if(@incomplete_mRNA){
-  print "Now printing incomplete models\n";
+  dual_print1 "Now printing incomplete models\n";
   print_omniscient( {omniscient => \%omniscient_incomplete, output => $gffout_incomplete} );
 }
 
-print "Bye Bye.\n";
+# --- final messages ---
+end_script();
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -369,15 +371,6 @@ Gene model must have a stop codon. Activated by default.
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option, make it easier to follow what is going on for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -385,29 +378,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

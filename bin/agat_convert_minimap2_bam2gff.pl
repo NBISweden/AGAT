@@ -7,46 +7,58 @@ use Getopt::Long;
 use Pod::Usage;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $opt_in;
 my $opt_bam;
 my $opt_sam;
-my $opt_output=undef;
+my $opt_output = undef;
 my $opt_help = 0;
 
-if ( !GetOptions( 'i|input=s' => \$opt_in,
-                  'b|bam!' => \$opt_bam,
-                  's|sam!' => \$opt_sam,
-                  'o|out|output=s' => \$opt_output,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling', 'no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+		$script_argv,
+		'i|input=s'      => \$opt_in,
+		'b|bam!'         => \$opt_bam,
+		's|sam!'         => \$opt_sam,
+		'o|out|output=s' => \$opt_output,
+		'h|help!'        => \$opt_help,
+	) ) {
+	pod2usage({
+		-message => 'Failed to parse command line',
+		-verbose => 1,
+		-exitval => 1
+	});
 }
 
 # Print Help and exit
 if ($opt_help) {
-    pod2usage( { -verbose => 99,
-                 -exitval => 0,
-                 -message => "$header\n" } );
+	pod2usage( { -verbose => 99,
+				 -exitval => 0,
+				 -message => "$header\n" } );
 }
 
 if ( ! defined( $opt_in) ) {
-    pod2usage( {
-           -message => "$header\nMust specify at least 1 parameters: Input sam or bam file (-i)\n",
-           -verbose => 0,
-           -exitval => 1 } );
+	pod2usage( {
+		   -message => "$header\nMust specify at least 1 parameters: Input sam or bam file (-i)\n",
+		   -verbose => 0,
+		   -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options
+my ($shared_opts) = AGAT::AGAT::parse_shared_options($shared_argv);
 
-# ---- set output -----
-my $out_stream = prepare_gffout($config, $opt_output);
+# --- Manage config ---
+initialize_agat({ config_file_in => ($shared_opts->{config}), input => $opt_in, shared_opts => $shared_opts });
+my $out_stream = prepare_gffout( $opt_output );
+
+# ------------------------------------------------------------------------------
 
 # ----- Parse input ------
 my $is_sam=undef;
@@ -80,7 +92,7 @@ if ($is_sam){
 else{
 	my @tools = ("samtools");
 	foreach my $exe (@tools) {
-	    check_bin($exe) == 1 or die "Missing executable $exe in PATH";
+		check_bin($exe) == 1 or die "Missing executable $exe in PATH";
 	}
 	open FILE,"samtools view $opt_in |";
 }
@@ -226,8 +238,10 @@ while(<FILE>){
 	}
 }
 
-#print "\n";
 close(FILE);
+
+# --- final messages ---
+end_script();
 
 ################################################################################
         ####################
@@ -379,43 +393,45 @@ To force to use the input file as sam file.
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
-# This is a rip-off from Brian Haas's Sam_to_gtf.pl converter bundled with PASA
-# Needed this as a standalone version.
-AUTHOR - Brian Haas, Marc Hoeppner, Jacques Dainat
+
+AUTHOR - Jacques Dainat

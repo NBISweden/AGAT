@@ -9,27 +9,31 @@ use List::MoreUtils qw(uniq);
 use Sort::Naturally;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ------------------------------- LOAD OPTIONS --------------------------------
 my $outfile = undef;
 my $gff1 = undef;
 my $gff2 = undef;
-my $verbose = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help"      => \$opt_help,
-    "gff1=s"      => \$gff1,
-    "gff2=s"      => \$gff2,
-    "v!"          => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: split shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                     => \$opt_help,
+  'gff1=s'                      => \$gff1,
+  'gff2=s'                      => \$gff2,
+  'output|outfile|out|o=s'      => \$outfile,
+  ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -49,7 +53,8 @@ if ( ! $gff1 or ! $gff2){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff1, shared_opts => $shared_opts });
 
 ######################
 # Manage output file #
@@ -59,20 +64,15 @@ my $report = prepare_fileout($outfile);
 
 ######################
 ### Parse GFF input #
-print ("Parsing $gff1\n");
-my ($omniscient1, $hash_mRNAGeneLink1) = slurp_gff3_file_JD({ input => $gff1,
-                                                              config => $config
-                                                              });
-print ("\n\nParsing $gff2\n");
-my ($omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $gff2,
-                                                              config => $config
-                                                              });
-print ("-- Files parsed --\n");
+my ($omniscient1) = slurp_gff3_file_JD({ input => $gff1 });
 
+my $log = create_log_file({input => $gff2});
+$LOGGING->{'log'} = $log ;
+my ($omniscient2) = slurp_gff3_file_JD({ input => $gff2 });
 
 my $sortBySeq1 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient1);
 my $sortBySeq2 = gather_and_sort_l1_location_by_seq_id_and_strand_chimere($omniscient2);
-print ("GFF3 files sorted\n");
+dual_print1 "GFF3 files sorted\n";
 
 #get top feature first
 my $top_features = get_feature_type_by_agat_value($omniscient1, 'level1', 'topfeature');
@@ -172,7 +172,7 @@ foreach my $sortBySeq ($sortBySeq1, $sortBySeq2){
 # Will merge same location types that overlap
 #use Data::Dumper; print "\n\n\n all locations1 sored: ".Dumper($flattened_locations1) ;
 #use Data::Dumper; print "\n\n\n all locations2 sored: ".Dumper($flattened_locations2) ;
-print "Now flattening the locations\n" if ($verbose);
+dual_print2 "Now flattening the locations\n";
 foreach my $flattened_locations ( $flattened_locations1, $flattened_locations2 ){
   foreach my $locusID (  keys %{$flattened_locations} ){
     foreach my $chimere_type ( keys %{$flattened_locations->{$locusID}}){
@@ -184,11 +184,11 @@ foreach my $flattened_locations ( $flattened_locations1, $flattened_locations2 )
           $all{$chimere_type}{$level}{$type}{'FP'}=0;
           $all{$chimere_type}{$level}{$type}{'TP'}=0;
 
-          print "investigate $type\n" if ($verbose);
+          dual_print2 "investigate $type\n";
           my @newlocations;
           my $previous_location = undef;
           foreach my $location ( sort {$a->[0] <=> $b->[0]} @{$flattened_locations->{$locusID}{$chimere_type}{$level}{$type}} ){
-            print "investigate @$location\n" if ($verbose);
+            dual_print2 "investigate @$location\n";
             # first round
             if (! $previous_location){
                push @newlocations, $location;
@@ -229,53 +229,53 @@ foreach my $flattened_locations ( $flattened_locations1, $flattened_locations2 )
 # ------------------------------------------------------------------------------
 #use Data::Dumper; print "\n\n\n flattened_locations1: ".Dumper($flattened_locations1) ;
 #use Data::Dumper; print "\n\n\n flattened_locations2: ".Dumper($flattened_locations2) ;
-print "COMPARE FLATENED LOCATIONS\n" if ($verbose);
+dual_print2 "COMPARE FLATENED LOCATIONS\n";
 foreach my $locusID ( sort  keys %{$flattened_locations1} ){
   foreach my $chimere_type ( sort keys %{$flattened_locations1->{$locusID}} ){
     foreach my $level ( sort keys %{$flattened_locations1->{$locusID}{$chimere_type}} ){
       foreach my $type ( sort keys %{$flattened_locations1->{$locusID}{$chimere_type}{$level}} ){
 
-        print "\n========================================================\nGENERAL loop over $locusID $chimere_type $level <<$type>>\n"if ($verbose);
+        dual_print2 "\n========================================================\nGENERAL loop over $locusID $chimere_type $level <<$type>>\n";
         if ( exists_keys ($flattened_locations1, ($locusID,$chimere_type,$level,$type) ) ){ # We have to remove the locations2 to check at the end the FP that are remaining (only prenent in annotationB)
 
-          if ($verbose) { print "list of location1 $level $type: "; foreach my $array ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}}){print "@{$array} - "; } print "\n";}
+          if ($CONFIG->{verbose}) { dual_print2 "list of location1 $level $type: "; foreach my $array ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}}){ dual_print2 "@{$array} - "; } dual_print2 "\n";}
           while ( my $location1 = shift  @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
-            print "location1 investigated:  @$location1\n" if ($verbose);
+            dual_print2 "location1 investigated:  @$location1\n";
 
             # keep track last locationA
             my $last_locationA = undef;
             $last_locationA = 1 if (scalar @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} == 0);
-            print "Lets go for last LocationA !!\n" if ( $last_locationA and $verbose);
+            if ($last_locationA){ dual_print2 "Lets go for last LocationA !!\n"; }
 
             if ( exists_keys ($flattened_locations2, ($locusID,$chimere_type,$level,$type) ) and
                 scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){ # and
 
               while ( scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} != 0 ){
-                if ($verbose) { print " list of location2 $level $type: "; foreach my $array ( @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}}){print "@{$array} - "; } print "\n";}
+                if ($CONFIG->{verbose} >1) { dual_print2 " list of location2 $level $type: "; foreach my $array ( @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}}){ dual_print2 "@{$array} - "; } dual_print2 "\n";}
 
                 my $location2 = $flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}->[0];
-                print " location2 investigated:  @$location2\n" if ($verbose);
-                print " Original TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                print " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                print " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
+                dual_print2 " location2 investigated:  @$location2\n";
+                dual_print2 " Original TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n";
+                dual_print2 " Original FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n";
+                dual_print2 " Original FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n";
 
                 # keep track last locationB
                 my $last_locationB = undef;
                 $last_locationB = 1 if (scalar @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} == 1);
-                print " Lets go for last LocationB !!\n" if ($last_locationB and $verbose);
+                if ($last_locationB){ dual_print2 " Lets go for last LocationB !!\n"; }
 
                 # ===================== CASE 1 =====================
                 #  location A                         ----------------
                 #  location B  ---------------
                 if ($location2->[1] < $location1->[0]){
                   my $FP = $location2->[1] - $location2->[0] + 1; #size
-                  print " +FP => $FP\n" if ($verbose);
+                  dual_print2 " +FP => $FP\n";
                   $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
 
-                  print "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                  print "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                  print "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
-                  print " Case1 - Next location2!\n\n" if ($verbose);
+                  dual_print2 "End1 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n";
+                  dual_print2 "End1 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n";
+                  dual_print2 "End1 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n";
+                  dual_print2 " Case1 - Next location2!\n\n";
                   my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                 }
 
@@ -284,9 +284,9 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 #      ------------ OVERLAP -----------
                 ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
                 elsif( ($location1->[0] <= $location2->[1]) and ($location1->[1] >= $location2->[0])){
-                  print " location @$location1 and @$location2 overlap !!!!\n" if $verbose;
+                  dual_print2 " location @$location1 and @$location2 overlap !!!!\n";
                   my ($FN, $FP, $TP) = get_snsp_for_overlaps ($location1, $location2);
-                  print " FN=$FN, FP=$FP, TP=$TP\n" if $verbose;
+                  dual_print2 " FN=$FN, FP=$FP, TP=$TP\n";
 
 
                   my $locationB_remain = 0 ;
@@ -307,18 +307,18 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                   #  location A          -------------
                   #  location B  -----------   --  ------------
 
-                  print "locationA_remain $locationA_remain \n" if $verbose;
-                  print "locationB_remain $locationB_remain \n" if $verbose;
+                  dual_print2 "locationA_remain $locationA_remain \n";
+                  dual_print2 "locationB_remain $locationB_remain \n";
 
                   if ($locationA_remain and !$last_locationA and !$last_locationB){
                     # TP must always be added
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
                     $all{$chimere_type}{$level}{$type}{'FN'} -= $TP;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
-                    print " TP: ADDING ".$TP."\n" if $verbose;
-                    print " FN: removing ".$TP."\n" if $verbose;
-                    print " FP: ADDING ".$FP."\n" if $verbose;
-                    print " Case2 A - Next location B \n" if $verbose;
+                    dual_print2 " TP: ADDING ".$TP."\n";
+                    dual_print2 " FN: removing ".$TP."\n";
+                    dual_print2 " FP: ADDING ".$FP."\n";
+                    dual_print2 " Case2 A - Next location B \n";
                     my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                   }
 
@@ -328,10 +328,10 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} -= $TP;
 
-                    print " TP: ADDING ".$TP."\n" if $verbose;
-                    print " FN: ADDING ".$FN."\n" if $verbose;
-                    print " FP: removing ".$TP."\n" if $verbose;
-                    print " Case2 B - Next location A\n" if $verbose;
+                    dual_print2 " TP: ADDING ".$TP."\n";
+                    dual_print2 " FN: ADDING ".$FN."\n";
+                    dual_print2 " FP: removing ".$TP."\n";
+                    dual_print2 " Case2 B - Next location A\n";
                     last;
                   }
 
@@ -339,24 +339,24 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                     $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
                     $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
                     $all{$chimere_type}{$level}{$type}{'TP'} += $TP;
-                    print " TP: ADDING ".$TP."\n" if $verbose;
-                    print " FN: ADDING ".$FN."\n" if $verbose;
-                    print " FP: ADDING ".$FP."\n" if $verbose;
-                    print " Case2 C ------\n" if $verbose;
-                    print " End TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                    print " End FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                    print " End FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n" if $verbose;
+                    dual_print2 " TP: ADDING ".$TP."\n";
+                    dual_print2 " FN: ADDING ".$FN."\n";
+                    dual_print2 " FP: ADDING ".$FP."\n";
+                    dual_print2 " Case2 C ------\n";
+                    dual_print2 " End TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n";
+                    dual_print2 " End FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n";
+                    dual_print2 " End FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n\n";
 
                       if( $last_locationB and !$last_locationA){
-                        print " Case2 C2 - Remove last location B\n" if ($verbose);
+                        dual_print2 " Case2 C2 - Remove last location B\n";
                         my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                       }
                       elsif ($last_locationA and !$last_locationB){
-                        print " Case2 C3 - No more location A - LAST\n" if $verbose;
+                        dual_print2 " Case2 C3 - No more location A - LAST\n";
                         last;
                       }
                       elsif ($last_locationA and $last_locationB){
-                        print " Case2 C4 - No more locationA neither locationB. Removing locationB and LAST.\n" if ($verbose);
+                        dual_print2 " Case2 C4 - No more locationA neither locationB. Removing locationB and LAST.\n";
                         my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                         last;
                       }
@@ -365,7 +365,7 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                       #  location B  -------------- <
                       # No more locationA
                       elsif(!$locationA_remain and !$locationB_remain){
-                        print " Clean cut !!! Removing LocationB and next Location A\n" if $verbose;
+                        dual_print2 " Clean cut !!! Removing LocationB and next Location A\n";
                         my $tothrow = shift  @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}};# Throw location B
                         last; # next locationA
                       }
@@ -376,16 +376,16 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
                 #  location A  -------------------------
                 #  location B                                     -------------------------
                 else{
-                  print " last because location2 after\n" if ($verbose);
+                  dual_print2 " last because location2 after\n";
 
                   my $FN = $location1->[1] - $location1->[0] + 1; #size
                   $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
-                  print " Take into account the current locationA! +FN: $FN;\n" if ($verbose);
+                  dual_print2 " Take into account the current locationA! +FN: $FN;\n";
 
-                  print " End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n" if $verbose;
-                  print " End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n" if $verbose;
-                  print " End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n" if $verbose;
-                  print " Case3 - Next location A \n\n" if $verbose;
+                  dual_print2 " End2 TP: ".$all{$chimere_type}{$level}{$type}{'TP'}."\n";
+                  dual_print2 " End2 FN: ".$all{$chimere_type}{$level}{$type}{'FN'}."\n";
+                  dual_print2 " End2 FP: ".$all{$chimere_type}{$level}{$type}{'FP'}."\n";
+                  dual_print2 " Case3 - Next location A \n\n";
                   last; # next locationA
                 }
               }# END WHILE until location B is after A
@@ -395,20 +395,20 @@ foreach my $locusID ( sort  keys %{$flattened_locations1} ){
             # The list of locationB is empty now
             else{
               my $FN += $location1->[1] - $location1->[0] + 1; #size
-              print " LocationA only => +FN:$FN\n" if ($verbose);
+              dual_print2 " LocationA only => +FN:$FN\n";
               $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
-              print " Case4 - Next location A \n\n" if $verbose;
+              dual_print2 " Case4 - Next location A \n\n";
             }
           }
         }
 
         # No such $type in annotationB, so it is specific to annotationA
         else{
-          print "Specific to annotationA  => FN\n" if ($verbose);
+          dual_print2 "Specific to annotationA  => FN\n";
           my $FN=0;
           foreach my $location ( @{$flattened_locations1->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
             $FN += $location->[1] - $location->[0] + 1; #size
-            print " Case5 - Next location A \n" if $verbose;
+            dual_print2 " Case5 - Next location A \n";
           }
           $all{$chimere_type}{$level}{$type}{'FN'} += $FN;
         }
@@ -427,7 +427,7 @@ foreach my $locusID (  keys %{$flattened_locations2} ){
         if ( exists_keys ($flattened_locations2, ($locusID,$chimere_type,$level,$type) ) ){ # We have to remove the locations2 to check at the end the FP that are remaining (only prenent in annotationB)
           while ( my $location2 = shift @{$flattened_locations2->{$locusID}{$chimere_type}{$level}{$type}} ){ # here the location are supposed to be sorted
             my $FP = $location2->[1] - $location2->[0] + 1; #size
-            print "remaining $chimere_type $level $type - location: ".$location2->[0]." ".$location2->[1]."  -  +FP $FP\n" if ($verbose);
+            dual_print2 "remaining $chimere_type $level $type - location: ".$location2->[0]." ".$location2->[1]."  -  +FP $FP\n";
             $all{$chimere_type}{$level}{$type}{'FP'} += $FP;
           }
         }
@@ -449,7 +449,7 @@ foreach my $chimere_type ( keys %all ){
         my $FN=$all{$chimere_type}{$level}{$type}{'FN'};
         my $FP=$all{$chimere_type}{$level}{$type}{'FP'};
         my $TP=$all{$chimere_type}{$level}{$type}{'TP'};
-        print "chimere_type:$chimere_type level:$level type/$type TP:$TP FN:$FN FP:$FP\n"  if $verbose;
+        dual_print2 "chimere_type:$chimere_type level:$level type/$type TP:$TP FN:$FN FP:$FP\n";
         if($TP){
           $sensitivity{$chimere_type}{$level}{$type} = sprintf("%.2f", $TP / ($TP + $FN) );
           $specificity{$chimere_type}{$level}{$type} = sprintf("%.2f", $TP / ($TP + $FP) );
@@ -471,9 +471,8 @@ foreach my $chimere_type ( keys %all ){
 # ------------------------------------------------------------------------------
 # ------------------------- Now print the Results -------------------------
 # ------------------------------------------------------------------------------
-#if ($verbose) {use Data::Dumper; print "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity);}
-my $string_to_print = "usage: $0 @copyARGV\nResults:\n\n";
-$string_to_print .=  join('', '-') x 64;
+#if ($CONFIG->{verbose} >1) {use Data::Dumper; dual_print2 "The sensitivity hash: ".Dumper(\%sensitivity)."\nThe specificity hash: ".Dumper(\%specificity);} 
+my $string_to_print =  join('', '-') x 64;
 $string_to_print .= "\n|".sizedPrint("Feature type",20)."|".sizedPrint("Sensitivity",20)."|".sizedPrint("Specificity",20)."|\n";
 foreach my $chimere_type ( sort keys %all ){
   if ( exists_keys ( \%all, ( $chimere_type, 'level1') ) ){
@@ -499,8 +498,10 @@ $string_to_print .= "\n";
 if ($outfile){
   print $report $string_to_print;
 }
-print $string_to_print;
-print "Bye Bye.\n";
+dual_print1 $string_to_print;
+
+# --- final messages ---
+end_script();
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -682,45 +683,44 @@ Input GTF/GFF file 2.
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option for debug purposes.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

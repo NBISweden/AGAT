@@ -10,12 +10,11 @@ use Bio::SeqIO;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+
+# ---------------------------- OPTIONS ----------------------------
 my $opt_plus_strand = undef;
-my $start_run = time();
-
-
 my $opt_AA=undef;
 my $opt_alternative_start_codon = undef;
 my $opt_fastafile;
@@ -41,43 +40,46 @@ my $opt_revcomp=undef;
 my $opt_split=undef;
 my $opt_type = 'cds';
 my $opt_upstreamRegion=undef;
-my $opt_verbose=undef;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
-                  'c|config=s'                   => \$config,
-                  'cdna!'                        => \$opt_cdna,
-                  'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
-                  'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
-                  'do|3|three|down|downstream=i' => \$opt_downRegion,
-                  'eo!'                          => \$opt_extremity_only,
-                  'f|fa|fasta=s'                 => \$opt_fastafile,
-                  'full!'                        => \$opt_full,
-                  'g|gff=s'                      => \$opt_gfffile,
-                  'h|help!'                      => \$opt_help,
-                  'keep_attributes!'             => \$opt_keep_attributes,
-                  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
-                  'merge!'                       => \$opt_merge,
-                  'mrna|transcript!'             => \$opt_mrna,
-                  'ofs=s'                        => \$opt_OFS,
-                  'o|output=s'                   => \$opt_output,
-                  'plus_strand_only!'            => \$opt_plus_strand_only,
-                  'p|protein|aa!'                => \$opt_AA,
-                  'q|quiet!'                     => \$opt_quiet,
-                  'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
-                  'revcomp!'                     => \$opt_revcomp,
-                  'split!'                       => \$opt_split,
-                  'table|codon|ct=i'             => \$opt_codonTable,
-                  't|type=s'                     => \$opt_type,
-                  'up|5|five|upstream=i'         => \$opt_upstreamRegion,
-                  'verbose|v!'                   => \$opt_verbose ) )
+# -----------------------------------------------------------------------------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'alternative_start_codon|asc!' => \$opt_alternative_start_codon,
+  'cdna!'                        => \$opt_cdna,
+  'cfs|clean_final_stop!'        => \$opt_cleanFinalStop,
+  'cis|clean_internal_stop!'     => \$opt_cleanInternalStop,
+  'do|3|three|down|downstream=i' => \$opt_downRegion,
+  'eo!'                          => \$opt_extremity_only,
+  'f|fa|fasta=s'                 => \$opt_fastafile,
+  'full!'                        => \$opt_full,
+  'g|gff=s'                      => \$opt_gfffile,
+  'h|help!'                      => \$opt_help,
+  'keep_attributes!'             => \$opt_keep_attributes,
+  'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
+  'merge!'                       => \$opt_merge,
+  'mrna|transcript!'             => \$opt_mrna,
+  'ofs=s'                        => \$opt_OFS,
+  'o|output=s'                   => \$opt_output,
+  'plus_strand_only!'            => \$opt_plus_strand_only,
+  'p|protein|aa!'                => \$opt_AA,
+  'q|quiet!'                     => \$opt_quiet,
+  'remove_orf_offset|roo!'       => \$opt_remove_orf_offset,
+  'revcomp!'                     => \$opt_revcomp,
+  'split!'                       => \$opt_split,
+  'table|codon|ct=i'             => \$opt_codonTable,
+  't|type=s'                     => \$opt_type,
+  'up|5|five|upstream=i'         => \$opt_upstreamRegion ) )
 {
     pod2usage( { -message => "$header\nFailed to parse command line",
                  -verbose => 1,
                  -exitval => 1 } );
 }
-
 
 # Print Help and exit
 if ($opt_help) {
@@ -94,8 +96,11 @@ if ( (! (defined($opt_gfffile)) ) or (! (defined($opt_fastafile)) ) ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gfffile, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 # --- Check codon table
 $opt_codonTable = get_proper_codon_table($opt_codonTable);
@@ -122,7 +127,7 @@ else{
   $ostream = Bio::SeqIO->new(-fh => \*STDOUT, -format => 'Fasta');
 }
 
-print "We will extract the $opt_type sequences.\n";
+dual_print1 "We will extract the $opt_type sequences.\n";
 $opt_type=lc($opt_type);
 
 # deal with OFS
@@ -140,16 +145,11 @@ if ($opt_keep_parent_attributes){
 #### read gff file and save info in memory
 ######################
 ### Parse GFF input #
-print "Reading file $opt_gfffile\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                              });
-print "Parsing Finished\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gfffile });
 ### END Parse GFF input #
 #########################
 
 # extract level
-my $hash_level = $hash_omniscient->{'other'}{'level'};
 my $hash_l1_grouped = group_l1features_from_omniscient($hash_omniscient);
 
 #### read fasta
@@ -160,7 +160,7 @@ my %allIDs; # save ID in lower case to avoid cast problems
 foreach my $id (@ids ){$allIDs{lc($id)}=$id;}
 
 
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 # ----------------------------------- LEVEL 1 ----------------------------------
 foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] || 0) } keys %{$hash_l1_grouped}) {
 
@@ -174,8 +174,8 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
       #Handle Header
       my $id_seq = clean_string($id_l1);
       my $description.=clean_tag("seq_id=").clean_string($seqname).$OFS.clean_tag("type=").clean_string($opt_type);
-			if($opt_keep_attributes){
-				print "Extract attributes level1\n" if ($opt_verbose);
+      if($opt_keep_attributes){
+        dual_print2 "Extract attributes level1\n";
 				my $attributes = extract_attributes($feature_l1);
 				$description.=$OFS.$attributes;
 			}
@@ -199,8 +199,8 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 
           if( $opt_type eq $ptag_l2 or $opt_type eq "l2" or $opt_type eq "level2" ){
 
-						if($opt_keep_attributes ){
-							print "Extract attributes level2\n" if ($opt_verbose);
+            if($opt_keep_attributes ){
+              dual_print2 "Extract attributes level2\n";
 							my @List_l1=($feature_l1);
 							my $attributes = extract_attributes( $feature_l2, \@List_l1 );
 							$description.=$OFS.$attributes;
@@ -227,24 +227,21 @@ foreach my $seqname (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] 
 }
 
 #END
-print "usage: $0 @copyARGV\n";
 
 if($opt_upstreamRegion and $opt_downRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n";
+  dual_print1 "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides and $opt_downRegion downstream nucleotides.\n";
 }
 elsif($opt_upstreamRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n";
+  dual_print1 "$nbFastaSeq $opt_type converted in fasta with $opt_upstreamRegion upstream nucleotides.\n";
 }
 elsif($opt_downRegion){
-  print "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n";
+  dual_print1 "$nbFastaSeq $opt_type converted in fasta with $opt_downRegion downstream nucleotides.\n";
 }
 else{
-  print "$nbFastaSeq $opt_type converted in fasta.\n";
+  dual_print1 "$nbFastaSeq $opt_type converted in fasta.\n";
 }
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+end_script();
 
 #######################################################################################################################
         ####################
@@ -345,12 +342,12 @@ sub clean_string{
 
       if($string =~ m/\Q$OFS/){
         if ($OFS eq " "){
-          warn "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
+          dual_print1 "The string <$string> contains spaces while is is used as Output Field Separator (OFS) to create fasta header, so we have quoted it (\"string\").\n".
           "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
           $string="\"".$string."\"";
         }
         else{
-          warn "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
+          dual_print1 "The fasta header has been modified !! Indeed, the string <$string> contains the Output Field Separator (OFS) <$OFS> used to build the header, so we replace it by <$replaceBy>.".
           "If you want to keep the string/header intact, please choose another OFS using the option --ofs\n" if ! $opt_quiet;
           eval "\$string =~ tr/\Q$OFS\E/\Q$replaceBy\E/";
         }
@@ -422,9 +419,9 @@ sub extract_sequences{
       $sequence = $left_piece.$sequence.$right_piece;
     }
 
-		# catch attributes for Level3
-		if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-			print "Extract attributes level3 full\n" if ($opt_verbose);
+    # catch attributes for Level3
+    if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
+      dual_print2 "Extract attributes level3 full\n";
 			my $attributes = extract_attributes(\@sortedList, $lpa);
 			$description.=$OFS.$attributes;
 		}
@@ -483,9 +480,9 @@ sub extract_sequences{
         my $id_l3  = $feature->_tag_value('ID');
         my $updated_description="transcript=".$id_seq.$OFS.$description;
 
-				# catch attributes for Level3
-				if( $opt_keep_attributes ){ #update header's id information
-					print "Extract attributes level3 split\n" if ($opt_verbose);
+        # catch attributes for Level3
+        if( $opt_keep_attributes ){ #update header's id information
+          dual_print2 "Extract attributes level3 split\n";
 					my $attributes = extract_attributes($feature, $lpa);
 					$updated_description.=$OFS.$attributes;
 				}
@@ -510,7 +507,7 @@ sub extract_sequences{
     my $feature_type = $sortedList[0]->primary_tag;
 
     # ------ SPREADED feature need to be collapsed else only if merge option activated ------
-    if( exists_keys($hash_level,'spread',lc($feature_type) ) or ( $opt_merge ) ){
+    if( exists_keys($LEVELS,('spread',lc($feature_type) ) ) or ( $opt_merge ) ){
 
     	my $sequence="";my $info = "";
 
@@ -568,9 +565,9 @@ sub extract_sequences{
          }
       }
 
-			# catch attributes for Level3
-			if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
-				print "Extract attributes level3 natural spread merged\n" if ($opt_verbose);
+      # catch attributes for Level3
+      if($opt_keep_attributes and $level eq 'level3' ){ #update header's id information
+        dual_print2 "Extract attributes level3 natural spread merged\n";
 				my $attributes = extract_attributes(\@sortedList, $lpa);
 				$description.=$OFS.$attributes;
 			}
@@ -612,9 +609,9 @@ sub extract_sequences{
           my $id_l3  = $feature->_tag_value('ID');
           my $updated_description="transcript=".$id_seq.$OFS.$description;
 
-					# catch attributes for Level3
-					if( $opt_keep_attributes ){ #update header's id information
-						print "Extract attributes level3 natural not spread or spread not merged\n" if ($opt_verbose);
+          # catch attributes for Level3
+          if( $opt_keep_attributes ){ #update header's id information
+            dual_print2 "Extract attributes level3 natural not spread or spread not merged\n";
 						my $attributes = extract_attributes($feature, $lpa);
 						$updated_description.=$OFS.$attributes;
 					}
@@ -785,7 +782,7 @@ sub print_seqObj{
         if($first_AA ne "M"){ # if the start codon was not a M while it is a valid start codon we have to replace it by a methionine
           my $translated_seq = substr($transObj->seq(),1); # removing first AA
           $transObj->seq("M".$translated_seq);  # adding M as first AA
-          print "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n";
+          dual_print1 "Replacing valid alternative start codon (AA=$first_AA) by a methionine (AA=M) for ".$seqObj->id().".\n";
         }
       }
 
@@ -1049,37 +1046,40 @@ upstream part of certain features (exon,cds,utr)
 otherwise you will extract each upstream parts of the subfeatures
 (e.g many cds parts may be needed to shape a cds in its whole).
 
-=item B<-c> or B<--config>
+=back
 
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

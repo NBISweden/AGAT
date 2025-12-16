@@ -8,31 +8,35 @@ use Getopt::Long;
 use IO::File ;
 use AGAT::AGAT;
 
-my $start_run = time();
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $inputFile=undef;
 my $outfile=undef;
 my $primaryTag=undef;
 my $opt_help = 0;
 my $locus_tag="locus";
-my $quiet = undef;
 my $locus_cpt=1;
 my $tag_in=undef;
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff=s'  => \$inputFile,
-                  'to|lo=s'           => \$locus_tag,
-                  'ti|li=s'           => \$tag_in,
-                  "p|type|l=s"        => \$primaryTag,
-                  'o|output=s'        => \$outfile,
-                  'q|quiet!'          => \$quiet,
-                  'c|config=s'               => \$config,
-                  'h|help!'           => \$opt_help )  )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'file|input|gff=s'  => \$inputFile,
+    'to|lo=s'           => \$locus_tag,
+    'ti|li=s'           => \$tag_in,
+    'p|type|l=s'        => \$primaryTag,
+    'o|output=s'        => \$outfile,
+    'h|help!'           => \$opt_help )  )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 if ($opt_help) {
@@ -47,16 +51,22 @@ if ((!defined($inputFile)) ){
                  -exitval => 1 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $inputFile, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
+my $inputfh = open_maybe_gz($inputFile);
+my $ref_in = AGAT::BioperlGFF->new(-fh => $inputfh, -gff_version => $format);
 
 # Manage Output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 #define the locus tag
 if(! $locus_tag){
@@ -65,37 +75,32 @@ if(! $locus_tag){
 
 # Manage $primaryTag
 my @ptagList;
-my $hash_levels= get_levels_info();
-my $hash_level1 = $hash_levels->{'other'}{'level'}{'level1'};
+my $hash_level1 = $LEVELS->{'level1'};
 
 if(! $primaryTag){
-  print "We will work on attributes from all Level1 features.\n";
+  dual_print1 "We will work on attributes from all Level1 features.\n";
   push(@ptagList, "all");
 }
 else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if ( exists_keys ( $hash_level1, ( lc($tag) ) ) ){
-        print "We will work on attributes from <$tag> feature.\n";
+        dual_print1 "We will work on attributes from <$tag> feature.\n";
       }
       else{
-        print "<$tag> feature is not a level1 feature. Current accepted value are:\n";
+        dual_print1 "<$tag> feature is not a level1 feature. Current accepted value are:\n";
         foreach my $key ( keys %{$hash_level1}){
-          print $key." ";
+          dual_print1 $key." ";
         }
-        print "\n"; exit;
+        dual_print1 "\n"; exit;
       }
    }
 }
 
-#time to calcul progression
-my $startP=time;
-my $nbLine=`wc -l < $inputFile`;
-$nbLine =~ s/ //g;
-chomp $nbLine;
-print "$nbLine line to process...\n";
-
+# set counter for progression bar
+set_progression_counter( $inputFile);
 my $line_cpt=0;
+
 my $locus=undef;
 while (my $feature = $ref_in->next_feature() ) {
   $line_cpt++;
@@ -113,9 +118,9 @@ while (my $feature = $ref_in->next_feature() ) {
           $locus = $feature->_tag_value($tag_in);
         }
         else{
-          print "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n" if (! $quiet);
+          dual_print1 "No attribute $tag_in for the following feature:\n".$feature->gff_string()."\n";
           $locus = $locus_tag.$locus_cpt;$locus_cpt++;
-          print "We will use the created locus_tag value: $locus instead to name the locus!\n" if (! $quiet);
+          dual_print1 "We will use the created locus_tag value: $locus instead to name the locus!\n";
         }
       }
       else{
@@ -140,32 +145,16 @@ while (my $feature = $ref_in->next_feature() ) {
   $gffout->write_feature($feature);
 
   #Display progression
-  if ((30 - (time - $startP)) < 0) {
-    my $done = ($line_cpt*100)/$nbLine;
-    $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
-    $startP= time;
-  }
+  update_progression_counter($line_cpt);
 }
 
+# print fasta in asked and any
+write_fasta($gffout, $ref_in);
 
-##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 
-
-#######################################################################################################################
-        ####################
-         #     methods    #
-          ################
-           ##############
-            ############
-             ##########
-              ########
-               ######
-                ####
-                 ##
+# ---------------------------- FUNCTIONS ----------------------------
 
 __END__
 
@@ -213,11 +202,6 @@ STRING: Output file.  If no output file is specified, the output will be written
 
 To remove verbosity.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -225,29 +209,35 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+Note: For _sq_ scripts, only the following options are supported: verbose, output_format, gff_output_version, gtf_output_version, progress_bar, and tabix.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

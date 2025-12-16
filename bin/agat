@@ -70,11 +70,11 @@ The file will appear in the working folder. By default, AGAT uses the config fil
          sources            => '+SourcesWithFiles',
          # 'config-files' => ["/etc/$APPNAME.json"],
          options     => [
-            {
-               getopt      => 'h|help!',
-			         shortbool   => 1, #shortbool added by JDainat to avoid --no-help
-               help        => 'Display the help',
-            },
+						{
+							getopt      => 'h|help!',
+							shortbool   => 1, #shortbool added by JDainat to avoid --no-help
+							help        => 'Display the help',
+						},
 						{
 							 getopt      => 'version|v!',
 							 shortbool   => 1,
@@ -136,7 +136,7 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 ',
 				 options     => [
 					 {
-							getopt      => 'h|help!',
+							getopt      => 'help|h!',
 							help        => 'Display the help',
 							shortbool   => 1,
 					 },
@@ -150,9 +150,17 @@ force_gff_input_version, gtf_output_version, gff_output_version and output_forma
 							help        => 'To create a config file with the desired name instead of the default agat_config.yaml. Do not forget to mention your config file name when using AGAT, otherwise AGAT will use the agat_config.yaml in your working directory if any or the original agat_config.yaml file shiped along the tool.',
 					 },
 					 {
-							getopt      => 'verbose=i',
-							help        => 'Verbosity during the GFF/GTF parsing. 0 is quiet. 1,2,3 or 4 to increase verbosity.[Default 1]',
+							getopt      => 'cpu|thread|core|job=i',
+							help        => 'Integer - Number of parallel processes to use for file input parsing (via forking).',
 					 },
+					 {
+							getopt      => 'minimum_chunk_size=i',
+							help        => 'Integer - Number of parallel processes to use for file input parsing (via forking).',
+					 },
+					{
+						getopt      => 'verbose|v=i',
+						help        => 'Verbosity during the GFF/GTF parsing. 0 is quiet. 1,2,3 or 4 to increase verbosity.[Default 1]',
+					},
 					 {
 							getopt      => 'progress_bar!',
 							help        => 'To activate / deactivate the progress bar. [Default activated]',

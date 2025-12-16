@@ -7,23 +7,28 @@ use Pod::Usage;
 use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $outfile = undef;
 my $bed = undef;
 my $source_tag = "data";
 my $primary_tag = "gene";
 my $inflating_off = undef;
 my $inflate_type = "exon";
-my $verbose = undef;
 my $help;
 
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if( !GetOptions(  	'c|config=s'     => \$config,
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+        $script_argv,
 					"h|help"         => \$help,
 					"bed=s"          => \$bed,
 					"source=s"       => \$source_tag,
-					"verbose|v!"     => \$verbose,
 					"primary_tag=s"  => \$primary_tag,
 					"inflate_off!"   => \$inflating_off,
 					"inflate_type=s" => \$inflate_type,
@@ -48,11 +53,16 @@ if ( ! (defined($bed)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
+
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $bed, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Ask for specific GFF information
 if (!$source_tag or !$primary_tag){
@@ -92,7 +102,7 @@ my $inflate_right_cpt=0;
 while( my $line = <$fh>)  {
   chomp $line;
 
-	if ($line =~ /#/){ print "skip commented line: $line" if ($verbose); next; } #skip commented lines
+	if ($line =~ /#/){ dual_print2 "skip commented line: $line"; next; } #skip commented lines
 
   my @fields = split /\t/, $line;
 	if (! skip_line($fields[0])){
@@ -250,7 +260,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
     $gffout->write_feature($feature);
 
 		if ( exists_keys ( \%bedOmniscent, ($id, 'blockCount') ) and ! $inflating_off){
-			print "inflating $inflating_off\n" if ($verbose);
+			dual_print2 "inflating $inflate_type\n";
 			my $l3_start_line = $bedOmniscent{$id}{'blockStarts'};
 			$l3_start_line =~ s/^\s+//; # remove spaces
 			my @l3_start_list = split /,/, $l3_start_line;
@@ -416,6 +426,11 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 
 close $fh;
 
+# --- final messages ---
+end_script();
+
+#################################### methods ####################################
+
 # check if the line has to be skipped or not
 sub skip_line{
 	my ($field0)=@_;
@@ -426,11 +441,11 @@ sub skip_line{
 		$skip=1;
 	}
 	if($field0 =~ /^track/){
-		print "Skip track line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+		dual_print2 "Skip track line, we skip it because we cannot render it properly in a gff file.\n";
 		$skip=1;
 	}
 	if($field0 =~ /^browser/){
-		print "Skip browser line, we skip it because we cannot render it properly in a gff file.\n" if ($verbose);
+		dual_print2 "Skip browser line, we skip it because we cannot render it properly in a gff file.\n";
 		$skip=1;
 	}
 	return $skip;
@@ -483,20 +498,11 @@ by using the --inflate_off option.
 
 Feature type (3rd column in gff) created when inflate parameter activated [default: exon].
 
-=item B<--verbose>
-
-add verbosity
-
 =item B<-o> , B<--output> , B<--out> , B<--outfile> or B<--gff>
 
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -504,29 +510,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

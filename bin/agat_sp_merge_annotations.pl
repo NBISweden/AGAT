@@ -10,20 +10,27 @@ use AGAT::AGAT;
 use File::Spec;
 use File::Glob ':glob';
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
+
 my $outfile = undef;
 my @opt_files;
 my $file2 = undef;
 my $opt_help= 0;
 
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff|f=s" => \@opt_files,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-{
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'h|help!'                 => \$opt_help,
+    'gff|f=s'                 => \@opt_files,
+    'output|outfile|out|o=s'  => \$outfile,
+)) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
                  -exitval => 1 } );
@@ -54,11 +61,12 @@ if ( ! @opt_files or (@opt_files and ($#opt_files < 1) ) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_files[0], shared_opts => $shared_opts });
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -66,38 +74,35 @@ my $gffout = prepare_gffout($config, $outfile);
 ### Parse GFF input #
 
 my $file1 = shift @opt_files;
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $file1,
-                                                                 config => $config
-                                                              });
-print ("$file1 GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $file1 });
 info_omniscient($hash_omniscient);
 
 #Add the features of the other file in the first omniscient. It takes care of name to not have duplicates
 foreach my $next_file (@opt_files){
-  my ($hash_omniscient2, $hash_mRNAGeneLink2) = slurp_gff3_file_JD({ input => $next_file,
-	                                                                   config => $config
-                                                                  });
-  print ("$next_file GFF3 file parsed\n");
+  my ($hash_omniscient2) = slurp_gff3_file_JD({ input => $next_file });
+
   info_omniscient($hash_omniscient2);
 
   #merge annotation is taking care of Uniq name. Does not look if mRNA are identic or so one, it will be handle later.
   merge_omniscients($hash_omniscient, $hash_omniscient2);
-  print ("\nTotal raw data of files together:\n");
+  dual_print1 "\nTotal raw data of files together:\n";
   info_omniscient($hash_omniscient);
 }
 
 # Now all the feature are in the same omniscient
 # We have to check the omniscient to merge overlaping genes together. Identical isoforms will be removed
-print ("\nNow merging overlaping loci, and removing identical isoforms:\n");
-merge_overlap_loci(undef, $hash_omniscient, $hash_mRNAGeneLink, undef);
+dual_print1 "\nNow merging overlaping loci, and removing identical isoforms:\n";
+merge_overlap_loci($hash_omniscient);
 
-
-print ("\nfinal result:\n");
+dual_print1 "\nfinal result:\n";
 info_omniscient($hash_omniscient);
 
 ########
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
+# --- final messages ---
+end_script();
 
 __END__
 
@@ -128,11 +133,6 @@ Input GTF/GFF file(s). You can specify a folder containing GFF3 files with the f
 
 Output gff3 file where the gene incriminated will be write.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -140,29 +140,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

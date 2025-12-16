@@ -16,7 +16,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
 print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
-convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout);
+convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout write_fasta);
 
 =head1 SYNOPSIS
 
@@ -40,15 +40,15 @@ convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fi
 
 # prepare file handler to print GFF
 sub prepare_gffout{
-	my ($config, $outfile) = @_;
+	my ($outfile) = @_;
 
 	# Selection which version param to use according to output format asked for
 	my $version;
 
-	if ( $config->{output_format} eq "gff"){
-	 	$version = $config->{gff_output_version}
+	if ( $CONFIG->{output_format} eq "gff"){
+	 	$version = $CONFIG->{gff_output_version}
 	} else {
-		$version = $config->{gtf_output_version}
+		$version = $CONFIG->{gtf_output_version}
 	}
 	
 	my $gffout;
@@ -60,11 +60,11 @@ sub prepare_gffout{
 		}
 		else {
 			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
-			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $config->{output_format}, -version => $version);
+			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $CONFIG->{output_format}, -version => $version);
 		}
 	}
 	else{
-		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $config->{output_format}, -version => $version);
+		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $CONFIG->{output_format}, -version => $version);
 	}
 	return $gffout;
 }
@@ -108,25 +108,25 @@ sub print_omniscient{
 	my ($omniscient, $gxfout);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_omniscient!"; exit; }
 	if( defined($args->{output})) {$gxfout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient!"; exit; }
-	my $verbose = $omniscient->{"config"}{"verbose"};
+	my $verbose = $CONFIG->{"verbose"};
 	# -----------------------------------
-	if ( exists_keys($omniscient, ("config", "output_format") ) ){
-		if ( $omniscient->{"config"}{"output_format"} eq "gff" ){
+	if ( exists_keys($CONFIG, ("output_format") ) ){
+		if ( $CONFIG->{"output_format"} eq "gff" ){
 			if ($verbose){
-				my $gff_version = $omniscient->{"config"}{"gff_output_version"};
+				my $gff_version = $CONFIG->{"gff_output_version"};
 				print "Formating output to GFF$gff_version\n";
 			}
 			print_omniscient_as_gff( {omniscient => $omniscient, output => $gxfout} );
 		}
-		elsif( $omniscient->{"config"}{"output_format"} eq "gtf" ){
+		elsif( $CONFIG->{"output_format"} eq "gtf" ){
 			if ($verbose){
-				my $gtf_version = $omniscient->{"config"}{"gtf_output_version"};
+				my $gtf_version = $CONFIG->{"gtf_output_version"};
 				print "Formating output to GTF$gtf_version\n";
 			}
 			print_omniscient_as_gtf( {omniscient => $omniscient, output => $gxfout} );
 		}
 		else{
-			warn $omniscient->{"config"}{"format_output"}." is not a suported format!\n";
+			warn $CONFIG->{"format_output"}." is not a suported format!\n";
 			exit 1;
 		}
 	} else{
@@ -149,11 +149,11 @@ sub print_omniscient_as_gff{
 
 	#uri_decode_omniscient($omniscient);
 
-  # --------- deal with header --------------
-  write_headers($omniscient, $gffout);
+	# --------- deal with header --------------
+	write_headers($omniscient, $gffout);
 
-  # print tabix fashion
-  if($omniscient->{"config"}{"tabix"}){
+	# print tabix fashion
+	if($CONFIG->{"tabix"}){
 
 		my %tabix_hash;
 		my %seq_id;
@@ -259,7 +259,7 @@ sub print_omniscient_as_gff{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 							$gffout->write_feature($feature_level2);
 
 							#################
@@ -284,7 +284,7 @@ sub print_omniscient_as_gff{
 	}
 
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -331,7 +331,7 @@ sub print_omniscient_as_match{
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
-						foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) }  @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
+						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 							if($primary_tag_l2 =~ "match"){
 								$gffout->write_feature($feature_level2);
@@ -374,9 +374,8 @@ sub print_omniscient_as_match{
 				}
 			}
 		}
-
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -424,7 +423,7 @@ sub print_omniscient_from_level1_id_list {
 			foreach my $primary_tag_key_level2 ( sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
 
 				if ( exists ($omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1} ) ){
-					foreach my $feature_level2 ( sort { ncmp ($a->start."|".$a->end.$a->_tag_value('ID'), $b->start."|".$b->end.$b->_tag_value('ID') ) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
+					foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_key_level2}{$id_tag_key_level1}}) {
 
 						#_uri_encode_one_feature($feature_level2);
 
@@ -453,7 +452,7 @@ sub print_omniscient_from_level1_id_list {
 	}
 
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # Print all level3 feature of a level2 one
@@ -527,43 +526,80 @@ sub print_level3_old_school{
 # @input: 2 =>  gff/gtf file output, omniscient
 # @output none => none
 sub write_fasta {
-	my ($gffout, $omniscient) = @_;
+	my ($gffout, $gffio) = @_;
+	
+	return if ( $CONFIG->{throw_fasta}); # skip write_fasta
 
-	if ( exists_keys ($omniscient, ('other','fasta') ) ){
-		$gffout->_print("##FASTA\n");
+	# Fasta presence has not been checked yet
+	# Fasta presence has been checked and is true
+	if ( ! exists_keys ($AGAT_GFF_INPUT_FILE, ('fasta') ) 
+		or $AGAT_GFF_INPUT_FILE->{'fasta'} ){ 
 
-		my $gffin = $omniscient->{'other'}{'fasta'};
-		my @Bio_Seq_objs =  $gffin->get_seqs();
+		# --- open the gff file ---
+		my $file = $AGAT_GFF_INPUT_FILE->{'gff_file'};
+		my $gff_in_format = $AGAT_GFF_INPUT_FILE->{'gff_format'};
 
-		for my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
+		return if (! $file); # no file saved so was not a gff input
 
-			if( $Bio_Seq_obj->desc ){
-				$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
+		# No gffio provided, we open it ourself
+		if(! $gffio) {
+			my ($file_ext) = $file =~ /(\.[^.]+)$/; # get file extension
+			if($file_ext eq ".gz"){
+				my $fh;
+				if ("$^O" eq "darwin"){
+					open( $fh, "zcat < $file |");
+				}
+				else{
+					open( $fh, "zcat $file |");
+				}
+				$gffio  = AGAT::BioperlGFF->new(-fh => $fh, -gff_version => $gff_in_format);
 			}
 			else{
-				$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
+				$gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
 			}
+		}
 
-      my $str = $Bio_Seq_obj->seq;
-      my $nuc = 80;       # Number of nucleotides per line
-      my $length = length($str);
+		# --- CONSUME GFF ---
+		# features need to be consume to reach the fasta, so just consume them silently
+		1 while $gffio->next_feature;
 
-      # Calculate the number of nucleotides which fit on whole lines
-      my $whole = int($length / $nuc) * $nuc;
+		# check GFF has fasta seq
+		if($gffio->get_seqs()) {
+			# print the GFF fasta line
+			$gffout->_print("##FASTA\n");
 
-      # Print the whole lines
-      my( $i );
-      for ($i = 0; $i < $whole; $i += $nuc) {
-          my $blocks = substr($str, $i, $nuc);
-          $gffout->_print("$blocks\n") || return;
-      }
-      # Print the last line
-      if (my $last = substr($str, $i)) {
-          $gffout->_print("$last\n") || return;
-      }
+			# --- print the fasta seq ---
+			my @Bio_Seq_objs =  $gffio->get_seqs();
+			foreach my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
+
+				if( $Bio_Seq_obj->desc ){
+					$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
+				}
+				else{
+					$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
+				}
+
+				my $str = $Bio_Seq_obj->seq;
+				my $nuc = 80;       # Number of nucleotides per line
+				my $length = length($str);
+
+				# Calculate the number of nucleotides which fit on whole lines
+				my $whole = int($length / $nuc) * $nuc;
+
+				# Print the whole lines
+				my( $i );
+				for ($i = 0; $i < $whole; $i += $nuc) {
+					my $blocks = substr($str, $i, $nuc);
+					$gffout->_print("$blocks\n");
+				}
+				# Print the last line
+				if (my $last = substr($str, $i)) {
+					$gffout->_print("$last\n");
+				}
+			}
 		}
 		# Close the gff input FH opened by OmniscientI
-		$gffin->close();
+		$gffio->close();
 	}
 }
 
@@ -603,7 +639,6 @@ sub write_headers{
     if (exists_keys( $omniscient, ('other', 'header') ) ){
       my $gffXtra=$gffout->{"_filehandle"}; #to add extra lines to gff!!
       foreach my $header_line ( @{$omniscient->{'other'}{'header'} } ) {
-		$header_line =~ s/[\r\n]+$//g;
         print $gffXtra $header_line."\n";
       }
     }
@@ -629,7 +664,7 @@ sub write_top_features{
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
-#				   || 					     webapollo compliant 					       ||
+#				   ||				webapollo compliant 				 ||
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
 

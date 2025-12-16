@@ -5,7 +5,10 @@ package AGAT::AGAT;
 use strict;
 use warnings;
 use Exporter;
-
+use Pod::Usage;
+use POSIX qw(strftime);
+use File::Basename;
+use File::Path qw(remove_tree);
 use AGAT::OmniscientI;
 use AGAT::OmniscientO;
 use AGAT::OmniscientTool;
@@ -16,10 +19,9 @@ use AGAT::Utilities;
 use AGAT::PlotR;
 use Bio::Tools::GFF;
 
-our $VERSION     = "v1.5.1";
-our $CONFIG; # This variable will be used to store the config and will be available from everywhere.
-our @ISA         = qw( Exporter );
-our @EXPORT      = qw( get_agat_header print_agat_version get_agat_config handle_levels );
+our $VERSION     = "v2.0.0";
+our @ISA         = qw(Exporter);
+our @EXPORT      = qw(get_agat_header print_agat_version initialize_agat handle_levels create_log_file parse_shared_options apply_shared_options split_argv_shared_vs_script);
 sub import {
     AGAT::AGAT->export_to_level(1, @_); # to be able to load the EXPORT functions when direct call; (normal case)
     AGAT::OmniscientI->export_to_level(1, @_);
@@ -144,27 +146,189 @@ configuration parameters are used).
 MESSAGE
 }
 
-# load configuration file from local file if any either the one shipped with AGAT
-# return a hash containing the configuration.
-sub get_agat_config{
+# initialize_agat:
+# set logging and save it in global $LOGGING
+# load configuration file from local file if any either the one shipped with AGAT and save it in global $CONFIG 
+# load level file from local file if any either the one shipped with AGAT and save it in global $LEVELS
+
+sub initialize_agat{
 	my ($args)=@_;
 
-	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
-	print AGAT::AGAT::get_agat_header();
-
-	my ($config_file_provided);
-	if( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+	# Needed if log activated
+	my ($input, $config_file_provided, $shared_opts);
+	if ( defined($args->{input}) ) { $input = $args->{input}; } 
+	if ( defined($args->{config_file_in}) ) { $config_file_provided = $args->{config_file_in};}
+	if ( defined($args->{shared_opts}) ) { $shared_opts = $args->{shared_opts}; }
 
 	# Get the config file
-	my $config_file_checked = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
-	# Load the config
-	my $config = load_config({ config_file => $config_file_checked});
-	check_config({ config => $config});
-
-	# Store the config in a Global variable accessible from everywhere.
-	$CONFIG = $config;
+	my ($config_file_checked, $log_message) = get_config({type => "local", config_file_in => $config_file_provided}); #try local first, if none will take the original
+	# Load the config and check it
+	$CONFIG = load_config({ config_file => $config_file_checked});	
+	# Apply shared options overrides into global $CONFIG if provided
+	apply_shared_options($shared_opts) if (defined $shared_opts);
 	
-	return $config;
+	# --- logging --- LOGGING DEFINED INTO UTILITIES
+	$LOGGING = {'verbose' => $CONFIG->{'verbose'}, 'debug_mode' => $CONFIG->{'debug'} };
+
+	# Print the header. Put here because get_agat_config it the first function call for _sp_ and _sq_ screen
+	print AGAT::AGAT::get_agat_header() if ( $CONFIG->{verbose} );
+	
+	# Create log file if needed
+	if ( $CONFIG->{log} ){
+		if (! $input){
+			my ($package, $filename, $line, $subroutine) = caller(0);
+			die "No input file provided for log naming set up! Called from subroutine: $subroutine at $filename line $line\n";
+		}
+		my $log = create_log_file({input => $input});
+		$LOGGING->{'log'} = $log ;
+		# +----------------- Print header ------------------+
+		dual_print ({ string => AGAT::AGAT::get_agat_header(), log_only => 1 });
+		dual_print ({ string => $log_message, log_only => 1 });
+	}
+
+	# --- set LEVELS variable ---
+	$LEVELS = load_levels();
+}
+
+# Parse a common set of AGAT shared options from an argv arrayref
+# Returns (\%shared_opts, \@residual_args)
+sub parse_shared_options {
+	my ($argv_ref) = @_;
+	my @argv = @{$argv_ref // []};
+
+	require Getopt::Long;
+	# Use a local parser instance so configuration is scoped here only
+	my $parser = Getopt::Long::Parser->new();
+	# Avoid auto-abbrev so that --gff does not match --gff_output_version
+	# No pass_through here: caller partitions argv for shared options only
+	$parser->configure(qw(bundling no_auto_abbrev));
+
+	my %opts;
+	if ( !$parser->getoptionsfromarray(
+		\@argv,
+		'config=s'                     => \$opts{config},
+		'cpu|thread|core|job=i'        => \$opts{cpu},
+		'minimum_chunk_size=i'         => \$opts{minimum_chunk_size},
+		'v|verbose=i'                  => \$opts{verbose},
+		'progress_bar=s'               => \$opts{progress_bar},
+		'log=s'                        => \$opts{log},
+		'debug=s'                      => \$opts{debug},
+		'tabix=s'                      => \$opts{tabix},
+		'merge_loci=s'                 => \$opts{merge_loci},
+		'throw_fasta=s'                => \$opts{throw_fasta},
+		'force_gff_input_version=i'    => \$opts{force_gff_input_version},
+		'output_format=s'              => \$opts{output_format},
+		'gff_output_version=i'         => \$opts{gff_output_version},
+		'gtf_output_version=s'         => \$opts{gtf_output_version},
+		'deflate_attribute=s'          => \$opts{deflate_attribute},
+		'create_l3_for_l2_orphan=s'    => \$opts{create_l3_for_l2_orphan},
+		'clean_attributes_from_template=s' => \$opts{clean_attributes_from_template},
+		'locus_tag=s'                  => \$opts{locus_tag},
+		'check_sequential=s'           => \$opts{check_sequential},
+		'check_l2_linked_to_l3=s'      => \$opts{check_l2_linked_to_l3},
+		'check_l1_linked_to_l2=s'      => \$opts{check_l1_linked_to_l2},
+		'remove_orphan_l1=s'           => \$opts{remove_orphan_l1},
+		'check_all_level3_locations=s' => \$opts{check_all_level3_locations},
+		'check_cds=s'                  => \$opts{check_cds},
+		'check_exons=s'                => \$opts{check_exons},
+		'check_utrs=s'                 => \$opts{check_utrs},
+		'check_all_level2_locations=s' => \$opts{check_all_level2_locations},
+		'check_all_level1_locations=s' => \$opts{check_all_level1_locations},
+		'check_identical_isoforms=s'   => \$opts{check_identical_isoforms},
+		'prefix_new_id=s'              => \$opts{prefix_new_id},
+	) ) {
+    pod2usage( { -message => 'Failed to parse command line',
+                 -verbose => 1,
+                 -exitval => 1 } );
+}
+	return (\%opts);
+}
+
+# Partition argv into shared vs script-specific option lists
+# Returns (\@shared_args, \@script_args)
+sub split_argv_shared_vs_script {
+	my ($argv_ref) = @_;
+	my @argv = @{$argv_ref // []};
+
+	my %shared = map { $_ => 1 } qw(
+		config cpu thread core job minimum_chunk_size
+		v verbose progress_bar log debug tabix merge_loci throw_fasta
+		force_gff_input_version output_format gff_output_version gtf_output_version
+		deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template
+		locus_tag check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2
+		remove_orphan_l1 check_all_level3_locations check_cds check_exons check_utrs
+		check_all_level2_locations check_all_level1_locations check_identical_isoforms
+		prefix_new_id
+	);
+	my %script = map { $_ => 1 } qw(g gxf gtf gff o output h help);
+
+	my (@shared_args, @script_args);
+	for (my $i = 0; $i < @argv; $i++) {
+		my $t = $argv[$i];
+		if ($t =~ /^--?([^=]+)(?:=.*)?$/) {
+			my $name = $1;
+			if ($shared{$name}) {
+				push @shared_args, $t;
+				if ($t !~ /=/ && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
+					push @shared_args, $argv[++$i];
+				}
+			} elsif ($script{$name}) {
+				push @script_args, $t;
+				if ($t !~ /=/ && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
+					push @script_args, $argv[++$i];
+				}
+			} else {
+				# Unknown option: default to script args to preserve behavior
+				push @script_args, $t;
+				if ($t !~ /=/ && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
+					push @script_args, $argv[++$i];
+				}
+			}
+		} else {
+			# Non-option token: send to script args (future positional)
+			push @script_args, $t;
+		}
+	}
+	return (\@shared_args, \@script_args);
+}
+
+# Apply shared options into global $CONFIG (expects initialize_agat already run)
+sub apply_shared_options {
+	my ($opts_hr) = @_;
+	my %opts = %{ $opts_hr // {} };
+
+	# Numeric
+	$CONFIG->{ cpu } = $opts{cpu} if defined $opts{cpu};
+	$CONFIG->{ minimum_chunk_size } = $opts{minimum_chunk_size} if defined $opts{minimum_chunk_size};
+	$CONFIG->{ verbose } = $opts{verbose} if defined $opts{verbose};
+	$CONFIG->{ force_gff_input_version } = $opts{force_gff_input_version} if defined $opts{force_gff_input_version};
+	$CONFIG->{ gff_output_version } = $opts{gff_output_version} if defined $opts{gff_output_version};
+
+	# Strings / enums
+	$CONFIG->{ output_format } = lc($opts{output_format}) if defined $opts{output_format};
+	$CONFIG->{ gtf_output_version } = lc($opts{gtf_output_version}) if defined $opts{gtf_output_version};
+	$CONFIG->{ prefix_new_id } = $opts{prefix_new_id} if defined $opts{prefix_new_id};
+
+	# Booleans (stored as 'true'/'false')
+	for my $k (qw(progress_bar log debug tabix merge_loci throw_fasta deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2 remove_orphan_l1 check_all_level3_locations check_cds check_exons check_utrs check_all_level2_locations check_all_level1_locations check_identical_isoforms)) {
+		if (defined $opts{$k}) { $CONFIG->{$k} = _make_bolean($opts{$k}); }
+	}
+
+	# List
+	if (defined $opts{locus_tag}) {
+		my @list = split(/,/, $opts{locus_tag});
+		$CONFIG->{ locus_tag } = \@list;
+	}
+
+	# Re-check config validity
+	check_config({ config => $CONFIG });
+
+	# false does not exists in perl, must be replaced by 0
+	foreach my $key (keys %{$CONFIG}){
+		if ( lc($CONFIG->{$key}) eq "false" ){
+			$CONFIG->{$key}=0;
+		}
+	}
 }
 
 # ==============================================================================
@@ -239,6 +403,8 @@ sub handle_config {
 		my $verbose = $general->{configs}[-1]{verbose};
 		my $progress_bar = $general->{configs}[-1]{progress_bar};
 		my $config_new_name = $general->{configs}[-1]{output};
+		my $cpu = $general->{configs}[-1]{cpu};
+		my $minimum_chunk_size = $general->{configs}[-1]{minimum_chunk_size};
 		my $log = $general->{configs}[-1]{log};
 		my $debug = $general->{configs}[-1]{debug};
 		my $tabix = $general->{configs}[-1]{tabix};
@@ -267,9 +433,8 @@ sub handle_config {
 
 		# Deal with Expose feature OPTION
 		if($expose){
-			my $config_file = get_config({type => "original"});
+			my ($config_file, $log_info) = get_config({type => "original"});
 			my $config = load_config({ config_file => $config_file});
-			print "Config loaded\n";
 
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
@@ -277,6 +442,16 @@ sub handle_config {
 			# integer 0-4
 			if( defined($verbose) ){
 				$config->{ verbose } = $verbose;
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($cpu) ){
+				$config->{ cpu } = $cpu;
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($minimum_chunk_size) ){
+				$config->{ minimum_chunk_size } = $minimum_chunk_size;
 				$modified_on_the_fly = 1;
 			}
 			# bolean
@@ -412,20 +587,21 @@ sub handle_config {
 				$modified_on_the_fly = 1;
 			}
 
+			# Now that CLI overrides are applied, honor verbosity for prints
+			if ($config->{verbose} && $config->{verbose} > 0) { print "Config loaded\n"; }
+
 			if ($modified_on_the_fly) {
-					print "Config modified\n";
+				if ($config->{verbose} && $config->{verbose} > 0) { print "Config modified\n"; }
 			}
 
 			# check config
 			check_config({ config => $config});
-			print "Config checked\n";
-
-			 
+			if ($config->{verbose} && $config->{verbose} > 0) { print "Config checked\n"; }
 			
 			if ($modified_on_the_fly) {
 				expose_config_hash({ config_in => $config, config_file_out => $config_new_name})
 			} else {
-				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name});
+				expose_config_file({config_file_in => $config_file, config_file_out => $config_new_name, verbose => $config->{verbose}});
 			}
 
 			# inform user
@@ -433,7 +609,7 @@ sub handle_config {
 			if($config_new_name){
 				$config_file_used = $config_new_name;
 			} else { $config_file_used = "agat_config.yaml"; }
-			print "Config file written in your working directory ($config_file_used)\n";
+			if ($config->{verbose} && $config->{verbose} > 0) { print "Config file written in your working directory ($config_file_used)\n"; }
 		}
 
 		# if help was called (or not arg provided) we let AppEaser continue to print help
@@ -451,6 +627,38 @@ sub _make_bolean{
 		$result="true";
 	}
 	return $result;
+}
+
+# +----------------- create a log file  ------------------+
+sub create_log_file{
+	my ($args)=@_;
+
+	my ($input, $log);
+	if( defined($args->{input}) ) { $input = $args->{input};}
+
+	if( -f $input){
+			my ($filename,$path,$ext) = fileparse($input,qr/\.[^.]*/);
+			$AGAT_LOG = $AGAT_LOG."_".$filename;
+			
+			# create folder if not exist
+			if (-d $AGAT_LOG) {
+				remove_tree($AGAT_LOG) or die "Failed to delete $AGAT_LOG: $!";
+			}
+			# create a tmp directory
+			mkdir $AGAT_LOG or die "Cannot create directory '$AGAT_LOG': $!";
+
+			# create a log file
+			open($log, '>', "$AGAT_LOG/main.log"  ) or
+						warn "Can not open $AGAT_LOG/main.log for printing log: $!" && die;
+			print $log file_text_line({ string => (strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime),
+																  char => " ",
+																  extra => "\n"
+																  });
+		}
+		else{
+			die "File $input provided as input does not exits! Please verify your path and file existence!";
+		}
+	return $log;
 }
 
 1;

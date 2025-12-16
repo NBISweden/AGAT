@@ -14,79 +14,106 @@ concurrency:
 jobs:  
 
   # This workflow contains a second job called "build2"
-  build_perl536:
+  build_perl538:
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - name: Install required system packages
+        run: sudo apt-get -y install libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      #- name: Checkout AGAT
-      - uses: actions/checkout@v2
+      - name: Checkout AGAT code
+        uses: actions/checkout@v4
+
       - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
         with:
-            perl-version: '5.36'
+            perl-version: '5.38.2'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install
-      - uses: webiny/action-post-run@2.0.1
-        id: post-run-command
-        if: ${{ failure() }}
+            install-modules: ExtUtils::MakeMaker File::ShareDir::Install
+            enable-modules-cache: true
+
+      - name: Cache perl modules
+        uses: actions/cache@v4
         with:
-          run: cat /home/runner/.cpanm/build.log
-      - name: install AGAT deps
-        run: cpanm --installdeps --notest --force .
-      - name: test
+          path: local
+          key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl5-
+
+      - name: install AGAT dependencies
+        run: |
+          cpanm --installdeps --notest --force .
+
+      - name: Show cpanm build log on failure
+        if: failure()
+        run: cat ~/.cpanm/build.log || echo "No build log found"
+
+      - name: Run test
+        run: make test  
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make test
-
+          HARNESS_OPTIONS: j2
+        
   # This workflow contains a first job called "build"
   build_perl530:
     # avoid to run twice push and PR
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     #container:
     #  image: perl:5.30
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install libdb-dev
-        run: sudo apt-get -y install libdb-dev
-      - name: Install R
-        run: sudo apt-get -y install r-base
+      - name: Install required system packages
+        run: sudo apt-get -y install libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Perl
         uses: shogo82148/actions-setup-perl@v1
         with:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls
+            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
+            enable-modules-cache: true
+
+      - name: Cache perl modules
+        uses: actions/cache@v4
+        with:
+          path: local
+          key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-perl5-
+
       - uses: webiny/action-post-run@2.0.1
         id: post-run-command
         if: ${{ failure() }}
         with:
           run: cat /home/runner/.cpanm/build.log
+      
       - name: install AGAT deps
         run: cpanm --installdeps --notest --force .
+      
+      - name: Show cpanm build log on failure
+        if: failure()
+        run: cat ~/.cpanm/build.log || echo "No build log found"
+
       - name: test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEVEL_COVER_OPTIONS: "+ignore,^local/"
+          HARNESS_OPTIONS: j2
         run: cover -test -report Coveralls

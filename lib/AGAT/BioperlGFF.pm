@@ -164,6 +164,9 @@ my %GFF3_ID_Tags = map { $_ => $i++ } qw(ID Parent Target);
 # only the score
 my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
 
+my %GFF_VERSION = map { $_ => $i++ } qw(1 2 2.5 3);
+my %GTF_VERSION = map { $_ => $i++ } qw(1 2 2.1 2.2 2.5 3 relax);
+
 # Set GTF version definitions
 my %GTF_FEATURES = ( 
     3 => ["gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr"],
@@ -749,11 +752,12 @@ sub gxf_string{
     my ($self, $feature) = @_;
 
     if ($self->{'TYPE'} eq "GFF"){
-        if($self->check_version() == 1) {
+        my $version = $self->check_version();
+        if( $version == 1) {
             return $self->_gff1_string($feature);
-        } elsif( $self->check_version() == 3 ) {
+        } elsif( $version == 3 ) {
             return $self->_gff3_string($feature);
-        } elsif( $self->check_version() == 2.5 ) {
+        } elsif( $version == 2.5 ) {
             return $self->_gff25_string($feature);
         } else {
             return $self->_gff2_string($feature);
@@ -1096,12 +1100,13 @@ sub _gff3_string {
 
     for my $tag ( @all_tags ) {
     next if exists $SKIPPED_TAGS{$tag};
+
+        my @values = $feat->get_tag_values($tag);
         # next if $tag eq 'Target';
-        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){
-            my @values = $feat->get_tag_values($tag);
+        if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){      
             if(scalar(@values) > 1){ # How is it possible that Target is has a value list ??
                 # simple Target,start,stop
-                my ($target_id, $b,$e,$strand) = $feat->get_tag_values($tag);
+                my ($target_id, $b,$e,$strand) = @values;
                 next unless(defined($e) && defined($b) && $target_id);
                 ($b,$e)= ($e,$b) if(defined $strand && $strand<0);
                 #if we have the strand we will print it
@@ -1116,7 +1121,7 @@ sub _gff3_string {
         # for this tag, with quoted free text and
         # space-separated individual values.
         my @v;
-        for my $value ( $feat->get_tag_values($tag) ) {
+        for my $value ( @values ) {
             if(  defined $value && length($value) ) {
                                 #$value =~ tr/ /+/;  #spaces are allowed now
                 if ( ref $value eq 'Bio::Annotation::Comment') {
@@ -1169,13 +1174,15 @@ sub _gff3_string {
     }
 
     my $gff_string = "";
+    my $source = $feat->source_tag() || '.';
+    my $primary = $feat->primary_tag();
     if ($feat->location->isa("Bio::Location::SplitLocationI")) {
         my @locs = $feat->location->each_Location;
         foreach my $loc (@locs) {
             $gff_string .= join("\t",
                                 $name,
-                                $feat->source_tag() || '.',
-                                $feat->primary_tag(),
+                                $source,
+                                $primary,
                                 $loc->start(),
                                 $loc->end(),
                                 $score,
@@ -1188,8 +1195,8 @@ sub _gff3_string {
     } else {
         $gff_string = join("\t",
                            $name,
-                           $feat->source_tag() || '.',
-                           $feat->primary_tag(),
+                           $source,
+                           $primary,
                            $feat->start(),
                            $feat->end(),
                            $score,
@@ -1227,7 +1234,7 @@ sub check_version {
                 $version = 3;
             }
         }
-        if( grep {$version == $_ } ( 1, 2, 2.5, 3)) {
+        if( exists_keys(\%GFF_VERSION, ($version) ) ) {
             $self->{'GFF_VERSION'} = $version;
             $self->{'VERSION'} = $version;
         }
@@ -1244,7 +1251,7 @@ sub check_version {
                 $version = "relax";
             }
         }
-        if( grep {$version == $_ } ( 1, 2, 2.1, 2.2, 2.5, 3, "relax")) {
+        if( exists_keys(\%GTF_VERSION, ($version) ) ) {
             $self->{'GFF_VERSION'} = $version;
             $self->{'VERSION'} = $version;
         }
@@ -1437,6 +1444,20 @@ sub READLINE {
 sub PRINT {
     my $self = shift;
     $self->{'gffio'}->write_feature(@_);
+}
+
+#check if reference exists in hash. Deep infinite : hash{a} or hash{a}{b} or hash{a}{b}{c}, etc.
+# usage example: exists_keys($hash_omniscient,('level3','cds',$level2_ID)
+sub exists_keys {
+    my ($hash, @keys) = @_;
+
+    for my $key (@keys) {
+    	if (ref $hash ne 'HASH' or ! exists $hash->{$key}) {
+    		return '';
+    	}
+		  $hash = $hash->{$key};
+    }
+    return 1;
 }
 
 1;

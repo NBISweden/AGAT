@@ -7,27 +7,31 @@ use Getopt::Long;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
-my $start_run = time();
+
+# ---------------------------- OPTIONS ----------------------------
 my $opt_fasta = undef;
-my $opt_gfffile;
-my $opt_verbose;
+my $opt_gff;
 my $opt_output;
 my $opt_help = 0;
 
-# OPTION MANAGMENT
-if ( !GetOptions( 'g|gff=s'         => \$opt_gfffile,
-                  'o|output=s'      => \$opt_output,
-                  "f|fa|fasta=s"      => \$opt_fasta,
-                  "v|verbose!"       => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help ) )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'g|gff=s'          => \$opt_gff,
+    'o|output=s'       => \$opt_output,
+    'fasta|fa=s'       => \$opt_fasta,
+    'h|help!'          => \$opt_help )  )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+        pod2usage( { -message => 'Failed to parse command line',
+                                 -verbose => 1,
+                                 -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -37,7 +41,7 @@ if ($opt_help) {
                  -message => "$header\n" } );
 }
 
-if (! defined($opt_gfffile) or ! defined($opt_fasta)){
+if (! defined($opt_gff) or ! defined($opt_fasta)){
     pod2usage( {
            -message => "$header\nAt least 2 parameters are mandatory:\nInput reference gff file (-g) and Input fasta file (--fasta).\n\n".
            "Ouptut is optional. Look at the help documentation to know more.\n",
@@ -46,37 +50,36 @@ if (! defined($opt_gfffile) or ! defined($opt_fasta)){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 ######################
 # Manage output file #
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gfffile,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($opt_fasta);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 ###
 # Fix frame
-fil_cds_frame($hash_omniscient, $db, $opt_verbose);
+fil_cds_frame($hash_omniscient, $db);
 
 ###
 # Print result
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# --- final messages ---
+end_script();
 __END__
 
 =head1 NAME
@@ -142,20 +145,11 @@ Input GTF/GFF file.
 
 Input fasta file.
 
-=item B<-v> or B<--verbose>
-
-Add verbosity.
-
 =item B<-o> or B<--output>
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -163,29 +157,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

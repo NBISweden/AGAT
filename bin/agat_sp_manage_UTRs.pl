@@ -2,17 +2,18 @@
 
 use strict;
 use warnings;
-use POSIX qw(strftime);
 use Carp;
 use Try::Tiny;
 use File::Basename;
 use IO::File;
 use Pod::Usage;
-use Getopt::Long qw(:config no_auto_abbrev);
+use Getopt::Long;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
+
 my $opt_reffile;
 my $opt_plot;
 my $opt_nbUTR;
@@ -23,21 +24,26 @@ my $opt_output=undef;
 my $opt_help = 0;
 my $DefaultUTRnb=5;
 
-my @copyARGV=@ARGV;
-print "ARG  @copyARGV\n";
-if ( !GetOptions( 'f|gff|ref|reffile=s'     => \$opt_reffile,
-                  'n|t|nb|number=i'         => \$opt_nbUTR,
-                  '3|three|three_prime_utr!'=> \$opt_utr3,
-                  '5|five|five_prime_utr!'  => \$opt_utr5,
-                  'b|both|bs!'              => \$opt_bst,
-                  'o|out|output=s'          => \$opt_output,
-                  'p|plot!'                 => \$opt_plot,
-                  'c|config=s'              => \$config,
-                  'h|help!'                 => \$opt_help ) )
-{
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|gff|ref|reffile=s'     => \$opt_reffile,
+    'n|t|nb|number=i'         => \$opt_nbUTR,
+    '3|three|three_prime_utr!'=> \$opt_utr3,
+    '5|five|five_prime_utr!'  => \$opt_utr5,
+    'b|both|bs!'              => \$opt_bst,
+    'o|out|output=s'          => \$opt_output,
+    'p|plot!'                 => \$opt_plot,
+    'h|help!'                 => \$opt_help,
+  ) ) {
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -55,7 +61,8 @@ if ( ! defined($opt_reffile ) or ! ($opt_utr3 or $opt_utr5 or $opt_bst or $opt_p
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_reffile, shared_opts => $shared_opts });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 my $ostreamReport_file;
@@ -63,7 +70,7 @@ if (defined($opt_output) ) {
   my ($path,$ext);
   ($opt_output,$path,$ext) = fileparse($opt_output,qr/\.[^.]*/);
   if (-d $opt_output){
-    print "The output directory choosen already exists. Please geve me another Name.\n";exit();
+    die "The output directory choosen already exists. Please geve me another Name.\n";
   }
   else{
     mkdir $opt_output;
@@ -75,9 +82,7 @@ my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
+my $string1;
 if (! $opt_nbUTR){
   $opt_nbUTR=$DefaultUTRnb;
 }elsif(!($opt_utr3 or $opt_utr5 or $opt_bst)){$string1 .= "The value $opt_nbUTR of the parameter <n> will no be taken into account. Indeed no UTRs option called. (three, five, both).\n";}
@@ -86,7 +91,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
 }
 
 print $ostreamReport $string1;
-if($opt_output){print $string1;}
+if($opt_output){ dual_print1 "$string1"; }
 
 # Check if dependencies for plot are available
 if($opt_plot){
@@ -147,17 +152,14 @@ if (defined($opt_output) ) {
   }
 }
 
-my $ostreamUTR = prepare_gffout($config, $ostreamUTR_file);
-my $ostreamUTRdiscarded = prepare_gffout($config, $ostreamUTRdiscarded_file);
+my $ostreamUTR = prepare_gffout( $ostreamUTR_file);
+my $ostreamUTRdiscarded = prepare_gffout( $ostreamUTRdiscarded_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>     MAIN     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_reffile,
-                                                                 config => $config
-                                                              });
-print("Parsing Finished\n\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_reffile });
 ### END Parse GFF input #
 #########################
 
@@ -174,7 +176,7 @@ foreach my $tag_l3 ( keys %{$hash_omniscient->{'level3'}} ) {
 
        foreach my $id_l2 ( keys %{$hash_omniscient->{'level3'}{$tag_l3}} ){
 
-         my $geneID = $hash_mRNAGeneLink->{$id_l2};
+         my $geneID = $hash_omniscient->{'other'}{'l2tol1'}{$id_l2};
          my $feature_l2 = get_feature_l2_from_id_l2_l1($hash_omniscient, $id_l2, $geneID);
          my $strand = $feature_l2->strand();
          my $cds_feature_example =  $hash_omniscient->{'level3'}{'cds'}{$id_l2}[0]; #if utr exists, cds should exists
@@ -282,33 +284,33 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
       if ($opt_utr3 and $tag eq "three_prime_utr"){
         if ($UTRbymRNA{$tag}{$id_level2} >= $opt_nbUTR){
           push @listIDl2discarded, $id_level2 ;
-          $geneName{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }
       # case only opt_utr5
       if ($opt_utr5 and $tag eq "five_prime_utr"){
         if ($UTRbymRNA{$tag}{$id_level2} >=  $opt_nbUTR){
           push @listIDl2discarded, $id_level2 ;
-          $geneName{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push  @listIDlok, $id_level2;
-          $geneName_ok{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }                                           ### REMOVE OPTION BOTH ?
       # case both side together (when added) should be over $opt_nbUTR)
       if ($opt_bst and $tag eq "both"){
         if ($UTRbymRNA{$tag}{$id_level2} >=  $opt_nbUTR){
           push @listIDl2discarded, $id_level2;
-          $geneName{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
         else{
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
         }
       }
       # case both side independant (side 3 and and5 should be over $opt_nbUTR)
@@ -316,7 +318,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
       # case no option print all so put all in @listIDlok
       if(! $opt_utr3 and ! $opt_utr5 and ! $opt_bst) { # in case where no option, We do by default side3 side5 idependant. On sufficiant to discard the mRNA
           push @listIDlok, $id_level2 ;
-          $geneName_ok{$hash_mRNAGeneLink->{$id_level2}}++;
+          $geneName_ok{$hash_omniscient->{'other'}{'l2tol1'}{$id_level2}}++;
       }
     }
   }
@@ -327,7 +329,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     my $nbGene = keys %geneName;
     $stringPrint.= "According to the parameters $sizeList RNA discarded from $nbGene genes\n";
     my @listIDl2discardedUniq = uniq(@listIDl2discarded);
-    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDl2discarded);
+    my $omniscient_discarded = create_omniscient_from_idlevel2list($hash_omniscient, \@listIDl2discarded);
     print_omniscient( {omniscient => $omniscient_discarded, output => $ostreamUTRdiscarded} );
 
   }
@@ -336,7 +338,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
     my $nbGeneOk = keys %geneName_ok;
     $stringPrint.= "$sizeList RNA from $nbGeneOk genes pass the filter (under the UTR Threshold).\n";
     my @listIDlokUniq = uniq(@listIDlok);
-    my $omniscient_ok = create_omniscient_from_idlevel2list($hash_omniscient, $hash_mRNAGeneLink, \@listIDlokUniq);
+    my $omniscient_ok = create_omniscient_from_idlevel2list($hash_omniscient, \@listIDlokUniq);
     print_omniscient( {omniscient => $omniscient_ok, output => $ostreamUTR} );
   }
   if(@listIDl2discarded and @listIDlok){
@@ -352,7 +354,7 @@ if($opt_utr3 or $opt_utr5 or $opt_bst){
   #Print Info OUtput
   print $ostreamReport $stringPrint;
   if($opt_output){
-    print $stringPrint;
+    dual_print1 "$stringPrint";
   }
 }
 
@@ -454,8 +456,10 @@ if ($opt_plot){
     unlink "$txtFileOver";
   }
   }
-
 }
+
+ # --- final messages ---
+ end_script($ostreamReport);
 
 #######################################################################################################################
         ####################
@@ -525,11 +529,6 @@ Allows to create an histogram in pdf of UTR sizes distribution.
 
 Output gff3 file where the gene incriminated will be write.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -537,29 +536,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

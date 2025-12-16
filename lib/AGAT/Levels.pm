@@ -13,7 +13,7 @@ use Exporter;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw( get_levels_info load_levels expose_levels get_feature_type_by_agat_value );
+our @EXPORT = qw( load_levels expose_levels get_feature_type_by_agat_value );
 
 =head1 SYNOPSIS
 
@@ -46,37 +46,14 @@ sub get_feature_type_by_agat_value {
 
 	my $list_features = {};
 	my $hash = undef;
-	# If info not in omniscient we append omniscient to include all info
-	if (! exists_keys ($omniscient, ('other', 'level') ) ){
-		$hash = get_levels_info({verbose => 0}) if (! $hash); # get from the file
-		$omniscient->{'other'}{'level'} = $hash;
-	}
 
 	# Fill hash with the features and their values
-	foreach my $tag ( keys %{$omniscient->{'other'}{'level'}{$level}} ){
-		if($omniscient->{'other'}{'level'}{$level}{ lc($tag) } eq lc($value) ){
+	foreach my $tag ( keys %{$LEVELS->{$level}} ){
+		if($LEVELS->{$level}{ lc($tag) } eq lc($value) ){
 			$list_features->{ lc($tag) } = lc ($value);
 		}
 	}
 	return $list_features;
-}
-
-# @Purpose: We load levels from agat's yaml file and save it in a hash similar as we save it in omniscient
-# @input: 2 =>	hash, integer
-# @output: 3 => hash
-# @Remark: none
-sub get_levels_info{
-	my ($args) = @_;
-
-	my ($hash, $verbose);
-	# if the hash exist we will append it otherwise it will be a new one
-	if( ! defined($args->{omniscient})) { $hash = {} } else{ $hash = $args->{omniscient}; }
-	#size line
-	if( ! defined($args->{verbose}) ) { $verbose = 0;} else{ $verbose = $args->{verbose}; }
-
-	load_levels({ omniscient => $hash, verbose => $verbose});
-
-	return $hash;
 }
 
 # @Purpose: set path to look at the feature level files (If present locally we take them otherwise look at standard path).
@@ -86,21 +63,6 @@ sub get_levels_info{
 # @output: 0 => none
 # @Remark: none
 sub load_levels{
-	my ($args) = @_;
-
-	# -------------- INPUT --------------
-	# Check we receive a hash as ref
-	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for load_levels. Please check the call.\n";exit;}
-	# -- Declare all variables and fill them --
-	my ($hash_omniscient, $verbose, $log, $debug);
-	# string to print
-	if( defined($args->{omniscient})) {$hash_omniscient = $args->{omniscient};} else{ warn "Omniscient input is mandatory for load_levels\n"; exit;}
-	# character to fill the line with
-	if( ! defined($args->{verbose}) ) { $verbose = undef;} else{ $verbose = $args->{verbose}; }
-	# log
-	if( ! defined($args->{log}) ) { $log = undef;} else{ $log = $args->{log}; }
-	# log
-	if( ! defined($args->{debug}) ) { $debug = undef;} else{ $debug = $args->{debug}; }
 
 	#check first if exist locally
 	my $run_dir = cwd;
@@ -111,16 +73,15 @@ sub load_levels{
 	if (! -e $path) {
 		$path = dist_file('AGAT', $feature_levels_file);
 		$message = "Using standard";
-		dual_print ($log, "Path where $feature_levels_file is standing according to dist_file: $path\n", $verbose) if ($debug);
-	
+		dual_print ({ string => "Path where $feature_levels_file is standing according to dist_file: $path\n", debug_only => 1 });
 	}
-	dual_print($log, "$message $path file\n", $verbose );
+	dual_print ({ string => "$message $path file\n"});
 
 	# Load the yaml files as hash
 	my $feature_levels_hash = LoadFile($path);
 
-	# Save the data within omniscient
-	$hash_omniscient->{'other'}{'level'} = $feature_levels_hash;
+	# retrun hash
+	return $feature_levels_hash;
 }
 
 

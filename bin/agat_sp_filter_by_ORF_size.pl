@@ -3,32 +3,33 @@
 use strict;
 use warnings;
 use Carp;
-use POSIX qw(strftime);
 use Getopt::Long;
 use Clone 'clone';
 use Pod::Usage;
 use AGAT::AGAT;
 
-my $start_run = time();
+start_script();
 my $header = get_agat_header();
-my $config;
+# -----------------------------------------------------------------------------------------------
 my $PROT_LENGTH = 100;
 my $file_fasta=undef;
 my $outfile = undef;
-my $verbose = undef;
 my $opt_test = undef;
 my $gff = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions(
-    'c|config=s' => \$config,
-    "h|help"   => \$opt_help,
-    "g|gff=s"  => \$gff,
-    't|test=s' => \$opt_test,
-    "size|s=i" => \$PROT_LENGTH,
-    "v!"       => \$verbose,
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    "h|help"                 => \$opt_help,
+    "g|gff=s"                => \$gff,
+    't|test=s'               => \$opt_test,
+    "size|s=i"               => \$PROT_LENGTH,
     "output|outfile|out|o=s" => \$outfile))
 
 {
@@ -51,15 +52,17 @@ if ( ! (defined($gff)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ######################
 # Option check
 
 if($opt_test){
   if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "=="){
-    print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.";exit;
+    die "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,== or =.";
   }
 }
 else{
@@ -81,14 +84,11 @@ if ($outfile) {
   $gffout_notpass_file = $outfile."_NOT_".$opt_test_to_print.$PROT_LENGTH.".gff";
 }
 
-my $gffout_pass = prepare_gffout($config, $gffout_pass_file);
-my $gffout_notpass = prepare_gffout($config, $gffout_notpass_file);
+my $gffout_pass = prepare_gffout( $gffout_pass_file);
+my $gffout_notpass = prepare_gffout( $gffout_notpass_file);
 
-# print usage performed
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint = "Launched the ".$stringPrint."\nusage: $0 @copyARGV\n";
-$stringPrint .= "We are filtering the gene with protein size $opt_test $PROT_LENGTH\n";
-print $stringPrint;
+# print 
+dual_print1 "We are filtering the gene with protein size $opt_test $PROT_LENGTH";
 
                 #####################
                 #     MAIN          #
@@ -96,10 +96,7 @@ print $stringPrint;
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                               });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 # Create an empty omniscient hash to store the discarded features and copy the config in
 my %hash_omniscient_discarded;
@@ -112,7 +109,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
   foreach my $gene_id_l1 (keys %{$hash_omniscient->{'level1'}{$primary_tag_l1}}){
     
     my $gene_feature=$hash_omniscient->{'level1'}{$primary_tag_l1}{$gene_id_l1};
-    print "Study gene $gene_id_l1\n" if($verbose);
+    dual_print2 "Study gene $gene_id_l1";
 		my $no_l2=1;# see if standalone or topfeature
 
     foreach my $primary_tag_l2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
@@ -158,7 +155,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         if( $there_is_cds ){
           # All transcript discarded
           if( @l2_to_keep == 0){
-            print "Case all L2 discarded \n" if ($verbose);
+            dual_print2 "Case all L2 discarded \n";
             $number_gene_discarded++;
             $number_gene_affected++;
             # move L3
@@ -176,7 +173,7 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
           }
           # Only part of the isoforms have been discarded
           elsif ( @l2_to_discard > 0){
-            print "Case some L2 discarded \n" if ($verbose);
+            dual_print2 "Case some L2 discarded \n";
             $number_gene_affected++;
             # handle L3
             
@@ -208,12 +205,12 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
         }
         # ---------- CASE there is no CDS -----------
         else{
-          print "No cds for $gene_id_l1\n" if ($verbose);
+          dual_print2 "No cds for $gene_id_l1\n";
         }
       }
       # ---------- CASE NO L2 -----------
       if($no_l2){ # case of l1 feature without child
-        print "No child for $gene_id_l1\n" if ($verbose);
+        dual_print2 "No child for $gene_id_l1\n";
       }
     }
   }
@@ -223,14 +220,13 @@ foreach my $primary_tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # primary_tag
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_pass} );
 print_omniscient( {omniscient => \%hash_omniscient_discarded, output => $gffout_notpass} );
 
-print "\n$number_gene_affected genes have at least one transcript removed.\n";
-print "$number_gene_discarded genes discarded\n";
-print "$number_mRNA_discarded transcripts discarded.\n";
+dual_print1 "\n$number_gene_affected genes have at least one transcript removed.\n";
+dual_print1 "$number_gene_discarded genes discarded\n";
+dual_print1 "$number_mRNA_discarded transcripts discarded.\n";
 
 # END
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+end_script();
+
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -311,21 +307,10 @@ ORF size to apply the test. Default 100.
 =item B<-t> or B<--test>
 Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter like that "<=" otherwise your terminal will complain.
 By default it will be ">"
-
-=item B<-v>
-
-Verbose. Useful for debugging purpose. Bolean
-
 =item B<-o> or B<--out> or B<--output> or B<--outfile>
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -333,29 +318,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 
