@@ -120,9 +120,9 @@ jobs:
           HARNESS_PERL_SWITCHES: -MDevel::Cover
           DEVEL_COVER_OPTIONS: >
             +ignore,/local/
+            +ignore,^local/
             +ignore,/perl5/
             +ignore,^blib/
-            +ignore,^/home/runner/
         run: |
           rm -rf cover_db
           prove -l -j $(nproc)
