@@ -89,6 +89,10 @@ jobs:
             install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
             enable-modules-cache: true
 
+      - name: Install Devel::Cover system-wide
+        run: |
+          sudo cpanm --notest Devel::Cover@1.44 Devel::Cover::Report::Coveralls
+
       - name: Cache perl modules
         uses: actions/cache@v4
         with:
@@ -112,10 +116,13 @@ jobs:
 
       - name: Run tests with coverage
         env:
-          PERL5LIB: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEVEL_COVER_OPTIONS: "+ignore,/local/,+ignore,/perl5/,+ignore,^blib/"
           HARNESS_PERL_SWITCHES: -MDevel::Cover
+          DEVEL_COVER_OPTIONS: >
+            +ignore,/local/
+            +ignore,/perl5/
+            +ignore,^blib/
+            +ignore,^/home/runner/
         run: |
           rm -rf cover_db
           prove -l -j $(nproc)
