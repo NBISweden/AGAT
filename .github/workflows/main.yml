@@ -140,29 +140,7 @@ jobs:
 
       - name: Run tests with coverage
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Concentre la couverture sur notre code et exclut les libs système/vendor
-          DEVEL_COVER_OPTIONS: >
-            +select,^lib/
-            +select,^bin/
-            +ignore,^t/
-            +ignore,/local/
-            +ignore,^local/
-            +ignore,/perl5/
-            +ignore,/site_perl/
-          DEVEL_COVER_DB: cover_db
-        run: |
-          # Nettoyage propre de la base de couverture (sans instrumentation active)
-          env -u PERL5OPT cover -delete || rm -rf cover_db || true
-
-          # Lancer les tests récursivement, en utilisant blib et en parallèle
-          PERL5OPT=-MDevel::Cover prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
-
-          # Résumé local utile dans les logs CI
-          env -u PERL5OPT cover -summary
-
-      - name: Upload coverage to Coveralls
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          env -u PERL5OPT cover -report coveralls
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            DEVEL_COVER_OPTIONS: "+ignore,^local/"
+            HARNESS_OPTIONS: j$(nproc)
+        run: cover -test -report Coveralls
