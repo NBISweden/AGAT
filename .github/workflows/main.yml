@@ -47,9 +47,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-perl5-
 
+      - name: Cache cpanm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cpanm
+          key: ${{ runner.os }}-cpanm-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-cpanm-
+
       - name: install AGAT dependencies
+        env:
+          PERL5LIB: local/lib/perl5
+          PERL_LOCAL_LIB_ROOT: local
+          PERL_MB_OPT: --install_base local
+          PERL_MM_OPT: INSTALL_BASE=local
         run: |
-          cpanm --installdeps --notest --force .
+          cpanm -L local --installdeps --notest .
 
       - name: Show cpanm build log on failure
         if: failure()
@@ -98,10 +111,23 @@ jobs:
           key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
           restore-keys: |
             ${{ runner.os }}-perl5-
+
+      - name: Cache cpanm downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cpanm
+          key: ${{ runner.os }}-cpanm-${{ hashFiles('**/Makefile.PL') }}
+          restore-keys: |
+            ${{ runner.os }}-cpanm-
       
       - name: install AGAT dependencies
+        env:
+          PERL5LIB: local/lib/perl5
+          PERL_LOCAL_LIB_ROOT: local
+          PERL_MB_OPT: --install_base local
+          PERL_MM_OPT: INSTALL_BASE=local
         run: |
-          cpanm --installdeps --notest --force .
+          cpanm -L local --installdeps --notest .
       
       - name: Show cpanm build log on failure
         if: failure()
@@ -115,8 +141,6 @@ jobs:
       - name: Run tests with coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Charge Devel::Cover pour tous les processus perl (tests et scripts CLI)
-          PERL5OPT: -MDevel::Cover
           # Concentre la couverture sur notre code et exclut les libs système/vendor
           DEVEL_COVER_OPTIONS: >
             +select,^lib/
@@ -128,17 +152,17 @@ jobs:
             +ignore,/site_perl/
           DEVEL_COVER_DB: cover_db
         run: |
-          # Nettoyage propre de la base de couverture
-          cover -delete || rm -rf cover_db || true
+          # Nettoyage propre de la base de couverture (sans instrumentation active)
+          env -u PERL5OPT cover -delete || rm -rf cover_db || true
 
           # Lancer les tests récursivement, en utilisant blib et en parallèle
-          prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
+          PERL5OPT=-MDevel::Cover prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
 
           # Résumé local utile dans les logs CI
-          cover -summary
+          env -u PERL5OPT cover -summary
 
       - name: Upload coverage to Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cover -report coveralls
+          env -u PERL5OPT cover -report coveralls
