@@ -98,15 +98,10 @@ jobs:
           key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
           restore-keys: |
             ${{ runner.os }}-perl5-
-
-      - uses: webiny/action-post-run@2.0.1
-        id: post-run-command
-        if: ${{ failure() }}
-        with:
-          run: cat /home/runner/.cpanm/build.log
       
-      - name: install AGAT deps
-        run: cpanm --installdeps --notest --force .
+      - name: install AGAT dependencies
+        run: |
+          cpanm --installdeps --notest --force .
       
       - name: Show cpanm build log on failure
         if: failure()
@@ -120,14 +115,27 @@ jobs:
       - name: Run tests with coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HARNESS_PERL_SWITCHES: -MDevel::Cover
+          # Charge Devel::Cover pour tous les processus perl (tests et scripts CLI)
+          PERL5OPT: -MDevel::Cover
+          # Concentre la couverture sur notre code et exclut les libs système/vendor
           DEVEL_COVER_OPTIONS: >
+            +select,^lib/
+            +select,^bin/
+            +ignore,^t/
             +ignore,/local/
             +ignore,^local/
             +ignore,/perl5/
+            +ignore,/site_perl/
+          DEVEL_COVER_DB: cover_db
         run: |
-          rm -rf cover_db
-          HARNESS_PERL_SWITCHES=-MDevel::Cover prove -Iblib/lib -Iblib/arch -l -j $(nproc) t/**/*.t
+          # Nettoyage propre de la base de couverture
+          cover -delete || rm -rf cover_db || true
+
+          # Lancer les tests récursivement, en utilisant blib et en parallèle
+          prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
+
+          # Résumé local utile dans les logs CI
+          cover -summary
 
       - name: Upload coverage to Coveralls
         env:
