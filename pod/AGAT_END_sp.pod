@@ -5,17 +5,17 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<-c> or B<--config>
+=item B<--config>
 
 String - Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
 
 Integer - Number of parallel processes to use for file input parsing (via forking).
 
-=item B<--verbose>
+=item B<-v> or B<--verbose>
 
 Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
