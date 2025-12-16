@@ -26,8 +26,8 @@ my $overwrite = undef;
 #############################
 my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-my $parser = Getopt::Long::Parser->new();
-if ( !$parser->getoptionsfromarray(
+my $script_parser = Getopt::Long::Parser->new();
+if ( !$script_parser->getoptionsfromarray(
     $script_argv,
     "h|help"      => \$opt_help,
     "gff|f=s"     => \$gff,

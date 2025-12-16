@@ -45,9 +45,9 @@ my @copyARGV=@ARGV;
 # Split shared vs script options and parse script options
 my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 # Parse script-specific options
-my $parser = Getopt::Long::Parser->new();
-$parser->configure('bundling','no_auto_abbrev');
-if ( !$parser->getoptionsfromarray(
+my $script_parser = Getopt::Long::Parser->new();
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
   $script_argv,
   "h|help"                 => \$opt_help,
   "annotation|a=s"         => \$annotation_gff,

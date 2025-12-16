@@ -23,8 +23,8 @@ my $opt_help = 0;
 #############################
 my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-my $parser = Getopt::Long::Parser->new();
-if ( !$parser->getoptionsfromarray(
+my $script_parser = Getopt::Long::Parser->new();
+if ( !$script_parser->getoptionsfromarray(
     $script_argv,
     'f|gff|ref|reffile=s' => \$opt_file,
     'o|out|output=s'      => \$opt_output,
