@@ -45,14 +45,14 @@ sub check_diff {
 
 sub script_prefix {
     # Build a perl prefix for launching repo scripts from tests.
-    # - Honors HARNESS_PERL_SWITCHES (e.g., -MDevel::Cover, -I t/lib)
+    # - Honors HARNESS_PERL_SWITCHES (e.g., -I t/lib)
+    #   Note: Devel::Cover is NOT added here as 'cover -test' handles it globally
     # - Adds -I <lib> only if a non-system lib path is present in \@INC
     #   (i.e., tests were started with -I lib or use lib 'lib'), and
     #   no -I is already present in HARNESS_PERL_SWITCHES.
     # Local test call must be like: perl -I $PWD/lib t/thetest.t
 
     my $switches = $ENV{HARNESS_PERL_SWITCHES} // '';
-    my $has_cover = ($switches =~ /Devel::Cover/);
     my $has_I_in_switches = ($switches =~ /\s-I\S+/);
 
     my @lib_to_inject = ();
@@ -73,9 +73,9 @@ sub script_prefix {
     }
     
     my @parts;
-    if ($has_cover || $switches ne '' || @lib_to_inject) {
+    if ($switches ne '' || @lib_to_inject) {
         push @parts, 'perl';
-        push @parts, '-MDevel::Cover' if $has_cover;
+        # Don't add -MDevel::Cover here - cover -test already handles it
         push @parts, $switches if $switches ne '';
         foreach my $lib_to_inject (@lib_to_inject) {
             push @parts, '-I', $lib_to_inject if defined $lib_to_inject;
