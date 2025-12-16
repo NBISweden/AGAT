@@ -16,7 +16,7 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(print_ref_list_feature print_omniscient print_omniscient_as_match
 print_omniscient_from_level1_id_list webapollo_compliant embl_compliant
-convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout);
+convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fileout write_fasta);
 
 =head1 SYNOPSIS
 
@@ -284,7 +284,7 @@ sub print_omniscient_as_gff{
 	}
 
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -375,7 +375,7 @@ sub print_omniscient_as_match{
 			}
 		}
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # omniscient is a hash containing a whole gXf file in memory sorted in a specific way (3 levels)
@@ -452,7 +452,7 @@ sub print_omniscient_from_level1_id_list {
 	}
 
 	# --------- deal with fasta seq --------------
-	write_fasta($gffout, $omniscient);
+	write_fasta($gffout);
 }
 
 # Print all level3 feature of a level2 one
@@ -526,61 +526,76 @@ sub print_level3_old_school{
 # @input: 2 =>  gff/gtf file output, omniscient
 # @output none => none
 sub write_fasta {
-	my ($gffout, $omniscient) = @_;
+	my ($gffout, $gffio) = @_;
 	
-	if ( exists_keys ($omniscient, ('other','fasta') ) ){
-		# print the GFF fasta line
-		$gffout->_print("##FASTA\n");
+	return if ( $CONFIG->{throw_fasta}); # skip write_fasta
+
+	# Fasta presence has not been checked yet
+	# Fasta presence has been checked and is true
+	if ( ! exists_keys ($AGAT_GFF_INPUT_FILE, ('fasta') ) 
+		or $AGAT_GFF_INPUT_FILE->{'fasta'} ){ 
 
 		# --- open the gff file ---
-		my $file = $omniscient->{'other'}{'fasta'};
-		my $gff_in_format = $omniscient->{'other'}{'gff_in_format'};
+		my $file = $AGAT_GFF_INPUT_FILE->{'gff_file'};
+		my $gff_in_format = $AGAT_GFF_INPUT_FILE->{'gff_format'};
 
-		my $gffio;
-		my ($file_ext) = $file =~ /(\.[^.]+)$/; # get file extension
-		if($file_ext eq ".gz"){
-			my $fh;
-			if ("$^O" eq "darwin"){
-				open( $fh, "zcat < $file |");
+		return if (! $file); # no file saved so was not a gff input
+
+		# No gffio provided, we open it ourself
+		if(! $gffio) {
+			my ($file_ext) = $file =~ /(\.[^.]+)$/; # get file extension
+			if($file_ext eq ".gz"){
+				my $fh;
+				if ("$^O" eq "darwin"){
+					open( $fh, "zcat < $file |");
+				}
+				else{
+					open( $fh, "zcat $file |");
+				}
+				$gffio  = AGAT::BioperlGFF->new(-fh => $fh, -gff_version => $gff_in_format);
 			}
 			else{
-				open( $fh, "zcat $file |");
+				$gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
 			}
-			 $gffio  = AGAT::BioperlGFF->new(-fh => $fh, -gff_version => $gff_in_format);
 		}
-		else{
-			$gffio = AGAT::BioperlGFF->new(-file => $file, -gff_version => $gff_in_format);
-		}
-		# --- READ the gff file ---
-		# features need to be conusume to reach the fasta, so just consume them silently
+
+		# --- CONSUME GFF ---
+		# features need to be consume to reach the fasta, so just consume them silently
 		1 while $gffio->next_feature;
-		# --- print the fasta seq ---
-		my @Bio_Seq_objs =  $gffio->get_seqs();
-		foreach my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
 
-			if( $Bio_Seq_obj->desc ){
-				$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
-			}
-			else{
-				$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
-			}
+		# check GFF has fasta seq
+		if($gffio->get_seqs()) {
+			# print the GFF fasta line
+			$gffout->_print("##FASTA\n");
 
-			my $str = $Bio_Seq_obj->seq;
-			my $nuc = 80;       # Number of nucleotides per line
-			my $length = length($str);
+			# --- print the fasta seq ---
+			my @Bio_Seq_objs =  $gffio->get_seqs();
+			foreach my $Bio_Seq_obj (sort { ncmp ($a->display_id, $b->display_id) } @Bio_Seq_objs){
 
-			# Calculate the number of nucleotides which fit on whole lines
-			my $whole = int($length / $nuc) * $nuc;
+				if( $Bio_Seq_obj->desc ){
+					$gffout->_print(">".$Bio_Seq_obj->display_id." ".$Bio_Seq_obj->desc."\n");
+				}
+				else{
+					$gffout->_print(">".$Bio_Seq_obj->display_id."\n");
+				}
 
-			# Print the whole lines
-			my( $i );
-			for ($i = 0; $i < $whole; $i += $nuc) {
-				my $blocks = substr($str, $i, $nuc);
-				$gffout->_print("$blocks\n");
-			}
-			# Print the last line
-			if (my $last = substr($str, $i)) {
-				$gffout->_print("$last\n");
+				my $str = $Bio_Seq_obj->seq;
+				my $nuc = 80;       # Number of nucleotides per line
+				my $length = length($str);
+
+				# Calculate the number of nucleotides which fit on whole lines
+				my $whole = int($length / $nuc) * $nuc;
+
+				# Print the whole lines
+				my( $i );
+				for ($i = 0; $i < $whole; $i += $nuc) {
+					my $blocks = substr($str, $i, $nuc);
+					$gffout->_print("$blocks\n");
+				}
+				# Print the last line
+				if (my $last = substr($str, $i)) {
+					$gffout->_print("$last\n");
+				}
 			}
 		}
 		# Close the gff input FH opened by OmniscientI

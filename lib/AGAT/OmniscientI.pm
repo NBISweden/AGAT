@@ -485,18 +485,14 @@ sub slurp_gff3_file_JD {
 						$nb_line_read_local++;
 					}
 
-					# -------------- Read fastas in GFF file ------------------------
-					# User dont want to keep the sequences
-					if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
-					# User want to keep the sequences
-					elsif($gffio->get_seqs()){ 
-						$omniscient_clean_clone->{'other'}{'fasta'} = $file;
-						$omniscient_clean_clone->{'other'}{'gff_in_format'} = $gff_in_format;
+					# -------------- Read fasta and ------------------------
+					$AGAT_GFF_INPUT_FILE->{'fasta'} = 0; # default no fasta
+					# there is fasta in file
+					if($gffio->get_seqs()){ 
+						$AGAT_GFF_INPUT_FILE->{'fasta'} = 1; # flag to say that we have sequences
 					} 
-					# No sequence no need to keep it
-					$gffio->close() if $gffio;
-					$gffio = undef;
-					# -------------- Close GFF file handler ------------------------
+					# -------------- Close GFF file handler --------------
+					$gffio->close(); $gffio = undef;
 
 					# Call post_process handling
 					$previous_time = time();
@@ -631,17 +627,16 @@ sub slurp_gff3_file_JD {
 				manage_one_feature($ontology, $feature, \%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
 			}
 
-			# -------------- Read fastas in GFF file ------------------------
-			# User dont want to keep the sequences
-			if( $CONFIG->{"throw_fasta"} ) {$gffio->close();}
-			# User want to keep the sequences
-			elsif($gffio->get_seqs()){ 
-				$omniscient_original{'other'}{'fasta'} = $file;
-				$omniscient_original{'other'}{'gff_in_format'} = $gff_in_format;
+			# -------------- Read fasta and ------------------------
+			$AGAT_GFF_INPUT_FILE->{'fasta'} = 0; # default no fasta
+			# There is fasta in file
+			if($gffio->get_seqs()){ 
+				$AGAT_GFF_INPUT_FILE->{'fasta'} = 1; # flag to say that we have sequences
 			} 
-			# No sequence no need to keep it
-			$gffio->close() if $gffio;
-			$gffio = undef;
+			# -------------- Close GFF file handler --------------
+			$gffio->close(); $gffio = undef;
+
+			# Call post_process handling
 			post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 		
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
@@ -3777,21 +3772,8 @@ sub get_general_info{
 	my %info_feature_type;
 	$| = 1; # Autoflush STDOUT so print isn't buffered
 	my $last_print_time = time;
-
-	my $fh;
+	my $fh = open_maybe_gz($file);
 	my ($filename,$path,$file_ext) = fileparse($file,qr/\.[^.]*/);
-	if($file_ext eq ".gz"){
-		if ("$^O" eq "darwin"){
-			open($fh, "zcat < $file |");
-		}
-		else{
-			open($fh, "zcat $file |");
-		}
-	}
-	else{
-		open($fh, '<', $file) or dual_print ( dual_print({ 'string' => "cannot open file $file", 'local_verbose' => 1 }) ) && die;
-	}
-
 	my $nb_line_splitfile=0;
 	my $start_split=1;
 	my $out_fh;
@@ -3998,19 +3980,7 @@ sub get_header_lines{
 	#HANDLE format
 	my @headers;
 
-	my $fh,
-	my ($file_ext) = $file =~ /(\.[^.]+)$/;
-	if($file_ext eq ".gz"){
-		if ("$^O" eq "darwin"){
-			open($fh, "zcat < $file |");
-		}
-		else{
-			open($fh, "zcat $file |");
-		}
-	}
-	else{
-		open($fh, '<', $file) or dual_print ( dual_print({ 'string' => "cannot open file $file", 'local_verbose' => 1 }) ) && die;
-	}
+	my $fh = open_maybe_gz($file);
 
 	while(<$fh>){
 		if($_ =~ /^#/){
@@ -4038,24 +4008,13 @@ sub select_gff_format{
 	#HANDLE format
 	my %gff_in_format;
 	my $problem3=undef;
+	my $version=undef;
 	my $nbLineChecked=100; #number line to use to check the formnat
 	my $cpt=0;
 	my @col_tab;
 	my @attribute_tab;
 
-	my $fh;
-	my ($file_ext) = $file =~ /(\.[^.]+)$/;
-	if($file_ext eq ".gz"){
-		if ("$^O" eq "darwin"){
-			open($fh, "zcat < $file |");
-		}
-		else{
-			open($fh, "zcat $file |");
-		}
-	}
-	else{
-		open($fh, '<', $file) or dual_print ( dual_print({ 'string' => "cannot open file $file $!", 'local_verbose' => 1 }) ) && die;
-	}
+	my $fh = open_maybe_gz($file);
 
 	while(<$fh>){
 
@@ -4132,9 +4091,16 @@ sub select_gff_format{
 		$gff_in_format{1}++;
 	}
 
-	if($gff_in_format{3}){return 3;}
-	if($gff_in_format{2}){return 2;}
-	if($gff_in_format{1}){return 1;}
+	if($gff_in_format{1}){$version=1;}
+	if($gff_in_format{2}){$version=2;}
+	if($gff_in_format{3}){$version=3;}
+
+	# SAVE GFF FILE - e.g. can be used later to extract fasta sequences
+	# Important to do it here because sq scripts are also using this function
+	$AGAT_GFF_INPUT_FILE->{'gff_file'} = $file;
+	$AGAT_GFF_INPUT_FILE->{'gff_format'} = $version;
+
+	return $version;
 }
 
 # We modify the attributes: group=gene_id "e_gw1.5.2.1" protein_id 335805 exonNumber 1
@@ -4252,19 +4218,7 @@ sub _check_header{
 	#check it is a file
 	if(-f $file){
 
-		my $fh;
-		my ($file_ext) = $file =~ /(\.[^.]+)$/;
-		if($file_ext eq ".gz"){
-			if ("$^O" eq "darwin"){
-				open($fh, "zcat < $file |");
-			}
-			else{
-				open($fh, "zcat $file |");
-			}
-		}
-		else{
-			open($fh, '<', $file) or dual_print ( dual_print({ 'string' => "cannot open file $file", 'local_verbose' => 1 }) ) && die;
-		}
+		my $fh = open_maybe_gz($file);
 
 		while(<$fh>){
 			if($_ !~ /^##[^#]/) {

@@ -206,10 +206,10 @@ sub parse_shared_options {
 	my %opts;
 	if ( !$parser->getoptionsfromarray(
 		\@argv,
-		'config=s'                   => \$opts{config},
-		'cpu|cpus|thread|threads|core|cores|job|jobs=i' => \$opts{cpu},
+		'config=s'                     => \$opts{config},
+		'cpu|thread|core|job=i'        => \$opts{cpu},
 		'minimum_chunk_size=i'         => \$opts{minimum_chunk_size},
-		'verbose=i'                  => \$opts{verbose},
+		'v|verbose=i'                  => \$opts{verbose},
 		'progress_bar=s'               => \$opts{progress_bar},
 		'log=s'                        => \$opts{log},
 		'debug=s'                      => \$opts{debug},
@@ -251,8 +251,8 @@ sub split_argv_shared_vs_script {
 	my @argv = @{$argv_ref // []};
 
 	my %shared = map { $_ => 1 } qw(
-		config cpu cpus thread threads core cores job jobs minimum_chunk_size
-		verbose progress_bar log debug tabix merge_loci throw_fasta
+		config cpu thread core job minimum_chunk_size
+		v verbose progress_bar log debug tabix merge_loci throw_fasta
 		force_gff_input_version output_format gff_output_version gtf_output_version
 		deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template
 		locus_tag check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2

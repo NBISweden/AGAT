@@ -8,19 +8,22 @@ use Time::Piece;
 use Time::Seconds;
 use POSIX qw(strftime);
 use Scalar::Util qw(reftype);
+use IO::Uncompress::Gunzip qw($GunzipError);
 use Exporter;
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text
+our @EXPORT = qw(exists_keys exists_undef_value get_proper_codon_table surround_text open_maybe_gz
 sizedPrint activate_warning_limit print_time dual_print dual_print1 dual_print2 file_text_line print_wrap_text
-string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline start_script end_script
-$LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG);
+string_sep_to_hash get_memory_usage print_omniscient_keys get_nbline start_script end_script 
+set_progression_counter update_progression_counter
+$LOGGING $AGAT_TMP $AGAT_LOG $CONFIG $LEVELS $COMON_TAG $AGAT_GFF_INPUT_FILE);
 
 #	-----------------------------------CONSTANT-----------------------------------
 our $LOGGING  = {};  # global hash
-our $SCRIPT   = {};  # global hash
+our $SCRIPT   = {};  # global hash to store script information e.g. ARGV, start_time
 our $CONFIG   = {};  # global hash
 our $LEVELS   = {};  # global hash
+our $AGAT_GFF_INPUT_FILE = {}; # To store information about GFF input file. Filled in select_gff_format subroutine to be sure the input is a GFF.
 our $AGAT_TMP ="agat_tmp"; # temporary directory
 our $AGAT_LOG = "agat_log"; # log directory
 # Comon_tag is used in old gff format and in gtf (with gene_id) to group features together.
@@ -76,6 +79,24 @@ sub exists_undef_value {
       }
     }
     return '';
+}
+
+# @Purpose: open a file, if gzipped it will open it with IO::Uncompress::Gunzip
+# @input: 1 =>  string (file name)
+# @output 1 => filehandle
+sub open_maybe_gz {
+    my ($file) = @_;
+
+    if ($file =~ /\.gz$/i) {
+        my $fh = IO::Uncompress::Gunzip->new($file)
+            or die "Cannot gunzip $file: $GunzipError\n";
+        return $fh;
+    }
+    else {
+        open my $fh, '<', $file
+            or die "Cannot open $file: $!\n";
+        return $fh;
+    }
 }
 
 # save @ARGV and starting time
@@ -509,6 +530,45 @@ sub get_nbline {
 	}
 	close $fh;
 	return $nb_line_feature;
+}
+
+# set a progression counter
+sub set_progression_counter{
+	my ($file) = @_;
+
+	# progression bar deactivated
+	return if (! $CONFIG->{progress_bar});
+
+	open my $fh, '<', $file or die $!;
+	my $count = 0;
+	$count++ while <$fh>;
+	close $fh;
+
+	dual_print1 "$count lines to process...\n";
+	$SCRIPT->{nb_line} = $count;
+
+	return $count;
+}
+
+# update progression counter
+sub update_progression_counter{
+	my ($current_line) = @_;
+
+	# progression bar deactivated
+	return if (! $CONFIG->{progress_bar});
+	
+	# current_time is start_time if not set
+	$SCRIPT->{current_time}  //= $SCRIPT->{start_time};
+
+	# if more than X seconds since last update
+	if ((2 - (time - $SCRIPT->{current_time})) < 0) {
+      my $done = ($current_line*100)/$SCRIPT->{nb_line};
+      $done = sprintf ('%.0f', $done);
+	  local $| = 1; # Or use IO::Handle; STDOUT->autoflush; Use to print progression bar
+      dual_print1 "\rProgress : $done %";
+	  # update current time
+      $SCRIPT->{current_time} = time;
+    }
 }
 
 1;

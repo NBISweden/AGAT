@@ -532,23 +532,10 @@ Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon an
 Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (AGAT reshapes UTRs to modify mRNA and gene locations);
 Case5: When l2 (e.g. mRNA) from different gene identifier overlap but have different exon structure. In that case AGAT modified the gene locations by clipping UTRs;
 
-=item B<-v> or B<--verbose>
-
-Add verbosity.
-
 =item B<-o>, B<--out>, B<--output> or B<--outfile>
 
 Output file. If none given, will be display in standard output.
 
-=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -556,66 +543,39 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 
 AUTHOR - Jacques Dainat
-
-Test case for first part:
-@001900F|arrow|arrow  maker gene  5082  6945  . + . ID=ACAOBTG00000034334;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0
-@001900F|arrow|arrow  maker mRNA  5082  6945  5456  + . ID=ACAOBTM00000062562;Parent=ACAOBTG00000034334;_AED=0.22;_QI=61|1|1|1|0|0|2|575|165;_eAED=0.22;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1;product=hypothetical protein
-@001900F|arrow|arrow  maker exon  5082  5815  . + . ID=ACAOBTE00000370675;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:1
-@001900F|arrow|arrow  maker exon  6546  6945  . + . ID=ACAOBTE00000370676;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:2
-@001900F|arrow|arrow  maker CDS 5143  5640  . + 0 ID=ACAOBTC00000063258;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:cds
-@001900F|arrow|arrow  maker five_prime_UTR  5082  5142  . + . ID=ACAOBTF00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:five_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 5641  5815  . + . ID=ACAOBTT00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:three_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 6546  6945  . + . ID=ACAOBTT00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:three_prime_utr
-@001900F|arrow|arrow  maker mRNA  5082  6945  . + . ID=ACAOBTM00000062561;Parent=ACAOBTG00000034334;_AED=0.22;_QI=722|1|1|1|0|0.5|2|28|127;_eAED=0.22;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1;product=hypothetical protein
-@001900F|arrow|arrow  maker exon  5082  5815  . + . ID=ACAOBTE00000370673;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:1
-@001900F|arrow|arrow  maker exon  6546  6945  . + . ID=ACAOBTE00000370674;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:2
-@001900F|arrow|arrow  maker CDS 5804  5815  . + 0 ID=ACAOBTC00000063257;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:cds
-@001900F|arrow|arrow  maker CDS 6546  6917  . + 0 ID=ACAOBTC00000063257;Parent=ACAOBTM00000062561;makerName=IDmodified-cds-30904
-@001900F|arrow|arrow  maker five_prime_UTR  5082  5803  . + . ID=ACAOBTF00000063256;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:five_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 6918  6945  . + . ID=ACAOBTT00000063256;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:three_prime_utr
-
-
-Test case for second part:
-@001900F|arrow|arrow  maker gene  5082  6945  . + . ID=ACAOBTG00000034334;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0
-@001900F|arrow|arrow  maker mRNA  5082  6945  5456  + . ID=ACAOBTM00000062562;Parent=ACAOBTG00000034334;_AED=0.22;_QI=61|1|1|1|0|0|2|575|165;_eAED=0.22;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1;product=hypothetical protein
-@001900F|arrow|arrow  maker exon  5082  5815  . + . ID=ACAOBTE00000370675;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:1
-@001900F|arrow|arrow  maker exon  6546  6945  . + . ID=ACAOBTE00000370676;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:2
-@001900F|arrow|arrow  maker CDS 5143  5640  . + 0 ID=ACAOBTC00000063258;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:cds
-@001900F|arrow|arrow  maker five_prime_UTR  5082  5142  . + . ID=ACAOBTF00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:five_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 5641  5815  . + . ID=ACAOBTT00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:three_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 6546  6945  . + . ID=ACAOBTT00000063257;Parent=ACAOBTM00000062562;makerName=maker-@001900F|arrow|arrow-exonerate_est2genome-gene-0.0-mRNA-1:three_prime_utr
-@001900F|arrow|arrow  maker gene  5082  6945  . + . ID=ACAOBTG00000034333;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22
-@001900F|arrow|arrow  maker mRNA  5082  6945  . + . ID=ACAOBTM00000062561;Parent=ACAOBTG00000034333;_AED=0.22;_QI=722|1|1|1|0|0.5|2|28|127;_eAED=0.22;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1;product=hypothetical protein
-@001900F|arrow|arrow  maker exon  5082  5815  . + . ID=ACAOBTE00000370673;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:1
-@001900F|arrow|arrow  maker exon  6546  6945  . + . ID=ACAOBTE00000370674;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:2
-@001900F|arrow|arrow  maker CDS 5804  5815  . + 0 ID=ACAOBTC00000063257;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:cds
-@001900F|arrow|arrow  maker CDS 6546  6917  . + 0 ID=ACAOBTC00000063257;Parent=ACAOBTM00000062561;makerName=IDmodified-cds-30904
-@001900F|arrow|arrow  maker five_prime_UTR  5082  5803  . + . ID=ACAOBTF00000063256;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:five_prime_utr
-@001900F|arrow|arrow  maker three_prime_UTR 6918  6945  . + . ID=ACAOBTT00000063256;Parent=ACAOBTM00000062561;makerName=augustus_masked-@001900F|arrow|arrow-processed-gene-0.22-mRNA-1:three_prime_utr
