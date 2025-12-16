@@ -110,10 +110,18 @@ jobs:
         if: failure()
         run: cat ~/.cpanm/build.log || echo "No build log found"
 
-      - name: test
+      - name: Run tests with coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEVEL_COVER_OPTIONS: "+ignore,^local/"
-          HARNESS_OPTIONS: j2
-        run: cover -test -report Coveralls
+          DEVEL_COVER_OPTIONS: "+ignore,/local/,+ignore,/perl5/,+ignore,^blib/"
+          HARNESS_PERL_SWITCHES: -MDevel::Cover
+        run: |
+          unset PERL5LIB
+          rm -rf cover_db
+          prove -l -j $(nproc)
+
+      - name: Upload coverage to Coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cover -report coveralls
