@@ -89,10 +89,6 @@ jobs:
             install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
             enable-modules-cache: true
 
-      - name: Install Devel::Cover system-wide
-        run: |
-          sudo cpanm --notest Devel::Cover@1.44 Devel::Cover::Report::Coveralls
-
       - name: Cache perl modules
         uses: actions/cache@v4
         with:
