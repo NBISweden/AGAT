@@ -86,7 +86,9 @@ jobs:
             perl-version: '5.30'
             install-modules-with: cpanm
             install-modules-args: --notest --force
-            install-modules: File::ShareDir::Install Devel::Cover@1.44 Devel::Cover::Report::Coveralls Parallel::ForkManager
+            install-modules: >
+              Devel::Cover@1.44
+              Devel::Cover::Report::Coveralls
             enable-modules-cache: true
 
       - name: Cache perl modules
@@ -109,6 +111,11 @@ jobs:
       - name: Show cpanm build log on failure
         if: failure()
         run: cat ~/.cpanm/build.log || echo "No build log found"
+
+      - name: Build AGAT
+        run: |
+          perl Makefile.PL
+          make
 
       - name: Run tests with coverage
         env:
