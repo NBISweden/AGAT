@@ -115,7 +115,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HARNESS_PERL_SWITCHES: -MDevel::Cover
           DEVEL_COVER_OPTIONS: >
-            +ignore,^blib/
+            -select ^blib/lib/AGAT
+            +ignore ^local/
           DEVEL_COVER_DB: cover_db
         run: |
             rm -rf cover_db
