@@ -140,7 +140,27 @@ jobs:
 
       - name: Run tests with coverage
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            DEVEL_COVER_OPTIONS: "+ignore,^local/"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Options de couverture: sélectionner uniquement le code du projet
+          DEVEL_COVER_OPTIONS: >
+            +select,^blib/
+            +ignore,/local/
+            +ignore,^local/
+            +ignore,/perl5/
+            +ignore,/site_perl/
+          DEVEL_COVER_DB: cover_db
         run: |
-          HARNESS_OPTIONS="j$(nproc)" cover -test -report Coveralls
+          # Nettoyage de la base de couverture
+          env -u PERL5OPT cover -delete || rm -rf cover_db || true
+
+          # Lancer les tests avec instrumentation
+          PERL5OPT=-MDevel::Cover prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
+
+          # Résumé de couverture
+          env -u PERL5OPT cover -summary
+
+      - name: Upload coverage to Coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          env -u PERL5OPT cover -report coveralls
