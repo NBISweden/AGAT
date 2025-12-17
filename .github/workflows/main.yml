@@ -116,6 +116,7 @@ jobs:
           HARNESS_PERL_SWITCHES: -MDevel::Cover
           DEVEL_COVER_OPTIONS: >
             -select ^blib/lib/AGAT
+            -select ^blib/script/
             +ignore ^local/
           DEVEL_COVER_DB: cover_db
         run: |
