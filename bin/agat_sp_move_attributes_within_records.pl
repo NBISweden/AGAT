@@ -9,26 +9,31 @@ use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $primaryTagCopy="level2";
 my $primaryTagPaste="level3";
 my $opt_output= undef;
 my $attributes="all_attributes";
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s'  => \$opt_gff,
-                  "feature_copy|fc=s"    => \$primaryTagCopy,
-                  "feature_paste|fp=s"   => \$primaryTagPaste,
-                  'o|output=s'           => \$opt_output,
-                  "a|tag|att|attribute=s"  => \$attributes,
-                  'v|verbose!'           => \$opt_verbose,
-                  'c|config=s'           => \$config,
-                  'h|help!'              => \$opt_help ) )
+# OPTION MANAGEMENT: split shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
+    'f|ref|reffile|gff=s'  => \$opt_gff,
+    'feature_copy|fc=s'    => \$primaryTagCopy,
+    'feature_paste|fp=s'   => \$primaryTagPaste,
+    'o|output=s'           => \$opt_output,
+    'a|tag|att|attribute=s'=> \$attributes,
+    'h|help!'              => \$opt_help,
+  ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -49,7 +54,8 @@ if ( ! $opt_gff  ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
 
 ###############
 # Manage Output
@@ -63,7 +69,7 @@ if ($opt_output) {
   # set file names
   $gffout_ok_file = $path.$outfile.$ext;
 }
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file);
 
 # Manage $primaryTag for copy
 my @ptagListCopy;
@@ -118,7 +124,7 @@ my @attListOk;
 if ($attributes){
 
   if ($attributes eq "all_attributes"){
-    print "All attributes will be used !\n";
+    dual_print1 "All attributes will be used !\n";
     $attHashOk{"all_attributes"}++;
   }
   else{
@@ -128,22 +134,19 @@ if ($attributes){
 
       if($attribute == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attribute) eq "id" ){print "ID attribute cannot be modified !\n";exit;}
+        if(lc($attribute) eq "id" ){ die "ID attribute cannot be modified !\n"; }
         #check for Parent attribute
-        if(lc($attribute) eq "parent"){print "Parent attribute cannot be modified !\n";exit;}
+        if(lc($attribute) eq "parent"){ die "Parent attribute cannot be modified !\n"; }
         $attHashOk{$attribute}++;
         push(@attListOk, $attribute);
       }
     }
   }
-  print "\n";
+  dual_print1 "\n";
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
-print $stringPrint;
+dual_print1 "The attributes @attListOk from the following feature types: $print_feature_string_copy will be copy pasted to the following feature types: $print_feature_string_paste.\n";
 
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -151,10 +154,8 @@ print $stringPrint;
 my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gff });
+
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -174,7 +175,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 		  #################
 		  # == LEVEL 2 == #
 		  #################
-		  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
+		  foreach my $tag_l2 (sort keys %{$hash_omniscient->{'level2'}}){ 
 
 		    if ( exists_keys( $hash_omniscient, ('level2', $tag_l2, $id_l1) ) ){
 			    my @list_fl2 = @{$hash_omniscient->{'level2'}{$tag_l2}{$id_l1}};
@@ -196,7 +197,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 				    #################
 			      my $id_l2 = lc($feature_l2->_tag_value('ID'));
 
-				    foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+				    foreach my $tag_l3 (sort keys %{$hash_omniscient->{'level3'}}){ 
 				      if ( exists_keys( $hash_omniscient, ('level3', $tag_l3, $id_l2) ) ){
 				       	my @list_fl3 = @{$hash_omniscient->{'level3'}{$tag_l3}{$id_l2}};
 				       	foreach my $feature_l3 ( @list_fl3 ) {
@@ -220,7 +221,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
                     add_tags_from_to($feature_l3, $feature_l2);
                   }
                   # ------- Case L3 to L3 -------
-                  foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ # primary_tag_key_level3 = cds or exon or start_codon or utr etc...
+                  foreach my $tag_l3_again (sort keys %{$hash_omniscient->{'level3'}}){ 
 				            if ( exists_keys( $hash_omniscient, ('level3', $tag_l3_again, $id_l2) ) ){
 				       	      my @list_fl3_again = @{$hash_omniscient->{'level3'}{$tag_l3_again}{$id_l2}};
 				              foreach my $feature_l3_again ( @list_fl3_again ) {
@@ -280,6 +281,9 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 # create omniscient with only selected recoreds
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );#print gene modified in file
+
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################
@@ -374,7 +378,6 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature level3 are used. 
 
-
 =item B<-a>, B<--tag>, B<--att> or B<--attribute>
 
 Attribute that will be copied and pasted. Case sensitive.
@@ -382,21 +385,10 @@ You can specified an attribute (or a coma separated list) by giving its attribut
 Default: all_attributes
 /!\ <all_attributes> is a specific parameter meaning all the attributes will be use.
 
-
 =item B<-o> or B<--output>
 
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
-
-=item B<-v>
-
-Verbose option for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -404,29 +396,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

@@ -2,8 +2,20 @@
 Update version in lib/AGAT/Omniscient.pm
 
 # test / check
-make test to check everything is fine
+
+## test one test file:
+perl -I $PWD/lib t/gff_other/gff_other_issue329.t
+
+## test one batch of test
+make test_gff_other
+
+## test with debug
   - make test TEST_FILES=t/scripts_output.t TEST_VERBOSE=1 # check one test file at a time for debugging
+
+## test with parallelisation
+HARNESS_OPTIONS=j4 make test # for all
+HARNESS_OPTIONS="j4" make test_gff_other # for test_gff_other tests only
+prove -j4 -I "$PWD/lib" t/gff_syntax/*.t # another way
 
 # create the distribution (optional)
 - make manifest

@@ -4,31 +4,35 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_keep_list = undef;
 my $opt_attribute = 'ID';
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'kl|keep_list=s'      => \$opt_keep_list,
-                  "p|type|l=s"          => \$primaryTag,
-                  'o|output=s'          => \$opt_output,
-                  'a|attribute=s'       => \$opt_attribute,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  'kl|keep_list=s'      => \$opt_keep_list,
+  'p|type|l=s'          => \$primaryTag,
+  'o|output=s'          => \$opt_output,
+  'a|attribute=s'       => \$opt_attribute,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -49,8 +53,11 @@ if ( ! $opt_gff or ! $opt_keep_list ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Manage Output
@@ -66,7 +73,7 @@ if ($opt_output) {
   $gffout_ok_file = $path.$outfile.$ext;
   $ostreamReport_file = $path.$outfile."_report.txt";
 }
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # Manage $primaryTag
@@ -103,26 +110,19 @@ while (my $line = <$in_keep_list>) {
 my $nb_to_keep = keys %keep_hash;
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
+my $stringPrint = "We will keep the records that have $print_feature_string sharing the value of the $opt_attribute attribute with the keep list.\n";
 $stringPrint .= "The keep list contains $nb_to_keep uniq IDs\n";
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+print $ostreamReport $stringPrint if(defined $ostreamReport);
+dual_print1 $stringPrint;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
 my %all_cases = ('l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0);
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gff });
+
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -192,12 +192,14 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 # create omniscient with only selected recoreds
 my $hash_kept = subsample_omniscient_from_level1_id_list_delete($hash_omniscient, \@keeplist);
+# print output
 print_omniscient( {omniscient => $hash_kept, output => $gffout_ok} );#print gene modified in file
-$stringPrint = ($#keeplist+1)." records kept!\n";
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+# final report
+my $stringPrint2 = ($#keeplist+1)." records kept!\n";
+dual_print1 $stringPrint2;
+
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################
@@ -289,15 +291,6 @@ Attribute tag to specify the attribute to analyse. Case sensitive. Default: ID
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -305,29 +298,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

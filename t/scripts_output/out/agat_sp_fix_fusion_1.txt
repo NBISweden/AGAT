@@ -1,4 +1,0 @@
-usage: bin/agat_sp_fix_fusion.pl --gff t/scripts_output/in/1.gff --fasta t/scripts_output/in/1.fa -o tmp.gff
-Results:
-16 genes affected and 16 mRNA.
-Job done in 1 seconds

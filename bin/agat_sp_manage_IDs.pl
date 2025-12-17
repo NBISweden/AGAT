@@ -8,7 +8,8 @@ use Pod::Usage;
 use AGAT::AGAT;
 
 my $header = get_agat_header();
-my $config;
+start_script();
+# ---------------------------- OPTIONS ----------------------------
 my $opt_gff = undef;
 my $opt_help= 0;
 my $opt_gap=0;
@@ -20,10 +21,14 @@ my $opt_prefix=undef;
 my $opt_collective=undef;
 my $opt_nbIDstart=1;
 my $opt_type_dependent = undef;
-my $verbose;
+#############################
+# >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
+#############################
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if ( !GetOptions(
-    'c|config=s'     => \$config,
+my $script_parser = Getopt::Long::Parser->new();
+if ( ! $script_parser->getoptionsfromarray(
+    $script_argv,
     "h|help!"        => \$opt_help,
     "gff|f=s"        => \$opt_gff,
     "nb=i"           => \$opt_nbIDstart,
@@ -31,16 +36,15 @@ if ( !GetOptions(
     "tair!"          => \$opt_tair,
     "ensembl!"       => \$opt_ensembl,
     "prefix=s"       => \$opt_prefix,
-    "p|t|l=s"        => \@opt_tag,
+    "p|t|l=s@"       => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
-		"collective!"    => \$opt_collective,
-    "verbose|v!"     => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
-
+    "collective!"    => \$opt_collective,
+    "output|outfile|out|o=s" => \$outfile,
+  ))
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -57,15 +61,18 @@ if ( ! (defined($opt_gff)) ){
            -exitval => 1 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+#############################
+# >>>>>>> Manage config <<<<<<<
+#############################
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
 
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # Manage $primaryTag
 my %ptagList;
 if(! @opt_tag){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   $ptagList{'level1'}++;
   $ptagList{'level2'}++;
   $ptagList{'level3'}++;
@@ -74,13 +81,13 @@ else{
   foreach my $tag (@opt_tag){
     if($tag eq ""){next;}
     if($tag eq "all"){
-      print "We will work on attributes from all features\n";
+      dual_print1 "We will work on attributes from all features\n";
       $ptagList{'level1'}++;
       $ptagList{'level2'}++;
       $ptagList{'level3'}++;
     }
     else{
-      print "We will work on attributes from all the $tag features\n";
+      dual_print1 "We will work on attributes from all the $tag features\n";
       $ptagList{lc($tag)}++;
     }
   }
@@ -95,13 +102,10 @@ my @tagLetter_list;
 my @l3_out_priority = ("tss", "exon", "cds", "tts");
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_gff,
-                                                                 config => $config
-                                                            });
-print ("GFF3 file parsed\n");
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 
 # get spreadfeatire in case of collective option set
-my $spreadfeatures = $hash_omniscient->{'other'}{'level'}{'spread'};
+my $spreadfeatures = $LEVELS->{'spread'};
 
 # sort by seq id
 my $hash_sortBySeq = gather_and_sort_l1_by_seq_id($hash_omniscient);
@@ -181,6 +185,9 @@ foreach my $seqid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq}){ # loop over
 # Print results
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
+# --- final messages ---
+end_script();
+
 #######################################################################################################################
         ####################
          #     methods    #
@@ -192,6 +199,7 @@ print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
                ######
                 ####
                  ##
+
 sub deal_with_level3{
   my  ($ptagList, $level2_ID, $tag_l3, $l2_ID_modified)=@_;
 
@@ -248,28 +256,28 @@ sub  manage_attributes{
   else{
     $prefix = $opt_prefix;
   }
-  print "prefix $prefix \n" if $verbose;
+  dual_print2 "prefix $prefix \n";
 
   #  ----- deal with value independent or not of the feature type--------
   my $tag = $opt_type_dependent ? $primary_tag : 'all';
-  print "tag: $tag\n" if $verbose;
-  print "primary_tag: $primary_tag\n" if $verbose;
+  dual_print2 "tag: $tag\n";
+  dual_print2 "primary_tag: $primary_tag\n";
 
   if ($opt_tair){
     if ($level eq 'level1') {
       my $ID_number = get_id_number($tag, $level);
       $ID_number = add_ensembl_id_number_prefix($feature, $ID_number) if ($opt_ensembl);
       $result="$prefix$ID_number";
-      print "tair l1: $result\n" if $verbose;
+      dual_print2 "tair l1: $result\n";
     }
     if($level eq 'level2'){
       $result = $parent_id.".".$opt_tair_suffix; # add .1, .2,etc to level features
-        print "tair l2: $result\n" if $verbose;
+        dual_print2 "tair l2: $result\n";
     }
     elsif ($level eq 'level3'){
       my $ID_number = get_id_number("$parent_id$tag", $level);
       $result = $parent_id."-"."$primary_tag$ID_number";
-      print "tair l3: $result\n" if $verbose;
+      dual_print2 "tair l3: $result\n";
     }
 
   }
@@ -436,11 +444,6 @@ By default all feature are taken into account. fill the option by the value "all
 String - Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -448,29 +451,38 @@ Boolean - Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

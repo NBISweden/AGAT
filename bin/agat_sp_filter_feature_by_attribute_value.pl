@@ -4,14 +4,14 @@ use strict;
 use warnings;
 use Getopt::Long;
 use File::Basename;
-use POSIX qw(strftime);
 use Scalar::Util qw(looks_like_number);
 use Pod::Usage;
 use IO::File;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $primaryTag=undef;
 my $opt_output= undef;
 my $opt_value = undef;
@@ -21,23 +21,27 @@ my $opt_value_insensitive = undef;
 my $opt_attribute = undef;
 my $opt_test = "=";
 my $opt_gff = undef;
-my $opt_verbose = undef;
 my $opt_help;
 
-# OPTION MANAGMENT
-my @copyARGV=@ARGV;
-if ( !GetOptions( 'f|ref|reffile|gff=s' => \$opt_gff,
-                  'value=s'             => \$opt_value,
-                  'value_insensitive!'  => \$opt_value_insensitive,
-                  'keep_parental!'      => \$opt_keep_parental,
-                  'na_aside!'           => \$opt_na_aside, 
-                  "p|type|l=s"          => \$primaryTag,
-                  'a|attribute=s'       => \$opt_attribute,
-                  't|test=s'            => \$opt_test,
-                  'o|output=s'          => \$opt_output,
-                  'v|verbose!'          => \$opt_verbose,
-                  'c|config=s'          => \$config,
-                  'h|help!'             => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+# Partition @ARGV into shared vs script options
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'f|ref|reffile|gff=s' => \$opt_gff,
+  'value=s'             => \$opt_value,
+  'value_insensitive!'  => \$opt_value_insensitive,
+  'keep_parental!'      => \$opt_keep_parental,
+  'na_aside!'           => \$opt_na_aside,
+  'p|type|l=s'          => \$primaryTag,
+  'a|attribute=s'       => \$opt_attribute,
+  't|test=s'            => \$opt_test,
+  'o|output=s'          => \$opt_output,
+  'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -58,13 +62,16 @@ if ( ! $opt_gff or ! defined($opt_value) or ! $opt_attribute ){
            -exitval => 2 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# Parse shared options and initialize AGAT
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_gff, shared_opts => $shared_opts });
+
+# -----------------------------------------------------------------------------------------------
 
 ###############
 # Test options
 if($opt_test ne "<" and $opt_test ne ">" and $opt_test ne "<=" and $opt_test ne ">=" and $opt_test ne "=" and $opt_test ne "!"){
-  print "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";exit;
+  die "The test to apply is Wrong: $opt_test.\nWe want something among this list: <,>,<=,>=,! or =.";
 }
 
 ###############
@@ -86,10 +93,10 @@ if ($opt_output) {
   $fhout_semidDiscarded_file = $path.$outfile."_na.gff";
 }
 
-my $gffout_ok = prepare_gffout($config, $gffout_ok_file);
-my $fhout_discarded = prepare_gffout($config, $fhout_discarded_file);
+my $gffout_ok = prepare_gffout( $gffout_ok_file );
+my $fhout_discarded = prepare_gffout( $fhout_discarded_file);
 my $ostreamReport = prepare_fileout($ostreamReport_file);
-my $fhout_semidDiscarded = prepare_gffout($config, $fhout_semidDiscarded_file) if $opt_na_aside;
+my $fhout_semidDiscarded = prepare_gffout( $fhout_semidDiscarded_file) if $opt_na_aside;
 
 # Manage $primaryTag
 my @ptagList;
@@ -122,27 +129,19 @@ my $value_hash = string_sep_to_hash({ string => $opt_value,
 foreach my $value (keys %{$value_hash}){
   if( ! looks_like_number($value) ){
     if($opt_test ne "=" and $opt_test ne "!"){
-      print "This test $opt_test is not possible with string value.\n";
-      exit; 
+      die "This test $opt_test is not possible with string value.\n";
     }
   }
 }
 
 # start with some interesting information
-my $stringPrint = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$stringPrint .= "\nusage: $0 @copyARGV\n";
-$stringPrint .= "We will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
+my $stringPrint .= "\nWe will discard $print_feature_string that have the attribute $opt_attribute with the value $opt_test $opt_value";
 if ($opt_value_insensitive){
   $stringPrint .= " case insensitive.\n";
 }else{
    $stringPrint .= " case sensitive.\n";
 }
-
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-}
-else{ print $stringPrint; }
+dual_print1 $stringPrint;
                           #######################
 # >>>>>>>>>>>>>>>>>>>>>>>>#        MAIN         #<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                           #######################
@@ -151,10 +150,7 @@ my %all_cases = ( 'left' => {'l1' => 0, 'l2' => 0, 'l3' => 0, 'all' => 0},
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) =  slurp_gff3_file_JD({ input => $opt_gff,
-                                                                  config => $config
-                                                                });
-print("Parsing Finished\n");
+my ($hash_omniscient) =  slurp_gff3_file_JD({ input => $opt_gff });
 ### END Parse GFF input #
 #########################
 # sort by seq id
@@ -257,6 +253,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout_ok} );
 
+# --- final report ---
 $stringPrint = "Feature discarded by applying the test (see $fhout_discarded_file file):\n";
 $stringPrint .= $all_cases{'discarded'}{'all'}." features removed:\n";
 $stringPrint .= $all_cases{'discarded'}{'l1'}." features level1 (e.g. gene) removed\n";
@@ -270,11 +267,10 @@ if($opt_na_aside){
   $stringPrint .= $all_cases{'na'}{'l2'}." features level2 (e.g. mRNA) removed\n";
   $stringPrint .= $all_cases{'na'}{'l3'}." features level3 (e.g. exon) removed\n";
 }
+dual_print1 $stringPrint;
 
-if ($opt_output){
-  print $ostreamReport $stringPrint;
-  print $stringPrint;
-} else{ print $stringPrint; }
+# --- final messages ---
+end_script();
 
 #######################################################################################################################
         ####################
@@ -329,18 +325,18 @@ sub should_we_remove_feature{
         }
         # for string values replace = by eq and ! by ne and avoid other type of test
         if ( ! looks_like_number ($given_value) or ! looks_like_number ($file_value)){
-          print "String case\n" if $opt_verbose;
+          dual_print2 "String case\n";
           if ($opt_test eq "="){
-            if ($file_value eq $given_value) { print "equal\n" if $opt_verbose; return 1; }
-            else { print "not equal\n" if $opt_verbose; }
+            if ($file_value eq $given_value) { dual_print2 "equal\n"; return 1; }
+            else { dual_print2 "not equal\n"; }
           }
           elsif ($opt_test eq "!"){
-            if ($file_value ne $given_value){ print "different\n" if $opt_verbose; return 1; }
-            else { print "not different\n" if $opt_verbose; }
+            if ($file_value ne $given_value){ dual_print2 "different\n"; return 1; }
+            else { dual_print2 "not different\n"; }
           }
         } 
         else{
-          print "Number case\n" if $opt_verbose;
+          dual_print2 "Number case\n";
           if ($opt_test eq "="){
             if ($file_value == $given_value){return 1; }
           }
@@ -364,7 +360,7 @@ sub should_we_remove_feature{
     }
     return 0;
   } else {
-    print "Attribute not found  case\n" if $opt_verbose;
+    dual_print2 "Attribute not found  case\n";
     return 2;
   }
 }
@@ -444,15 +440,6 @@ Only = and ! tests can be used to compare string values.
 Output GFF file. If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -460,29 +447,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

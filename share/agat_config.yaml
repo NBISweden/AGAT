@@ -1,12 +1,48 @@
 ---
-# this yaml file configure the AGAT omminiscient parser (script with _sp_ that
-# load GFF/GTF into memory)
+# this yaml file configure the AGAT omminiscient parser (script with _sp_ that load GFF/GTF into memory)
 
-# ------------ input ------------
+# ----------------------------- LOGGING ----------------------
+
+# deflate multi-values attribute
+# GTF: attribute_tag "att_value1" "att_value2" "att_value3" => attribute_tag "att_value1"; attribute_tag2 "att_value2"; attribute_tag3 "att_value3"
+# GFF: attribute_tag=att_value1,att_value2,att_value3 => attribute_tag=att_value1;attribute_tag2=att_value2;attribute_tag3=att_value3;
+deflate_attribute: false
+
+# Integer - verbosity 0,1,2,3,4. 0 is quiet
+verbose: 1
+
+# Bolean - To activate / deactivate the progress bar
+progress_bar: true
+
+# Create a log file while parsing the input file to keep track of modification
+# made by AGAT
+log: true
+
+# Extra verbosity for debugging
+debug: false
+
+# ----------------------------- GENERAL ----------------------
+
+# Integer - Number of parallel processes to use for file input parsing (via forking).
+# Setting this to 1 means one fork is made for each sequence identifier (see minimum_chunk_size).
+# Setting this to 0 means no forking, and the script will run in a single process (similar to agat =<1.5.0).
+cpu: 1
+
+# Integer – AGAT is designed to parallelize processing by assigning one sequence per worker process. 
+# However, if a sequence contains a small number of features, AGAT will combine it with the following sequence(s)
+# to avoid creating many tiny chunks, which can hurt performance and increase overhead.
+# The parameter `minimum_chunk_size` sets the minimum number of features required per chunk. 
+# If a chunk has fewer than this threshold, it will be merged with subsequent chunk(s).
+minimum_chunk_size: 100000
+
+# ----------------------------- INPUT ----------------------
 
 # Force using gff (bioperl) parser input version: 0,1,2,2.5,3
 # 0 means let's AGAT choose automatically
 force_gff_input_version: 0
+
+# ----------------------------- PARSING BEHAVIOUR ----------------------
+
 # Some annotation files use an original attribute to link features to each others 
 # instead of ID/Parent used in GFF or gene_id, transcript_id used in GTF.
 # The attributes used to decipher the relationship between the features
@@ -15,12 +51,30 @@ locus_tag:
   - locus_tag
   - gene_id
 
-# ------------ output ------------
+# prefix used to create feature identifer
+prefix_new_id: agat
+
+# should overlapping loci (at CDS level) be merged in a single locus
+# Only one gene is kept, and the mRNA features become isoforms. 
+merge_loci: false
+
+#create exon when l2 do not have children
+create_l3_for_l2_orphan: true
+
+# To clean feature attributes when cloning it. When AGAT creates a missing feature, 
+# it uses a related feature from the record (parent or children) as a template. 
+# By default the attributes will be kept. To remove them (excepted ID,Parent,gene_id,transcript_id when mandatory), 
+# activate this option 
+clean_attributes_from_template: false
+
+# ----------------------------- OUTPUT -----------------------------
 
 # Format of the output: GFF or GTF 
 output_format: GFF
+
 # When output_type is GFF, GFF version to use (bioperl): 1, 2, 2.5 or 3
 gff_output_version: 3
+
 # When output_type is GTF, GTF version to use: 1, 2, 2.1, 2.2, 2.5, 3 or relax
 # 3 = ("gene", "transcript", "exon", "CDS", "Selenocysteine", "start_codon", "stop_codon", "three_prime_utr", "five_prime_utr");
 # 2.5 = ("gene", "transcript", "exon", "CDS", "UTR", "start_codon", "stop_codon", "Selenocysteine");
@@ -30,47 +84,19 @@ gff_output_version: 3
 # 1 = ("CDS", "start_codon", "stop_codon", "exon", "intron");
 # relax = all feature types will be accepted
 gtf_output_version: relax
-# should fasta embedded in GFF/GTF be thrown away from input?
-throw_fasta: false
-# By default, the GFF output format encodes attributes using URL escaping.
+
+# To encode attributes using URL escaping, as expected by the GFF3 specification.
 # ⚠️ If the input values are not URL-encoded, issues may occur with certain characters (e.g., ; and =) because of their special meaning in the GFF3 specification.
-url_escaped: true
-
-# ------------ behaviour ------------
-
-# prefix used to create feature identifer
-prefix_new_id: agat
-# should overlapping loci (at CDS level) be merged in a single locus
-# Only one gene is kept, and the mRNA features become isoforms. 
-merge_loci: false
-#create exon when l2 do not have children
-create_l3_for_l2_orphan: true
-# deflate multi-values attribute
-# GTF: attribute_tag "att_value1" "att_value2" "att_value3" => attribute_tag "att_value1"; attribute_tag2 "att_value2"; attribute_tag3 "att_value3"
-# GFF: attribute_tag=att_value1,att_value2,att_value3 => attribute_tag=att_value1;attribute_tag2=att_value2;attribute_tag3=att_value3;
-deflate_attribute: false
-# To clean feature attributes when cloning it. When AGAT creates a missing feature, 
-# it uses a related feature from the record (parent or children) as a template. 
-# By default the attributes will be kept. To remove them (excepted ID,Parent,gene_id,transcript_id when mandatory), 
-# activate this option 
-clean_attributes_from_template: false
-
-# ------------ verbosity ------------
-
-# Integer - verbosity 0,1,2,3,4. 0 is quiet
-verbose: 1
-# Bolean - To activate / deactivate the progress bar
-progress_bar: true
-# Create a log file while parsing the input file to keep track of modification
-# made by AGAT
-log: true
-# Extra verbosity for debugging
-debug: false
+url_escaped: false
 
 # Output will be sorted in tabix format
 tabix: false
 
-# ------------ Checks made by the parser ------------
+# should fasta embedded in GFF/GTF be thrown away from input?
+throw_fasta: false
+
+# ----------------------------- Checks made by the parser ----------------------
+
 # in order of appearance wihtin the parser
 check_sequential: true
 check_l2_linked_to_l3: true

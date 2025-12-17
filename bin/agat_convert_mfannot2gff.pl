@@ -5,14 +5,11 @@ use warnings;
 use Getopt::Long;
 use Pod::Usage;
 use AGAT::AGAT;
-use AGAT::OmniscientTool;
-use AGAT::OmniscientO;
-use AGAT::OmniscientI;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $mfannot_file;
-my $verbose;
 my $gff_file;
 my %startend_hash;     # Stores start and end positions of each feature reported
 my %sorted_hash;
@@ -21,34 +18,52 @@ my %filtered_result;
 my $omniscient={}; #Hash where all the features will be saved
 my $hashID={}; # ex %miscCount;# Hash to store any counter.
 
-GetOptions(
-    'mfannot|m|i=s'  => \$mfannot_file,
-    'gff|g|o=s'      => \$gff_file,
-	'v|verbose!'     => \$verbose,
-    'c|config=s'     => \$config,
-    'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
-    'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
-) or pod2usage ( -exitstatus=>2, -verbose=>2 );
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
-if (!defined $mfannot_file) {
-    pod2usage( -message=>"Insufficient options supplied", -exitstatus=>2 );
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+				$script_argv,
+				'mfannot|m|i=s'  => \$mfannot_file,
+				'gff|g|o=s'      => \$gff_file,
+				'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
+				'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
+			))
+{
+    pod2usage( { -message => "Failed to parse command line.\n",
+                 -verbose => 1,
+                 -exitval => 1 } );
 }
+if ( ! (defined($mfannot_file)) ){
+    pod2usage( {
+           -message => "$header\nAt least 1 parameter is mandatory:\nInput mfannot file (--mfannot).\n\n",
+           -verbose => 0,
+           -exitval => 1 } );
+}
+# Parse shared options without pass_through for strong type errors. CPU and config are handled there.
+my ($shared_opts) = parse_shared_options($shared_argv);
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+# --- Load config file into global CONFIG ---
+initialize_agat({config_file_in => ( $shared_opts->{config} ), input => $mfannot_file, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 ## Manage output file
-my $gffout = prepare_gffout($config, $gff_file);
+my $gffout = prepare_gffout( $gff_file );
 
 ## MAIN ##############################################################
 read_mfannot($mfannot_file);
 
 handle_records();
 
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $omniscient,
-                                                                 config => $config });
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $omniscient });
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
+
+# --- final messages ---
+end_script();
 
 ## SUBROUTINES #######################################################
 
@@ -78,13 +93,13 @@ sub read_mfannot {
 			}
 		}
         elsif ($_ =~ /^\s*(\d+)\s+([ATCGatcgNn]+)/) {
-			print "DNA sequence line\n" if ($verbose);
+			dual_print2 "DNA sequence line\n";
             # If line is a numbered sequence line
             my ($pos_begin,$seqline) = ($1, $2);   # Sequence position
             $current_pos = length($seqline) + $pos_begin - 1;
         }
         elsif ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;; mfannot:\s+(\/group=.*)/) or ($_ =~ /^;; mfannot:$/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
-			print "Feature line\n" if ($verbose);
+			dual_print2 "Feature line\n";
 			if ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
 
 				# If line is a feature boundary, save that information
@@ -99,7 +114,7 @@ sub read_mfannot {
 					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
 							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
 							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
-							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n";
 					}
 					else { 
 						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
@@ -112,7 +127,7 @@ sub read_mfannot {
 					if (defined $startend_hash{$current_contig}{$previousRns}{$type}{"end"}{0}) {
 							my $i = keys %{$startend_hash{$current_contig}{$previousRns}{$type}{"end"}};
 							$startend_hash{$current_contig}{$previousRns}{$type}{"end"}{$i} = $current_pos;
-							print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n";
 					}
 					else { $startend_hash{$current_contig}{$previousRns}{$type}{"end"}{0} = $current_pos; }
 					$previousRns = undef;
@@ -123,7 +138,7 @@ sub read_mfannot {
 					if (defined $startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{0}) {
 							my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{$type}{"end"}};
 							$startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{$i} = $current_pos;
-							print "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n";
 					}
 					else { $startend_hash{$current_contig}{$previousRnl}{$type}{"end"}{0} = $current_pos; }
 					$previousRnl = undef;
@@ -139,7 +154,7 @@ sub read_mfannot {
 							if (defined $startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{0}) {
 									my $i = keys %{$startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}};
 									$startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{$i} = $current_pos;
-									print "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+									dual_print2 "Feature ". $previousRnl. " already defined. Please manually verify in $mfannot_file\n";
 							}
 							else { $startend_hash{$current_contig}{$previousRnl}{"rRNA"}{"end"}{0} = $current_pos; }
 							$previousRnl = undef;
@@ -149,7 +164,7 @@ sub read_mfannot {
 						if (defined $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} ) {
 								my $i = keys %{$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}};
 								$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{$i} = $current_pos + 1;
-								print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								dual_print2 "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} = $current_pos + 1;}
 						$previousRnl=$current_name;
@@ -160,7 +175,7 @@ sub read_mfannot {
 							if (defined $startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{0}) {
 									my $i = keys %{$startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}};
 									$startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{$i} = $current_pos;
-									print "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+									dual_print2 "Feature ". $previousRns. " already defined. Please manually verify in $mfannot_file\n";
 							}
 							else { $startend_hash{$current_contig}{$previousRns}{"rRNA"}{"end"}{0} = $current_pos; }
 							$previousRns = undef;
@@ -170,7 +185,7 @@ sub read_mfannot {
 						if (defined $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} ) {
 								my $i = keys %{$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}};
 								$startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{$i} = $current_pos + 1;
-								print "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								dual_print2 "Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{"rRNA"}{"start"}{0} = $current_pos + 1;}
 						$previousRns=$current_name;
@@ -203,13 +218,13 @@ sub read_mfannot {
 							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
 								my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
 								$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i-1} = $current_pos;
-								print "11 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								dual_print2 "11 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 								next;
 							}
 
 							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
 							$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i} = $current_pos;
-							print "1 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "1 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0} = $current_pos; }
 					}
@@ -220,13 +235,13 @@ sub read_mfannot {
 							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){ #keep the first key and the second value
 								my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
 								$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i-1} = $current_pos;
-								print "22 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								dual_print2 "22 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 								next;
 							}
 
 							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
 							$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i} = $current_pos;
-							print "2 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "2 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0} = $current_pos; }
 
@@ -236,13 +251,13 @@ sub read_mfannot {
 						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0}) {
 
 							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
-								print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+								dual_print2 "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 								next;
 							} #keep the first key and the first value
 
 							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"start"}};
 							$startend_hash{$current_contig}{$current_name}{$type}{"start"}{$i} = $value;
-							print "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "3 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{$type}{"start"}{0} = $value; }
 					}
@@ -251,13 +266,13 @@ sub read_mfannot {
 						if (defined $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0}) {
 
 							if ($previousDirection eq $current_direction and $previousStartEnd eq $current_startend){
-							print "44 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "44 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 							next;
 							} #keep the first key and the first val
 
 							my $i = keys %{$startend_hash{$current_contig}{$current_name}{$type}{"end"}};
 							$startend_hash{$current_contig}{$current_name}{$type}{"end"}{$i} = $value;
-							print "4 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "4 - Feature ". $current_name. " already defined. Please manually verify in $mfannot_file\n";
 						}
 						else { $startend_hash{$current_contig}{$current_name}{$type}{"end"}{0} = $value; }
 					}
@@ -279,7 +294,7 @@ sub read_mfannot {
 					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
 							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
 							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
-							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n";
 					}
 					else { 
 						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
@@ -291,7 +306,7 @@ sub read_mfannot {
 				if (defined $startend_hash{$current_contig}{$1}{$type}{"start"}{0} ) {
 						my $i = keys %{$startend_hash{$current_contig}{$1}{$type}{"start"}};
 						$startend_hash{$current_contig}{$1}{$type}{"start"}{$i} = $current_pos + 1;
-						print "Feature ".$1. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+						dual_print2 "Feature ".$1. " already defined. Please manually verify in $mfannot_file\n";
 				}
 				else { 
 					$startend_hash{$current_contig}{$1}{$type}{"start"}{0} = $current_pos + 1;
@@ -304,7 +319,7 @@ sub read_mfannot {
 					if (defined $startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0}) {
 							my $i = keys %{$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}};
 							$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{$i} = $current_pos;
-							print "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n" if ($verbose);
+							dual_print2 "Feature ". $previousIntron. " already defined. Please manually verify in $mfannot_file\n";
 					}
 					else { 
 						$startend_hash{$current_contig}{$previousIntron}{$type}{"end"}{0} = $current_pos; 
@@ -392,7 +407,7 @@ sub handle_records {
 	}
 }
 
-
+__END__
 
 =head1 NAME
 
@@ -426,44 +441,45 @@ The mfannot input file
 
 the gff output file
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
-
-=item B<--verbose> or B<-v>
-
-add verbosity
-
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
+
+AUTHOR - Jacques Dainat

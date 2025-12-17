@@ -9,8 +9,9 @@ use File::Basename;
 use IO::File ;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $start_run = time();
 my $inputFile=undef;
 my $outfolder=undef;
@@ -18,13 +19,19 @@ my $opt_help = 0;
 my $interval=10;
 my $feature_type="gene";
 
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('file|input|gff=s' => \$inputFile,
-      'ft|feature_type=s'        => \$feature_type,
-      'i|interval=i'             => \$interval,
-      'o|output=s'               => \$outfolder,
-      'c|config=s'               => \$config,
-      'h|help!'                  => \$opt_help )  )
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'file|input|gff=s' => \$inputFile,
+  'ft|feature_type=s'        => \$feature_type,
+  'i|interval=i'             => \$interval,
+  'o|output=s'               => \$outfolder,
+  'h|help!'                  => \$opt_help )  )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -43,41 +50,42 @@ if ( !(defined($inputFile)) or !(defined($outfolder)) ){
                  -exitval => 1 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $inputFile, shared_opts => $shared_opts });
 
 # Manage input gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($inputFile); }
-my $ref_in = AGAT::BioperlGFF->new(-file => $inputFile, -gff_version => $format);
+my $inputfh = open_maybe_gz($inputFile);
+my $ref_in = AGAT::BioperlGFF->new(-fh => $inputfh, -gff_version => $format);
 
 # Manage Output
 if (-d $outfolder) {
-  print "The output directory <$outfolder> already exists.\n";exit;
+  die "The output directory <$outfolder> already exists.\n";
 }
 else{
   my ($path,$ext);
   ($outfolder,$path,$ext) = fileparse($outfolder,qr/\.[^.]*/);
-  print "Creating the $outfolder folder\n";
+  dual_print1 "Creating the $outfolder folder\n";
   mkdir $outfolder;
 }
 
-print "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currenlty defined by <$feature_type>.\n";
+dual_print1 "I will split the file into files containing $interval group of feature. The top feature of the group of feature is currenlty defined by <$feature_type>.\n";
 
 #time to calcul progression
-my $startP=time;
-my $nbLine=`wc -l < $inputFile`;
-$nbLine =~ s/ //g;
-chomp $nbLine;
-print "$nbLine line to process...\n";
+set_progression_counter($inputFile);
 my $line_cpt=0;
 
 my $count_feature=0;
 my $count_file=1;
 my ($file_name,$path,$ext) = fileparse($inputFile,qr/\.[^.]*/);
 
-my $gffout = prepare_gffout($config, $outfolder."/".$file_name."_".$count_file.".gff");
+my $gffout = prepare_gffout( $outfolder."/".$file_name."_".$count_file.".gff");
 
+# parse gff
 while (my $feature = $ref_in->next_feature() ) {
   $line_cpt++;
 
@@ -86,7 +94,7 @@ while (my $feature = $ref_in->next_feature() ) {
     if($count_feature == $interval){
       close $gffout;
       $count_file++;
-			$gffout = prepare_gffout($config,  $outfolder."/".$file_name."_".$count_file.".gff");
+			$gffout = prepare_gffout(  $outfolder."/".$file_name."_".$count_file.".gff");
       $count_feature=0;
     }
     $count_feature++;
@@ -94,18 +102,14 @@ while (my $feature = $ref_in->next_feature() ) {
   $gffout->write_feature($feature);
 
   #Display progression
-  if ((30 - (time - $startP)) < 0) {
-    my $done = ($line_cpt*100)/$nbLine;
-    $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
-    $startP= time;
-  }
+  update_progression_counter($line_cpt);
 }
-close $gffout;
 
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# print fasta in asked and any
+write_fasta($gffout, $ref_in);
+
+# --- final messages ---
+end_script();
 
 __END__
 
@@ -142,11 +146,6 @@ The top feature of the feature group. By default "gene".
 
 STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -154,29 +153,35 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+Note: For _sq_ scripts, only the following options are supported: verbose, output_format, gff_output_version, gtf_output_version, progress_bar, and tabix.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

@@ -11,31 +11,36 @@ use Bio::DB::Fasta;
 use Bio::SeqIO;
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $outfile = undef;
 my $gff = undef;
 my $file_fasta=undef;
 my $codonTableId=1;
 my $SIZE_OPT=15;
-my $verbose = undef;
 my $opt_help= 0;
 
 my @copyARGV=@ARGV;
-if ( !GetOptions(
-    'c|config=s'               => \$config,
-    "h|help" => \$opt_help,
-    "gff=s" => \$gff,
-    "fasta|fa|f=s" => \$file_fasta,
-    "table|codon|ct=i" => \$codonTableId,
-    "size|s=i" => \$SIZE_OPT,
-    "v!" => \$verbose,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  'h|help!'                 => \$opt_help,
+  'gff=s'                   => \$gff,
+  'fasta|fa|f=s'            => \$file_fasta,
+  'table|codon|ct=i'        => \$codonTableId,
+  'size|s=i'                => \$SIZE_OPT,
+  'output|outfile|out|o=s'  => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -53,11 +58,14 @@ if ( ! (defined($gff)) or !(defined($file_fasta)) ){
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $gff, shared_opts => $shared_opts });
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-my $gffout = prepare_gffout($config, $outfile);
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    PARAMS    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+my $gffout = prepare_gffout( $outfile );
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -68,16 +76,12 @@ $codonTableId = get_proper_codon_table($codonTableId);
 
 ######################
 ### Parse GFF input #
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $gff,
-                                                                 config => $config
-                                                              });
-print ("GFF3 file parsed\n");
-
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $gff });
 
 ####################
 # index the genome #
 my $db = Bio::DB::Fasta->new($file_fasta);
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 ####################
 
@@ -92,7 +96,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
     my $gene_feature = $hash_omniscient->{'level1'}{$primary_tag_key_level1}{$gene_id};
     my $strand = $gene_feature->strand();
-    print "gene_id = $gene_id\n" if $verbose;
+    dual_print2 "gene_id = $gene_id\n";
 
     foreach my $primary_tag_key_level2 (keys %{$hash_omniscient->{'level2'}}){ # primary_tag_key_level2 = mrna or mirna or ncrna or trna etc...
       if ( exists_keys( $hash_omniscient, ('level2', $primary_tag_key_level2, $gene_id) ) ){
@@ -123,7 +127,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
               $exonCounter++;
               $exonFix=1;
 
-              print "left_exon start fixed\n" if $verbose;
+              dual_print2 "left_exon start fixed\n";
 
               #take care of CDS if needed
               if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -146,7 +150,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                      #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                     if(! $codonTable->is_start_codon( $this_codon )){
-                      print "first exon plus strand : this is not a start codon\n";exit;
+                      die "first exon plus strand : this is not a start codon\n";
                     }
 
                   }
@@ -157,7 +161,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                     #Check if it is not terminal codon, otherwise we have to extend the CDS.
                     if(! $codonTable->is_ter_codon( $this_codon )){
-                      print "first exon minus strand : this is not a terminal codon\n";exit;
+                      die "first exon minus strand : this is not a terminal codon\n";
                     }
                   }
                 }
@@ -181,7 +185,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                 $exonCounter++;
                 $exonFix=1;
 
-                print "right_exon end fixed\n" if $verbose;
+                dual_print2 "right_exon end fixed\n";
 
                 #take care of CDS if needed
                 if ( exists_keys( $hash_omniscient, ('level3', 'cds', $level2_ID) ) ){
@@ -201,17 +205,17 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
                     my $this_codon = substr( $sequence, $original_cds_end-3, 3);
 
                     if($strand eq "+" or $strand == "1"){
-                      print "last plus strand\n" if $verbose;
+                      dual_print2 "last plus strand\n";
                        #Check if it is not terminal codon, otherwise we have to extend the CDS.
 
                       if(! $codonTable->is_ter_codon( $this_codon )){
 
-                        print "last exon plus strand : $this_codon is not a stop codon\n";exit;
+                        die "last exon plus strand : $this_codon is not a stop codon\n";
                       }
 
                     }
                     if($strand eq "-" or $strand == "-1"){
-                      print "last minus strand\n" if $verbose;
+                      dual_print2 "last minus strand\n";
 
                       #reverse complement
                       my $seqobj = Bio::Seq->new(-seq => $this_codon);
@@ -219,7 +223,7 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
 
                       #Check if it is not terminal codon, otherwise we have to extend the CDS.
                       if(! $codonTable->is_start_codon( $this_codon )){
-                        print "last exon minus strand : $this_codon is not a start codon\n";exit;
+                        die "last exon minus strand : $this_codon is not a start codon\n";
                       }
                     }
                   }
@@ -239,20 +243,22 @@ foreach my $primary_tag_key_level1 (keys %{$hash_omniscient->{'level1'}}){ # pri
   }
 }
 
-check_all_level2_locations( { omiscient => $hash_omniscient } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
-check_all_level1_locations( { omiscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
+check_all_level2_locations( { omniscient => $hash_omniscient } ); # review all the feature L2 to adjust their start and stop according to the extrem start and stop from L3 sub features.
+check_all_level1_locations( { omniscient => $hash_omniscient } ); # Check the start and end of level1 feature based on all features level2.
 
 #END
-my $string_to_print="usage: $0 @copyARGV\n";
-$string_to_print .="Results:\n";
+my $string_to_print .="Results:\n";
 $string_to_print .="nb gene affected: $geneCounter\n";
 $string_to_print .="nb rna affected: $mrnaCounter\n";
 $string_to_print .="nb exon affected: $exonCounter\n";
-print $string_to_print;
+dual_print1 "$string_to_print";
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-print "Bye Bye.\n";
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 #######################################################################################################################
         ####################
          #     METHODS    #
@@ -309,15 +315,6 @@ Minimum exon size accepted in nucleotide. All exon below this size will be exten
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-v>
-
-Verbose option, make it easier to follow what is going on for debugging purpose.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -325,29 +322,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

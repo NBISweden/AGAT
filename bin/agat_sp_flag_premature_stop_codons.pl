@@ -12,26 +12,31 @@ use Pod::Usage;
 use Bio::DB::Fasta;
 use AGAT::AGAT;
 
-
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $opt_file;
 my $opt_output;
 my $file_fasta;
 my $codonTable = 1;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
-if ( !GetOptions(	'gff|ref|reffile=s' => \$opt_file,
-                	'o|out|output=s'    => \$opt_output,
-					"fasta|fa|f=s"      => \$file_fasta,
-					"table|codon|ct=i"  => \$codonTable,
-                 	'c|config=s'        => \$config,
-                 	'h|help!'           => \$opt_help ) )
+# ---------------------------- OPTIONS ----------------------------
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+	$script_argv,
+	'gff|ref|reffile=s' => \$opt_file,
+	'o|out|output=s'    => \$opt_output,
+	'fasta|fa|f=s'      => \$file_fasta,
+	'table|codon|ct=i'  => \$codonTable,
+	'h|help!'           => \$opt_help ) )
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+	pod2usage( { -message => 'Failed to parse command line',
+				 -verbose => 1,
+				 -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -51,7 +56,10 @@ if ( !$opt_file or !$file_fasta) {
 }
 
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my $shared_opts = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => ( $shared_opts->{config} ), input => $opt_file, shared_opts => $shared_opts });
+
+# ----------------------------------------------------------------------------
 
 # --- Check codon table
 $codonTable = get_proper_codon_table($codonTable);
@@ -65,17 +73,10 @@ if (defined($opt_output) ) {
   $ostreamReport_file = $path.$filename."_report.txt";
 }
 
-my $gffout = prepare_gffout($config, $opt_output);
+my $gffout = prepare_gffout( $opt_output );
 my $ostreamReport = prepare_fileout($ostreamReport_file);
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    EXTRA     <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-# Print info
-my $string1 = strftime "%m/%d/%Y at %Hh%Mm%Ss", localtime;
-$string1 .= "\n\nusage: $0 @copyARGV\n\n";
-
-print $ostreamReport $string1;
-if($opt_output){print $string1;}
 
 # activate warnings limit
 my %warnings;
@@ -85,11 +86,8 @@ activate_warning_limit(\%warnings, 10);
 
 ######################
 ### Parse GFF input #
-print "Reading ".$opt_file,"\n";
-my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $opt_file,
-	                                                             config => $config
-                                                              });
-print("Parsing Finished\n\n");
+dual_print1 "Reading ".$opt_file."\n";
+my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_file });
 ### END Parse GFF input #
 #########################
 
@@ -100,7 +98,7 @@ my $db_fasta = Bio::DB::Fasta->new($file_fasta);
 my %allIDs;
 my @ids_db_fasta     = $db_fasta->get_all_primary_ids;
 foreach my $id (@ids_db_fasta ){$allIDs{lc($id)}=$id;}
-print ("Fasta file parsed\n");
+dual_print1 "Fasta file parsed\n";
 
 
 my $nb_cases=0;
@@ -191,7 +189,8 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 							$feature_l2->add_tag_value('pseudo', @positions);
 							my $arrSize = @positions;
 							my $toprint = "We flag the $tag_l2 $level2_ID that contained $arrSize premature stop codons\n";
-							print $ostreamReport $toprint; print $toprint;
+							print $ostreamReport $toprint if ($opt_output);
+							dual_print1 $toprint;
 						  $nb_cases++;
 							$nb_this_l2_pseudo++;
 						}
@@ -202,7 +201,7 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 					$nb_cases_l1++;
 				}
 				elsif($nb_this_l2_pseudo){
-					print "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n";
+					dual_print1 "Not all isoforms of $id_l1 are pseudogenes, so we do not flag the gene.\n";
 				}
 			}
 	  }
@@ -211,14 +210,15 @@ foreach my $seqid (sort { (($a =~ /(\d+)$/)[0] || 0) <=> (($b =~ /(\d+)$/)[0] ||
 
 my $toprint = "We found $nb_cases cases where mRNAs contain premature stop codons. They have been flagged as pseudogene.\n".
 							"$nb_cases_l1 genes have been flagged as pseudogene.\n";
-print $ostreamReport $toprint;
-if($opt_output){print $toprint;}
+print $ostreamReport $toprint if($opt_output);
+dual_print1 $toprint;
 
 print_omniscient( {omniscient => $hash_omniscient, output => $gffout} );
 
-      #########################
-      ######### END ###########
-      #########################
+# --- final messages ---
+end_script();
+
+# ----------------------------------------------------------------------------
 
 
 #######################################################################################################################
@@ -308,11 +308,6 @@ Codon table to use. [default 1]
 
 Output gff3 file where the result will be printed.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -320,29 +315,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

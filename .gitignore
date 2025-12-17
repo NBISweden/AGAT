@@ -8,3 +8,6 @@ t/scripts_output/in/*.index
 t/scripts_output/in/agat_sp_manage_functional_annotation/*.index
 cover_db
 *.log
+performance.md
+debug_cases
+docker

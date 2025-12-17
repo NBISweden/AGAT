@@ -9,38 +9,44 @@ use Pod::Usage;
 use List::MoreUtils qw(uniq);
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
-my $config;
+# ---------------------------- OPTIONS ----------------------------
 my $gff = undef;
 my $opt_help= 0;
 my $primaryTag="all";
 my $value=undef;
 my $strategy="equal";
 my $attributes=undef;
-my $start_run = time();
 my $outfile=undef;
 my $add = undef;
 my $cp = undef;
 my $overwrite = undef;
 my $cpt_case=0;
 
-if ( !GetOptions(
-    'c|config=s'  => \$config,
-    "h|help"      => \$opt_help,
-    "gff|f=s"     => \$gff,
-    "add"         => \$add,
-		"overwrite"   => \$overwrite,
-    "cp"          => \$cp,
-    "value=s"     => \$value,
-    "strategy=s"  => \$strategy,
-    "p|type|l=s"  => \$primaryTag,
-    "tag|att=s"   => \$attributes,
-    "output|outfile|out|o=s" => \$outfile))
+# OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+
+# Parse script-specific options from its own list
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( ! $script_parser->getoptionsfromarray(
+  $script_argv,
+  "h|help"      => \$opt_help,
+  "gff|f=s"     => \$gff,
+  "add"         => \$add,
+  "overwrite"   => \$overwrite,
+  "cp"          => \$cp,
+  "value=s"     => \$value,
+  "strategy=s"  => \$strategy,
+  "p|type|l=s"  => \$primaryTag,
+  "tag|att=s"   => \$attributes,
+  "output|outfile|out|o=s" => \$outfile))
 
 {
-    pod2usage( { -message => 'Failed to parse command line',
-                 -verbose => 1,
-                 -exitval => 1 } );
+  pod2usage( { -message => 'Failed to parse command line',
+         -verbose => 1,
+         -exitval => 1 } );
 }
 
 # Print Help and exit
@@ -58,35 +64,40 @@ if ( ! $gff or ! $attributes){
            -exitval => 2 } );
 }
 
+# Parse shared options (CPU, config, etc.)
+my ($shared_opts) = parse_shared_options($shared_argv);
+
 # --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $gff, shared_opts => $shared_opts });
+
+# ------------------------------------------------------------------------------
 
 # --- Manage output
-my $gffout = prepare_gffout($config, $outfile);
+my $gffout = prepare_gffout( $outfile );
 
 # deal with strategy input
 $strategy=lc($strategy);
 if( ($strategy ne "equal") and ($strategy ne "match") ){
-  print "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
+  dual_print1 "Strategy must be <equal> or <match>. Wrong value provided: <$strategy>\n";
   exit;
 }
 
 # Manage $primaryTag
 my @ptagList;
 if(! $primaryTag or $primaryTag eq "all"){
-  print "We will work on attributes from all features\n";
+  dual_print1 "We will work on attributes from all features\n";
   push(@ptagList, "all");
 }elsif($primaryTag =~/^level[123]$/){
-  print "We will work on attributes from all the $primaryTag features\n";
+  dual_print1 "We will work on attributes from all the $primaryTag features\n";
   push(@ptagList, $primaryTag);
 }else{
    @ptagList= split(/,/, $primaryTag);
    foreach my $tag (@ptagList){
       if($tag =~/^level[123]$/){
-        print "We will work on attributes from all the $tag features\n";
+        dual_print1 "We will work on attributes from all the $tag features\n";
       }
       else{
-       print "We will work on attributes from $tag feature.\n";
+       dual_print1 "We will work on attributes from $tag feature.\n";
       }
    }
 }
@@ -99,9 +110,9 @@ if ($attributes){
 
   if ($attributes eq "all_attributes"){
     if($add){
-      print "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
+      dual_print1 "You cannot use the all_attributes value with the add option. Please change the parameters !\n";exit;
     }
-    print "All attributes will be removed except ID and Parent attributes !\n";
+    dual_print1 "All attributes will be removed except ID and Parent attributes !\n";
     $attListOk{"all_attributes"}++;
   }
   else{
@@ -112,41 +123,37 @@ if ($attributes){
       my @attList= split(/\//, $attributeTuple);
       if($#attList == 0){ # Attribute alone
         #check for ID attribute
-        if(lc($attList[0]) eq "id" and ! $add){print "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
+        if(lc($attList[0]) eq "id" and ! $add){dual_print1 "It's forbidden to remove the ID attribute in a gff3 file !\n";exit;}
         #check for Parent attribute
         if(lc($attList[0]) eq "parent" and ! $add){
           foreach my $tag (@ptagList){
             if($tag ne "gene" and $tag ne "level1"){
-              print "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
+              dual_print1 "It's forbidden to remove the $attList[0] attribute to a $tag feature in a gff3 file !\n";
               exit;
             }
           }
         }
         $attListOk{$attList[0]}="null";
         if($add){
-          print "$attList[0] attribute will be added. The value will be empty.\n";
+          dual_print1 "$attList[0] attribute will be added. The value will be empty.\n";
         }
         else{
           if($value){
-              print "$attList[0] attribute will be removed if it has the value:$value.\n";
+              dual_print1 "$attList[0] attribute will be removed if it has the value:$value.\n";
           }
           else{
-            print "$attList[0] attribute will be removed.\n";
+            dual_print1 "$attList[0] attribute will be removed.\n";
           }
         }
       }
       else{ # Attribute will be replaced/copied with a new tag name
         $attListOk{$attList[0]}=$attList[1];
-        print "$attList[0] attribute will be replaced by $attList[1].\n";
+        dual_print1 "$attList[0] attribute will be replaced by $attList[1].\n";
       }
     }
   }
-  print "\n";
+  dual_print1 "\n";
 }
-
-my $hash_info= get_levels_info();
-my $hash_level = $hash_info->{'other'}{'level'};
-
 
                 #####################
                 #     MAIN          #
@@ -154,18 +161,15 @@ my $hash_level = $hash_info->{'other'}{'level'};
 
 
 # Manage gff file
-my $format = $config->{force_gff_input_version};
+my $format = $CONFIG->{force_gff_input_version};
 if(! $format ){ $format = select_gff_format($gff); }
-my $ref_in = AGAT::BioperlGFF->new(-file => $gff, -gff_version => $format);
+my $inputfh = open_maybe_gz($gff);
+my $ref_in = AGAT::BioperlGFF->new(-fh => $inputfh, -gff_version => $format);
 
-#time to calcul progression
-my $startP=time;
-my $nbLine=`wc -l < $gff`;
-$nbLine =~ s/ //g;
-chomp $nbLine;
-print "$nbLine line to process...\n";
-
+# set progression bar
+set_progression_counter( $gff);
 my $line_cpt=0;
+
 my %hash_IDs;
 my %featCount;
 my %mapID;
@@ -177,28 +181,27 @@ while (my $feature = $ref_in->next_feature() ) {
 
   #####################
   #Display progression
-  if ((30 - (time - $startP)) < 0) {
-    my $done = ($line_cpt*100)/$nbLine;
-    $done = sprintf ('%.0f', $done);
-        print "\rProgression : $done % processed.\n";
-    $startP= time;
-  }
+  update_progression_counter($line_cpt);
 }
 
 ##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-
 if($add){
-  print "$cpt_case attribute added\n";
+  dual_print1 "$cpt_case attribute added\n";
 }
 elsif($cp){
-  print "$cpt_case attribute copied\n";
+  dual_print1 "$cpt_case attribute copied\n";
 
 }else{
-  print "$cpt_case attribute removed\n";
+  dual_print1 "$cpt_case attribute removed\n";
 }
-print "Job done in $run_time seconds\n";
+
+# print fasta in asked and any
+write_fasta($gffout, $ref_in);
+
+# --- final messages ---
+end_script();
+
+# ---------------------------- FUNCTIONS ----------------------------
 
 
 #######################################################################################################################
@@ -224,7 +227,7 @@ sub  manage_attributes{
     if($ptag eq "all"){
       remove_tag_from_list($feature,$attListOk);
     }
-    elsif( exists_keys($hash_level,(lc($ptag),lc($primary_tag) ) ) ){
+    elsif( exists_keys($LEVELS,(lc($ptag),lc($primary_tag) ) ) ){
       remove_tag_from_list($feature,$attListOk);
     }
     elsif(lc($ptag) eq lc($primary_tag) ){
@@ -373,11 +376,6 @@ Equal => the attribute value must be identical. Match => the attribute value mus
 Output GFF file.  If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<-h> or B<--help>
 
@@ -385,29 +383,35 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+Note: For _sq_ scripts, only the following options are supported: verbose, output_format, gff_output_version, gtf_output_version, progress_bar, and tabix.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

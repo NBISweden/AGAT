@@ -10,23 +10,25 @@ use IO::File ;
 use List::Util 'first';
 use AGAT::AGAT;
 
+start_script();
 my $header = get_agat_header();
+# -------------------------------- LOAD OPTIONS --------------------------------
 my $config;
-my $start_run = time();
 my $folderIn1=undef;
 my $folderIn2=undef;
 my $outfolder=undef;
-my $verbose=undef;
 my $opt_help = 0;
 
-
-Getopt::Long::Configure ('bundling');
-if ( !GetOptions ('f1=s' => \$folderIn1,
-                  "f2=s" => \$folderIn2,
-                  'o|output=s' => \$outfolder,
-                  'v|verbose=i' => \$verbose,
-                  'c|config=s'               => \$config,
-                  'h|help!'         => \$opt_help )  )
+my @copyARGV=@ARGV;
+my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
+my $script_parser = Getopt::Long::Parser->new;
+$script_parser->configure('bundling','no_auto_abbrev');
+if ( !$script_parser->getoptionsfromarray(
+    $script_argv,
+    'f1=s'        => \$folderIn1,
+    'f2=s'        => \$folderIn2,
+    'o|output=s'  => \$outfolder,
+    'h|help!'     => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -45,8 +47,9 @@ if ( !defined($folderIn1) or  !defined($folderIn2) ){
                  -exitval => 2 } );
 }
 
-# --- Manage config ---
-$config = get_agat_config({config_file_in => $config});
+my ($shared_opts) = parse_shared_options($shared_argv);
+initialize_agat({ config_file_in => $shared_opts->{config}, input => $folderIn1, shared_opts => $shared_opts });
+# -----------------------------------------------------------------------------------------------
 
 # Manage input folder1
 my $fh1;
@@ -87,9 +90,9 @@ if ($outfolder) {
 	$gffout_fragmented_path = $outfolder."/"."f1_fragmented.gff";
 	$gffout_duplicated_path = $outfolder."/"."f1_duplicated.gff";
 }
-my $gffout_complete = prepare_gffout($config, $gffout_complete_path);
-my $gffout_fragmented = prepare_gffout($config, $gffout_fragmented_path);
-my $gffout_duplicated = prepare_gffout($config, $gffout_duplicated_path);
+my $gffout_complete = prepare_gffout( $gffout_complete_path);
+my $gffout_fragmented = prepare_gffout( $gffout_fragmented_path);
+my $gffout_duplicated = prepare_gffout( $gffout_duplicated_path);
 
 my %gff_out;
 $gff_out{'complete'}=$gffout_complete;
@@ -181,7 +184,6 @@ foreach my $type1 (keys %busco1){
 #extract gff from folder1
 my $full_omniscient={};
 my $loop = 0;
-my $list_uID_new_omniscient=undef;
 my $augustus_gff_folder=$folderIn1."/augustus_output/predicted_genes";
 
 if (-d $augustus_gff_folder){
@@ -191,7 +193,7 @@ if (-d $augustus_gff_folder){
   my %track_found;
   my @list_cases=("complete","fragmented","duplicated");
   foreach my $type (@list_cases){
-    print "extract gff for $type cases\n" if $verbose;
+    dual_print2 "extract gff for $type cases\n";
     foreach my $id (sort keys %{$busco1{$type}}){
       my @list = split(/\s/,$busco1{$type}{$id});
       my $seqId = $list[2];
@@ -204,13 +206,13 @@ if (-d $augustus_gff_folder){
           my $path = $augustus_gff_folder."/".$match;
           if (-f $path ){
             my  $found=undef;
-            print $path."\n" if $verbose;
+            dual_print2 $path."\n";
 
-            my ($hash_omniscient, $hash_mRNAGeneLink) = slurp_gff3_file_JD({ input => $path,
+            my ($hash_omniscient) = slurp_gff3_file_JD({ input => $path,
                                                                              config => $config
                                                                         });
             if (!keys %{$hash_omniscient}){
-              print "No gene found for $path\n";exit;
+              dual_print1 "No gene found for $path\n";exit;
             }
 
             my @listIDl1ToRemove;
@@ -236,7 +238,7 @@ if (-d $augustus_gff_folder){
 
               if ($found){
                 if(@listIDl1ToRemove){
-                  print "lets remove those supernumary annotation: @listIDl1ToRemove \n" if $verbose;
+                  dual_print2 "lets remove those supernumary annotation: @listIDl1ToRemove \n";
                   remove_omniscient_elements_from_level1_id_list($hash_omniscient, \@listIDl1ToRemove);
                 }
 
@@ -245,52 +247,49 @@ if (-d $augustus_gff_folder){
                   $loop++;
                 }
                 elsif($loop == 1){
-                  ( $full_omniscient, $list_uID_new_omniscient) = merge_omniscients($full_omniscient, $hash_omniscient);
+                  ( $full_omniscient ) = merge_omniscients($full_omniscient, $hash_omniscient);
                   $loop++;
                 }
                 else{
-                  ( $full_omniscient, $list_uID_new_omniscient) = merge_omniscients($full_omniscient, $hash_omniscient, $list_uID_new_omniscient);
+                  ( $full_omniscient ) = merge_omniscients($full_omniscient, $hash_omniscient);
                 }
               }
               else{
-                print "No annotation as described in the tsv file found in the gff file $path\n" if $verbose;
+                dual_print2 "No annotation as described in the tsv file found in the gff file $path\n";
               }
             }
             else{
-              print "No annotation in the file $path, lets look the next one.\n" if $verbose;
+              dual_print2 "No annotation in the file $path, lets look the next one.\n";
             }
           }
           else{
-            print "A) file $id not found among augustus gff output\n" if $verbose;
+            dual_print2 "A) file $id not found among augustus gff output\n";
           }
         }
       }
       else{
-        print "file $id not found among augustus gff output\n" if $verbose;
+        dual_print2 "file $id not found among augustus gff output\n";
       }
       if(! exists_keys(\%track_found,($type,$id))){
-        print "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n";
+        warn "WARNING After reading all the files related to id $id we didn't found any annotation matching its described in the tsv file.\n";
       }
     }
     my $out = $gff_out{$type};
     print_omniscient( {omniscient => $full_omniscient, output => $out} );
     %$full_omniscient = (); # empty hash
-    $list_uID_new_omniscient=undef; #Empty Id used;
     my $nb = keys %{$track_found{$type}};
     $loop = 0;
-    print "We found $nb annotations from $type busco\n";
+    dual_print1 "We found $nb annotations from $type busco\n";
   }
 
 }
-else{ print "$augustus_gff_folder folder doesn't exits\n"; exit;}
+else{ dual_print1 "$augustus_gff_folder folder doesn't exits\n"; exit;}
 
 
+# --- final messages ---
+end_script();
 
-
-##Last round
-my $end_run = time();
-my $run_time = $end_run - $start_run;
-print "Job done in $run_time seconds\n";
+# -----------------------------------------------------------------------------------------------
 #######################################################################################################################
         ####################
          #     methods    #
@@ -354,19 +353,9 @@ STRING: Input busco folder1
 
 STRING: Input busco folder2
 
-=item B<-v> or B<--verbose>
-
-Integer: For displaying extra information use -v 1.
-
 =item B<-o> or B<--output>
 
 STRING: Output folder.
-
-=item B<-c> or B<--config>
-
-String - Input agat config file. By default AGAT takes as input agat_config.yaml file from the working directory if any, 
-otherwise it takes the orignal agat_config.yaml shipped with AGAT. To get the agat_config.yaml locally type: "agat config --expose".
-The --config option gives you the possibility to use your own AGAT config file (located elsewhere or named differently).
 
 =item B<--help> or B<-h>
 
@@ -374,29 +363,38 @@ Display this helpful text.
 
 =back
 
+=head1 SHARED OPTIONS
+
+Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
+Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
+
+=over 8
+
+=item B<--config>
+
+String - Path to a custom AGAT configuration file.  
+By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
+(available locally via `agat config --expose`).
+
+=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+
+Integer - Number of parallel processes to use for file input parsing (via forking).
+
+=item B<-v> or B<--verbose>
+
+Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+
+=back
+
 =head1 FEEDBACK
 
-=head2 Did you find a bug?
+For questions, suggestions, or general discussions about AGAT, please use the AGAT community forum:
+https://github.com/NBISweden/AGAT/discussions
 
-Do not hesitate to report bugs to help us keep track of the bugs and their
-resolution. Please use the GitHub issue tracking system available at this
-address:
+=head1 BUG REPORTING
 
-            https://github.com/NBISweden/AGAT/issues
-
- Ensure that the bug was not already reported by searching under Issues.
- If you're unable to find an (open) issue addressing the problem, open a new one.
- Try as much as possible to include in the issue when relevant:
- - a clear description,
- - as much relevant information as possible,
- - the command used,
- - a data sample,
- - an explanation of the expected behaviour that is not occurring.
-
-=head2 Do you want to contribute?
-
-You are very welcome, visit this address for the Contributing guidelines:
-https://github.com/NBISweden/AGAT/blob/master/CONTRIBUTING.md
+Bug reports should be submitted through the AGAT GitHub issue tracker:
+https://github.com/NBISweden/AGAT/issues
 
 =cut
 

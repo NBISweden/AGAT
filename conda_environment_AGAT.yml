@@ -8,16 +8,19 @@ channels:
 dependencies:
   - perl >=5.8
   - perl-bioperl >=1.7.8
+  - perl-carp
   - perl-clone
   - perl-extutils-makemaker
-  - perl-graph
-  - perl-lwp-simple >=6.39
-  - perl-lwp-protocol-https
-  - perl-carp
-  - perl-sort-naturally
-  - perl-list-moreutils
+  - perl-file-chdir
   - perl-file-share
   - perl-file-sharedir-install
+  - perl-graph
+  - perl-ipc-sharelite
+  - perl-list-moreutils
+  - perl-lwp-simple >=6.39
+  - perl-lwp-protocol-https
+  - perl-parallel-forkmanager 
+  - perl-sort-naturally
   - perl-term-progressbar
   - perl-moose
   - perl-yaml
