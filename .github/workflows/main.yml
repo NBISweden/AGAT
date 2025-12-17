@@ -47,22 +47,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-perl5-
 
-      - name: Cache cpanm downloads
-        uses: actions/cache@v4
-        with:
-          path: ~/.cpanm
-          key: ${{ runner.os }}-cpanm-${{ hashFiles('**/Makefile.PL') }}
-          restore-keys: |
-            ${{ runner.os }}-cpanm-
-
       - name: install AGAT dependencies
-        env:
-          PERL5LIB: local/lib/perl5
-          PERL_LOCAL_LIB_ROOT: local
-          PERL_MB_OPT: --install_base local
-          PERL_MM_OPT: INSTALL_BASE=local
-        run: |
-          cpanm -L local --installdeps --notest .
+        run: cpanm --installdeps --notest --skip-satisfied .
 
       - name: Show cpanm build log on failure
         if: failure()
@@ -111,23 +97,9 @@ jobs:
           key: ${{ runner.os }}-perl5-${{ hashFiles('**/Makefile.PL') }}
           restore-keys: |
             ${{ runner.os }}-perl5-
-
-      - name: Cache cpanm downloads
-        uses: actions/cache@v4
-        with:
-          path: ~/.cpanm
-          key: ${{ runner.os }}-cpanm-${{ hashFiles('**/Makefile.PL') }}
-          restore-keys: |
-            ${{ runner.os }}-cpanm-
-      
+    
       - name: install AGAT dependencies
-        env:
-          PERL5LIB: local/lib/perl5
-          PERL_LOCAL_LIB_ROOT: local
-          PERL_MB_OPT: --install_base local
-          PERL_MM_OPT: INSTALL_BASE=local
-        run: |
-          cpanm -L local --installdeps --notest .
+        run: cpanm --installdeps --notest --skip-satisfied .
       
       - name: Show cpanm build log on failure
         if: failure()
@@ -141,26 +113,21 @@ jobs:
       - name: Run tests with coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Options de couverture: sélectionner uniquement le code du projet
+          HARNESS_PERL_SWITCHES: -MDevel::Cover
           DEVEL_COVER_OPTIONS: >
-            +select,^blib/
-            +ignore,/local/
-            +ignore,^local/
-            +ignore,/perl5/
-            +ignore,/site_perl/
+            +ignore,^blib/
           DEVEL_COVER_DB: cover_db
         run: |
-          # Nettoyage de la base de couverture
-          env -u PERL5OPT cover -delete || rm -rf cover_db || true
+            rm -rf cover_db
+            prove \
+              -Iblib/lib -Iblib/arch \
+              -l -j $(nproc) \
+              $(find t -name '*.t')
 
-          # Lancer les tests avec instrumentation
-          PERL5OPT=-MDevel::Cover prove -lr -Iblib/lib -Iblib/arch -j "$(nproc)" t
+            # Resume coverage
+            cover -summary
 
-          # Résumé de couverture
-          env -u PERL5OPT cover -summary
-
-      - name: Upload coverage to Coveralls
+      - name: Upload coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          env -u PERL5OPT cover -report coveralls
+        run: cover -report coveralls
