@@ -114,6 +114,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEVEL_COVER_OPTIONS: "+ignore,^local/"
-          HARNESS_OPTIONS: j2
+          DEVEL_COVER_OPTIONS: "+ignore,^local/,+ignore,/local/"
+          HARNESS_OPTIONS: j$(nproc)
         run: cover -test -report Coveralls
