@@ -1,0 +1,5 @@
+size	file_size_mb	cpu	user_s	sys_s	elapsed	agat_total_memory	seq_nb
+1000	0	0	0.78	0.03	0.89	65.42	1
+1000	0	1	0.86	0.06	1.84	65.04	1
+5000	0	0	1.62	0.04	1.80	86.68	1
+5000	0	1	2.04	0.07	3.24	80.85	1

@@ -25,7 +25,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp1.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_1.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_1.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .
@@ -37,7 +37,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp2.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_split.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_split.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .
@@ -49,7 +49,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp3.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_merge.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_merge.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .
@@ -61,7 +61,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp4.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_full.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_full.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .
@@ -73,7 +73,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp5.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_attributes_kept.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_attributes_kept.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .
@@ -85,7 +85,7 @@ my $script = $script_prefix . catfile($bin_dir, "agat_sp_extract_sequences.pl");
 {
     my $dir = setup_tempdir();
     my $outtmp = catfile($dir,'tmp6.fa');
-    my $result = "$input_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_parent_attributes_kept.fa";
+    my $result = "$output_folder/agat_sp_extract_sequences/agat_sp_extract_sequences_parent_attributes_kept.fa";
     check_quiet_run(
         "$script --gff " . catfile($input_folder,'1.gff') .
         " --fasta " . catfile($input_folder,'1.fa') .

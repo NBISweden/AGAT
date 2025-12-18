@@ -14,6 +14,7 @@ cpu: 2
 create_l3_for_l2_orphan: false
 debug: true
 deflate_attribute: true
+force: true
 force_gff_input_version: 3
 gff_output_version: 2
 gtf_output_version: 2
@@ -29,5 +30,5 @@ progress_bar: false
 remove_orphan_l1: false
 tabix: false
 throw_fasta: true
-url_escaped: false
+url_encode_out: false
 verbose: 3
