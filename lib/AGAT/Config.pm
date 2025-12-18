@@ -13,7 +13,7 @@ use Exporter;
 
 
 our @ISA = qw(Exporter);
-our @EXPORT = qw( load_config expose_config_file check_config get_config expose_config_hash );
+our @EXPORT = qw( load_config expose_config_file check_config get_config expose_config_hash normalize_false_to_zero );
 
 =head1 SYNOPSIS
 
@@ -39,6 +39,20 @@ my $config_file= ("agat_config.yaml");
 
 #	------------------------------------GENERAL------------------------------------	 
 
+# @Purpose: Replace 'false' and 'no' strings with 0 in config hash values
+# @input: 1 => hash reference
+# @output: none (modifies hash in place)
+# @Remark: false and no do not exist in perl, must be replaced by 0
+sub normalize_false_to_zero {
+	my ($config) = @_;
+	
+	foreach my $key (keys %{$config}){
+		
+		if ( defined($config->{$key}) && (lc($config->{$key}) eq "false" || lc($config->{$key}) eq "no") ){
+			$config->{$key}=0;
+		}
+	}
+}
 
 # @Purpose: Load yaml file, check all is set, shift false to 0, return the config
 # @input: 4 =>	verbose, config_file (path), log, debug
@@ -58,11 +72,7 @@ sub load_config{
 	check_config({config => $config});
 
 	# false does not exists in perl, must be replaced by 0
-	foreach my $key (keys %{$config}){
-		if ( lc($config->{$key}) eq "false" ){
-			$config->{$key}=0;
-		}
-	}
+	normalize_false_to_zero($config);
 
 	return $config;
 }
@@ -176,8 +186,8 @@ sub check_config{
 		warn "minimum_chunk_size parameter missing in the configuration file.\n";
 		$error = 1;
 	}
-	if( !  exists_keys($config,("url_escaped") ) ){
-		print "url_escaped parameter missing in the configuration file.\n";
+	if( !  exists_keys($config,("url_encode_out") ) ){
+		warn "url_encode_out parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( !  exists_keys($config,("log") ) ){
@@ -249,6 +259,10 @@ sub check_config{
 	}
 	if( ! exists_keys($config, ("deflate_attribute") ) ) {
 		print "deflate_attribute parameter missing in the configuration file.\n";
+		$error = 1;
+	}
+	if( ! exists_keys($config, ("force") ) ) {
+		print "force parameter missing in the configuration file.\n";
 		$error = 1;
 	}
 	if( ! exists_keys($config, ("create_l3_for_l2_orphan") ) ) {

@@ -206,36 +206,38 @@ sub parse_shared_options {
 	my %opts;
 	if ( !$parser->getoptionsfromarray(
 		\@argv,
+		'check_all_level1_locations!' => \$opts{check_all_level1_locations},
+		'check_all_level2_locations!' => \$opts{check_all_level2_locations},
+		'check_all_level3_locations!' => \$opts{check_all_level3_locations},
+		'check_cds!'                  => \$opts{check_cds},
+		'check_exons!'                => \$opts{check_exons},
+		'check_identical_isoforms!'   => \$opts{check_identical_isoforms},
+		'check_l1_linked_to_l2!'      => \$opts{check_l1_linked_to_l2},
+		'check_l2_linked_to_l3!'      => \$opts{check_l2_linked_to_l3},
+		'check_sequential!'           => \$opts{check_sequential},
+		'check_utrs!'                 => \$opts{check_utrs},
+		'clean_attributes_from_template!' => \$opts{clean_attributes_from_template},
 		'config=s'                     => \$opts{config},
 		'cpu|thread|core|job=i'        => \$opts{cpu},
-		'minimum_chunk_size=i'         => \$opts{minimum_chunk_size},
-		'v|verbose=i'                  => \$opts{verbose},
-		'progress_bar=s'               => \$opts{progress_bar},
-		'log=s'                        => \$opts{log},
-		'debug=s'                      => \$opts{debug},
-		'tabix=s'                      => \$opts{tabix},
-		'merge_loci=s'                 => \$opts{merge_loci},
-		'throw_fasta=s'                => \$opts{throw_fasta},
+		'create_l3_for_l2_orphan!'    => \$opts{create_l3_for_l2_orphan},
+		'debug!'                      => \$opts{debug},
+		'deflate_attribute!'          => \$opts{deflate_attribute},
+		'force!'                      => \$opts{force},
 		'force_gff_input_version=i'    => \$opts{force_gff_input_version},
-		'output_format=s'              => \$opts{output_format},
 		'gff_output_version=i'         => \$opts{gff_output_version},
 		'gtf_output_version=s'         => \$opts{gtf_output_version},
-		'deflate_attribute=s'          => \$opts{deflate_attribute},
-		'create_l3_for_l2_orphan=s'    => \$opts{create_l3_for_l2_orphan},
-		'clean_attributes_from_template=s' => \$opts{clean_attributes_from_template},
 		'locus_tag=s'                  => \$opts{locus_tag},
-		'check_sequential=s'           => \$opts{check_sequential},
-		'check_l2_linked_to_l3=s'      => \$opts{check_l2_linked_to_l3},
-		'check_l1_linked_to_l2=s'      => \$opts{check_l1_linked_to_l2},
-		'remove_orphan_l1=s'           => \$opts{remove_orphan_l1},
-		'check_all_level3_locations=s' => \$opts{check_all_level3_locations},
-		'check_cds=s'                  => \$opts{check_cds},
-		'check_exons=s'                => \$opts{check_exons},
-		'check_utrs=s'                 => \$opts{check_utrs},
-		'check_all_level2_locations=s' => \$opts{check_all_level2_locations},
-		'check_all_level1_locations=s' => \$opts{check_all_level1_locations},
-		'check_identical_isoforms=s'   => \$opts{check_identical_isoforms},
+		'log!'                        => \$opts{log},
+		'merge_loci!'                 => \$opts{merge_loci},
+		'minimum_chunk_size=i'         => \$opts{minimum_chunk_size},
+		'output_format=s'              => \$opts{output_format},
 		'prefix_new_id=s'              => \$opts{prefix_new_id},
+		'progress_bar!'               => \$opts{progress_bar},
+		'remove_orphan_l1!'           => \$opts{remove_orphan_l1},
+		'tabix!'                      => \$opts{tabix},
+		'throw_fasta!'                => \$opts{throw_fasta},
+		'url_encode_out!'             => \$opts{url_encode_out},
+		'v|verbose=i'                  => \$opts{verbose},
 	) ) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -252,14 +254,25 @@ sub split_argv_shared_vs_script {
 
 	my %shared = map { $_ => 1 } qw(
 		config cpu thread core job minimum_chunk_size
-		v verbose progress_bar log debug tabix merge_loci throw_fasta
+		v verbose progress_bar log debug tabix merge_loci throw_fasta force
 		force_gff_input_version output_format gff_output_version gtf_output_version
 		deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template
 		locus_tag check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2
 		remove_orphan_l1 check_all_level3_locations check_cds check_exons check_utrs
 		check_all_level2_locations check_all_level1_locations check_identical_isoforms
-		prefix_new_id
+		prefix_new_id url_encode_out
 	);
+	
+	# Boolean options that don't take arguments
+	my %boolean_opts = map { $_ => 1 } qw(
+		progress_bar log debug tabix merge_loci throw_fasta force
+		deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template
+		check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2
+		remove_orphan_l1 check_all_level3_locations check_cds check_exons check_utrs
+		check_all_level2_locations check_all_level1_locations check_identical_isoforms
+		url_encode_out
+	);
+	
 	my %script = map { $_ => 1 } qw(g gxf gtf gff o output h help);
 
 	my (@shared_args, @script_args);
@@ -267,12 +280,18 @@ sub split_argv_shared_vs_script {
 		my $t = $argv[$i];
 		if ($t =~ /^--?([^=]+)(?:=.*)?$/) {
 			my $name = $1;
-			if ($shared{$name}) {
+			
+			# Remove no- prefix to get base name for lookup
+			my $base_name = $name;
+			$base_name =~ s/^no-//;
+
+			if ($shared{$name} || $shared{$base_name}) {
 				push @shared_args, $t;
-				if ($t !~ /=/ && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
+				# Only capture next arg if NOT a boolean option and NOT using = syntax
+				if ($t !~ /=/ && !$boolean_opts{$base_name} && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
 					push @shared_args, $argv[++$i];
 				}
-			} elsif ($script{$name}) {
+			} elsif ($script{$name} || $script{$base_name}) {
 				push @script_args, $t;
 				if ($t !~ /=/ && ($i+1) < @argv && $argv[$i+1] !~ /^-/) {
 					push @script_args, $argv[++$i];
@@ -310,8 +329,11 @@ sub apply_shared_options {
 	$CONFIG->{ prefix_new_id } = $opts{prefix_new_id} if defined $opts{prefix_new_id};
 
 	# Booleans (stored as 'true'/'false')
-	for my $k (qw(progress_bar log debug tabix merge_loci throw_fasta deflate_attribute create_l3_for_l2_orphan clean_attributes_from_template check_sequential check_l2_linked_to_l3 check_l1_linked_to_l2 remove_orphan_l1 check_all_level3_locations check_cds check_exons check_utrs check_all_level2_locations check_all_level1_locations check_identical_isoforms)) {
-		if (defined $opts{$k}) { $CONFIG->{$k} = _make_bolean($opts{$k}); }
+	for my $k (qw(check_all_level1_locations check_all_level2_locations check_all_level3_locations check_cds check_exons check_identical_isoforms check_l1_linked_to_l2 check_l2_linked_to_l3 check_sequential check_utrs clean_attributes_from_template create_l3_for_l2_orphan debug deflate_attribute force log merge_loci progress_bar remove_orphan_l1 tabix throw_fasta url_encode_out)) {
+		if (exists $opts{$k}) {
+			# With ! specification: always 0 or 1
+			$CONFIG->{$k} = 1;
+		}
 	}
 
 	# List
@@ -324,11 +346,7 @@ sub apply_shared_options {
 	check_config({ config => $CONFIG });
 
 	# false does not exists in perl, must be replaced by 0
-	foreach my $key (keys %{$CONFIG}){
-		if ( lc($CONFIG->{$key}) eq "false" ){
-			$CONFIG->{$key}=0;
-		}
-	}
+	normalize_false_to_zero($CONFIG);
 }
 
 # ==============================================================================
@@ -396,41 +414,41 @@ sub handle_levels {
 sub handle_config {
 		my ($general, $config, $args) = @_;
 
-		my $expose = $general->{configs}[-1]{expose};
-		my $help = $general->{configs}[-1]{help};
-
 		# config file option
-		my $verbose = $general->{configs}[-1]{verbose};
-		my $progress_bar = $general->{configs}[-1]{progress_bar};
-		my $url_escaped = $general->{configs}[-1]{url_escaped};
-		my $config_new_name = $general->{configs}[-1]{output};
-		my $cpu = $general->{configs}[-1]{cpu};
-		my $minimum_chunk_size = $general->{configs}[-1]{minimum_chunk_size};
-		my $log = $general->{configs}[-1]{log};
-		my $debug = $general->{configs}[-1]{debug};
-		my $tabix = $general->{configs}[-1]{tabix};
-		my $merge_loci = $general->{configs}[-1]{merge_loci};
-		my $throw_fasta = $general->{configs}[-1]{throw_fasta};
-		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
-		my $output_format = $general->{configs}[-1]{output_format};
-		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
-		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
-		my $deflate_attribute = $general->{configs}[-1]{deflate_attribute};
-		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
-		my $clean_attributes_from_template = $general->{configs}[-1]{clean_attributes_from_template};
-		my $locus_tag = $general->{configs}[-1]{locus_tag};
-		my $check_sequential = $general->{configs}[-1]{check_sequential};
-		my $check_l2_linked_to_l3 = $general->{configs}[-1]{check_l2_linked_to_l3};
-		my $check_l1_linked_to_l2 = $general->{configs}[-1]{check_l1_linked_to_l2};
-		my $remove_orphan_l1 = $general->{configs}[-1]{remove_orphan_l1};
+		my $check_all_level1_locations = $general->{configs}[-1]{check_all_level1_locations};
+		my $check_all_level2_locations = $general->{configs}[-1]{check_all_level2_locations};
 		my $check_all_level3_locations = $general->{configs}[-1]{check_all_level3_locations};
 		my $check_cds = $general->{configs}[-1]{check_cds};
 		my $check_exons = $general->{configs}[-1]{check_exons};
-		my $check_utrs = $general->{configs}[-1]{check_utrs};
-		my $check_all_level2_locations = $general->{configs}[-1]{check_all_level2_locations};
-		my $check_all_level1_locations = $general->{configs}[-1]{check_all_level1_locations};
 		my $check_identical_isoforms = $general->{configs}[-1]{check_identical_isoforms};
+		my $check_l1_linked_to_l2 = $general->{configs}[-1]{check_l1_linked_to_l2};
+		my $check_l2_linked_to_l3 = $general->{configs}[-1]{check_l2_linked_to_l3};
+		my $check_sequential = $general->{configs}[-1]{check_sequential};
+		my $check_utrs = $general->{configs}[-1]{check_utrs};
+		my $clean_attributes_from_template = $general->{configs}[-1]{clean_attributes_from_template};
+		my $config_new_name = $general->{configs}[-1]{output};
+		my $cpu = $general->{configs}[-1]{cpu};
+		my $create_l3_for_l2_orphan = $general->{configs}[-1]{create_l3_for_l2_orphan};
+		my $debug = $general->{configs}[-1]{debug};
+		my $deflate_attribute = $general->{configs}[-1]{deflate_attribute};
+		my $expose = $general->{configs}[-1]{expose};
+		my $force = $general->{configs}[-1]{force};
+		my $force_gff_input_version = $general->{configs}[-1]{force_gff_input_version};
+		my $gff_output_version = $general->{configs}[-1]{gff_output_version};
+		my $gtf_output_version = $general->{configs}[-1]{gtf_output_version};
+		my $help = $general->{configs}[-1]{help};
+		my $locus_tag = $general->{configs}[-1]{locus_tag};
+		my $log = $general->{configs}[-1]{log};
+		my $merge_loci = $general->{configs}[-1]{merge_loci};
+		my $minimum_chunk_size = $general->{configs}[-1]{minimum_chunk_size};
+		my $output_format = $general->{configs}[-1]{output_format};
 		my $prefix_new_id = $general->{configs}[-1]{prefix_new_id};
+		my $progress_bar = $general->{configs}[-1]{progress_bar};
+		my $remove_orphan_l1 = $general->{configs}[-1]{remove_orphan_l1};
+		my $tabix = $general->{configs}[-1]{tabix};
+		my $throw_fasta = $general->{configs}[-1]{throw_fasta};
+		my $url_encode_out = $general->{configs}[-1]{url_encode_out};
+		my $verbose = $general->{configs}[-1]{verbose};
 
 		# Deal with Expose feature OPTION
 		if($expose){
@@ -440,116 +458,14 @@ sub handle_config {
 			# set config params on the fly
 			my $modified_on_the_fly = undef;
 
-			# integer 0-4
-			if( defined($verbose) ){
-				$config->{ verbose } = $verbose;
-				$modified_on_the_fly = 1;
-			}
-			# Integer
-			if( defined($cpu) ){
-				$config->{ cpu } = $cpu;
-				$modified_on_the_fly = 1;
-			}
-			# Integer
-			if( defined($minimum_chunk_size) ){
-				$config->{ minimum_chunk_size } = $minimum_chunk_size;
+			# bolean
+			if( defined($check_all_level1_locations) ){
+				$config->{ check_all_level1_locations } = _make_bolean($check_all_level1_locations);
 				$modified_on_the_fly = 1;
 			}
 			# bolean
-			if( defined($progress_bar) ){
-				$config->{ progress_bar } = _make_bolean($progress_bar);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($url_escaped) ){
-				$config->{ url_escaped } = _make_bolean($url_escaped);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($log) ){
-				$config->{ log } = _make_bolean($log);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($debug) ){
-				$config->{ debug } = _make_bolean($debug);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($tabix) ){
-				$config->{ tabix } = _make_bolean($tabix);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($merge_loci) ){
-				$config->{ merge_loci } = _make_bolean($merge_loci);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($throw_fasta) ){
-				$config->{ throw_fasta } = _make_bolean($throw_fasta);
-				$modified_on_the_fly = 1;
-			}
-			# integer
-			if( defined($force_gff_input_version) ){
-				$config->{ force_gff_input_version } = $force_gff_input_version;
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($output_format) ){
-				$config->{ output_format } = lc($output_format);
-				$modified_on_the_fly = 1;
-			}
-			# 
-			# integer
-			if( defined($gff_output_version) ){
-				$config->{ gff_output_version } = $gff_output_version;
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($gtf_output_version) ){
-				$config->{ gtf_output_version } = lc($gtf_output_version);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($deflate_attribute) ){
-				$config->{ deflate_attribute } = _make_bolean($deflate_attribute);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($create_l3_for_l2_orphan) ){
-				$config->{ create_l3_for_l2_orphan } = _make_bolean($create_l3_for_l2_orphan);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($clean_attributes_from_template) ){
-				$config->{ clean_attributes_from_template } = _make_bolean($clean_attributes_from_template);
-				$modified_on_the_fly = 1;
-			}
-			# string
-			if( defined($locus_tag) ){
-				my @list = split(/,/, $locus_tag);
-				$config->{ locus_tag } = \@list;
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_sequential) ){
-				$config->{ check_sequential } = _make_bolean($check_sequential);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_l2_linked_to_l3) ){
-				$config->{ check_l2_linked_to_l3 } = _make_bolean($check_l2_linked_to_l3);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($check_l1_linked_to_l2) ){
-				$config->{ check_l1_linked_to_l2 } = _make_bolean($check_l1_linked_to_l2);
-				$modified_on_the_fly = 1;
-			}
-			# bolean
-			if( defined($remove_orphan_l1) ){
-				$config->{ remove_orphan_l1 } = _make_bolean($remove_orphan_l1);
+			if( defined($check_all_level2_locations) ){
+				$config->{ check_all_level2_locations } = _make_bolean($check_all_level2_locations);
 				$modified_on_the_fly = 1;
 			}
 			# bolean
@@ -568,28 +484,134 @@ sub handle_config {
 				$modified_on_the_fly = 1;
 			}
 			# bolean
+			if( defined($check_identical_isoforms) ){
+				$config->{ check_identical_isoforms } = _make_bolean($check_identical_isoforms);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($check_l1_linked_to_l2) ){
+				$config->{ check_l1_linked_to_l2 } = _make_bolean($check_l1_linked_to_l2);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($check_l2_linked_to_l3) ){
+				$config->{ check_l2_linked_to_l3 } = _make_bolean($check_l2_linked_to_l3);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($check_sequential) ){
+				$config->{ check_sequential } = _make_bolean($check_sequential);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
 			if( defined($check_utrs) ){
 				$config->{ check_utrs } = _make_bolean($check_utrs);
 				$modified_on_the_fly = 1;
 			}
 			# bolean
-			if( defined($check_all_level2_locations) ){
-				$config->{ check_all_level2_locations } = _make_bolean($check_all_level2_locations);
+			if( defined($clean_attributes_from_template) ){
+				$config->{ clean_attributes_from_template } = _make_bolean($clean_attributes_from_template);
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($cpu) ){
+				$config->{ cpu } = $cpu;
 				$modified_on_the_fly = 1;
 			}
 			# bolean
-			if( defined($check_all_level1_locations) ){
-				$config->{ check_all_level1_locations } = _make_bolean($check_all_level1_locations);
+			if( defined($create_l3_for_l2_orphan) ){
+				$config->{ create_l3_for_l2_orphan } = _make_bolean($create_l3_for_l2_orphan);
 				$modified_on_the_fly = 1;
 			}
 			# bolean
-			if( defined($check_identical_isoforms) ){
-				$config->{ check_identical_isoforms } = _make_bolean($check_identical_isoforms);
+			if( defined($debug) ){
+				$config->{ debug } = _make_bolean($debug);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($deflate_attribute) ){
+				$config->{ deflate_attribute } = _make_bolean($deflate_attribute);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($force) ){
+				$config->{ force } = _make_bolean($force);
+				$modified_on_the_fly = 1;
+			}
+			# integer
+			if( defined($force_gff_input_version) ){
+				$config->{ force_gff_input_version } = $force_gff_input_version;
+				$modified_on_the_fly = 1;
+			}
+			# integer
+			if( defined($gff_output_version) ){
+				$config->{ gff_output_version } = $gff_output_version;
+				$modified_on_the_fly = 1;
+			}
+			# string
+			if( defined($gtf_output_version) ){
+				$config->{ gtf_output_version } = lc($gtf_output_version);
+				$modified_on_the_fly = 1;
+			}
+			# string
+			if( defined($locus_tag) ){
+				my @list = split(/,/, $locus_tag);
+				$config->{ locus_tag } = \@list;
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($log) ){
+				$config->{ log } = _make_bolean($log);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($merge_loci) ){
+				$config->{ merge_loci } = _make_bolean($merge_loci);
+				$modified_on_the_fly = 1;
+			}
+			# Integer
+			if( defined($minimum_chunk_size) ){
+				$config->{ minimum_chunk_size } = $minimum_chunk_size;
+				$modified_on_the_fly = 1;
+			}
+			# string
+			if( defined($output_format) ){
+				$config->{ output_format } = lc($output_format);
 				$modified_on_the_fly = 1;
 			}
 			# string
 			if( defined($prefix_new_id) ){
 				$config->{ prefix_new_id } = $prefix_new_id;
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($progress_bar) ){
+				$config->{ progress_bar } = _make_bolean($progress_bar);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($remove_orphan_l1) ){
+				$config->{ remove_orphan_l1 } = _make_bolean($remove_orphan_l1);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($tabix) ){
+				$config->{ tabix } = _make_bolean($tabix);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($throw_fasta) ){
+				$config->{ throw_fasta } = _make_bolean($throw_fasta);
+				$modified_on_the_fly = 1;
+			}
+			# bolean
+			if( defined($url_encode_out) ){
+				$config->{ url_encode_out } = _make_bolean($url_encode_out);
+				$modified_on_the_fly = 1;
+			}
+			# integer 0-4
+			if( defined($verbose) ){
+				$config->{ verbose } = $verbose;
 				$modified_on_the_fly = 1;
 			}
 
@@ -624,15 +646,15 @@ sub handle_config {
 
 }
 
-# transform 0 into false and 1 into true
+# transform 0, false, no into false and everything else into true for displaying into config file when exposed!
 sub _make_bolean{
 	my ($value) = @_;
 
-	my $result="false";
-	if($value and $value ne "false"){
-		$result="true";
+	# Treat empty, undef, 0, "0", "false", "no" as false
+	if (!defined($value) || $value eq "" || $value eq "0" || lc($value) eq "false" || lc($value) eq "no"){
+		return "false";
 	}
-	return $result;
+	return "true";
 }
 
 # +----------------- create a log file  ------------------+

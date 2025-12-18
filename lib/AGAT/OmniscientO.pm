@@ -54,11 +54,12 @@ sub prepare_gffout{
 	my $gffout;
 	if ($outfile) {
 		# check existence
-	  if(-f $outfile){
+	  if(-f $outfile && ! $CONFIG->{force}){
 			print "File $outfile already exist.\n";
 			exit;
 		}
 		else {
+			if(-f $outfile ){ dual_print1 "File $outfile already exist. Overwriting due to force option.\n"; }
 			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
 			$gffout = AGAT::BioperlGFF->new(-fh => $fh, -type => $CONFIG->{output_format}, -version => $version);
 		}
@@ -66,7 +67,7 @@ sub prepare_gffout{
 	else{
 		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $CONFIG->{output_format}, -version => $version);
 	}
-	$gffout->{URL_ESCAPED} = $config->{url_escaped};
+
 	return $gffout;
 }
 
@@ -76,11 +77,12 @@ sub prepare_fileout{
 
 	my $fileout;
 	if ($outfile) {
-		if(-f $outfile){
+		if(-f $outfile and ! $CONFIG->{force}){
 			print "File $outfile already exist.\n";
 			exit;
 		}
 		else {
+			if(-f $outfile ){ dual_print1 "File $outfile already exist. Overwriting due to force option.\n"; }
 			open(my $fh, '>', $outfile) or die "Could not open file '$outfile' $!";
 			$fileout=IO::File->new(">".$outfile ) or croak( sprintf( "Can not open '%s' for writing %s", $outfile, $! ));
 		}
