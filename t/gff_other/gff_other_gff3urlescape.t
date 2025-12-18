@@ -22,7 +22,7 @@ my $output_folder = catdir($Bin, 'out');
     my $dir = setup_tempdir();
     my $pathtmp = catfile($dir, 'tmp.gff');
     my $correct_output = catfile($output_folder, 'decode_gff3urlescape.gff');
-    check_quiet_run("$script --gff " . catfile($input_folder, 'decode_gff3urlescape.gff') . " --url_encode_out 0 -o $pathtmp");
+    check_quiet_run("$script --gff " . catfile($input_folder, 'decode_gff3urlescape.gff') . " --no-url_encode_out -o $pathtmp");
     check_diff($pathtmp, $correct_output, 'decode gff3 url escape check');
 }
 

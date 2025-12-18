@@ -330,9 +330,9 @@ sub apply_shared_options {
 
 	# Booleans (stored as 'true'/'false')
 	for my $k (qw(check_all_level1_locations check_all_level2_locations check_all_level3_locations check_cds check_exons check_identical_isoforms check_l1_linked_to_l2 check_l2_linked_to_l3 check_sequential check_utrs clean_attributes_from_template create_l3_for_l2_orphan debug deflate_attribute force log merge_loci progress_bar remove_orphan_l1 tabix throw_fasta url_encode_out)) {
-		if (exists $opts{$k}) {
-			# With ! specification: always 0 or 1
-			$CONFIG->{$k} = 1;
+		if (defined $opts{$k}) {
+			# With ! specification: 0 or 1
+			$CONFIG->{$k} = $opts{$k} ? 1 : 0;
 		}
 	}
 

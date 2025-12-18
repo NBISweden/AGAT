@@ -655,7 +655,6 @@ sub slurp_gff3_file_JD {
 	dual_print ({ 'string' => sizedPrint("------ END parsing ------",80, "\n") });
 
 	#return
-	#use Data::Dumper;print Dumper(\%omniscient_original);
 	return \%omniscient_original;
 }
 
