@@ -29,7 +29,7 @@ if ( !$script_parser->getoptionsfromarray(
   "ref|r|i=s"                => \$ref,
   "add|a=s"                  => \@opt_files,
   "size_min|s=i"             => \$size_min,
-  "output|outfile|out|o=s"   => \$opt_output))
+  "output|out|o=s"   => \$opt_output))
 {
   pod2usage( { -message => 'Failed to parse command line',
          -verbose => 1,
@@ -161,23 +161,25 @@ A l1 feature from the addfile.gff without a CDS that overlaps a l1 feature witho
 
 =over 8
 
-=item B<--ref>,  B<-r> or B<-i>
+=item B<--ref>,  B<-r> or B<-i> <file>
 
 Input GTF/GFF file used as reference.
 
-=item B<--add> or B<-a>
+=item B<--add> or B<-a> <file>
 
 Annotation(s) file you would like to use to complement the reference annotation. You can specify as much file you want like so: -a addfile1 -a addfile2 -a addfile3
 /!\ The order you provide these files matter. Once the reference file has been complemented by file1, this new annotation becomes the new reference that will be complemented by file2 etc.
 /!\ The result with -a addfile1 -a addfile2 will differ to the result from -a addfile2 -a addfile1. So, be aware of what you want if you use several addfiles.
 
-=item  B<--size_min> or B<-s>
+=item  B<--size_min> or B<-s> <int>
 
 Option to keep the non-overlping gene only if the CDS size (in nucleotide) is over the minimum size defined. Default = 0 that means all of them are kept.
 
-=item  B<--out>, B<--output>, B<--outfile> or B<-o>
+=item B<--output>, B<--out> or B<-o> <file>
 
-Output gff3 containing the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
+It will contain the reference annotation with all the non-overlapping newly added genes from addfiles.gff.
 
 =item B<--help> or B<-h>
 
@@ -192,19 +194,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

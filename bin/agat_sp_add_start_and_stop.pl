@@ -624,29 +624,30 @@ The script works even if the start or stop codon are split over several CDS feat
 
 =over 8
 
-=item B<--gff>, B<-i> or B<-g>
+=item B<--gff>, B<-i> or B<-g> <file>
 
 Input GTF/GFF file.
 
-=item B<--fasta>, B<--fa> or B<-f>
+=item B<--fasta>, B<--fa> or B<-f> <file>
 
 Input fasta file. Needed to check that CDS sequences start by start codon and stop by stop codon.
 
-=item B<--ct>, B<--codon> or B<--table>
+=item B<--ct>, B<--codon> or B<--table> <int>
 
 Codon table to use. [default 1]
 
-=item B<--out>, B<--output> or B<-o>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output gff file updated
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-e> or B<--extend>
 
-Boolean - When no start/stop codon found, try to extend the CDS to meet the next start/stop codon in the sequence. 
+When no start/stop codon found, try to extend the CDS to meet the next start/stop codon in the sequence. 
 
 =item B<--ni> or B<--na>
 
-Boolean - no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
+no iupac / no ambiguous, avoid usage of IUPAC. By default IUPAC is used that means, NNN is seen as start and/or stop codon.
 
 =item B<--help> or B<-h>
 
@@ -661,19 +662,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -30,7 +30,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'f|ref|reffile|gff=s' => \$opt_gff,
   'kl|keep_list=s'      => \$opt_keep_list,
   'p|type|l=s'          => \$primaryTag,
-  'o|output=s'          => \$opt_output,
+  'o|out|output=s'      => \$opt_output,
   'a|attribute=s'       => \$opt_attribute,
   'h|help!'             => \$opt_help ) )
 {
@@ -263,13 +263,13 @@ related features (the whole record is kept. A record represent all features link
 
 =over 8
 
-=item B<-f>, B<--reffile>, B<--gff>  or B<-ref>
+=item B<-f>, B<--reffile>, B<--gff>  or B<-ref> <file>
 
 Input GFF3 file that will be read
 
-=item B<-p>,  B<--type> or  B<-l>
+=item B<-p>,  B<--type> or  B<-l> <string>
 
-primary tag option, case insensitive, list. Allow to specied the feature types that will be handled.
+Case insensitive list of feature types that will be handled.
 You can specified a specific feature by given its primary tag name (column 3) as: cds, Gene, MrNa
 You can specify directly all the feature of a particular level:
       level2=mRNA,ncRNA,tRNA,etc
@@ -277,20 +277,19 @@ You can specify directly all the feature of a particular level:
 By default all feature are taking into account. fill the option by the value "all" will have the same behaviour.
 
 
-=item B<--kl> or B<--keep_list>
+=item B<--kl> or B<--keep_list> <file>
 
 Keep list. One value per line.
 
-=item  B<-a> or B<--attribute>
+=item  B<-a> or B<--attribute> <string>
 
 Attribute tag to specify the attribute to analyse. Case sensitive. Default: ID
 
 
-=item B<-o> or B<--output>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -305,19 +304,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

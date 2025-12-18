@@ -38,7 +38,7 @@ if ( ! $script_parser->getoptionsfromarray(
   "add_flag|af!"              => \$add_flag,
   "skip_start_check|sstartc!" => \$skip_start_check,
   "skip_stop_check|sstopc!"   => \$skip_stop_check,
-  "output|outfile|out|o=s"    => \$outfile))
+  "output|out|o=s"            => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -340,21 +340,20 @@ You can modify the behavior using the skip_start_check or skip_stop_check option
 
 =over 8
 
-=item B<-gff>
-
+=item B<-gff> <file>
 Input GTF/GFF file.
 
-=item B<-fa> or B<--fasta>
+=item B<-fa> or B<--fasta> <file>
 
 Genome fasta file.
 The name of the fasta file containing the genome to work with.
 
-=item B<--ct> or B<--table> or B<--codon>
+=item B<--ct> or B<--table> or B<--codon> <int>
 
 This option allows specifying the codon table to use.
 It expects an integer [default 1]
 
-=item B<--af> or B<--add_flag>
+=item B<--af> or B<--add_flag> 
 
 Instead of filter the result into two output files, write only one and add the flag <incomplete> in the gff.(tag = inclomplete, value = 1, 2, 3.  1=start missing; 2=stop missing; 3=both)
 
@@ -366,11 +365,10 @@ Gene model must have a start codon. Activated by default.
 
 Gene model must have a stop codon. Activated by default.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -385,19 +383,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

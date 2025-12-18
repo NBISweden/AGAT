@@ -31,7 +31,7 @@ if ( ! $script_parser->getoptionsfromarray(
     'to|lo=s'           => \$locus_tag,
     'ti|li=s'           => \$tag_in,
     'p|type|l=s'        => \$primaryTag,
-    'o|output=s'        => \$outfile,
+    'o|out|output=s'    => \$outfile,
     'h|help!'           => \$opt_help )  )
 {
   pod2usage( { -message => 'Failed to parse command line',
@@ -176,32 +176,28 @@ by parent/children relationship (e.g Gene,mRNA,exon, CDS).
 
 =over 8
 
-=item B<--gff>, B<--file> or B<--input>
+=item B<--gff>, B<--file> or B<--input> <file>
 
-STRING: Input GTF/GFF file.
+Input GTF/GFF file.
 
-=item B<-p>,  B<--type> or  B<-l>
+=item B<-p>,  B<--type> or  B<-l> <string>
 
 Primary tag option, case insensitive, list. Allow to specied the Level1 feature types that will be handled.
 By default all feature Level1 are taken into account.
 
-=item B<--lo> or B<--to>
+=item B<--lo> or B<--to> <string>
 
 Locus tag output, by defaut it will be called locus_tag, but using this option you can specied the name of this attribute.
 
-=item B<--li> or B<--ti>
+=item B<--li> or B<--ti> <string>
 
 Tag input, by default the value of the locus tag attribute will be locusX where X is an incremented number.
 You can use the values of an existing attribute instead e.g the ID value: --li ID.
 
-=item B<-o> or B<--output>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
-
-=item B<-q> or B<--quiet>
-
-To remove verbosity.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -217,15 +213,15 @@ Note: For _sq_ scripts, only the following options are supported: verbose, outpu
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

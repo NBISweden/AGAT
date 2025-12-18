@@ -28,7 +28,7 @@ $script_parser->configure('bundling','no_auto_abbrev');
 if ( ! $script_parser->getoptionsfromarray(
     $script_argv,
     'h|help!'       => \$opt_help,
-    'o|output=s'    => \$opt_output,
+    'o|out|output=s'    => \$opt_output,
     'percentile=i'  => \$opt_percentile,
     'yaml!'         => \$opt_yaml,
     'r|raw!'        => \$opt_raw,
@@ -160,34 +160,33 @@ isoforms, once without (In that case we keep the longest isoform per locus).
 
 =over 8
 
-=item B<--gff> or B<-i>
+=item B<--gff> or B<-i> <file>
 
 Input GTF/GFF file.
 
-=item B<--gs>, B<-f> or B<-g>
+=item B<--gs>, B<-f> or B<-g> <file or int>
 
 This option inform about the genome size in oder to compute more statistics. You can give the size in Nucleotide or directly the fasta file.
 
 =item B<-d> or B<-p>
 
-Bolean - When this option is used, an histogram of distribution of the features will be printed in pdf files in a folder with distribution_plots suffix. (d means distribution, p means plot).
+When this option is used, an histogram of distribution of the features will be printed in pdf files in a folder with distribution_plots suffix. (d means distribution, p means plot).
 
-=item B<--output> or B<-o>
+=item  B<-o>, B<--out> or B<--output> <file>
 
 File where will be written the result. If no output file is specified, the output will be written to STDOUT.
 
-=item B<--percentile>
+=item B<--percentile> <int>
 
-Integer - Percentile to compute. Default is 90.
+Percentile to compute. Default is 90.
 
 =item B<-r> or B<--raw>
 
-Bolean - When this option is used, the raw data (same as used to create histogram of distribution of the features) are printed in a dedicated folder with raw_data suffix.
+When this option is used, the raw data (same as used to create histogram of distribution of the features) are printed in a dedicated folder with raw_data suffix.
 
 =item B<--yaml>
 
-Bolean - When this option is activated, a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided).
-
+When this option is activated, a second output will be printed either in STDOUT if no output provided or in <output.yaml> (a .yaml suffix is added to the --output value provided).
 
 =item B<-h> or B<--help>
 
@@ -202,19 +201,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

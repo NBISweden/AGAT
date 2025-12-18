@@ -32,7 +32,8 @@ if ( !$script_parser->getoptionsfromarray(
 					"primary_tag=s"  => \$primary_tag,
 					"inflate_off!"   => \$inflating_off,
 					"inflate_type=s" => \$inflate_type,
-					"outfile|output|o|out|gff=s" => \$outfile ) )
+					"o|out|output=s" => \$outfile,
+))
 {
     pod2usage( { -message => "Failed to parse command line.\n",
                  -verbose => 1,
@@ -473,63 +474,42 @@ The script converts 0-based, half-open [start-1, end) bed file to
 
 =over 8
 
-=item B<--bed>
+=item B<--bed> <file>
 
 Input bed file that will be converted.
 
-=item B<--source>
+=item B<--source> <string>
 
 The source informs about the tool used to produce the data and is stored in 2nd field of a gff file.
 Example: Stringtie,Maker,Augustus,etc. [default: data]
 
-=item B<--primary_tag>
+=item B<--primary_tag> <string>
 
 The primary_tag corresponds to the data type and is stored in 3rd field of a gff file.
 Example: gene,mRNA,CDS,etc.  [default: gene]
 
 =item B<--inflate_off>
-
 By default we inflate the block fields (blockCount, blockSizes, blockStarts) to create subfeatures
 of the main feature (primary_tag). The type of subfeature created is based on the
 inflate_type parameter. If you do not want this inflating behaviour you can deactivate it
 by using the --inflate_off option.
 
-=item B<--inflate_type>
+=item B<--inflate_type> <string>
 
 Feature type (3rd column in gff) created when inflate parameter activated [default: exon].
 
-=item B<-o> , B<--output> , B<--out> , B<--outfile> or B<--gff>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file. If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
-=back
+=item B<-v> or B<--verbose> <int>
 
-=head1 SHARED OPTIONS
-
-Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
-Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
-
-=over 8
-
-=item B<--config>
-
-String - Path to a custom AGAT configuration file.  
-By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
-(available locally via `agat config --expose`).
-
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
-
-=item B<-v> or B<--verbose>
-
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

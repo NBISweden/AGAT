@@ -27,7 +27,7 @@ $script_parser->configure('bundling','no_auto_abbrev');
 if ( !$script_parser->getoptionsfromarray(
 				$script_argv,
 				'mfannot|m|i=s'  => \$mfannot_file,
-				'gff|g|o=s'      => \$gff_file,
+				'o|out|output=s' => \$gff_file,
 				'h|help'         => sub { pod2usage( -exitstatus=>0, -verbose=>99, -message => "$header\n" ); },
 				'man'            => sub { pod2usage(-exitstatus=>0, -verbose=>2); }
 			))
@@ -433,40 +433,22 @@ modified by jacques dainat 2017-11
 
 =over 8
 
-=item B<-m> or B<-i> or B<--mfannot>
+=item B<-m> or B<-i> or B<--mfannot> <file>
 
 The mfannot input file
 
-=item B<-g> or B<-o> or B<--gff>
+=item B<-o>, B<--out> or B<--output> <file>
 
-the gff output file
+Output GFF file to create. If no output file is specified, the output will be
+written to STDOUT.
 
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
-=back
+=item B<-v> or B<--verbose> <int>
 
-=head1 SHARED OPTIONS
-
-Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
-Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
-
-=over 8
-
-=item B<--config>
-
-String - Path to a custom AGAT configuration file.  
-By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
-(available locally via `agat config --expose`).
-
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
-
-=item B<-v> or B<--verbose>
-
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -51,7 +51,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'split|s!'                => \$split_opt,
   'table|codon|ct=i'        => \$codonTable,
   'm|model=s'               => \$model_to_test,
-  'output|outfile|out|o=s'  => \$outfile ))
+  'output|out|o=s'  => \$outfile ))
 {
   pod2usage( { -message => 'Failed to parse command line',
          -verbose => 1,
@@ -1224,19 +1224,18 @@ one will both together (all).
 
 =over 8
 
-=item B<--gff>
-
+=item B<--gff> <file>
 Input GTF/GFF file.
 
-=item B<-f>, B<--fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta> <file>
 
 Imput fasta file.
 
-=item B<--ct>, B<--codon> or B<--table>
+=item B<--ct>, B<--codon> or B<--table> <int>
 
 Codon table to use. [default 1]
 
-=item B<-m> or B<--model>
+=item B<-m> or B<--model> <list of int>
 
 Kind of ORF Model you want to fix. By default all are used. To select specific models writte e.g --model 1,4
 
@@ -1264,11 +1263,10 @@ Model6 = The ORF is same size but not correct frame (+1 or +2 bp gives a frame s
 This option is usefull for Model2. Indeed when the prediction is non overlapping the original cds, it is possible to split the gene into two different genes. By default we don't split it.
 We keep the longest. If you want to split it type: -s
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -1283,19 +1281,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

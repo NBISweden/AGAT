@@ -30,7 +30,7 @@ if ( ! $script_parser->getoptionsfromarray(
     "g|gff=s"                => \$gff,
     't|test=s'               => \$opt_test,
     "size|s=i"               => \$PROT_LENGTH,
-    "output|outfile|out|o=s" => \$outfile))
+    "output|out|o=s" => \$outfile))
 
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -296,21 +296,23 @@ coding gene and will not be removed.
 
 =over 8
 
-=item B<-g> or B<--gff>
+=item B<-g> or B<--gff> <file>
 
 Input GTF/GFF file.
 
-=item B<-s> or B<--size>
+=item B<-s> or B<--size> <int>
 
 ORF size to apply the test. Default 100.
 
-=item B<-t> or B<--test>
+=item B<-t> or B<--test> <operator>
+
 Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter like that "<=" otherwise your terminal will complain.
 By default it will be ">"
-=item B<-o> or B<--out> or B<--output> or B<--outfile>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+=item B<-o>, B<--out> or B<--output> <file>
+
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -325,19 +327,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -25,7 +25,7 @@ if ( !$script_parser->getoptionsfromarray(
     'h|help!'                => \$help,
     'gff|gtf|i=s'            => \$opt_gff,
     'gtf_version=s'          => \$gtf_version,
-    'outfile|output|o|out=s' => \$opt_output,
+    'output|out|o=s'         => \$opt_output,
     ) ) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -120,11 +120,12 @@ which is used to group features into transcripts.
 
 =over 8
 
-=item B<--gff>, B<--gtf> or B<-i>
+=item B<--gff>, B<--gtf> or B<-i> <file>
 
 Input GFF/GTF file that will be read
 
-=item B<--gtf_version>
+=item B<--gtf_version> <value>
+
 version of the GTF output (1,2,2.1,2.2,2.5,3 or relax). Default value from AGAT config file (relax for the default config). The script option has the higher priority.
 
 relax: all feature types are accepted.
@@ -141,9 +142,9 @@ GTF2 (4 feature types accepted): CDS, start_codon, stop_codon, exon
 
 GTF1 (5 feature types accepted): CDS, start_codon, stop_codon, exon, intron
 
-=item B<-o>, B<--output>, B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GTF file. If no output file is specified, the output will be
+Output GTF file to create. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
@@ -159,19 +160,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

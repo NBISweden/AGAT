@@ -57,7 +57,7 @@ if ( !$script_parser->getoptionsfromarray(
   'pe:i'                   => \$sort_method_by_pe,
   'priority|p=s'           => \$priority_opt,
   "fasta|pfasta=s"         => \$protein_fasta,
-  "w"                      => \$whole_sequence_opt,
+  "w|whole"                => \$whole_sequence_opt,
   "value|threshold=i"      => \$valueK,
   'method|m:s'             => \$method_opt,
   "output|out|o=s"         => \$opt_output ) )
@@ -1228,34 +1228,34 @@ You can flip the 2.1 and 2.2 test using the priority option.
 
 =over 8
 
-=item B<-a> or B<--annotation>
+=item B<-a> or B<--annotation> <file>
 
 Input gtf/gff file of an annotation.
 
-=item B<--pgff>
+=item B<--pgff> <file>
 
 Input gff file of aligned proteins.
 
-=item B<--pfasta>
+=item B<--pfasta> <file>
 
 Input protein fasta file where the extra information will be retrieved for each aligned protein.
 
-=item B<-m> or B<--method>
+=item B<-m> or B<--method> <string>
 
 Rule to apply to lift function when a protein map properly.
 1) replace  => replace or add the product and Name attribute's values.
 2) complete => add the product and Name attribute's values only if doesn't exist.
 3) add      => add the lfp_product and lfp_name attributes with the corresponding values
 
-=item B<--value>, B<--threshold> or B<-t>
+=item B<--value>, B<--threshold> or B<-t> <int>
 
 Gene mapping percentage over which a gene must be reported. By default the value is 50.
 
-=item B<-w>
+=item B<-w> or B<--whole>
 
 Compute the overlap score based on the whole annotation sequence. By default we use only the coding sequence part.
 
-=item B<--pe>
+=item B<--pe> <int>
 
 Protein existence value. We will take the best overlap score protein according to the PE expected
 1. Experimental evidence at protein level
@@ -1264,24 +1264,23 @@ Protein existence value. We will take the best overlap score protein according t
 4. Protein predicted
 5. Protein uncertain
 
-=item B<--test>
+=item B<--test> <operator>
 
 Test to apply (> < = >= <=). If you us one of these two character >, <, please don't forget to quote you parameter liket that "<=". Else your terminal will complain.
 
-=item B<--sp>
+=item B<--sp> <string>
 
 Species, between the set of the best protein aligned we try first to take the one that follow the species prioritization defined. There is a default one, but you can define you own (quoted and coma separated value)like that: "mus Musculus, Homo Sapiens" from the most important to the less important. In that case Mus will be taken first even if a better overlaping one exist for human.
 If none of them is found we take anyway the best overlapping one.
 
-=item B<-p> or B<--priority>
+=item B<-p> or B<--priority> <string>
 
 By default the priority is PE test before species test when both are applied. You can flip these two test by activating this option like this: -p species
 
-=item B<-o> , B<--output> or B<--out>
+=item  B<o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -1296,19 +1295,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

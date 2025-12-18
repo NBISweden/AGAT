@@ -29,7 +29,7 @@ if ( ! $script_parser->getoptionsfromarray(
                   'f|ref|reffile|gff=s' => \$opt_gff,
                   't|test=s'            => \$opt_test,
                   "s|size=i"            => \$opt_size,
-                  'o|output=s'          => \$opt_output,
+                  'o|out|output=s'      => \$opt_output,
                   'h|help!'             => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -265,24 +265,24 @@ agat_sp_filter_gene_by_length.pl --gff infile.gff --size 200 --test ">" -o resul
 
 =over 8
 
-=item B<-f>, B<--reffile>, B<--gff>  or B<-ref>
+=item B<-f>, B<--reffile>, B<--gff>  or B<-ref> <file>
 
 Input GFF3 file that will be read
 
-=item B<-s> or B<--size>
+=item B<-s> or B<--size> <int>
 
-Integer - Gene size in pb [Default 100]
+Gene size in pb [Default 100]
 
-=item B<-t> or B<--test>
+=item B<-t> or B<--test> <operator>
 
 Test to apply (>, <, =, >= or <=). If you use one of these two characters >, <,
 please do not forget to quote your parameter like that "<=". Else your terminal will complain.
 [Default "="]
 
-=item B<-o> or B<--output>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -297,19 +297,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

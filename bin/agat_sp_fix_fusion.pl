@@ -44,7 +44,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'stranded|s!'             => \$stranded,
   'table|codon|ct=i'        => \$opt_codonTableID,
   'threshold|t=i'           => \$threshold,
-  'output|outfile|out|o=s'  => \$outfile ) )
+  'output|out|o=s'          => \$outfile ) )
 {
   pod2usage( { -message => 'Failed to parse command line',
          -verbose => 1,
@@ -1394,19 +1394,19 @@ One will contain the gene not modified (intact), one the gene models fixed.
 
 =over 8
 
-=item B<-gff>
+=item B<-gff> <file>
 
 Input GTF/GFF file.
 
-=item B<-fa> or B<--fasta>
+=item B<-fa> or B<--fasta> <file>
 
 Input fasta file.
 
-=item B<--ct>, B<--codon> or B<--table>
+=item B<--ct>, B<--codon> or B<--table> <int>
 
 Codon table to use. [default 1]
 
-=item B<-t> or B<--threshold>
+=item B<-t> or B<--threshold> <int>
 
 This is the minimum length of new protein predicted that will be taken in account.
 By default this value is 100 AA.
@@ -1417,11 +1417,10 @@ By default we predict protein in UTR3 and UTR5 and in both direction. The fusion
 If RNAseq data used during the annotation was stranded, only fusion of close genes oriented in same direction are expected. In that case this option should be activated.
 When activated, we will try to predict protein in UTR3 and UTR5 only in the same orientation than the gene investigated.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -1436,19 +1435,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

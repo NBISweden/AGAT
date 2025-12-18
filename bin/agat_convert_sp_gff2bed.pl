@@ -27,7 +27,7 @@ if ( ! $script_parser->getoptionsfromarray(
 		'gff=s'                   => \$opt_gff,
 		'sub=s'                   => \$sub,
 		'nc=s'                    => \$opt_nc,
-		'outfile|output|out|o=s'  => \$outfile,
+		'output|out|o=s'  		  => \$outfile,
 	) ) {
 	pod2usage({
 		-message => 'Failed to parse command line.',
@@ -258,26 +258,26 @@ Definintion of the bed format:
 
 =over 8
 
-=item B<--gff>
+=item B<--gff> <file>
 
 Input GFF3 file that will be read
 
-=item B<--nc>
+=item B<--nc> <string>
 
-STRING - behaviour for non-coding features (e.g. recored wihtout CDS). [keep,filter,transcript]
+Behaviour for non-coding features (e.g. recored wihtout CDS). [keep,filter,transcript]
 keep - Default, they are kept but no CDS position is reported in the 7th and 8th columns (a period is reported instead).
 filter - We remove them.
 transcript - We keep them but values in 7th and 8th columns will contains transcript's start and stop.
 
-=item B<--sub>
+=item B<--sub> <string>
 
 Define the subfeature (level3, e.g exon,cds,utr,etc...) to report as blocks in the bed output.
 Defaut: exon.
 
-=item B<--outfile>, B<--out>, B<--output>, or B<-o>
+=item B<-o>, B<--out> or B<--output> <file>
 
-File where will be written the result. If no output file is specified, the output will be written to STDOUT.
-
+Output BED file to create. If no output file is specified, the output will be
+written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -292,19 +292,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

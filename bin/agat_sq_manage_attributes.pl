@@ -41,7 +41,7 @@ if ( ! $script_parser->getoptionsfromarray(
   "strategy=s"  => \$strategy,
   "p|type|l=s"  => \$primaryTag,
   "tag|att=s"   => \$attributes,
-  "output|outfile|out|o=s" => \$outfile))
+  "output|out|o=s" => \$outfile))
 
 {
   pod2usage( { -message => 'Failed to parse command line',
@@ -325,11 +325,11 @@ are stored within the 9th column.
 
 =over 8
 
-=item B<--gff> or B<-f>
+=item B<--gff> or B<-f> <file>
 
 Input GTF/GFF file.
 
-=item B<-p>,  B<--type> or  B<-l>
+=item B<-p>,  B<--type> or  B<-l> <string>
 
 primary tag option, case insensitive, list. Allow to specied the feature types that will be handled.
 You can specified a specific feature by given its primary tag name (column 3) as: cds, Gene, MrNa
@@ -338,7 +338,7 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature are taking in account.
 
-=item B<--tag>, B<--att>
+=item B<--tag>, B<--att> <string>
 
 Attributes with the tag specified will be removed from the feature type specified by the option p (primary tag). List of tag must be coma separated.
 /!\\ You must use "" if name contains spaces.
@@ -361,21 +361,20 @@ When using --add parameter, if an attribute with the specificed tag already exis
 When using --cp parameter, if an attribute with the specificed newTagName already exists, it will not be modified.
 So using the --overwrite parameter allows to overwrite the value of the existing attribute.
 
-=item B<--value>
+=item B<--value> <string>
 
 String. When a value is provided the attribute is taken into account only if
 the attribute contains (or match) a specific value
 
-=item B<--strategy>
+=item B<--strategy> <string>
 
 String. [Default equal]. Strategy to use when --value parameter is in use. Can be equal or match.
 Equal => the attribute value must be identical. Match => the attribute value must match
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -391,15 +390,15 @@ Note: For _sq_ scripts, only the following options are supported: verbose, outpu
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -732,22 +732,18 @@ per case type listing per line the gene feature's ID involved in each case.
 
 =over 8
 
-=item B<--gff1>
+=item B<--gff1> <file>
 
 Input GTF/GFF file1.
 
-=item B<--gff2>
+=item B<--gff2> <file>
 
 Input GTF/GFF file2.
 
-=item B<-o> , B<--output> or B<--out> 
+=item B<-o>, B<--out> or B<--output> <folder>
 
-Output folder.  It contains a report that resume the type and number of cases, as well as a file per case type 
+Output folder to create. It contains a report that resume the type and number of cases, as well as a file per case type 
 containing one case per line with the list of gene feature's ID (or other type of feature level1) from file1 then file2 separated by a |.
-
-=item  B<--debug> or B<-d>
-
-Debug option, make it easier to follow what is going on for debugging purpose.
 
 =item B<-h> or B<--help>
 
@@ -762,19 +758,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 
