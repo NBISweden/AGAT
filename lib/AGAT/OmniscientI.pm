@@ -419,7 +419,7 @@ sub slurp_gff3_file_JD {
 			};
 
 			# store the pid of child processes and their associated file
-			my %pid_to_file;
+			my %pid_to_data;
 
 			# Print info at start e.g. "Started child 3431 (Job 25)"
 			#$pm->run_on_start(sub {
@@ -429,16 +429,13 @@ sub slurp_gff3_file_JD {
 			
 			# ========= Run on finish handler =========
 			$pm->run_on_finish(sub {
-				my ($pid, $exit_code, $ident, $exit_signal, $core_dump) = @_;
-				#print "Finished child $pid ($ident)\n";
-		
-				if ($exit_code == 0) {			
-					my $file = File::Spec->catfile($AGAT_TMP, "result_$pid.stor");
-					if (-e $file) {
-						$pid_to_file{$pid} = $file;
-					} else {
-						warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
-					}
+				my ($pid, $exit_code, $ident, $exit_signal, $core_dump, $data) = @_;
+
+				if ($exit_code == 0 && defined $data) {
+					$pid_to_data{$pid} = $data;
+				}
+				else {
+					warn "No data received from child $pid\n";
 				}
 			});
 
@@ -501,29 +498,11 @@ sub slurp_gff3_file_JD {
 					# --- Update shared value ----
 					# counter for progress bar
 					update_counter($mem, $nb_line_read_local) if ( defined $mem ) ;
+					$pm->finish(0, $omniscient_clean_clone); # Pass the data back to the parent process
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
-				my $merging_time = time();
-				dual_print ({ 'string' => file_text_line({ string => "debless_and_strip_code tasks", char => "-", prefix => "\n" }) });
-				my $deblessed = undef;
-				my @levels = ('level1', 'level2', 'level3');
-				foreach my $level ( @levels ){
-					debless_and_strip_code($omniscient_clean_clone->{$level});
-				}
 				
-				dual_print ({ 'string' => sizedPrint("------ End debless_and_strip_code (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
-				
-				my $pid = $$;
-				#use Devel::Size qw(total_size);
-				#my $size_bytes = total_size($deblessed);
-				#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
-				#print "  $pid send: ${size_mb} Mo";
-				
-				my $tmpfile = File::Spec->catfile($AGAT_TMP, "result_${pid}.stor");
-				nstore($omniscient_clean_clone, $tmpfile);
-
-				$pm->finish(0); # Pass the data back to the parent process
 				if ($progress_bar){
 					$progress_bar->update($nbline);
 					dual_print ({ 'string' => "\n" });
@@ -531,7 +510,7 @@ sub slurp_gff3_file_JD {
 			}
 
 			# === Wait for all child processes to finish ===
-			$pm->wait_all_children;  
+			$pm->wait_all_children;
 
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
 			if ($progress_bar){
@@ -555,26 +534,16 @@ sub slurp_gff3_file_JD {
 			}
 
 			my $nb_chunck_processed = 0;
-			for my $pid (keys %pid_to_file) {
+			for my $pid (keys %pid_to_data) {
 
-				my $file = $pid_to_file{$pid};
-				my $data = retrieve($file);  
+				my $data = $pid_to_data{$pid};
+#				my $data = retrieve($file);  
 				$previous_time = time();
 				
-				# Restore BioPerl SeqFeature objects
-				dual_print ({ 'string' => file_text_line({ string => "restore_seqfeatures", char => "-", prefix => "\n" }), 'debug_only' => 1 });
-				my @levels = ('level1', 'level2', 'level3');
-				foreach my $level ( @levels ){
-					restore_seqfeatures($data->{$level}); # flat structure re inflated with Bio::SeqFeature::Generic
-				}			
-				dual_print ({ 'string' => sizedPrint("------ End restore_seqfeatures (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
-				
-				# merge the data
-				$previous_time = time();
 				dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }), 'debug_only' => 1 });
 				merge_omniscients(\%omniscient_original, $data);
 				dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
-				unlink $file;
+
 				$nb_chunck_processed ++;
 				if ($progress_bar and $nb_files > 1) {
 					$merge_progress_bar->update($nb_chunck_processed);
@@ -824,100 +793,6 @@ sub post_process {
 	}
 }
 
-sub restore_seqfeatures {
-    my ($data) = @_;
-
-    if (ref($data) eq 'HASH') {
-        # If this hash has only one key: 'agat_flat_feat', we replace the entire hash
-        if ((keys %$data) == 1 && exists $data->{agat_flat_feat} && ref($data->{agat_flat_feat}) eq 'HASH') {
-
-			return Bio::SeqFeature::Generic->new(
-					-seq_id => $data->{agat_flat_feat}{seq_id},
-					-source_tag => $data->{agat_flat_feat}{source_tag},
-					-primary_tag => $data->{agat_flat_feat}{primary_tag},
-					-start => $data->{agat_flat_feat}{start},
-					-end   => $data->{agat_flat_feat}{end},
-					-score => $data->{agat_flat_feat}{score},
-					-strand => $data->{agat_flat_feat}{strand},
-					-frame => $data->{agat_flat_feat}{frame},
-					-tag => $data->{agat_flat_feat}{tag},
-				);
-		}
-
-        # Otherwise, recurse on each value
-        for my $key (keys %$data) {
-            $data->{$key} = restore_seqfeatures($data->{$key});
-        }
-
-    } elsif (ref($data) eq 'ARRAY') {
-        # Recurse into arrays
-        for my $i (0 .. $#$data) {
-            $data->[$i] = restore_seqfeatures($data->[$i]);
-        }
-    }
-
-    return $data;  # Return unmodified scalar or updated ref
-}
-
-# Function to extract attributes as a hash reference from the SeqFeature object
-sub get_attributes_as_hash_ref {
-    my $feature = shift;
-    my %attributes;
-
-    foreach my $tag ($feature->get_all_tags) {
-        my @values = $feature->get_tag_values($tag);
-        $attributes{$tag} = (@values == 1) ? $values[0] : \@values;
-    }
-
-    return \%attributes;
-}
-
-# needed to remove code and serialize the Generic feature objects (to make it compact). 
-sub debless_and_strip_code {
-    my ($ref) = @_;
-
-    return $ref unless ref $ref;
-
-    # Cas 1 : objet Bio::SeqFeature::Generic à transformer en structure plate
-    if (blessed($ref) && $ref->isa('Bio::SeqFeature::Generic')) {
-        return {
-            agat_flat_feat => {
-                seq_id      => $ref->seq_id,
-                source_tag  => $ref->source_tag,
-                primary_tag => $ref->primary_tag,
-                start       => $ref->start,
-                end         => $ref->end,
-                score       => $ref->score,
-                strand      => $ref->strand,
-                frame       => $ref->frame,
-                tag         => get_attributes_as_hash_ref($ref),
-            }
-        };
-    }
-
-    my $type = reftype($ref);
-
-    # Cas 2 : tableau → traitement récursif
-    if ($type eq 'ARRAY') {
-        return [ map { debless_and_strip_code($_) } @$ref ];
-    }
-
-
-    # Cas 3 : hash → traitement récursif
-    if ($type eq 'HASH') {
-        for my $key (keys %$ref) {
-            my $val = $ref->{$key};
-            my $val_type = reftype($val);
-            next if defined $val_type && $val_type eq 'CODE';  # skip code refs
-            $ref->{$key} = debless_and_strip_code($val);
-        }
-        return $ref;
-    }
-
-    # Cas 4 : référence d’un type qu’on ne veut pas gérer (CODE, GLOB, etc.)
-    return undef;
-}
-
 ##==============================================================================
 ##==============================================================================
 
@@ -967,7 +842,7 @@ sub manage_one_feature{
 		my $end = $feature->end;						#col5
 		my $score = $feature->score;					#col6
 		my $strand = $feature->strand;					#col7
-		my $frame = $feature->frame;					#col8
+		my $frame = $feature->phase;					#col8
 		# Attribute => tag=value tuples								#col9
 		my $id= undef;
 		my $parent= undef;
@@ -2658,7 +2533,7 @@ sub _check_exons{
 								#save new feature L2
 								dual_print({ 'string' => "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 'log_only' => 1 });
 								push (@{$hash_omniscient->{"level3"}{$tag}{$id_l2}}, $feature_exon);
-					 			}
+					 		}
 					 	}
 				 	}
 

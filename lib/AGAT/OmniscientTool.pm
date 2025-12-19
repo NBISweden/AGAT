@@ -1330,7 +1330,7 @@ sub clean_clone{
 	# clone the feature
 	$cloned_feature = clone($feature);
 	# clean frame/phase
-	$cloned_feature->frame("."); 
+	$cloned_feature->phase("."); 
 	# Update source
 	$cloned_feature->source_tag("AGAT");
 	# clean score
@@ -1472,11 +1472,11 @@ sub fil_cds_frame {
 					# otherwise we loop over CDS features to set the correct phase
 					if ( defined( $phase ) ) {
 						foreach my $cds_feature ( @cds_list) {
-							my $original_phase = $cds_feature->frame;
+							my $original_phase = $cds_feature->phase;
 
 							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
 								dual_print1 "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" ;
-								$cds_feature->frame($phase);
+								$cds_feature->phase($phase);
 							}
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
 							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
