@@ -625,6 +625,7 @@ sub slurp_gff3_file_JD {
 				if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 				($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 				manage_one_feature($ontology, $feature, \%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
+				$nb_line_read++;
 			}
 
 			# -------------- Read fasta and ------------------------
