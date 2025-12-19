@@ -26,7 +26,7 @@ $script_parser->configure('bundling','no_auto_abbrev');
 if ( ! $script_parser->getoptionsfromarray(
   $script_argv,
   'i|file|input|gff=s' => \@inputFile,
-  'o|output=s'         => \$outputFile,
+  'o|out|output=s'     => \$outputFile,
   'g|genome=s'         => \$genome,
   'h|help!'            => \$opt_help )  )
 {
@@ -184,19 +184,19 @@ from a gff file containing repeats (feature type must be match or protein_match)
 
 =over 8
 
-=item B<-i>, B<--gff>, B<--file> or B<--input>
+=item B<-i>, B<--gff>, B<--file> or B<--input> <file>
 
 STRING: Input GTF/GFF file(s). Several files can be processed at once: -i file1 -i file2
 
-=item B<-g>, B<--genome>
+=item B<-g>, B<--genome> <integer or fasta>
 
 That input is design to know the genome size in order to calculate the percentage of the genome represented by each kind of repeats.
 You can provide an INTEGER or the genome in fasta format. If you provide the fasta, the genome size will be calculated on the fly.
 
-=item B<-o> or B<--output>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-STRING: Output file.  If no output file is specified, the output will be written to STDOUT. The result is in tabulate format.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -212,15 +212,15 @@ Note: For _sq_ scripts, only the following options are supported: verbose, outpu
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

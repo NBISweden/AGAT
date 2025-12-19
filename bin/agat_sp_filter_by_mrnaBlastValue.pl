@@ -30,7 +30,8 @@ if ( ! $script_parser->getoptionsfromarray(
     'h|help!'    => \$opt_help,
     'gff=s'      => \$gff,
     'blast=s'    => \$blast,
-    'outfile=s'  => \$outfile ) )
+    'o|out|output=s' => \$outfile,
+    ) )
 {
         pod2usage( { -message => 'Failed to parse command line',
                                  -verbose => 1,
@@ -204,18 +205,18 @@ to the use of this script in order to get the blastp input file.
 
 =over 8
 
-=item B<--gff>
+=item B<--gff> <file>
 
 Input GTF/GFF file.
 
-=item B<--blast>
+=item B<--blast> <file>
 
 The list of the all-vs-all blast file (outfmt 6, blastp)
 
-=item  B<--outfile>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-The name of the output file. By default the output is the standard output.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -230,19 +231,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

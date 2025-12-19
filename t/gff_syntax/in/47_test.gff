@@ -1,0 +1,8 @@
+##gff-version 3
+scaffold625	maker	gene	337818	343277	.	+	.	ID=CLUHARG00000005458;Class==
+scaffold625	maker	mRNA	337818	343277	.	+	.	ID=CLUHART00000008717;Parent=CLUHARG00000005458;Class=j
+scaffold625	maker	exon	337818	337971	.	+	.	ID=CLUHART00000008717:exon:1404;Parent=CLUHART00000008717
+scaffold625	maker	exon	340733	340841	.	+	.	ID=CLUHART00000008717:exon:1405;Parent=CLUHART00000008717;test_tab=tab%5Cttab;test_newline=nl%0Anl;test_cr=cr%0Dcr;test_perc=perc%25perc;test_space=space%20space;test_semicolon=semicolon%3Bsemicolon;test_equal=equal%3Dequal;test_amp=amp%26amp;test_comma=comma%2Ccomma;test_dquote=dquote%22dquote;test_squote=squote%27squote
+scaffold625	maker	exon	341518	341628	.	+	.	ID=CLUHART00000008717:exon:1406;Parent=CLUHART00000008717
+scaffold625	maker	exon	341964	343277	.	+	.	ID=CLUHART00000008717:exon:1407;Parent=CLUHART00000008717;test_unixtab=unixtab\tunixtab;test_unixcr=unixcr\nunixcr
+scaffold625	maker	exon	337818	337971	.	+	.	ID=CLUHART00000008717:exon:1404;Parent=CLUHART00000008717;test_tab=tab	tab;test_amp=amp&amp;test_comma=comma,comma;tabtest_space=space space;test_dquote=dquote"dquote;test_squote=squote'squote;test_perc=perc%perc

@@ -29,7 +29,7 @@ if ( ! $script_parser->getoptionsfromarray(
     $script_argv,
     'h|help!'                 => \$opt_help,
     'gff|f=s'                 => \@opt_files,
-    'output|outfile|out|o=s'  => \$outfile,
+    'output|out|o=s'          => \$outfile,
 )) {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -125,13 +125,14 @@ It uses the AGAT parser that takes care of duplicated names and fixes other oddi
 
 =over 8
 
-=item B<--gff> or B<-f>
+=item B<--gff> or B<-f> <file>
 
 Input GTF/GFF file(s). You can specify a folder containing GFF3 files with the format .gff or GTF files with .gtf format . You can also specify as much file you want like so: -f file1 -f file2 -f file3
 
-=item  B<--out>, B<--output> or B<-o>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-Output gff3 file where the gene incriminated will be write.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 
 =item B<--help> or B<-h>
@@ -147,19 +148,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

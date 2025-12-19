@@ -10,18 +10,20 @@ use AGAT::TestUtilities qw(setup_tempdir check_diff script_prefix check_quiet_ru
 
 my $script_prefix = script_prefix();
 my $root = abs_path(catdir($Bin, '..', '..'));
+my $script_agat = $script_prefix . catfile($root, 'bin', 'agat');
 my $script = $script_prefix . catfile($root, 'bin', 'agat_convert_sp_gxf2gxf.pl');
 my $input_folder = catdir($Bin, 'in');
 my $output_folder = catdir($Bin, 'out');
 
-# -------- Parent ID already used by same level feature --------
+# --------- Issue #250 URL escaped characters must stay by default  --------
+# here we test that URL escaped characters listed in GFF3 specification can be decoded when option activated
+
 {
     my $dir = setup_tempdir();
     my $pathtmp = catfile($dir, 'tmp.gff');
-    my $correct_output = catfile($output_folder, 'issue329.gff');
-    check_quiet_run("$script --gff " . catfile($input_folder, 'issue329.gff') . " -o $pathtmp");
-    check_diff($pathtmp, $correct_output, 'issue329 check');
+    my $correct_output = catfile($output_folder, 'decode_gff3urlescape.gff');
+    check_quiet_run("$script --gff " . catfile($input_folder, 'decode_gff3urlescape.gff') . " --no-url_encode_out -o $pathtmp");
+    check_diff($pathtmp, $correct_output, 'decode gff3 url escape check');
 }
 
 done_testing();
- 

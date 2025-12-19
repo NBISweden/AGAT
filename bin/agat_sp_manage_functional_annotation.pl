@@ -102,7 +102,7 @@ if ( ! $script_parser->getoptionsfromarray(
       'id=s'                     => \$opt_name,
       'idau=s'                   => \$opt_nameU,
       'nb=i'                     => \$nbIDstart,
-      'o|output=s'               => \$opt_output,
+      'o|out|output=s'           => \$opt_output,
       'a|addgntag'               => \$opt_addGnPresentTag,
       'h|help!'                  => \$opt_help,
     ) )
@@ -1217,49 +1217,49 @@ will not be reported.
 
 =over 8
 
-=item B<-f>, B<--reffile>,B<-ref> , B<--gff> or B<--gff3>
+=item B<-f>, B<--reffile>,B<-ref> , B<--gff> or B<--gff3> <file>
 
-String - Input GTF/GFF file.
+Input GTF/GFF file.
 
-=item B<-b> or B<--blast>
+=item B<-b> or B<--blast> <file>
 
-String - Input blast ( outfmt 6 = tabular ) usually made by blasting the proteins resulting from the GFF/GTF file provided as input
+Input blast ( outfmt 6 = tabular ) usually made by blasting the proteins resulting from the GFF/GTF file provided as input
 and a confident protein database (e.g. Swissprot/Uniprot). The file makse a bridge between the feature ID from the GFF/GTF and the 
 best protein ID matched in the used database. Thanks to that link the Name and products (sometimes called descriptions) information 
 will be extracted from the database fasta file and added in the GFF file. You must provide the same database via --db as the one used 
 to create this blast output file.
 
-=item B<--clean_name> 
+=item B<--clean_name>
 
-Bolean - When activated, if the Name attribute already exists, it we be cleaned. Otherwise Name retrieved by --blast + --db options 
+When activated, if the Name attribute already exists, it we be cleaned. Otherwise Name retrieved by --blast + --db options 
 will be appended. Default False (Name attribute not cleaned).
 
-=item B<--clean_product> 
+=item B<--clean_product>
 
-Bolean - When activated, if the product attribute already exists, it we be cleaned. Otherwise product retrieved by --blast + --db options 
+When activated, if the product attribute already exists, it we be cleaned. Otherwise product retrieved by --blast + --db options 
 will be appended. Default False (product attribute not cleaned).
 
-=item B<--clean_dbxref> 
+=item B<--clean_dbxref>
 
-Bolean - When activated, if the Dbxref attribute already exists, it we be cleaned. Otherwise Dbxref retrieved by --interpro option 
+When activated, if the Dbxref attribute already exists, it we be cleaned. Otherwise Dbxref retrieved by --interpro option 
 will be appended. Default False (Dbxref attribute not cleaned).
 
-=item B<--clean_ontology> 
+=item B<--clean_ontology>
 
-Bolean - When activated, if the Ontology_term attribute already exists, it we be cleaned. Otherwise Ontology_term retrieved by --interpro option 
+When activated, if the Ontology_term attribute already exists, it we be cleaned. Otherwise Ontology_term retrieved by --interpro option 
 will be appended. Default False (Ontology_term attribute not cleaned).
 
-=item B<-d> or B<--db>
+=item B<-d> or B<--db> <file>
 
-String - The fasta file that has been used as DB for the blast. Gene names and products  (sometimes called descriptions) will be fished from this file.
+The fasta file that has been used as DB for the blast. Gene names and products  (sometimes called descriptions) will be fished from this file.
 
-=item B<--be> or B<--blast_evalue>
+=item B<--be> or B<--blast_evalue> <float>
 
-Float - Maximum e-value to keep the annotation from the blast file. By default 1e-6.
+Maximum e-value to keep the annotation from the blast file. By default 1e-6.
 
-=item B<--pe>
+=item B<--pe> <int>
 
-Integer - The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
+The PE (protein existence) in the uniprot header indicates the type of evidence that supports the existence of the protein.
 You can decide until which protein existence level you want to consider to lift the functional information. Default 5.
 
 1. Experimental evidence at protein level
@@ -1268,23 +1268,23 @@ You can decide until which protein existence level you want to consider to lift 
 4. Protein predicted
 5. Protein uncertain
 
-=item B<-i> or B<--interpro>
+=item B<-i> or B<--interpro> <file>
 
-String - Input interpro file (.tsv) that will be used to complement the features read from
+Input interpro file (.tsv) that will be used to complement the features read from
 the first file (specified with B<--ref>).
 
-=item B<-id>
+=item B<-id> <string>
 
-String - This option will changed the id name. It will create from id prefix (usually 6 letters) given as input, uniq IDs like prefixE00000000001. Where E mean exon. Instead E we can have C for CDS, G for gene, T for mRNA, U for Utr.
+This option will changed the id name. It will create from id prefix (usually 6 letters) given as input, uniq IDs like prefixE00000000001. Where E mean exon. Instead E we can have C for CDS, G for gene, T for mRNA, U for Utr.
 In the case of discontinuous features (i.e. a single feature that exists over multiple genomic locations) the same ID may appear on multiple lines. All lines that share an ID collectively represent a signle feature.
 
 =item B<-idau>
 
-Boolean - This option (id all uniq) is similar to -id option but Id of features that share an ID collectively will be change by different and uniq ID.
+This option (id all uniq) is similar to -id option but Id of features that share an ID collectively will be change by different and uniq ID.
 
-=item B<-nb>
+=item B<-nb> <int>
 
-Integer - Usefull only if -id is used.
+Usefull only if -id is used.
 This option is used to define the number that will be used to begin the numbering. By default begin by 1.
 
 =item B<-a> or B<--addgntag>
@@ -1292,22 +1292,18 @@ This option is used to define the number that will be used to begin the numberin
 Add information in ouptut gff about if gene-name tag ('GN=') is present in blast db fasta ('gn_present=yes')
 or not ('gn_present=no'). Blast hits without an entry in the blast db will receive 'gn_present=NA'.
 
-=item B<-o> or B<--output>
+=item B<-o>, B<--out> or B<--output> <folder>
 
-String - Output folder name with summary files. If no output file is specified, the output will be
+Output folder name with summary files. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<--pcds>
 
-Boolean - pcds stands for populate cds. It copies the Name, product, Ontology_term, Dbxref and uniprot_id attributes from mRNA to the CDS.
-
-=item B<-thread>, B<threads>, B<cpu>, B<cpus>, B<core>, B<cores>, B<job> or B<jobs>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
+pcds stands for populate cds. It copies the Name, product, Ontology_term, Dbxref and uniprot_id attributes from mRNA to the CDS.
 
 =item B<-h> or B<--help>
 
-Boolean - Display this helpful text.
+Display this helpful text.
 
 =back
 
@@ -1318,19 +1314,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -27,7 +27,6 @@ start_script();
 # >>>>>>>>>>>>> OPTIONS <<<<<<<<<<<<
 #############################
 
-
 my $outfile = undef;
 my $gff = undef;
 my $valueK = undef;
@@ -44,8 +43,8 @@ if ( !$script_parser->getoptionsfromarray(
 		"h|help"                 => \$help,
 		"gtf=s"                  => \$gff,
 		"threshold|t=i"          => \$valueK,
-		'p|plot!'                 => \$opt_plot,
-		"outfile|output|out|o=s" => \$outfile,
+		'p|plot!'                => \$opt_plot,
+		"output|out|o=s"         => \$outfile,
 	) )
 {
 	pod2usage( { -message => 'Failed to parse command line',
@@ -744,11 +743,10 @@ and a warning is raised to allow to check thoses cases.
 
 =over 8
 
-=item B<-gtf>
-
+=item B<-gtf> <file>
 Input gtf file produced by Kraken.
 
-=item B<--threshold> or B<-t>
+=item B<--threshold> or B<-t> <float>
 
 Gene mapping percentage over which a gene must be reported. By default the value is 0.
 
@@ -756,11 +754,10 @@ Gene mapping percentage over which a gene must be reported. By default the value
 
 Allows to create an histogram in pdf. It shows the distribution of percentage of gene length mapped.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -775,19 +772,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

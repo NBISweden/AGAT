@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More;
 use Bio::Tools::GFF;
 use AGAT::AGAT;
 use AGAT::OmniscientTool;
@@ -94,3 +94,5 @@ ok( check_features_overlap($feature1, $feature2), "check_features_overlap");
 # run is_single_exon_gene
 $feature1 = $hash_omniscient->{"level1"}{"gene"}{"gene:os01g0100650"};
 ok( is_single_exon_gene($hash_omniscient, $feature1), "is_single_exon_gene");
+
+done_testing();

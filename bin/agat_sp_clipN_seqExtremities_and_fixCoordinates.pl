@@ -251,22 +251,20 @@ The annotation from the sequence clipped are modified accrodingly to stay consis
 
 =over 8
 
-=item B<-g>, B<--gff> or B<-ref>
+=item B<-g>, B<--gff> or B<-ref> <file>
 
 Input GTF/GFF file.
 
-=item B<-f>, B<--fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta> <file>
 
 Input fasta file.
 
-=item B<--of>
-
-Output fixed fasta file.  If no output file is specified, the output will be
+=item B<--of> <file>
+Output fixed fasta file. If no output file is specified, the output will be
 written to STDOUT.
 
-=item B<--og>
-
-Output fixed GFF file.  If no output file is specified, the output will be
+=item B<--og> <file>
+Output fixed GFF file. If no output file is specified, the output will be
 written to STDOUT
 
 =item B<-h> or B<--help>
@@ -282,19 +280,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

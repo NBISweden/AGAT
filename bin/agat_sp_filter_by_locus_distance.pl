@@ -30,7 +30,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'gff=s'                   => \$gff,
   'add_flag|af!'            => \$add_flag,
   'd|dist=i'                => \$opt_dist,
-  'output|outfile|out|o=s'  => \$outfile ) )
+  'output|out|o=s'          => \$outfile ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
                  -verbose => 1,
@@ -269,23 +269,23 @@ the training on intergenic part will be biased.
 
 =over 8
 
-=item B<-gff>
+=item B<-gff> <file>
 
 Input GTF/GFF file.
 
-=item B<--dist> or B<-d>
+=item B<--dist> or B<-d> <int>
 
-The minimum inter-loci distance to allow.  No default (will not apply
+The minimum inter-loci distance to allow. No default (will not apply
 filter by default).
 
 =item B<--af> or B<--add_flag>
 
 Instead of filter the result into two output files, write only one and add the flag <low_dist> in the gff.(tag = Lvalue or tag = Rvalue  where L is left and R right and the value is the distance with accordingle the left or right locus)
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
@@ -300,19 +300,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

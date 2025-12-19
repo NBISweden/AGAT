@@ -376,6 +376,7 @@ sub dual_print2{
 # @input: 3 => hash, fh, string, integer
 # @output 0 => None
 sub dual_print{
+	
 	# -------------- INPUT --------------
 	my ($args) = @_;
 	# Check we receive a hash as ref

@@ -85,6 +85,14 @@ gff_output_version: 3
 # relax = all feature types will be accepted
 gtf_output_version: relax
 
+# GFF3 specification recommends that certain characters (, ; = and tabulation) in attribute values be URL-encoded to ensure proper parsing and interpretation.
+# ⚠️ If the input values are not URL-encoded, issues may occur because of their special meaning in the GFF3 specification.
+# By default attribute values will be URL-encoded for GFF3 listed special characters.
+url_encode_out: true
+
+# Force overwrite existing output file
+force: false
+
 # Output will be sorted in tabix format
 tabix: false
 

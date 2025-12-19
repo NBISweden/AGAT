@@ -39,7 +39,7 @@ if ( ! $script_parser->getoptionsfromarray(
     "p|t|l=s@"       => \@opt_tag,
     "type_dependent!" => \$opt_type_dependent,
     "collective!"    => \$opt_collective,
-    "output|outfile|out|o=s" => \$outfile,
+    "output|out|o=s" => \$outfile,
   ))
 {
   pod2usage( { -message => 'Failed to parse command line',
@@ -381,26 +381,26 @@ i.e. when two feature types start with the same letter, the second one met will 
 
 =over 8
 
-=item B<--gff> or B<-f>
+=item B<--gff> or B<-f> <file>
 
 Input GTF/GFF file.
 
 =item B<--gap>
 
-Integer - Increment the next gene (level1 feature) suffix with this value. Defauft 0.
+Increment the next gene (level1 feature) suffix with this value. Defauft 0.
 
 =item B<--ensembl>
 
-Boolean - For an ID Ensembl like (e.g PREFIXG00000000022). The ID is built as follow:
+For an ID Ensembl like (e.g PREFIXG00000000022). The ID is built as follow:
 $opt_prefix.$letterCode.0*.Number where the number of 0 is adapted in order to have 11 digits.
 
-=item B<--prefix>
+=item B<--prefix> <string>
 
-String - Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
+Add a specific prefix to the ID. By defaut if will be the feature type (3rd column).
 
 =item B<--type_dependent>
 
-Boolean - Activate type_dependent numbering. The number is depedendent of the feature type.
+Activate type_dependent numbering. The number is depedendent of the feature type.
 i.e instead of:
 NbV1Ch01        AUGUSTUS        gene    97932   99714   0.06    -       .       ID=gene1
 NbV1Ch01        AUGUSTUS        mRNA    97932   99714   0.06    -       .       ID=mRNA2
@@ -414,23 +414,23 @@ NbV1Ch01        AUGUSTUS        exon    98679   98844   .       -       .       
 
 =item B<--collective>
 
-Boolean - In the case of discontinuous features (i.e. a single feature that
+In the case of discontinuous features (i.e. a single feature that
 exists over multiple genomic locations like CDS, UTR) we set a uniq ID by default.
 If you wish to set the a collective ID for those feature, please activate this option.
 
 =item B<--tair>
 
-Boolean - Tair like Output:
+Tair like Output:
 
 NbV1Ch01    TAIR10  gene    5928    8737    .       -       .       ID=AT1G01020
 NbV1Ch01    TAIR10  mRNA    5928    8737    .       -       .       ID=AT1G01020.1
 NbV1Ch01    TAIR10  exon    5928    8737   .       -       .        ID=AT1G01020.1-exon1
 
-=item B<--nb>
+=item B<--nb> <int>
 
-Integer - Start numbering to this value. Default 1.
+Start numbering to this value. Default 1.
 
-=item B<-p>,  B<-t> or  B<-l>
+=item B<-p>,  B<-t> or  B<-l> <string>
 
 primary tag option, case insensitive, list. Allow to specied the feature types that will be handled.
 You can specified a specific feature by given its primary tag name (column 3) as: cds, Gene, MrNa
@@ -439,15 +439,14 @@ You can specify directly all the feature of a particular level:
       level3=CDS,exon,UTR,etc
 By default all feature are taken into account. fill the option by the value "all" will have the same behaviour.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-String - Output GFF file. If no output file is specified, the output will be
-written to STDOUT.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<-h> or B<--help>
 
-Boolean - Display this helpful text.
+Display this helpful text.
 
 =back
 
@@ -458,19 +457,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

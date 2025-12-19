@@ -150,7 +150,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	33975	34124	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0100800-01	N/A	N/A	transcript:Os01t0100800-01	Os01t0100800-01	N/A	N/A
 1	irgsp	five_prime_UTR	29818	29939	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-11	N/A	N/A	transcript:Os01t0100800-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	34125	34453	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-11	N/A	N/A	transcript:Os01t0100800-01	N/A	N/A	N/A
-1	irgsp	gene	35623	41136	.	1	.	N/A	protein_coding	N/A	Sphingosine-1-phosphate lyase, Disease resistance response (Os01t0100900-01)	N/A	N/A	N/A	Os01g0100900	gene:Os01g0100900	irgspv1.0-20170804-genes	SPHINGOSINE-1-PHOSPHATE LYASE 1, Sphingosine-1-Phoshpate Lyase 1	N/A	N/A	N/A	N/A
+1	irgsp	gene	35623	41136	.	1	.	N/A	protein_coding	N/A	Sphingosine-1-phosphate lyase%2C Disease resistance response (Os01t0100900-01)	N/A	N/A	N/A	Os01g0100900	gene:Os01g0100900	irgspv1.0-20170804-genes	SPHINGOSINE-1-PHOSPHATE LYASE 1%2C Sphingosine-1-Phoshpate Lyase 1	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	35623	41136	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0100900-01	N/A	N/A	gene:Os01g0100900	N/A	N/A	Os01t0100900-01
 1	irgsp	exon	35623	35939	.	1	.	N/A	N/A	1	N/A	2	-1	Os01t0100900-01.exon1	N/A	Os01t0100900-01.exon1	N/A	Os01t0100900-01.exon1	transcript:Os01t0100900-01	N/A	1	N/A
 1	irgsp	exon	36027	36072	.	1	.	N/A	N/A	1	N/A	0	2	Os01t0100900-01.exon2	N/A	Os01t0100900-01.exon2	N/A	Os01t0100900-01.exon2	transcript:Os01t0100900-01	N/A	2	N/A
@@ -188,7 +188,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	mRNA	58658	61090	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0101150-00	N/A	N/A	gene:Os01g0101150	N/A	N/A	Os01t0101150-00
 1	irgsp	exon	58658	61090	.	1	.	N/A	N/A	1	N/A	0	0	Os01t0101150-00.exon1	N/A	Os01t0101150-00.exon1	N/A	Os01t0101150-00.exon1	transcript:Os01t0101150-00	N/A	1	N/A
 1	irgsp	CDS	58658	61090	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0101150-00	N/A	N/A	transcript:Os01t0101150-00	Os01t0101150-00	N/A	N/A
-1	irgsp	gene	62060	65537	.	1	.	N/A	protein_coding	N/A	2,3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01);2,3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02)	N/A	N/A	N/A	Os01g0101200	gene:Os01g0101200	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	62060	65537	.	1	.	N/A	protein_coding	N/A	2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-01)%3B2%2C3-diketo-5-methylthio-1-phosphopentane phosphatase domain containing protein. (Os01t0101200-02)	N/A	N/A	N/A	Os01g0101200	gene:Os01g0101200	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	62060	63576	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0101200-01	N/A	N/A	gene:Os01g0101200	N/A	N/A	Os01t0101200-01
 1	irgsp	exon	62060	62295	.	1	.	N/A	N/A	0	N/A	0	-1	Os01t0101200-01.exon1	N/A	Os01t0101200-01.exon1	N/A	Os01t0101200-01.exon1	transcript:Os01t0101200-01	N/A	1	N/A
 1	irgsp	exon	62385	62905	.	1	.	N/A	N/A	1	N/A	2	0	Os01t0101200-02.exon2	N/A	Os01t0101200-02.exon2	N/A	Os01t0101200-02.exon2	transcript:Os01t0101200-01	N/A	2	N/A
@@ -211,7 +211,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	63248	63345	.	1	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0101200-02	N/A	N/A	transcript:Os01t0101200-02	Os01t0101200-02	N/A	N/A
 1	irgsp	five_prime_UTR	62112	62112	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-14	N/A	N/A	transcript:Os01t0101200-02	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	63346	65537	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-14	N/A	N/A	transcript:Os01t0101200-02	N/A	N/A	N/A
-1	irgsp	gene	63350	66302	.	-1	.	N/A	protein_coding	N/A	Similar to MRNA, partial cds, clone: RAFL22-26-L17. (Fragment). (Os01t0101300-01)	N/A	N/A	N/A	Os01g0101300	gene:Os01g0101300	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	63350	66302	.	-1	.	N/A	protein_coding	N/A	Similar to MRNA%2C partial cds%2C clone: RAFL22-26-L17. (Fragment). (Os01t0101300-01)	N/A	N/A	N/A	Os01g0101300	gene:Os01g0101300	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	63350	66302	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0101300-01	N/A	N/A	gene:Os01g0101300	N/A	N/A	Os01t0101300-01
 1	irgsp	exon	63350	63783	.	-1	.	N/A	N/A	1	N/A	-1	0	Os01t0101300-01.exon7	N/A	Os01t0101300-01.exon7	N/A	Os01t0101300-01.exon7	transcript:Os01t0101300-01	N/A	7	N/A
 1	irgsp	exon	63877	64020	.	-1	.	N/A	N/A	1	N/A	0	0	Os01t0101300-01.exon6	N/A	Os01t0101300-01.exon6	N/A	Os01t0101300-01.exon6	transcript:Os01t0101300-01	N/A	6	N/A
@@ -229,7 +229,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	65628	65950	.	-1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0101300-01	N/A	N/A	transcript:Os01t0101300-01	Os01t0101300-01	N/A	N/A
 1	irgsp	five_prime_UTR	65951	66302	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-15	N/A	N/A	transcript:Os01t0101300-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	63350	63669	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-15	N/A	N/A	transcript:Os01t0101300-01	N/A	N/A	N/A
-1	irgsp	gene	72816	78349	.	1	.	N/A	protein_coding	N/A	Immunoglobulin-like fold domain containing protein. (Os01t0101600-01);Immunoglobulin-like fold domain containing protein. (Os01t0101600-02);Hypothetical conserved gene. (Os01t0101600-03)	N/A	N/A	N/A	Os01g0101600	gene:Os01g0101600	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	72816	78349	.	1	.	N/A	protein_coding	N/A	Immunoglobulin-like fold domain containing protein. (Os01t0101600-01)%3BImmunoglobulin-like fold domain containing protein. (Os01t0101600-02)%3BHypothetical conserved gene. (Os01t0101600-03)	N/A	N/A	N/A	Os01g0101600	gene:Os01g0101600	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	72816	78349	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0101600-01	N/A	N/A	gene:Os01g0101600	N/A	N/A	Os01t0101600-01
 1	irgsp	exon	72816	73935	.	1	.	N/A	N/A	0	N/A	1	-1	Os01t0101600-01.exon1	N/A	Os01t0101600-01.exon1	N/A	Os01t0101600-01.exon1	transcript:Os01t0101600-01	N/A	1	N/A
 1	irgsp	exon	74468	74981	.	1	.	N/A	N/A	0	N/A	2	1	Os01t0101600-02.exon2	N/A	Os01t0101600-02.exon2	N/A	Os01t0101600-02.exon2	transcript:Os01t0101600-01	N/A	2	N/A
@@ -255,7 +255,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	75944	77008	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0101600-03	N/A	N/A	transcript:Os01t0101600-03	Os01t0101600-03	N/A	N/A
 1	irgsp	five_prime_UTR	75942	75943	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-18	N/A	N/A	transcript:Os01t0101600-03	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	77009	77699	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-19	N/A	N/A	transcript:Os01t0101600-03	N/A	N/A	N/A
-1	irgsp	gene	82426	84095	.	1	.	N/A	protein_coding	N/A	Similar to chaperone protein dnaJ 20. (Os01t0101700-00)	N/A	N/A	N/A	Os01g0101700	gene:Os01g0101700	irgspv1.0-20170804-genes	DnaJ domain protein C1, rice DJC26 homolog	N/A	N/A	N/A	N/A
+1	irgsp	gene	82426	84095	.	1	.	N/A	protein_coding	N/A	Similar to chaperone protein dnaJ 20. (Os01t0101700-00)	N/A	N/A	N/A	Os01g0101700	gene:Os01g0101700	irgspv1.0-20170804-genes	DnaJ domain protein C1%2C rice DJC26 homolog	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	82426	84095	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0101700-00	N/A	N/A	gene:Os01g0101700	N/A	N/A	Os01t0101700-00
 1	irgsp	exon	82426	82932	.	1	.	N/A	N/A	1	N/A	0	-1	Os01t0101700-00.exon1	N/A	Os01t0101700-00.exon1	N/A	Os01t0101700-00.exon1	transcript:Os01t0101700-00	N/A	1	N/A
 1	irgsp	exon	83724	84095	.	1	.	N/A	N/A	1	N/A	-1	0	Os01t0101700-00.exon2	N/A	Os01t0101700-00.exon2	N/A	Os01t0101700-00.exon2	transcript:Os01t0101700-00	N/A	2	N/A
@@ -305,7 +305,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	89825	91411	.	-1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0102000-01	N/A	N/A	transcript:Os01t0102000-01	Os01t0102000-01	N/A	N/A
 1	irgsp	five_prime_UTR	91412	91465	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-25	N/A	N/A	transcript:Os01t0102000-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	89763	89824	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-25	N/A	N/A	transcript:Os01t0102000-01	N/A	N/A	N/A
-1	irgsp	gene	134300	135439	.	1	.	N/A	protein_coding	N/A	Thylakoid lumen protein, Photosynthesis and chloroplast development (Os01t0102300-01)	N/A	N/A	N/A	Os01g0102300	gene:Os01g0102300	irgspv1.0-20170804-genes	OsTLP27	N/A	N/A	N/A	N/A
+1	irgsp	gene	134300	135439	.	1	.	N/A	protein_coding	N/A	Thylakoid lumen protein%2C Photosynthesis and chloroplast development (Os01t0102300-01)	N/A	N/A	N/A	Os01g0102300	gene:Os01g0102300	irgspv1.0-20170804-genes	OsTLP27	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	134300	135439	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0102300-01	N/A	N/A	gene:Os01g0102300	N/A	N/A	Os01t0102300-01
 1	irgsp	exon	134300	134615	.	1	.	N/A	N/A	1	N/A	2	-1	Os01t0102300-01.exon1	N/A	Os01t0102300-01.exon1	N/A	Os01t0102300-01.exon1	transcript:Os01t0102300-01	N/A	1	N/A
 1	irgsp	exon	134698	134824	.	1	.	N/A	N/A	1	N/A	0	2	Os01t0102300-01.exon2	N/A	Os01t0102300-01.exon2	N/A	Os01t0102300-01.exon2	transcript:Os01t0102300-01	N/A	2	N/A
@@ -335,7 +335,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	143817	143908	.	1	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0102500-01	N/A	N/A	transcript:Os01t0102500-01	Os01t0102500-01	N/A	N/A
 1	irgsp	five_prime_UTR	141959	142083	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-29	N/A	N/A	transcript:Os01t0102500-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	143909	144554	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-28	N/A	N/A	transcript:Os01t0102500-01	N/A	N/A	N/A
-1	irgsp	gene	145603	147847	.	1	.	N/A	protein_coding	N/A	Shikimate kinase domain containing protein. (Os01t0102600-01);Similar to shikimate kinase family protein. (Os01t0102600-02)	N/A	N/A	N/A	Os01g0102600	gene:Os01g0102600	irgspv1.0-20170804-genes	Shikimate kinase 4	N/A	N/A	N/A	N/A
+1	irgsp	gene	145603	147847	.	1	.	N/A	protein_coding	N/A	Shikimate kinase domain containing protein. (Os01t0102600-01)%3BSimilar to shikimate kinase family protein. (Os01t0102600-02)	N/A	N/A	N/A	Os01g0102600	gene:Os01g0102600	irgspv1.0-20170804-genes	Shikimate kinase 4	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	145603	147847	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0102600-01	N/A	N/A	gene:Os01g0102600	N/A	N/A	Os01t0102600-01
 1	irgsp	exon	145603	145786	.	1	.	N/A	N/A	0	N/A	1	-1	Os01t0102600-01.exon1	N/A	Os01t0102600-01.exon1	N/A	Os01t0102600-01.exon1	transcript:Os01t0102600-01	N/A	1	N/A
 1	irgsp	exon	145905	145951	.	1	.	N/A	N/A	0	N/A	0	1	Os01t0102600-01.exon2	N/A	Os01t0102600-01.exon2	N/A	Os01t0102600-01.exon2	transcript:Os01t0102600-01	N/A	2	N/A
@@ -399,7 +399,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	168805	168921	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0102850-00	N/A	N/A	transcript:Os01t0102850-00	Os01t0102850-00	N/A	N/A
 1	irgsp	five_prime_UTR	164577	164905	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-34	N/A	N/A	transcript:Os01t0102850-00	N/A	N/A	N/A
 1	irgsp	five_prime_UTR	168499	168804	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-35	N/A	N/A	transcript:Os01t0102850-00	N/A	N/A	N/A
-1	irgsp	gene	169390	170316	.	-1	.	N/A	protein_coding	N/A	Light-regulated protein, Regulation of light-dependent attachment of LEAF-TYPE FERREDOXIN-NADP+ OXIDOREDUCTASE (LFNR) to the thylakoid membrane (Os01t0102900-01)	N/A	N/A	N/A	Os01g0102900	gene:Os01g0102900	irgspv1.0-20170804-genes	LIGHT-REGULATED GENE 1	N/A	N/A	N/A	N/A
+1	irgsp	gene	169390	170316	.	-1	.	N/A	protein_coding	N/A	Light-regulated protein%2C Regulation of light-dependent attachment of LEAF-TYPE FERREDOXIN-NADP+ OXIDOREDUCTASE (LFNR) to the thylakoid membrane (Os01t0102900-01)	N/A	N/A	N/A	Os01g0102900	gene:Os01g0102900	irgspv1.0-20170804-genes	LIGHT-REGULATED GENE 1	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	169390	170316	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0102900-01	N/A	N/A	gene:Os01g0102900	N/A	N/A	Os01t0102900-01
 1	irgsp	exon	169390	169656	.	-1	.	N/A	N/A	1	N/A	-1	2	Os01t0102900-01.exon3	N/A	Os01t0102900-01.exon3	N/A	Os01t0102900-01.exon3	transcript:Os01t0102900-01	N/A	3	N/A
 1	irgsp	exon	169751	169909	.	-1	.	N/A	N/A	1	N/A	2	2	Os01t0102900-01.exon2	N/A	Os01t0102900-01.exon2	N/A	Os01t0102900-01.exon2	transcript:Os01t0102900-01	N/A	2	N/A
@@ -427,7 +427,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	173004	173072	.	-1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0103000-01	N/A	N/A	transcript:Os01t0103000-01	Os01t0103000-01	N/A	N/A
 1	irgsp	five_prime_UTR	173073	173144	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-37	N/A	N/A	transcript:Os01t0103000-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	170798	171044	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-34	N/A	N/A	transcript:Os01t0103000-01	N/A	N/A	N/A
-1	irgsp	gene	178607	180575	.	1	.	N/A	protein_coding	N/A	TGF-beta receptor, type I/II extracellular region family protein. (Os01t0103100-01);Similar to predicted protein. (Os01t0103100-02)	N/A	N/A	N/A	Os01g0103100	gene:Os01g0103100	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	178607	180575	.	1	.	N/A	protein_coding	N/A	TGF-beta receptor%2C type I/II extracellular region family protein. (Os01t0103100-01)%3BSimilar to predicted protein. (Os01t0103100-02)	N/A	N/A	N/A	Os01g0103100	gene:Os01g0103100	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	178607	180548	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0103100-01	N/A	N/A	gene:Os01g0103100	N/A	N/A	Os01t0103100-01
 1	irgsp	exon	178607	180548	.	1	.	N/A	N/A	0	N/A	-1	-1	Os01t0103100-01.exon1	N/A	Os01t0103100-01.exon1	N/A	Os01t0103100-01.exon1	transcript:Os01t0103100-01	N/A	1	N/A
 1	irgsp	CDS	178642	180462	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0103100-01	N/A	N/A	transcript:Os01t0103100-01	Os01t0103100-01	N/A	N/A
@@ -454,7 +454,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	five_prime_UTR	185828	185828	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-41	N/A	N/A	transcript:Os01t0103400-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	185189	185434	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-38	N/A	N/A	transcript:Os01t0103400-01	N/A	N/A	N/A
 1	irgsp	repeat_region	186000	186100	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	fakeRepeat2	N/A	N/A	N/A	N/A	N/A	N/A
-1	irgsp	gene	186250	190904	.	-1	.	N/A	protein_coding	N/A	Similar to sterol-8,7-isomerase. (Os01t0103600-01);Emopamil-binding family protein. (Os01t0103600-02)	N/A	N/A	N/A	Os01g0103600	gene:Os01g0103600	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	186250	190904	.	-1	.	N/A	protein_coding	N/A	Similar to sterol-8%2C7-isomerase. (Os01t0103600-01)%3BEmopamil-binding family protein. (Os01t0103600-02)	N/A	N/A	N/A	Os01g0103600	gene:Os01g0103600	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	186250	190262	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0103600-02	N/A	N/A	gene:Os01g0103600	N/A	N/A	Os01t0103600-02
 1	irgsp	exon	186250	186771	.	-1	.	N/A	N/A	0	N/A	-1	2	Os01t0103600-02.exon4	N/A	Os01t0103600-02.exon4	N/A	Os01t0103600-02.exon4	transcript:Os01t0103600-02	N/A	4	N/A
 1	irgsp	exon	189607	189715	.	-1	.	N/A	N/A	0	N/A	2	1	Os01t0103600-02.exon3	N/A	Os01t0103600-02.exon3	N/A	Os01t0103600-02.exon3	transcript:Os01t0103600-02	N/A	3	N/A
@@ -513,7 +513,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	five_prime_UTR	197647	197838	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-47	N/A	N/A	transcript:Os01t0103800-01	N/A	N/A	N/A
 1	irgsp	five_prime_UTR	198034	198129	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-48	N/A	N/A	transcript:Os01t0103800-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	200480	200803	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-45	N/A	N/A	transcript:Os01t0103800-01	N/A	N/A	N/A
-1	irgsp	gene	201944	206202	.	1	.	N/A	protein_coding	N/A	Polynucleotidyl transferase, Ribonuclease H fold domain containing protein. (Os01t0103900-01)	N/A	N/A	N/A	Os01g0103900	gene:Os01g0103900	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	201944	206202	.	1	.	N/A	protein_coding	N/A	Polynucleotidyl transferase%2C Ribonuclease H fold domain containing protein. (Os01t0103900-01)	N/A	N/A	N/A	Os01g0103900	gene:Os01g0103900	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	201944	206202	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0103900-01	N/A	N/A	gene:Os01g0103900	N/A	N/A	Os01t0103900-01
 1	irgsp	exon	201944	202110	.	1	.	N/A	N/A	1	N/A	0	-1	Os01t0103900-01.exon1	N/A	Os01t0103900-01.exon1	N/A	Os01t0103900-01.exon1	transcript:Os01t0103900-01	N/A	1	N/A
 1	irgsp	exon	202252	202359	.	1	.	N/A	N/A	1	N/A	0	0	Os01t0103900-01.exon2	N/A	Os01t0103900-01.exon2	N/A	Os01t0103900-01.exon2	transcript:Os01t0103900-01	N/A	2	N/A
@@ -541,7 +541,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	205534	205543	.	1	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0103900-01	N/A	N/A	transcript:Os01t0103900-01	Os01t0103900-01	N/A	N/A
 1	irgsp	five_prime_UTR	201944	202041	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-49	N/A	N/A	transcript:Os01t0103900-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	205544	206202	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-46	N/A	N/A	transcript:Os01t0103900-01	N/A	N/A	N/A
-1	irgsp	gene	206131	209606	.	-1	.	N/A	protein_coding	N/A	C-type lectin domain containing protein. (Os01t0104000-01);Similar to predicted protein. (Os01t0104000-02)	N/A	N/A	N/A	Os01g0104000	gene:Os01g0104000	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	206131	209606	.	-1	.	N/A	protein_coding	N/A	C-type lectin domain containing protein. (Os01t0104000-01)%3BSimilar to predicted protein. (Os01t0104000-02)	N/A	N/A	N/A	Os01g0104000	gene:Os01g0104000	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	206131	209581	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104000-02	N/A	N/A	gene:Os01g0104000	N/A	N/A	Os01t0104000-02
 1	irgsp	exon	206131	207029	.	-1	.	N/A	N/A	0	N/A	-1	2	Os01t0104000-02.exon4	N/A	Os01t0104000-02.exon4	N/A	Os01t0104000-02.exon4	transcript:Os01t0104000-02	N/A	4	N/A
 1	irgsp	exon	207706	208273	.	-1	.	N/A	N/A	0	N/A	2	1	Os01t0104000-02.exon3	N/A	Os01t0104000-02.exon3	N/A	Os01t0104000-02.exon3	transcript:Os01t0104000-02	N/A	3	N/A
@@ -564,7 +564,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	209438	209525	.	-1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0104000-01	N/A	N/A	transcript:Os01t0104000-01	Os01t0104000-01	N/A	N/A
 1	irgsp	five_prime_UTR	209526	209606	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-51	N/A	N/A	transcript:Os01t0104000-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	206134	206449	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-48	N/A	N/A	transcript:Os01t0104000-01	N/A	N/A	N/A
-1	irgsp	gene	209771	214173	.	1	.	N/A	protein_coding	N/A	Similar to protein binding / zinc ion binding. (Os01t0104100-01);Similar to protein binding / zinc ion binding. (Os01t0104100-02)	N/A	N/A	N/A	Os01g0104100	gene:Os01g0104100	irgspv1.0-20170804-genes	cold-inducible, cold-inducible zinc finger protein	N/A	N/A	N/A	N/A
+1	irgsp	gene	209771	214173	.	1	.	N/A	protein_coding	N/A	Similar to protein binding / zinc ion binding. (Os01t0104100-01)%3BSimilar to protein binding / zinc ion binding. (Os01t0104100-02)	N/A	N/A	N/A	Os01g0104100	gene:Os01g0104100	irgspv1.0-20170804-genes	cold-inducible%2C cold-inducible zinc finger protein	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	209771	214173	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104100-01	N/A	N/A	gene:Os01g0104100	N/A	N/A	Os01t0104100-01
 1	irgsp	exon	209771	209896	.	1	.	N/A	N/A	0	N/A	0	0	Os01t0104100-01.exon1	N/A	Os01t0104100-01.exon1	N/A	Os01t0104100-01.exon1	transcript:Os01t0104100-01	N/A	1	N/A
 1	irgsp	exon	210244	210563	.	1	.	N/A	N/A	1	N/A	2	0	Os01t0104100-01.exon2	N/A	Os01t0104100-01.exon2	N/A	Os01t0104100-01.exon2	transcript:Os01t0104100-01	N/A	2	N/A
@@ -608,7 +608,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	exon	216884	217345	.	1	.	N/A	N/A	1	N/A	0	0	Os01t0104200-00.exon2	N/A	Os01t0104200-00.exon2	N/A	Os01t0104200-00.exon2	transcript:Os01t0104200-00	N/A	2	N/A
 1	irgsp	CDS	216212	216769	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0104200-00	N/A	N/A	transcript:Os01t0104200-00	Os01t0104200-00	N/A	N/A
 1	irgsp	CDS	216884	217345	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0104200-00	N/A	N/A	transcript:Os01t0104200-00	Os01t0104200-00	N/A	N/A
-1	irgsp	gene	226897	229301	.	1	.	N/A	protein_coding	N/A	Ricin B-related lectin domain containing protein. (Os01t0104400-01);Ricin B-related lectin domain containing protein. (Os01t0104400-02);Ricin B-related lectin domain containing protein. (Os01t0104400-03)	N/A	N/A	N/A	Os01g0104400	gene:Os01g0104400	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	226897	229301	.	1	.	N/A	protein_coding	N/A	Ricin B-related lectin domain containing protein. (Os01t0104400-01)%3BRicin B-related lectin domain containing protein. (Os01t0104400-02)%3BRicin B-related lectin domain containing protein. (Os01t0104400-03)	N/A	N/A	N/A	Os01g0104400	gene:Os01g0104400	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	226897	229229	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104400-01	N/A	N/A	gene:Os01g0104400	N/A	N/A	Os01t0104400-01
 1	irgsp	exon	226897	227634	.	1	.	N/A	N/A	0	N/A	0	-1	Os01t0104400-01.exon1	N/A	Os01t0104400-01.exon1	N/A	Os01t0104400-01.exon1	transcript:Os01t0104400-01	N/A	1	N/A
 1	irgsp	exon	227742	227864	.	1	.	N/A	N/A	1	N/A	0	0	Os01t0104400-03.exon2	N/A	Os01t0104400-03.exon2	N/A	Os01t0104400-03.exon2	transcript:Os01t0104400-01	N/A	2	N/A
@@ -652,7 +652,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	five_prime_UTR	241680	241702	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-56	N/A	N/A	transcript:Os01t0104500-01	N/A	N/A	N/A
 1	irgsp	five_prime_UTR	241866	241907	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-57	N/A	N/A	transcript:Os01t0104500-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	242978	243440	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-54	N/A	N/A	transcript:Os01t0104500-01	N/A	N/A	N/A
-1	irgsp	gene	248828	256872	.	-1	.	N/A	protein_coding	N/A	Homolog of Arabidopsis DE-ETIOLATED1 (DET1), Modulation of the ABA signaling pathway and ABA biosynthesis, Regulation of chlorophyll content (Os01t0104600-01);Similar to Light-mediated development protein DET1 (Deetiolated1 homolog) (tDET1) (High pigmentation protein 2) (Protein dark green). (Os01t0104600-02)	N/A	N/A	N/A	Os01g0104600	gene:Os01g0104600	irgspv1.0-20170804-genes	DE-ETIOLATED1	N/A	N/A	N/A	N/A
+1	irgsp	gene	248828	256872	.	-1	.	N/A	protein_coding	N/A	Homolog of Arabidopsis DE-ETIOLATED1 (DET1)%2C Modulation of the ABA signaling pathway and ABA biosynthesis%2C Regulation of chlorophyll content (Os01t0104600-01)%3BSimilar to Light-mediated development protein DET1 (Deetiolated1 homolog) (tDET1) (High pigmentation protein 2) (Protein dark green). (Os01t0104600-02)	N/A	N/A	N/A	Os01g0104600	gene:Os01g0104600	irgspv1.0-20170804-genes	DE-ETIOLATED1	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	248828	256571	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104600-02	N/A	N/A	gene:Os01g0104600	N/A	N/A	Os01t0104600-02
 1	irgsp	exon	248828	249107	.	-1	.	N/A	N/A	1	N/A	-1	1	Os01t0104600-01.exon11	N/A	Os01t0104600-01.exon11	N/A	Os01t0104600-01.exon11	transcript:Os01t0104600-02	N/A	11	N/A
 1	irgsp	exon	249369	249468	.	-1	.	N/A	N/A	1	N/A	1	0	Os01t0104600-01.exon10	N/A	Os01t0104600-01.exon10	N/A	Os01t0104600-01.exon10	transcript:Os01t0104600-02	N/A	10	N/A
@@ -703,7 +703,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	256361	256441	.	-1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0104600-01	N/A	N/A	transcript:Os01t0104600-01	Os01t0104600-01	N/A	N/A
 1	irgsp	five_prime_UTR	256442	256872	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-59	N/A	N/A	transcript:Os01t0104600-01	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	248828	248970	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-56	N/A	N/A	transcript:Os01t0104600-01	N/A	N/A	N/A
-1	irgsp	gene	261530	268145	.	1	.	N/A	protein_coding	N/A	Sas10/Utp3 family protein. (Os01t0104800-01);Hypothetical conserved gene. (Os01t0104800-02)	N/A	N/A	N/A	Os01g0104800	gene:Os01g0104800	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	261530	268145	.	1	.	N/A	protein_coding	N/A	Sas10/Utp3 family protein. (Os01t0104800-01)%3BHypothetical conserved gene. (Os01t0104800-02)	N/A	N/A	N/A	Os01g0104800	gene:Os01g0104800	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	261530	268145	.	1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104800-01	N/A	N/A	gene:Os01g0104800	N/A	N/A	Os01t0104800-01
 1	irgsp	exon	261530	261661	.	1	.	N/A	N/A	0	N/A	1	-1	Os01t0104800-01.exon1	N/A	Os01t0104800-01.exon1	N/A	Os01t0104800-01.exon1	transcript:Os01t0104800-01	N/A	1	N/A
 1	irgsp	exon	261767	261805	.	1	.	N/A	N/A	0	N/A	1	1	Os01t0104800-01.exon2	N/A	Os01t0104800-01.exon2	N/A	Os01t0104800-01.exon2	transcript:Os01t0104800-01	N/A	2	N/A
@@ -764,7 +764,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	CDS	267880	268011	.	1	0	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	CDS:Os01t0104800-02	N/A	N/A	transcript:Os01t0104800-02	Os01t0104800-02	N/A	N/A
 1	irgsp	five_prime_UTR	263523	263524	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-61	N/A	N/A	transcript:Os01t0104800-02	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	268012	268120	.	1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-58	N/A	N/A	transcript:Os01t0104800-02	N/A	N/A	N/A
-1	irgsp	gene	270179	275084	.	-1	.	N/A	protein_coding	N/A	Transferase family protein. (Os01t0104900-01);Hypothetical conserved gene. (Os01t0104900-02)	N/A	N/A	N/A	Os01g0104900	gene:Os01g0104900	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	270179	275084	.	-1	.	N/A	protein_coding	N/A	Transferase family protein. (Os01t0104900-01)%3BHypothetical conserved gene. (Os01t0104900-02)	N/A	N/A	N/A	Os01g0104900	gene:Os01g0104900	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	270179	275084	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0104900-01	N/A	N/A	gene:Os01g0104900	N/A	N/A	Os01t0104900-01
 1	irgsp	exon	270179	271333	.	-1	.	N/A	N/A	0	N/A	-1	0	Os01t0104900-01.exon2	N/A	Os01t0104900-01.exon2	N/A	Os01t0104900-01.exon2	transcript:Os01t0104900-01	N/A	2	N/A
 1	irgsp	exon	274529	275084	.	-1	.	N/A	N/A	0	N/A	0	-1	Os01t0104900-01.exon1	N/A	Os01t0104900-01.exon1	N/A	Os01t0104900-01.exon1	transcript:Os01t0104900-01	N/A	1	N/A
@@ -779,7 +779,7 @@ seq_id	source_tag	primary_tag	start	end	score	strand	frame	Alias	biotype	constit
 1	irgsp	five_prime_UTR	271310	271333	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-63	N/A	N/A	transcript:Os01t0104900-02	N/A	N/A	N/A
 1	irgsp	five_prime_UTR	271457	271518	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-five_prime_utr-64	N/A	N/A	transcript:Os01t0104900-02	N/A	N/A	N/A
 1	irgsp	three_prime_UTR	270250	270355	.	-1	.	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	agat-three_prime_utr-60	N/A	N/A	transcript:Os01t0104900-02	N/A	N/A	N/A
-1	irgsp	gene	284762	291892	.	-1	.	N/A	protein_coding	N/A	Similar to HAT family dimerisation domain containing protein, expressed. (Os01t0105300-01)	N/A	N/A	N/A	Os01g0105300	gene:Os01g0105300	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
+1	irgsp	gene	284762	291892	.	-1	.	N/A	protein_coding	N/A	Similar to HAT family dimerisation domain containing protein%2C expressed. (Os01t0105300-01)	N/A	N/A	N/A	Os01g0105300	gene:Os01g0105300	irgspv1.0-20170804-genes	N/A	N/A	N/A	N/A	N/A
 1	irgsp	mRNA	284762	291892	.	-1	.	N/A	protein_coding	N/A	N/A	N/A	N/A	N/A	N/A	transcript:Os01t0105300-01	N/A	N/A	gene:Os01g0105300	N/A	N/A	Os01t0105300-01
 1	irgsp	exon	284762	287047	.	-1	.	N/A	N/A	1	N/A	-1	-1	Os01t0105300-01.exon5	N/A	Os01t0105300-01.exon5	N/A	Os01t0105300-01.exon5	transcript:Os01t0105300-01	N/A	5	N/A
 1	irgsp	exon	291398	291436	.	-1	.	N/A	N/A	1	N/A	-1	-1	Os01t0105300-01.exon4	N/A	Os01t0105300-01.exon4	N/A	Os01t0105300-01.exon4	transcript:Os01t0105300-01	N/A	4	N/A

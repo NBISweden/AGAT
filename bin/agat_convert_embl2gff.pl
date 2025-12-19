@@ -31,10 +31,11 @@ if( ! $script_parser->getoptionsfromarray(
   "h|help"                     => \$help,
   "embl=s"                     => \$embl,
   "primary_tag|pt|t=s"         => \$primaryTags,
-  "d!"                         => \$discard,
-  "k!"                         => \$keep,
+  "d|discard!"                 => \$discard,
+  "k|keep!"                    => \$keep,
   "emblmygff3!"                => \$emblmygff3,
-  "outfile|output|o|out|gff=s" => \$outfile))
+  "o|out|output=s"             => \$outfile,
+) )
 {
   pod2usage( { -message => "Failed to parse command line\n$header",
          -verbose => 1,
@@ -235,60 +236,41 @@ The script takes an EMBL file as input, and will translate it in gff format.
 
 =over 8
 
-=item B<--embl>
+=item B<--embl> <file>
 
 Input EMBL file that will be read
 
 =item B<--emblmygff3>
-
-Bolean - Means that the EMBL flat file comes from the EMBLmyGFF3 software.
+Means that the EMBL flat file comes from the EMBLmyGFF3 software.
 This is an EMBL format dedicated for submission and contains particularity to deal with.
 This parameter is needed to get a proper sequence id in the GFF3 from an embl made with EMBLmyGFF3.
 
-=item B<--primary_tag>, B<--pt>, B<-t>
+=item B<--primary_tag>, B<--pt> or B<-t> <list>
 
 List of "primary tag". Useful to discard or keep specific features.
 Multiple tags must be coma-separated.
 
-=item B<-d>
+=item B<-d> or B<--discard>
 
-Bolean - Means that primary tags provided by the option "primary_tag" will be discarded.
+Means that primary tags provided by the option "primary_tag" will be discarded.
 
-=item B<-k>
+=item B<-k> or B<--keep>
 
-Bolean - Means that only primary tags provided by the option "primary_tag" will be kept.
+Means that only primary tags provided by the option "primary_tag" will be kept.
 
-=item B<-o>, B<--output>, B<--out>, B<--outfile> or B<--gff>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file. If no output file is specified, the output will be
+Output GFF file to create. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
 
 Display this helpful text.
 
-=back
 
-=head1 SHARED OPTIONS
+=item B<-v> or B<--verbose> <int>
 
-Shared options are defined in the AGAT configuration file and can be overridden via the command line for this script only.
-Common shared options are listed below; for the full list, please refer to the AGAT agat_config.yaml.
-
-=over 8
-
-=item B<--config>
-
-String - Path to a custom AGAT configuration file.  
-By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
-(available locally via `agat config --expose`).
-
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
-
-Integer - Number of parallel processes to use for file input parsing (via forking).
-
-=item B<-v> or B<--verbose>
-
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

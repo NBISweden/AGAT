@@ -17,8 +17,6 @@ my $outfile = undef;
 my $ref = undef;
 my $opt_help= 0;
 
-my @copyARGV=@ARGV;
-
 # OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
 my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 
@@ -30,7 +28,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'h|help!'                 => \$opt_help,
   'f|file|gff3|gff=s'       => \$ref,
   'm|model=s'               => \$model_to_test,
-  'output|outfile|out|o=s'  => \$outfile ) )
+  'output|out|o=s'          => \$outfile ) )
 {
   pod2usage( { -message => 'Failed to parse command line',
          -verbose => 1,
@@ -517,11 +515,11 @@ To modify locations, AGAT modify the UTRs (when available) by shortening them by
 
 =over 8
 
-=item B<-f>, B<--file>, B<--gff3> or B<--gff>
+=item B<-f>, B<--file>, B<--gff3> or B<--gff> <file>
 
 Input GTF/GFF file.
 
-=item B<-m> or B<--model>
+=item B<-m> or B<--model> <int list>
 
 To select cases you want to fix. By default all are used.
 To select specific cases write e.g. --model 1,4,5
@@ -532,10 +530,10 @@ Case3: When l2 (e.g. mRNA) from different gene identifier have identical exon an
 Case4: When l2 (e.g. mRNA) from different gene identifier have identical exon structures and different CDS structures (AGAT reshapes UTRs to modify mRNA and gene locations);
 Case5: When l2 (e.g. mRNA) from different gene identifier overlap but have different exon structure. In that case AGAT modified the gene locations by clipping UTRs;
 
-=item B<-o>, B<--out>, B<--output> or B<--outfile>
+=item B<-o>, B<--out> or B<--output>
 
-Output file. If none given, will be display in standard output.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -550,19 +548,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

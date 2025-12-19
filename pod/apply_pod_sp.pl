@@ -21,6 +21,11 @@ while (my $file = readdir $dh) {
     next if $file =~ /^\./; # skip . and ..
     # Only scripts starting with agat_sp
     next if $file =~ /^agat_sq/;
+    next if $file =~ /^agat_convert_bed/;
+    next if $file =~ /^agat_convert_embl/;
+    next if $file =~ /^agat_convert_genscan/;
+    next if $file =~ /^agat_convert_mfannot/;
+    next if $file =~ /^agat_convert_minimap/;
     my $path = "$bin_dir/$file";
     next unless -f $path;
 

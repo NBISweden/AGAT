@@ -634,7 +634,7 @@ sub _from_gff3_string {
     # column 9
 
     my ($seqname, $source, $primary, $start, $end,
-        $score, $strand, $frame, $groups) = split(/\t/, $string);
+        $score, $strand, $frame, $attribs) = split(/\t/, $string);
 
     if ( ! defined $frame ) {
         $feat->throw("[$string] does not look like GFF3 to me");
@@ -654,21 +654,40 @@ sub _from_gff3_string {
     if ( $strand eq '-' ) { $feat->strand(-1); }
     if ( $strand eq '+' ) { $feat->strand(1); }
     if ( $strand eq '.' ) { $feat->strand(0); }
-    my @groups = split(/\s*;\s*/, $groups);
+    my @attribs = split(/\s*;\s*/, $attribs);
 
-    my $size_group = scalar(@groups);
-    for my $group (@groups) {
-        next if( ! $group); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
-        my ($tag,$value) = split /=/,$group;
-        $tag             = unescape($tag);
-        my @values       = map {unescape($_)} split /,/,$value;
+    my $size_attribs = scalar(@attribs);
+    my $attrib_nb=0;
+    my $tag_ID_seen=0;
+    my $potential_ID;
+    for my $attrib (@attribs) {
+        next if( ! $attrib); # avoid issue 528 when two semicolons in a row it will create empty value "" - ID=blabla;;Name=blabla => ID=blabla,"";Name=blabla
+        $attrib_nb++;
+
+        my ($tag,$value) = split /=/,$attrib;
+        my @values       = map {$_} split /,/,$value;
+        $tag_ID_seen++ if ( lc($tag) eq "id" );
         # Case where attribute column contain only one value, no tag/attribute structure 
         # e.g. augustus/tsebra, use the value as ID
-        if(scalar(@values) == 0 and $size_group=1){
-            $feat->add_tag_value("ID",$tag);
-        } else{
-            for my $v ( @values ) {  $feat->add_tag_value($tag,$v); }
+        if ( scalar(@values) == 0 ) {
+            if ( $size_attribs == 1 ){
+                warn "No attribute tag available. A single value provided in 9th column. Using it as ID: ID=<value> (augustus/tsebra) @ - $tag";
+                $value = $tag;
+                $feat->add_tag_value("ID",$value);
+            }
+            elsif ( $attrib_nb == 1 ){ 
+                warn "No attribute tag found. Since other attributes exist and this is the first one, it is assumed to be the ID (ID=<value>) when the ID attribute is missing (augustus/tsebra). @ Value: $tag";
+                $potential_ID = $tag;
+            }
         }
+        # other cases
+        else{
+            for my $v ( @values ) { $feat->add_tag_value($tag,$v); }
+        }
+    }
+     # Add (augustus/tsebra) L2 is missing ID attribute, so we create one
+    if ($potential_ID && !$tag_ID_seen){
+        $feat->add_tag_value("ID",$potential_ID);
     }
 }
 
@@ -679,6 +698,32 @@ sub unescape {
   return $v;
 }
 
+
+sub escape{
+    my $v = shift;
+    # Only decode if url_decode_in option is enabled
+    if ($AGAT::AGAT::CONFIG->{url_encode_out}) {
+       $v = escape_gff3($v);
+    } else {
+       $v = unescape_gff3($v);
+    }
+    return $v;
+}
+
+# taken from Bio::DB::GFF
+sub unescape_gff3 {
+  my $v = shift;
+  # Only decode tab (09), comma (2C), semicolon (3B), and equals (3D)
+  $v =~ s/%(09|2C|3B|3D)/chr hex($1)/gie;
+  return $v;
+}
+
+# escape only tab,=; characters
+sub escape_gff3 {
+  my $v = shift;
+  $v =~ s/([\t,=;])/sprintf("%%%X",ord($1))/ge;
+  return $v;
+}
 
 =head2 write_feature
 
@@ -820,7 +865,8 @@ sub _gff1_string{
     foreach my $tag ( $feat->get_all_tags ) {
         next if exists $SKIPPED_TAGS{$tag};
         foreach my $value ( $feat->get_tag_values($tag) ) {
-        $str .= " $tag=$value" if $value;
+            $value=escape($value);
+            $str .= " $tag=$value" if $value;
         }
     }
 
@@ -907,7 +953,7 @@ sub _gff2_string{
                 $value =~ s/\n/\\n/g;
                 $value = '"' . $value . '" ';
             }
-            push @v, $value;
+            push @v, escape($value);
             # for this tag (allowed in GFF2 and .ace format)
         }
         push @group, "$tag ".join(" ", @v);
@@ -1012,7 +1058,7 @@ sub _gff25_string {
                     $value =~ s/\n/\\n/g; # to their UNIX equivalents
                     $value = '"' . $value . '"';
                 }
-                push @v, $value;
+                push @v, escape($value);
             }
             $v[$#v] =~ s/\s+$//; #remove left space of the last value
             if (($tag eq 'gene_id') || ($tag eq 'transcript_id')){ # hopefully we won't get both...
@@ -1022,7 +1068,7 @@ sub _gff25_string {
             }
         }
     }
-        @firstgroup = sort @firstgroup if @firstgroup;
+     @firstgroup = sort @firstgroup if @firstgroup;
     $str2 = join('; ', (@firstgroup, @group));
     $str2 .= ";";
     # Add Target information for Feature Pairs
@@ -1123,20 +1169,25 @@ sub _gff3_string {
         my @v;
         for my $value ( @values ) {
             if(  defined $value && length($value) ) {
-                                #$value =~ tr/ /+/;  #spaces are allowed now
+                
+                # Multiple tag=value pairs are separated by semicolons. 
+                # URL escaping rules are used for tags or values containing the following characters: ",=;". 
+                # Spaces are allowed in this field, but tabs must be replaced with the %09 URL escape. 
+                # Attribute values do not need to be and should not be quoted. 
+                #The quotes should be included as part of the value by parsers and not stripped.
                 if ( ref $value eq 'Bio::Annotation::Comment') {
                     $value = $value->text;
                 }
 
-                if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
-                    $value =~ s/\t/\\t/g; # substitute tab and newline
-                    # characters
-                    $value =~ s/\n/\\n/g; # to their UNIX equivalents
+                #if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
+                #    $value =~ s/\t/\\t/g; # substitute tab and newline
+                #    # characters
+                #    $value =~ s/\n/\\n/g; # to their UNIX equivalents
 
                     # Unescaped quotes are not allowed in GFF3
                     #                    $value = '"' . $value . '"';
-                }
-                $value =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;
+                #}
+                $value = escape($value);
             } else {
                 # if it is completely empty, then just make empty double quotes
                 $value = '""';

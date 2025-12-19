@@ -17,7 +17,6 @@ my $opt_output=undef;
 my $Xsize=10;
 my $opt_help = 0;
 
-my @copyARGV=@ARGV;
 # ---------------------------- OPTIONS ----------------------------
 # OPTION MANAGEMENT: partition @ARGV into shared vs script options via library
 my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
@@ -181,20 +180,20 @@ The value of this attribute will be the size of the shortest intron found under 
 
 =over 8
 
-=item B<--gff>, B<-f>, B<--ref> or B<-reffile>
+=item B<--gff>, B<-f>, B<--ref> or B<-reffile> <file>
 
 Input GTF/GFF file.
 
-=item  B<--intron_size> or B<-i>
+=item  B<--intron_size> or B<-i> <int>
 
 Minimum intron size, default 10. All genes with an intron < of this size will be
 flagged with the pseudo attribute (the value will be the size of the smallest
 intron found within the incriminated gene)
 
-=item  B<--out>, B<--output> or B<-o>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output gff3 file where the result will be printed.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -209,19 +208,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

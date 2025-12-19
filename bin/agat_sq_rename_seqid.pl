@@ -28,7 +28,7 @@ $script_parser->configure('bundling','no_auto_abbrev');
 if ( ! $script_parser->getoptionsfromarray(
 		$script_argv,
 		'gff=s'           => \$input_gff,
-		'o|output=s'      => \$outputFile,
+		'o|out|output=s'  => \$outputFile,
 		'tsv=s'           => \$input_tsv,
 		'csv!'            => \$csv,
 		'h|help!'         => \$opt_help )  )
@@ -132,22 +132,22 @@ number of chromosomes or scaffolding is large, sed replacement is time-consuming
 
 =over 8
 
-=item B<--gff>
+=item B<--gff> <file>
 
-STRING: Input GTF/GFF file.
+Input GTF/GFF file.
 
-=item B<--tsv>
+=item B<--tsv> <file>
 
-STRING: Input tsv file
+Input tsv file
 
 =item B<--csv>
 
-BOLEAN: Inform the script that the tsv input file is actually a csv (coma-separated).
+Inform the script that the tsv input file is actually a csv (coma-separated).
 
-=item B<-o> or B<--output>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-STRING: Output file. If no output file is specified, the output will be written
-to STDOUT. The result is in tabulate format.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -163,15 +163,15 @@ Note: For _sq_ scripts, only the following options are supported: verbose, outpu
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

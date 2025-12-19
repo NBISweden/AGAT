@@ -31,7 +31,7 @@ if ( ! $script_parser->getoptionsfromarray(
 		$script_argv,
 		'h|help'                 => \$opt_help,
 		'gff|f=s'                => \$opt_gff,
-		'output|outfile|out|o=s' => \$opt_output,
+		'output|out|o=s'         => \$opt_output,
 	) ) {
 	pod2usage({
 		-message => 'Failed to parse command line',
@@ -273,13 +273,13 @@ Attribute's tags from the 9th column become column titles.
 
 =over 8
 
-=item B<--gff> or B<-f>
+=item B<--gff> or B<-f> <file>
 
 Input GTF/GFF file.
 
-=item B<-o> , B<--output> , B<--out> or B<--outfile>
+=item B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
+Output TSV file to create. If no output file is specified, the output will be
 written to STDOUT.
 
 =item B<-h> or B<--help>
@@ -295,19 +295,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

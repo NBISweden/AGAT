@@ -339,15 +339,15 @@ It gives you as well the value of the longest intron after removing X percent(s)
 
 =over 8
 
-=item B<--gff>, B<-f>, B<--ref> or B<-reffile>
+=item B<--gff>, B<-f>, B<--ref> or B<-reffile> <file>
 
 Input GTF/GFF file. You can use several input files by doing: -f file1 -f file2 -f file3
 
-=item  B<-w>, B<--window>, B<--break>, B<--breaks> or B<-b>
+=item  B<-w>, B<--window>, B<--break>, B<--breaks> or B<-b> <int>
 
 It the number of break used within the histogram plot. By default it's 1000. You can modify the value to get something more or less precise.
 
-=item  B<-x>, B<--p>
+=item  B<-x>, B<--p> <string> <int>
 
 Allows to modify the X values to calculate the percentage of the longest introns to remove. By default the value is 1 (We remove 1 percent of the longest).
 
@@ -355,10 +355,10 @@ Allows to modify the X values to calculate the percentage of the longest introns
 
 Allows to create an histogram in pdf of intron sizes distribution.
 
-=item  B<--out>, B<--output> or B<-o>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-Output gff3 file where the gene incriminated will be write.
-
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
 
 =item B<--help> or B<-h>
 
@@ -373,19 +373,19 @@ Common shared options are listed below; for the full list, please refer to the A
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<--cpu>, B<--core>, B<--job> or B<--thread>
+=item B<--cpu>, B<--core>, B<--job> or B<--thread> <int>
 
-Integer - Number of parallel processes to use for file input parsing (via forking).
+Number of parallel processes to use for file input parsing (via forking).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 

@@ -31,7 +31,7 @@ if ( !$script_parser->getoptionsfromarray( $script_argv,
           'f|fa|fasta=s'    => \$opt_fastafile,
           'hm:s'            => \$opt_HardMask,
           'sm'              => \$opt_SoftMask,
-          'o|output=s'      => \$opt_output,
+          'o|out|output=s'  => \$opt_output,
           'h|help!'         => \$opt_help ) )
 {
     pod2usage( { -message => 'Failed to parse command line',
@@ -154,11 +154,11 @@ The result is written to the specified output file, or to STDOUT.
 
 =over 8
 
-=item B<-g>, B<--gff> or B<-ref>
+=item B<-g>, B<--gff> or B<-ref> <file>
 
 Input GTF/GFF file.
 
-=item B<-f>, B<--fa> or B<--fasta>
+=item B<-f>, B<--fa> or B<--fasta> <file>
 
 Input fasta file that will be masked
 
@@ -170,10 +170,11 @@ SoftMask option =>Sequences masked will be in lowercase
 
 HardMask option => Sequences masked will be replaced by a character. By default the character used is 'n'. But you are allowed to speceify any character of your choice. To use 'z' instead of 'n' type: -hm z
 
-=item B<-o> or B<--output>
+=item  B<-o>, B<--out> or B<--output> <file>
 
-Output GFF file.  If no output file is specified, the output will be
-written to STDOUT.
+Output file to create (default GFF3 - see config to modify output format).
+If no output file is specified, the output will be written to STDOUT.
+
 
 =item B<-h> or B<--help>
 
@@ -189,15 +190,15 @@ Note: For _sq_ scripts, only the following options are supported: verbose, outpu
 
 =over 8
 
-=item B<--config>
+=item B<--config> <file>
 
-String - Path to a custom AGAT configuration file.  
+Path to a custom AGAT configuration file.  
 By default, AGAT uses `agat_config.yaml` from the working directory if present, otherwise the default file shipped with AGAT
 (available locally via `agat config --expose`).
 
-=item B<-v> or B<--verbose>
+=item B<-v> or B<--verbose> <int>
 
-Integer - Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
+Verbosity, choice are 0,1,2,3,4. 0 is quiet, 1 is normal, 2,3,4 is more verbose. Default 1.
 
 =back
 
