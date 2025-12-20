@@ -208,12 +208,12 @@ while(<FILE>){
   }
 	my ($genome_lend, $genome_rend, $trans_lend, $trans_rend) = @{$merged_coords[0]};
 	my ($genome_lend2, $genome_rend2, $trans_lend2, $trans_rend2) = @{$merged_coords[$#merged_coords]};
-	my $feature = Bio::SeqFeature::Generic->new(-seq_id => $scaff_name,
+	my $feature = AGAT::SeqFeatureLite->new(-seq_id => $scaff_name,
 																							-source_tag => "est2genome",
 																							-primary_tag => "cDNA_match",
 																							-start => $genome_lend,
 																							-end => $genome_rend2,
-																							-frame => ".",
+																							-phase => ".",
 																							-strand => $strand,
 																							-score => $AS,
 																							-tag => {'ID' => $align_counter_l1, 'aligned_identity' => $per_id }
@@ -224,12 +224,12 @@ while(<FILE>){
 	foreach my $coordset_ref (@merged_coords) {
             my ($genome_lend, $genome_rend, $trans_lend, $trans_rend) = @$coordset_ref;
 
-						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $scaff_name,
+						my $feature = AGAT::SeqFeatureLite->new(-seq_id => $scaff_name,
 																												-source_tag => "est2genome",
 																												-primary_tag => "cDNA_match_part",
 																												-start => $genome_lend,
 																												-end => $genome_rend,
-																												-frame => ".",
+																												-phase => ".",
 																												-strand => $strand,
 																												-score => $AS,
 																												-tag => {'ID' => $align_counter_l2, 'Parent' => $align_counter_l1, 'Target' => "$read_name $trans_lend $trans_rend" }

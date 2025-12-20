@@ -89,7 +89,6 @@ my ($hash_omniscient) = slurp_gff3_file_JD({ input => $opt_gff });
 #   foreach my $tag_l1 (keys %{$hash_omniscient->{'level1'}}){ # tag_l1 = gene or repeat etc...
 #     foreach my $id_l1 (keys %{$hash_omniscient->{'level1'}{$tag_l1}}){
 
-#       #my feature is a Bio::SeqFeature::Generic
 #       my $feature_l1=$hash_omniscient->{'level1'}{$tag_l1}{$id_l1};
 
 #       #create a new  Bio::SeqFeature::Annotated object;

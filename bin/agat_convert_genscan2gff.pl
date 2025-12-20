@@ -124,12 +124,12 @@ sub convert_genscan{
 					my $id = "fake";
 					my $score = $splitline[$#splitline];
 
-					my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+					my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
 																											-source_tag => "genscan",
 																											-primary_tag => "exon",
 																											-start => $start,
 																											-end => $end ,
-																											-frame => ".",
+																											-phase => ".",
 																											-strand =>$strand,
 																											-score =>$score,
 																											- tag => {'ID' => $id, 'Parent' => $mrna_id}
@@ -191,7 +191,7 @@ sub convert_genscan{
 			# compute the phase. Assuming it always start at 0. No fragmented prediction
 			my $phase = 0;
 			foreach my $cds_feature ( @cds) {
-				$cds_feature->frame($phase);
+				$cds_feature->phase($phase);
 				my $cds_length=$cds_feature->end-$cds_feature->start +1;
 				$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
 			}

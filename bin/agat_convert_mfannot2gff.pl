@@ -381,12 +381,12 @@ sub handle_records {
 					}
 					
 					# create feature
-					my $feature = Bio::SeqFeature::Generic->new(-seq_id => $contig,
+					my $feature = AGAT::SeqFeatureLite->new(-seq_id => $contig,
 																-source_tag => "AGAT",
 																-primary_tag => $realType,
 																-start => $start,
 																-end => $end ,
-																-frame => ".",
+																-phase => ".",
 																-strand => $featuredir,
 																-tag => {'ID' => $id, 'Name' => $gene_name, 'locus_tag' => $name }
 																) ;

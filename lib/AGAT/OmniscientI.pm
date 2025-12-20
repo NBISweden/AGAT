@@ -2205,7 +2205,7 @@ sub _check_cds{
 
 					my $strand = $list_cds[0]->strand;
 
-					if($strand == 1){
+					if ( defined $strand && $strand =~ /^1|\+$/ ) {
 						my $cds = $list_cds[$#list_cds];
 						my $stop = $list_stop[$#list_stop];
 
@@ -2228,7 +2228,7 @@ sub _check_cds{
 									$new_cds->start($stop->start);
 									$new_cds->end($stop->end);
 									my $size_stop = $stop->end - $stop->start + 1;
-									$new_cds->frame(3 - $size_stop);									
+									$new_cds->phase(3 - $size_stop);									
 									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 									$resume_case2++;
 								}
@@ -2249,7 +2249,7 @@ sub _check_cds{
 												$new_cds->start($stop->start);
 												$new_cds->end($stop->end);
 												my $size_stop = $stop->end - $stop->start + 1;
-												$new_cds->frame(3 - $size_stop);
+												$new_cds->phase(3 - $size_stop);
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 												$stop_start_exon=1;$resume_case2++;
 											}
@@ -2289,7 +2289,7 @@ sub _check_cds{
 										$new_cds->start($stop->start);
 										$new_cds->end($stop->end);
 										my $size_stop = $stop->end - $stop->start + 1;
-										$new_cds->frame(3 - $size_stop);
+										$new_cds->phase(3 - $size_stop);
 										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 										$resume_case2++;
 									}
@@ -2310,7 +2310,7 @@ sub _check_cds{
 												$new_cds->start($stop->start);
 												$new_cds->end($stop->end);
 												my $size_stop = $stop->end - $stop->start + 1;
-												$new_cds->frame(3 - $size_stop);
+												$new_cds->phase(3 - $size_stop);
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 												$stop_start_exon=1;$resume_case2++;
 											}
@@ -3459,7 +3459,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			if($exon_feature->start < $ORFstart){
  				my $utr_feature=clone($exon_feature);#create a copy of the feature
  				$utr_feature->end($ORFstart-1); #modify start
- 				if ( ($strand == -1) or ($strand eq "-") ) {
+ 				if ( defined $strand && $strand =~ /^-1|-$/ ) {
  					$utr_feature->primary_tag('three_prime_UTR');
  					create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 				push(@utr3_features, $utr_feature);#save that cds
@@ -3474,7 +3474,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			if($exon_feature->end > $ORFend){
  				my $utr_feature=clone($exon_feature);#create a copy of the feature
  				$utr_feature->start($ORFend+1); #modify start
- 				if ( ($strand == -1) or ($strand eq "-") ) {
+ 				if ( defined $strand && $strand =~ /^-1|-$/ ) {
  					$utr_feature->primary_tag('five_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 				push(@utr5_features, $utr_feature);#save that cds
@@ -3514,7 +3514,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			my $utr_feature=clone($exon_feature);#create a copy of the feature
  			$utr_feature->start($ORFend+1); #modify end
  			$ID = $utr_feature->_tag_value('ID');
-	 		if ( ($strand == -1) or ($strand eq "-") ) {
+	 		if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 			$utr_feature->primary_tag('five_prime_UTR');
 	 			create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 			push(@utr5_features, $utr_feature);#save that cds
@@ -3542,7 +3542,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			my $utr_feature=clone($exon_feature);#create a copy of the feature
  			$utr_feature->end($ORFstart-1); #modify start
  			$ID = $utr_feature->_tag_value('ID');
-	 		if ( ($strand == -1) or ($strand eq "-") ) {
+	 		if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 			$utr_feature->primary_tag('three_prime_UTR');
 	 			create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 			push(@utr3_features, $utr_feature);#save that cds
@@ -3560,7 +3560,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
 					my $utr_feature=clone($exon_feature);#create a copy of the feature 			exon ===============================
 	 			#get old name 																											 cds ===============================
 	 			my $ID = $utr_feature->_tag_value('ID');
-	 			if ( ($strand == -1) or ($strand eq "-") ) {
+	 			if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 				$utr_feature->primary_tag('three_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 				push(@utr3_features, $utr_feature);#save that cds
@@ -3577,7 +3577,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
 					my $utr_feature=clone($exon_feature);#create a copy of the feature 													exon ===============================
 	 			#get old name
 	 			my $ID = $utr_feature->_tag_value('ID'); 									#cds ===============================
-	 			if ( ($strand == -1) or ($strand eq "-") ) {
+	 			if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 				$utr_feature->primary_tag('five_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 				push(@utr5_features, $utr_feature);#save that cds

@@ -886,13 +886,8 @@ sub _gff1_string{
 =cut
 
 sub _gff2_string{
-    my ($gff, $origfeat) = @_;
-    my $feat;
-    if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
-        $feat = $origfeat->feature2;
-    } else {
-        $feat = $origfeat;
-    }
+    my ($gff, $feat) = @_;
+
     my ($str1, $str2,$score,$frame,$name,$strand);
 
     if( $feat->can('score') ) {
@@ -976,18 +971,11 @@ sub _gff2_string{
 =cut
 
 sub _gff25_string {
-    my ($gff, $origfeat) = @_;
+    my ($gff, $feat) = @_;
 
     # for skipping data that may be represented elsewhere; currently, this is
-		# only the score
-		my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
-
-    my $feat;
-    if ($origfeat->isa('Bio::SeqFeature::FeaturePair')){
-        $feat = $origfeat->feature2;
-    } else {
-        $feat = $origfeat;
-    }
+	# only the score
+	my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
 
     if ($gff->{'TYPE'} eq "GTF" and $gff->{'VERSION'} ne "relax"){
         if(!  grep {lc($feat->primary_tag()) eq lc($_)} ( @{$GTF_FEATURES {$gff->{'VERSION'}}} )) {
@@ -1021,47 +1009,67 @@ sub _gff25_string {
     }
     $name = 'SEQ' if ! length($name);
 
-    $str1 = join("\t",
-                 $name,
-                 $feat->source_tag(),
-                 $feat->primary_tag(),
-                 $feat->start(),
-                 $feat->end(),
-                 $score,
-                 $strand,
-                 $frame);
+    # ---- get ordered tags ----
+    my @tags = $feat->get_all_tags;
 
-    my @all_tags = $feat->all_tags;
-    my @group; my @firstgroup;
-
-    if (@all_tags) {   # only play this game if it is worth playing...
-        foreach my $tag ( @all_tags ) {
-            next if exists $SKIPPED_TAGS{$tag};
-            my @v;
-            foreach my $value ( $feat->get_tag_values($tag) ) {
-                unless( defined $value && length($value) ) {
-                    $value = '""';
-                } else{ # quote all type of values
-                    $value =~ s/\t/\\t/g; # substitute tab and newline
-                    # characters
-                    $value =~ s/\n/\\n/g; # to their UNIX equivalents
-                    $value = '"' . $value . '"';
-                }
-                push @v, escape($value);
-            }
-            $v[$#v] =~ s/\s+$//; #remove left space of the last value
-            if (($tag eq 'gene_id') || ($tag eq 'transcript_id')){ # hopefully we won't get both...
-                push @firstgroup, "$tag ".join(" ", @v);
-            } else {
-                push @group, "$tag ".join(" ", @v);
-            }
+    # Separate uppercase letters and others
+    my (@first, @upper, @lower);
+    foreach my $tag (@tags) {
+        if ( $tag eq 'transcript_id' or $tag eq 'gene_id' ) {
+                push @first, $tag;
+        }
+        elsif ($tag =~ /^[A-Z]/) {
+                push @upper, $tag;
+        } else {
+            push @lower, $tag;
         }
     }
-     @firstgroup = sort @firstgroup if @firstgroup;
-    $str2 = join('; ', (@firstgroup, @group));
-    $str2 .= ";";
 
-    return $str1 . "\t".  $str2;
+    # Sort alphabetically
+    @first = sort @first;
+    @upper = sort @upper;
+    @lower = sort @lower;
+    
+    # Concatenate everything in the desired order
+    my @ordered_tags = (@first, @upper, @lower);
+
+    # get attributes in order
+    my @groups;
+    foreach my $tag ( @ordered_tags ) {
+
+        next if exists $SKIPPED_TAGS{$tag};
+
+        my @values = $feat->get_tag_values($tag);
+
+        # a string which will hold one or more values
+        # for this tag, with quoted free text and
+        # space-separated individual values.
+        my @v;
+        foreach my $value ( @values ) {
+            if(  defined $value && length($value) ) {
+                $value = escape($value);
+                $value = '"' . $value . '"';
+            } else {
+                # if it is completely empty, then just make empty double quotes
+                $value = '""';
+            }
+            push @v, $value;
+        }
+        push @groups, "$tag ".join(",",@v);
+    }
+
+    my $gtf_string = join("\t",
+                        $name,
+                        $feat->source_tag(),
+                        $feat->primary_tag(),
+                        $feat->start(),
+                        $feat->end(),
+                        $score,
+                        $strand,
+                        $frame,
+                        join('; ', @groups).";");
+
+    return $gtf_string;
 }
 
 =head2 _gff3_string
@@ -1107,23 +1115,15 @@ sub _gff3_string {
     } 
     $name = 'SEQ' if ! length($name);
     
-    my @groups;
-
-    # force leading ID and Parent tags
-    #my @all_tags =  grep { ! exists $GFF3_ID_Tags{$_} } $feat->all_tags;
-    #for my $t ( sort { $GFF3_ID_Tags{$b} <=> $GFF3_ID_Tags{$a} }
-    #            keys %GFF3_ID_Tags ) {
-    #    unshift @all_tags, $t if $feat->has_tag($t);
-    #}
-    # Récupérer tous les tags
+    # ---- get ordered tags ----
     my @tags = $feat->get_all_tags;
 
-    # Séparer majuscules et autres
-    my (@upperfirst, @upper, @lower);
+    # Separate uppercase letters and others
+    my (@first, @upper, @lower);
     foreach my $tag (@tags) {
         if ($tag =~ /^[A-Z]/) {
-            if  ( $tag eq 'ID' || $tag eq 'Parent' ){
-                push @upperfirst, $tag;
+            if ( $tag eq 'ID' or $tag eq 'Parent' ) {
+                push @first, $tag;
             } else {
                 push @upper, $tag;
             } 
@@ -1132,15 +1132,16 @@ sub _gff3_string {
         }
     }
 
-    # Trier le reste alphabétiquement
-    @upperfirst = sort @upperfirst;
+    # Sort alphabetically
+    @first = sort @first;
     @upper = sort @upper;
     @lower = sort @lower;
+    
+    # Concatenate everything in the desired order
+    my @ordered_tags = (@first, @upper, @lower);
 
-    # Concaténer tout dans l'ordre désiré
-    my @ordered_tags = (@upperfirst, @upper, @lower);
-
-
+    # ---- get attributes in order ----
+    my @groups;
     foreach my $tag ( @ordered_tags ) {
 
         next if exists $SKIPPED_TAGS{$tag};
@@ -1160,23 +1161,18 @@ sub _gff3_string {
             }
             push @v, $value;
         }
-        # can we figure out how to improve this?
-        #$tag = lcfirst($tag) unless ( $tag =~
-        #    /^(ID|Name|Alias|Parent|Gap|Target|Derives_from|Note|Dbxref|Ontology_term)$/);
-
         push @groups, "$tag=".join(",",@v);
     }
 
     # unshift @groups, "ID=autogenerated$ID" unless ($feat->has_tag('ID'));
-    if ( $feat->can('name') && defined($feat->name) ) {
-        # such as might be for Bio::DB::SeqFeature
-        unshift @groups, 'Name=' . $feat->name;
-    }
+    #if ( $feat->can('name') && defined($feat->name) ) {
+    #    # such as might be for Bio::DB::SeqFeature
+    #    unshift @groups, 'Name=' . $feat->name;
+    #}
 
-    my $gff_string = "";
     my $source = $feat->source_tag() || '.';
     my $primary = $feat->primary_tag();
-    $gff_string = join("\t",
+    my $gff_string = join("\t",
                         $name,
                         $source,
                         $primary,
@@ -1189,7 +1185,6 @@ sub _gff3_string {
     
     return $gff_string;
 }
-
 
 =head2 check_version
 

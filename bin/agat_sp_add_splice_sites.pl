@@ -152,7 +152,7 @@ my $splice_added=0;
 						$splice_added++;
             
             # Clean feature used as template
-            $feature_example->frame(".");
+            $feature_example->phase(".");
 
             # Create splice template feature and assume + strand
             my $left_feature = clone($feature_example); 
@@ -163,7 +163,7 @@ my $splice_added=0;
             my $right_fetaure_type = 'three_prime_cis_splice_site';
 
             # Flip if minus strand
-            if ( ($feature_example->strand() eq "-" ) or ($feature_example->strand() eq "-1" ) ) {            
+            if ( defined $feature_example->strand && $feature_example->strand =~ /^-1|-$/ ) {            
               # flip ID              
               my $tmp = $left_ID;
               $left_ID = $right_ID;
