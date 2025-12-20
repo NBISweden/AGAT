@@ -764,7 +764,7 @@ sub split_gene_model{
                     $newcontainerUsed++;
                     $gene_id = take_care_gene_id($gene_id, $tmpOmniscient);
 
-                    my $new_gene_feature = Bio::SeqFeature::Generic->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'gene' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -frame => $newPred_exon_list->[0]->frame, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $gene_id }) ;
+                    my $new_gene_feature = AGAT::SeqFeatureLite->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'gene' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -phase => $newPred_exon_list->[0]->phase, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $gene_id }) ;
                     @level1_list=($new_gene_feature);
                     #print "create_a_new_gene for ".$transcript_id." !!!! - ".$new_gene_feature->gff_string."\n";
 
@@ -781,7 +781,7 @@ sub split_gene_model{
                   #############################################
                   # Modelate mRNA features for new prediction #
                   if ( $new_mrna ){
-                    my $new_mRNA_feature = Bio::SeqFeature::Generic->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => $level2_feature->primary_tag() , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -frame => $newPred_exon_list->[0]->frame, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $transcript_id , 'Parent' => $gene_id }) ;
+                    my $new_mRNA_feature = AGAT::SeqFeatureLite->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => $level2_feature->primary_tag() , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -phase => $newPred_exon_list->[0]->phase, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $transcript_id , 'Parent' => $gene_id }) ;
                     push (@$mRNAlistToTakeCare, lc($transcript_id));
                     @level2_list=($new_mRNA_feature);
 

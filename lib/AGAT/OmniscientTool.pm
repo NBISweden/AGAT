@@ -1330,7 +1330,7 @@ sub clean_clone{
 	# clone the feature
 	$cloned_feature = clone($feature);
 	# clean frame/phase
-	$cloned_feature->frame("."); 
+	$cloned_feature->phase("."); 
 	# Update source
 	$cloned_feature->source_tag("AGAT");
 	# clean score
@@ -1462,7 +1462,7 @@ sub fil_cds_frame {
 					my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID} );
 
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
-					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
+					if ( ! defined( $phase ) and  $cds_list[0]->phase eq "." ) {
 						$phase = 0;
 						dual_print1 "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
 						"We will assume then to be in phase 0" ;
@@ -1472,11 +1472,11 @@ sub fil_cds_frame {
 					# otherwise we loop over CDS features to set the correct phase
 					if ( defined( $phase ) ) {
 						foreach my $cds_feature ( @cds_list) {
-							my $original_phase = $cds_feature->frame;
+							my $original_phase = $cds_feature->phase;
 
 							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
 								dual_print1 "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" ;
-								$cds_feature->frame($phase);
+								$cds_feature->phase($phase);
 							}
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
 							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
@@ -1503,7 +1503,7 @@ sub _get_cds_start_phase {
   }
   my $cds_obj = Bio::Seq->new(-seq => $cds_dna_seq, -alphabet => 'dna' );
   #Reverse the object depending on strand
-  if ($cds_list->[0]->strand == -1 or $cds_list->[0]->strand eq "-"){
+  if ( defined $cds_list->[0]->strand && $cds_list->[0]->strand =~ /^-1|-$/ ) {
     $cds_obj = $cds_obj->revcom();
   }
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);

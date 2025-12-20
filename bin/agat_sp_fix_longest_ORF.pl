@@ -492,12 +492,12 @@ sub shrink_cds_offset{
 	my $end = $sortedList->[$#{$sortedList}]->end;
 
 	# in minus strand
-	if($minus and $sortedList->[$#{$sortedList}]->frame != 0){
-		$sortedList->[$#{$sortedList}]->end -= $sortedList->[$#{$sortedList}]->frame;
+	if($minus and $sortedList->[$#{$sortedList}]->phase != 0){
+		$sortedList->[$#{$sortedList}]->end -= $sortedList->[$#{$sortedList}]->phase;
 	}
 	# in plus strand
-	elsif (! $minus and $sortedList->[0]->frame != 0){
-		$sortedList->[0]->start($sortedList->[0]->start + $sortedList->[0]->frame);
+	elsif (! $minus and $sortedList->[0]->phase != 0){
+		$sortedList->[0]->start($sortedList->[0]->start + $sortedList->[0]->phase);
 	}
 }
 
@@ -619,7 +619,7 @@ sub split_gene_model{
     ## create a new gene
     my $new_gene_id="new_".$realGeneName."-".$numberOfNewGene;
     $numberOfNewGene++;
-    my $new_gene_feature = Bio::SeqFeature::Generic->new(-seq_id => $level2_feature->seq_id, -source_tag => $level2_feature->source_tag, -primary_tag => 'gene' , -start => $level2_feature->start,  -end => $level2_feature->end, -frame => $level2_feature->frame, -strand => $level2_feature->strand , -tag => { 'ID' => $new_gene_id }) ;
+    my $new_gene_feature = AGAT::SeqFeatureLite->new(-seq_id => $level2_feature->seq_id, -source_tag => $level2_feature->source_tag, -primary_tag => 'gene' , -start => $level2_feature->start,  -end => $level2_feature->end, -phase => $level2_feature->phase, -strand => $level2_feature->strand , -tag => { 'ID' => $new_gene_id }) ;
     create_or_replace_tag($level2_feature,'Parent',$new_gene_id);
 
     # append new gene in omniscient_modified_gene
@@ -664,7 +664,7 @@ sub split_gene_model{
   # Modelate gene and mRNA features for new prediction #
   @values = $newPred_exon_list->[0]->get_tag_values('Parent');
   my $transcript_id = shift @values;
-  my $new_mRNA_feature = Bio::SeqFeature::Generic->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'mRNA' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -frame => $newPred_exon_list->[0]->frame, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $transcript_id , 'Parent' => $realGeneName }) ;
+  my $new_mRNA_feature = AGAT::SeqFeatureLite->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'mRNA' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -phase => $newPred_exon_list->[0]->phase, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $transcript_id , 'Parent' => $realGeneName }) ;
 
   my @level1_list;
   my @level2_list;
@@ -677,7 +677,7 @@ sub split_gene_model{
   if ( $create_a_new_gene ){
     my $new_gene_id="new_".$realGeneName."-".$numberOfNewGene;
     create_or_replace_tag($new_mRNA_feature, 'Parent', $new_gene_id);
-    my $new_gene_feature = Bio::SeqFeature::Generic->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'gene' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -frame => $newPred_exon_list->[0]->frame, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $new_gene_id } , 'orfix' => $model) ;
+    my $new_gene_feature = AGAT::SeqFeatureLite->new(-seq_id => $newPred_exon_list->[0]->seq_id, -source_tag => $newPred_exon_list->[0]->source_tag, -primary_tag => 'gene' , -start => $newPred_exon_list->[0]->start,  -end => $newPred_exon_list->[$#{$newPred_exon_list}]->end, -phase => $newPred_exon_list->[0]->phase, -strand => $newPred_exon_list->[0]->strand , -tag => { 'ID' => $new_gene_id } , 'orfix' => $model) ;
     @level1_list=($new_gene_feature);
     @level2_list=($new_mRNA_feature);
   }
@@ -1133,7 +1133,7 @@ sub _find_orfs_nucleotide_JD {
         my $this_codon = substr( $sequence, $j, 3 );
         my $AA = $codon_table->translate($this_codon);
 
-        # if in an orf and this is either a stop codon or the last in-frame codon in the string
+        # if in an orf and this is either a stop codon or the last in-phase codon in the string
         if ( $current_orf_start[$frame] >= 0 ) {
             if ( $codon_table->is_ter_codon( $this_codon ) ||( my $is_last_codon_in_frame = ($j >= $seqlen-5)) ) {
                 # record ORF start, end (half-open), length, and frame

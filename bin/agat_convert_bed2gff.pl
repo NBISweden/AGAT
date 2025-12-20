@@ -226,12 +226,12 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
       $strand=$bedOmniscent{$id}{'strand'};
     }
 
-    my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+    my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
                                                 -source_tag => $source_tag,
                                                 -primary_tag => $primary_tag,
                                                 -start => $start,
-																								-end => $end ,
-                                                -frame => $frame ,
+												-end => $end ,
+                                                -phase => $frame ,
                                                 -strand =>$strand,
                                                 -tag => {'ID' => $id}
                                                 ) ;
@@ -282,14 +282,14 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 				$l3_start = $start+$l3_start; # positions should be calculated relative to chromStart
 				my $l3_end = $l3_start+$l3_size_list[$l3_indice]-1;
 				my $Inflate_ID=$inflate_type.$inflate_cpt;
-				my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+				my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
 																										-source_tag => $source_tag,
 																										-primary_tag => $inflate_type,
 																										-start => $l3_start,
 																										-end => $l3_end ,
-																										-frame => "." ,
+																										-phase => "." ,
 																										-strand =>$strand,
-																										tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																										-tag => {'ID' => $Inflate_ID, 'Parent' => $id}
 																										) ;
 				push @list_l3, $feature;
 			}
@@ -300,7 +300,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 				# set phases
 				# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
 				foreach my $feature (@list_l3){
-					$feature->frame($phase);
+					$feature->phase($phase);
 					# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
 					my $cds_length = $feature->end - $feature->start + 1;
 					$phase = (3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
@@ -365,28 +365,28 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 					if ($left_utr_start){
 						$inflate_left_cpt++;
 						my $Inflate_ID = $left_utr_type.$inflate_left_cpt;
-						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+						my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
 																												-source_tag => $source_tag,
 																												-primary_tag => $left_utr_type,
 																												-start => $left_utr_start,
 																												-end => $left_utr_end ,
-																												-frame => $phase ,
+																												-phase => $phase ,
 																												-strand =>$strand,
-																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												-tag => {'ID' => $Inflate_ID, 'Parent' => $id}
 																												) ;
 						push @utrs, $feature;
 					}
 					if ($write_cds){
 						$inflate_cds_cpt++;
 						my $Inflate_ID = "CDS".$inflate_cds_cpt;
-						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+						my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
 																												-source_tag => $source_tag,
 																												-primary_tag => "CDS",
 																												-start => $cds_start,
 																												-end => $cds_end ,
-																												-frame => $phase ,
+																												-phase => $phase ,
 																												-strand =>$strand,
-																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												-tag => {'ID' => $Inflate_ID, 'Parent' => $id}
 																												) ;
 						push @cds, $feature;
 						$write_cds = undef if ($write_cds == 2); #deactivate to stop before UTR
@@ -394,14 +394,14 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 					if ($right_utr_start){
 						$inflate_right_cpt++;
 						my $Inflate_ID = $right_utr_type.$inflate_right_cpt;
-						my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
+						my $feature = AGAT::SeqFeatureLite->new(-seq_id => $seq_id,
 																												-source_tag => $source_tag,
 																												-primary_tag => $right_utr_type,
 																												-start => $right_utr_start,
 																												-end => $right_utr_end ,
-																												-frame => $phase ,
+																												-phase => $phase ,
 																												-strand =>$strand,
-																												tag => {'ID' => $Inflate_ID, 'Parent' => $id}
+																												-tag => {'ID' => $Inflate_ID, 'Parent' => $id}
 																												) ;
 						push @utrs, $feature;
 					}
@@ -410,7 +410,7 @@ foreach my $id ( sort {$a <=> $b} keys %bedOmniscent){
 				@cds = $strand eq "+" ? sort {$a->start <=> $b->start} @cds : sort {$a->start <=> $b->start} @cds;
 				# set phases
 				foreach my $feature (@cds){
-					$feature->frame($phase);
+					$feature->phase($phase);
 					# compute the phase. Assuming it always start at 0. No fragmented prediction. Has to be done last
 					my $cds_length = $feature->end - $feature->start + 1;
 					$phase = (3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.

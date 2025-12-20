@@ -20,8 +20,7 @@ my $output_folder = catdir($Bin, 'out');
     my $dir = setup_tempdir();
     my $pathtmp = catfile($dir, 'tmp.gff');
     my $correct_output = catfile($output_folder, 'issue441.gtf');
-    system("$script_agat config --expose --output_format gtf 2>&1 1>/dev/null");
-    check_quiet_run("$script --g " . catfile($input_folder, 'issue441.gtf') . " -o $pathtmp");
+    check_quiet_run("$script --g " . catfile($input_folder, 'issue441.gtf') . " --output_format gtf -o $pathtmp");
     check_diff($pathtmp, $correct_output, 'issue441 check');
 }
 
