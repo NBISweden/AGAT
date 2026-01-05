@@ -2,11 +2,10 @@ package AGAT::TestUtilities;
 use strict;
 use warnings;
 use Exporter 'import';
-use Test::TempDir::Tiny qw(tempdir);
 use File::chdir;
 use File::Copy qw(copy);
 use File::Spec;
-use File::Temp qw(tempfile);
+use File::Temp qw(tempfile tempdir);
 use Test::More;
 
 our @EXPORT =
@@ -14,7 +13,7 @@ our @EXPORT =
 my @DIRS;    # keep temp dirs alive until program end
 
 sub setup_tempdir {
-    my $dir = tempdir();
+    my $dir = tempdir(CLEANUP => 1);
     copy('share/agat_config.yaml', File::Spec->catfile($dir, 'agat_config.yaml'));
     copy('share/feature_levels.yaml', File::Spec->catfile($dir, 'feature_levels.yaml'));
     $CWD = $dir;
