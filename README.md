@@ -206,7 +206,7 @@ You will have to install all prerequisites and AGAT manually.
     * using cpan or cpanm
 
     ```
-    cpanm install bioperl Clone Graph::Directed LWP::UserAgent Carp Sort::Naturally File::Share File::ShareDir::Install Moose YAML LWP::Protocol::https Term::ProgressBar Parallel::ForkManager IPC::ShareLite Test::TempDir::Tiny File::chdir
+    cpanm --installdeps .
     ```
 
     * using conda
@@ -227,7 +227,7 @@ You will have to install all prerequisites and AGAT manually.
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libipc-sharelite-perl libtest-tempdir-tiny-perl libfile-chdir-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libipc-sharelite-perl libtest-tempdir-perl libfile-chdir-perl
     ```
 
   * Optional
