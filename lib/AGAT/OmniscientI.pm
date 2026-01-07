@@ -21,9 +21,7 @@ use IPC::ShareLite qw( :lock );# to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
-use Scalar::Util qw(blessed reftype);
 use Sort::Naturally;
-use Storable qw(nstore retrieve);
 use Term::ProgressBar;
 use Try::Tiny;
 
@@ -418,23 +416,51 @@ sub slurp_gff3_file_JD {
 				exit(1);
 			};
 
-			# store the pid of child processes and their associated file
-			my %pid_to_data;
+			# Store results with their chunk order for sequential merging
+			my %results_buffer;  # chunk_id => data_ref
+			my $next_to_merge = 1;  # next chunk index to merge
+			my $nb_merged = 0;      # counter for progress bar
 
-			# Print info at start e.g. "Started child 3431 (Job 25)"
-			#$pm->run_on_start(sub {
-			#	my ($pid, $ident) = @_;
-			#	print "Started child $pid ($ident)\n";
-			#});
-			
-			# ========= Run on finish handler =========
+			# Setup progress bar for merging
+			my $merge_progress_bar = undef;
+			if ( $progress_bar && $nb_files > 1){
+				$merge_progress_bar = Term::ProgressBar->new({
+													name  => 'Merging',
+													count => $nb_files,
+													ETA   => 'linear',
+													term_width => 80 ,
+												});
+			}
+
+			# ========= Run on finish handler with ordered merging =========
 			$pm->run_on_finish(sub {
-				my ($pid, $exit_code, $ident, $exit_signal, $core_dump, $data) = @_;
+				my ($pid, $exit_code, $ident, $exit_signal, $core_dump, $data_ref) = @_;
 
-				if ($exit_code == 0 && defined $data) {
-					$pid_to_data{$pid} = $data;
-				}
-				else {
+				if ($exit_code == 0 && defined $data_ref) {
+					# Extract chunk_id from ident (format: "Job N: filename")
+					my ($chunk_id) = $ident =~ /Job (\d+):/;
+
+					if (defined $chunk_id) {
+						# Store result in buffer
+						$results_buffer{$chunk_id} = $data_ref;
+						
+						# Merge all sequential chunks that are ready
+						while (exists $results_buffer{$next_to_merge}) {
+							my $data = delete $results_buffer{$next_to_merge};
+							merge_omniscients(\%omniscient_original, $data);
+							$next_to_merge++;
+							$nb_merged++;
+							
+							if ($merge_progress_bar) {
+								$merge_progress_bar->update($nb_merged);
+							}
+						}
+					} else {
+						warn "Could not extract chunk_id from ident: $ident\n";
+					}
+				} elsif ($exit_code != 0) {
+					warn "Child $pid failed with exit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
+				} else {
 					warn "No data received from child $pid\n";
 				}
 			});
@@ -495,10 +521,11 @@ sub slurp_gff3_file_JD {
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 				
-					# --- Update shared value ----
-					# counter for progress bar
+					# --- Update shared value ---- counter for progress bar
 					update_counter($mem, $nb_line_read_local) if ( defined $mem ) ;
-					$pm->finish(0, $omniscient_clean_clone); # Pass the data back to the parent process
+
+					# Pass data directly via callback (streaming)
+					$pm->finish(0, $omniscient_clean_clone);
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -517,41 +544,7 @@ sub slurp_gff3_file_JD {
 				$progress_bar->update($nb_line_feature);
 			}
 			$plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
-			dual_print ({ 'string' => "\nParsing (done in ".(time() - $parsing_time)." second$plural )" });
-
-			# === Merge results from all child processes ===
-			my $merging_time = time();
-			dual_print ({ 'string' => file_text_line({ string => "Merging parallel tasks", char => "-", prefix => "\n" }) });
-
-			my $merge_progress_bar = undef;
-			if ( $progress_bar && $nb_files > 1){
-				$merge_progress_bar = Term::ProgressBar->new({
-																name  => 'Merging',
-																count => $nb_files,
-																ETA   => 'linear',
-																term_width => 80 ,
-															});
-			}
-
-			my $nb_chunck_processed = 0;
-			for my $pid (keys %pid_to_data) {
-
-				my $data = $pid_to_data{$pid};
-#				my $data = retrieve($file);  
-				$previous_time = time();
-				
-				dual_print ({ 'string' => file_text_line({ string => "merge_omniscients", char => "-", prefix => "\n" }), 'debug_only' => 1 });
-				merge_omniscients(\%omniscient_original, $data);
-				dual_print ({ 'string' => sizedPrint("------ End merge_omniscients (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
-
-				$nb_chunck_processed ++;
-				if ($progress_bar and $nb_files > 1) {
-					$merge_progress_bar->update($nb_chunck_processed);
-				}
-			}
-			$plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
-			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
-
+			dual_print ({ 'string' => "\nParsing and merging (done in ".(time() - $parsing_time)." second$plural )\n" });
 			# Clean up shared memory segment and tmp directory
 			if (defined $mem) {
 				alarm(0);
