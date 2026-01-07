@@ -698,7 +698,6 @@ sub unescape {
   return $v;
 }
 
-
 sub escape{
     my $v = shift;
     # Only decode if url_decode_in option is enabled
@@ -710,18 +709,32 @@ sub escape{
     return $v;
 }
 
+my %UNESC = (
+    '%09' => "\t",
+    '%2C' => ',',
+    '%3B' => ';',
+    '%3D' => '=',
+);
+
 # taken from Bio::DB::GFF
 sub unescape_gff3 {
   my $v = shift;
   # Only decode tab (09), comma (2C), semicolon (3B), and equals (3D)
-  $v =~ s/%(09|2C|3B|3D)/chr hex($1)/gie;
+  $v =~ s/(%09|%2C|%3B|%3D)/$UNESC{$1}/g;
   return $v;
 }
 
 # escape only tab,=; characters
+my %ESC = (
+    "\t" => '%09',
+    ','  => '%2C',
+    '='  => '%3D',
+    ';'  => '%3B',
+);
+
 sub escape_gff3 {
   my $v = shift;
-  $v =~ s/([\t,=;])/sprintf("%%%X",ord($1))/ge;
+  $v =~ s/([\t,=;])/$ESC{$1}/g;
   return $v;
 }
 
@@ -1085,34 +1098,23 @@ sub _gff25_string {
 
 sub _gff3_string {
     my ($gff, $feat) = @_;
-
-    my $ID = $gff->_incrementGFF3ID();
-
-    my ($score,$frame,$name,$strand);
-
-    if( $feat->can('score') ) {
-        $score = $feat->score();
-    }
+    
+    my $score = $feat->score();
     $score = '.' unless defined $score;
 
-    if( $feat->can('frame') ) {
-        $frame = $feat->phase();
-    }
-    $frame = '1' unless defined $frame;
+    my $frame = $feat->phase();
+    $frame = '.' unless defined $frame;
 
-    $strand = $feat->strand();
-
+    my $strand = $feat->strand();
     if(! $strand) {
         $strand = ".";
     } elsif( $strand == 1 ) {
         $strand = '+';
-    } elsif ( $feat->strand == -1 ) {
+    } elsif ( $strand == -1 ) {
         $strand = '-';
     }
 
-    if( $feat->can('seqname') ) {
-        $name = $feat->seq_id();
-    } 
+    my $name = $feat->seq_id();
     $name = 'SEQ' if ! length($name);
     
     # ---- get ordered tags ----
@@ -1171,11 +1173,10 @@ sub _gff3_string {
     #}
 
     my $source = $feat->source_tag() || '.';
-    my $primary = $feat->primary_tag();
     my $gff_string = join("\t",
                         $name,
                         $source,
-                        $primary,
+                        $feat->primary_tag(),
                         $feat->start(),
                         $feat->end(),
                         $score,
