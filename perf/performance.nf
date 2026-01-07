@@ -27,7 +27,9 @@ def helpMessage() {
       nextflow run t/performance.nf [options]
     
     Required parameters:
-      --gff <file>         Input GFF/GFF3 file to benchmark
+      --gff <file>         Input GFF/GFF3 file or URL to benchmark
+                           Can be a local file or URL (http://, https://, ftp://)
+                           Supports .gz compressed files (auto-decompressed)
                            Default: ${params.gff}
     
     Optional parameters:
@@ -52,6 +54,9 @@ def helpMessage() {
       # Full benchmark with multiple CPUs
       nextflow run t/performance.nf --gff myfile.gff3 --sizes 1000,5000,10000 --cpus 1,2,4,8
       
+      # Using a URL with compressed file
+      nextflow run t/performance.nf --gff https://ftp.ensembl.org/pub/release-115/gff3/homo_sapiens/Homo_sapiens.GRCh38.115.chr.gff3.gz --sizes 1000,5000 --cpus 1
+      
       # Resume a previous run
       nextflow run t/performance.nf --gff myfile.gff3 --sizes 1000,5000 --cpus 1,2 -resume
     
@@ -70,6 +75,22 @@ def sizes_list = (params.sizes instanceof List) ? params.sizes.collect{ it as In
 def cpus_list  = (params.cpus  instanceof List) ? params.cpus.collect{ it as Integer }  : params.cpus.toString().split(/[ ,]+/).findAll{ it }.collect{ it as Integer }
 
 // Channels will be created within the workflow block for DSL2 correctness
+
+// Decompress GFF file if compressed (.gz)
+process decompressGff {
+	tag { "decompress" }
+	input:
+		path gff
+	output:
+		path "input.gff3"
+	script:
+		"""
+		set -euo pipefail
+		echo "Decompressing ${gff}..."
+		gunzip -c ${gff} > input.gff3
+		echo "Decompressed: \$(wc -l < input.gff3) lines"
+		"""
+}
 
 // Create subsets of the input GFF retaining headers and first N non-header lines
 process makeSubset {
@@ -146,7 +167,16 @@ process aggregate {
 workflow {
 	sizes_ch = Channel.fromList(sizes_list)
 	cpus_ch  = Channel.fromList(cpus_list)
-	gff_ch   = Channel.fromPath(params.gff)
+	
+	// Channel.fromPath handles both local files and URLs
+	gff_input = Channel.fromPath(params.gff)
+	
+	// Decompress if .gz, otherwise use directly
+	if (params.gff.endsWith('.gz')) {
+		gff_ch = decompressGff(gff_input)
+	} else {
+		gff_ch = gff_input
+	}
 
 	chunks_ch  = makeSubset(sizes_ch, gff_ch.collect())
 	metrics_ch = convertRun(chunks_ch, cpus_ch)
