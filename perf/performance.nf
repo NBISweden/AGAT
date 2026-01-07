@@ -5,9 +5,9 @@
 nextflow.enable.dsl=2
 
 // Parameters
-params.gff   = params.gff   ?: 'debug_cases/ensembl/Homo_sapiens.GRCh38.114.chr.1000000.gff3'
-params.sizes = params.sizes ?: '1000,5000,10000'
-params.cpus  = params.cpus  ?: '1,2,4'
+params.gff   = params.gff   ?: 'Homo_sapiens.GRCh38.114.chr.4171206.gff3'
+params.sizes = params.sizes ?: '100000,500000,1000000,2000000,4171206'
+params.cpus  = params.cpus  ?: '0,1,2,4,8'
 params.help  = false
 
 // Help message
