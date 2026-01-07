@@ -93,6 +93,11 @@ process makeSubset {
 process convertRun {
 	tag { "size:${size}-cpu:${cpu}" }
 	publishDir "t/perf_results", mode: 'copy', overwrite: true
+	
+	cpus { cpu }
+	memory '16.GB'
+	time '1.h'
+	
 	input:
 		tuple val(size), path(chunk)
 		each cpu
