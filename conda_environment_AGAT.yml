@@ -22,7 +22,6 @@ dependencies:
   - perl-lwp-protocol-https
   - perl-parallel-forkmanager 
   - perl-sort-naturally
-  - perl-storable
   - perl-term-progressbar
   - perl-moose
   - perl-yaml
