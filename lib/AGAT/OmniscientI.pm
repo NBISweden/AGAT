@@ -4494,8 +4494,9 @@ sub update_counter {
 # function to fetch the counter
 sub get_counter {
 	my ($mem) = @_;
-    # If strict consistency is required, lock before fetch.
+    $mem->lock(LOCK_EX);
     my $v = $mem->fetch;
+    $mem->unlock;
     return (defined $v && $v =~ /^\d+$/) ? $v : 0;
 }
 1;
