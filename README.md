@@ -221,13 +221,13 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
 
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https perl-term-progressbar perl-parallel-forkmanager perl-ipc-sharelite perl-file-chdir 
+      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https perl-term-progressbar perl-parallel-forkmanager perl-file-chdir 
       ```
 
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libipc-sharelite-perl libtest-tempdir-perl libfile-chdir-perl
+    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libtest-tempdir-perl libfile-chdir-perl
     ```
 
   * Optional
