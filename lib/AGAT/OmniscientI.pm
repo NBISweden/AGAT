@@ -17,7 +17,6 @@ use Exporter;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
-use IPC::ShareLite qw( :lock );# to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
@@ -352,45 +351,14 @@ sub slurp_gff3_file_JD {
 			my $plural2 = $nb_files > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (file by chunck $max_procs CPU$plural - $nb_files chunck$plural2)", char => "-", prefix => "\n" }) });
 
-			my $mem;
+			# === Set progress bar (parsing) ===
 			if ( $progress_bar and $nb_line_feature ){
-
-				# === Deal with shareable memory  ===
-
-				# Initialize/clean the segment with a per-process unique key
-				# Use parent PID so that children of this process share the same segment,
-				# while concurrent external processes (parallel tests) stay isolated.
-				my $ipc_key = $$; # numeric key accepted by IPC::ShareLite
-				$mem = IPC::ShareLite->new(
-					-key       => $ipc_key, # unique per invoking process
-					-create    => 'yes',
-					-exclusive => 'no',
-					-mode      => 0666,
-					-destroy => 'yes',
-					# -size can be omitted for small scalars; include if you expect larger blobs
-					-size      => 32,
-				) or die "IPC::ShareLite->new failed: $!";
-
-				# Initialisation du counter
-				update_counter($mem, 0);
-				
-				# === Set progress bar (parsing) ===	
 				$progress_bar = Term::ProgressBar->new({
 						name  => 'Parsing',
 						count => $nb_line_feature,
 						ETA   => 'linear',
 						term_width => 80 ,
 					});
-
-				# Define the handler
-				$SIG{ALRM} = sub {
-					$nb_line_read = get_counter($mem);
-					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
-					# Re-arm the alarm
-					alarm(1);
-				};
-				# Set the initial alarm
-				alarm(1);
 			}
 			
 			# ====== Create ForkManager ======
@@ -401,12 +369,6 @@ sub slurp_gff3_file_JD {
 							
 				# Kill all children still running
 				$pm->wait_all_children if $pm;
-
-				# Destroy shared memory segment if any
-				if (defined $mem) {
-					eval { $mem->destroy(); };
-					$mem = undef;
-				}
 				
 				if (-d $AGAT_TMP) {
 					remove_tree($AGAT_TMP, { error => \my $err });
@@ -447,6 +409,13 @@ sub slurp_gff3_file_JD {
 						# Merge all sequential chunks that are ready
 						while (exists $results_buffer{$next_to_merge}) {
 							my $data = delete $results_buffer{$next_to_merge};
+							
+							# Update parsing progress bar if available
+							if ($progress_bar && defined $data->{'nb_line_parsed'}) {
+								$nb_line_read += $data->{'nb_line_parsed'};
+								$progress_bar->update($nb_line_read);
+							}
+							
 							merge_omniscients(\%omniscient_original, $data);
 							$next_to_merge++;
 							$nb_merged++;
@@ -521,8 +490,8 @@ sub slurp_gff3_file_JD {
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 				
-					# --- Update shared value ---- counter for progress bar
-					update_counter($mem, $nb_line_read_local) if ( defined $mem ) ;
+					# Store number of parsed lines in the omniscient for progress bar update
+					$omniscient_clean_clone->{'nb_line_parsed'} = $nb_line_read_local;
 
 					# Pass data directly via callback (streaming)
 					$pm->finish(0, $omniscient_clean_clone);
@@ -545,12 +514,7 @@ sub slurp_gff3_file_JD {
 			}
 			$plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nParsing and merging (done in ".(time() - $parsing_time)." second$plural )\n" });
-			# Clean up shared memory segment and tmp directory
-			if (defined $mem) {
-				alarm(0);
-				eval { $mem->destroy(); };
-				$mem = undef;
-			}
+			# Clean up tmp directory
 			remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 		}
 		
@@ -3652,10 +3616,12 @@ sub get_general_info{
 		$nb_line++;
 
 		# Every 1 seconds, print an update
-		my $now = time;
-		if ($now - $last_print_time >= 1) {
-			dual_print1 "\rLines parsed: $nb_line";
-			$last_print_time = $now;
+		if ($CONFIG->{progress_bar} ){
+			my $now = time;
+			if ($now - $last_print_time >= 1) {
+				dual_print1 "\rLines parsed: $nb_line";
+				$last_print_time = $now;
+			}
 		}
 
 		# skip blank lines
@@ -4344,26 +4310,4 @@ sub _create_log_file{
 	return $log;
 }
 
-# ------------------ local function for the use of IPC:ShareLite ------------------
-
-# function to increment a counter
-sub update_counter {
-	my ($mem, $value) = @_;
-    $mem->lock(LOCK_EX);
-    my $v = $mem->fetch;
-	$value = 0 unless defined $value;
-    $v = 0 unless defined $v && $v =~ /^\d+$/;
-    $v=$v+$value;
-    $mem->store("$v");   # store as a simple string
-    $mem->unlock;
-    return $v;
-}
-
-# function to fetch the counter
-sub get_counter {
-	my ($mem) = @_;
-    # If strict consistency is required, lock before fetch.
-    my $v = $mem->fetch;
-    return (defined $v && $v =~ /^\d+$/) ? $v : 0;
-}
 1;
