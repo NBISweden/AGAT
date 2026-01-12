@@ -358,11 +358,8 @@ sub slurp_gff3_file_JD {
 						name  => 'Parsing',
 						count => $nb_line_feature,
 						ETA   => 'linear',
-						term_width => 80 ,
-						
-						
-				});
-					
+						term_width => 80 ,			
+				});		
 			}
 			
 			# ====== Create ForkManager ======
@@ -394,11 +391,10 @@ sub slurp_gff3_file_JD {
 					my $file = File::Spec->catfile($AGAT_TMP, "result_$pid.stor");
 					if (-e $file) {
 						$pid_to_file{$pid} = $file;
-						} else {
-							warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
-						}
+					} else {
+						warn "No data received from child $pid.\nexit_code: $exit_code\nident: $ident\nexit_signal: $exit_signal\ncore_dump: $core_dump\n";
+					}
 				}
-				
 			});
 
 			# ========= Process each file in parallel =========
@@ -456,9 +452,7 @@ sub slurp_gff3_file_JD {
 					# Call post_process handling
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-				
-					# Store number of parsed lines in the omniscient for progress bar update
-					#$omniscient_clean_clone->{'nb_line_parsed'} = $nb_line_read_local;
+
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -508,10 +502,10 @@ sub slurp_gff3_file_JD {
 			for my $pid (keys %pid_to_file) {
 
 				my $file = $pid_to_file{$pid};
-			open my $fh, '<', $file or die "Cannot open $file: $!";
-			binmode $fh;
-			my $data = fd_retrieve($fh);
-			close $fh;
+				open my $fh, '<', $file or die "Cannot open $file: $!";
+				binmode $fh;
+				my $data = fd_retrieve($fh);
+				close $fh;
 				
 				# merge the data
 				$previous_time = time();
@@ -524,6 +518,7 @@ sub slurp_gff3_file_JD {
 					$merge_progress_bar->update($nb_chunck_processed);
 				}
 			}
+			
 			$plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
 
