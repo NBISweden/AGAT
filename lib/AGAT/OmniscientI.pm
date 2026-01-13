@@ -89,7 +89,8 @@ our $check_cpt = 1;
 sub slurp_gff3_file_JD {
 
 	my $start_run = time();
-	my %omniscient_original; #Hash where all the features will be saved
+	# Hash where all the features will be saved
+	my %omniscient_original; 
 
 	# -------------- check OS type -----------------------------
 	my $is_linux = undef;
@@ -183,7 +184,7 @@ sub slurp_gff3_file_JD {
 	my %WARNS;
 	my %globalWARNS;
 	my $nbWarnLimit = $LOGGING->{debug_mode} ? undef : 10; # limit number of warning if not debug mode
-		local $SIG{__WARN__} = sub {
+	local $SIG{__WARN__} = sub {
 		my $message = shift;
 		my @thematic=split /@/,$message ;
 
@@ -353,6 +354,14 @@ sub slurp_gff3_file_JD {
 			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (file by chunck $max_procs CPU$plural - $nb_files chunck$plural2)", char => "-", prefix => "\n" }) });
 
 			# === Set progress bar (parsing) ===
+			my $progress_file = File::Spec->catfile($AGAT_TMP, "progress.txt");
+			my $last_progress_update = 0;
+			
+			# Initialize progress tracking file
+			open my $prog_init_fh, '>', $progress_file or die "Cannot create progress file: $!";
+			print $prog_init_fh "0\n";
+			close $prog_init_fh;
+			
 			if ( $progress_bar and $nb_line_feature ){
 				$progress_bar = Term::ProgressBar->new({
 						name  => 'Parsing',
@@ -364,6 +373,24 @@ sub slurp_gff3_file_JD {
 			
 			# ====== Create ForkManager ======
 			my $pm = Parallel::ForkManager->new($max_procs);
+			
+			# ========= Run on wait handler (for progress bar updates) =========
+			$pm->run_on_wait(sub {
+				if ($progress_bar && -f $progress_file) {
+					open my $prog_read_fh, '<', $progress_file or return;
+					flock($prog_read_fh, 1); # LOCK_SH (shared lock for reading)
+					my $current_progress = <$prog_read_fh>;
+					close $prog_read_fh;
+					
+					if (defined $current_progress) {
+						chomp $current_progress;
+						if ($current_progress =~ /^\d+$/ && $current_progress > $last_progress_update) {
+							$progress_bar->update($current_progress);
+							$last_progress_update = $current_progress;
+						}
+					}
+				}
+			}, 0.5); # Check every 0.5 seconds
 
 			$SIG{INT} = $SIG{TERM} = sub {
 				warn "Caught SIG, cleaning up temp files...\n";
@@ -433,13 +460,27 @@ sub slurp_gff3_file_JD {
 					my $gffio = AGAT::BioperlGFF->new(-file => $filepath, -gff_version => $gff_in_format);
 
 					# -------------- Read features in GFF file ---------------------
+					# Update progress every X lines for progress_bar
+					my $update_interval = 1000; 
 					while( my $feature = $gffio->next_feature()) {
 						if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 						($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 						manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
 						$nb_line_read_local++;
+						
+						# Update progress file periodically
+						if ($nb_line_read_local % $update_interval == 0 && -f $progress_file) {
+							open my $prog_update_fh, '+<', $progress_file or next;
+							flock($prog_update_fh, 2); # LOCK_EX (exclusive lock for writing)
+							my $current = <$prog_update_fh> || "0";
+							chomp $current;
+							my $new_total = $current + $update_interval;
+							seek($prog_update_fh, 0, 0);
+							truncate($prog_update_fh, 0);
+							print $prog_update_fh "$new_total\n";
+							close $prog_update_fh;
+						}
 					}
-
 					# -------------- Read fasta and ------------------------
 					$AGAT_GFF_INPUT_FILE->{'fasta'} = 0; # default no fasta
 					# there is fasta in file
@@ -452,7 +493,6 @@ sub slurp_gff3_file_JD {
 					# Call post_process handling
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
@@ -491,11 +531,11 @@ sub slurp_gff3_file_JD {
 			my $merge_progress_bar = undef;
 			if ( $progress_bar && $nb_files > 1){
 				$merge_progress_bar = Term::ProgressBar->new({
-																name  => 'Merging',
-																count => $nb_files,
-																ETA   => 'linear',
-																term_width => 80 ,
-															});
+											name  => 'Merging',
+											count => $nb_files,
+											ETA   => 'linear',
+											term_width => 80 ,
+										});
 			}
 
 			my $nb_chunck_processed = 0;
