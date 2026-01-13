@@ -17,13 +17,11 @@ use Exporter;
 use File::Path qw(remove_tree); # to remove directory easily (tmp directory)
 use File::Basename;
 use File::ShareDir ':ALL';
-use IPC::ShareLite qw( :lock );# to share memory between processes
 use LWP::UserAgent;
 use Parallel::ForkManager; # to handle parallel processing
 use POSIX qw(strftime);
-use Scalar::Util qw(blessed reftype);
 use Sort::Naturally;
-use Storable qw(nstore retrieve);
+use Storable qw(store_fd fd_retrieve);
 use Term::ProgressBar;
 use Try::Tiny;
 
@@ -91,7 +89,8 @@ our $check_cpt = 1;
 sub slurp_gff3_file_JD {
 
 	my $start_run = time();
-	my %omniscient_original; #Hash where all the features will be saved
+	# Hash where all the features will be saved
+	my %omniscient_original; 
 
 	# -------------- check OS type -----------------------------
 	my $is_linux = undef;
@@ -185,7 +184,7 @@ sub slurp_gff3_file_JD {
 	my %WARNS;
 	my %globalWARNS;
 	my $nbWarnLimit = $LOGGING->{debug_mode} ? undef : 10; # limit number of warning if not debug mode
-		local $SIG{__WARN__} = sub {
+	local $SIG{__WARN__} = sub {
 		my $message = shift;
 		my @thematic=split /@/,$message ;
 
@@ -298,7 +297,7 @@ sub slurp_gff3_file_JD {
 
 	# ============================> FILE CASE <============================
 	else{
-		dual_print1 "Parse file $file\n";
+		dual_print1 "Parsing file $file\n";
 		# -------------- check we read a file -----------------------------
 		if(! -f $file){
 			dual_print ({ 'string' => surround_text("$file does not exist. Please verify the input file name/path",80,"!","\n") });
@@ -354,61 +353,50 @@ sub slurp_gff3_file_JD {
 			my $plural2 = $nb_files > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => file_text_line({ string => "Start of in-depth analysis (file by chunck $max_procs CPU$plural - $nb_files chunck$plural2)", char => "-", prefix => "\n" }) });
 
-			my $mem;
+			# === Set progress bar (parsing) ===
+			my $progress_file = File::Spec->catfile($AGAT_TMP, "progress.txt");
+			my $last_progress_update = 0;
+			
+			# Initialize progress tracking file
+			open my $prog_init_fh, '>', $progress_file or die "Cannot create progress file: $!";
+			print $prog_init_fh "0\n";
+			close $prog_init_fh;
+			
 			if ( $progress_bar and $nb_line_feature ){
-
-				# === Deal with shareable memory  ===
-
-				# Initialize/clean the segment with a per-process unique key
-				# Use parent PID so that children of this process share the same segment,
-				# while concurrent external processes (parallel tests) stay isolated.
-				my $ipc_key = $$; # numeric key accepted by IPC::ShareLite
-				$mem = IPC::ShareLite->new(
-					-key       => $ipc_key, # unique per invoking process
-					-create    => 'yes',
-					-exclusive => 'no',
-					-mode      => 0666,
-					-destroy => 'yes',
-					# -size can be omitted for small scalars; include if you expect larger blobs
-					-size      => 32,
-				) or die "IPC::ShareLite->new failed: $!";
-
-				# Initialisation du counter
-				update_counter($mem, 0);
-				
-				# === Set progress bar (parsing) ===	
 				$progress_bar = Term::ProgressBar->new({
 						name  => 'Parsing',
 						count => $nb_line_feature,
 						ETA   => 'linear',
-						term_width => 80 ,
-					});
-
-				# Define the handler
-				$SIG{ALRM} = sub {
-					$nb_line_read = get_counter($mem);
-					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
-					# Re-arm the alarm
-					alarm(1);
-				};
-				# Set the initial alarm
-				alarm(1);
+						term_width => 80 ,			
+				});		
 			}
 			
 			# ====== Create ForkManager ======
 			my $pm = Parallel::ForkManager->new($max_procs);
+			
+			# ========= Run on wait handler (for progress bar updates) =========
+			$pm->run_on_wait(sub {
+				if ($progress_bar && -f $progress_file) {
+					open my $prog_read_fh, '<', $progress_file or return;
+					flock($prog_read_fh, 1); # LOCK_SH (shared lock for reading)
+					my $current_progress = <$prog_read_fh>;
+					close $prog_read_fh;
+					
+					if (defined $current_progress) {
+						chomp $current_progress;
+						if ($current_progress =~ /^\d+$/ && $current_progress > $last_progress_update) {
+							$progress_bar->update($current_progress);
+							$last_progress_update = $current_progress;
+						}
+					}
+				}
+			}, 0.5); # Check every 0.5 seconds
 
 			$SIG{INT} = $SIG{TERM} = sub {
 				warn "Caught SIG, cleaning up temp files...\n";
 							
 				# Kill all children still running
 				$pm->wait_all_children if $pm;
-
-				# Destroy shared memory segment if any
-				if (defined $mem) {
-					eval { $mem->destroy(); };
-					$mem = undef;
-				}
 				
 				if (-d $AGAT_TMP) {
 					remove_tree($AGAT_TMP, { error => \my $err });
@@ -421,12 +409,6 @@ sub slurp_gff3_file_JD {
 			# store the pid of child processes and their associated file
 			my %pid_to_file;
 
-			# Print info at start e.g. "Started child 3431 (Job 25)"
-			#$pm->run_on_start(sub {
-			#	my ($pid, $ident) = @_;
-			#	print "Started child $pid ($ident)\n";
-			#});
-			
 			# ========= Run on finish handler =========
 			$pm->run_on_finish(sub {
 				my ($pid, $exit_code, $ident, $exit_signal, $core_dump) = @_;
@@ -478,13 +460,27 @@ sub slurp_gff3_file_JD {
 					my $gffio = AGAT::BioperlGFF->new(-file => $filepath, -gff_version => $gff_in_format);
 
 					# -------------- Read features in GFF file ---------------------
+					# Update progress every X lines for progress_bar
+					my $update_interval = 1000; 
 					while( my $feature = $gffio->next_feature()) {
 						if($gff_in_format eq "1"){_gff1_corrector($feature);} # case where gff1 has been used to parse.... we have to do some attribute manipulations
 						($locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new) =
 						manage_one_feature($ontology, $feature, $omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, $locusTAGvalue, $last_l1_f, $last_l2_f, $last_l3_f, $last_f, $lastL1_new);
 						$nb_line_read_local++;
+						
+						# Update progress file periodically
+						if ($nb_line_read_local % $update_interval == 0 && -f $progress_file) {
+							open my $prog_update_fh, '+<', $progress_file or next;
+							flock($prog_update_fh, 2); # LOCK_EX (exclusive lock for writing)
+							my $current = <$prog_update_fh> || "0";
+							chomp $current;
+							my $new_total = $current + $update_interval;
+							seek($prog_update_fh, 0, 0);
+							truncate($prog_update_fh, 0);
+							print $prog_update_fh "$new_total\n";
+							close $prog_update_fh;
+						}
 					}
-
 					# -------------- Read fasta and ------------------------
 					$AGAT_GFF_INPUT_FILE->{'fasta'} = 0; # default no fasta
 					# there is fasta in file
@@ -497,41 +493,29 @@ sub slurp_gff3_file_JD {
 					# Call post_process handling
 					$previous_time = time();
 					post_process($omniscient_clean_clone, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
-				
-					# --- Update shared value ----
-					# counter for progress bar
-					update_counter($mem, $nb_line_read_local) if ( defined $mem ) ;
 				}
 
 				dual_print ({ 'string' => "[CHILD $$] MEMORY AFTER =".get_memory_usage()."\n", 'debug_only' => 1 });
 				my $merging_time = time();
-				dual_print ({ 'string' => file_text_line({ string => "debless_and_strip_code tasks", char => "-", prefix => "\n" }) });
-				my $deblessed = undef;
-				my @levels = ('level1', 'level2', 'level3');
-				foreach my $level ( @levels ){
-					debless_and_strip_code($omniscient_clean_clone->{$level});
-				}
-				
-				dual_print ({ 'string' => sizedPrint("------ End debless_and_strip_code (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n") });
-				
+
 				my $pid = $$;
-				#use Devel::Size qw(total_size);
-				#my $size_bytes = total_size($deblessed);
-				#my $size_mb = sprintf("%.2f", $size_bytes / (1024 * 1024));
-				#print "  $pid send: ${size_mb} Mo";
 				
 				my $tmpfile = File::Spec->catfile($AGAT_TMP, "result_${pid}.stor");
-				nstore($omniscient_clean_clone, $tmpfile);
+				open my $fh, '>', $tmpfile or die "Cannot open $tmpfile: $!";
+				binmode $fh;
+				store_fd($omniscient_clean_clone, $fh);
+				close $fh;
 
-				$pm->finish(0); # Pass the data back to the parent process
-				if ($progress_bar){
-					$progress_bar->update($nbline);
+					$pm->finish(0); # Pass the data back to the parent process
+					
+					if ($progress_bar){
+						$progress_bar->update($nbline);
 					dual_print ({ 'string' => "\n" });
 				}
-			}
+			} # end foreach file
 
 			# === Wait for all child processes to finish ===
-			$pm->wait_all_children;  
+			$pm->wait_all_children;
 
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
 			if ($progress_bar){
@@ -547,27 +531,21 @@ sub slurp_gff3_file_JD {
 			my $merge_progress_bar = undef;
 			if ( $progress_bar && $nb_files > 1){
 				$merge_progress_bar = Term::ProgressBar->new({
-																name  => 'Merging',
-																count => $nb_files,
-																ETA   => 'linear',
-																term_width => 80 ,
-															});
+											name  => 'Merging',
+											count => $nb_files,
+											ETA   => 'linear',
+											term_width => 80 ,
+										});
 			}
 
 			my $nb_chunck_processed = 0;
 			for my $pid (keys %pid_to_file) {
 
 				my $file = $pid_to_file{$pid};
-				my $data = retrieve($file);  
-				$previous_time = time();
-				
-				# Restore BioPerl SeqFeature objects
-				dual_print ({ 'string' => file_text_line({ string => "restore_seqfeatures", char => "-", prefix => "\n" }), 'debug_only' => 1 });
-				my @levels = ('level1', 'level2', 'level3');
-				foreach my $level ( @levels ){
-					restore_seqfeatures($data->{$level}); # flat structure re inflated with Bio::SeqFeature::Generic
-				}			
-				dual_print ({ 'string' => sizedPrint("------ End restore_seqfeatures (done in ".(time() - $previous_time)." second) ------",80, "\n\n\n"), 'debug_only' => 1 });
+				open my $fh, '<', $file or die "Cannot open $file: $!";
+				binmode $fh;
+				my $data = fd_retrieve($fh);
+				close $fh;
 				
 				# merge the data
 				$previous_time = time();
@@ -580,15 +558,11 @@ sub slurp_gff3_file_JD {
 					$merge_progress_bar->update($nb_chunck_processed);
 				}
 			}
+			
 			$plural = (time() - $merging_time) > 1 ? "s" : ""; # singular/plural for print
 			dual_print ({ 'string' => "\nMerging (done in ".(time() - $merging_time)." second$plural )\n" });
 
-			# Clean up shared memory segment and tmp directory
-			if (defined $mem) {
-				alarm(0);
-				eval { $mem->destroy(); };
-				$mem = undef;
-			}
+			# Clean up tmp directory
 			remove_tree($AGAT_TMP) or die "Failed to delete $AGAT_TMP: $!";
 		}
 		
@@ -825,100 +799,6 @@ sub post_process {
 	}
 }
 
-sub restore_seqfeatures {
-    my ($data) = @_;
-
-    if (ref($data) eq 'HASH') {
-        # If this hash has only one key: 'agat_flat_feat', we replace the entire hash
-        if ((keys %$data) == 1 && exists $data->{agat_flat_feat} && ref($data->{agat_flat_feat}) eq 'HASH') {
-
-			return Bio::SeqFeature::Generic->new(
-					-seq_id => $data->{agat_flat_feat}{seq_id},
-					-source_tag => $data->{agat_flat_feat}{source_tag},
-					-primary_tag => $data->{agat_flat_feat}{primary_tag},
-					-start => $data->{agat_flat_feat}{start},
-					-end   => $data->{agat_flat_feat}{end},
-					-score => $data->{agat_flat_feat}{score},
-					-strand => $data->{agat_flat_feat}{strand},
-					-frame => $data->{agat_flat_feat}{frame},
-					-tag => $data->{agat_flat_feat}{tag},
-				);
-		}
-
-        # Otherwise, recurse on each value
-        for my $key (keys %$data) {
-            $data->{$key} = restore_seqfeatures($data->{$key});
-        }
-
-    } elsif (ref($data) eq 'ARRAY') {
-        # Recurse into arrays
-        for my $i (0 .. $#$data) {
-            $data->[$i] = restore_seqfeatures($data->[$i]);
-        }
-    }
-
-    return $data;  # Return unmodified scalar or updated ref
-}
-
-# Function to extract attributes as a hash reference from the SeqFeature object
-sub get_attributes_as_hash_ref {
-    my $feature = shift;
-    my %attributes;
-
-    foreach my $tag ($feature->get_all_tags) {
-        my @values = $feature->get_tag_values($tag);
-        $attributes{$tag} = (@values == 1) ? $values[0] : \@values;
-    }
-
-    return \%attributes;
-}
-
-# needed to remove code and serialize the Generic feature objects (to make it compact). 
-sub debless_and_strip_code {
-    my ($ref) = @_;
-
-    return $ref unless ref $ref;
-
-    # Cas 1 : objet Bio::SeqFeature::Generic à transformer en structure plate
-    if (blessed($ref) && $ref->isa('Bio::SeqFeature::Generic')) {
-        return {
-            agat_flat_feat => {
-                seq_id      => $ref->seq_id,
-                source_tag  => $ref->source_tag,
-                primary_tag => $ref->primary_tag,
-                start       => $ref->start,
-                end         => $ref->end,
-                score       => $ref->score,
-                strand      => $ref->strand,
-                frame       => $ref->frame,
-                tag         => get_attributes_as_hash_ref($ref),
-            }
-        };
-    }
-
-    my $type = reftype($ref);
-
-    # Cas 2 : tableau → traitement récursif
-    if ($type eq 'ARRAY') {
-        return [ map { debless_and_strip_code($_) } @$ref ];
-    }
-
-
-    # Cas 3 : hash → traitement récursif
-    if ($type eq 'HASH') {
-        for my $key (keys %$ref) {
-            my $val = $ref->{$key};
-            my $val_type = reftype($val);
-            next if defined $val_type && $val_type eq 'CODE';  # skip code refs
-            $ref->{$key} = debless_and_strip_code($val);
-        }
-        return $ref;
-    }
-
-    # Cas 4 : référence d’un type qu’on ne veut pas gérer (CODE, GLOB, etc.)
-    return undef;
-}
-
 ##==============================================================================
 ##==============================================================================
 
@@ -968,7 +848,7 @@ sub manage_one_feature{
 		my $end = $feature->end;						#col5
 		my $score = $feature->score;					#col6
 		my $strand = $feature->strand;					#col7
-		my $frame = $feature->frame;					#col8
+		my $frame = $feature->phase;					#col8
 		# Attribute => tag=value tuples								#col9
 		my $id= undef;
 		my $parent= undef;
@@ -2331,7 +2211,7 @@ sub _check_cds{
 
 					my $strand = $list_cds[0]->strand;
 
-					if($strand == 1){
+					if ( defined $strand && $strand =~ /^1|\+$/ ) {
 						my $cds = $list_cds[$#list_cds];
 						my $stop = $list_stop[$#list_stop];
 
@@ -2354,7 +2234,7 @@ sub _check_cds{
 									$new_cds->start($stop->start);
 									$new_cds->end($stop->end);
 									my $size_stop = $stop->end - $stop->start + 1;
-									$new_cds->frame(3 - $size_stop);									
+									$new_cds->phase(3 - $size_stop);									
 									push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 									$resume_case2++;
 								}
@@ -2375,7 +2255,7 @@ sub _check_cds{
 												$new_cds->start($stop->start);
 												$new_cds->end($stop->end);
 												my $size_stop = $stop->end - $stop->start + 1;
-												$new_cds->frame(3 - $size_stop);
+												$new_cds->phase(3 - $size_stop);
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 												$stop_start_exon=1;$resume_case2++;
 											}
@@ -2415,7 +2295,7 @@ sub _check_cds{
 										$new_cds->start($stop->start);
 										$new_cds->end($stop->end);
 										my $size_stop = $stop->end - $stop->start + 1;
-										$new_cds->frame(3 - $size_stop);
+										$new_cds->phase(3 - $size_stop);
 										push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 										$resume_case2++;
 									}
@@ -2436,7 +2316,7 @@ sub _check_cds{
 												$new_cds->start($stop->start);
 												$new_cds->end($stop->end);
 												my $size_stop = $stop->end - $stop->start + 1;
-												$new_cds->frame(3 - $size_stop);
+												$new_cds->phase(3 - $size_stop);
 												push (@{$hash_omniscient->{"level3"}{'cds'}{$id_l2}}, $new_cds);
 												$stop_start_exon=1;$resume_case2++;
 											}
@@ -2659,7 +2539,7 @@ sub _check_exons{
 								#save new feature L2
 								dual_print({ 'string' => "Create one Exon for $id_l2\n:".$feature_exon->gff_string."\n", 'log_only' => 1 });
 								push (@{$hash_omniscient->{"level3"}{$tag}{$id_l2}}, $feature_exon);
-					 			}
+					 		}
 					 	}
 				 	}
 
@@ -3585,7 +3465,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			if($exon_feature->start < $ORFstart){
  				my $utr_feature=clone($exon_feature);#create a copy of the feature
  				$utr_feature->end($ORFstart-1); #modify start
- 				if ( ($strand == -1) or ($strand eq "-") ) {
+ 				if ( defined $strand && $strand =~ /^-1|-$/ ) {
  					$utr_feature->primary_tag('three_prime_UTR');
  					create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 				push(@utr3_features, $utr_feature);#save that cds
@@ -3600,7 +3480,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			if($exon_feature->end > $ORFend){
  				my $utr_feature=clone($exon_feature);#create a copy of the feature
  				$utr_feature->start($ORFend+1); #modify start
- 				if ( ($strand == -1) or ($strand eq "-") ) {
+ 				if ( defined $strand && $strand =~ /^-1|-$/ ) {
  					$utr_feature->primary_tag('five_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 				push(@utr5_features, $utr_feature);#save that cds
@@ -3640,7 +3520,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			my $utr_feature=clone($exon_feature);#create a copy of the feature
  			$utr_feature->start($ORFend+1); #modify end
  			$ID = $utr_feature->_tag_value('ID');
-	 		if ( ($strand == -1) or ($strand eq "-") ) {
+	 		if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 			$utr_feature->primary_tag('five_prime_UTR');
 	 			create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 			push(@utr5_features, $utr_feature);#save that cds
@@ -3668,7 +3548,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
  			my $utr_feature=clone($exon_feature);#create a copy of the feature
  			$utr_feature->end($ORFstart-1); #modify start
  			$ID = $utr_feature->_tag_value('ID');
-	 		if ( ($strand == -1) or ($strand eq "-") ) {
+	 		if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 			$utr_feature->primary_tag('three_prime_UTR');
 	 			create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 			push(@utr3_features, $utr_feature);#save that cds
@@ -3686,7 +3566,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
 					my $utr_feature=clone($exon_feature);#create a copy of the feature 			exon ===============================
 	 			#get old name 																											 cds ===============================
 	 			my $ID = $utr_feature->_tag_value('ID');
-	 			if ( ($strand == -1) or ($strand eq "-") ) {
+	 			if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 				$utr_feature->primary_tag('three_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr3-'.$utr3_counter); #modify name
 	 				push(@utr3_features, $utr_feature);#save that cds
@@ -3703,7 +3583,7 @@ sub modelate_utr_and_cds_features_from_exon_features_and_cds_start_stop{
 					my $utr_feature=clone($exon_feature);#create a copy of the feature 													exon ===============================
 	 			#get old name
 	 			my $ID = $utr_feature->_tag_value('ID'); 									#cds ===============================
-	 			if ( ($strand == -1) or ($strand eq "-") ) {
+	 			if ( defined $strand && $strand =~ /^-1|-$/ ) {
 	 				$utr_feature->primary_tag('five_prime_UTR');
 	 				create_or_replace_tag($utr_feature,'ID',$ID.'-utr5-'.$utr5_counter); #modify name
 	 				push(@utr5_features, $utr_feature);#save that cds
@@ -3784,10 +3664,12 @@ sub get_general_info{
 		$nb_line++;
 
 		# Every 1 seconds, print an update
-		my $now = time;
-		if ($now - $last_print_time >= 1) {
-			dual_print1 "\rLines parsed: $nb_line";
-			$last_print_time = $now;
+		if ($CONFIG->{progress_bar} ){
+			my $now = time;
+			if ($now - $last_print_time >= 1) {
+				dual_print1 "\rLines parsed: $nb_line";
+				$last_print_time = $now;
+			}
 		}
 
 		# skip blank lines
@@ -4476,26 +4358,4 @@ sub _create_log_file{
 	return $log;
 }
 
-# ------------------ local function for the use of IPC:ShareLite ------------------
-
-# function to increment a counter
-sub update_counter {
-	my ($mem, $value) = @_;
-    $mem->lock(LOCK_EX);
-    my $v = $mem->fetch;
-	$value = 0 unless defined $value;
-    $v = 0 unless defined $v && $v =~ /^\d+$/;
-    $v=$v+$value;
-    $mem->store("$v");   # store as a simple string
-    $mem->unlock;
-    return $v;
-}
-
-# function to fetch the counter
-sub get_counter {
-	my ($mem) = @_;
-    # If strict consistency is required, lock before fetch.
-    my $v = $mem->fetch;
-    return (defined $v && $v =~ /^\d+$/) ? $v : 0;
-}
 1;

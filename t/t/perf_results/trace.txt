@@ -1,0 +1,3 @@
+task_id	hash	native_id	process	tag	status	exit	cpus	memory	duration	realtime	%cpu	%mem
+3	84/dc0554	4070	makeSubset	size:10000	FAILED	1	1	-	59ms	40ms	-	-
+2	96/a93c76	4114	makeSubset	size:5000	ABORTED	-	1	-	-	-	-	-

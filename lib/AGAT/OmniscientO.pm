@@ -34,6 +34,52 @@ convert_omniscient_to_ensembl_style write_top_features prepare_gffout prepare_fi
 
 #				   +------------------------------------------------------+
 #				   |+----------------------------------------------------+|
+#				   ||            Batched Writer Helper Class            ||
+#				   |+----------------------------------------------------+|
+#				   +------------------------------------------------------+
+
+# Helper class to batch write_feature calls for better performance
+package AGAT::BatchedGFFWriter;
+
+sub new {
+	my ($class, $gffout, $batch_size) = @_;
+	$batch_size //= 1000;
+	return bless {
+		gffout => $gffout,
+		batch => [],
+		batch_size => $batch_size
+	}, $class;
+}
+
+sub write_feature {
+	my ($self, @features) = @_;
+	return unless @features;
+	
+	push @{$self->{batch}}, @features;
+	
+	# Flush if batch is full
+	if (@{$self->{batch}} >= $self->{batch_size}) {
+		$self->flush();
+	}
+}
+
+sub flush {
+	my ($self) = @_;
+	return unless @{$self->{batch}};
+	
+	$self->{gffout}->write_feature(@{$self->{batch}});
+	$self->{batch} = [];
+}
+
+sub DESTROY {
+	my ($self) = @_;
+	$self->flush(); # Auto-flush on destruction
+}
+
+package AGAT::OmniscientO;
+
+#				   +------------------------------------------------------+
+#				   |+----------------------------------------------------+|
 #				   ||                   Print Methods 		     	     ||
 #				   |+----------------------------------------------------+|
 #				   +------------------------------------------------------+
@@ -67,6 +113,8 @@ sub prepare_gffout{
 	else{
 		$gffout = AGAT::BioperlGFF->new(-fh => \*STDOUT, -type => $CONFIG->{output_format}, -version => $version);
 	}
+
+	dual_print1 "=> Output format will be ".uc($CONFIG->{output_format}).$version.".\n";
 
 	return $gffout;
 }
@@ -150,6 +198,9 @@ sub print_omniscient_as_gff{
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_as_gff!"; exit; }
 	# -----------------------------------
 
+	# Wrap gffout with batched writer
+	my $writer = AGAT::BatchedGFFWriter->new($gffout, 1000);
+
 	#uri_decode_omniscient($omniscient);
 
 	# --------- deal with header --------------
@@ -195,7 +246,7 @@ sub print_omniscient_as_gff{
 			if ( exists_keys( \%tabix_hash, ($startpos , 'level1') ) ){
 				foreach my $level1_ID ( sort {$a cmp $b} keys %{$tabix_hash{$startpos}{'level1'}} ){
 					foreach my $ptag_l1 ( sort {$a cmp $b} keys %{$tabix_hash{$startpos}{'level1'}{$level1_ID}} ){
-						$gffout->write_feature($omniscient->{'level1'}{$ptag_l1}{$level1_ID}); # print feature
+						$writer->write_feature($omniscient->{'level1'}{$ptag_l1}{$level1_ID});
 					}
 				}
 			}
@@ -205,7 +256,7 @@ sub print_omniscient_as_gff{
 						foreach my $ptag_l2 ( sort {$a cmp $b} keys %{$tabix_hash{$startpos}{'level2'}{$level1_ID}{$level2_ID} } ){
 							foreach my $feature_level2 ( @{$omniscient->{'level2'}{$ptag_l2}{$level1_ID}}) {
 								if(lc($feature_level2->_tag_value('ID')) eq $level2_ID ){
-									$gffout->write_feature($feature_level2); # print feature
+									$writer->write_feature($feature_level2);
 									last;
 								}
 							}
@@ -220,7 +271,7 @@ sub print_omniscient_as_gff{
 							foreach my $feature_level3 ( @{$omniscient->{'level3'}{$ptag_l3}{$level2_ID} } ) {
 								# check the start also because spreadfeatures like CDS can share same ID
 								if(lc($feature_level3->_tag_value('ID')) eq $level3_ID and $startpos == $feature_level3->start()){
-									$gffout->write_feature($feature_level3); # print feature
+									$writer->write_feature($feature_level3);
 									last;
 								}
 							}
@@ -229,6 +280,7 @@ sub print_omniscient_as_gff{
 				}
 			}
 		}
+		# Flush is automatic via DESTROY when $writer goes out of scope
 	}
 	else{
 
@@ -248,22 +300,20 @@ sub print_omniscient_as_gff{
 	  	    #################
 			# == LEVEL 1 == # IF not in omniscient do that, otherwise we us within. Make a method for it.
 			#################
-			write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $omniscient);
+			write_top_features($writer, $seqid, $hash_sortBySeq_topf, $omniscient);
 
 			foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
 				my $primary_tag_l1 = $hash_sortBySeq->{$seqid}{$locationid}{'tag'};
 				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
-			    $gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
-
-				#################
+		    $writer->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
 				# == LEVEL 2 == #
 				#################
 				foreach my $primary_tag_l2 (sort {$a cmp $b} keys %{$omniscient->{'level2'}}){ # primary_tag_l2 = mrna or mirna or ncrna or trna etc...
 
 					if ( exists_keys( $omniscient, ('level2', $primary_tag_l2, $id_tag_key_level1) ) ){
 						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
-							$gffout->write_feature($feature_level2);
+							$writer->write_feature($feature_level2);
 
 							#################
 							# == LEVEL 3 == #
@@ -278,13 +328,16 @@ sub print_omniscient_as_gff{
 							else{
 								warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
 							}
-							print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
+							print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $writer} );
 						}
 					}
 				}
 			}
 		}
 	}
+
+	# Ensure all batched features are written
+	$writer->flush();
 
 	# --------- deal with fasta seq --------------
 	write_fasta($gffout);
@@ -303,6 +356,9 @@ sub print_omniscient_as_match{
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_as_match!"; exit; }
 	# -----------------------------------
 
+	# Wrap gffout with batched writer
+	my $writer = AGAT::BatchedGFFWriter->new($gffout, 1000);
+
 	#uri_decode_omniscient($omniscient);
 
   # --------- deal with header --------------
@@ -318,7 +374,7 @@ sub print_omniscient_as_match{
   # == LEVEL 1 == #
   #################
 
-    write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $omniscient);
+    write_top_features($writer, $seqid, $hash_sortBySeq_topf, $omniscient);
 
 		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
@@ -326,7 +382,7 @@ sub print_omniscient_as_match{
 				my $id_tag_key_level1 = $hash_sortBySeq->{$seqid}{$locationid}{'id'};
 
 				if($primary_tag_l1 =~ "match"){
-					$gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
+					$writer->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 				}
 				#################
 				# == LEVEL 2 == #
@@ -337,7 +393,7 @@ sub print_omniscient_as_match{
 						foreach my $feature_level2 ( sort { ($a->start <=> $b->start) || ($a->end <=> $b->end) || ncmp(lc($a->_tag_value('ID')), lc($b->_tag_value('ID'))) } @{$omniscient->{'level2'}{$primary_tag_l2}{$id_tag_key_level1}}) {
 
 							if($primary_tag_l2 =~ "match"){
-								$gffout->write_feature($feature_level2);
+								$writer->write_feature($feature_level2);
 							}
 							else{
 								$feature_level2->primary_tag('match');
@@ -345,7 +401,7 @@ sub print_omniscient_as_match{
 									$feature_level2->remove_tag('Parent');
 								}
 
-								$gffout->write_feature($feature_level2);
+								$writer->write_feature($feature_level2);
 
 								#################
 								# == LEVEL 3 == #
@@ -368,7 +424,7 @@ sub print_omniscient_as_match{
 										}
 										$current_start=$end;
 
-										$gffout->write_feature($feature_level3);
+										$writer->write_feature($feature_level3);
 									}
 								}
 							}
@@ -395,6 +451,9 @@ sub print_omniscient_from_level1_id_list {
 	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_omniscient_from_level1_id_list!"; exit; }
 	# -----------------------------------
 
+	# Wrap gffout with batched writer
+	my $writer = AGAT::BatchedGFFWriter->new($gffout, 1000);
+
 	#uri_decode_omniscient($omniscient);
 
 	# --------- deal with header --------------
@@ -409,7 +468,7 @@ sub print_omniscient_from_level1_id_list {
     	#################
    		# == LEVEL 1 == #
     	#################
-		write_top_features($gffout, $seqid, $hash_sortBySeq_topf, $omniscient);
+		write_top_features($writer, $seqid, $hash_sortBySeq_topf, $omniscient);
 
 		foreach my $locationid ( sort { ncmp ($a, $b) } keys %{$hash_sortBySeq->{$seqid} } ){
 
@@ -418,7 +477,7 @@ sub print_omniscient_from_level1_id_list {
 
     		#_uri_encode_one_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1});
 
-    		$gffout->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
+    		$writer->write_feature($omniscient->{'level1'}{$primary_tag_l1}{$id_tag_key_level1}); # print feature
 
 			#################
 			# == LEVEL 2 == #
@@ -430,7 +489,7 @@ sub print_omniscient_from_level1_id_list {
 
 						#_uri_encode_one_feature($feature_level2);
 
-						$gffout->write_feature($feature_level2);
+						$writer->write_feature($feature_level2);
 
 						#################
 						# == LEVEL 3 == #
@@ -446,7 +505,7 @@ sub print_omniscient_from_level1_id_list {
 							warn "Cannot retrieve the parent feature of the following feature: ".gff_string($feature_level2);
 						}
 
-						print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $gffout} );
+						print_level3_old_school( {omniscient => $omniscient, level2_ID =>$level2_ID, output => $writer} );
 
 					}
         		}
@@ -466,10 +525,10 @@ sub print_level3_old_school{
 	# Check we receive a hash as ref
 	if(ref($args) ne 'HASH'){ warn "Hash Arguments expected for print_level3_old_school. Please check the call.\n";exit;	}
 	# Fill the parameters
-	my ($omniscient, $level2_ID, $gffout);
+	my ($omniscient, $level2_ID, $writer);
 	if( defined($args->{omniscient})) {$omniscient = $args->{omniscient};} else{ print "Omniscient parameter mandatory to use print_level3_old_school!"; exit; }
 	if( defined($args->{level2_ID})) {$level2_ID = $args->{level2_ID};} else{ print "level2_ID parameter mandatory to use print_level3_old_school!"; exit; }
-	if( defined($args->{output})) {$gffout = $args->{output};} else{ print "Output parameter mandatory to use print_level3_old_school!"; exit; }
+	if( defined($args->{output})) {$writer = $args->{output};} else{ print "Output parameter mandatory to use print_level3_old_school!"; exit; }
 	# -----------------------------------
 
 	# -------------- Params --------------
@@ -480,7 +539,7 @@ sub print_level3_old_school{
   if ( exists_keys($omniscient,('level3','tss',$level2_ID)) ){
     foreach my $feature_level3 ( @{$omniscient->{'level3'}{'tss'}{$level2_ID}}) {
       #_uri_encode_one_feature($feature_level3);
-      $gffout->write_feature($feature_level3);
+      $writer->write_feature($feature_level3);
     }
   }
 
@@ -489,7 +548,7 @@ sub print_level3_old_school{
 	if ( exists_keys( $omniscient, ('level3', 'exon', $level2_ID) ) ){
 		foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$omniscient->{'level3'}{'exon'}{$level2_ID}}) {
 			#_uri_encode_one_feature($feature_level3);
-			$gffout->write_feature($feature_level3);
+			$writer->write_feature($feature_level3);
 		}
 	}
 
@@ -498,7 +557,7 @@ sub print_level3_old_school{
 	if ( exists_keys( $omniscient, ('level3', 'cds', $level2_ID) ) ){
 		foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$omniscient->{'level3'}{'cds'}{$level2_ID}}) {
 			#_uri_encode_one_feature($feature_level3);
-			$gffout->write_feature($feature_level3);
+			$writer->write_feature($feature_level3);
 		}
 	}
 
@@ -507,7 +566,7 @@ sub print_level3_old_school{
   if ( exists_keys($omniscient,('level3','tts',$level2_ID)) ){
     foreach my $feature_level3 ( @{$omniscient->{'level3'}{'tts'}{$level2_ID}}) {
       #_uri_encode_one_feature($feature_level3);
-      $gffout->write_feature($feature_level3);
+      $writer->write_feature($feature_level3);
     }
   }
 
@@ -518,7 +577,7 @@ sub print_level3_old_school{
 			if ( exists_keys( $omniscient, ('level3', $primary_tag_l3, $level2_ID) ) ){
 				foreach my $feature_level3 ( sort {$a->start <=> $b->start} @{$omniscient->{'level3'}{$primary_tag_l3}{$level2_ID}}) {
 					#_uri_encode_one_feature($feature_level3);
-					$gffout->write_feature($feature_level3);
+					$writer->write_feature($feature_level3);
 				}
 			}
 		}
@@ -613,9 +672,11 @@ sub print_ref_list_feature {
 
 	my ($list, $gffout) = @_  ;
 
+	my $writer = AGAT::BatchedGFFWriter->new($gffout, 1000);
 	foreach my $feature (@$list) {
-		$gffout->write_feature($feature);
+		$writer->write_feature($feature);
 	}
+	$writer->flush();
 }
 
 # @Purpose: Print the headers when first time we access the fh
@@ -652,7 +713,7 @@ sub write_headers{
 
 sub write_top_features{
 
-  my ($gffout, $seqid, $hash_sortBySeq_topf, $omniscient ) = @_;
+  my ($writer, $seqid, $hash_sortBySeq_topf, $omniscient ) = @_;
 
     if ( exists_keys( $hash_sortBySeq_topf, ($seqid) ) ){
 
@@ -660,7 +721,7 @@ sub write_top_features{
 				my $tag_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'tag'};
 				my $id_l1 = $hash_sortBySeq_topf->{$seqid}{$locationid}{'id'};
 				my $feature_l1 = $omniscient->{'level1'}{$tag_l1}{$id_l1};
-        $gffout->write_feature($feature_l1); # print feature
+        $writer->write_feature($feature_l1); # print feature
       }
     }
 }

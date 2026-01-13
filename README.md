@@ -221,13 +221,13 @@ You will have to install all prerequisites and AGAT manually.
       * manually  
 
       ```
-      conda install perl-bioperl perl-clone perl-graph perl-lwp-simple perl-carp perl-sort-naturally perl-file-share perl-file-sharedir-install perl-moose perl-yaml perl-lwp-protocol-https perl-term-progressbar perl-parallel-forkmanager perl-ipc-sharelite perl-file-chdir 
+      conda install perl-bioperl perl-carp perl-clone perl-extutils-makemaker perl-file-chdir perl-file-temp perl-file-share perl-file-sharedir-install perl-graph perl-list-moreutils perl-lwp-simple perl-lwp-protocol-https perl-parallel-forkmanager perl-sort-naturally perl-storable perl-term-progressbar perl-moose perl-yaml 
       ```
 
     * using your package management tool (e.g apt for Debian, Ubuntu, and related Linux distributions)
 
     ```
-    apt install libbio-perl-perl libclone-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libipc-sharelite-perl libtest-tempdir-perl libfile-chdir-perl
+    apt install libbio-perl-perl libclone-perl libfile-chdir-perl libgraph-perl liblwp-useragent-determined-perl libstatistics-r-perl libcarp-clan-perl libsort-naturally-perl libfile-share-perl libfile-sharedir-perl libfile-sharedir-install-perl libyaml-perl liblwp-protocol-https-perl libterm-progressbar-perl libparallel-forkmanager-perl libtest-tempdir-perl 
     ```
 
   * Optional

@@ -1,0 +1,15 @@
+{
+  "name": "AGAT Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode-remote.remote-containers"
+      ]
+    }
+  },
+  "forwardPorts": [8787],
+  "remoteUser": "root"
+}
