@@ -76,6 +76,8 @@ my $NOTHING_MESSAGE = "Nothing to be done";
 my $SKIP_MESSAGE = "skip check";
 # count for the number of check performed
 our $check_cpt = 1;
+# Global variable to store last valid counter value (fallback for IPC::ShareLite errors)
+our $last_valid_counter = 0; 
 
 # ====== PURPOSE =======:
 # Save in omniscient hash (sorted in a specific way (3 levels)) a whole gff3 file
@@ -4478,24 +4480,62 @@ sub _create_log_file{
 
 # ------------------ local function for the use of IPC:ShareLite ------------------
 
-# function to increment a counter
-sub update_counter {
-	my ($mem, $value) = @_;
-    $mem->lock(LOCK_EX);
-    my $v = $mem->fetch;
-	$value = 0 unless defined $value;
-    $v = 0 unless defined $v && $v =~ /^\d+$/;
-    $v=$v+$value;
-    $mem->store("$v");   # store as a simple string
-    $mem->unlock;
-    return $v;
+sub update_counter {                                                                                                                                                                                      
+        my ($mem, $value) = @_;                                                                                                                                                                           
+        return $last_valid_counter unless $mem;  # Safety check                                                                                                                                           
+                                                                                                                                                                                                          
+        my $result = $last_valid_counter;  # Default to last known value                                                                                                                                  
+        eval {                                                                                                                                                                                            
+                $mem->lock(LOCK_EX);                                                                                                                                                                      
+                my $v = eval { $mem->fetch; };                                                                                                                                                            
+                if ($@) {                                                                                                                                                                                 
+                        # If fetch fails, use last valid counter as fallback                                                                                                                              
+                        warn "WARNING: IPC::ShareLite fetch() error in update_counter: $@. Using last valid counter value.\n";                                                                            
+                        $v = $last_valid_counter;                                                                                                                                                         
+                }                                                                                                                                                                                         
+                $value = 0 unless defined $value;                                                                                                                                                         
+                $v = 0 unless defined $v && $v =~ /^\d+$/;                                                                                                                                                
+                $v = $v + $value;                                                                                                                                                                         
+                eval { $mem->store("$v"); };  # store as a simple string                                                                                                                                  
+                if ($@) {                                                                                                                                                                                 
+                        warn "WARNING: IPC::ShareLite store() error in update_counter: $@\n";                                                                                                             
+                }                                                                                                                                                                                         
+                $mem->unlock;                                                                                                                                                                             
+                $last_valid_counter = $v;  # Update global with successful value                                                                                                                          
+                $result = $v;                                                                                                                                                                             
+        };                                                                                                                                                                                                
+        if ($@) {                                                                                                                                                                                         
+                # Fallback - return last valid value without crashing                                                                                                                                     
+                warn "WARNING: IPC::ShareLite lock/unlock error in update_counter: $@. Continuing with last valid value.\n";                                                                              
+                return $last_valid_counter;                                                                                                                                                               
+        }                                                                                                                                                                                                 
+        return $result;                                                                                                                                                                                   
+}                                                                                                                                                                                                         
+                                                                                                                                                                                                          
+# function to fetch the counter                                                                                                                                                                           
+sub get_counter {                                                                                                                                                                                         
+        my ($mem) = @_;                                                                                                                                                                                   
+        return $last_valid_counter unless $mem;  # Safety check                                                                                                                                           
+                                                                                                                                                                                                          
+        my $v = $last_valid_counter;  # Default to last known value                                                                                                                                       
+        eval {                                                                                                                                                                                            
+                $mem->lock(LOCK_EX);                                                                                                                                                                      
+                $v = eval { $mem->fetch; };                                                                                                                                                               
+                if ($@) {                                                                                                                                                                                 
+                        # If fetch fails, use last valid counter                                                                                                                                          
+                        warn "WARNING: IPC::ShareLite fetch() error in get_counter: $@. Using last valid counter value.\n";                                                                               
+                        $v = $last_valid_counter;                                                                                                                                                         
+                }                                                                                                                                                                                         
+                $mem->unlock;                                                                                                                                                                             
+        };                                                                                                                                                                                                
+        if ($@) {                                                                                                                                                                                         
+                # Fallback - return last valid value without crashing                                                                                                                                     
+                warn "WARNING: IPC::ShareLite lock/unlock error in get_counter: $@. Continuing with last valid value.\n";                                                                                 
+                return $last_valid_counter;                                                                                                                                                               
+        }                                                                                                                                                                                                 
+        my $result = (defined $v && $v =~ /^\d+$/) ? $v : $last_valid_counter;                                                                                                                            
+        $last_valid_counter = $result if defined $result;  # Update global with successful value                                                                                                          
+        return $result;                                                                                                                                                                                   
 }
 
-# function to fetch the counter
-sub get_counter {
-	my ($mem) = @_;
-    # If strict consistency is required, lock before fetch.
-    my $v = $mem->fetch;
-    return (defined $v && $v =~ /^\d+$/) ? $v : 0;
-}
 1;
