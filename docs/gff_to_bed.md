@@ -4,6 +4,8 @@ It exists many GFF formats and many GTF formats
 (see [here](gxf.md) for a complete review) and many tools
 to perform the conversion. We will try to see in this review the main differences.
 
+Not that BED is not a gene model format, it doesn't store the CDS start and CDS end and not the exon frame information either. BED or their indexed version, bigBed, will not show the coding sequence and its impossible to get an amino acid sequence from the BED file. For that, you would need to convert the GTF file to a genePred (and bigGenePred) with the UCSC tools gtfToGenePred or gff3ToGenePred. 
+
 ## Table of Contents
 
  * [Test resume](#test-resume)
