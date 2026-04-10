@@ -378,7 +378,7 @@ sub slurp_gff3_file_JD {
 			
 			# ========= Run on wait handler (for progress bar updates) =========
 			$pm->run_on_wait(sub {
-				if ($progress_bar && -f $progress_file) {
+				if (ref($progress_bar) && $progress_bar->can('update') && -f $progress_file) {
 					open my $prog_read_fh, '<', $progress_file or return;
 					flock($prog_read_fh, 1); # LOCK_SH (shared lock for reading)
 					my $current_progress = <$prog_read_fh>;
@@ -510,7 +510,7 @@ sub slurp_gff3_file_JD {
 
 					$pm->finish(0); # Pass the data back to the parent process
 					
-					if ($progress_bar){
+					if (ref($progress_bar) && $progress_bar->can('update')){
 						$progress_bar->update($nbline);
 					dual_print ({ 'string' => "\n" });
 				}
@@ -520,7 +520,7 @@ sub slurp_gff3_file_JD {
 			$pm->wait_all_children;
 
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
-			if ($progress_bar){
+			if (ref($progress_bar) && $progress_bar->can('update')){
 				$progress_bar->update($nb_line_feature);
 			}
 			$plural = (time() - $parsing_time) > 1 ? "s" : ""; # singular/plural for print
@@ -585,7 +585,7 @@ sub slurp_gff3_file_JD {
 
 				# Define the handler
 				$SIG{ALRM} = sub {
-					$progress_bar->update($nb_line_read) if ($progress_bar and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
+					$progress_bar->update($nb_line_read) if (ref($progress_bar) and $progress_bar->can('update') and $nb_line_feature and $nb_line_read and ($nb_line_read < $nb_line_feature) );
 					# Re-arm the alarm
 					alarm(1);
 				};
@@ -617,7 +617,7 @@ sub slurp_gff3_file_JD {
 			post_process(\%omniscient_original, \%duplicate, \%locusTAG, \%infoSequential, \%attachedL2Sequential, \%globalWARNS, \%WARNS, $nbWarnLimit, $ontology, $start_run);
 		
 			# to deal with a nice rendering at the end of the progress bar => make it at 100%
-			if ($progress_bar){
+			if (ref($progress_bar) && $progress_bar->can('update')){
 				$progress_bar->update($nb_line_feature);
 				dual_print ({ 'string' => "\n" });
 			}
@@ -3896,6 +3896,7 @@ sub select_gff_format{
 	my $version=undef;
 	my $nbLineChecked=100; #number line to use to check the formnat
 	my $cpt=0;
+	my $version_from_header=undef;
 	my @col_tab;
 	my @attribute_tab;
 
@@ -3903,6 +3904,10 @@ sub select_gff_format{
 
 	while(<$fh>){
 
+		if($_ =~ /^##gff-version\s+([123])/){
+			$version_from_header = $1;
+			next;
+		}
 		if($_ =~ /^#/){next;} #if it is a comment line, we skip it.
 		if($_ =~ /^\s+$/){next;} #if it is an empty line, we skip it.
 
@@ -3956,6 +3961,12 @@ sub select_gff_format{
 		}
 	}
 	else{
+		if ($cpt == 0){
+			my $fallback_version = $version_from_header ? $version_from_header : 3;
+			dual_print({ 'string' => surround_text("Your file contains only headers/comments and no feature lines. We continue using gff$fallback_version parser for this input.",80,"!") });
+			$gff_in_format{$fallback_version}++;
+		}
+		else{
 		my $nb_col = scalar @col_tab;
 		if ($nb_col == 8){
 			dual_print({ 'string' => surround_text("Interesting this GTF/GFF file has only 8 columns as allowed by the GFF before 2004. Any parser type can be used.",80,"!") });
@@ -3969,6 +3980,7 @@ sub select_gff_format{
 			dual_print({ 'string' => surround_text("Doesn't look like a GTF/GFF file\nLet's see what the Bioperl parser can do with that...(using gff3 parser)",80,"!") });
 		}
 		$gff_in_format{3}++;
+		}
 	}
 	my $nb_col_in_attribute = scalar @attribute_tab;
 	if ($nb_col_in_attribute > 1){
