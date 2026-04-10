@@ -159,12 +159,12 @@ foreach my $locusID ( sort keys %{$flattened_locations}){ # tag_l1 = gene or rep
     }
 
     my $uniq_ID = "intergenic_region_".$intergenicID;
-    my $intergenic_feature = Bio::SeqFeature::Generic->new( -seq_id => $locusID, 
+    my $intergenic_feature = AGAT::SeqFeatureLite->new( -seq_id => $locusID, 
                                                             -source_tag => "AGAT",
                                                             -primary_tag => 'intergenic_region' , 
                                                             -start => $previous_location->[1]+1,  
                                                             -end => $location->[0]-1, 
-                                                            -frame => ".", 
+                                                            -phase => ".", 
                                                             -strand => "." , 
                                                             -tag => { 'ID' => $uniq_ID  }) ;
     # add feature in omniscient

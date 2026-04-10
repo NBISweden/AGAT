@@ -1,5 +1,5 @@
 ##gff-version 3
-unitig_10|quiver	maker	gene	293192	296995	1000	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;Name=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;cov=112.403648;fPKM=21.595270;gene_id=4_160615_BC9HJBANXX_P3969_209.645;tPM=29.167316;transcript_id=4_160615_BC9HJBANXX_P3969_209.645.1
+unitig_10|quiver	maker	gene	293192	296995	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;Name=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;cov=112.403648;fPKM=21.595270;gene_id=4_160615_BC9HJBANXX_P3969_209.645;tPM=29.167316;transcript_id=4_160615_BC9HJBANXX_P3969_209.645.1
 unitig_10|quiver	maker	mRNA	293192	296995	3669	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0;Name=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1;_AED=0.22;_QI=81|1|1|1|0|0|3|846|913;_eAED=0.22
 unitig_10|quiver	maker	exon	293192	294553	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1:exon:5;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1
 unitig_10|quiver	maker	exon	294618	296824	.	-	.	ID=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1:exon:4;Parent=maker-unitig_10|quiver-est_gff_StringTie-gene-3.0-mRNA-1

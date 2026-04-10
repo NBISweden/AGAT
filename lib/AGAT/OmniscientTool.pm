@@ -575,7 +575,7 @@ sub merge_overlap_loci{
 							delete $omniscient->{'level1'}{$tag_l1}{$remove};
 							# remove the level2 to level1 link stored into the l2tol1 hash. The new links will be added just later after the check 
 							# to see if we keep the level2 feature or not (we remove it when identical)
-							foreach my $l2_type (%{$omniscient->{'level2'}}){
+							foreach my $l2_type (keys %{$omniscient->{'level2'}}){
 								if(exists_keys($omniscient,('level2', $l2_type, $remove))){
 									foreach my $feature_l2 (@{$omniscient->{'level2'}{$l2_type}{$remove}}){
 										delete $omniscient->{'other'}{'l2tol1'}{lc($feature_l2->_tag_value('ID'))};
@@ -594,7 +594,7 @@ sub merge_overlap_loci{
 
 									#Now manage the rest
 									foreach my $feature_l2 (@{$list_of_uniqs}){
-										create_or_replace_tag($feature_l2,'Parent', $feature_l1->_tag_value('ID')); #change the parent
+										create_or_replace_tag($feature_l2, 'Parent', $omniscient->{'level1'}{$tag_l1}{$keep}->_tag_value('ID')); # change the parent to the kept locus
 										# Add the corrected feature to its new L2 bucket
 										push (@{$omniscient->{'level2'}{$l2_type}{$keep}}, $feature_l2);
 										# Attach the new parent into the l2tol1 hash
@@ -603,9 +603,12 @@ sub merge_overlap_loci{
 
 									# L2 - update attribute (except ID, Parent, gene_id) or create a new with merged_ prefix :
 									foreach my $commons (@{$list_commons}){
+										next if (! defined $commons or ref($commons) ne 'ARRAY' or ! @{$commons});
 										my $kept_l2 = shift @$commons; # first is the one we append
+										next if (! defined $kept_l2);
 										my $id_l2 = lc($kept_l2->_tag_value('ID'));
 										foreach my $common (@{$commons}){
+											next if (! defined $common);
                       						$resume_identic++;
 											my @list_tag_l2 = $common->get_all_tags();
 											foreach my $tag (@list_tag_l2){
@@ -629,6 +632,9 @@ sub merge_overlap_loci{
 								}
 							}
 							check_level1_positions( { omniscient => $omniscient, feature => $omniscient->{'level1'}{$tag_l1}{$keep} } );
+							# If $id_l1 was the one removed, it no longer exists in omniscient;
+							# exit the inner foreach to avoid using a deleted feature in the next iteration. The kept one will be tested to other overlap in next iteration.
+							last if $remove eq $id_l1;
 						}
 					}
 				}
@@ -1330,7 +1336,7 @@ sub clean_clone{
 	# clone the feature
 	$cloned_feature = clone($feature);
 	# clean frame/phase
-	$cloned_feature->frame("."); 
+	$cloned_feature->phase("."); 
 	# Update source
 	$cloned_feature->source_tag("AGAT");
 	# clean score
@@ -1377,6 +1383,10 @@ sub clean_clone{
 sub create_or_replace_tag{
 
 	my ($feature, $tag, $value)=@_;
+	if (! defined $feature){
+		warn "WARNING create_or_replace_tag called with undefined feature (tag=$tag value=$value)\n";
+		return;
+	}
 
 	if ($feature->has_tag($tag) ) {
 			$feature->remove_tag($tag);
@@ -1405,6 +1415,10 @@ sub create_or_replace_tag{
 #	create_or_append_tag($other_feature, $tag , \@tag_values);
 sub create_or_append_tag{
 	my ($feature, $tag, $value)=@_;
+	if (! defined $feature){
+		warn "WARNING create_or_append_tag called with undefined feature (tag=$tag value=$value)\n";
+		return;
+	}
 
 	if ($feature->has_tag($tag) ) {
 			if(ref($value) eq "ARRAY"){
@@ -1462,7 +1476,7 @@ sub fil_cds_frame {
 					my $phase = _get_cds_start_phase( $db, $hash_omniscient->{'level3'}{'cds'}{$level2_ID} );
 
 					# Particular case If no phase found and a phase does not exist in the CDS feature we set it to 0 to start
-					if ( ! defined( $phase ) and  $cds_list[0]->frame eq "." ) {
+					if ( ! defined( $phase ) and  $cds_list[0]->phase eq "." ) {
 						$phase = 0;
 						dual_print1 "Particular case: No phase found for the CDS start (None in the feature and none can be determined looking at the ORFs)\n".
 						"We will assume then to be in phase 0" ;
@@ -1472,11 +1486,11 @@ sub fil_cds_frame {
 					# otherwise we loop over CDS features to set the correct phase
 					if ( defined( $phase ) ) {
 						foreach my $cds_feature ( @cds_list) {
-							my $original_phase = $cds_feature->frame;
+							my $original_phase = $cds_feature->phase;
 
 							if ( ($original_phase eq ".") or ($original_phase != $phase) ){
 								dual_print1 "Original phase $original_phase replaced by $phase for ".$cds_feature->_tag_value("ID")."\n" ;
-								$cds_feature->frame($phase);
+								$cds_feature->phase($phase);
 							}
 							my $cds_length=$cds_feature->end-$cds_feature->start +1;
 							$phase=(3-(($cds_length-$phase)%3))%3; #second modulo allows to avoid the frame with 3. Instead we have 0.
@@ -1503,7 +1517,7 @@ sub _get_cds_start_phase {
   }
   my $cds_obj = Bio::Seq->new(-seq => $cds_dna_seq, -alphabet => 'dna' );
   #Reverse the object depending on strand
-  if ($cds_list->[0]->strand == -1 or $cds_list->[0]->strand eq "-"){
+  if ( defined $cds_list->[0]->strand && $cds_list->[0]->strand =~ /^-1|-$/ ) {
     $cds_obj = $cds_obj->revcom();
   }
   my $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
