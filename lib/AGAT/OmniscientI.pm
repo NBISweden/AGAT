@@ -74,6 +74,8 @@ my $NOTHING_MESSAGE = "Nothing to be done";
 my $SKIP_MESSAGE = "skip check";
 # count for the number of check performed
 our $check_cpt = 1;
+# Global variable to store last valid counter value (fallback for IPC::ShareLite errors)
+our $last_valid_counter = 0; 
 
 # ====== PURPOSE =======:
 # Save in omniscient hash (sorted in a specific way (3 levels)) a whole gff3 file
