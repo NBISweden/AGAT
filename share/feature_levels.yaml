@@ -34,6 +34,7 @@ level1:
   conserved_region: standalone
   contig: topfeature
   crispr: standalone
+  d_loop: standalone
   dnasei_hypersensitive_site: standalone
   enhancer: standalone
   enhancer_blocking_element: standalone
@@ -50,6 +51,7 @@ level1:
   knob: standalone
   l1_line_retrotransposon: standalone
   lincrna_gene: 1
+  lncrna_gene: 1
   locus_control_region: standalone
   match: 1
   matrix_attachment_site: standalone
@@ -63,6 +65,7 @@ level1:
   nucleotide_motif: 1
   nucleotide_to_protein_match: 1
   orf: 1
+  origin_of_replication: standalone
   pif_harbinger_tir_transposon: standalone
   pirna_gene: 1
   polypeptide: 1
@@ -91,6 +94,7 @@ level1:
   source: topfeature
   sts: 1
   subtelomere: standalone
+  superlocus: standalone
   tandem_repeat: standalone
   tata_box: standalone
   tc1_mariner_tir_transposon: standalone
@@ -125,6 +129,7 @@ level2:
   ltr_retrotransposon: repeat_region
   match_part: match
   nucleotide_to_protein_match_part: nucleotide_to_protein_match
+  microrna: gene
   mirna: gene
   mirna_primary_transcript: gene
   misc_rna: gene
@@ -143,11 +148,13 @@ level2:
   rnase_mrp_rna: gene
   rnase_p_rna: gene
   rrna: gene
+  scarna: gene
   scrna: gene
   similarity: match
   sirna_gene: gene
   snorna: gene
   snrna: gene
+  srna: gene
   srp_rna: gene
   target_site_duplication: repeat_region
   tmrna: gene
