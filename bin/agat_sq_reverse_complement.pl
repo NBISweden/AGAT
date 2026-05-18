@@ -28,7 +28,7 @@ if ( ! $script_parser->getoptionsfromarray(
     $script_argv,
     'file|input|gff=s' => \$opt_gfffile,
     'f|fasta=s'        => \$opt_fastafile,
-    'o|output=s'       => \$outfile,
+    'o|out|output=s'       => \$outfile,
     'h|help!'          => \$opt_help )  )
 {
   pod2usage( { -message => "$header\nFailed to parse command line",
