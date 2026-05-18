@@ -154,7 +154,7 @@ The result is written to the specified output file, or to STDOUT.
 
 =over 8
 
-=item B<-g>, B<--gff> or B<-ref> <file>
+=item B<-g> or B<--gff> <file>
 
 Input GTF/GFF file.
 

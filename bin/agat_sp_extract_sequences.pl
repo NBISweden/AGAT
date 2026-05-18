@@ -948,7 +948,7 @@ Use of that option on cds will give the pre-mRNA without the untraslated regions
 (To extract an mRNA as it is defined biologicaly you need to use the
 `-t exon` option with the --merge option)
 
-=item B<-g>, B<--gff> or B<-ref> <file>
+=item B<-g> or B<--gff> <file>
 
 Input GTF/GFF file.
 
