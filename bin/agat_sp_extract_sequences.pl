@@ -58,7 +58,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'eo!'                          => \$opt_extremity_only,
   'f|fa|fasta=s'                 => \$opt_fastafile,
   'full!'                        => \$opt_full,
-  'g|gff|ref=s'                      => \$opt_gfffile,
+  'g|gff=s'                      => \$opt_gfffile,
   'h|help!'                      => \$opt_help,
   'keep_attributes!'             => \$opt_keep_attributes,
   'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
@@ -948,7 +948,7 @@ Use of that option on cds will give the pre-mRNA without the untraslated regions
 (To extract an mRNA as it is defined biologicaly you need to use the
 `-t exon` option with the --merge option)
 
-=item B<-g>, B<--gff> or B<-ref> <file>
+=item B<-g> or B<--gff> <file>
 
 Input GTF/GFF file.
 
