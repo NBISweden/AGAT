@@ -27,7 +27,7 @@ my ($shared_argv, $script_argv) = split_argv_shared_vs_script(\@ARGV);
 my $script_parser = Getopt::Long::Parser->new;
 $script_parser->configure('bundling','no_auto_abbrev');
 if ( !$script_parser->getoptionsfromarray( $script_argv,
-          'g|gff=s'         => \$opt_gfffile,
+          'g|gff|ref=s'         => \$opt_gfffile,
           'f|fa|fasta=s'    => \$opt_fastafile,
           'hm:s'            => \$opt_HardMask,
           'sm'              => \$opt_SoftMask,
