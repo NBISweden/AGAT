@@ -58,7 +58,7 @@ if ( ! $script_parser->getoptionsfromarray(
   'eo!'                          => \$opt_extremity_only,
   'f|fa|fasta=s'                 => \$opt_fastafile,
   'full!'                        => \$opt_full,
-  'g|gff=s'                      => \$opt_gfffile,
+  'g|gff|ref=s'                      => \$opt_gfffile,
   'h|help!'                      => \$opt_help,
   'keep_attributes!'             => \$opt_keep_attributes,
   'keep_parent_attributes!'      => \$opt_keep_parent_attributes,
