@@ -15,6 +15,7 @@ my %startend_hash;     # Stores start and end positions of each feature reported
 my %sorted_hash;
 my %hash_uniqID;
 my %filtered_result;
+my %feature_meta;     # Attributes attached to MFannot feature boundaries
 my $omniscient={}; #Hash where all the features will be saved
 my $hashID={}; # ex %miscCount;# Hash to store any counter.
 
@@ -67,23 +68,96 @@ end_script();
 
 ## SUBROUTINES #######################################################
 
+# Decode the feature hierarchy encoded by modern MFannot masterfiles.  In
+# particular, an intron-encoded ORF (e.g. nad1-I1-orf149) is an ORF, not a
+# second intron of nad1.
+sub classify_mfannot_feature {
+    my ($raw_name) = @_;
+
+    if ($raw_name =~ /^(.*)-(I\d+)-(orf[^-]+)$/i) {
+        return {
+            name        => $3,
+            type        => 'mfannot_orf',
+            host_gene   => $1,
+            host_intron => $2,
+        };
+    }
+    if ($raw_name =~ /^(.*)-E\d+$/i) {
+        return { name => $1, type => 'exon' };
+    }
+    if ($raw_name =~ /^(.*)-I\d+$/i) {
+        return { name => $1, type => 'intron' };
+    }
+    if ($raw_name =~ /^(?:trn|trna)/i) {
+        return { name => $raw_name, type => 'tRNA' };
+    }
+    if ($raw_name =~ /^(?:rnl|rns)$/i) {
+        return { name => $raw_name, type => 'rRNA' };
+    }
+    if ($raw_name =~ /^orf/i) {
+        return { name => $raw_name, type => 'mfannot_orf' };
+    }
+
+    return { name => $raw_name, type => 'mRNA' };
+}
+
+# A marker is placed between sequence lines.  MFannot's arrows point in the
+# feature direction, so the coordinate represented by a marker depends on
+# both the arrow and whether it denotes a start or end boundary.
+sub mfannot_boundary_coordinate {
+    my ($direction, $boundary, $current_pos) = @_;
+
+    return $current_pos + 1
+        if ($direction eq '==>' && $boundary eq 'start')
+        || ($direction eq '<==' && $boundary eq 'end');
+
+    return $current_pos;
+}
+
+sub mfannot_boundary_attributes {
+    my ($tail, $parsed) = @_;
+    my %attributes;
+
+    if ($tail =~ m{/note=([^;]+)}i) {
+        my $note = $1;
+        $note =~ s/\s+$//;
+        $attributes{'Note'} = $note;
+    }
+    if ($tail =~ /evalue\s*[:=]\s*([^\s,;]+)/i) {
+        $attributes{'evalue'} = $1;
+    }
+    if ($tail =~ /HMM match:\s*([0-9]+-[0-9]+)/i) {
+        $attributes{'hmm_match'} = $1;
+    }
+    $attributes{'host_gene'} = $parsed->{'host_gene'} if $parsed->{'host_gene'};
+    $attributes{'host_intron'} = $parsed->{'host_intron'} if $parsed->{'host_intron'};
+
+    return \%attributes;
+}
+
 sub read_mfannot {
     my $current_contig;         # Track the current contig
     my $current_genetic_code;   # Track current genetic code
     my $current_pos=1;          # Track current position
     my $writeflag=0;
-    my $previousDirection=undef;
-    my $previousStartEnd=undef;;
+	my $previousDirection=undef;
+	my $previousStartEnd=undef;;
 	my $previousIntron=undef;
 	my $previousRnl=undef;
 	my $previousRns=undef;
 	my $position=0;
+	my $modern_mfannot=0;
 
     open(INPUT, "<", "$_[0]") or die ("$!\n");
     # Open Mfannot file for reading
     while (<INPUT>) {
         chomp;
 		#print "reading $_  ++\n";
+		if ($_ =~ /^;;\s+version\s+v?(\d+)\.(\d+)/i) {
+			# MFannot 1.37 introduced boundary lines with annotations appended
+			# immediately after start/end (e.g. "start;; mfannot: ...").
+			$modern_mfannot = ($1 > 1 || ($1 == 1 && $2 >= 37)) ? 1 : 0;
+		}
         if ($_ =~ /^>(.*) gc=(\d+)/) {
             # If a header line, update the current contig and genetic code
             ($current_contig, $current_genetic_code) = ($1, $2);
@@ -98,7 +172,39 @@ sub read_mfannot {
             my ($pos_begin,$seqline) = ($1, $2);   # Sequence position
             $current_pos = length($seqline) + $pos_begin - 1;
         }
-        elsif ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;; mfannot:\s+(\/group=.*)/) or ($_ =~ /^;; mfannot:$/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
+		elsif ($modern_mfannot && $_ =~ /^;+\s+G-(\S+)\s+(<==|==>)\s+(start|end)\b(.*)$/) {
+			# Modern online MFannot appends annotations directly to the boundary
+			# token (e.g. "start;; mfannot: ...").  Do not split on whitespace:
+			# that turns the token into "start;;" and drops tRNAs.
+			my ($raw_name, $direction, $boundary, $tail) = ($1, $2, $3, $4);
+			my $parsed = classify_mfannot_feature($raw_name);
+			my $name = $parsed->{'name'};
+			my $type = $parsed->{'type'};
+			my $coordinate = mfannot_boundary_coordinate(
+				$direction, $boundary, $current_pos
+			);
+
+			my $index = 0;
+			if (defined $startend_hash{$current_contig}{$name}{$type}{$boundary}) {
+				$index = scalar keys %{
+					$startend_hash{$current_contig}{$name}{$type}{$boundary}
+				};
+			}
+			$startend_hash{$current_contig}{$name}{$type}{$boundary}{$index}
+				= $coordinate;
+
+			# MFannot reports descriptive information on either boundary.  Keep
+			# the first non-empty values for the record, indexed by its start.
+			my $attributes = mfannot_boundary_attributes($tail, $parsed);
+			my $meta_index = $boundary eq 'start' ? $index : 0;
+			foreach my $key (keys %{$attributes}) {
+				if (!defined $feature_meta{$current_contig}{$name}{$type}{$meta_index}{$key}) {
+					$feature_meta{$current_contig}{$name}{$type}{$meta_index}{$key}
+						= $attributes->{$key};
+				}
+			}
+		}
+		elsif ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;; mfannot:\s+(\/group=.*)/) or ($_ =~ /^;; mfannot:$/) or ( !$modern_mfannot && ( ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ) ) ){
 			dual_print2 "Feature line\n";
 			if ( ($_ =~ /^;+\s+G-(\w.*)/) or ($_ =~ /^;+\s+(rnl.*)/) or ($_ =~ /^;+\s+(rns.*)/) ){
 
@@ -355,6 +461,10 @@ sub handle_records {
 					#get the start and end of the feature
 					my $start = $startend_hash{$contig}{$name}{$type}{'start'}{$nb};
 					my $end = $startend_hash{$contig}{$name}{$type}{'end'}{$nb};
+					unless (defined $start && defined $end) {
+						warn "Skipping incomplete MFannot feature $name ($type) on $contig\n";
+						next;
+					}
 					# get the strand
 					my $featuredir = "+";
 					if ( $start > $end) {
@@ -362,6 +472,45 @@ sub handle_records {
 							my $tmpstart=$start;
 							$start = $end;
 							$end = $tmpstart;
+					}
+
+					# Model protein-coding MFannot ORFs with standard GFF3/SOFA
+					# records rather than the non-standard "orf" feature type.
+					if ($type eq 'mfannot_orf') {
+						my %common_tags = ('Name' => $gene_name, 'locus_tag' => $name);
+						if (exists $feature_meta{$contig}{$name}{$type}{$nb}) {
+							foreach my $key (keys %{$feature_meta{$contig}{$name}{$type}{$nb}}) {
+								$common_tags{$key} = $feature_meta{$contig}{$name}{$type}{$nb}{$key};
+							}
+						}
+
+						my $gene_id = 'gene_'.$name;
+						my $mrna_id = 'mRNA_'.$name;
+						my $cds_id = 'CDS_'.$name;
+						my %gene_tags = (%common_tags, 'ID' => $gene_id);
+						my %mrna_tags = (%common_tags, 'ID' => $mrna_id, 'Parent' => $gene_id);
+						my %cds_tags = (%common_tags, 'ID' => $cds_id, 'Parent' => $mrna_id);
+
+						my $gene_feature = AGAT::SeqFeatureLite->new(
+							-seq_id => $contig, -source_tag => 'AGAT', -primary_tag => 'gene',
+							-start => $start, -end => $end, -phase => '.', -strand => $featuredir,
+							-tag => \%gene_tags
+						);
+						my $mrna_feature = AGAT::SeqFeatureLite->new(
+							-seq_id => $contig, -source_tag => 'AGAT', -primary_tag => 'mRNA',
+							-start => $start, -end => $end, -phase => '.', -strand => $featuredir,
+							-tag => \%mrna_tags
+						);
+						my $cds_feature = AGAT::SeqFeatureLite->new(
+							-seq_id => $contig, -source_tag => 'AGAT', -primary_tag => 'CDS',
+							-start => $start, -end => $end, -phase => 0, -strand => $featuredir,
+							-tag => \%cds_tags
+						);
+
+						$omniscient->{'level1'}{'gene'}{lc($gene_id)} = $gene_feature;
+						push @{$omniscient->{'level2'}{'mRNA'}{lc($gene_id)}}, $mrna_feature;
+						push @{$omniscient->{'level3'}{'CDS'}{lc($mrna_id)}}, $cds_feature;
+						next;
 					}
 					
 					# Shift to exon for allowing multiple exons genes
@@ -381,6 +530,13 @@ sub handle_records {
 					}
 					
 					# create feature
+					my %tags = ('ID' => $id, 'Name' => $gene_name, 'locus_tag' => $name);
+					if (exists $feature_meta{$contig}{$name}{$type}{$nb}) {
+						foreach my $key (keys %{$feature_meta{$contig}{$name}{$type}{$nb}}) {
+							$tags{$key} = $feature_meta{$contig}{$name}{$type}{$nb}{$key};
+						}
+					}
+
 					my $feature = AGAT::SeqFeatureLite->new(-seq_id => $contig,
 																-source_tag => "AGAT",
 																-primary_tag => $realType,
@@ -388,7 +544,7 @@ sub handle_records {
 																-end => $end ,
 																-phase => ".",
 																-strand => $featuredir,
-																-tag => {'ID' => $id, 'Name' => $gene_name, 'locus_tag' => $name }
+																-tag => \%tags
 																) ;
 					
 					if ($type eq "rRNA"){
