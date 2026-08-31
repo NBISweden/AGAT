@@ -1,0 +1,198 @@
+##gff-version 3
+##transl_table=4
+mito_(reversed)	AGAT	gene	164	236	.	+	.	ID=trnP(ugg);Name=trnP(ugg);evalue=1.37e-08;locus_tag=trnP(ugg)
+mito_(reversed)	AGAT	tRNA	164	236	.	+	.	ID=tRNA_trnP(ugg);Parent=trnP(ugg);Name=trnP(ugg);evalue=1.37e-08;locus_tag=trnP(ugg)
+mito_(reversed)	AGAT	exon	164	236	.	+	.	ID=agat-exon-27;Parent=tRNA_trnP(ugg);Name=trnP(ugg);evalue=1.37e-08;locus_tag=trnP(ugg)
+mito_(reversed)	AGAT	gene	295	3587	.	+	.	ID=agat-gene-1;Name=rnl;agat_parent_type=rRNA;evalue=1.6e-18;locus_tag=rnl
+mito_(reversed)	AGAT	rRNA	295	3587	.	+	.	ID=agat-rna-1;Parent=agat-gene-1;Name=rnl;agat_parent_type=rRNA;evalue=1.6e-18;locus_tag=rnl
+mito_(reversed)	AGAT	exon	295	3587	.	+	.	ID=exon_rnl;Parent=agat-rna-1;Name=rnl;agat_parent_type=rRNA;evalue=1.6e-18;locus_tag=rnl
+mito_(reversed)	AGAT	gene	2853	3197	.	+	.	ID=gene_orf114;Name=orf114;locus_tag=orf114
+mito_(reversed)	AGAT	mRNA	2853	3197	.	+	.	ID=mRNA_orf114;Parent=gene_orf114;Name=orf114;locus_tag=orf114
+mito_(reversed)	AGAT	exon	2853	3197	.	+	.	ID=agat-exon-40;Parent=mRNA_orf114;Name=orf114;locus_tag=orf114
+mito_(reversed)	AGAT	CDS	2853	3197	.	+	0	ID=CDS_orf114;Parent=mRNA_orf114;Name=orf114;locus_tag=orf114
+mito_(reversed)	AGAT	gene	3300	3641	.	+	.	ID=gene_orf113;Name=orf113;Note=no ATG initiation codon identified;locus_tag=orf113
+mito_(reversed)	AGAT	mRNA	3300	3641	.	+	.	ID=mRNA_orf113;Parent=gene_orf113;Name=orf113;Note=no ATG initiation codon identified;locus_tag=orf113
+mito_(reversed)	AGAT	exon	3300	3641	.	+	.	ID=agat-exon-39;Parent=mRNA_orf113;Name=orf113;Note=no ATG initiation codon identified;locus_tag=orf113
+mito_(reversed)	AGAT	CDS	3300	3641	.	+	0	ID=CDS_orf113;Parent=mRNA_orf113;Name=orf113;Note=no ATG initiation codon identified;locus_tag=orf113
+mito_(reversed)	AGAT	gene	3711	3781	.	+	.	ID=trnT(ugu);Name=trnT(ugu);evalue=3.14e-07;locus_tag=trnT(ugu)
+mito_(reversed)	AGAT	tRNA	3711	3781	.	+	.	ID=tRNA_trnT(ugu);Parent=trnT(ugu);Name=trnT(ugu);evalue=3.14e-07;locus_tag=trnT(ugu)
+mito_(reversed)	AGAT	exon	3711	3781	.	+	.	ID=agat-exon-33;Parent=tRNA_trnT(ugu);Name=trnT(ugu);evalue=3.14e-07;locus_tag=trnT(ugu)
+mito_(reversed)	AGAT	gene	3923	3993	.	+	.	ID=trnM(cau)_1;Name=trnM(cau);evalue=4.56e-08;locus_tag=trnM(cau)_1
+mito_(reversed)	AGAT	tRNA	3923	3993	.	+	.	ID=tRNA_trnM(cau)_1;Parent=trnM(cau)_1;Name=trnM(cau);evalue=4.56e-08;locus_tag=trnM(cau)_1
+mito_(reversed)	AGAT	exon	3923	3993	.	+	.	ID=agat-exon-23;Parent=tRNA_trnM(cau)_1;Name=trnM(cau);evalue=4.56e-08;locus_tag=trnM(cau)_1
+mito_(reversed)	AGAT	gene	4099	4171	.	+	.	ID=trnM(cau)_2;Name=trnM(cau);evalue=3.28e-11;locus_tag=trnM(cau)_2
+mito_(reversed)	AGAT	tRNA	4099	4171	.	+	.	ID=tRNA_trnM(cau)_2;Parent=trnM(cau)_2;Name=trnM(cau);evalue=3.28e-11;locus_tag=trnM(cau)_2
+mito_(reversed)	AGAT	exon	4099	4171	.	+	.	ID=agat-exon-24;Parent=tRNA_trnM(cau)_2;Name=trnM(cau);evalue=3.28e-11;locus_tag=trnM(cau)_2
+mito_(reversed)	AGAT	gene	4290	4372	.	+	.	ID=trnL(uaa);Name=trnL(uaa);evalue=4.61e-10;locus_tag=trnL(uaa)
+mito_(reversed)	AGAT	tRNA	4290	4372	.	+	.	ID=tRNA_trnL(uaa);Parent=trnL(uaa);Name=trnL(uaa);evalue=4.61e-10;locus_tag=trnL(uaa)
+mito_(reversed)	AGAT	exon	4290	4372	.	+	.	ID=agat-exon-21;Parent=tRNA_trnL(uaa);Name=trnL(uaa);evalue=4.61e-10;locus_tag=trnL(uaa)
+mito_(reversed)	AGAT	gene	4551	4624	.	+	.	ID=trnE(uuc);Name=trnE(uuc);evalue=3.26e-12;locus_tag=trnE(uuc)
+mito_(reversed)	AGAT	tRNA	4551	4624	.	+	.	ID=tRNA_trnE(uuc);Parent=trnE(uuc);Name=trnE(uuc);evalue=3.26e-12;locus_tag=trnE(uuc)
+mito_(reversed)	AGAT	exon	4551	4624	.	+	.	ID=agat-exon-15;Parent=tRNA_trnE(uuc);Name=trnE(uuc);evalue=3.26e-12;locus_tag=trnE(uuc)
+mito_(reversed)	AGAT	gene	4732	4803	.	+	.	ID=trnA(ugc);Name=trnA(ugc);evalue=9.12e-12;locus_tag=trnA(ugc)
+mito_(reversed)	AGAT	tRNA	4732	4803	.	+	.	ID=tRNA_trnA(ugc);Parent=trnA(ugc);Name=trnA(ugc);evalue=9.12e-12;locus_tag=trnA(ugc)
+mito_(reversed)	AGAT	exon	4732	4803	.	+	.	ID=agat-exon-12;Parent=tRNA_trnA(ugc);Name=trnA(ugc);evalue=9.12e-12;locus_tag=trnA(ugc)
+mito_(reversed)	AGAT	gene	4818	4890	.	+	.	ID=trnF(gaa);Name=trnF(gaa);evalue=1.66e-12;locus_tag=trnF(gaa)
+mito_(reversed)	AGAT	tRNA	4818	4890	.	+	.	ID=tRNA_trnF(gaa);Parent=trnF(gaa);Name=trnF(gaa);evalue=1.66e-12;locus_tag=trnF(gaa)
+mito_(reversed)	AGAT	exon	4818	4890	.	+	.	ID=agat-exon-16;Parent=tRNA_trnF(gaa);Name=trnF(gaa);evalue=1.66e-12;locus_tag=trnF(gaa)
+mito_(reversed)	AGAT	gene	5150	5235	.	+	.	ID=trnL(uag);Name=trnL(uag);evalue=1.38e-10;locus_tag=trnL(uag)
+mito_(reversed)	AGAT	tRNA	5150	5235	.	+	.	ID=tRNA_trnL(uag);Parent=trnL(uag);Name=trnL(uag);evalue=1.38e-10;locus_tag=trnL(uag)
+mito_(reversed)	AGAT	exon	5150	5235	.	+	.	ID=agat-exon-22;Parent=tRNA_trnL(uag);Name=trnL(uag);evalue=1.38e-10;locus_tag=trnL(uag)
+mito_(reversed)	AGAT	gene	5376	5448	.	+	.	ID=trnQ(uug);Name=trnQ(uug);evalue=1.64e-09;locus_tag=trnQ(uug)
+mito_(reversed)	AGAT	tRNA	5376	5448	.	+	.	ID=tRNA_trnQ(uug);Parent=trnQ(uug);Name=trnQ(uug);evalue=1.64e-09;locus_tag=trnQ(uug)
+mito_(reversed)	AGAT	exon	5376	5448	.	+	.	ID=agat-exon-28;Parent=tRNA_trnQ(uug);Name=trnQ(uug);evalue=1.64e-09;locus_tag=trnQ(uug)
+mito_(reversed)	AGAT	gene	5482	5555	.	+	.	ID=trnH(gug);Name=trnH(gug);evalue=3.05e-12;locus_tag=trnH(gug)
+mito_(reversed)	AGAT	tRNA	5482	5555	.	+	.	ID=tRNA_trnH(gug);Parent=trnH(gug);Name=trnH(gug);evalue=3.05e-12;locus_tag=trnH(gug)
+mito_(reversed)	AGAT	exon	5482	5555	.	+	.	ID=agat-exon-18;Parent=tRNA_trnH(gug);Name=trnH(gug);evalue=3.05e-12;locus_tag=trnH(gug)
+mito_(reversed)	AGAT	gene	5681	5753	.	+	.	ID=trnM(cau)_3;Name=trnM(cau);evalue=3.25e-09;locus_tag=trnM(cau)_3
+mito_(reversed)	AGAT	tRNA	5681	5753	.	+	.	ID=tRNA_trnM(cau)_3;Parent=trnM(cau)_3;Name=trnM(cau);evalue=3.25e-09;locus_tag=trnM(cau)_3
+mito_(reversed)	AGAT	exon	5681	5753	.	+	.	ID=agat-exon-25;Parent=tRNA_trnM(cau)_3;Name=trnM(cau);evalue=3.25e-09;locus_tag=trnM(cau)_3
+mito_(reversed)	AGAT	gene	5912	5984	.	+	.	ID=trnV(uac);Name=trnV(uac);evalue=2.10e-13;locus_tag=trnV(uac)
+mito_(reversed)	AGAT	tRNA	5912	5984	.	+	.	ID=tRNA_trnV(uac);Parent=trnV(uac);Name=trnV(uac);evalue=2.10e-13;locus_tag=trnV(uac)
+mito_(reversed)	AGAT	exon	5912	5984	.	+	.	ID=agat-exon-34;Parent=tRNA_trnV(uac);Name=trnV(uac);evalue=2.10e-13;locus_tag=trnV(uac)
+mito_(reversed)	AGAT	gene	6212	7675	.	+	.	ID=nad4;Name=nad4;locus_tag=nad4
+mito_(reversed)	AGAT	mRNA	6212	7675	.	+	.	ID=mRNA_nad4;Parent=nad4;Name=nad4;locus_tag=nad4
+mito_(reversed)	AGAT	exon	6212	7675	.	+	.	ID=agat-exon-7;Parent=mRNA_nad4;Name=nad4;locus_tag=nad4
+mito_(reversed)	AGAT	gene	7564	8847	.	+	.	ID=gene_orf427;Name=orf427;Note=first ATG found at position 7654;locus_tag=orf427
+mito_(reversed)	AGAT	mRNA	7564	8847	.	+	.	ID=mRNA_orf427;Parent=gene_orf427;Name=orf427;Note=first ATG found at position 7654;locus_tag=orf427
+mito_(reversed)	AGAT	exon	7564	8847	.	+	.	ID=agat-exon-52;Parent=mRNA_orf427;Name=orf427;Note=first ATG found at position 7654;locus_tag=orf427
+mito_(reversed)	AGAT	CDS	7564	8847	.	+	0	ID=CDS_orf427;Parent=mRNA_orf427;Name=orf427;Note=first ATG found at position 7654;locus_tag=orf427
+mito_(reversed)	AGAT	gene	9290	9361	.	+	.	ID=trnK(uuu);Name=trnK(uuu);evalue=1.06e-13;locus_tag=trnK(uuu)
+mito_(reversed)	AGAT	tRNA	9290	9361	.	+	.	ID=tRNA_trnK(uuu);Parent=trnK(uuu);Name=trnK(uuu);evalue=1.06e-13;locus_tag=trnK(uuu)
+mito_(reversed)	AGAT	exon	9290	9361	.	+	.	ID=agat-exon-20;Parent=tRNA_trnK(uuu);Name=trnK(uuu);evalue=1.06e-13;locus_tag=trnK(uuu)
+mito_(reversed)	AGAT	gene	9471	9541	.	+	.	ID=trnR(ucu);Name=trnR(ucu);evalue=5.69e-10;locus_tag=trnR(ucu)
+mito_(reversed)	AGAT	tRNA	9471	9541	.	+	.	ID=tRNA_trnR(ucu);Parent=trnR(ucu);Name=trnR(ucu);evalue=5.69e-10;locus_tag=trnR(ucu)
+mito_(reversed)	AGAT	exon	9471	9541	.	+	.	ID=agat-exon-30;Parent=tRNA_trnR(ucu);Name=trnR(ucu);evalue=5.69e-10;locus_tag=trnR(ucu)
+mito_(reversed)	AGAT	gene	10170	10481	.	-	.	ID=gene_orf103;Name=orf103;Note=no ATG initiation codon identified;locus_tag=orf103
+mito_(reversed)	AGAT	mRNA	10170	10481	.	-	.	ID=mRNA_orf103;Parent=gene_orf103;Name=orf103;Note=no ATG initiation codon identified;locus_tag=orf103
+mito_(reversed)	AGAT	exon	10170	10481	.	-	.	ID=agat-exon-38;Parent=mRNA_orf103;Name=orf103;Note=no ATG initiation codon identified;locus_tag=orf103
+mito_(reversed)	AGAT	CDS	10170	10481	.	-	0	ID=CDS_orf103;Parent=mRNA_orf103;Name=orf103;Note=no ATG initiation codon identified;locus_tag=orf103
+mito_(reversed)	AGAT	gene	11599	12600	.	+	.	ID=rps3;Name=rps3;hmm_match=12085-12592;locus_tag=rps3
+mito_(reversed)	AGAT	mRNA	11599	12600	.	+	.	ID=mRNA_rps3;Parent=rps3;Name=rps3;hmm_match=12085-12592;locus_tag=rps3
+mito_(reversed)	AGAT	exon	11599	12600	.	+	.	ID=agat-exon-11;Parent=mRNA_rps3;Name=rps3;hmm_match=12085-12592;locus_tag=rps3
+mito_(reversed)	AGAT	gene	12711	14261	.	+	.	ID=agat-gene-2;Name=rns;agat_parent_type=rRNA;evalue=2.8e-18;locus_tag=rns
+mito_(reversed)	AGAT	rRNA	12711	14261	.	+	.	ID=agat-rna-2;Parent=agat-gene-2;Name=rns;agat_parent_type=rRNA;evalue=2.8e-18;locus_tag=rns
+mito_(reversed)	AGAT	exon	12711	14261	.	+	.	ID=exon_rns;Parent=agat-rna-2;Name=rns;agat_parent_type=rRNA;evalue=2.8e-18;locus_tag=rns
+mito_(reversed)	AGAT	gene	14435	14519	.	+	.	ID=trnY(gua);Name=trnY(gua);evalue=1.17e-11;locus_tag=trnY(gua)
+mito_(reversed)	AGAT	tRNA	14435	14519	.	+	.	ID=tRNA_trnY(gua);Parent=trnY(gua);Name=trnY(gua);evalue=1.17e-11;locus_tag=trnY(gua)
+mito_(reversed)	AGAT	exon	14435	14519	.	+	.	ID=agat-exon-37;Parent=tRNA_trnY(gua);Name=trnY(gua);evalue=1.17e-11;locus_tag=trnY(gua)
+mito_(reversed)	AGAT	gene	14604	14674	.	+	.	ID=trnN(guu);Name=trnN(guu);evalue=1.43e-12;locus_tag=trnN(guu)
+mito_(reversed)	AGAT	tRNA	14604	14674	.	+	.	ID=tRNA_trnN(guu);Parent=trnN(guu);Name=trnN(guu);evalue=1.43e-12;locus_tag=trnN(guu)
+mito_(reversed)	AGAT	exon	14604	14674	.	+	.	ID=agat-exon-26;Parent=tRNA_trnN(guu);Name=trnN(guu);evalue=1.43e-12;locus_tag=trnN(guu)
+mito_(reversed)	AGAT	gene	14815	14885	.	+	.	ID=trnX(uucg);Name=trnX(uucg);evalue=3.47e-05;locus_tag=trnX(uucg)
+mito_(reversed)	AGAT	tRNA	14815	14885	.	+	.	ID=tRNA_trnX(uucg);Parent=trnX(uucg);Name=trnX(uucg);evalue=3.47e-05;locus_tag=trnX(uucg)
+mito_(reversed)	AGAT	exon	14815	14885	.	+	.	ID=agat-exon-36;Parent=tRNA_trnX(uucg);Name=trnX(uucg);evalue=3.47e-05;locus_tag=trnX(uucg)
+mito_(reversed)	AGAT	gene	15009	16091	.	+	.	ID=gene_orf360;Name=orf360;Note=first ATG found at position 15075;locus_tag=orf360
+mito_(reversed)	AGAT	mRNA	15009	16091	.	+	.	ID=mRNA_orf360;Parent=gene_orf360;Name=orf360;Note=first ATG found at position 15075;locus_tag=orf360
+mito_(reversed)	AGAT	exon	15009	16091	.	+	.	ID=agat-exon-50;Parent=mRNA_orf360;Name=orf360;Note=first ATG found at position 15075;locus_tag=orf360
+mito_(reversed)	AGAT	CDS	15009	16091	.	+	0	ID=CDS_orf360;Parent=mRNA_orf360;Name=orf360;Note=first ATG found at position 15075;locus_tag=orf360
+mito_(reversed)	AGAT	gene	16229	16300	.	+	.	ID=trnR(acg);Name=trnR(acg);evalue=8.94e-11;locus_tag=trnR(acg)
+mito_(reversed)	AGAT	tRNA	16229	16300	.	+	.	ID=tRNA_trnR(acg);Parent=trnR(acg);Name=trnR(acg);evalue=8.94e-11;locus_tag=trnR(acg)
+mito_(reversed)	AGAT	exon	16229	16300	.	+	.	ID=agat-exon-29;Parent=tRNA_trnR(acg);Name=trnR(acg);evalue=8.94e-11;locus_tag=trnR(acg)
+mito_(reversed)	AGAT	gene	16571	17260	.	+	.	ID=nad6;Name=nad6;locus_tag=nad6
+mito_(reversed)	AGAT	mRNA	16571	17260	.	+	.	ID=mRNA_nad6;Parent=nad6;Name=nad6;locus_tag=nad6
+mito_(reversed)	AGAT	exon	16571	17260	.	+	.	ID=agat-exon-10;Parent=mRNA_nad6;Name=nad6;locus_tag=nad6
+mito_(reversed)	AGAT	gene	17597	20070	.	+	.	ID=nad1;Name=nad1;locus_tag=nad1
+mito_(reversed)	AGAT	mRNA	17597	20070	.	+	.	ID=mRNA_nad1;Parent=nad1;Name=nad1;locus_tag=nad1
+mito_(reversed)	AGAT	exon	17597	18232	.	+	.	ID=exon_nad1;Parent=mRNA_nad1;Name=nad1;locus_tag=nad1
+mito_(reversed)	AGAT	exon	19636	20070	.	+	.	ID=exon_nad1_1;Parent=mRNA_nad1;Name=nad1;locus_tag=nad1
+mito_(reversed)	AGAT	intron	18233	19635	.	+	.	ID=intron_nad1;Parent=mRNA_nad1;Name=nad1;locus_tag=nad1
+mito_(reversed)	AGAT	gene	18720	18941	.	+	.	ID=gene_orf73;Name=orf73;Note=GIY-YIG;evalue=1e-17;hmm_match=18765-18924;locus_tag=orf73
+mito_(reversed)	AGAT	mRNA	18720	18941	.	+	.	ID=mRNA_orf73;Parent=gene_orf73;Name=orf73;Note=GIY-YIG;evalue=1e-17;hmm_match=18765-18924;locus_tag=orf73
+mito_(reversed)	AGAT	exon	18720	18941	.	+	.	ID=agat-exon-53;Parent=mRNA_orf73;Name=orf73;Note=GIY-YIG;evalue=1e-17;hmm_match=18765-18924;locus_tag=orf73
+mito_(reversed)	AGAT	CDS	18720	18941	.	+	0	ID=CDS_orf73;Parent=mRNA_orf73;Name=orf73;Note=GIY-YIG;evalue=1e-17;hmm_match=18765-18924;locus_tag=orf73
+mito_(reversed)	AGAT	gene	19074	19523	.	+	.	ID=gene_orf149;Name=orf149;Note=first ATG found at position 19137%2C GIY-YIG;evalue=6e-30;hmm_match=19065-19512;host_gene=nad1;host_intron=I1;locus_tag=orf149
+mito_(reversed)	AGAT	mRNA	19074	19523	.	+	.	ID=mRNA_orf149;Parent=gene_orf149;Name=orf149;Note=first ATG found at position 19137%2C GIY-YIG;evalue=6e-30;hmm_match=19065-19512;host_gene=nad1;host_intron=I1;locus_tag=orf149
+mito_(reversed)	AGAT	exon	19074	19523	.	+	.	ID=agat-exon-43;Parent=mRNA_orf149;Name=orf149;Note=first ATG found at position 19137%2C GIY-YIG;evalue=6e-30;hmm_match=19065-19512;host_gene=nad1;host_intron=I1;locus_tag=orf149
+mito_(reversed)	AGAT	CDS	19074	19523	.	+	0	ID=CDS_orf149;Parent=mRNA_orf149;Name=orf149;Note=first ATG found at position 19137%2C GIY-YIG;evalue=6e-30;hmm_match=19065-19512;host_gene=nad1;host_intron=I1;locus_tag=orf149
+mito_(reversed)	AGAT	gene	20671	21033	.	-	.	ID=gene_orf120;Name=orf120;Note=first ATG found at position 20988;locus_tag=orf120
+mito_(reversed)	AGAT	mRNA	20671	21033	.	-	.	ID=mRNA_orf120;Parent=gene_orf120;Name=orf120;Note=first ATG found at position 20988;locus_tag=orf120
+mito_(reversed)	AGAT	exon	20671	21033	.	-	.	ID=agat-exon-41;Parent=mRNA_orf120;Name=orf120;Note=first ATG found at position 20988;locus_tag=orf120
+mito_(reversed)	AGAT	CDS	20671	21033	.	-	0	ID=CDS_orf120;Parent=mRNA_orf120;Name=orf120;Note=first ATG found at position 20988;locus_tag=orf120
+mito_(reversed)	AGAT	gene	21598	25390	.	+	.	ID=cox1;Name=cox1;locus_tag=cox1
+mito_(reversed)	AGAT	mRNA	21598	25390	.	+	.	ID=mRNA_cox1;Parent=cox1;Name=cox1;locus_tag=cox1
+mito_(reversed)	AGAT	exon	21598	22300	.	+	.	ID=exon_cox1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+mito_(reversed)	AGAT	exon	23625	25390	.	+	.	ID=exon_cox1_1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+mito_(reversed)	AGAT	intron	22301	23624	.	+	.	ID=intron_cox1;Parent=mRNA_cox1;Name=cox1;locus_tag=cox1
+mito_(reversed)	AGAT	gene	22303	23193	.	+	.	ID=gene_orf296;Name=orf296;Note=LAGLIDADG;evalue=6.6e-70;hmm_match=22294-23188;host_gene=cox1;host_intron=I1;locus_tag=orf296
+mito_(reversed)	AGAT	mRNA	22303	23193	.	+	.	ID=mRNA_orf296;Parent=gene_orf296;Name=orf296;Note=LAGLIDADG;evalue=6.6e-70;hmm_match=22294-23188;host_gene=cox1;host_intron=I1;locus_tag=orf296
+mito_(reversed)	AGAT	exon	22303	23193	.	+	.	ID=agat-exon-46;Parent=mRNA_orf296;Name=orf296;Note=LAGLIDADG;evalue=6.6e-70;hmm_match=22294-23188;host_gene=cox1;host_intron=I1;locus_tag=orf296
+mito_(reversed)	AGAT	CDS	22303	23193	.	+	0	ID=CDS_orf296;Parent=mRNA_orf296;Name=orf296;Note=LAGLIDADG;evalue=6.6e-70;hmm_match=22294-23188;host_gene=cox1;host_intron=I1;locus_tag=orf296
+mito_(reversed)	AGAT	gene	26977	27963	.	+	.	ID=gene_orf328;Name=orf328;Note=first ATG found at position 26983;locus_tag=orf328
+mito_(reversed)	AGAT	mRNA	26977	27963	.	+	.	ID=mRNA_orf328;Parent=gene_orf328;Name=orf328;Note=first ATG found at position 26983;locus_tag=orf328
+mito_(reversed)	AGAT	exon	26977	27963	.	+	.	ID=agat-exon-48;Parent=mRNA_orf328;Name=orf328;Note=first ATG found at position 26983;locus_tag=orf328
+mito_(reversed)	AGAT	CDS	26977	27963	.	+	0	ID=CDS_orf328;Parent=mRNA_orf328;Name=orf328;Note=first ATG found at position 26983;locus_tag=orf328
+mito_(reversed)	AGAT	gene	28031	28840	.	+	.	ID=gene_orf269;Name=orf269;Note=first ATG found at position 28040;locus_tag=orf269
+mito_(reversed)	AGAT	mRNA	28031	28840	.	+	.	ID=mRNA_orf269;Parent=gene_orf269;Name=orf269;Note=first ATG found at position 28040;locus_tag=orf269
+mito_(reversed)	AGAT	exon	28031	28840	.	+	.	ID=agat-exon-44;Parent=mRNA_orf269;Name=orf269;Note=first ATG found at position 28040;locus_tag=orf269
+mito_(reversed)	AGAT	CDS	28031	28840	.	+	0	ID=CDS_orf269;Parent=mRNA_orf269;Name=orf269;Note=first ATG found at position 28040;locus_tag=orf269
+mito_(reversed)	AGAT	gene	29036	29305	.	+	.	ID=nad4L;Name=nad4L;locus_tag=nad4L
+mito_(reversed)	AGAT	mRNA	29036	29305	.	+	.	ID=mRNA_nad4L;Parent=nad4L;Name=nad4L;locus_tag=nad4L
+mito_(reversed)	AGAT	exon	29036	29305	.	+	.	ID=agat-exon-8;Parent=mRNA_nad4L;Name=nad4L;locus_tag=nad4L
+mito_(reversed)	AGAT	gene	29305	31278	.	+	.	ID=nad5;Name=nad5;locus_tag=nad5
+mito_(reversed)	AGAT	mRNA	29305	31278	.	+	.	ID=mRNA_nad5;Parent=nad5;Name=nad5;locus_tag=nad5
+mito_(reversed)	AGAT	exon	29305	31278	.	+	.	ID=agat-exon-9;Parent=mRNA_nad5;Name=nad5;locus_tag=nad5
+mito_(reversed)	AGAT	gene	31336	31410	.	+	.	ID=trnC(gca);Name=trnC(gca);evalue=1.25e-04;locus_tag=trnC(gca)
+mito_(reversed)	AGAT	tRNA	31336	31410	.	+	.	ID=tRNA_trnC(gca);Parent=trnC(gca);Name=trnC(gca);evalue=1.25e-04;locus_tag=trnC(gca)
+mito_(reversed)	AGAT	exon	31336	31410	.	+	.	ID=agat-exon-13;Parent=tRNA_trnC(gca);Name=trnC(gca);evalue=1.25e-04;locus_tag=trnC(gca)
+mito_(reversed)	AGAT	gene	31582	31652	.	+	.	ID=trnG(ucc);Name=trnG(ucc);evalue=2.51e-13;locus_tag=trnG(ucc)
+mito_(reversed)	AGAT	tRNA	31582	31652	.	+	.	ID=tRNA_trnG(ucc);Parent=trnG(ucc);Name=trnG(ucc);evalue=2.51e-13;locus_tag=trnG(ucc)
+mito_(reversed)	AGAT	exon	31582	31652	.	+	.	ID=agat-exon-17;Parent=tRNA_trnG(ucc);Name=trnG(ucc);evalue=2.51e-13;locus_tag=trnG(ucc)
+mito_(reversed)	AGAT	gene	31667	31739	.	+	.	ID=trnD(guc);Name=trnD(guc);evalue=2.75e-08;locus_tag=trnD(guc)
+mito_(reversed)	AGAT	tRNA	31667	31739	.	+	.	ID=tRNA_trnD(guc);Parent=trnD(guc);Name=trnD(guc);evalue=2.75e-08;locus_tag=trnD(guc)
+mito_(reversed)	AGAT	exon	31667	31739	.	+	.	ID=agat-exon-14;Parent=tRNA_trnD(guc);Name=trnD(guc);evalue=2.75e-08;locus_tag=trnD(guc)
+mito_(reversed)	AGAT	gene	31820	31900	.	+	.	ID=trnS(gcu);Name=trnS(gcu);evalue=1.62e-08;locus_tag=trnS(gcu)
+mito_(reversed)	AGAT	tRNA	31820	31900	.	+	.	ID=tRNA_trnS(gcu);Parent=trnS(gcu);Name=trnS(gcu);evalue=1.62e-08;locus_tag=trnS(gcu)
+mito_(reversed)	AGAT	exon	31820	31900	.	+	.	ID=agat-exon-31;Parent=tRNA_trnS(gcu);Name=trnS(gcu);evalue=1.62e-08;locus_tag=trnS(gcu)
+mito_(reversed)	AGAT	gene	31945	32016	.	+	.	ID=trnW(uca);Name=trnW(uca);evalue=2.39e-10;locus_tag=trnW(uca)
+mito_(reversed)	AGAT	tRNA	31945	32016	.	+	.	ID=tRNA_trnW(uca);Parent=trnW(uca);Name=trnW(uca);evalue=2.39e-10;locus_tag=trnW(uca)
+mito_(reversed)	AGAT	exon	31945	32016	.	+	.	ID=agat-exon-35;Parent=tRNA_trnW(uca);Name=trnW(uca);evalue=2.39e-10;locus_tag=trnW(uca)
+mito_(reversed)	AGAT	gene	32176	32247	.	+	.	ID=trnI(gau);Name=trnI(gau);evalue=3.05e-10;locus_tag=trnI(gau)
+mito_(reversed)	AGAT	tRNA	32176	32247	.	+	.	ID=tRNA_trnI(gau);Parent=trnI(gau);Name=trnI(gau);evalue=3.05e-10;locus_tag=trnI(gau)
+mito_(reversed)	AGAT	exon	32176	32247	.	+	.	ID=agat-exon-19;Parent=tRNA_trnI(gau);Name=trnI(gau);evalue=3.05e-10;locus_tag=trnI(gau)
+mito_(reversed)	AGAT	gene	32251	33960	.	+	.	ID=nad2;Name=nad2;locus_tag=nad2
+mito_(reversed)	AGAT	mRNA	32251	33960	.	+	.	ID=mRNA_nad2;Parent=nad2;Name=nad2;locus_tag=nad2
+mito_(reversed)	AGAT	exon	32251	33960	.	+	.	ID=agat-exon-5;Parent=mRNA_nad2;Name=nad2;locus_tag=nad2
+mito_(reversed)	AGAT	gene	33962	34342	.	+	.	ID=nad3;Name=nad3;locus_tag=nad3
+mito_(reversed)	AGAT	mRNA	33962	34342	.	+	.	ID=mRNA_nad3;Parent=nad3;Name=nad3;locus_tag=nad3
+mito_(reversed)	AGAT	exon	33962	34342	.	+	.	ID=agat-exon-6;Parent=mRNA_nad3;Name=nad3;locus_tag=nad3
+mito_(reversed)	AGAT	gene	35024	36112	.	+	.	ID=gene_orf362;Name=orf362;Note=first ATG found at position 35048;locus_tag=orf362
+mito_(reversed)	AGAT	mRNA	35024	36112	.	+	.	ID=mRNA_orf362;Parent=gene_orf362;Name=orf362;Note=first ATG found at position 35048;locus_tag=orf362
+mito_(reversed)	AGAT	exon	35024	36112	.	+	.	ID=agat-exon-51;Parent=mRNA_orf362;Name=orf362;Note=first ATG found at position 35048;locus_tag=orf362
+mito_(reversed)	AGAT	CDS	35024	36112	.	+	0	ID=CDS_orf362;Parent=mRNA_orf362;Name=orf362;Note=first ATG found at position 35048;locus_tag=orf362
+mito_(reversed)	AGAT	gene	36511	36657	.	+	.	ID=atp8;Name=atp8;locus_tag=atp8
+mito_(reversed)	AGAT	mRNA	36511	36657	.	+	.	ID=mRNA_atp8;Parent=atp8;Name=atp8;locus_tag=atp8
+mito_(reversed)	AGAT	exon	36511	36657	.	+	.	ID=agat-exon-2;Parent=mRNA_atp8;Name=atp8;locus_tag=atp8
+mito_(reversed)	AGAT	gene	36822	37598	.	+	.	ID=atp6;Name=atp6;locus_tag=atp6
+mito_(reversed)	AGAT	mRNA	36822	37598	.	+	.	ID=mRNA_atp6;Parent=atp6;Name=atp6;locus_tag=atp6
+mito_(reversed)	AGAT	exon	36822	37598	.	+	.	ID=agat-exon-1;Parent=mRNA_atp6;Name=atp6;locus_tag=atp6
+mito_(reversed)	AGAT	gene	37630	38025	.	+	.	ID=gene_orf131;Name=orf131;Note=first ATG found at position 37654;locus_tag=orf131
+mito_(reversed)	AGAT	mRNA	37630	38025	.	+	.	ID=mRNA_orf131;Parent=gene_orf131;Name=orf131;Note=first ATG found at position 37654;locus_tag=orf131
+mito_(reversed)	AGAT	exon	37630	38025	.	+	.	ID=agat-exon-42;Parent=mRNA_orf131;Name=orf131;Note=first ATG found at position 37654;locus_tag=orf131
+mito_(reversed)	AGAT	CDS	37630	38025	.	+	0	ID=CDS_orf131;Parent=mRNA_orf131;Name=orf131;Note=first ATG found at position 37654;locus_tag=orf131
+mito_(reversed)	AGAT	gene	38607	39416	.	+	.	ID=cox3;Name=cox3;locus_tag=cox3
+mito_(reversed)	AGAT	mRNA	38607	39416	.	+	.	ID=mRNA_cox3;Parent=cox3;Name=cox3;locus_tag=cox3
+mito_(reversed)	AGAT	exon	38607	39416	.	+	.	ID=agat-exon-4;Parent=mRNA_cox3;Name=cox3;locus_tag=cox3
+mito_(reversed)	AGAT	gene	39782	40531	.	+	.	ID=cox2;Name=cox2;locus_tag=cox2
+mito_(reversed)	AGAT	mRNA	39782	40531	.	+	.	ID=mRNA_cox2;Parent=cox2;Name=cox2;locus_tag=cox2
+mito_(reversed)	AGAT	exon	39782	40531	.	+	.	ID=agat-exon-3;Parent=mRNA_cox2;Name=cox2;locus_tag=cox2
+mito_(reversed)	AGAT	gene	40556	41593	.	+	.	ID=gene_orf345;Name=orf345;Note=first ATG found at position 40559;locus_tag=orf345
+mito_(reversed)	AGAT	mRNA	40556	41593	.	+	.	ID=mRNA_orf345;Parent=gene_orf345;Name=orf345;Note=first ATG found at position 40559;locus_tag=orf345
+mito_(reversed)	AGAT	exon	40556	41593	.	+	.	ID=agat-exon-49;Parent=mRNA_orf345;Name=orf345;Note=first ATG found at position 40559;locus_tag=orf345
+mito_(reversed)	AGAT	CDS	40556	41593	.	+	0	ID=CDS_orf345;Parent=mRNA_orf345;Name=orf345;Note=first ATG found at position 40559;locus_tag=orf345
+mito_(reversed)	AGAT	gene	42327	44755	.	+	.	ID=cob;Name=cob;locus_tag=cob
+mito_(reversed)	AGAT	mRNA	42327	44755	.	+	.	ID=mRNA_cob;Parent=cob;Name=cob;locus_tag=cob
+mito_(reversed)	AGAT	exon	42327	42719	.	+	.	ID=exon_cob;Parent=mRNA_cob;Name=cob;locus_tag=cob
+mito_(reversed)	AGAT	exon	43949	44755	.	+	.	ID=exon_cob_1;Parent=mRNA_cob;Name=cob;locus_tag=cob
+mito_(reversed)	AGAT	intron	42720	43948	.	+	.	ID=intron_cob;Parent=mRNA_cob;Name=cob;locus_tag=cob
+mito_(reversed)	AGAT	gene	42720	43616	.	+	.	ID=gene_orf298;Name=orf298;Note=GIY-YIG;evalue=8.2e-66;hmm_match=42786-43605;host_gene=cob;host_intron=I1;locus_tag=orf298
+mito_(reversed)	AGAT	mRNA	42720	43616	.	+	.	ID=mRNA_orf298;Parent=gene_orf298;Name=orf298;Note=GIY-YIG;evalue=8.2e-66;hmm_match=42786-43605;host_gene=cob;host_intron=I1;locus_tag=orf298
+mito_(reversed)	AGAT	exon	42720	43616	.	+	.	ID=agat-exon-47;Parent=mRNA_orf298;Name=orf298;Note=GIY-YIG;evalue=8.2e-66;hmm_match=42786-43605;host_gene=cob;host_intron=I1;locus_tag=orf298
+mito_(reversed)	AGAT	CDS	42720	43616	.	+	0	ID=CDS_orf298;Parent=mRNA_orf298;Name=orf298;Note=GIY-YIG;evalue=8.2e-66;hmm_match=42786-43605;host_gene=cob;host_intron=I1;locus_tag=orf298
+mito_(reversed)	AGAT	gene	44733	45545	.	+	.	ID=gene_orf270;Name=orf270;Note=first ATG found at position 44955;locus_tag=orf270
+mito_(reversed)	AGAT	mRNA	44733	45545	.	+	.	ID=mRNA_orf270;Parent=gene_orf270;Name=orf270;Note=first ATG found at position 44955;locus_tag=orf270
+mito_(reversed)	AGAT	exon	44733	45545	.	+	.	ID=agat-exon-45;Parent=mRNA_orf270;Name=orf270;Note=first ATG found at position 44955;locus_tag=orf270
+mito_(reversed)	AGAT	CDS	44733	45545	.	+	0	ID=CDS_orf270;Parent=mRNA_orf270;Name=orf270;Note=first ATG found at position 44955;locus_tag=orf270
+mito_(reversed)	AGAT	gene	46059	46143	.	+	.	ID=trnS(uga);Name=trnS(uga);evalue=2.32e-09;locus_tag=trnS(uga)
+mito_(reversed)	AGAT	tRNA	46059	46143	.	+	.	ID=tRNA_trnS(uga);Parent=trnS(uga);Name=trnS(uga);evalue=2.32e-09;locus_tag=trnS(uga)
+mito_(reversed)	AGAT	exon	46059	46143	.	+	.	ID=agat-exon-32;Parent=tRNA_trnS(uga);Name=trnS(uga);evalue=2.32e-09;locus_tag=trnS(uga)

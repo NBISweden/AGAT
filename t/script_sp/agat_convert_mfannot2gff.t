@@ -37,6 +37,14 @@ my $script = $script_prefix . catfile($bin_dir, "agat_convert_mfannot2gff.pl");
     check_diff($outtmp, $result, 'output agat_convert_mfannot2gff.pl case 2');
 }
 
+{
+    my $dir = setup_tempdir();
+    my $outtmp = catfile($dir, 'test_issue599.gff');
+    my $result = catfile($output_folder, 'test_issue599.gff');
+    check_quiet_run("$script --mfannot " . catfile($input_folder, 'test_issue599.mfannot') . " -o $outtmp");
+    check_diff($outtmp, $result, 'output agat_convert_mfannot2gff.pl issue 599');
+}
+
 
 
 
