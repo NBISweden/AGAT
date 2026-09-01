@@ -4,6 +4,22 @@ It exists many GFF formats and many GTF formats
 (see [here](gxf.md) for a complete review) and many tools
 to perform the conversion. We will try to see in this review the main differences.
 
+
+**BED and gene models**
+
+BED is primarily a genomic interval format, commonly used for visualization and downstream processing. BED12 can represent exon/intron structures through blocks and can also indicate the coding region within a transcript using columns 7 and 8 (thickStart and thickEnd). However, BED does not preserve the CDS phase information that may be needed to fully reconstruct and translate a coding gene model, particularly when the CDS is partial.
+
+With AGAT, BED can also be generated using CDS blocks instead of exon blocks:
+
+```bash
+agat_convert_sp_gff2bed.pl --gff file.gff --sub CDS -o out.bed
+bedtools getfasta -fi in.fa -bed out.bed -fo getfasta.fa -split -s
+```
+
+This makes it possible to extract the spliced CDS sequence directly from the BED file. If the CDS is complete and starts in phase 0, the resulting sequence can, in principle, be translated to recover the expected protein sequence.
+
+The limitation becomes important for incomplete gene models. Many annotations contain partial CDSs, and a CDS may begin with an incomplete codon. In these cases, simply extracting and translating the CDS sequence from BED can disrupt the expected reading frame. The CDS phase information, is essential for correctly reconstructing and translating partial CDSs. For this reason, GFF/GTF are more appropriate when the complete annotation needs to be retained. Alternatively, GenePred and bigGenePred provide BED-like formats specifically designed to preserve gene-model information and can be generated from GTF/GFF3 using UCSC tools such as gtfToGenePred or gff3ToGenePred.
+
 ## Table of Contents
 
  * [Test resume](#test-resume)
