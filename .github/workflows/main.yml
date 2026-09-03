@@ -97,7 +97,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-perl5-
 
-      - uses: webiny/action-post-run@2.0.1
+      - uses: webiny/action-post-run@3.1.0
         id: post-run-command
         if: ${{ failure() }}
         with:
