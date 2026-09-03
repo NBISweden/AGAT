@@ -94,7 +94,7 @@ sub get_config{
 	if( ! defined($args->{config_file_in}) ) { $config_file_in = undef;} else{ $config_file_in = $args->{config_file_in}; }
 	
 	my $path=undef;
-	my $log_message = "";
+	my $log_message = "=> AGAT config: ";
 	# original approach trying to get the local and/or original config file
 	if (! $config_file_in){
 		#set run directory
@@ -104,7 +104,7 @@ sub get_config{
 		if ($type eq "local") {
 			$path = $run_dir."/".$config_file;
 			if (-e $path){
-				$log_message = "=> Using $config_file config file found in your working directory.\n";
+				$log_message = $log_message."Using $config_file found in your working directory.\n";
 			} else {
 				$path = undef;
 			}
@@ -112,16 +112,16 @@ sub get_config{
 		#otherwise use the standard location ones
 		if (! $path) { 
 			$path = dist_file('AGAT', $config_file);
-			$log_message = "=> Using standard $path config file\n";
+			$log_message = $log_message."Using standard $path provided by AGAT.\n";
 		}
 	}
 	# Config file provided we must load this one !
 	else{
 		if (-e $config_file_in){
 			$path = $config_file_in;
-			$log_message = "=> Using provided config file $path.\n";
+			$log_message = $log_message."Using provided config file $path.\n";
 		} else{
-			die "=> Config file provided $config_file_in does not exist! Please check the path!";
+			die "Config file provided $config_file_in does not exist! Please check the path!";
 		}
 	}
 	return $path, $log_message;
