@@ -629,7 +629,6 @@ sub get_omniscient_statistics_from_l2{
 						#compute cumulative feature size
 						my $sizeFeature=($feature_l3->end-$feature_l3->start)+1;
 						$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_feat'} += $sizeFeature;
-						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeFeature;
 
 						#-------------------------------------------------
 						# MANAGE SPREAD FEATURES (multi exon features)
@@ -637,6 +636,7 @@ sub get_omniscient_statistics_from_l2{
 						if(($tag_l3 =~ /cds/) or ($tag_l3 =~ /utr/)){
 							$sizeMultiFeat += $sizeFeature;
 							$all_info{$tag_l2}{'level3'}{$tag_l3}{'exon'}{'nb_feat'}++;
+							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'size_list'}}, $sizeFeature;
 
 							#### MANAGE piece of multi exon features (spread features)
 
@@ -658,6 +658,7 @@ sub get_omniscient_statistics_from_l2{
 						else{
 							#count number of feature
 							$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
+							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeFeature;
 
 							#create distribution list of multifeature piece
 							push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, [$feature_l3->_tag_value('ID'), $sizeFeature];
@@ -687,6 +688,7 @@ sub get_omniscient_statistics_from_l2{
 					if (($tag_l3 =~ /utr/) or ($tag_l3 =~ /cds/)){
 						#count number of feature
 						$all_info{$tag_l2}{'level3'}{$tag_l3}{'nb_feat'}++;
+						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'size_list'}}, $sizeMultiFeat;
 
 						#create distribution list - get the id of the last piece
 						push @{$all_info{$tag_l2}{'level3'}{$tag_l3}{'distribution'}}, [$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}[$#{$all_info{$tag_l2}{'level3'}{$tag_l3}{'piece'}{'distribution'}}][0], $sizeMultiFeat];
@@ -1161,7 +1163,7 @@ sub _info_median_length {
 	#print level3 - multifeature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
-			my $median = median( @{$all_info->{'level3'}{$tag_l3}{'size_list'}} );
+			my $median = median( @{$all_info->{'level3'}{$tag_l3}{'piece'}{'size_list'}} );
 	    	push @resu, ["median $tag_l3 piece length (bp)", $median];
 	    }
 	}
@@ -1215,7 +1217,7 @@ sub _info_precentile_length {
 	#print level3 - multifeature cases
 	foreach my $tag_l3 (sort keys %{$all_info->{'level3'}}){
 		if( exists_keys ($all_info, ('level3', $tag_l3, 'exon') ) ) {
-			my $percentile = percentile( \@{$all_info->{'level3'}{$tag_l3}{'size_list'}}, $percentile_value );
+			my $percentile = percentile( \@{$all_info->{'level3'}{$tag_l3}{'piece'}{'size_list'}}, $percentile_value );
 	    	push @resu, ["$percentile_value percentile $tag_l3 piece length (bp)", $percentile];
 	    }
 	}
