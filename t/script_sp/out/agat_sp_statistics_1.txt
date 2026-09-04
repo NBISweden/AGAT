@@ -76,10 +76,10 @@ mean intron in five_prime_utr length (bp)                   591
 mean intron in three_prime_utr length (bp)                  88
 median gene length (bp)                                     2540
 median mrna length (bp)                                     2484
-median cds length (bp)                                      128
+median cds length (bp)                                      981
 median exon length (bp)                                     165
-median five_prime_utr length (bp)                           78
-median three_prime_utr length (bp)                          245
+median five_prime_utr length (bp)                           81
+median three_prime_utr length (bp)                          261
 median cds piece length (bp)                                128
 median five_prime_utr piece length (bp)                     78
 median three_prime_utr piece length (bp)                    245
@@ -89,10 +89,10 @@ median intron in five_prime_utr length (bp)                 123
 median intron in three_prime_utr length (bp)                79
 90 percentile gene length (bp)                              5514
 90 percentile mrna length (bp)                              5514
-90 percentile cds length (bp)                               521
+90 percentile cds length (bp)                               1938
 90 percentile exon length (bp)                              818
-90 percentile five_prime_utr length (bp)                    379
-90 percentile three_prime_utr length (bp)                   691
+90 percentile five_prime_utr length (bp)                    431
+90 percentile three_prime_utr length (bp)                   697
 90 percentile cds piece length (bp)                         521
 90 percentile five_prime_utr piece length (bp)              379
 90 percentile three_prime_utr piece length (bp)             691
@@ -180,10 +180,10 @@ mean intron in five_prime_utr length (bp)                   617
 mean intron in three_prime_utr length (bp)                  88
 median gene length (bp)                                     2468
 median mrna length (bp)                                     2468
-median cds length (bp)                                      125
+median cds length (bp)                                      963
 median exon length (bp)                                     160
-median five_prime_utr length (bp)                           87
-median three_prime_utr length (bp)                          235
+median five_prime_utr length (bp)                           98
+median three_prime_utr length (bp)                          252
 median cds piece length (bp)                                125
 median five_prime_utr piece length (bp)                     87
 median three_prime_utr piece length (bp)                    235
@@ -193,10 +193,10 @@ median intron in five_prime_utr length (bp)                 123
 median intron in three_prime_utr length (bp)                79
 90 percentile gene length (bp)                              5514
 90 percentile mrna length (bp)                              5514
-90 percentile cds length (bp)                               514
+90 percentile cds length (bp)                               1938
 90 percentile exon length (bp)                              701
-90 percentile five_prime_utr length (bp)                    371
-90 percentile three_prime_utr length (bp)                   646
+90 percentile five_prime_utr length (bp)                    580
+90 percentile three_prime_utr length (bp)                   697
 90 percentile cds piece length (bp)                         514
 90 percentile five_prime_utr piece length (bp)              371
 90 percentile three_prime_utr piece length (bp)             646
