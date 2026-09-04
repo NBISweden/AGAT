@@ -152,11 +152,12 @@ sub slurp_gff3_file_JD {
 	}
 
 	# +-- merge_loci param --+
-	if( exists_keys( $CONFIG, ("merge_loci") ) ){ dual_print ({ 'string' => "=> merge_loci option activated\n" }); } # activat merge locus option
+	if( $CONFIG->{merge_loci} ){dual_print ({ 'string' => "=> merge_loci option activated\n" }); } # activat merge locus option
 	else{ dual_print ({ 'string' => "=> merge_loci option deactivated\n"}); }
 
 	# +-- fasta param --+
-	if( exists_keys( $CONFIG, ("throw_fasta") ) ) { dual_print ({ 'string' => "=> FASTA within the file will be thrown away!\n" }); } # skip checks
+	if( $CONFIG->{throw_fasta} ) { dual_print ({ 'string' => "=> FASTA within the file will be thrown away!\n" }); } # skip checks
+	else{ dual_print ({ 'string' => "=> If any, FASTA within the file will be kept.\n"}); } 
 
 	#	+-----------------------------------------+
 	#	|            PRINT GENERAL INFO           |
@@ -3792,7 +3793,7 @@ sub get_general_info{
 
 	# ---- info single level3 ----
 	if(@listL3 and !(@listL1 and @listL2)){
-		dual_print({ 'string' => "=>Check because only level3 features:\n"});
+		dual_print({ 'string' => "=> Check because only level3 features:\n"});
 		#my $to_print = "- Only level3 features -";
 
 		my $nb_parent = `grep -c Parent $file`; # Count number of parent attributes.

@@ -183,7 +183,7 @@ sub initialize_agat{
 		$LOGGING->{'log'} = $log ;
 		# +----------------- Print header ------------------+
 		dual_print ({ string => AGAT::AGAT::get_agat_header(), log_only => 1 });
-		dual_print ({ string => $log_message, log_only => 1 });
+		dual_print ({ string => $log_message });
 	}
 
 	# --- set LEVELS variable ---
