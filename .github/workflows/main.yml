@@ -23,8 +23,9 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Install required system packages
-        run: sudo apt-get -y install libdb-dev r-base build-essential
+      - run: |
+          sudo apt-get update
+          sudo apt-get -y install --no-install-recommends libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout AGAT code
@@ -75,7 +76,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install required system packages
-        run: sudo apt-get -y install libdb-dev r-base build-essential
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install --no-install-recommends libdb-dev r-base build-essential
         
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       # Use of Devel::Cover@1.44 because newer versions take in account all scripts (even those we just do a -h). It drops the coverage ~5%. I would improve testing before unpinning this version.
@@ -97,7 +100,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-perl5-
 
-      - uses: webiny/action-post-run@2.0.1
+      - uses: webiny/action-post-run@3.1.0
         id: post-run-command
         if: ${{ failure() }}
         with:

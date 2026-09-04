@@ -67,15 +67,15 @@ sub load_levels{
 	#check first if exist locally
 	my $run_dir = cwd;
 	my $path = $run_dir."/".$feature_levels_file;
-	my $message = "Using local";
+	my $message = "=> AGAT feature_levels: Using local $path file.";
 
 	# If nothing local take the one shipped with AGAT
 	if (! -e $path) {
 		$path = dist_file('AGAT', $feature_levels_file);
-		$message = "Using standard";
+		$message = "=> AGAT feature_levels: Using standard $path file provided by AGAT.";
 		dual_print ({ string => "Path where $feature_levels_file is standing according to dist_file: $path\n", debug_only => 1 });
 	}
-	dual_print ({ string => "$message $path file\n"});
+	dual_print ({ string => "$message\n"});
 
 	# Load the yaml files as hash
 	my $feature_levels_hash = LoadFile($path);
