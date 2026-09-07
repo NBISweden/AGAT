@@ -76,10 +76,10 @@ mean intron in five_prime_utr length (bp)                   591
 mean intron in three_prime_utr length (bp)                  88
 median gene length (bp)                                     2540
 median mrna length (bp)                                     2484
-median cds length (bp)                                      128
+median cds length (bp)                                      981
 median exon length (bp)                                     165
-median five_prime_utr length (bp)                           78
-median three_prime_utr length (bp)                          245
+median five_prime_utr length (bp)                           81
+median three_prime_utr length (bp)                          261
 median cds piece length (bp)                                128
 median five_prime_utr piece length (bp)                     78
 median three_prime_utr piece length (bp)                    245
@@ -89,10 +89,10 @@ median intron in five_prime_utr length (bp)                 123
 median intron in three_prime_utr length (bp)                79
 90 percentile gene length (bp)                              5514
 90 percentile mrna length (bp)                              5514
-90 percentile cds length (bp)                               521
+90 percentile cds length (bp)                               1938
 90 percentile exon length (bp)                              818
-90 percentile five_prime_utr length (bp)                    379
-90 percentile three_prime_utr length (bp)                   691
+90 percentile five_prime_utr length (bp)                    431
+90 percentile three_prime_utr length (bp)                   697
 90 percentile cds piece length (bp)                         521
 90 percentile five_prime_utr piece length (bp)              379
 90 percentile three_prime_utr piece length (bp)             691
@@ -154,3 +154,7 @@ Introns in feature cds: Removing 1 percent of the highest values (2 values) give
 Introns in feature exon: Removing 1 percent of the highest values (2 values) gives you 3535 bp as the longest intron in exon.
 Introns in feature five_prime_utr: Removing 1 percent of the highest values (0 values) gives you 4351 bp as the longest intron in five_prime_utr.
 Introns in feature three_prime_utr: Removing 1 percent of the highest values (0 values) gives you 128 bp as the longest intron in three_prime_utr.
+
+---------------------------- Job done in 1 seconds -----------------------------
+command : bin/agat_sp_manage_introns.pl --gff t/script_sp/in/1.gff -o result_intron
+date : 09/07/2026 at 11h41m00s
